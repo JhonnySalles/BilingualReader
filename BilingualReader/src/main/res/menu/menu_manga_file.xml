@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_manga_file_favorite"
+        android:title="@string/manga_library_menu_favorite_add" />
+    <item
+        android:id="@+id/menu_manga_file_clear"
+        android:title="@string/manga_library_menu_clear"/>
+    <item
+        android:id="@+id/menu_manga_file_delete"
+        android:title="@string/manga_library_menu_delete"/>
+    <item
+        android:id="@+id/menu_manga_file_copy_name"
+        android:title="@string/manga_library_menu_copy"/>
+</menu>

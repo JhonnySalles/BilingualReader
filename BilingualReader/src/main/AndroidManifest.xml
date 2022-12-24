@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="br.com.fenix.bilingualreader">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
+    <uses-permission
+        android:name="android.permission.WRITE_INTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
+    <uses-permission android:name="android.permission.STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <queries>
+        <package android:name="ca.fuwafuwa.kaku" />
+    </queries>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:largeHeap="true"
+        android:requestLegacyExternalStorage="true"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MangaReader"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name="br.com.fenix.bilingualreader.MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.MangaReader">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <meta-data android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts"/>
+        </activity>
+        <activity
+            android:name="br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity"
+            android:exported="true"
+            android:theme="@style/Theme.MangaReader.FullScreen"
+            android:parentActivityName="br.com.fenix.bilingualreader.MainActivity"/>
+        <activity
+            android:name="br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkActivity"
+            android:exported="true"
+            android:theme="@style/Theme.MangaReader.NoActionBar"
+            android:parentActivityName="br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity"/>
+        <activity
+            android:name="br.com.fenix.bilingualreader.view.ui.manga_detail.MangaDetailActivity"
+            android:exported="true"
+            android:theme="@style/Theme.MangaReader.NoActionBar"
+            android:parentActivityName="br.com.fenix.bilingualreader.MainActivity"/>
+        <activity
+            android:name="br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity"
+            android:exported="true"
+            android:theme="@style/Theme.MangaReader.NoActionBar"
+            android:parentActivityName="br.com.fenix.bilingualreader.MainActivity"/>
+        <activity
+            android:name="br.com.fenix.bilingualreader.view.ui.menu.MenuActivity"
+            android:exported="true"
+            android:theme="@style/Theme.MangaReader.NoActionBar"
+            android:parentActivityName="br.com.fenix.bilingualreader.MainActivity"/>
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="ocr" />
+    </application>
+
+</manifest>

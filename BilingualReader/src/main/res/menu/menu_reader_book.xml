@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_book_chapter"
+        android:icon="@drawable/ic_book_chapter"
+        android:orderInCategory="100"
+        android:title="@string/menu_book_reading_chapter"
+        app:showAsAction="always"></item>
+
+    <item
+        android:id="@+id/menu_book_search"
+        android:icon="@drawable/ic_search"
+        android:orderInCategory="101"
+        android:title="@string/menu_search"
+        android:visible="true"
+        app:actionViewClass="android.widget.SearchView"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_book_page"
+        android:icon="@drawable/ic_book_page"
+        android:orderInCategory="102"
+        android:title="@string/menu_book_reading_page"
+        app:showAsAction="always"></item>
+
+    <item
+        android:id="@+id/menu_book_font"
+        android:icon="@drawable/ic_book_font"
+        android:orderInCategory="103"
+        android:title="@string/menu_book_reading_font"
+        app:showAsAction="always"></item>
+
+    <item
+        android:id="@+id/menu_book_mark"
+        android:icon="@drawable/ic_book_mark"
+        android:orderInCategory="104"
+        android:title="@string/menu_book_reading_book_mark"
+        app:showAsAction="always"></item>
+
+</menu>

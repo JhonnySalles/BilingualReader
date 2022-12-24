@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/floating_manga_subtitle_reader_width"
+    android:layout_height="@dimen/floating_manga_subtitle_reader_height"
+    android:background="@drawable/floating_subtitle_background">
+
+    <LinearLayout
+        android:id="@+id/floating_manga_subtitle_ocr_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:visibility="gone">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/floating_manga_subtitle_ocr_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <androidx.appcompat.widget.AppCompatImageButton
+                        android:id="@+id/floating_manga_subtitle_ocr_clear_list"
+                        style="@style/FloatingButtonSubtitle"
+                        android:layout_width="@dimen/floating_manga_reader_button_width"
+                        android:layout_height="@dimen/floating_manga_reader_button_width"
+                        android:layout_marginTop="5dp"
+                        android:src="@drawable/ic_ocr_clear_list"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"/>
+
+                    <TextView
+                        android:id="@+id/floating_manga_subtitle_ocr_text"
+                        style="@style/FloatingText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:textSize="@dimen/floating_ocr_text" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/floating_manga_subtitle_ocr_kanji_detail"
+                    style="@style/FloatingText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:textSize="@dimen/floating_ocr_text_kanji_detail"
+                    android:visibility="gone"/>
+
+                <View
+                    android:layout_width="wrap_content"
+                    style="@style/FloatingContentDivider" />
+
+                <ListView
+                    android:id="@+id/floating_manga_subtitle_ocr_list"
+                    style="@style/FloatingListSubtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="5dp"/>
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/floating_manga_subtitle_subtitle_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="30dp">
+
+        <LinearLayout
+            android:id="@+id/floating_manga_subtitle_buttons_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="55dp"
+            android:orientation="vertical"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/floating_manga_subtitle_go_to_top"
+                style="@style/FloatingButtonSubtitle"
+                android:layout_width="@dimen/floating_manga_reader_button_width"
+                android:layout_height="@dimen/floating_manga_reader_button_width"
+                android:src="@drawable/ic_go_to_top"
+                tools:layout_editor_absoluteY="0dp" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/floating_manga_subtitle_change_language"
+                style="@style/FloatingButtonSubtitle"
+                android:layout_width="@dimen/floating_manga_reader_button_width"
+                android:layout_height="@dimen/floating_manga_reader_button_width"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/ic_translate"
+                tools:layout_editor_absoluteY="0dp" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/floating_manga_subtitle_refresh"
+                style="@style/FloatingButtonSubtitle"
+                android:layout_width="@dimen/floating_manga_reader_button_width"
+                android:layout_height="@dimen/floating_manga_reader_button_width"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/ic_refresh"
+                tools:layout_editor_absoluteY="0dp" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/floating_manga_subtitle_draw"
+                style="@style/FloatingButtonSubtitle"
+                android:layout_width="@dimen/floating_manga_reader_button_width"
+                android:layout_height="@dimen/floating_manga_reader_button_width"
+                android:layout_gravity="top|start"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/ic_draw_text" />
+        </LinearLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/floating_manga_subtitle_scroll"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="5dp"
+            android:fillViewport="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/floating_manga_subtitle_buttons_container"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/floating_manga_subtitle_title"
+                    style="@style/FloatingText.Title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="30dp"
+                    android:layout_marginBottom="10dp"
+                    android:textSize="@dimen/floating_reader_title" />
+
+                <TextView
+                    android:id="@+id/floating_manga_subtitle_subtitle"
+                    style="@style/FloatingText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:textSize="@dimen/floating_reader_text" />
+
+                <View
+                    android:layout_width="wrap_content"
+                    style="@style/FloatingContentDivider"  />
+
+                <ListView
+                    android:id="@+id/floating_manga_subtitle_list_page_vocabulary"
+                    style="@style/FloatingListSubtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="250dp"
+                    android:layout_marginBottom="1dp"
+                    android:nestedScrollingEnabled="true"/>
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/floating_manga_subtitle_before_text"
+            style="@style/FloatingButtonSubtitle"
+            android:layout_width="@dimen/floating_manga_reader_button_width"
+            android:layout_height="@dimen/floating_manga_reader_button_width"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/ic_navigate_before"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/floating_manga_subtitle_next_text"
+            style="@style/FloatingButtonSubtitle"
+            android:layout_width="@dimen/floating_manga_reader_button_width"
+            android:layout_height="@dimen/floating_manga_reader_button_width"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/ic_navigate_next"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/floating_manga_subtitle_expanded"
+            style="@style/FloatingButtonSubtitle"
+            android:layout_width="@dimen/floating_manga_reader_button_width"
+            android:layout_height="@dimen/floating_manga_reader_button_width"
+            android:src="@drawable/ic_retracted"
+            tools:layout_editor_absoluteY="0dp" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/floating_manga_google_translate"
+            style="@style/FloatingButtonSubtitle"
+            android:layout_width="@dimen/floating_manga_reader_button_width"
+            android:layout_height="@dimen/floating_manga_reader_button_width"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/ic_google_translate" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/floating_manga_subtitle_page_linked"
+            style="@style/FloatingButtonSubtitle"
+            android:layout_width="@dimen/floating_manga_reader_button_width"
+            android:layout_height="@dimen/floating_manga_reader_button_width"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/ic_page_linked" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/floating_manga_subtitle_change_subtitle"
+            style="@style/FloatingButtonSubtitle"
+            android:layout_width="@dimen/floating_manga_reader_button_width"
+            android:layout_height="@dimen/floating_manga_reader_button_width"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/ic_subtitle" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/floating_manga_subtitle_change_ocr"
+            style="@style/FloatingButtonSubtitle"
+            android:layout_width="@dimen/floating_manga_reader_button_width"
+            android:layout_height="@dimen/floating_manga_reader_button_width"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/ic_reader_ocr" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/floating_manga_subtitle_resizer"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="bottom|end"/>
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/floating_manga_subtitle_close"
+        style="@style/FloatingButtonSubtitle.Close"
+        android:layout_width="@dimen/floating_reader_button_close"
+        android:layout_height="@dimen/floating_reader_button_close"
+        android:layout_gravity="top|end"
+        android:src="@drawable/ic_close" />
+
+</FrameLayout>

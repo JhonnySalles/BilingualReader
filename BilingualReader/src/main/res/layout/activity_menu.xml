@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/AppBackground"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:clipToPadding="false"
+    android:clipChildren="false"
+    android:theme="@style/Theme.MangaReader.NoNavigationBar"
+    tools:context=".view.ui.menu.MenuActivity">
+
+    <View
+        android:id="@+id/menu_background"
+        style="@style/AppBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="280dp"
+        android:layout_gravity="top|center"
+        android:contentDescription="@string/about_app_name"
+        android:scaleType="centerCrop"
+        android:translationY="-40dp"
+        android:src="@mipmap/select_manga_semi"/>
+
+    <View
+        android:id="@+id/menu_title_content"
+        android:layout_width="match_parent"
+        android:layout_gravity="top|center"
+        android:layout_height="380dp"
+        android:translationY="-40dp"
+        android:background="@drawable/main_header_background"/>
+
+    <FrameLayout
+        android:id="@+id/root_frame_menu"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        android:clipToPadding="false"
+        android:clipChildren="false" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

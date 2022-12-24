@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fragment_config_book"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/TextTitle.Config.Sector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:gravity="center"
+            android:text="@string/config_sector_book" />
+
+        <com.google.android.material.divider.MaterialDivider
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin_small"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small" />
+
+        <TextView
+            style="@style/TextTitle.Config"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_title_book" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_book_library_order"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_book_library_order"
+            app:startIconDrawable="@drawable/ic_order">
+
+            <AutoCompleteTextView
+                android:id="@+id/config_book_menu_autocomplete_library_order"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_book_library_path"
+            style="@style/TextInputWithoutDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_book_library_folder"
+            app:endIconMode="clear_text"
+            app:startIconDrawable="@drawable/ic_sd_storage">
+
+            <AutoCompleteTextView
+                android:id="@+id/config_book_menu_autocomplete_library_path"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:focusableInTouchMode="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
+</LinearLayout>

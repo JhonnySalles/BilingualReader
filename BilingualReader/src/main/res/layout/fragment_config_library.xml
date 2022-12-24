@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/frame_config_library"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_marginTop="@dimen/margin"
+        android:layout_marginBottom="@dimen/margin">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/libraries_txt_library_title"
+            style="@style/TextInputEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_libraries_title_library"
+            app:startIconDrawable="@drawable/ic_library_small">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/libraries_txt_library_language"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_libraries_title_language"
+            app:startIconDrawable="@drawable/ic_language">
+
+            <AutoCompleteTextView
+                android:id="@+id/libraries_menu_autocomplete_library_language"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/libraries_txt_library_path"
+            style="@style/TextInputWithoutDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_libraries_title_path"
+            app:startIconDrawable="@drawable/ic_sd_storage">
+
+            <AutoCompleteTextView
+                android:id="@+id/libraries_menu_autocomplete_library_path"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+    </LinearLayout>
+</FrameLayout>

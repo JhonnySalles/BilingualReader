@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_activity_book_reader">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        style="@style/AppBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        tools:context=".view.ui.reader.manga.MangaReaderActivity">
+
+        <FrameLayout
+            android:id="@+id/root_frame_book_reader"
+            style="@style/AppBackground.Reader"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="false" />
+
+        <include
+            layout="@layout/reader_book_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:toolbarReaderCenter="@{true}" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

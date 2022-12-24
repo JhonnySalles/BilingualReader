@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/menu_item_reader_favorite"
+        android:title="@string/menu_manga_reading_favorite"
+        android:icon="@drawable/ic_favorite_unmark"
+        android:orderInCategory="100"
+        app:showAsAction="always">
+    </item>
+
+    <item
+        android:id="@+id/menu_item_reader_reading"
+        android:icon="@drawable/ic_book_open"
+        android:orderInCategory="100"
+        android:title="@string/menu_manga_reading_mode"
+        app:showAsAction="never">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/reading_left_to_right"
+                    android:title="@string/menu_manga_reading_mode_left_to_right" />
+                <item
+                    android:id="@+id/reading_right_to_left"
+                    android:title="@string/menu_manga_reading_mode_right_to_left" />
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/menu_item_reader_aspect_ratio"
+        android:icon="@drawable/ic_reader_mode"
+        android:orderInCategory="101"
+        android:title="@string/menu_manga_view_mode"
+        app:showAsAction="never">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/view_mode_aspect_fill"
+                    android:title="@string/menu_manga_view_mode_aspect_fill" />
+                <item
+                    android:id="@+id/view_mode_aspect_fit"
+                    android:title="@string/menu_manga_view_mode_aspect_fit" />
+                <item
+                    android:id="@+id/view_mode_fit_width"
+                    android:title="@string/menu_manga_view_mode_fit_width" />
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:icon="@drawable/ic_reading_options"
+        android:orderInCategory="102"
+        android:title="@string/menu_manga_reading_options"
+        app:showAsAction="never">
+        <menu>
+            <item
+                android:id="@+id/menu_item_use_magnifier_type"
+                android:icon="@drawable/ic_use_magnifier_type"
+                android:orderInCategory="101"
+                android:title="@string/menu_manga_reading_use_magnifier_type"
+                android:checkable="true"
+                app:showAsAction="never"/>
+
+            <item
+                android:id="@+id/menu_item_popup_color"
+                android:icon="@drawable/ic_color_settings"
+                android:orderInCategory="102"
+                android:title="@string/menu_manga_reading_color"
+                app:showAsAction="never"/>
+
+            <item
+                android:id="@+id/menu_item_view_touch_screen"
+                android:icon="@drawable/ic_view_touch_screen"
+                android:orderInCategory="103"
+                android:title="@string/menu_manga_reading_view_touch"
+                app:showAsAction="never"/>
+
+            <item
+                android:id="@+id/menu_item_show_clock_and_battery"
+                android:icon="@drawable/ic_show_clock_and_battery"
+                android:orderInCategory="104"
+                android:title="@string/menu_manga_reading_show_clock_and_battery"
+                android:checkable="true"
+                app:showAsAction="never"/>
+        </menu>
+    </item>
+
+    <item
+        android:icon="@drawable/ic_ocr_file_linked"
+        android:orderInCategory="103"
+        android:title="@string/menu_manga_reading_ocr_file_linked"
+        app:showAsAction="never">
+        <menu>
+            <item
+                android:id="@+id/menu_item_popup_subtitle"
+                android:icon="@drawable/ic_change_language"
+                android:orderInCategory="102"
+                android:title="@string/menu_manga_reading_subtitle"
+                app:showAsAction="never"/>
+
+            <item
+                android:id="@+id/menu_item_file_link"
+                android:icon="@drawable/ic_file_link"
+                android:orderInCategory="103"
+                android:title="@string/menu_manga_reading_file_link"
+                app:showAsAction="never"/>
+
+            <item
+                android:id="@+id/menu_item_open_kaku"
+                android:icon="@mipmap/app_kaku"
+                android:orderInCategory="104"
+                android:title="@string/menu_manga_reading_open_kaku"
+                app:showAsAction="never"/>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/menu_item_popup_open_floating"
+        android:icon="@drawable/ic_floating_window"
+        android:orderInCategory="104"
+        android:title="@string/menu_manga_reading_floating"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/menu_item_floating_buttons"
+        android:icon="@drawable/ic_item_floating_buttons"
+        android:orderInCategory="105"
+        android:title="@string/menu_manga_reading_floating_buttons"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/menu_item_save_share_image"
+        android:icon="@drawable/ic_save_share_image"
+        android:orderInCategory="106"
+        android:title="@string/menu_manga_reading_save_share_image"
+        app:showAsAction="never"/>
+
+</menu>

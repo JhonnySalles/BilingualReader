@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fragment_config_manga"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/TextTitle.Config.Sector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:gravity="center"
+            android:text="@string/config_sector_manga" />
+
+        <com.google.android.material.divider.MaterialDivider
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin_small"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small" />
+
+        <TextView
+            style="@style/TextTitle.Config"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_title_library" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/txt_library_order"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_manga_library_order"
+            app:startIconDrawable="@drawable/ic_order">
+
+            <AutoCompleteTextView
+                android:id="@+id/menu_autocomplete_library_order"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/txt_library_path"
+            style="@style/TextInputWithoutDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_manga_library_folder"
+            app:endIconMode="clear_text"
+            app:startIconDrawable="@drawable/ic_sd_storage">
+
+            <AutoCompleteTextView
+                android:id="@+id/menu_autocomplete_library_path"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:focusableInTouchMode="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/btn_libraries"
+            style="@style/Button.LabelStart"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_title_libraries"
+            app:icon="@drawable/ic_library_small" />
+
+        <com.google.android.material.divider.MaterialDivider
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small" />
+
+        <TextView
+            style="@style/TextTitle.Config"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_title_sub_title" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/txt_default_subtitle_language"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_manga_default_subtitle_language"
+            app:startIconDrawable="@drawable/ic_language">
+
+            <AutoCompleteTextView
+                android:id="@+id/menu_autocomplete_default_subtitle_language"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/txt_default_subtitle_translate"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_manga_default_subtitle_translate"
+            app:startIconDrawable="@drawable/ic_translate">
+
+            <AutoCompleteTextView
+                android:id="@+id/menu_autocomplete_default_subtitle_translate"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.divider.MaterialDivider
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small" />
+
+        <TextView
+            style="@style/TextTitle.Config"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_title_reader" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/txt_reader_comic_mode"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/menu_manga_view_mode"
+            app:startIconDrawable="@drawable/ic_book_open">
+
+            <AutoCompleteTextView
+                android:id="@+id/menu_autocomplete_reader_comic_mode"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/txt_reader_page_mode"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/menu_manga_reading_mode"
+            app:startIconDrawable="@drawable/ic_reader_mode">
+
+            <AutoCompleteTextView
+                android:id="@+id/menu_autocomplete_page_mode"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switch_show_clock_and_battery"
+            style="@style/SwitchMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/config_manga_reading_show_clock_and_battery" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switch_use_magnifier_type"
+            style="@style/SwitchMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/config_manga_reading_use_magnifier_type" />
+
+        <com.google.android.material.divider.MaterialDivider
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small" />
+
+        <TextView
+            style="@style/TextTitle.Config"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_title_file_link" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switch_use_path_name_for_linked"
+            style="@style/SwitchMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/config_manga_switch_use_path_name_for_linked" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switch_use_dual_page_calculate"
+            style="@style/SwitchMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/config_manga_switch_use_dual_page_calculate" />
+
+    </LinearLayout>
+</LinearLayout>
