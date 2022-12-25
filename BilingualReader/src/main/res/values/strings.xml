@@ -380,11 +380,17 @@
 
     <!-- VOCABULARY -->
     <string name="vocabulary_manga">Manga</string>
+    <string name="vocabulary_book">Book</string>
     <string name="vocabulary_find">Vocabulary</string>
     <string name="vocabulary_favorites">Favorites</string>
-    <string name="vocabulary_favorite">Favorite</string>
     <string name="vocabulary_appear">Frequency: %d</string>
     <string name="vocabulary_imported">Completed vocabulary import.</string>
+    <string name="vocabulary_favorite">Favorite</string>
+    <string name="vocabulary_manga_favorite">Favorite</string>
+    <string name="vocabulary_book_favorite">Favorite</string>
+    <string name="vocabulary_manga_button">Manga</string>
+    <string name="vocabulary_book_button">Book</string>
+    <string name="vocabulary_tatoeba_button">Tatoeba</string>
 
     <string name="menu_vocabulary_search">Search</string>
     <string name="menu_vocabulary_order">Order</string>

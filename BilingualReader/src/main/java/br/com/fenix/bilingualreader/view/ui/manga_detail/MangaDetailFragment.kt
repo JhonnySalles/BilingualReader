@@ -17,6 +17,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.MangaImageController
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.InformationCardListener
@@ -358,6 +359,7 @@ class MangaDetailFragment : Fragment() {
         val intent = Intent(requireContext(), VocabularyActivity::class.java)
         val bundle = Bundle()
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, mManga)
+        bundle.putSerializable(GeneralConsts.KEYS.VOCABULARY.TYPE, Type.MANGA)
         intent.putExtras(bundle)
         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
         startActivity(intent)

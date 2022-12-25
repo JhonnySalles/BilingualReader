@@ -266,6 +266,25 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
         size: Int
     ): List<Vocabulary>
 
+    @Query("SELECT * FROM " + DataBaseConsts.VOCABULARY.TABLE_NAME + " WHERE " + DataBaseConsts.VOCABULARY.COLUMNS.ID + " = :id")
+    abstract fun get(id: Long): Vocabulary
+
+    @Query("SELECT * FROM " + DataBaseConsts.VOCABULARY.TABLE_NAME + " WHERE " + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " = :vocabulary AND " + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + " = :basicForm LIMIT 1")
+    abstract fun find(vocabulary: String, basicForm: String): Vocabulary?
+
+    @Query("SELECT * FROM " + DataBaseConsts.VOCABULARY.TABLE_NAME + " WHERE " + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " = :vocabulary OR " + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + " = :vocabulary LIMIT 1")
+    abstract fun find(vocabulary: String): Vocabulary?
+
+    @Query("SELECT * FROM " + DataBaseConsts.VOCABULARY.TABLE_NAME + " WHERE " + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " = :vocabulary OR " + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + " = :vocabulary")
+    abstract fun findAll(vocabulary: String): List<Vocabulary>
+
+    @Query(
+        "SELECT * FROM " + DataBaseConsts.VOCABULARY.TABLE_NAME + " WHERE " + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " = :vocabulary " +
+                " AND CASE WHEN LENGTH(:basicForm) = 0 THEN " + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + " IS NULL ELSE " + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + " = :basicForm END LIMIT 1"
+    )
+    abstract fun exists(vocabulary: String, basicForm: String): Vocabulary?
+
+    // --------------------------------------------------------- Comic / Manga ---------------------------------------------------------
     @Query(
         "SELECT V.*" +
                 " FROM " + DataBaseConsts.VOCABULARY.TABLE_NAME + " V " +
@@ -278,7 +297,7 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
                 " CASE WHEN 0 = :orderInverse THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + " ELSE '' END DESC, " +
                 DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
     )
-    abstract fun list(manga: String, favorite: Boolean, orderInverse: Boolean, padding: Int, size: Int): List<Vocabulary>
+    abstract fun listByManga(manga: String, favorite: Boolean, orderInverse: Boolean, padding: Int, size: Int): List<Vocabulary>
 
     @Query(
         "SELECT V.* " +
@@ -293,7 +312,7 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
                 " CASE WHEN 0 = :orderInverse THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + " ELSE '' END DESC, " +
                 DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
     )
-    abstract fun list(
+    abstract fun listByManga(
         manga: String,
         vocabulary: String,
         basicForm: String,
@@ -302,27 +321,6 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
         padding: Int,
         size: Int
     ): List<Vocabulary>
-
-    @Query("SELECT * FROM " + DataBaseConsts.VOCABULARY.TABLE_NAME + " WHERE " + DataBaseConsts.VOCABULARY.COLUMNS.ID + " = :id")
-    abstract fun get(id: Long): Vocabulary
-
-    @Query("SELECT * FROM " + DataBaseConsts.VOCABULARY.TABLE_NAME + " WHERE " + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " = :vocabulary AND " + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + " = :basicForm LIMIT 1")
-    abstract fun find(vocabulary: String, basicForm: String): Vocabulary?
-
-    @Query("SELECT * FROM " + DataBaseConsts.VOCABULARY.TABLE_NAME + " WHERE " + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " = :vocabulary OR " + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + " = :vocabulary LIMIT 1")
-    abstract fun find(vocabulary: String): Vocabulary?
-
-    @Query("SELECT * FROM " + DataBaseConsts.VOCABULARY.TABLE_NAME + " WHERE " + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " = :vocabulary OR " + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + " = :vocabulary")
-    abstract fun findAll(vocabulary: String): List<Vocabulary>
-
-    @Query("SELECT * FROM " + DataBaseConsts.VOCABULARY.TABLE_NAME + " WHERE " + DataBaseConsts.VOCABULARY.COLUMNS.ID + " = :idManga ")
-    abstract fun find(idManga: Long): List<Vocabulary>
-
-    @Query(
-        "SELECT * FROM " + DataBaseConsts.VOCABULARY.TABLE_NAME + " WHERE " + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " = :vocabulary " +
-                " AND CASE WHEN LENGTH(:basicForm) = 0 THEN " + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + " IS NULL ELSE " + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + " = :basicForm END LIMIT 1"
-    )
-    abstract fun exists(vocabulary: String, basicForm: String): Vocabulary?
 
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
@@ -333,7 +331,7 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
                 " GROUP BY " + DataBaseConsts.MANGA_VOCABULARY.COLUMNS.ID_MANGA +
                 " ORDER BY Ord DESC, M." + DataBaseConsts.MANGA.COLUMNS.TITLE + " ASC"
     )
-    abstract fun findByVocabulary(mangaName: String, idVocabulary: Long): List<VocabularyManga>
+    abstract fun findMangaByVocabulary(mangaName: String, idVocabulary: Long): List<VocabularyManga>
 
     @Query("SELECT * FROM " + DataBaseConsts.MANGA_VOCABULARY.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA_VOCABULARY.COLUMNS.ID_MANGA + " = :idManga GROUP BY " + DataBaseConsts.MANGA_VOCABULARY.COLUMNS.ID_VOCABULARY)
     abstract fun findByManga(idManga: Long): List<VocabularyManga>
@@ -341,6 +339,62 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
     @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.ID + " = :id")
     abstract fun getManga(id: Long): Manga
 
+    // --------------------------------------------------------- Book ---------------------------------------------------------
+    @Query(
+        "SELECT V.*" +
+                " FROM " + DataBaseConsts.VOCABULARY.TABLE_NAME + " V " +
+                " INNER JOIN " + DataBaseConsts.BOOK_VOCABULARY.TABLE_NAME + " MBV ON MBV." + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID_VOCABULARY + " = V." + DataBaseConsts.VOCABULARY.COLUMNS.ID +
+                " INNER JOIN " + DataBaseConsts.BOOK.TABLE_NAME + " MB ON MBV." + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID_BOOK + " = MB." + DataBaseConsts.BOOK.COLUMNS.ID +
+                " WHERE CASE WHEN LENGTH(:book) <> 0 THEN MB." + DataBaseConsts.BOOK.COLUMNS.TITLE + " LIKE '%' || :book || '%' ELSE 1 > 0 END " +
+                " AND CASE WHEN 1 = :favorite THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + " = :favorite ELSE 1 > 0 END " +
+                " GROUP BY " + DataBaseConsts.VOCABULARY.COLUMNS.WORD +
+                " ORDER BY  CASE WHEN 1 = :orderInverse THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + " ELSE '' END ASC, " +
+                " CASE WHEN 0 = :orderInverse THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + " ELSE '' END DESC, " +
+                DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
+    )
+    abstract fun listByBook(book: String, favorite: Boolean, orderInverse: Boolean, padding: Int, size: Int): List<Vocabulary>
+
+    @Query(
+        "SELECT V.* " +
+                " FROM " + DataBaseConsts.VOCABULARY.TABLE_NAME + " V " +
+                " INNER JOIN " + DataBaseConsts.BOOK_VOCABULARY.TABLE_NAME + " MBV ON MBV." + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID_VOCABULARY + " = V." + DataBaseConsts.VOCABULARY.COLUMNS.ID +
+                " INNER JOIN " + DataBaseConsts.BOOK.TABLE_NAME + " MB ON MBV." + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID_BOOK + " = MB." + DataBaseConsts.BOOK.COLUMNS.ID +
+                " WHERE CASE WHEN LENGTH(:book) <> 0 THEN MB." + DataBaseConsts.BOOK.COLUMNS.TITLE + " LIKE '%' || :book || '%' ELSE 1 > 0 END " +
+                " AND (V." + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIKE '%' || :vocabulary || '%' OR V." + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + " LIKE '%' || :basicForm || '%' )" +
+                " AND CASE WHEN 1 = :favorite THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + " = :favorite ELSE 1 > 0 END " +
+                " GROUP BY " + DataBaseConsts.VOCABULARY.COLUMNS.WORD +
+                " ORDER BY  CASE WHEN 1 = :orderInverse THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + " ELSE '' END ASC, " +
+                " CASE WHEN 0 = :orderInverse THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + " ELSE '' END DESC, " +
+                DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
+    )
+    abstract fun listByBook(
+        book: String,
+        vocabulary: String,
+        basicForm: String,
+        favorite: Boolean,
+        orderInverse: Boolean,
+        padding: Int,
+        size: Int
+    ): List<Vocabulary>
+
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query(
+        "SELECT V.*, (CASE WHEN LENGTH(:bookName) <> 0 THEN M." + DataBaseConsts.BOOK.COLUMNS.TITLE + " LIKE :bookName || '%' ELSE 0 END) AS Ord " +
+                " FROM " + DataBaseConsts.BOOK_VOCABULARY.TABLE_NAME + " V " +
+                " INNER JOIN " + DataBaseConsts.BOOK.TABLE_NAME + " M ON M." + DataBaseConsts.BOOK.COLUMNS.ID + " = V." + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID_BOOK +
+                " WHERE " + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID_VOCABULARY + " = :idVocabulary " +
+                " GROUP BY " + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID_BOOK +
+                " ORDER BY Ord DESC, M." + DataBaseConsts.BOOK.COLUMNS.TITLE + " ASC"
+    )
+    abstract fun findBookByVocabulary(bookName: String, idVocabulary: Long): List<VocabularyBook>
+
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK_VOCABULARY.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID_BOOK + " = :idBOOK GROUP BY " + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID_VOCABULARY)
+    abstract fun findByBook(idBOOK: Long): List<VocabularyBook>
+
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.ID + " = :id")
+    abstract fun getBook(id: Long): Book
+
+    // --------------------------------------------------------- Subtitle ---------------------------------------------------------
     fun insert(dbHelper: SupportSQLiteOpenHelper, idMangaOrBook: Long, idVocabulary: Long, appears: Int, isManga: Boolean = true) {
         val database = dbHelper.readableDatabase
 

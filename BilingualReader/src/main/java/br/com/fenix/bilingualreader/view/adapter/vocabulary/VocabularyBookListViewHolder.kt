@@ -9,12 +9,12 @@ import android.widget.TextView
 import androidx.appcompat.widget.TooltipCompat
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.model.entity.VocabularyManga
-import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
+import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.VocabularyBook
+import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import com.google.android.material.card.MaterialCardView
 
-class VocabularyMangaListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+class VocabularyBookListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     companion object {
         lateinit var mDefaultImageCover1: Bitmap
@@ -37,15 +37,15 @@ class VocabularyMangaListViewHolder(itemView: View) : RecyclerView.ViewHolder(it
             BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_5)
     }
 
-    fun bind(vocabulary: VocabularyManga, mangaList: MutableMap<Long, Bitmap?>) {
-        val appear = itemView.findViewById<TextView>(R.id.vocabulary_manga_list_appear)
-        val card = itemView.findViewById<MaterialCardView>(R.id.vocabulary_manga_list_image_card)
-        val cover = itemView.findViewById<ImageView>(R.id.vocabulary_manga_list_image_cover)
+    fun bind(vocabulary: VocabularyBook, mangaList: MutableMap<Long, Bitmap?>) {
+        val appear = itemView.findViewById<TextView>(R.id.vocabulary_book_list_appear)
+        val card = itemView.findViewById<MaterialCardView>(R.id.vocabulary_book_list_image_card)
+        val cover = itemView.findViewById<ImageView>(R.id.vocabulary_book_list_image_cover)
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
-            TooltipCompat.setTooltipText(card, vocabulary.manga?.name ?: "")
+            TooltipCompat.setTooltipText(card, vocabulary.book?.name ?: "")
         else
-            card.tooltipText = vocabulary.manga?.name ?: ""
+            card.tooltipText = vocabulary.book?.name ?: ""
 
         appear.text = vocabulary.appears.toString()
 
@@ -57,25 +57,25 @@ class VocabularyMangaListViewHolder(itemView: View) : RecyclerView.ViewHolder(it
             else -> mDefaultImageCover5
         }
 
-        if (mangaList.contains(vocabulary.idManga)) {
-            mangaList[vocabulary.idManga]?.let {
+        if (mangaList.contains(vocabulary.idBook)) {
+            mangaList[vocabulary.idBook]?.let {
                 cover.setImageBitmap(it)
             }
         } else {
             cover.setImageBitmap(image)
-            setCover(cover, vocabulary.manga!!, mangaList)
+            setCover(cover, vocabulary.book!!, mangaList)
         }
     }
 
-    private fun setCover(cover: ImageView, manga: Manga, mangaList: MutableMap<Long, Bitmap?>) {
-        MangaImageCoverController.instance.setImageCoverAsync(
+    private fun setCover(cover: ImageView, book: Book, mangaList: MutableMap<Long, Bitmap?>) {
+        BookImageCoverController.instance.setImageCoverAsync(
             itemView.context,
-            manga,
+            book,
             cover,
             true
         ) { b ->
             if (b != null) {
-                mangaList[manga.id!!] = b
+                mangaList[book.id!!] = b
                 // Limit 2k in size
                 if (mangaList.size > 2000)
                     mangaList.remove(mangaList.entries.first().key)

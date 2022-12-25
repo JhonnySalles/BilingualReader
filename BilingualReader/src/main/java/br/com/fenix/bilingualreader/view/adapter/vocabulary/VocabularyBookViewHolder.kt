@@ -3,47 +3,43 @@ package br.com.fenix.bilingualreader.view.adapter.vocabulary
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
-import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
-import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.listener.VocabularyCardListener
-import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
-import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import com.google.android.material.button.MaterialButton
 
-class VocabularyViewHolder(itemView: View, private val listener: VocabularyCardListener) :
+class VocabularyBookViewHolder(itemView: View, private val listener: VocabularyCardListener) :
     RecyclerView.ViewHolder(itemView) {
 
     companion object {
-        private fun openVocabulary(context: Context, vocabulary: String, type : Type) {
-            val intent = Intent(context, VocabularyActivity::class.java)
-            val bundle = Bundle()
-            bundle.putString(GeneralConsts.KEYS.VOCABULARY.TEXT, vocabulary)
-            bundle.putSerializable(GeneralConsts.KEYS.VOCABULARY.TYPE, type)
-            intent.putExtras(bundle)
-            context.startActivity(intent)
+        private fun createLayout(context: Context): GridLayoutManager {
+            val layout = GridLayoutManager(context, 1)
+            layout.orientation = RecyclerView.HORIZONTAL
+            return layout
         }
+
+        private fun createAdapter(): VocabularyBookListCardAdapter =
+            VocabularyBookListCardAdapter()
     }
 
-    fun bind(vocabulary: Vocabulary) {
-        val content = itemView.findViewById<LinearLayout>(R.id.vocabulary_content)
-        val title = itemView.findViewById<TextView>(R.id.vocabulary_title)
-        val reading = itemView.findViewById<TextView>(R.id.vocabulary_reading)
-        val meaning = itemView.findViewById<TextView>(R.id.vocabulary_meaning)
-        val appear = itemView.findViewById<TextView>(R.id.vocabulary_appear)
-        val favorite = itemView.findViewById<MaterialButton>(R.id.vocabulary_favorite)
+    val layout: GridLayoutManager = createLayout(itemView.context)
+    val adapter: VocabularyBookListCardAdapter = createAdapter()
 
-        val manga = itemView.findViewById<MaterialButton>(R.id.vocabulary_manga_button)
-        val book = itemView.findViewById<MaterialButton>(R.id.vocabulary_book_button)
-        val tatoeba = itemView.findViewById<MaterialButton>(R.id.vocabulary_tatoeba_button)
+    fun bind(vocabulary: Vocabulary) {
+        val content = itemView.findViewById<LinearLayout>(R.id.vocabulary_book_content)
+        val title = itemView.findViewById<TextView>(R.id.vocabulary_book_title)
+        val reading = itemView.findViewById<TextView>(R.id.vocabulary_book_reading)
+        val meaning = itemView.findViewById<TextView>(R.id.vocabulary_book_meaning)
+        val appear = itemView.findViewById<TextView>(R.id.vocabulary_book_appear)
+        val mangaList = itemView.findViewById<RecyclerView>(R.id.vocabulary_book_list)
+        val favorite = itemView.findViewById<MaterialButton>(R.id.vocabulary_book_favorite)
 
         content.setOnLongClickListener {
             val clipboard =
@@ -77,18 +73,9 @@ class VocabularyViewHolder(itemView: View, private val listener: VocabularyCardL
             listener.onClickFavorite(vocabulary)
         }
 
-        manga.setOnClickListener {
-            openVocabulary(itemView.context, vocabulary.word, Type.MANGA)
-        }
-
-        book.setOnClickListener {
-            openVocabulary(itemView.context, vocabulary.word, Type.BOOK)
-        }
-
-        tatoeba.setOnClickListener {
-
-        }
-
+        mangaList.adapter = adapter
+        mangaList.layoutManager = layout
+        adapter.updateList(vocabulary.vocabularyBooks)
     }
 
 }

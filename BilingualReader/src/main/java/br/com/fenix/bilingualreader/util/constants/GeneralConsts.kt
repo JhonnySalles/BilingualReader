@@ -107,6 +107,11 @@ class GeneralConsts private constructor() {
             const val PAGE_NUMBER = "PAGE_NUMBER"
         }
 
+        object VOCABULARY {
+            const val TEXT = "VOCABULARY_TEXT"
+            const val TYPE = "VOCABULARY_TYPE"
+        }
+
         object OBJECT {
             const val MANGA = "MANGA_OBJECT"
             const val FILE = "FILE_OBJECT"

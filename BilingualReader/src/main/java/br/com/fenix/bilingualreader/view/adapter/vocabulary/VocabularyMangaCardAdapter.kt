@@ -9,16 +9,16 @@ import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.service.listener.VocabularyCardListener
 
 
-class VocabularyCardAdapter(var listener: VocabularyCardListener) :
-    PagingDataAdapter<Vocabulary, VocabularyViewHolder>(DIFF_CALLBACK) {
+class VocabularyMangaCardAdapter(var listener: VocabularyCardListener) :
+    PagingDataAdapter<Vocabulary, VocabularyMangaViewHolder>(DIFF_CALLBACK) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        VocabularyViewHolder(
+        VocabularyMangaViewHolder(
             LayoutInflater.from(parent.context)
-                .inflate(R.layout.line_card_vocabulary, parent, false), listener
+                .inflate(R.layout.line_card_vocabulary_manga, parent, false), listener
         )
 
-    override fun onBindViewHolder(holder: VocabularyViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: VocabularyMangaViewHolder, position: Int) {
         getItem(position)?.let { holder.bind(it) }
     }
 

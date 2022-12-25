@@ -3,11 +3,10 @@ package br.com.fenix.bilingualreader.service.repository
 import android.content.Context
 import android.widget.Toast
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.Chapter
-import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.model.entity.Vocabulary
-import br.com.fenix.bilingualreader.model.entity.VocabularyManga
+import br.com.fenix.bilingualreader.model.entity.*
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.view.ui.vocabulary.book.VocabularyBookViewModel
+import br.com.fenix.bilingualreader.view.ui.vocabulary.manga.VocabularyMangaViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyViewModel
 import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
@@ -39,37 +38,6 @@ class VocabularyRepository(context: Context) {
         mDataBaseDAO.delete(obj)
     }
 
-    fun listManga(query: VocabularyViewModel.Query, padding: Int, size: Int): List<Vocabulary> {
-        return if (query.manga.isNotEmpty() && query.vocabulary.isNotEmpty())
-            mDataBaseDAO.list(query.manga, query.vocabulary, query.vocabulary, query.favorite, query.orderInverse, padding, size)
-        else if (query.manga.isNotEmpty())
-            mDataBaseDAO.list(query.manga, query.favorite, query.orderInverse, padding, size)
-        else if (query.vocabulary.isNotEmpty())
-            mDataBaseDAO.list(query.vocabulary, query.vocabulary, query.favorite, query.orderInverse, padding, size)
-        else
-            mDataBaseDAO.list(query.favorite, query.orderInverse, padding, size)
-    }
-
-    fun findVocabMangaByVocabulary(mangaName: String, vocabulary: Vocabulary): Vocabulary {
-        vocabulary.vocabularyMangas = findVocabMangaByVocabulary(mangaName, vocabulary.id!!)
-        return vocabulary
-    }
-
-    private val mMangaList = mutableMapOf<Long, Manga?>()
-    private fun findVocabMangaByVocabulary(mangaName: String, idVocabulary: Long): List<VocabularyManga> {
-        val list = mDataBaseDAO.findByVocabulary(mangaName, idVocabulary)
-        list.forEach {
-            if (mMangaList.containsKey(it.idManga))
-                it.manga = mMangaList[it.idManga]
-
-            if (it.manga == null) {
-                it.manga = mDataBaseDAO.getManga(it.idManga)
-                mMangaList[it.idManga] = it.manga
-            }
-        }
-        return list
-    }
-
     fun get(id: Long): Vocabulary? {
         return try {
             mDataBaseDAO.get(id)
@@ -97,19 +65,135 @@ class VocabularyRepository(context: Context) {
         }
     }
 
-    fun findByManga(idManga: Long): List<Vocabulary> {
-        return try {
-            mDataBaseDAO.find(idManga)
-        } catch (e: Exception) {
-            mLOGGER.error("Error when find Library: " + e.message, e)
-            listOf()
+    fun list(
+        query: VocabularyViewModel.Query,
+        padding: Int,
+        size: Int
+    ): List<Vocabulary> {
+        return if (query.vocabulary.isNotEmpty())
+            mDataBaseDAO.list(
+                query.vocabulary,
+                query.vocabulary,
+                query.favorite,
+                query.orderInverse,
+                padding,
+                size
+            )
+        else
+            mDataBaseDAO.list(query.favorite, query.orderInverse, padding, size)
+    }
+
+    // --------------------------------------------------------- Comic / Manga ---------------------------------------------------------
+    fun listManga(
+        query: VocabularyMangaViewModel.Query,
+        padding: Int,
+        size: Int
+    ): List<Vocabulary> {
+        return if (query.manga.isNotEmpty() && query.vocabulary.isNotEmpty())
+            mDataBaseDAO.listByManga(
+                query.manga,
+                query.vocabulary,
+                query.vocabulary,
+                query.favorite,
+                query.orderInverse,
+                padding,
+                size
+            )
+        else if (query.manga.isNotEmpty())
+            mDataBaseDAO.listByManga(query.manga, query.favorite, query.orderInverse, padding, size)
+        else if (query.vocabulary.isNotEmpty())
+            mDataBaseDAO.list(
+                query.vocabulary,
+                query.vocabulary,
+                query.favorite,
+                query.orderInverse,
+                padding,
+                size
+            )
+        else
+            mDataBaseDAO.list(query.favorite, query.orderInverse, padding, size)
+    }
+
+    fun findVocabMangaByVocabulary(mangaName: String, vocabulary: Vocabulary): Vocabulary {
+        vocabulary.vocabularyMangas = findVocabMangaByVocabulary(mangaName, vocabulary.id!!)
+        return vocabulary
+    }
+
+    private val mMangaList = mutableMapOf<Long, Manga?>()
+    private fun findVocabMangaByVocabulary(
+        mangaName: String,
+        idVocabulary: Long
+    ): List<VocabularyManga> {
+        val list = mDataBaseDAO.findMangaByVocabulary(mangaName, idVocabulary)
+        list.forEach {
+            if (mMangaList.containsKey(it.idManga))
+                it.manga = mMangaList[it.idManga]
+
+            if (it.manga == null) {
+                it.manga = mDataBaseDAO.getManga(it.idManga)
+                mMangaList[it.idManga] = it.manga
+            }
         }
+        return list
     }
 
     fun getManga(idManga: Long) =
         mDataBaseDAO.getManga(idManga)
 
+    // --------------------------------------------------------- Book ---------------------------------------------------------
+    fun listBook(query: VocabularyBookViewModel.Query, padding: Int, size: Int): List<Vocabulary> {
+        return if (query.book.isNotEmpty() && query.vocabulary.isNotEmpty())
+            mDataBaseDAO.listByBook(
+                query.book,
+                query.vocabulary,
+                query.vocabulary,
+                query.favorite,
+                query.orderInverse,
+                padding,
+                size
+            )
+        else if (query.book.isNotEmpty())
+            mDataBaseDAO.listByBook(query.book, query.favorite, query.orderInverse, padding, size)
+        else if (query.vocabulary.isNotEmpty())
+            mDataBaseDAO.list(
+                query.vocabulary,
+                query.vocabulary,
+                query.favorite,
+                query.orderInverse,
+                padding,
+                size
+            )
+        else
+            mDataBaseDAO.list(query.favorite, query.orderInverse, padding, size)
+    }
 
+    fun findVocabBookByVocabulary(bookName: String, vocabulary: Vocabulary): Vocabulary {
+        vocabulary.vocabularyBooks = findVocabBookByVocabulary(bookName, vocabulary.id!!)
+        return vocabulary
+    }
+
+    private val mBookList = mutableMapOf<Long, Book?>()
+    private fun findVocabBookByVocabulary(
+        bookName: String,
+        idVocabulary: Long
+    ): List<VocabularyBook> {
+        val list = mDataBaseDAO.findBookByVocabulary(bookName, idVocabulary)
+        list.forEach {
+            if (mBookList.containsKey(it.idBook))
+                it.book = mBookList[it.idBook]
+
+            if (it.book == null) {
+                it.book = mDataBaseDAO.getBook(it.idBook)
+                mBookList[it.idBook] = it.book
+            }
+        }
+        return list
+    }
+
+    fun getBook(idBook: Long) =
+        mDataBaseDAO.getBook(idBook)
+
+    // --------------------------------------------------------- Substring ---------------------------------------------------------
     fun insert(idMangaOrBook: Long, idVocabulary: Long, appears: Int, isManga: Boolean = true) {
         mDataBaseDAO.insert(mBase.openHelper, idMangaOrBook, idVocabulary, appears, isManga)
     }

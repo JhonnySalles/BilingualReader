@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/vocabulary_book_list_content"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="3dp"
+    android:layout_marginEnd="3dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/vocabulary_book_list_appear"
+        style="@style/TextNormal.Vocabulary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        android:textSize="@dimen/vocabulary_book_appear_size" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/vocabulary_book_list_image_card"
+        style="@style/AppBackground.Card"
+        android:layout_width="@dimen/vocabulary_book_cover_size"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        app:rippleColor="?attr/colorTertiary">
+
+        <ImageView
+            android:id="@+id/vocabulary_book_list_image_cover"
+            android:layout_width="@dimen/vocabulary_book_cover_size"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+            app:srcCompat="@mipmap/book_cover_2" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>

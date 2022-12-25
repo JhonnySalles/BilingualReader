@@ -4,9 +4,9 @@
     android:id="@+id/vocabulary_content"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="5dp"
     android:layout_marginStart="@dimen/margin_small"
     android:layout_marginEnd="@dimen/margin_small"
+    android:layout_marginBottom="@dimen/margin_small"
     android:orientation="horizontal">
 
     <TextView
@@ -14,34 +14,37 @@
         style="@style/TextNormal.Vocabulary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/vocabulary_title_size"
-        android:ellipsize="none"/>
+        android:ellipsize="none"
+        android:textSize="@dimen/vocabulary_title_size" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginStart="@dimen/margin_small">
+            android:layout_marginStart="@dimen/margin_small"
+            android:orientation="horizontal">
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
+
                     <TextView
                         android:id="@+id/vocabulary_reading"
                         style="@style/TextNormal.Vocabulary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="@dimen/vocabulary_content_text_normal_size"/>
+                        android:textSize="@dimen/vocabulary_content_text_normal_size" />
 
                     <TextView
                         android:id="@+id/vocabulary_appear"
@@ -49,7 +52,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_marginStart="@dimen/margin_big"
-                        android:textSize="@dimen/vocabulary_content_text_normal_size"/>
+                        android:textSize="@dimen/vocabulary_content_text_normal_size" />
                 </LinearLayout>
 
                 <TextView
@@ -65,20 +68,63 @@
                 style="@style/Button.IconOnlyWithBackground"
                 android:layout_width="@dimen/vocabulary_content_favorite_button_size"
                 android:layout_height="@dimen/vocabulary_content_favorite_button_size"
-                android:textColor="?attr/colorSecondary"
                 android:contentDescription="@string/vocabulary_favorite"
+                android:textColor="?attr/colorSecondary"
+                app:icon="@drawable/ic_favorite_unmark"
                 app:iconSize="25dp"
-                app:iconTint="?attr/colorSecondary"
-                app:icon="@drawable/ic_favorite_unmark"/>
+                app:iconTint="?attr/colorSecondary" />
         </LinearLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/vocabulary_manga_list"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:scrollbarStyle="outsideOverlay"
-            android:scrollbars="horizontal" />
+            android:layout_marginStart="@dimen/margin_small"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/vocabulary_manga_button"
+                style="@style/Button"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/vocabulary_buttons_height"
+                android:layout_weight="1"
+                android:contentDescription="@string/vocabulary_manga_button"
+                android:text="@string/vocabulary_manga_button"
+                android:textSize="14sp"
+                app:icon="@drawable/ic_library"
+                app:iconSize="20dp"
+                app:iconTint="?attr/colorSecondary"
+                app:iconPadding="1dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/vocabulary_book_button"
+                style="@style/Button"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/vocabulary_buttons_height"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_weight="1"
+                android:contentDescription="@string/vocabulary_book_button"
+                android:text="@string/vocabulary_book_button"
+                android:textSize="14sp"
+                app:icon="@drawable/ic_book"
+                app:iconSize="20dp"
+                app:iconTint="?attr/colorSecondary"
+                app:iconPadding="1dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/vocabulary_tatoeba_button"
+                style="@style/Button"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/vocabulary_buttons_height"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_weight="1.1"
+                android:contentDescription="@string/vocabulary_tatoeba_button"
+                android:text="@string/vocabulary_tatoeba_button"
+                android:textSize="14sp"
+                app:icon="@mipmap/site_tatoeba"
+                app:iconSize="20dp"
+                app:iconTint="@null"
+                app:iconPadding="1dp"/>
+        </LinearLayout>
 
     </LinearLayout>
 </LinearLayout>

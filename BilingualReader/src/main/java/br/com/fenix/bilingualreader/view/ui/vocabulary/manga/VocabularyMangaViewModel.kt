@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.ui.vocabulary
+package br.com.fenix.bilingualreader.view.ui.vocabulary.manga
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -17,21 +17,16 @@ import kotlinx.coroutines.flow.transformLatest
 import org.slf4j.LoggerFactory
 
 
-class VocabularyViewModel(application: Application) : AndroidViewModel(application) {
+class VocabularyMangaViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val mLOGGER = LoggerFactory.getLogger(VocabularyViewModel::class.java)
+    private val mLOGGER = LoggerFactory.getLogger(VocabularyMangaViewModel::class.java)
 
-    private val mDataBase: VocabularyRepository =
-        VocabularyRepository(application.applicationContext)
+    private val mDataBase: VocabularyRepository = VocabularyRepository(application.applicationContext)
 
     private var mIsQuery = MutableLiveData(false)
     val isQuery: LiveData<Boolean> = mIsQuery
 
-    inner class Query(
-        var vocabulary: String = "",
-        var favorite: Boolean = false,
-        var orderInverse: Boolean = false
-    )
+    inner class Query(var manga: String = "", var vocabulary: String = "", var favorite: Boolean = false, var orderInverse: Boolean = false)
 
     private val currentQuery = MutableStateFlow(Query())
 
@@ -48,13 +43,36 @@ class VocabularyViewModel(application: Application) : AndroidViewModel(applicati
         currentQuery.value = query
     }
 
-    fun setQuery(vocabulary: String) {
-        setQuery(Query(vocabulary, currentQuery.value.favorite, currentQuery.value.orderInverse))
+    fun setQuery(manga: String, vocabulary: String) {
+        setQuery(Query(manga, vocabulary, currentQuery.value.favorite, currentQuery.value.orderInverse))
+    }
+
+    fun setQueryVocabulary(vocabulary: String) {
+        setQuery(
+            Query(
+                currentQuery.value.manga,
+                vocabulary,
+                currentQuery.value.favorite,
+                currentQuery.value.orderInverse
+            )
+        )
+    }
+
+    fun setQueryManga(manga: String) {
+        setQuery(
+            Query(
+                manga,
+                currentQuery.value.vocabulary,
+                currentQuery.value.favorite,
+                currentQuery.value.orderInverse
+            )
+        )
     }
 
     fun setQueryFavorite(favorite: Boolean) {
         setQuery(
             Query(
+                currentQuery.value.manga,
                 currentQuery.value.vocabulary,
                 favorite,
                 currentQuery.value.orderInverse
@@ -65,6 +83,7 @@ class VocabularyViewModel(application: Application) : AndroidViewModel(applicati
     fun setQueryOrder(orderInverse: Boolean) {
         setQuery(
             Query(
+                currentQuery.value.manga,
                 currentQuery.value.vocabulary,
                 currentQuery.value.favorite,
                 orderInverse
@@ -72,8 +91,8 @@ class VocabularyViewModel(application: Application) : AndroidViewModel(applicati
         )
     }
 
-    fun setQuery(vocabulary: String, favorite: Boolean) {
-        setQuery(Query(vocabulary, favorite))
+    fun setQuery(manga: String, vocabulary: String, favorite: Boolean) {
+        setQuery(Query(manga, vocabulary, favorite))
     }
 
     fun clearQuery() {
@@ -95,7 +114,10 @@ class VocabularyViewModel(application: Application) : AndroidViewModel(applicati
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Vocabulary> {
             val page = params.key ?: 0
             return try {
-                val list = dao.list(query, page * params.loadSize, params.loadSize)
+                val list = dao.listManga(query, page * params.loadSize, params.loadSize)
+
+                for (vocabulary in list)
+                    dao.findVocabMangaByVocabulary(query.manga, vocabulary)
 
                 //Simulation delay
                 //if (page != 0) delay(10000)

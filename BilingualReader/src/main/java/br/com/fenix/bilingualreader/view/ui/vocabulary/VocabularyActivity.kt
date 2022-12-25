@@ -7,11 +7,16 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Themes
+import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.view.ui.vocabulary.book.VocabularyBookFragment
+import br.com.fenix.bilingualreader.view.ui.vocabulary.manga.VocabularyMangaFragment
 
 
 class VocabularyActivity : AppCompatActivity() {
@@ -19,7 +24,10 @@ class VocabularyActivity : AppCompatActivity() {
     private lateinit var mBackgroundImage: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
+        val theme = Themes.valueOf(
+            GeneralConsts.getSharedPreferences(this)
+                .getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!
+        )
         setTheme(theme.getValue())
 
         super.onCreate(savedInstanceState)
@@ -33,20 +41,60 @@ class VocabularyActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowTitleEnabled(true)
 
         val bundle: Bundle? = intent.extras
-        val manga = if (bundle != null && bundle.containsKey(GeneralConsts.KEYS.OBJECT.MANGA))
+
+        val type = if (bundle != null && bundle.containsKey(GeneralConsts.KEYS.VOCABULARY.TYPE))
+            bundle[GeneralConsts.KEYS.VOCABULARY.TYPE] as Type
+        else
+            null
+
+        val vocabulary = if (bundle != null && bundle.containsKey(GeneralConsts.KEYS.VOCABULARY.TEXT))
+            bundle[GeneralConsts.KEYS.VOCABULARY.TEXT] as String
+        else
+            ""
+
+        val obj = if (bundle != null && bundle.containsKey(GeneralConsts.KEYS.OBJECT.MANGA))
             bundle[GeneralConsts.KEYS.OBJECT.MANGA] as Manga
+        else if (bundle != null && bundle.containsKey(GeneralConsts.KEYS.OBJECT.BOOK))
+            bundle[GeneralConsts.KEYS.OBJECT.BOOK] as Book
         else
             null
 
         mBackgroundImage = findViewById(R.id.vocabulary_background_image)
+        mBackgroundImage.setImageResource(R.mipmap.vocabulary_semi)
 
-        if (manga != null)
-            MangaImageCoverController.instance.setImageCoverAsync(this, manga, arrayListOf(mBackgroundImage), false)
+        val fragment = if (type == null)
+            VocabularyFragment()
         else
-            mBackgroundImage.setImageBitmap(null)
+            when (type) {
+                Type.BOOK -> {
+                    val frag = VocabularyBookFragment()
+                    if (obj != null) {
+                        frag.setObject(obj as Book)
+                        BookImageCoverController.instance.setImageCoverAsync(
+                            this,
+                            obj,
+                            arrayListOf(mBackgroundImage),
+                            false
+                        )
+                    }
+                    frag
+                }
+                Type.MANGA -> {
+                    val frag = VocabularyMangaFragment()
+                    if (obj != null) {
+                        frag.setObject(obj as Manga)
+                        MangaImageCoverController.instance.setImageCoverAsync(
+                            this,
+                            obj,
+                            arrayListOf(mBackgroundImage),
+                            false
+                        )
+                    }
+                    frag
+                }
+            }
 
-        val fragment = VocabularyFragment()
-        fragment.mManga = manga
+        fragment.setVocabulary(vocabulary)
 
         supportFragmentManager
             .beginTransaction()

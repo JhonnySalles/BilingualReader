@@ -36,15 +36,18 @@ data class Vocabulary(
     @SerializedName("revisado")
     val revised: Boolean,
 
-    @ColumnInfo(name = DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE)
+    @ColumnInfo(name = DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE, defaultValue="0")
     var favorite: Boolean,
 
-    @ColumnInfo(name = DataBaseConsts.VOCABULARY.COLUMNS.APPEARS)
+    @ColumnInfo(name = DataBaseConsts.VOCABULARY.COLUMNS.APPEARS, defaultValue="0")
     var appears: Int
 ) {
 
     @Ignore
     var vocabularyMangas: List<VocabularyManga> = listOf()
+
+    @Ignore
+    var vocabularyBooks: List<VocabularyBook> = listOf()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

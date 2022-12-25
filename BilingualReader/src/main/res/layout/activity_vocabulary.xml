@@ -19,6 +19,7 @@
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"
         android:background="@color/manga_detail_title_background"
+        android:translationY="-30dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"

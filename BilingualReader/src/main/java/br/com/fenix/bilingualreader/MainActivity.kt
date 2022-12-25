@@ -29,6 +29,7 @@ import br.com.fenix.bilingualreader.view.ui.history.HistoryFragment
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryFragment
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyFragment
+import br.com.fenix.bilingualreader.view.ui.vocabulary.manga.VocabularyMangaFragment
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

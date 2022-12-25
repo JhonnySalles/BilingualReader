@@ -79,7 +79,6 @@ abstract class DataBase : RoomDatabase() {
 
                 val vocabulary = mAssets.open("vocabulary.sql").bufferedReader().use(BufferedReader::readText)
                 database.execSQL(Migrations.SQLINITIAL.VOCABULARY + vocabulary)
-                database.execSQL( "UPDATE " + DataBaseConsts.VOCABULARY.TABLE_NAME + " SET " + DataBaseConsts.VOCABULARY.COLUMNS.REVISED + " = 1"  )
 
                 mLOGGER.info("Completed initial database data.")
             }

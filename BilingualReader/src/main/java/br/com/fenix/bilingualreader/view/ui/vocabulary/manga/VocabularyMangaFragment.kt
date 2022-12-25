@@ -1,11 +1,14 @@
-package br.com.fenix.bilingualreader.view.ui.vocabulary
+package br.com.fenix.bilingualreader.view.ui.vocabulary.manga
 
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.*
 import android.view.inputmethod.EditorInfo
+import android.widget.LinearLayout
 import android.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
@@ -15,31 +18,39 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.service.listener.VocabularyCardListener
-import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyLoadState
+import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaListCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.InitializeVocabulary
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 
 
-class VocabularyFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
-    InitializeVocabulary<Vocabulary> {
+class VocabularyMangaFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
+    InitializeVocabulary<Manga> {
 
-    private val mLOGGER = LoggerFactory.getLogger(VocabularyFragment::class.java)
+    private val mLOGGER = LoggerFactory.getLogger(VocabularyMangaFragment::class.java)
 
-    private val mViewModel: VocabularyViewModel by viewModels()
+    private val mViewModel: VocabularyMangaViewModel by viewModels()
+
+    private var mManga: Manga? = null
 
     private lateinit var mRoot: ConstraintLayout
     private lateinit var mRefreshLayout: SwipeRefreshLayout
     private lateinit var mScrollUp: FloatingActionButton
     private lateinit var mScrollDown: FloatingActionButton
     private lateinit var mRecyclerView: RecyclerView
+    private lateinit var mMangaContent: LinearLayout
+    private lateinit var mMangaName: TextInputLayout
+    private lateinit var mMangaNameEditText: TextInputEditText
 
     private lateinit var mFavorite: MenuItem
     private lateinit var miSearch: MenuItem
@@ -51,6 +62,13 @@ class VocabularyFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
 
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
+
+    private val mSetQuery = Runnable {
+        mViewModel.setQuery(
+            mMangaNameEditText.text?.toString() ?: "",
+            searchView.query.toString()
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,6 +100,7 @@ class VocabularyFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 mViewModel.setQuery(
+                    mMangaNameEditText.text?.toString() ?: "",
                     query ?: ""
                 )
                 return false
@@ -108,14 +127,18 @@ class VocabularyFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val root = inflater.inflate(R.layout.fragment_vocabulary, container, false)
+        val root = inflater.inflate(R.layout.fragment_vocabulary_manga, container, false)
 
-        mRoot = root.findViewById(R.id.vocabulary_root)
-        mRecyclerView = root.findViewById(R.id.vocabulary_recycler)
-        mRefreshLayout = root.findViewById(R.id.vocabulary_refresh)
+        mRoot = root.findViewById(R.id.vocabulary_manga_root)
+        mRecyclerView = root.findViewById(R.id.vocabulary_manga_recycler)
+        mRefreshLayout = root.findViewById(R.id.vocabulary_manga_refresh)
 
-        mScrollUp = root.findViewById(R.id.vocabulary_scroll_up)
-        mScrollDown = root.findViewById(R.id.vocabulary_scroll_down)
+        mMangaContent = root.findViewById(R.id.vocabulary_manga_content)
+        mMangaName = root.findViewById(R.id.vocabulary_manga_text)
+        mMangaNameEditText = root.findViewById(R.id.vocabulary_manga_edittext)
+
+        mScrollUp = root.findViewById(R.id.vocabulary_manga_scroll_up)
+        mScrollDown = root.findViewById(R.id.vocabulary_manga_scroll_down)
 
         mScrollUp.visibility = View.GONE
         mScrollDown.visibility = View.GONE
@@ -127,6 +150,24 @@ class VocabularyFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
         ComponentsUtil.setThemeColor(requireContext(), mRefreshLayout)
         mRefreshLayout.setOnRefreshListener(this)
         mRefreshLayout.isEnabled = true
+
+        mMangaNameEditText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (mHandler.hasCallbacks(mSetQuery))
+                        mHandler.removeCallbacks(mSetQuery)
+                } else
+                    mHandler.removeCallbacks(mSetQuery)
+
+                mHandler.postDelayed(mSetQuery, 1000)
+            }
+        })
 
         mScrollUp.setOnClickListener { mRecyclerView.smoothScrollToPosition(0) }
         mScrollDown.setOnClickListener {
@@ -173,6 +214,11 @@ class VocabularyFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
             }
         }
 
+        mManga?.let {
+            mMangaNameEditText.setText(it.name)
+            mViewModel.setQuery(it.name, mInitialVocabulary)
+        }
+
         return root
     }
 
@@ -191,7 +237,7 @@ class VocabularyFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
             }
         }
 
-        val adapter = VocabularyCardAdapter(mListener)
+        val adapter = VocabularyMangaCardAdapter(mListener)
         mRecyclerView.adapter = adapter.withLoadStateFooter(VocabularyLoadState())
         mRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
@@ -224,9 +270,9 @@ class VocabularyFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
 
     override fun onRefresh() {
         if (::searchView.isInitialized)
-            mViewModel.setQuery(searchView.query.toString(), mFavorite.isChecked)
+            mViewModel.setQuery(mMangaNameEditText.text.toString(), searchView.query.toString(), mFavorite.isChecked)
         else
-            mViewModel.setQuery("", mFavorite.isChecked)
+            mViewModel.setQuery(mMangaNameEditText.text.toString(), "", mFavorite.isChecked)
     }
 
     var mInitialVocabulary = ""
@@ -234,7 +280,8 @@ class VocabularyFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
         mInitialVocabulary = vocabulary
     }
 
-    override fun setObject(obj: Vocabulary) {
-        TODO("Not yet implemented")
+    override fun setObject(obj: Manga) {
+        mManga = obj
     }
+
 }
