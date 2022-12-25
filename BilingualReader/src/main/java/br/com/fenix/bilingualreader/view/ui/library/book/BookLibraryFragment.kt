@@ -220,7 +220,7 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         with(sharedPreferences.edit()) {
-            this!!.putString(GeneralConsts.KEYS.LIBRARY.ORDER, mOrderBy.toString())
+            this!!.putString(GeneralConsts.KEYS.LIBRARY.MANGA_ORDER, mOrderBy.toString())
             this.commit()
         }
 
@@ -243,7 +243,7 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         with(sharedPreferences.edit()) {
-            this!!.putString(GeneralConsts.KEYS.LIBRARY.LIBRARY_TYPE, mGridType.toString())
+            this!!.putString(GeneralConsts.KEYS.LIBRARY.MANGA_LIBRARY_TYPE, mGridType.toString())
             this.commit()
         }
 

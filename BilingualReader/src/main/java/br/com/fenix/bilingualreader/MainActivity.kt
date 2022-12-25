@@ -29,7 +29,6 @@ import br.com.fenix.bilingualreader.view.ui.history.HistoryFragment
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryFragment
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyFragment
-import br.com.fenix.bilingualreader.view.ui.vocabulary.manga.VocabularyMangaFragment
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,7 +38,8 @@ import org.slf4j.LoggerFactory
 import java.io.File
 
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainListener {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
+    MainListener {
 
     private val mLOGGER = LoggerFactory.getLogger(MainActivity::class.java)
 
@@ -60,12 +60,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         val theme = Themes.valueOf(
-            GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!
+            GeneralConsts.getSharedPreferences(this)
+                .getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!
         )
         setTheme(theme.getValue())
 
         when (ThemeMode.valueOf(
-            GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_MODE, ThemeMode.SYSTEM.toString())!!
+            GeneralConsts.getSharedPreferences(this)
+                .getString(GeneralConsts.KEYS.THEME.THEME_MODE, ThemeMode.SYSTEM.toString())!!
         )) {
             ThemeMode.DARK -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             ThemeMode.LIGHT -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
@@ -120,7 +122,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             fragment = ConfigFragment()
         } else {
             val idLibrary = GeneralConsts.getSharedPreferences(this)
-                .getLong(GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY, GeneralConsts.KEYS.LIBRARY.DEFAULT)
+                .getLong(
+                    GeneralConsts.KEYS.LIBRARY.MANGA_LAST_LIBRARY,
+                    GeneralConsts.KEYS.LIBRARY.DEFAULT
+                )
 
             val library = if (idLibrary != GeneralConsts.KEYS.LIBRARY.DEFAULT)
                 mLibraries.find { it.id == idLibrary } ?: LibraryUtil.getDefault(this)
@@ -174,11 +179,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val libraries = repository.listEnabled()
             if (libraries.isNotEmpty()) {
                 setLibraries(libraries)
-                ScannerManga(this).scanLibrariesSilent(libraries)
+                scanSilent(libraries)
             }
         } catch (e: Exception) {
             mLOGGER.error("Error clearing cache folders.", e)
         }
+    }
+
+    private fun scanSilent(libraries: List<Library>) {
+        val scan = mutableListOf(LibraryUtil.getDefault(this))
+        scan.addAll(libraries)
+        val idLibrary = GeneralConsts.getSharedPreferences(this)
+            .getLong(
+                GeneralConsts.KEYS.LIBRARY.MANGA_LAST_LIBRARY,
+                GeneralConsts.KEYS.LIBRARY.DEFAULT
+            )
+        ScannerManga(this).scanLibrariesSilent(scan.filter { it.id != idLibrary })
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -270,7 +286,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             submenu.removeItem(GeneralConsts.KEYS.LIBRARIES.INDEX_LIBRARIES + index)
 
         for ((index, library) in libraries.withIndex())
-            submenu.add(0, GeneralConsts.KEYS.LIBRARIES.INDEX_LIBRARIES + index, 0, library.title).apply { setIcon(R.drawable.ic_library) }
+            submenu.add(0, GeneralConsts.KEYS.LIBRARIES.INDEX_LIBRARIES + index, 0, library.title)
+                .apply { setIcon(R.drawable.ic_library) }
 
         mLibraries = libraries
         mNavigationView.invalidate()

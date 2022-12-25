@@ -13,6 +13,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import br.com.fenix.bilingualreader.MainActivity
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.*
@@ -22,6 +23,7 @@ import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.*
 import br.com.fenix.bilingualreader.view.adapter.themes.ThemesCardAdapter
+import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.menu.ConfigLibrariesViewModel
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -116,9 +118,11 @@ class ConfigFragment : Fragment() {
         mLibrariesButton = view.findViewById(R.id.btn_libraries)
 
         mBookLibraryPath = view.findViewById(R.id.config_book_library_path)
-        mBookLibraryPathAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_library_path)
+        mBookLibraryPathAutoComplete =
+            view.findViewById(R.id.config_book_menu_autocomplete_library_path)
         mBookLibraryOrder = view.findViewById(R.id.config_book_library_order)
-        mBookLibraryOrderAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_library_order)
+        mBookLibraryOrderAutoComplete =
+            view.findViewById(R.id.config_book_menu_autocomplete_library_order)
 
         mThemeMode = view.findViewById(R.id.txt_theme_mode)
         mThemeModeAutoComplete = view.findViewById(R.id.menu_autocomplete_theme_mode)
@@ -260,12 +264,13 @@ class ConfigFragment : Fragment() {
         mReaderComicModeAutoComplete.setAdapter(adapterReaderMode)
         mReaderComicModeAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
-                mReaderModeSelect = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
-                    mMapReaderMode.containsKey(parent.getItemAtPosition(position).toString())
-                )
-                    mMapReaderMode[parent.getItemAtPosition(position).toString()]!!
-                else
-                    ReaderMode.FIT_WIDTH
+                mReaderModeSelect =
+                    if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                        mMapReaderMode.containsKey(parent.getItemAtPosition(position).toString())
+                    )
+                        mMapReaderMode[parent.getItemAtPosition(position).toString()]!!
+                    else
+                        ReaderMode.FIT_WIDTH
             }
 
         val adapterPageMode =
@@ -281,7 +286,8 @@ class ConfigFragment : Fragment() {
                     PageMode.Comics
             }
 
-        val themesMode = ArrayAdapter(requireContext(), R.layout.list_item, mMapThemeMode.keys.toTypedArray())
+        val themesMode =
+            ArrayAdapter(requireContext(), R.layout.list_item, mMapThemeMode.keys.toTypedArray())
         mThemeModeAutoComplete.setAdapter(themesMode)
         mThemeModeAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
@@ -289,7 +295,8 @@ class ConfigFragment : Fragment() {
                     if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
                         mMapThemeMode.containsKey(parent.getItemAtPosition(position).toString())
                     )
-                        mMapThemeMode[parent.getItemAtPosition(position).toString()] ?: ThemeMode.SYSTEM
+                        mMapThemeMode[parent.getItemAtPosition(position).toString()]
+                            ?: ThemeMode.SYSTEM
                     else
                         ThemeMode.SYSTEM
 
@@ -365,6 +372,8 @@ class ConfigFragment : Fragment() {
         saveConfig()
 
         mViewModel.removeLibraryDefault(mLibraryPath.editText?.text.toString())
+        ViewModelProvider(this).get(MangaLibraryViewModel::class.java)
+            .setDefaultLibrary(LibraryUtil.getDefault(requireContext()))
         (requireActivity() as MainActivity).setLibraries(mViewModel.getListLibrary())
 
         super.onDestroyView()
@@ -383,6 +392,11 @@ class ConfigFragment : Fragment() {
                         Storage.takePermission(requireContext(), requireActivity())
                 }
 
+                GeneralConsts.getSharedPreferences(requireContext()).edit().putString(
+                    GeneralConsts.KEYS.LIBRARY.MANGA_FOLDER,
+                    folder
+                ).apply()
+
                 mLibraryPathAutoComplete.setText(folder)
             }
 
@@ -394,6 +408,11 @@ class ConfigFragment : Fragment() {
                     if (!Storage.isPermissionGranted(requireContext()))
                         Storage.takePermission(requireContext(), requireActivity())
                 }
+
+                GeneralConsts.getSharedPreferences(requireContext()).edit().putString(
+                    GeneralConsts.KEYS.LIBRARY.BOOK_FOLDER,
+                    folder
+                ).apply()
 
                 mBookLibraryPathAutoComplete.setText(folder)
             }
@@ -407,7 +426,10 @@ class ConfigFragment : Fragment() {
                 val fileUri: Uri? = data?.data
                 try {
                     fileUri?.let {
-                        DataBase.backupDatabase(requireContext(), File(Util.normalizeFilePath(it.path.toString())))
+                        DataBase.backupDatabase(
+                            requireContext(),
+                            File(Util.normalizeFilePath(it.path.toString()))
+                        )
                     }
                 } catch (e: BackupError) {
                     MsgUtil.error(
@@ -496,12 +518,12 @@ class ConfigFragment : Fragment() {
             GeneralConsts.getSharedPreferences(requireContext())
         with(sharedPreferences.edit()) {
             this!!.putString(
-                GeneralConsts.KEYS.LIBRARY.FOLDER,
+                GeneralConsts.KEYS.LIBRARY.MANGA_FOLDER,
                 mLibraryPath.editText?.text.toString()
             )
 
             this.putString(
-                GeneralConsts.KEYS.LIBRARY.ORDER,
+                GeneralConsts.KEYS.LIBRARY.MANGA_ORDER,
                 mOrderSelect.toString()
             )
 
@@ -526,22 +548,22 @@ class ConfigFragment : Fragment() {
             )
 
             this.putString(
-                GeneralConsts.KEYS.READER.PAGE_MODE,
+                GeneralConsts.KEYS.READER.MANGA_PAGE_MODE,
                 mPageModeSelect.toString()
             )
 
             this.putString(
-                GeneralConsts.KEYS.READER.READER_MODE,
+                GeneralConsts.KEYS.READER.MANGA_READER_MODE,
                 mReaderModeSelect.toString()
             )
 
             this.putBoolean(
-                GeneralConsts.KEYS.READER.SHOW_CLOCK_AND_BATTERY,
+                GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY,
                 mShowClockAndBattery.isChecked
             )
 
             this.putBoolean(
-                GeneralConsts.KEYS.READER.USE_MAGNIFIER_TYPE,
+                GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE,
                 mUseMagnifierType.isChecked
             )
 
@@ -595,7 +617,7 @@ class ConfigFragment : Fragment() {
 
         mLibraryPath.editText?.setText(
             sharedPreferences.getString(
-                GeneralConsts.KEYS.LIBRARY.FOLDER,
+                GeneralConsts.KEYS.LIBRARY.MANGA_FOLDER,
                 ""
             )
         )
@@ -613,19 +635,19 @@ class ConfigFragment : Fragment() {
         )!!
         mPageModeSelect = PageMode.valueOf(
             sharedPreferences.getString(
-                GeneralConsts.KEYS.READER.PAGE_MODE,
+                GeneralConsts.KEYS.READER.MANGA_PAGE_MODE,
                 PageMode.Comics.toString()
             )!!
         )
         mReaderModeSelect = ReaderMode.valueOf(
             sharedPreferences.getString(
-                GeneralConsts.KEYS.READER.READER_MODE,
+                GeneralConsts.KEYS.READER.MANGA_READER_MODE,
                 ReaderMode.FIT_WIDTH.toString()
             )!!
         )
         mOrderSelect = Order.valueOf(
             sharedPreferences.getString(
-                GeneralConsts.KEYS.LIBRARY.ORDER,
+                GeneralConsts.KEYS.LIBRARY.MANGA_ORDER,
                 Order.Name.toString()
             )!!
         )
@@ -677,12 +699,12 @@ class ConfigFragment : Fragment() {
         )
 
         mShowClockAndBattery.isChecked = sharedPreferences.getBoolean(
-            GeneralConsts.KEYS.READER.SHOW_CLOCK_AND_BATTERY,
+            GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY,
             false
         )
 
         mUseMagnifierType.isChecked = sharedPreferences.getBoolean(
-            GeneralConsts.KEYS.READER.USE_MAGNIFIER_TYPE,
+            GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE,
             false
         )
 
@@ -701,14 +723,20 @@ class ConfigFragment : Fragment() {
                 GeneralConsts.KEYS.DATABASE.LAST_BACKUP,
                 Date().toString()
             )?.let {
-                SimpleDateFormat(GeneralConsts.PATTERNS.DATE_TIME_PATTERN, Locale.getDefault()).parse(
+                SimpleDateFormat(
+                    GeneralConsts.PATTERNS.DATE_TIME_PATTERN,
+                    Locale.getDefault()
+                ).parse(
                     it
                 )
             }
             mLastBackup.text = getString(
                 R.string.config_database_last_backup,
                 backup?.let {
-                    SimpleDateFormat(mDateSelect + " " + GeneralConsts.PATTERNS.TIME_PATTERN, Locale.getDefault()).format(
+                    SimpleDateFormat(
+                        mDateSelect + " " + GeneralConsts.PATTERNS.TIME_PATTERN,
+                        Locale.getDefault()
+                    ).format(
                         it
                     )
                 }
@@ -727,7 +755,12 @@ class ConfigFragment : Fragment() {
                 ThemeMode.SYSTEM.toString()
             )!!
         )
-        mThemeSelect = Themes.valueOf(sharedPreferences.getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
+        mThemeSelect = Themes.valueOf(
+            sharedPreferences.getString(
+                GeneralConsts.KEYS.THEME.THEME_USED,
+                Themes.ORIGINAL.toString()
+            )!!
+        )
 
         mThemeModeAutoComplete.setText(
             mMapThemeMode.filterValues { it == mThemeModeSelect }.keys.first(),
@@ -743,7 +776,12 @@ class ConfigFragment : Fragment() {
             val dialog: AlertDialog =
                 AlertDialog.Builder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                     .setTitle(getString(R.string.manga_library_menu_delete))
-                    .setMessage(getString(R.string.config_monitoring_disconnect, getString(R.string.config_monitoring_mal)))
+                    .setMessage(
+                        getString(
+                            R.string.config_monitoring_disconnect,
+                            getString(R.string.config_monitoring_mal)
+                        )
+                    )
                     .setPositiveButton(
                         R.string.action_disconnect
                     ) { _, _ ->
@@ -758,7 +796,10 @@ class ConfigFragment : Fragment() {
         val bundle = Bundle()
         bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_config_libraries)
         intent.putExtras(bundle)
-        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+        requireActivity().overridePendingTransition(
+            R.anim.fade_in_fragment_add_enter,
+            R.anim.fade_out_fragment_remove_exit
+        )
         startActivityForResult(intent, GeneralConsts.REQUEST.CONFIG_LIBRARIES, null)
     }
 

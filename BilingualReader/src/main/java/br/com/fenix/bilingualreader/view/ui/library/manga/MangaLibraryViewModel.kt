@@ -39,7 +39,7 @@ class MangaLibraryViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun saveLastLibrary() {
-        mPreferences.edit().putLong(GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY, mLibrary.id ?: GeneralConsts.KEYS.LIBRARY.DEFAULT).apply()
+        mPreferences.edit().putLong(GeneralConsts.KEYS.LIBRARY.MANGA_LAST_LIBRARY, mLibrary.id ?: GeneralConsts.KEYS.LIBRARY.DEFAULT).apply()
     }
 
     fun getLibrary() =

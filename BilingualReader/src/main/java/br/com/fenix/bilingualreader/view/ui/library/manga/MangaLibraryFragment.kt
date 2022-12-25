@@ -131,8 +131,6 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         }
 
         ScannerManga.getInstance(requireContext()).addUpdateHandler(mUpdateHandler)
-        if (ScannerManga.getInstance(requireContext()).isRunning())
-            setIsRefreshing(true)
 
         if (mViewModel.isEmpty())
             onRefresh()
@@ -142,7 +140,10 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                     notifyDataSet(indexes)
             }
 
-        setIsRefreshing(false)
+        if (ScannerManga.getInstance(requireContext()).isRunning())
+            setIsRefreshing(true)
+        else
+            setIsRefreshing(false)
     }
 
     override fun onStop() {
@@ -239,7 +240,7 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         with(sharedPreferences.edit()) {
-            this!!.putString(GeneralConsts.KEYS.LIBRARY.ORDER, mOrderBy.toString())
+            this!!.putString(GeneralConsts.KEYS.LIBRARY.MANGA_ORDER, mOrderBy.toString())
             this.commit()
         }
 
@@ -266,7 +267,7 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         with(sharedPreferences.edit()) {
-            this!!.putString(GeneralConsts.KEYS.LIBRARY.LIBRARY_TYPE, mGridType.toString())
+            this!!.putString(GeneralConsts.KEYS.LIBRARY.MANGA_LIBRARY_TYPE, mGridType.toString())
             this.commit()
         }
 
@@ -293,7 +294,7 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         val root = inflater.inflate(R.layout.fragment_manga_library, container, false)
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         mGridType = LibraryType.valueOf(
-            sharedPreferences.getString(GeneralConsts.KEYS.LIBRARY.LIBRARY_TYPE, LibraryType.LINE.toString())
+            sharedPreferences.getString(GeneralConsts.KEYS.LIBRARY.MANGA_LIBRARY_TYPE, LibraryType.LINE.toString())
                 .toString()
         )
 
@@ -498,7 +499,7 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         mOrderBy = Order.valueOf(
             sharedPreferences.getString(
-                GeneralConsts.KEYS.LIBRARY.ORDER,
+                GeneralConsts.KEYS.LIBRARY.MANGA_ORDER,
                 Order.Name.toString()
             ).toString()
         )

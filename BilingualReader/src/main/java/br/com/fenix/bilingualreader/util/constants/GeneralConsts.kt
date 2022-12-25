@@ -59,12 +59,13 @@ class GeneralConsts private constructor() {
         const val PREFERENCE_NAME = "SHARED_PREFS"
 
         object LIBRARY {
-            const val FOLDER = "LIBRARY_FOLDER"
-            const val ORDER = "LIBRARY_ORDER"
-            const val ORIENTATION = "LAST_ORIENTATION"
-            const val LIBRARY_TYPE = "LAST_LIBRARY_TYPE"
             const val DEFAULT = -1L
-            const val LAST_LIBRARY = "LAST_LIBRARY"
+            const val ORIENTATION = "LAST_ORIENTATION"
+
+            const val MANGA_FOLDER = "MANGA_LIBRARY_FOLDER"
+            const val MANGA_ORDER = "MANGA_LIBRARY_ORDER"
+            const val MANGA_LIBRARY_TYPE = "MANGA_LAST_LIBRARY_TYPE"
+            const val MANGA_LAST_LIBRARY = "MANGA_LAST_LIBRARY"
 
             const val BOOK_FOLDER = "BOOK_FOLDER"
             const val BOOK_ORDER = "BOOK_LIBRARY_ORDER"
@@ -82,10 +83,10 @@ class GeneralConsts private constructor() {
         }
 
         object READER {
-            const val READER_MODE = "READER_MODE"
-            const val PAGE_MODE = "READER_PAGE_MODE"
-            const val SHOW_CLOCK_AND_BATTERY = "SHOW_CLOCK_AND_BATTERY"
-            const val USE_MAGNIFIER_TYPE = "USE_MAGNIFIER_TYPE"
+            const val MANGA_READER_MODE = "MANGA_READER_MODE"
+            const val MANGA_PAGE_MODE = "MANGA_READER_PAGE_MODE"
+            const val MANGA_SHOW_CLOCK_AND_BATTERY = "MANGA_SHOW_CLOCK_AND_BATTERY"
+            const val MANGA_USE_MAGNIFIER_TYPE = "MANGA_USE_MAGNIFIER_TYPE"
         }
 
         object SYSTEM {

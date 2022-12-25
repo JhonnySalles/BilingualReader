@@ -613,7 +613,7 @@ class LibraryUtil {
     companion object LibraryUtils {
         fun getDefault(context: Context): Library {
             val preference: SharedPreferences = GeneralConsts.getSharedPreferences(context)
-            val path = preference.getString(GeneralConsts.KEYS.LIBRARY.FOLDER, "") ?: ""
+            val path = preference.getString(GeneralConsts.KEYS.LIBRARY.MANGA_FOLDER, "") ?: ""
             return Library(
                 GeneralConsts.KEYS.LIBRARY.DEFAULT,
                 context.getString(R.string.manga_library_default),

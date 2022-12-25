@@ -300,7 +300,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         mRepository = MangaRepository(applicationContext)
 
         mPreferences = GeneralConsts.getSharedPreferences(this)
-        mClockAndBattery.visibility = if (mPreferences.getBoolean(GeneralConsts.KEYS.READER.SHOW_CLOCK_AND_BATTERY, false))
+        mClockAndBattery.visibility = if (mPreferences.getBoolean(GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY, false))
             View.VISIBLE
         else
             View.GONE
@@ -676,13 +676,13 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
 
         when (any) {
             is PageMode -> mPreferences.edit()
-                .putString(GeneralConsts.KEYS.READER.PAGE_MODE, any.toString())
+                .putString(GeneralConsts.KEYS.READER.MANGA_PAGE_MODE, any.toString())
                 .apply()
             is ReaderMode -> mPreferences.edit()
-                .putString(GeneralConsts.KEYS.READER.READER_MODE, any.toString())
+                .putString(GeneralConsts.KEYS.READER.MANGA_READER_MODE, any.toString())
                 .apply()
             is Boolean -> mPreferences.edit()
-                .putBoolean(GeneralConsts.KEYS.READER.SHOW_CLOCK_AND_BATTERY, any)
+                .putBoolean(GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY, any)
                 .apply()
         }
     }

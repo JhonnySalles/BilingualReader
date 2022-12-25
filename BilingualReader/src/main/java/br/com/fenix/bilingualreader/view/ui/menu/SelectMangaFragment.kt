@@ -104,7 +104,7 @@ class SelectMangaFragment : Fragment() {
 
         mGridType = LibraryType.valueOf(
             GeneralConsts.getSharedPreferences(requireContext())
-                .getString(GeneralConsts.KEYS.LIBRARY.LIBRARY_TYPE, LibraryType.LINE.toString())
+                .getString(GeneralConsts.KEYS.LIBRARY.MANGA_LIBRARY_TYPE, LibraryType.LINE.toString())
                 .toString()
         )
 

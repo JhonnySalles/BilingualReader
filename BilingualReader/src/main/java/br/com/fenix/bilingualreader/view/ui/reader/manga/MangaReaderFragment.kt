@@ -254,19 +254,19 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
             mReaderMode = ReaderMode.valueOf(
                 mPreferences.getString(
-                    GeneralConsts.KEYS.READER.READER_MODE,
+                    GeneralConsts.KEYS.READER.MANGA_READER_MODE,
                     ReaderMode.FIT_WIDTH.toString()
                 ).toString()
             )
 
             mUseMagnifierType = mPreferences.getBoolean(
-                GeneralConsts.KEYS.READER.USE_MAGNIFIER_TYPE,
+                GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE,
                 false
             )
 
             mIsLeftToRight = PageMode.valueOf(
                 mPreferences.getString(
-                    GeneralConsts.KEYS.READER.PAGE_MODE,
+                    GeneralConsts.KEYS.READER.MANGA_PAGE_MODE,
                     PageMode.Comics.toString()
                 )!!
             ) == PageMode.Comics
@@ -391,7 +391,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         menu.findItem(R.id.menu_item_use_magnifier_type).isChecked = mUseMagnifierType
         menu.findItem(R.id.menu_item_show_clock_and_battery).isChecked = mPreferences.getBoolean(
-            GeneralConsts.KEYS.READER.SHOW_CLOCK_AND_BATTERY,
+            GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY,
             false
         )
     }
@@ -469,7 +469,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
                 with(mPreferences.edit()) {
                     this.putBoolean(
-                        GeneralConsts.KEYS.READER.USE_MAGNIFIER_TYPE,
+                        GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE,
                         mUseMagnifierType
                     )
                     this.commit()
