@@ -12,6 +12,7 @@ import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
@@ -19,16 +20,16 @@ import java.io.File
 import java.io.InputStream
 
 
-class ImageCoverController private constructor() {
+class MangaImageCoverController private constructor() {
 
     companion object {
-        val instance: ImageCoverController by lazy { HOLDER.INSTANCE }
+        val instance: MangaImageCoverController by lazy { HOLDER.INSTANCE }
     }
 
-    private val mLOGGER = LoggerFactory.getLogger(ImageCoverController::class.java)
+    private val mLOGGER = LoggerFactory.getLogger(MangaImageCoverController::class.java)
 
     private object HOLDER {
-        val INSTANCE = ImageCoverController()
+        val INSTANCE = MangaImageCoverController()
     }
 
     private val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
@@ -66,7 +67,7 @@ class ImageCoverController private constructor() {
             if (!cacheDir.exists())
                 cacheDir.mkdir()
 
-            val byte = Util.imageToByteArray(bitmap) ?: return
+            val byte = ImageUtil.imageToByteArray(bitmap) ?: return
             val image = File(cacheDir.path + '/' + key)
             image.writeBytes(byte)
         } catch (e: Exception) {
@@ -119,7 +120,7 @@ class ImageCoverController private constructor() {
             val option = BitmapFactory.Options()
             option.inJustDecodeBounds = true
             BitmapFactory.decodeStream(stream, null, option)
-            option.inSampleSize = Util.calculateInSampleSize(
+            option.inSampleSize = ImageUtil.calculateInSampleSize(
                 option,
                 ReaderConsts.COVER.COVER_THUMBNAIL_WIDTH,
                 ReaderConsts.COVER.COVER_THUMBNAIL_HEIGHT

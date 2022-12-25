@@ -9,7 +9,7 @@ import androidx.appcompat.widget.Toolbar
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Themes
-import br.com.fenix.bilingualreader.service.controller.ImageCoverController
+import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 
@@ -41,7 +41,7 @@ class VocabularyActivity : AppCompatActivity() {
         mBackgroundImage = findViewById(R.id.vocabulary_background_image)
 
         if (manga != null)
-            ImageCoverController.instance.setImageCoverAsync(this, manga, arrayListOf(mBackgroundImage), false)
+            MangaImageCoverController.instance.setImageCoverAsync(this, manga, arrayListOf(mBackgroundImage), false)
         else
             mBackgroundImage.setImageBitmap(null)
 

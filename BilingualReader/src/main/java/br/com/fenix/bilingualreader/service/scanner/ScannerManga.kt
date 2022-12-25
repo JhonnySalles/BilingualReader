@@ -6,7 +6,7 @@ import android.os.Message
 import android.os.Process
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.service.controller.ImageCoverController
+import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
@@ -19,9 +19,9 @@ import java.io.File
 import java.io.IOException
 import java.lang.ref.WeakReference
 
-class Scanner(private val context: Context) {
+class ScannerManga(private val context: Context) {
 
-    private val mLOGGER = LoggerFactory.getLogger(Scanner::class.java)
+    private val mLOGGER = LoggerFactory.getLogger(ScannerManga::class.java)
 
     private var mUpdateHandler: MutableList<Handler> = ArrayList()
     private var mUpdateThread: Thread? = null
@@ -32,9 +32,9 @@ class Scanner(private val context: Context) {
 
     private val mRestartHandler: Handler = RestartHandler(this)
 
-    private inner class RestartHandler(scanner: Scanner) :
+    private inner class RestartHandler(scanner: ScannerManga) :
         Handler() {
-        private val mScannerRef: WeakReference<Scanner> = WeakReference<Scanner>(scanner)
+        private val mScannerRef: WeakReference<ScannerManga> = WeakReference<ScannerManga>(scanner)
         override fun handleMessage(msg: Message) {
             mScannerRef.get()?.scanLibrary(mLibrary)
         }
@@ -42,11 +42,11 @@ class Scanner(private val context: Context) {
 
     // Singleton - One thread initialize only
     companion object {
-        private lateinit var INSTANCE: Scanner
-        fun getInstance(context: Context): Scanner {
+        private lateinit var INSTANCE: ScannerManga
+        fun getInstance(context: Context): ScannerManga {
             if (!::INSTANCE.isInitialized)
-                synchronized(Scanner::class.java) { // Used for a two or many cores
-                    INSTANCE = Scanner(context)
+                synchronized(ScannerManga::class.java) { // Used for a two or many cores
+                    INSTANCE = ScannerManga(context)
                 }
             return INSTANCE
         }
@@ -137,7 +137,7 @@ class Scanner(private val context: Context) {
     }
 
     private fun generateCover(parse: Parse, manga: Manga) =
-        ImageCoverController.instance.getCoverFromFile(context, manga.file, parse)
+        MangaImageCoverController.instance.getCoverFromFile(context, manga.file, parse)
 
     private inner class LibraryUpdateRunnable(var library: Library) : Runnable {
         override fun run() {

@@ -37,7 +37,7 @@ import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.util.helpers.Util.Utils.getColorFromAttr
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import java.io.*
@@ -109,7 +109,8 @@ class Util {
                 val md5Bytes = digest.digest()
                 var returnVal = ""
                 for (element in md5Bytes)
-                    returnVal += Integer.toString((element and 0xff.toByte()) + 0x100, 16).substring(1)
+                    returnVal += Integer.toString((element and 0xff.toByte()) + 0x100, 16)
+                        .substring(1)
 
                 returnVal
             } catch (e: Exception) {
@@ -117,27 +118,6 @@ class Util {
             } finally {
                 closeInputStream(image)
             }
-        }
-
-        fun calculateInSampleSize(
-            options: BitmapFactory.Options,
-            reqWidth: Int,
-            reqHeight: Int
-        ): Int {
-            val height = options.outHeight
-            val width = options.outWidth
-            var inSampleSize = 1
-            if (height > reqHeight || width > reqWidth) {
-                val halfHeight = height / 2
-                val halfWidth = width / 2
-
-                while (halfHeight / inSampleSize > reqHeight
-                    && halfWidth / inSampleSize > reqWidth
-                ) {
-                    inSampleSize *= 2
-                }
-            }
-            return inSampleSize
         }
 
         fun calculateMemorySize(context: Context, percentage: Int): Int {
@@ -179,34 +159,6 @@ class Util {
                 output.write(b, 0, n)
             }
             return output
-        }
-
-        fun imageToByteArray(image: Bitmap): ByteArray? {
-            val output = ByteArrayOutputStream()
-            return output.use { otp ->
-                image.compress(Bitmap.CompressFormat.JPEG, 100, otp)
-                otp.toByteArray()
-            }
-        }
-
-        fun encodeImageBase64(image: Bitmap): String {
-            return android.util.Base64.encodeToString(
-                imageToByteArray(image),
-                android.util.Base64.DEFAULT
-            )
-        }
-
-        fun decodeImageBase64(image: String): Bitmap {
-            val imageBytes = android.util.Base64.decode(image, android.util.Base64.DEFAULT)
-            return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-        }
-
-        fun imageToInputStream(image: Bitmap): InputStream {
-            val output = ByteArrayOutputStream()
-            return output.use { otp ->
-                image.compress(Bitmap.CompressFormat.JPEG, 100, otp)
-                ByteArrayInputStream(output.toByteArray())
-            }
         }
 
         fun closeInputStream(input: InputStream?) {
@@ -287,7 +239,11 @@ class Util {
                 path
         }
 
-        fun normalizeNameCache(name: String, prefix: String = "", isRandom: Boolean = true): String {
+        fun normalizeNameCache(
+            name: String,
+            prefix: String = "",
+            isRandom: Boolean = true
+        ): String {
             val normalize = if (name.contains("-"))
                 name.substringBefore("-")
             else if (name.contains(" "))
@@ -295,7 +251,8 @@ class Util {
             else name
 
             val random = if (isRandom) (0..1000).random() else ""
-            return prefix + normalize.replace("[^\\w\\d ]".toRegex(), "").trim().plus(random).lowercase()
+            return prefix + normalize.replace("[^\\w\\d ]".toRegex(), "").trim().plus(random)
+                .lowercase()
         }
 
         fun normalizeFilePath(path: String): String {
@@ -348,7 +305,9 @@ class Util {
 
         private fun getNumberAtEnd(str: String): String {
             var numbers = ""
-            val m: Matcher = Pattern.compile("\\d+$|\\d+\\w$|\\d+\\.\\d+$|(\\(|\\{|\\[)\\d+(\\)|\\]|\\})$").matcher(str)
+            val m: Matcher =
+                Pattern.compile("\\d+$|\\d+\\w$|\\d+\\.\\d+$|(\\(|\\{|\\[)\\d+(\\)|\\]|\\})$")
+                    .matcher(str)
             while (m.find())
                 numbers = m.group()
 
@@ -359,9 +318,13 @@ class Util {
             return if (name.contains(Regex("\\d+$")))
                 numbers.padStart(10, '0')
             else if (name.contains(Regex("\\d+\\w\$")))
-                numbers.replace(Regex("\\w\$"), "").padStart(10, '0') + numbers.replace(Regex("\\d+"), "")
+                numbers.replace(Regex("\\w\$"), "")
+                    .padStart(10, '0') + numbers.replace(Regex("\\d+"), "")
             else if (name.contains(Regex("\\d+\\.\\d+\$")))
-                numbers.replace(Regex("\\.\\d+\$"), "").padStart(10, '0') + '.' + numbers.replace(Regex("\\d+\\."), "")
+                numbers.replace(Regex("\\.\\d+\$"), "").padStart(10, '0') + '.' + numbers.replace(
+                    Regex("\\d+\\."),
+                    ""
+                )
             else if (name.contains(Regex("(\\(|\\{|\\[)\\d+(\\)|\\]|\\})$")))
                 numbers.replace(Regex("[^0-9]"), "").padStart(10, '0')
             else
@@ -374,7 +337,10 @@ class Util {
             return if (numbers.isEmpty())
                 getNameFromPath(path)
             else
-                name.substring(0, name.lastIndexOf(numbers)) + getPadding(name, numbers) + getExtensionFromPath(path)
+                name.substring(0, name.lastIndexOf(numbers)) + getPadding(
+                    name,
+                    numbers
+                ) + getExtensionFromPath(path)
         }
 
         var googleLang: String = ""
@@ -404,36 +370,6 @@ class Util {
             val mapLanguages = getLanguages(context)
             return if (mapLanguages.containsValue(language))
                 mapLanguages.filter { language == it.value }.keys.first()
-            else
-                ""
-        }
-
-        private var mapThemes: HashMap<String, Themes>? = null
-        fun getThemes(context: Context): HashMap<String, Themes> {
-            return if (mapThemes != null)
-                mapThemes!!
-            else {
-                val themes = context.resources.getStringArray(R.array.themes)
-                mapThemes = hashMapOf(
-                    themes[0] to Themes.ORIGINAL,
-                    themes[1] to Themes.BLOOD_RED,
-                    themes[2] to Themes.BLUE,
-                    themes[3] to Themes.FOREST_GREEN,
-                    themes[4] to Themes.GREEN,
-                    themes[5] to Themes.NEON_BLUE,
-                    themes[6] to Themes.NEON_GREEN,
-                    themes[7] to Themes.OCEAN_BLUE,
-                    themes[8] to Themes.PINK,
-                    themes[9] to Themes.RED,
-                )
-                mapThemes!!
-            }
-        }
-
-        fun themeDescription(context: Context, themes: Themes): String {
-            val mapThemes = getThemes(context)
-            return if (mapThemes.containsValue(themes))
-                mapThemes.filter { themes == it.value }.keys.first()
             else
                 ""
         }
@@ -483,7 +419,11 @@ class Util {
             return vertical
         }
 
-        fun getDivideStrings(text: String, delimiter: Char = '\n', occurrences: Int = 10): Pair<String, String> {
+        fun getDivideStrings(
+            text: String,
+            delimiter: Char = '\n',
+            occurrences: Int = 10
+        ): Pair<String, String> {
             var postion = text.length
             var occurence = 0
             for ((i, c) in text.withIndex()) {
@@ -499,16 +439,6 @@ class Util {
             val string2 = if (postion >= text.length) "" else text.substring(postion, text.length)
 
             return Pair(string1, string2)
-        }
-
-        @ColorInt
-        fun Context.getColorFromAttr(
-            @AttrRes attrColor: Int,
-            typedValue: TypedValue = TypedValue(),
-            resolveRefs: Boolean = true
-        ): Int {
-            theme.resolveAttribute(attrColor, typedValue, resolveRefs)
-            return typedValue.data
         }
 
     }
@@ -684,7 +614,11 @@ class LibraryUtil {
         fun getDefault(context: Context): Library {
             val preference: SharedPreferences = GeneralConsts.getSharedPreferences(context)
             val path = preference.getString(GeneralConsts.KEYS.LIBRARY.FOLDER, "") ?: ""
-            return Library(GeneralConsts.KEYS.LIBRARY.DEFAULT, context.getString(R.string.manga_library_default), path)
+            return Library(
+                GeneralConsts.KEYS.LIBRARY.DEFAULT,
+                context.getString(R.string.manga_library_default),
+                path
+            )
         }
 
         fun getBook(context: Context): String {
@@ -748,6 +682,56 @@ class ImageUtil {
 
             image.setOnClickListener { oneClick() }
         }
+
+        fun calculateInSampleSize(
+            options: BitmapFactory.Options,
+            reqWidth: Int,
+            reqHeight: Int
+        ): Int {
+            val height = options.outHeight
+            val width = options.outWidth
+            var inSampleSize = 1
+            if (height > reqHeight || width > reqWidth) {
+                val halfHeight = height / 2
+                val halfWidth = width / 2
+
+                while (halfHeight / inSampleSize > reqHeight
+                    && halfWidth / inSampleSize > reqWidth
+                ) {
+                    inSampleSize *= 2
+                }
+            }
+            return inSampleSize
+        }
+
+        fun imageToByteArray(image: Bitmap): ByteArray? {
+            val output = ByteArrayOutputStream()
+            return output.use { otp ->
+                image.compress(Bitmap.CompressFormat.JPEG, 100, otp)
+                otp.toByteArray()
+            }
+        }
+
+        fun encodeImageBase64(image: Bitmap): String {
+            return android.util.Base64.encodeToString(
+                imageToByteArray(image),
+                android.util.Base64.DEFAULT
+            )
+        }
+
+        fun decodeImageBase64(image: String): Bitmap {
+            val imageBytes = android.util.Base64.decode(image, android.util.Base64.DEFAULT)
+            return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+        }
+
+        fun imageToInputStream(image: Bitmap): InputStream {
+            val output = ByteArrayOutputStream()
+            return output.use { otp ->
+                image.compress(Bitmap.CompressFormat.JPEG, 100, otp)
+                ByteArrayInputStream(output.toByteArray())
+            }
+        }
+
     }
 }
 
@@ -783,10 +767,12 @@ class MenuUtil {
         }
 
         fun tintColor(context: Context, textInput: TextInputLayout) {
-            textInput.hintTextColor = ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorSecondary))
+            textInput.hintTextColor =
+                ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorSecondary))
             textInput.boxBackgroundColor = context.getColorFromAttr(R.attr.colorOnSurface)
             textInput.boxStrokeColor = context.getColorFromAttr(R.attr.colorSurface)
-            textInput.placeholderTextColor = ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorPrimary))
+            textInput.placeholderTextColor =
+                ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorPrimary))
             tintIcons(context, textInput.startIconDrawable, R.attr.colorSecondary)
             tintIcons(context, textInput.endIconDrawable, R.attr.colorSecondary)
         }
@@ -809,23 +795,96 @@ class MenuUtil {
         }
 
         fun tintIcons(context: Context, searchView: SearchView) {
-            tintIcons(context, searchView.findViewById<ImageView>(context.resources.getIdentifier("android:id/search_button", null, null)))
             tintIcons(
                 context,
-                searchView.findViewById<ImageView>(context.resources.getIdentifier("android:id/search_close_btn", null, null))
+                searchView.findViewById<ImageView>(
+                    context.resources.getIdentifier(
+                        "android:id/search_button",
+                        null,
+                        null
+                    )
+                )
             )
             tintIcons(
                 context,
-                searchView.findViewById<ImageView>(context.resources.getIdentifier("android:id/search_mag_icon", null, null))
+                searchView.findViewById<ImageView>(
+                    context.resources.getIdentifier(
+                        "android:id/search_close_btn",
+                        null,
+                        null
+                    )
+                )
             )
             tintIcons(
                 context,
-                searchView.findViewById<ImageView>(context.resources.getIdentifier("android:id/search_voice_btn", null, null))
+                searchView.findViewById<ImageView>(
+                    context.resources.getIdentifier(
+                        "android:id/search_mag_icon",
+                        null,
+                        null
+                    )
+                )
+            )
+            tintIcons(
+                context,
+                searchView.findViewById<ImageView>(
+                    context.resources.getIdentifier(
+                        "android:id/search_voice_btn",
+                        null,
+                        null
+                    )
+                )
             )
         }
 
         fun tintIcons(context: Context, drawer: DrawerArrowDrawable) {
             drawer.color = context.getColorFromAttr(R.attr.colorOnSurfaceVariant)
+        }
+
+    }
+}
+
+class ThemeUtil {
+    companion object ThemeUtils {
+
+        private var mapThemes: HashMap<String, Themes>? = null
+        fun getThemes(context: Context): HashMap<String, Themes> {
+            return if (mapThemes != null)
+                mapThemes!!
+            else {
+                val themes = context.resources.getStringArray(R.array.themes)
+                mapThemes = hashMapOf(
+                    themes[0] to Themes.ORIGINAL,
+                    themes[1] to Themes.BLOOD_RED,
+                    themes[2] to Themes.BLUE,
+                    themes[3] to Themes.FOREST_GREEN,
+                    themes[4] to Themes.GREEN,
+                    themes[5] to Themes.NEON_BLUE,
+                    themes[6] to Themes.NEON_GREEN,
+                    themes[7] to Themes.OCEAN_BLUE,
+                    themes[8] to Themes.PINK,
+                    themes[9] to Themes.RED,
+                )
+                mapThemes!!
+            }
+        }
+
+        fun themeDescription(context: Context, themes: Themes): String {
+            val mapThemes = getThemes(context)
+            return if (mapThemes.containsValue(themes))
+                mapThemes.filter { themes == it.value }.keys.first()
+            else
+                ""
+        }
+
+        @ColorInt
+        fun Context.getColorFromAttr(
+            @AttrRes attrColor: Int,
+            typedValue: TypedValue = TypedValue(),
+            resolveRefs: Boolean = true
+        ): Int {
+            theme.resolveAttribute(attrColor, typedValue, resolveRefs)
+            return typedValue.data
         }
 
     }

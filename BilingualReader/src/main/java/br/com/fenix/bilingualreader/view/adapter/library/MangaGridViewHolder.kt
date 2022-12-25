@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.LibraryType
-import br.com.fenix.bilingualreader.service.controller.ImageCoverController
+import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryFragment
@@ -103,7 +103,7 @@ class MangaGridViewHolder(itemView: View, private val listener: MangaCardListene
         }
 
         mangaImage.setImageBitmap(image)
-        ImageCoverController.instance.setImageCoverAsync(itemView.context, manga, mangaImage)
+        MangaImageCoverController.instance.setImageCoverAsync(itemView.context, manga, mangaImage)
 
         mangaTitle.text = manga.title
 

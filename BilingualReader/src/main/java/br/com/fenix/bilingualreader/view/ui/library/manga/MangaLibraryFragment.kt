@@ -30,7 +30,7 @@ import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.service.repository.Storage
-import br.com.fenix.bilingualreader.service.scanner.Scanner
+import br.com.fenix.bilingualreader.service.scanner.ScannerManga
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.view.adapter.library.MangaGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaLineCardAdapter
@@ -130,8 +130,8 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                 mainFunctions.changeLibraryTitle(it.title)
         }
 
-        Scanner.getInstance(requireContext()).addUpdateHandler(mUpdateHandler)
-        if (Scanner.getInstance(requireContext()).isRunning())
+        ScannerManga.getInstance(requireContext()).addUpdateHandler(mUpdateHandler)
+        if (ScannerManga.getInstance(requireContext()).isRunning())
             setIsRefreshing(true)
 
         if (mViewModel.isEmpty())
@@ -146,7 +146,7 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     }
 
     override fun onStop() {
-        Scanner.getInstance(requireContext()).removeUpdateHandler(mUpdateHandler)
+        ScannerManga.getInstance(requireContext()).removeUpdateHandler(mUpdateHandler)
         mainFunctions.clearLibraryTitle()
         super.onStop()
     }
@@ -429,7 +429,7 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
         generateLayout()
         setIsRefreshing(true)
-        Scanner.getInstance(requireContext()).scanLibrary(mViewModel.getLibrary())
+        ScannerManga.getInstance(requireContext()).scanLibrary(mViewModel.getLibrary())
 
         val callback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
             // Prevent backpress if query is actived
@@ -615,9 +615,9 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
         mViewModel.updateList { change, _ -> if (change) sortList() }
 
-        if (!Scanner.getInstance(requireContext()).isRunning()) {
+        if (!ScannerManga.getInstance(requireContext()).isRunning()) {
             setIsRefreshing(true)
-            Scanner.getInstance(requireContext()).scanLibrary(mViewModel.getLibrary())
+            ScannerManga.getInstance(requireContext()).scanLibrary(mViewModel.getLibrary())
         }
     }
 

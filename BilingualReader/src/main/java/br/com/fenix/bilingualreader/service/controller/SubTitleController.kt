@@ -21,6 +21,7 @@ import br.com.fenix.bilingualreader.service.repository.SubTitleRepository
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
+import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.manga.PageImageView
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderFragment
@@ -1007,7 +1008,7 @@ class SubTitleController private constructor(private val context: Context) {
             val newBitmap = getCombinedBitmap(fileLink, parse, index, extra)
             if (newBitmap != null) {
                 Util.closeInputStream(stream)
-                stream = Util.imageToInputStream(newBitmap)
+                stream = ImageUtil.imageToInputStream(newBitmap)
             }
         }
 

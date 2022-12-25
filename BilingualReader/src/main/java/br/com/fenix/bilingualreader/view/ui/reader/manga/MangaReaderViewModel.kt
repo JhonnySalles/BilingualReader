@@ -16,6 +16,7 @@ import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
+import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import com.squareup.picasso.Transformation
 import jp.wasabeef.picasso.transformations.ColorFilterTransformation
@@ -273,7 +274,7 @@ class MangaReaderViewModel(application: Application) : AndroidViewModel(applicat
             val option = BitmapFactory.Options()
             option.inJustDecodeBounds = true
             BitmapFactory.decodeStream(stream, null, option)
-            option.inSampleSize = Util.calculateInSampleSize(
+            option.inSampleSize = ImageUtil.calculateInSampleSize(
                 option,
                 ReaderConsts.PAGE.PAGE_CHAPTER_LIST_WIDTH,
                 ReaderConsts.PAGE.PAGE_CHAPTER_LIST_HEIGHT

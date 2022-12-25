@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.view.View
 import android.widget.ImageView
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
@@ -13,16 +14,16 @@ import java.io.File
 import java.io.IOException
 import java.net.URL
 
-class ImageController private constructor() {
+class MangaImageController private constructor() {
 
     companion object {
-        val instance: ImageController by lazy { HOLDER.INSTANCE }
+        val instance: MangaImageController by lazy { HOLDER.INSTANCE }
     }
 
-    private val mLOGGER = LoggerFactory.getLogger(ImageController::class.java)
+    private val mLOGGER = LoggerFactory.getLogger(MangaImageController::class.java)
 
     private object HOLDER {
-        val INSTANCE = ImageController()
+        val INSTANCE = MangaImageController()
     }
 
     private fun saveBitmapToCache(context: Context, key: String, bitmap: Bitmap) {
@@ -31,7 +32,7 @@ class ImageController private constructor() {
             if (!cacheDir.exists())
                 cacheDir.mkdir()
 
-            val byte = Util.imageToByteArray(bitmap) ?: return
+            val byte = ImageUtil.imageToByteArray(bitmap) ?: return
             val image = File(cacheDir.path + '/' + key)
             image.writeBytes(byte)
         } catch (e: Exception) {

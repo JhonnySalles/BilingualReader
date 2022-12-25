@@ -41,7 +41,7 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.Pages
 import br.com.fenix.bilingualreader.model.enums.*
-import br.com.fenix.bilingualreader.service.controller.ImageCoverController
+import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.kanji.Formatter
 import br.com.fenix.bilingualreader.service.listener.ChapterCardListener
@@ -56,7 +56,7 @@ import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
-import br.com.fenix.bilingualreader.util.helpers.Util.Utils.getColorFromAttr
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.view.adapter.reader.MangaChaptersCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkActivity
@@ -494,7 +494,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     fun getMangaIconAdaptive(manga: Manga): Icon {
-        val image = ImageCoverController.instance.getMangaCover(this, manga, true) ?: return Icon.createWithResource(
+        val image = MangaImageCoverController.instance.getMangaCover(this, manga, true) ?: return Icon.createWithResource(
             this,
             R.drawable.ic_shortcut_book
         )

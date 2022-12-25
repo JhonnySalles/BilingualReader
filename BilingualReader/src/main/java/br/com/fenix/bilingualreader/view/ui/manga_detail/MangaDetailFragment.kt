@@ -17,8 +17,8 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.service.controller.ImageController
-import br.com.fenix.bilingualreader.service.controller.ImageCoverController
+import br.com.fenix.bilingualreader.service.controller.MangaImageController
+import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.InformationCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
@@ -181,7 +181,7 @@ class MangaDetailFragment : Fragment() {
     private fun observer() {
         mViewModel.manga.observe(viewLifecycleOwner) {
             if (it != null) {
-                ImageCoverController.instance.setImageCoverAsync(requireContext(), it, arrayListOf(mBackgroundImage, mImage), false)
+                MangaImageCoverController.instance.setImageCoverAsync(requireContext(), it, arrayListOf(mBackgroundImage, mImage), false)
                 mTitle.text = it.name
                 mFolder.text = it.path
                 val folder = mViewModel.getChapterFolder(it.bookMark)
@@ -258,7 +258,7 @@ class MangaDetailFragment : Fragment() {
                 mInformationImage.setImageBitmap(null)
 
                 if (it.imageLink != null)
-                    ImageController.instance.setImageAsync(requireContext(), it.imageLink!!, mInformationImage)
+                    MangaImageController.instance.setImageAsync(requireContext(), it.imageLink!!, mInformationImage)
 
                 mInformationAlternativeTitles.text = Html.fromHtml(Util.setBold(requireContext().getString(R.string.manga_detail_information_alternative_titles)) + " " + it.alternativeTitles)
                 mInformationStatus.text = Html.fromHtml(Util.setBold(requireContext().getString(R.string.manga_detail_information_status)) + " " + it.status)

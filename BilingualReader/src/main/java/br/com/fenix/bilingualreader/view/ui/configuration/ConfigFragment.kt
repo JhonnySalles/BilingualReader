@@ -201,7 +201,7 @@ class ConfigFragment : Fragment() {
             themeMode[2] to ThemeMode.DARK
         )
 
-        mMapThemes = Util.getThemes(requireContext())
+        mMapThemes = ThemeUtil.getThemes(requireContext())
 
         val adapterOrder =
             ArrayAdapter(requireContext(), R.layout.list_item, mMapOrder.keys.toTypedArray())

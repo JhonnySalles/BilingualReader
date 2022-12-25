@@ -17,7 +17,7 @@ import br.com.fenix.bilingualreader.model.enums.ThemeMode
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
-import br.com.fenix.bilingualreader.service.scanner.Scanner
+import br.com.fenix.bilingualreader.service.scanner.ScannerManga
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
@@ -173,7 +173,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val libraries = repository.listEnabled()
             if (libraries.isNotEmpty()) {
                 setLibraries(libraries)
-                Scanner(this).scanLibrariesSilent(libraries)
+                ScannerManga(this).scanLibrariesSilent(libraries)
             }
         } catch (e: Exception) {
             mLOGGER.error("Error clearing cache folders.", e)

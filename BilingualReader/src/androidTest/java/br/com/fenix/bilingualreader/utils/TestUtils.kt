@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.service.controller.ImageCoverController
+import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -39,7 +39,7 @@ class TestUtils {
         fun generateCovers(context: Context, manga: Manga, index: Int = 0) {
             val minMap = getCoverMipmap(index)
             val cover = BitmapFactory.decodeResource(context.resources, minMap)
-            ImageCoverController.instance.saveCoverToCache(context, manga, cover)
+            MangaImageCoverController.instance.saveCoverToCache(context, manga, cover)
         }
 
         fun getManga(context: Context, filePath: String = ""): Manga {
@@ -73,7 +73,7 @@ class TestUtils {
                     }
 
                     manga.pages = parse.numPages()
-                    ImageCoverController.instance.getCoverFromFile(context, manga.file, parse)
+                    MangaImageCoverController.instance.getCoverFromFile(context, manga.file, parse)
                 } finally {
                     Util.destroyParse(parse)
                 }

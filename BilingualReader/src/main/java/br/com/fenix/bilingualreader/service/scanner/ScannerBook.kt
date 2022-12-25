@@ -6,7 +6,7 @@ import android.os.Message
 import android.os.Process
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.service.controller.ImageCoverController
+import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -130,7 +130,7 @@ class ScannerBook(private val context: Context) {
     }
 
     private fun generateCover(parse: Parse, manga: Manga) =
-        ImageCoverController.instance.getCoverFromFile(context, manga.file, parse)
+        MangaImageCoverController.instance.getCoverFromFile(context, manga.file, parse)
 
     private inner class LibraryUpdateRunnable() : Runnable {
         override fun run() {
