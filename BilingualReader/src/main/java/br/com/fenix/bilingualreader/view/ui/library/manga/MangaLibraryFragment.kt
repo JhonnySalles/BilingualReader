@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.*
 import android.util.Pair
 import android.view.*
@@ -113,7 +114,13 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         })
 
         enableSearchView(searchView, !mRefreshLayout.isRefreshing)
-        onChangeIconLayout()
+        val icon: Int = when (mGridType) {
+            LibraryType.GRID_SMALL -> R.drawable.ic_type_grid_small
+            LibraryType.GRID_BIG -> R.drawable.ic_type_grid_big
+            LibraryType.GRID_MEDIUM -> R.drawable.ic_type_grid_medium
+            else -> R.drawable.ic_type_list
+        }
+        miGridType.setIcon(icon)
     }
 
     private fun filter(text: String?) {
@@ -162,7 +169,9 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
             val obj = msg.obj
             when (msg.what) {
                 GeneralConsts.SCANNER.MESSAGE_MANGA_UPDATED_ADD -> refreshLibraryAddDelayed(obj as Manga)
-                GeneralConsts.SCANNER.MESSAGE_MANGA_UPDATED_REMOVE -> refreshLibraryRemoveDelayed(obj as Manga)
+                GeneralConsts.SCANNER.MESSAGE_MANGA_UPDATED_REMOVE -> refreshLibraryRemoveDelayed(
+                    obj as Manga
+                )
                 GeneralConsts.SCANNER.MESSAGE_MANGA_UPDATE_FINISHED -> {
                     setIsRefreshing(false)
                     if (obj as Boolean && ::mViewModel.isInitialized) { // Bug when rotate is necessary verify is initialized
@@ -190,7 +199,12 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         }
     }
 
-    private fun notifyDataSet(index: Int, range: Int = 0, insert: Boolean = false, removed: Boolean = false) {
+    private fun notifyDataSet(
+        index: Int,
+        range: Int = 0,
+        insert: Boolean = false,
+        removed: Boolean = false
+    ) {
         if (insert)
             mRecyclerView.adapter?.notifyItemInserted(index)
         else if (removed)
@@ -278,12 +292,16 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
     private fun onChangeIconLayout() {
         val icon: Int = when (mGridType) {
-            LibraryType.GRID_SMALL -> R.drawable.ic_type_grid_small
-            LibraryType.GRID_BIG -> R.drawable.ic_type_grid_big
-            LibraryType.GRID_MEDIUM -> R.drawable.ic_type_grid_medium
-            else -> R.drawable.ic_type_list
+            LibraryType.GRID_SMALL -> R.drawable.ico_animated_type_grid_gridmedium_to_gridsmall
+            LibraryType.GRID_BIG -> R.drawable.ico_animated_type_grid_list_to_gridbig
+            LibraryType.GRID_MEDIUM -> R.drawable.ico_animated_type_grid_gridbig_to_gridmedium
+            else -> if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
+                R.drawable.ico_animated_type_grid_gridsmall_to_list
+            else
+                R.drawable.ico_animated_type_grid_gridmedium_to_list
         }
         miGridType.setIcon(icon)
+        (miGridType.icon as AnimatedVectorDrawable).start()
     }
 
     override fun onCreateView(
@@ -294,7 +312,10 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         val root = inflater.inflate(R.layout.fragment_manga_library, container, false)
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         mGridType = LibraryType.valueOf(
-            sharedPreferences.getString(GeneralConsts.KEYS.LIBRARY.MANGA_LIBRARY_TYPE, LibraryType.LINE.toString())
+            sharedPreferences.getString(
+                GeneralConsts.KEYS.LIBRARY.MANGA_LIBRARY_TYPE,
+                LibraryType.LINE.toString()
+            )
                 .toString()
         )
 
@@ -390,13 +411,19 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                 if (manga.file.exists()) {
                     val intent = Intent(context, MangaReaderActivity::class.java)
                     val bundle = Bundle()
-                    bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mViewModel.getLibrary())
+                    bundle.putSerializable(
+                        GeneralConsts.KEYS.OBJECT.LIBRARY,
+                        mViewModel.getLibrary()
+                    )
                     bundle.putString(GeneralConsts.KEYS.MANGA.NAME, manga.title)
                     bundle.putInt(GeneralConsts.KEYS.MANGA.MARK, manga.bookMark)
                     bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
                     intent.putExtras(bundle)
                     context?.startActivity(intent)
-                    requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+                    requireActivity().overridePendingTransition(
+                        R.anim.fade_in_fragment_add_enter,
+                        R.anim.fade_out_fragment_remove_exit
+                    )
                 } else {
                     removeList(manga)
                     mViewModel.delete(manga)
@@ -484,8 +511,14 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         val pProgress: Pair<View, String> = Pair(progress, "transition_progress_bar")
 
         val options = ActivityOptions
-            .makeSceneTransitionAnimation(requireActivity(), *arrayOf(pImageCover, pTitleCover, pProgress))
-        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+            .makeSceneTransitionAnimation(
+                requireActivity(),
+                *arrayOf(pImageCover, pTitleCover, pProgress)
+            )
+        requireActivity().overridePendingTransition(
+            R.anim.fade_in_fragment_add_enter,
+            R.anim.fade_out_fragment_remove_exit
+        )
         startActivityForResult(intent, GeneralConsts.REQUEST.MANGA_DETAIL, options.toBundle())
     }
 
@@ -535,16 +568,19 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                 else -> resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
             } + 1
 
-            val spaceCount: Int = max(1, Resources.getSystem().displayMetrics.widthPixels / columnWidth)
+            val spaceCount: Int =
+                max(1, Resources.getSystem().displayMetrics.widthPixels / columnWidth)
             mRecyclerView.layoutManager = GridLayoutManager(requireContext(), spaceCount)
             gridAdapter.attachListener(mListener)
-            mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_grid)
+            mRecyclerView.layoutAnimation =
+                AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_grid)
         } else {
             val lineAdapter = MangaLineCardAdapter()
             mRecyclerView.adapter = lineAdapter
             mRecyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
             lineAdapter.attachListener(mListener)
-            mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_line)
+            mRecyclerView.layoutAnimation =
+                AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_line)
         }
     }
 
@@ -622,38 +658,39 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         }
     }
 
-    private var itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-        override fun onMove(
-            recyclerView: RecyclerView,
-            viewHolder: ViewHolder, target: ViewHolder
-        ): Boolean {
-            return false
-        }
+    private var itemTouchHelperCallback =
+        object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: ViewHolder, target: ViewHolder
+            ): Boolean {
+                return false
+            }
 
-        override fun onSwiped(viewHolder: ViewHolder, direction: Int) {
-            val manga = mViewModel.getAndRemove(viewHolder.adapterPosition) ?: return
-            val position = viewHolder.adapterPosition
-            var excluded = false
-            val dialog: AlertDialog =
-                AlertDialog.Builder(requireActivity(), R.style.AppCompatAlertDialogStyle)
-                    .setTitle(getString(R.string.manga_library_menu_delete))
-                    .setMessage(getString(R.string.manga_library_menu_delete_description) + "\n" + manga.file.name)
-                    .setPositiveButton(
-                        R.string.action_delete
-                    ) { _, _ ->
-                        deleteFile(manga)
-                        notifyDataSet(position, removed = true)
-                        excluded = true
-                    }.setOnDismissListener {
-                        if (!excluded) {
-                            mViewModel.add(manga, position)
-                            notifyDataSet(position)
+            override fun onSwiped(viewHolder: ViewHolder, direction: Int) {
+                val manga = mViewModel.getAndRemove(viewHolder.adapterPosition) ?: return
+                val position = viewHolder.adapterPosition
+                var excluded = false
+                val dialog: AlertDialog =
+                    AlertDialog.Builder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+                        .setTitle(getString(R.string.manga_library_menu_delete))
+                        .setMessage(getString(R.string.manga_library_menu_delete_description) + "\n" + manga.file.name)
+                        .setPositiveButton(
+                            R.string.action_delete
+                        ) { _, _ ->
+                            deleteFile(manga)
+                            notifyDataSet(position, removed = true)
+                            excluded = true
+                        }.setOnDismissListener {
+                            if (!excluded) {
+                                mViewModel.add(manga, position)
+                                notifyDataSet(position)
+                            }
                         }
-                    }
-                    .create()
-            dialog.show()
+                        .create()
+                dialog.show()
+            }
         }
-    }
 
     private fun deleteFile(manga: Manga?) {
         if (manga?.file != null) {
