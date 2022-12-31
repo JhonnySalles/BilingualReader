@@ -64,8 +64,8 @@
                 android:contentDescription="@string/vocabulary_favorite"
                 android:text="@string/vocabulary_favorite"
                 app:iconSize="25dp"
-                app:iconTint="?attr/colorSecondary"
-                app:icon="@drawable/ic_favorite_unmark"/>
+                app:icon="@drawable/ico_favorite_unmark"
+                app:iconTint="@null"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/vocabulary_manga_button"

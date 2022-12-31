@@ -216,7 +216,8 @@
                 android:tag="not_used"
                 android:visibility="gone"
                 app:strokeWidth="0dp"
-                app:icon="@drawable/ic_help" />
+                app:iconTint="@null"
+                app:icon="@drawable/ico_animated_file_link_help" />
 
             <com.google.android.material.button.MaterialButtonToggleGroup
                 android:id="@+id/page_link_buttons_group"
@@ -244,7 +245,7 @@
                     android:layout_height="match_parent"
                     android:contentDescription="@string/page_link_reorder_dual_page"
                     android:text="@string/page_link_reorder_dual_page"
-                    app:icon="@drawable/ic_file_link_dual_page"/>
+                    app:icon="@drawable/ico_animated_file_link_dual_page"/>
 
                 <br.com.fenix.bilingualreader.view.components.MaterialButtonExpanded
                     android:id="@+id/pages_link_single_page_button"
@@ -253,7 +254,7 @@
                     android:layout_height="match_parent"
                     android:contentDescription="@string/page_link_reorder_single_page"
                     android:text="@string/page_link_reorder_single_page"
-                    app:icon="@drawable/ic_file_link_single_page"/>
+                    app:icon="@drawable/ico_animated_file_link_single_page"/>
 
                 <br.com.fenix.bilingualreader.view.components.MaterialButtonExpanded
                     android:id="@+id/pages_link_reorder_button"
@@ -262,7 +263,7 @@
                     android:layout_height="match_parent"
                     android:contentDescription="@string/page_link_reorder_sorted_page"
                     android:text="@string/page_link_reorder_sorted_page"
-                    app:icon="@drawable/ic_file_link_reorder"/>
+                    app:icon="@drawable/ico_animated_file_link_reorder"/>
 
                 <br.com.fenix.bilingualreader.view.components.MaterialButtonExpanded
                     android:id="@+id/file_link_delete_button"
@@ -271,7 +272,7 @@
                     android:layout_height="match_parent"
                     android:contentDescription="@string/page_link_delete_file_link"
                     android:text="@string/page_link_delete_file_link"
-                    app:icon="@drawable/ic_file_link_delete"/>
+                    app:icon="@drawable/ico_animated_file_link_deleted"/>
 
                 <br.com.fenix.bilingualreader.view.components.MaterialButtonExpanded
                     android:id="@+id/pages_link_undo_changes_button"
@@ -281,7 +282,7 @@
                     android:contentDescription="@string/page_link_reorder_undo_changes"
                     android:text="@string/page_link_reorder_undo_changes"
                     android:enabled="false"
-                    app:icon="@drawable/ic_file_link_undo_changes"/>
+                    app:icon="@drawable/ico_animated_file_link_undo_changes"/>
 
                 <br.com.fenix.bilingualreader.view.components.MaterialButtonExpanded
                     android:id="@+id/pages_link_reload_button"
@@ -290,7 +291,7 @@
                     android:layout_height="match_parent"
                     android:contentDescription="@string/page_link_reload_file_link"
                     android:text="@string/page_link_reload_file_link"
-                    app:icon="@drawable/ic_file_link_reload"/>
+                    app:icon="@drawable/ico_animated_file_link_reload"/>
             </com.google.android.material.button.MaterialButtonToggleGroup>
 
             <Button

@@ -10,6 +10,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Point
 import android.graphics.Rect
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.*
 import android.util.TypedValue
 import android.view.*
@@ -246,15 +247,31 @@ class PagesLinkFragment : Fragment() {
             .getBoolean(GeneralConsts.KEYS.PAGE_LINK.USE_DUAL_PAGE_CALCULATE, false)
 
         mSave.setOnClickListener { save() }
-        mReload.setOnClickListener { refresh() }
+        mReload.setOnClickListener {
+            (mReload.icon as AnimatedVectorDrawable).start()
+            refresh()
+        }
 
         mAutoProcess.setOnClickListener { mViewModel.autoReorderDoublePages(Pages.LINKED, true) }
-        mReorderPages.setOnClickListener { mViewModel.reorderBySortPages() }
-        mSinglePages.setOnClickListener { mViewModel.reorderSimplePages() }
-        mDualPages.setOnClickListener { mViewModel.reorderDoublePages(mUseDualPageCalculate) }
-        mUndoChanges.setOnClickListener { mViewModel.returnBackup() }
+        mReorderPages.setOnClickListener {
+            (mReorderPages.icon as AnimatedVectorDrawable).start()
+            mViewModel.reorderBySortPages()
+        }
+        mSinglePages.setOnClickListener {
+            (mSinglePages.icon as AnimatedVectorDrawable).start()
+            mViewModel.reorderSimplePages()
+        }
+        mDualPages.setOnClickListener {
+            (mDualPages.icon as AnimatedVectorDrawable).start()
+            mViewModel.reorderDoublePages(mUseDualPageCalculate)
+        }
+        mUndoChanges.setOnClickListener {
+            (mUndoChanges.icon as AnimatedVectorDrawable).start()
+            mViewModel.returnBackup()
+        }
 
         mDelete.setOnClickListener {
+            (mDelete.icon as AnimatedVectorDrawable).start()
             AlertDialog.Builder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(getString(R.string.manga_library_menu_delete))
                 .setMessage(getString(R.string.page_link_delete_description))
@@ -270,6 +287,7 @@ class PagesLinkFragment : Fragment() {
         }
 
         mHelp.setOnClickListener {
+            (mHelp.icon as AnimatedVectorDrawable).start()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 if (mHandler.hasCallbacks(mReduceSizeGroupButton))
                     mHandler.removeCallbacks(mReduceSizeGroupButton)

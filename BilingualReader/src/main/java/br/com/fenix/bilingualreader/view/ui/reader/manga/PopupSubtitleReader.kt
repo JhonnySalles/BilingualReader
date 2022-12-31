@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader.view.ui.reader.manga
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
@@ -13,6 +14,7 @@ import androidx.fragment.app.Fragment
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.kanji.Formatter
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
 
 
@@ -22,11 +24,11 @@ class PopupSubtitleReader : Fragment() {
     private lateinit var mSubtitlePageAutoComplete: AutoCompleteTextView
     private lateinit var mSubtitleTitle: TextView
     private lateinit var mSubtitleContent: TextView
-    private lateinit var mNavBeforeText: Button
-    private lateinit var mNavNextText: Button
-    private lateinit var mRefresh: Button
-    private lateinit var mDraw: Button
-    private lateinit var mChangeLanguage: Button
+    private lateinit var mNavBeforeText: MaterialButton
+    private lateinit var mNavNextText: MaterialButton
+    private lateinit var mRefresh: MaterialButton
+    private lateinit var mDraw: MaterialButton
+    private lateinit var mChangeLanguage: MaterialButton
     private lateinit var mLabelChapter: String
     private lateinit var mLabelText: String
 
@@ -39,15 +41,15 @@ class PopupSubtitleReader : Fragment() {
     ): View? {
         val root = inflater.inflate(R.layout.popup_subtitle_reader, container, false)
 
-        mSubtitlePageAutoComplete = root.findViewById(R.id.menu_autocomplete_subtitle_Page)
-        mSubtitlePage = root.findViewById(R.id.cb_subtitle_page)
-        mSubtitleTitle = root.findViewById(R.id.txt_subtitle_title)
-        mSubtitleContent = root.findViewById(R.id.txt_subtitle_content)
-        mNavBeforeText = root.findViewById(R.id.nav_before_text)
-        mNavNextText = root.findViewById(R.id.nav_next_text)
-        mRefresh = root.findViewById(R.id.nav_refresh)
-        mDraw = root.findViewById(R.id.nav_draw)
-        mChangeLanguage = root.findViewById(R.id.nav_change_language)
+        mSubtitlePageAutoComplete = root.findViewById(R.id.subtitle_menu_autocomplete_page_selected)
+        mSubtitlePage = root.findViewById(R.id.subtitle_page_selected)
+        mSubtitleTitle = root.findViewById(R.id.subtitle_subtitle_title)
+        mSubtitleContent = root.findViewById(R.id.subtitle_text_content)
+        mNavBeforeText = root.findViewById(R.id.subtitle_before_text)
+        mNavNextText = root.findViewById(R.id.subtitle_next_text)
+        mRefresh = root.findViewById(R.id.subtitle_refresh)
+        mDraw = root.findViewById(R.id.subtitle_draw_text)
+        mChangeLanguage = root.findViewById(R.id.subtitle_change_language)
 
         mSubtitleContent.movementMethod = LinkMovementMethod.getInstance()
 
@@ -56,7 +58,8 @@ class PopupSubtitleReader : Fragment() {
 
         mSubtitleContent.setOnLongClickListener {
             if (mSubtitleContent.text.isNotEmpty()) {
-                val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clipboard =
+                    requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 val clip = ClipData.newPlainText("Copied Text", mSubtitleContent.text)
                 clipboard.setPrimaryClip(clip)
 
@@ -71,10 +74,19 @@ class PopupSubtitleReader : Fragment() {
 
         mSubTitleController = SubTitleController.getInstance(requireContext())
 
-        mNavBeforeText.setOnClickListener { mSubTitleController.getBeforeText() }
-        mNavNextText.setOnClickListener { mSubTitleController.getNextText() }
+        mNavBeforeText.setOnClickListener {
+            (mNavBeforeText.icon as AnimatedVectorDrawable).start()
+            mSubTitleController.getBeforeText()
+        }
+        mNavNextText.setOnClickListener {
+            (mNavNextText.icon as AnimatedVectorDrawable).start()
+            mSubTitleController.getNextText()
+        }
 
-        mRefresh.setOnClickListener { mSubTitleController.findSubtitle() }
+        mRefresh.setOnClickListener {
+            (mRefresh.icon as AnimatedVectorDrawable).start()
+            mSubTitleController.findSubtitle()
+        }
         mDraw.setOnClickListener { mSubTitleController.drawSelectedText() }
 
         mChangeLanguage.setOnClickListener { mSubTitleController.changeLanguage() }

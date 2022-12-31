@@ -152,7 +152,7 @@ class ScannerManga(private val context: Context) {
 
                 // create list of files available in storage
                 for (c in storage.listMangas(library)!!)
-                    storageFiles[c.title] = c
+                    storageFiles[c.path] = c
 
                 for (c in storage.listDeleted(library)!!)
                     storageDeletes[c.title] = c
@@ -169,8 +169,8 @@ class ScannerManga(private val context: Context) {
                             it.name.endsWith(".cbr") ||
                             it.name.endsWith(".cbz")
                         ) {
-                            if (storageFiles.containsKey(it.name))
-                                storageFiles.remove(it.name)
+                            if (storageFiles.containsKey(it.path))
+                                storageFiles.remove(it.path)
                             else {
                                 isProcess = true
                                 try {

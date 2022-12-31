@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.*
 import android.graphics.Bitmap
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.*
 import android.view.Menu
 import android.view.MenuItem
@@ -294,9 +295,9 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         val favoriteItem = menu.findItem(R.id.menu_item_reader_favorite)
         val icon = if (mBook != null && mBook!!.favorite)
-            ContextCompat.getDrawable(this, R.drawable.ic_favorite_mark)
+            ContextCompat.getDrawable(this, R.drawable.ico_favorite_mark)
         else
-            ContextCompat.getDrawable(this, R.drawable.ic_favorite_unmark)
+            ContextCompat.getDrawable(this, R.drawable.ico_favorite_unmark)
         icon?.setTint(getColorFromAttr(R.attr.colorSecondary))
         favoriteItem.icon = icon
         return super.onPrepareOptionsMenu(menu)
@@ -309,11 +310,12 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
         mBook?.favorite = !mBook!!.favorite
 
         val icon = if (mBook!!.favorite)
-            ContextCompat.getDrawable(this, R.drawable.ic_favorite_mark)
+            ContextCompat.getDrawable(this, R.drawable.ico_animated_favorited_marked)
         else
-            ContextCompat.getDrawable(this, R.drawable.ic_favorite_unmark)
+            ContextCompat.getDrawable(this, R.drawable.ico_animated_favorited_unmarked)
         icon?.setTint(getColorFromAttr(R.attr.colorSecondary))
         item.icon = icon
+        (item.icon as AnimatedVectorDrawable).start()
         mRepository.update(mBook!!)
     }
 

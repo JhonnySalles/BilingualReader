@@ -130,7 +130,7 @@
         android:layout_marginStart="5dp"
         android:layout_marginTop="5dp"
         android:background="@drawable/ic_favorite_mark_border"
-        android:src="@drawable/ic_favorite_unmark"
+        android:src="@drawable/ico_favorite_unmark"
         android:layout_gravity="start"/>
 
     <ImageView

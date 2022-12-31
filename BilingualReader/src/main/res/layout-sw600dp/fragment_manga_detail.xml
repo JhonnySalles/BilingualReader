@@ -173,7 +173,7 @@
                         android:text="@string/manga_detail_favorite"
                         app:iconPadding="@dimen/manga_detail_icon_padding"
                         app:iconGravity="textTop"
-                        app:icon="@drawable/ic_favorite_unmark"
+                        app:icon="@drawable/ico_favorite_unmark"
                         app:iconSize="@dimen/manga_detail_icon_size"
                         app:cornerRadius="@dimen/manga_detail_icon_rounded"/>
 

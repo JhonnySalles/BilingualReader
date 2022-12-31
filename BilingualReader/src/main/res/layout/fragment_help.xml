@@ -400,7 +400,7 @@
                     android:layout_width="@dimen/help_button_example_width"
                     android:layout_height="@dimen/help_button_example_width"
                     android:layout_margin="@dimen/margin"
-                    app:srcCompat="@drawable/ic_refresh" />
+                    app:srcCompat="@drawable/ico_animated_text_refresh" />
 
                 <TextView
                     style="@style/TextNormal"
@@ -432,14 +432,14 @@
                     android:layout_width="@dimen/help_button_example_width"
                     android:layout_height="@dimen/help_button_example_width"
                     android:layout_margin="@dimen/margin"
-                    app:srcCompat="@drawable/ic_navigate_before" />
+                    app:srcCompat="@drawable/ico_animated_text_before" />
 
                 <ImageView
                     style="IconHelp"
                     android:layout_width="@dimen/help_button_example_width"
                     android:layout_height="@dimen/help_button_example_width"
                     android:layout_marginRight="@dimen/margin"
-                    app:srcCompat="@drawable/ic_navigate_next" />
+                    app:srcCompat="@drawable/ico_animated_text_next" />
 
                 <TextView
                     style="@style/TextNormal"

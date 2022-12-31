@@ -13,13 +13,13 @@
     tools:context=".view.ui.reader.manga.PopupSubtitleReader">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/material_button_toggle"
+        android:id="@+id/subtitle_buttons_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp">
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/cb_subtitle_page"
+            android:id="@+id/subtitle_page_selected"
             style="@style/TextInputDropMenu"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -29,7 +29,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <AutoCompleteTextView
-                android:id="@+id/menu_autocomplete_subtitle_Page"
+                android:id="@+id/subtitle_menu_autocomplete_page_selected"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -40,8 +40,8 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
-            android:id="@+id/nav_change_language"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/subtitle_change_language"
             style="@style/Button.RoundedIconOnly"
             android:layout_width="@dimen/popup_reader_button_width"
             android:layout_height="@dimen/popup_reader_button_width"
@@ -53,11 +53,11 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHorizontal_chainStyle="spread"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@+id/nav_draw"
-            app:layout_constraintTop_toBottomOf="@+id/cb_subtitle_page" />
+            app:layout_constraintRight_toLeftOf="@+id/subtitle_draw_text"
+            app:layout_constraintTop_toBottomOf="@+id/subtitle_page_selected" />
 
-        <Button
-            android:id="@+id/nav_draw"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/subtitle_draw_text"
             style="@style/Button.RoundedIconOnly"
             android:layout_width="@dimen/popup_reader_button_width"
             android:layout_height="@dimen/popup_reader_button_width"
@@ -67,12 +67,12 @@
             android:tooltipText="@string/popup_reading_manga_button_draw"
             app:icon="@drawable/ic_draw_text"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@+id/nav_change_language"
-            app:layout_constraintRight_toLeftOf="@+id/nav_refresh"
-            app:layout_constraintTop_toBottomOf="@+id/cb_subtitle_page" />
+            app:layout_constraintLeft_toRightOf="@+id/subtitle_change_language"
+            app:layout_constraintRight_toLeftOf="@+id/subtitle_refresh"
+            app:layout_constraintTop_toBottomOf="@+id/subtitle_page_selected" />
 
-        <Button
-            android:id="@+id/nav_refresh"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/subtitle_refresh"
             style="@style/Button.RoundedIconOnly"
             android:layout_width="@dimen/popup_reader_button_width"
             android:layout_height="@dimen/popup_reader_button_width"
@@ -80,13 +80,13 @@
             android:layout_marginBottom="1dp"
             android:minHeight="@dimen/popup_reader_button_min_height"
             android:tooltipText="@string/popup_reading_manga_button_find"
-            app:icon="@drawable/ic_refresh"
+            app:icon="@drawable/ico_animated_text_refresh"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@+id/nav_draw"
-            app:layout_constraintRight_toLeftOf="@+id/nav_before_text"/>
+            app:layout_constraintLeft_toRightOf="@+id/subtitle_draw_text"
+            app:layout_constraintRight_toLeftOf="@+id/subtitle_before_text"/>
 
-        <Button
-            android:id="@+id/nav_before_text"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/subtitle_before_text"
             style="@style/Button.RoundedIconOnly"
             android:layout_width="@dimen/popup_reader_button_width"
             android:layout_height="@dimen/popup_reader_button_width"
@@ -94,14 +94,14 @@
             android:layout_marginBottom="1dp"
             android:minHeight="@dimen/popup_reader_button_min_height"
             android:tooltipText="@string/popup_reading_manga_button_before"
-            app:icon="@drawable/ic_navigate_before"
+            app:icon="@drawable/ico_animated_text_before"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@+id/nav_refresh"
-            app:layout_constraintRight_toLeftOf="@+id/nav_next_text"
-            app:layout_constraintTop_toBottomOf="@+id/cb_subtitle_page" />
+            app:layout_constraintLeft_toRightOf="@+id/subtitle_refresh"
+            app:layout_constraintRight_toLeftOf="@+id/subtitle_next_text"
+            app:layout_constraintTop_toBottomOf="@+id/subtitle_page_selected" />
 
-        <Button
-            android:id="@+id/nav_next_text"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/subtitle_next_text"
             style="@style/Button.RoundedIconOnly"
             android:layout_width="@dimen/popup_reader_button_width"
             android:layout_height="@dimen/popup_reader_button_width"
@@ -109,16 +109,16 @@
             android:layout_marginBottom="1dp"
             android:minHeight="@dimen/popup_reader_button_min_height"
             android:tooltipText="@string/popup_reading_manga_button_next"
-            app:icon="@drawable/ic_navigate_next"
+            app:icon="@drawable/ico_animated_text_next"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@+id/nav_before_text"
+            app:layout_constraintLeft_toRightOf="@+id/subtitle_before_text"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cb_subtitle_page"/>
+            app:layout_constraintTop_toBottomOf="@+id/subtitle_page_selected"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
-        android:id="@+id/txt_subtitle_title"
+        android:id="@+id/subtitle_subtitle_title"
         style="@style/TextTitle.SubtitleReader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -128,7 +128,7 @@
         android:textSize="@dimen/popup_reader_title" />
 
     <TextView
-        android:id="@+id/txt_subtitle_content"
+        android:id="@+id/subtitle_text_content"
         style="@style/TextNormal.SubtitleReader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

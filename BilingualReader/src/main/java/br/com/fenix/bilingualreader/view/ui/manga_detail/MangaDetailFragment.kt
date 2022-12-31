@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.view.ui.manga_detail
 
 import android.content.Intent
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.text.Html
@@ -191,10 +192,8 @@ class MangaDetailFragment : Fragment() {
                 mProgress.max = it.pages
                 mProgress.setProgress(it.bookMark, false)
 
-                if (it.favorite)
-                    mFavoriteButton.setIconResource(R.drawable.ic_favorite_mark)
-                else
-                    mFavoriteButton.setIconResource(R.drawable.ic_favorite_unmark)
+                mFavoriteButton.setIconResource(if (it.favorite) R.drawable.ico_animated_favorited_marked else R.drawable.ico_animated_favorited_unmarked)
+                (mFavoriteButton.icon as AnimatedVectorDrawable).start()
 
                 if (it.excluded) {
                     mDeleted.text = getString(R.string.manga_detail_manga_deleted)
@@ -215,7 +214,7 @@ class MangaDetailFragment : Fragment() {
                 mBookMark.text = ""
                 mProgress.max = 1
                 mProgress.setProgress(0, false)
-                mFavoriteButton.setIconResource(R.drawable.ic_favorite_unmark)
+                mFavoriteButton.setIconResource(R.drawable.ico_favorite_unmark)
             }
         }
 

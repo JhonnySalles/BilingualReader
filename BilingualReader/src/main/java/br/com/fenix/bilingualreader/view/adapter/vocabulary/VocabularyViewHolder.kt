@@ -4,6 +4,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
@@ -69,11 +70,12 @@ class VocabularyViewHolder(itemView: View, private val listener: VocabularyCardL
         meaning.text = vocabulary.portuguese
         appear.text = itemView.context.getString(R.string.vocabulary_appear, vocabulary.appears)
 
-        favorite.setIconResource(if (vocabulary.favorite) R.drawable.ic_favorite_mark else R.drawable.ic_favorite_unmark)
+        favorite.setIconResource(if (vocabulary.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
 
         favorite.setOnClickListener {
             vocabulary.favorite = !vocabulary.favorite
-            favorite.setIconResource(if (vocabulary.favorite) R.drawable.ic_favorite_mark else R.drawable.ic_favorite_unmark)
+            favorite.setIconResource(if (vocabulary.favorite) R.drawable.ico_animated_favorited_marked else R.drawable.ico_animated_favorited_unmarked)
+            (favorite.icon as AnimatedVectorDrawable).start()
             listener.onClickFavorite(vocabulary)
         }
 

@@ -8,10 +8,7 @@ import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.drawable.AdaptiveIconDrawable
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.Icon
+import android.graphics.drawable.*
 import android.net.Uri
 import android.os.*
 import android.provider.Settings
@@ -55,8 +52,8 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
-import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
+import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.reader.MangaChaptersCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkActivity
@@ -132,7 +129,8 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val theme = Themes.valueOf(
-            GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!
+            GeneralConsts.getSharedPreferences(this)
+                .getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!
         )
         setTheme(theme.getValue())
 
@@ -156,7 +154,11 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         mToolbarTitleContent = findViewById(R.id.reader_manga_toolbar_title_content)
         mSubToolbar = findViewById(R.id.reader_manga_sub_toolbar)
         mLanguageOcrDescription = findViewById(R.id.reader_manga_ocr_language)
-        mLanguageOcrDescription.setOnClickListener { choiceLanguage { mViewModel.mLanguageOcr = it } }
+        mLanguageOcrDescription.setOnClickListener {
+            choiceLanguage {
+                mViewModel.mLanguageOcr = it
+            }
+        }
 
         setSupportActionBar(mToolBar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -193,39 +195,65 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
             mMenuPopupColor.visibility = View.GONE
         }
         findViewById<ImageView>(R.id.popup_menu_translate_floating_touch).setOnClickListener { openFloatingSubtitle() }
-        findViewById<Button>(R.id.reader_manga_btn_menu_file_link).setOnClickListener { openFileLink() }
-        findViewById<Button>(R.id.reader_manga_btn_popup_subtitle).setOnClickListener {
+
+        val btnMenuFileLink = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_file_link)
+        btnMenuFileLink.setOnClickListener {
+            (btnMenuFileLink.icon as AnimatedVectorDrawable).start()
+            openFileLink()
+        }
+        findViewById<MaterialButton>(R.id.reader_manga_btn_popup_subtitle).setOnClickListener {
             mMenuPopupColor.visibility = View.GONE
             if (!mMenuPopupBottomSheet)
                 mBottomSheetTranslate.state = BottomSheetBehavior.STATE_EXPANDED
             mMenuPopupTranslate.visibility = View.VISIBLE
         }
-        findViewById<Button>(R.id.reader_manga_btn_popup_color).setOnClickListener {
+        findViewById<MaterialButton>(R.id.reader_manga_btn_popup_color).setOnClickListener {
             mMenuPopupTranslate.visibility = View.GONE
             if (!mMenuPopupBottomSheet)
                 mBottomSheetColor.state = BottomSheetBehavior.STATE_EXPANDED
             mMenuPopupColor.visibility = View.VISIBLE
         }
-        findViewById<Button>(R.id.reader_manga_btn_floating_popup).setOnClickListener { openFloatingSubtitle() }
-        findViewById<Button>(R.id.reader_manga_btn_floating_buttons).setOnClickListener { openFloatingButtons() }
-        findViewById<Button>(R.id.reader_manga_btn_screen_rotate).setOnClickListener {
-            requestedOrientation = if (requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            else
-                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        findViewById<MaterialButton>(R.id.reader_manga_btn_floating_popup).setOnClickListener { openFloatingSubtitle() }
+        val btnFloatingButtons = findViewById<MaterialButton>(R.id.reader_manga_btn_floating_buttons)
+        btnFloatingButtons.setOnClickListener {
+            (btnFloatingButtons.icon as AnimatedVectorDrawable).start()
+            openFloatingButtons()
+        }
+        val btnRotate = findViewById<MaterialButton>(R.id.reader_manga_btn_screen_rotate)
+        btnRotate.setOnClickListener {
+            (btnRotate.icon as AnimatedVectorDrawable).start()
+            requestedOrientation =
+                if (requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                else
+                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         }
 
-        val buttonOCR = findViewById<Button>(R.id.reader_manga_btn_menu_ocr)
+        val buttonOCR = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_ocr)
         buttonOCR.setOnClickListener {
             showMenuFromButton(buttonOCR, it)
         }
 
-        findViewById<Button>(R.id.reader_manga_btn_menu_page_linked).setOnClickListener { mSubtitleController.drawPageLinked() }
+        val btnMenuPage = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_page_linked)
+        btnMenuPage.setOnClickListener {
+            btnMenuPage.setIconResource(if (mSubtitleController.isDrawing()) R.drawable.ico_animated_page_linked_remove else R.drawable.ico_animated_page_linked_insert)
+            (btnMenuPage.icon as AnimatedVectorDrawable).start()
+            mSubtitleController.drawPageLinked()
+        }
 
         mLibrary = LibraryUtil.getDefault(this)
         mStorage = Storage(applicationContext)
-        findViewById<MaterialButton>(R.id.reader_manga_nav_previous_file).setOnClickListener { switchManga(false) }
-        findViewById<MaterialButton>(R.id.reader_manga_nav_next_file).setOnClickListener { switchManga(true) }
+        val previous = findViewById<MaterialButton>(R.id.reader_manga_nav_previous_file)
+        val next = findViewById<MaterialButton>(R.id.reader_manga_nav_next_file)
+
+        previous.setOnClickListener {
+            (previous.icon as AnimatedVectorDrawable).start()
+            switchManga(false)
+        }
+        next.setOnClickListener {
+            (next.icon as AnimatedVectorDrawable).start()
+            switchManga(true)
+        }
 
         mToolbarTitleContent.setOnClickListener { dialogPageIndex() }
         mToolbarTitleContent.setOnLongClickListener {
@@ -300,7 +328,11 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         mRepository = MangaRepository(applicationContext)
 
         mPreferences = GeneralConsts.getSharedPreferences(this)
-        mClockAndBattery.visibility = if (mPreferences.getBoolean(GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY, false))
+        mClockAndBattery.visibility = if (mPreferences.getBoolean(
+                GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY,
+                false
+            )
+        )
             View.VISIBLE
         else
             View.GONE
@@ -338,7 +370,8 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
             mViewModel.clearChapter()
             if (Intent.ACTION_VIEW == intent.action) {
                 if (intent.extras != null && intent.extras!!.containsKey(GeneralConsts.KEYS.MANGA.ID)) {
-                    val manga = mRepository.get(intent.extras!!.getLong(GeneralConsts.KEYS.MANGA.ID))
+                    val manga =
+                        mRepository.get(intent.extras!!.getLong(GeneralConsts.KEYS.MANGA.ID))
                     manga?.fkLibrary?.let {
                         val library = LibraryRepository(this)
                         mLibrary = library.get(it) ?: mLibrary
@@ -355,7 +388,8 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
                 if (extras != null)
                     mLibrary = extras.getSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY) as Library
 
-                val manga = if (extras != null) (extras.getSerializable(GeneralConsts.KEYS.OBJECT.MANGA) as Manga?) else null
+                val manga =
+                    if (extras != null) (extras.getSerializable(GeneralConsts.KEYS.OBJECT.MANGA) as Manga?) else null
                 manga?.let {
                     it.bookMark = extras?.getInt(GeneralConsts.KEYS.MANGA.MARK) ?: 0
                 }
@@ -363,7 +397,8 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
                 initialize(manga)
             }
         } else
-            mFragment = supportFragmentManager.findFragmentById(R.id.root_frame_reader) as MangaReaderFragment?
+            mFragment =
+                supportFragmentManager.findFragmentById(R.id.root_frame_reader) as MangaReaderFragment?
     }
 
     private fun initialize(manga: Manga?) {
@@ -398,7 +433,8 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
             mStorage.getPrevManga(mLibrary, mManga!!)
 
         if (changeManga == null) {
-            val content = if (isNext) R.string.switch_next_comic_last_comic else R.string.switch_prev_comic_first_comic
+            val content =
+                if (isNext) R.string.switch_next_comic_last_comic else R.string.switch_prev_comic_first_comic
             AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle)
                 .setTitle(getString(R.string.switch_next_comic_not_found))
                 .setMessage(content)
@@ -440,7 +476,8 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
 
     fun setLanguage(language: Languages) {
         mViewModel.mLanguageOcr = language
-        mLanguageOcrDescription.text = getString(R.string.languages_description, Util.languageToString(this, language))
+        mLanguageOcrDescription.text =
+            getString(R.string.languages_description, Util.languageToString(this, language))
         mSubToolbar.visibility = View.VISIBLE
     }
 
@@ -494,13 +531,18 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     fun getMangaIconAdaptive(manga: Manga): Icon {
-        val image = MangaImageCoverController.instance.getMangaCover(this, manga, true) ?: return Icon.createWithResource(
-            this,
-            R.drawable.ic_shortcut_book
-        )
+        val image = MangaImageCoverController.instance.getMangaCover(this, manga, true)
+            ?: return Icon.createWithResource(
+                this,
+                R.drawable.ic_shortcut_book
+            )
         val bitmapDrawable: Drawable = BitmapDrawable(resources, image)
         val drawableIcon = AdaptiveIconDrawable(bitmapDrawable, bitmapDrawable)
-        val result = Bitmap.createBitmap(drawableIcon.intrinsicWidth, drawableIcon.intrinsicHeight, Bitmap.Config.ARGB_8888)
+        val result = Bitmap.createBitmap(
+            drawableIcon.intrinsicWidth,
+            drawableIcon.intrinsicHeight,
+            Bitmap.Config.ARGB_8888
+        )
         val canvas = Canvas(result)
         drawableIcon.setBounds(0, 0, canvas.width, canvas.height)
         drawableIcon.draw(canvas)
@@ -531,7 +573,8 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
     }
 
     private fun dialogPageIndex() {
-        val currentFragment = supportFragmentManager.findFragmentById(R.id.root_frame_reader) ?: return
+        val currentFragment =
+            supportFragmentManager.findFragmentById(R.id.root_frame_reader) ?: return
         val parse = (currentFragment as MangaReaderFragment).mParse ?: return
 
         val paths = parse.getPagePaths()
@@ -555,12 +598,18 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         title.setPadding(resources.getDimensionPixelOffset(R.dimen.page_link_page_index_title_padding))
         val name = TextView(this)
         name.text = mToolbarTitle.text
-        name.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_index_dialog_size))
+        name.setTextSize(
+            TypedValue.COMPLEX_UNIT_PX,
+            resources.getDimension(R.dimen.title_index_dialog_size)
+        )
         name.setTextColor(getColorFromAttr(R.attr.colorPrimary))
         title.addView(name)
         val index = TextView(this)
         index.text = resources.getString(R.string.reading_manga_page_index)
-        index.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_small_index_dialog_size))
+        index.setTextSize(
+            TypedValue.COMPLEX_UNIT_PX,
+            resources.getDimension(R.dimen.title_small_index_dialog_size)
+        )
         index.setTextColor(getColorFromAttr(R.attr.colorSecondary))
         title.addView(index)
         title.setOnLongClickListener {
@@ -766,9 +815,9 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         val favoriteItem = menu.findItem(R.id.menu_item_reader_favorite)
         val icon = if (mManga != null && mManga!!.favorite)
-            ContextCompat.getDrawable(this, R.drawable.ic_favorite_mark)
+            ContextCompat.getDrawable(this, R.drawable.ico_favorite_mark)
         else
-            ContextCompat.getDrawable(this, R.drawable.ic_favorite_unmark)
+            ContextCompat.getDrawable(this, R.drawable.ico_favorite_unmark)
         icon?.setTint(getColorFromAttr(R.attr.colorSecondary))
         favoriteItem.icon = icon
         return super.onPrepareOptionsMenu(menu)
@@ -781,11 +830,12 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         mManga?.favorite = !mManga!!.favorite
 
         val icon = if (mManga!!.favorite)
-            ContextCompat.getDrawable(this, R.drawable.ic_favorite_mark)
+            ContextCompat.getDrawable(this, R.drawable.ico_animated_favorited_marked)
         else
-            ContextCompat.getDrawable(this, R.drawable.ic_favorite_unmark)
+            ContextCompat.getDrawable(this, R.drawable.ico_animated_favorited_unmarked)
         icon?.setTint(getColorFromAttr(R.attr.colorSecondary))
         item.icon = icon
+        (item.icon as AnimatedVectorDrawable).start()
         mRepository.update(mManga!!)
     }
 
@@ -940,7 +990,11 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
                 val loaded = mViewModel.loadChapter(
                     mManga,
                     initial
-                ) { page -> if (!mChapterList.isComputingLayout) mChapterList.adapter?.notifyItemChanged(page) }
+                ) { page ->
+                    if (!mChapterList.isComputingLayout) mChapterList.adapter?.notifyItemChanged(
+                        page
+                    )
+                }
                 chapterVisibility(true)
                 mFragment?.let {
                     if (loaded)
@@ -1101,18 +1155,21 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
     }
 
     override fun getImage(): Bitmap? {
-        val currentFragment = supportFragmentManager.findFragmentById(R.id.root_frame_reader) ?: return null
+        val currentFragment =
+            supportFragmentManager.findFragmentById(R.id.root_frame_reader) ?: return null
         val view = (currentFragment as MangaReaderFragment).getCurrencyImageView() ?: return null
         return view.drawable.toBitmap()
     }
 
     override fun getImage(x: Int, y: Int, width: Int, height: Int): Bitmap? {
-        val currentFragment = supportFragmentManager.findFragmentById(R.id.root_frame_reader) ?: return null
+        val currentFragment =
+            supportFragmentManager.findFragmentById(R.id.root_frame_reader) ?: return null
         val view = (currentFragment as MangaReaderFragment).getCurrencyImageView() ?: return null
         view.isDrawingCacheEnabled = true
         view.buildDrawingCache()
         val screenshot = view.drawingCache
-        val image = Bitmap.createBitmap(screenshot, x, y, width, height, null, false).copy(screenshot.config, true)
+        val image = Bitmap.createBitmap(screenshot, x, y, width, height, null, false)
+            .copy(screenshot.config, true)
         view.isDrawingCacheEnabled = false
         return image
     }
@@ -1145,7 +1202,8 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
 
     private fun getBatteryPercent() {
         try {
-            val percent = (getSystemService(BATTERY_SERVICE) as BatteryManager).getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+            val percent =
+                (getSystemService(BATTERY_SERVICE) as BatteryManager).getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
             mBattery.text = getString(R.string.percent, percent)
         } finally {
             mHandler.postDelayed(mMonitoringBattery, 60000)

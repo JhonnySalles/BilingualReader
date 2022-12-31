@@ -194,7 +194,7 @@ class FloatingSubtitleReader constructor(private val context: Context, private v
             setResizer()
 
             mIconExpanded = AppCompatResources.getDrawable(context, R.drawable.ic_expanded)
-            mIconRetracted = AppCompatResources.getDrawable(context, R.drawable.ic_retracted)
+            mIconRetracted = AppCompatResources.getDrawable(context, R.drawable.ico_floating_subtitle_retracted)
 
             mBtnExpanded = this.findViewById(R.id.floating_manga_subtitle_expanded)
             mBtnExpanded.setOnClickListener { expanded() }

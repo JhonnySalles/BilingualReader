@@ -147,7 +147,7 @@
             android:layout_marginStart="5dp"
             android:layout_marginBottom="85dp"
             android:contentDescription="@string/reading_manga_button_previous_file"
-            app:icon="@drawable/ic_previous_file"
+            app:icon="@drawable/ico_animated_manga_before"
             app:iconGravity="textStart"
             app:rippleColor="?attr/colorTertiary"
             tools:ignore="TouchTargetSizeCheck" />
@@ -162,7 +162,7 @@
             android:layout_marginEnd="5dp"
             android:layout_marginBottom="85dp"
             android:contentDescription="@string/reading_manga_button_next_file"
-            app:icon="@drawable/ic_next_file"
+            app:icon="@drawable/ico_animated_manga_next"
             app:iconGravity="textStart"
             tools:ignore="TouchTargetSizeCheck" />
 
@@ -175,7 +175,7 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/reader_manga_btn_screen_rotate"
                 style="@style/Button.ReaderButtons"
                 android:layout_width="@dimen/reader_button_width"
@@ -183,9 +183,9 @@
                 android:layout_marginEnd="5dp"
                 android:contentDescription="@string/reading_manga_button_screen_rotate"
                 android:minHeight="@dimen/popup_reader_button_min_height"
-                app:icon="@drawable/ic_screen_rotation" />
+                app:icon="@drawable/ico_animated_screen_rotation_portrait" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/reader_manga_btn_floating_popup"
                 style="@style/Button.ReaderButtons"
                 android:layout_width="@dimen/reader_button_width"
@@ -196,7 +196,7 @@
                 android:visibility="gone"
                 app:icon="@drawable/ic_floating_window" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/reader_manga_btn_menu_ocr"
                 style="@style/Button.ReaderButtons"
                 android:layout_width="@dimen/reader_button_width"
@@ -206,7 +206,7 @@
                 android:minHeight="@dimen/popup_reader_button_min_height"
                 app:icon="@drawable/ic_reader_ocr" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/reader_manga_btn_popup_subtitle"
                 style="@style/Button.ReaderButtons"
                 android:layout_width="@dimen/reader_button_width"
@@ -216,7 +216,7 @@
                 android:minHeight="@dimen/popup_reader_button_min_height"
                 app:icon="@drawable/ic_change_language" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/reader_manga_btn_popup_color"
                 style="@style/Button.ReaderButtons"
                 android:layout_width="@dimen/reader_button_width"
@@ -226,7 +226,7 @@
                 android:minHeight="@dimen/popup_reader_button_min_height"
                 app:icon="@drawable/ic_color_settings"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/reader_manga_btn_menu_page_linked"
                 style="@style/Button.ReaderButtons"
                 android:layout_width="@dimen/reader_button_width"
@@ -234,9 +234,9 @@
                 android:layout_marginEnd="5dp"
                 android:contentDescription="@string/reading_manga_button_page_linked"
                 android:minHeight="@dimen/popup_reader_button_min_height"
-                app:icon="@drawable/ic_page_linked" />
+                app:icon="@drawable/ico_animated_page_linked_insert" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/reader_manga_btn_menu_file_link"
                 style="@style/Button.ReaderButtons"
                 android:layout_width="@dimen/reader_button_width"
@@ -244,9 +244,9 @@
                 android:layout_marginEnd="5dp"
                 android:contentDescription="@string/reading_manga_button_file_link"
                 android:minHeight="@dimen/popup_reader_button_min_height"
-                app:icon="@drawable/ic_file_link" />
+                app:icon="@drawable/ico_animated_file_link" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/reader_manga_btn_floating_buttons"
                 style="@style/Button.ReaderButtons"
                 android:layout_width="@dimen/popup_reader_button_width"
@@ -254,7 +254,7 @@
                 android:layout_marginEnd="5dp"
                 android:contentDescription="@string/reading_manga_button_floating_buttons"
                 android:minHeight="@dimen/reader_button_width"
-                app:icon="@drawable/ic_floating_buttons" />
+                app:icon="@drawable/ico_animated_floating_buttons" />
 
         </LinearLayout>
     </RelativeLayout>

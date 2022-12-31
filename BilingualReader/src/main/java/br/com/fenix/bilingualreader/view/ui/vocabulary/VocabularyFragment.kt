@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.view.ui.vocabulary
 
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -65,8 +66,10 @@ class VocabularyFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
 
         setFavorite(mViewModel.getFavorite())
         mFavorite.setOnMenuItemClickListener {
-            mViewModel.setQueryFavorite(!mViewModel.getFavorite())
-            setFavorite(mViewModel.getFavorite())
+            val favorite = !mViewModel.getFavorite()
+            mFavorite.setIcon(if (favorite) R.drawable.ico_animated_favorited_marked else R.drawable.ico_animated_favorited_unmarked)
+            (mFavorite.icon as AnimatedVectorDrawable).start()
+            mViewModel.setQueryFavorite(favorite)
             true
         }
 
@@ -219,7 +222,7 @@ class VocabularyFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
     }
 
     private fun setFavorite(favorite: Boolean) {
-        mFavorite.setIcon(if (favorite) R.drawable.ic_favorite_mark else R.drawable.ic_favorite_unmark)
+        mFavorite.setIcon(if (favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
     }
 
     override fun onRefresh() {

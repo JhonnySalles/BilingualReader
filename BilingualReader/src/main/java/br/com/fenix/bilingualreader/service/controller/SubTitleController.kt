@@ -927,6 +927,8 @@ class SubTitleController private constructor(private val context: Context) {
         }
     }
 
+    fun isDrawing() = mImageBackup.containsKey(MangaReaderFragment.mCurrentPage)
+
     fun drawPageLinked() {
         if (mImageBackup.containsKey(MangaReaderFragment.mCurrentPage)) {
             val view: PageImageView = mReaderFragment!!.getCurrencyImageView() ?: return
