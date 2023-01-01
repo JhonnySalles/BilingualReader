@@ -1,0 +1,336 @@
+{
+  "version": 1,
+  "layers": {
+    "vectorLayer": {
+      "id": "51",
+      "name": "vector",
+      "type": "vector",
+      "width": 24,
+      "height": 24,
+      "children": [
+        {
+          "id": "52",
+          "name": "btn1",
+          "type": "group",
+          "translateY": 1,
+          "children": [
+            {
+              "id": "53",
+              "name": "bar1",
+              "type": "path",
+              "pathData": "M 4.104 0.888 L 20.145 0.888 Q 21.249 0.888 21.249 1.991 L 21.249 4.719 Q 21.249 5.822 20.145 5.822 L 4.104 5.822 Q 3 5.822 3 4.719 L 3 1.991 Q 3 0.888 4.104 0.888 Z",
+              "fillColor": "#ffffff",
+              "strokeWidth": 2.06376
+            }
+          ]
+        },
+        {
+          "id": "54",
+          "name": "btn2",
+          "type": "group",
+          "translateY": 2,
+          "children": [
+            {
+              "id": "55",
+              "name": "bar2",
+              "type": "path",
+              "pathData": "M 4.104 6.763 L 20.145 6.763 Q 21.249 6.763 21.249 7.867 L 21.249 10.594 Q 21.249 11.698 20.145 11.698 L 4.104 11.698 Q 3 11.698 3 10.594 L 3 7.867 Q 3 6.763 4.104 6.763 Z",
+              "fillColor": "#ffffff",
+              "strokeWidth": 2.06376
+            }
+          ]
+        },
+        {
+          "id": "56",
+          "name": "btn3",
+          "type": "group",
+          "translateY": 3,
+          "children": [
+            {
+              "id": "57",
+              "name": "bar3",
+              "type": "path",
+              "pathData": "M 4.104 12.479 L 20.145 12.479 Q 21.249 12.479 21.249 13.583 L 21.249 16.31 Q 21.249 17.414 20.145 17.414 L 4.104 17.414 Q 3 17.414 3 16.31 L 3 13.583 Q 3 12.479 4.104 12.479 Z",
+              "fillColor": "#ffffff",
+              "strokeWidth": 2.06376
+            }
+          ]
+        }
+      ]
+    },
+    "hiddenLayerIds": []
+  },
+  "timeline": {
+    "animation": {
+      "id": "60",
+      "name": "anim",
+      "duration": 1200,
+      "blocks": [
+        {
+          "id": "61",
+          "layerId": "52",
+          "propertyName": "scaleX",
+          "startTime": 84,
+          "endTime": 269,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.2
+        },
+        {
+          "id": "62",
+          "layerId": "52",
+          "propertyName": "translateX",
+          "startTime": 84,
+          "endTime": 269,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 10
+        },
+        {
+          "id": "63",
+          "layerId": "52",
+          "propertyName": "scaleX",
+          "startTime": 413,
+          "endTime": 598,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.2,
+          "toValue": 1
+        },
+        {
+          "id": "64",
+          "layerId": "52",
+          "propertyName": "translateX",
+          "startTime": 413,
+          "endTime": 598,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 10,
+          "toValue": 0
+        },
+        {
+          "id": "65",
+          "layerId": "52",
+          "propertyName": "scaleX",
+          "startTime": 761,
+          "endTime": 946,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.2
+        },
+        {
+          "id": "66",
+          "layerId": "52",
+          "propertyName": "translateX",
+          "startTime": 761,
+          "endTime": 946,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 10
+        },
+        {
+          "id": "67",
+          "layerId": "52",
+          "propertyName": "translateX",
+          "startTime": 1015,
+          "endTime": 1200,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 10,
+          "toValue": 0
+        },
+        {
+          "id": "68",
+          "layerId": "52",
+          "propertyName": "scaleX",
+          "startTime": 1015,
+          "endTime": 1200,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.2,
+          "toValue": 1
+        },
+        {
+          "id": "69",
+          "layerId": "54",
+          "propertyName": "translateX",
+          "startTime": 41,
+          "endTime": 226,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 10
+        },
+        {
+          "id": "70",
+          "layerId": "54",
+          "propertyName": "scaleX",
+          "startTime": 41,
+          "endTime": 226,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.2
+        },
+        {
+          "id": "71",
+          "layerId": "56",
+          "propertyName": "scaleX",
+          "startTime": 3,
+          "endTime": 188,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.2
+        },
+        {
+          "id": "72",
+          "layerId": "56",
+          "propertyName": "translateX",
+          "startTime": 3,
+          "endTime": 188,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 10
+        },
+        {
+          "id": "75",
+          "layerId": "54",
+          "propertyName": "scaleX",
+          "startTime": 370,
+          "endTime": 555,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.2,
+          "toValue": 1
+        },
+        {
+          "id": "76",
+          "layerId": "54",
+          "propertyName": "translateX",
+          "startTime": 370,
+          "endTime": 555,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 10,
+          "toValue": 0
+        },
+        {
+          "id": "77",
+          "layerId": "56",
+          "propertyName": "scaleX",
+          "startTime": 317,
+          "endTime": 502,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.2,
+          "toValue": 1
+        },
+        {
+          "id": "78",
+          "layerId": "56",
+          "propertyName": "translateX",
+          "startTime": 317,
+          "endTime": 502,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 10,
+          "toValue": 0
+        },
+        {
+          "id": "81",
+          "layerId": "54",
+          "propertyName": "scaleX",
+          "startTime": 719,
+          "endTime": 904,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.2
+        },
+        {
+          "id": "82",
+          "layerId": "54",
+          "propertyName": "translateX",
+          "startTime": 719,
+          "endTime": 904,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 10
+        },
+        {
+          "id": "83",
+          "layerId": "56",
+          "propertyName": "scaleX",
+          "startTime": 673,
+          "endTime": 858,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.2
+        },
+        {
+          "id": "84",
+          "layerId": "56",
+          "propertyName": "translateX",
+          "startTime": 673,
+          "endTime": 858,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 10
+        },
+        {
+          "id": "87",
+          "layerId": "54",
+          "propertyName": "scaleX",
+          "startTime": 1015,
+          "endTime": 1200,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.2,
+          "toValue": 1
+        },
+        {
+          "id": "88",
+          "layerId": "54",
+          "propertyName": "translateX",
+          "startTime": 1015,
+          "endTime": 1200,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 10,
+          "toValue": 0
+        },
+        {
+          "id": "89",
+          "layerId": "56",
+          "propertyName": "scaleX",
+          "startTime": 1015,
+          "endTime": 1200,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.2,
+          "toValue": 1
+        },
+        {
+          "id": "90",
+          "layerId": "56",
+          "propertyName": "translateX",
+          "startTime": 1015,
+          "endTime": 1200,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 10,
+          "toValue": 0
+        }
+      ]
+    }
+  }
+}
