@@ -169,8 +169,12 @@ class PagesLinkFragment : Fragment() {
         mScrollUp.visibility = View.GONE
         mScrollDown.visibility = View.GONE
 
-        mScrollUp.setOnClickListener { mRecyclerPageLink.smoothScrollToPosition(0) }
+        mScrollUp.setOnClickListener {
+            (mScrollUp.drawable as AnimatedVectorDrawable).start()
+            mRecyclerPageLink.smoothScrollToPosition(0)
+        }
         mScrollDown.setOnClickListener {
+            (mScrollDown.drawable as AnimatedVectorDrawable).start()
             mRecyclerPageLink.smoothScrollToPosition((mRecyclerPageLink.adapter as RecyclerView.Adapter).itemCount)
         }
 
@@ -252,7 +256,10 @@ class PagesLinkFragment : Fragment() {
             refresh()
         }
 
-        mAutoProcess.setOnClickListener { mViewModel.autoReorderDoublePages(Pages.LINKED, true) }
+        mAutoProcess.setOnClickListener {
+            (mAutoProcess.icon as AnimatedVectorDrawable).start()
+            mViewModel.autoReorderDoublePages(Pages.LINKED, true)
+        }
         mReorderPages.setOnClickListener {
             (mReorderPages.icon as AnimatedVectorDrawable).start()
             mViewModel.reorderBySortPages()
@@ -312,14 +319,18 @@ class PagesLinkFragment : Fragment() {
             )
 
             val image = if (visible)
-                R.drawable.ic_fullscreen
+                R.drawable.ico_animated_full_screen_exit
             else
-                R.drawable.ic_fullscreen_exit
+                R.drawable.ico_animated_full_screen_enter
 
             mFullScreen.icon = ContextCompat.getDrawable(requireContext(), image)
+            (mFullScreen.icon as AnimatedVectorDrawable).start()
         }
 
-        mPagesIndex.setOnClickListener { openMenuIndexes() }
+        mPagesIndex.setOnClickListener {
+            (mPagesIndex.icon as AnimatedVectorDrawable).start()
+            openMenuIndexes()
+        }
 
         mForceImageReload.setOnClickListener { mViewModel.reLoadImages() }
 

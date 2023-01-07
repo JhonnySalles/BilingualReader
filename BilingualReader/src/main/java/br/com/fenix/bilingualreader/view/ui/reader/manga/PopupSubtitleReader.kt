@@ -87,9 +87,15 @@ class PopupSubtitleReader : Fragment() {
             (mRefresh.icon as AnimatedVectorDrawable).start()
             mSubTitleController.findSubtitle()
         }
-        mDraw.setOnClickListener { mSubTitleController.drawSelectedText() }
+        mDraw.setOnClickListener {
+            (mDraw.icon as AnimatedVectorDrawable).start()
+            mSubTitleController.drawSelectedText()
+        }
 
-        mChangeLanguage.setOnClickListener { mSubTitleController.changeLanguage() }
+        mChangeLanguage.setOnClickListener {
+            (mChangeLanguage.icon as AnimatedVectorDrawable).start()
+            mSubTitleController.changeLanguage()
+        }
 
         mSubtitlePageAutoComplete.setOnClickListener {
             mSubtitlePageAutoComplete.setText("", false)

@@ -53,7 +53,7 @@
                 android:layout_gravity="start|top"
                 android:contentDescription="@string/popup_reading_manga_floating_popup"
                 android:scaleType="center"
-                android:src="@drawable/ic_floating_window"/>
+                android:src="@drawable/ico_animated_floating_window"/>
 
             <LinearLayout
                 android:layout_width="match_parent"

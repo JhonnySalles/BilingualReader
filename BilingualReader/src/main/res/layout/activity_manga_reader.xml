@@ -51,7 +51,7 @@
                 android:id="@+id/popup_menu_translate_close"
                 style="@style/TextTitle.Popup"
                 android:layout_width="70dp"
-                android:layout_height="wrap_content"
+                android:layout_height="20dp"
                 android:layout_gravity="end|top"
                 android:layout_marginTop="1dp"
                 android:contentDescription="@string/popup_reading_manga_close"
@@ -62,12 +62,12 @@
                 android:id="@+id/popup_menu_translate_floating_touch"
                 style="@style/TextTitle.Popup"
                 android:layout_width="70dp"
-                android:layout_height="wrap_content"
+                android:layout_height="20dp"
                 android:layout_gravity="start|top"
                 android:layout_marginTop="1dp"
                 android:contentDescription="@string/popup_reading_manga_floating_popup"
                 android:scaleType="center"
-                android:src="@drawable/ic_floating_window"/>
+                android:src="@drawable/ico_animated_floating_window"/>
 
             <LinearLayout
                 android:layout_width="match_parent"

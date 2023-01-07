@@ -172,8 +172,12 @@ class VocabularyMangaFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener
             }
         })
 
-        mScrollUp.setOnClickListener { mRecyclerView.smoothScrollToPosition(0) }
+        mScrollUp.setOnClickListener {
+            (mScrollUp.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.smoothScrollToPosition(0)
+        }
         mScrollDown.setOnClickListener {
+            (mScrollDown.drawable as AnimatedVectorDrawable).start()
             mRecyclerView.smoothScrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount)
         }
 

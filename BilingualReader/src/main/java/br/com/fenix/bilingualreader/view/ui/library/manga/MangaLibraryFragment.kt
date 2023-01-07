@@ -346,10 +346,12 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
         mScrollUp.setOnClickListener {
             setAnimationRecycler(false)
+            (mScrollUp.drawable as AnimatedVectorDrawable).start()
             mRecyclerView.smoothScrollToPosition(0)
         }
         mScrollDown.setOnClickListener {
             setAnimationRecycler(false)
+            (mScrollDown.drawable as AnimatedVectorDrawable).start()
             mRecyclerView.smoothScrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount)
         }
 

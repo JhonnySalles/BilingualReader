@@ -62,6 +62,7 @@ import br.com.fenix.bilingualreader.view.ui.window.FloatingButtons
 import br.com.fenix.bilingualreader.view.ui.window.FloatingSubtitleReader
 import br.com.fenix.bilingualreader.view.ui.window.FloatingWindowOcr
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
@@ -194,26 +195,47 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         findViewById<ImageView>(R.id.popup_menu_color_close).setOnClickListener {
             mMenuPopupColor.visibility = View.GONE
         }
-        findViewById<ImageView>(R.id.popup_menu_translate_floating_touch).setOnClickListener { openFloatingSubtitle() }
+        val btnMenuFloating = findViewById<ImageView>(R.id.popup_menu_translate_floating_touch)
+        btnMenuFloating.setOnClickListener {
+            (btnMenuFloating.drawable as AnimatedVectorDrawable).start()
+            openFloatingSubtitle()
+        }
 
         val btnMenuFileLink = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_file_link)
         btnMenuFileLink.setOnClickListener {
             (btnMenuFileLink.icon as AnimatedVectorDrawable).start()
             openFileLink()
         }
-        findViewById<MaterialButton>(R.id.reader_manga_btn_popup_subtitle).setOnClickListener {
+        val btnPopupSubtitle = findViewById<MaterialButton>(R.id.reader_manga_btn_popup_subtitle)
+        btnPopupSubtitle.setOnClickListener {
+            (btnPopupSubtitle.icon as AnimatedVectorDrawable).start()
             mMenuPopupColor.visibility = View.GONE
-            if (!mMenuPopupBottomSheet)
-                mBottomSheetTranslate.state = BottomSheetBehavior.STATE_EXPANDED
             mMenuPopupTranslate.visibility = View.VISIBLE
+            if (!mMenuPopupBottomSheet) {
+                mBottomSheetTranslate.state = BottomSheetBehavior.STATE_EXPANDED
+                mMenuPopupTranslate.translationY = 100F
+                mMenuPopupTranslate.animate()
+                    .setDuration(200)
+                    .translationY(0f)
+            }
         }
         findViewById<MaterialButton>(R.id.reader_manga_btn_popup_color).setOnClickListener {
             mMenuPopupTranslate.visibility = View.GONE
-            if (!mMenuPopupBottomSheet)
-                mBottomSheetColor.state = BottomSheetBehavior.STATE_EXPANDED
             mMenuPopupColor.visibility = View.VISIBLE
+            if (!mMenuPopupBottomSheet) {
+                mBottomSheetColor.state = BottomSheetBehavior.STATE_EXPANDED
+                mMenuPopupColor.translationY = 100F
+                mMenuPopupColor.animate()
+                    .setDuration(200)
+                    .translationY(0f)
+            }
         }
-        findViewById<MaterialButton>(R.id.reader_manga_btn_floating_popup).setOnClickListener { openFloatingSubtitle() }
+
+        val btnFloatingSubtitle = findViewById<MaterialButton>(R.id.reader_manga_btn_floating_popup)
+        btnFloatingSubtitle.setOnClickListener {
+            (btnFloatingSubtitle.icon as AnimatedVectorDrawable).start()
+            openFloatingSubtitle()
+        }
         val btnFloatingButtons = findViewById<MaterialButton>(R.id.reader_manga_btn_floating_buttons)
         btnFloatingButtons.setOnClickListener {
             (btnFloatingButtons.icon as AnimatedVectorDrawable).start()
@@ -231,6 +253,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
 
         val buttonOCR = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_ocr)
         buttonOCR.setOnClickListener {
+            (buttonOCR.icon as AnimatedVectorDrawable).start()
             showMenuFromButton(buttonOCR, it)
         }
 
