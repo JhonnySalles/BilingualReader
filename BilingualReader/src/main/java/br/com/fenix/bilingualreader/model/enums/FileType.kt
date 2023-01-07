@@ -20,7 +20,7 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
             "application/vnd.amazon.mobi8-ebook"
         )
     ),
-    DJVU(1, arrayOf("djvu"), arrayOf("image/vnd.djvu", "image/djvu", "image/x-djvu")),
+    //DJVU(1, arrayOf("djvu"), arrayOf("image/vnd.djvu", "image/djvu", "image/x-djvu")),
     FB2(
         1,
         arrayOf("fb2"),

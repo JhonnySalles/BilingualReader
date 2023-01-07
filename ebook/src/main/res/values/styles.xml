@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Base application theme. -->
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorSecondary">@color/white</item>
+    </style>
+
+    <style name="StyledIndicatorsWhite" parent="@android:style/Theme.Light.NoTitleBar"></style>
+
+    <style name="StyledIndicatorsBlack" parent="@android:style/Theme.Black.NoTitleBar"></style>
+
+    <style name="navBGButton">
+        <item name="android:tint">@color/tint_white</item>
+        <item name="android:background">@drawable/wp_button</item>
+    </style>
+
+
+    <style name="buttonWhiteInverted">
+        <item name="android:background">@drawable/bg_border_white</item>
+        <item name="android:padding">8dip</item>
+        <item name="android:layout_marginLeft">1.5dip</item>
+        <item name="android:layout_marginRight">1.5dip</item>
+        <item name="android:tint">?android:attr/textColorLink</item>
+    </style>
+
+
+    <style name="buttonWhite">
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:padding">8dip</item>
+        <item name="android:layout_marginLeft">1.5dip</item>
+        <item name="android:layout_marginRight">1.5dip</item>
+        <item name="android:tint">@color/white</item>
+    </style>
+
+    <style name="buttonWhiteClose" parent="buttonWhite">
+        <item name="android:padding">10dip</item>
+    </style>
+
+    <style name="textLink">
+        <item name="android:padding">5dip</item>
+        <item name="android:minEms">4</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textColor">?android:attr/textColorLink</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+    </style>
+
+    <style name="textLinkWhite" parent="textLink">
+        <item name="android:textColor">#ccffffff</item>
+    </style>
+
+    <style name="textLinkStyle">
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textColor">?android:attr/textColorLink</item>
+    </style>
+
+    <style name="buttonClear">
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:padding">8dip</item>
+        <item name="android:tint">@color/tint_gray</item>
+    </style>
+</resources>

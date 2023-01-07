@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.model.entity
 
 import androidx.room.*
+import br.com.ebook.foobnix.ext.EbookMeta
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
@@ -27,7 +28,7 @@ class Book(
     bookMark: Int,
     language: Languages,
     path: String,
-    fileSize: Double,
+    fileSize: Long,
     name: String,
     type: FileType,
     folder: String,
@@ -41,13 +42,30 @@ class Book(
     constructor(
         title: String, author: String, annotation: String,
         year: String, genre: String, publisher: String, isbn: String,
-        path: String, folder: String, name: String, fileSize: Double,
+        path: String, folder: String, name: String, fileSize: Long,
         pages: Int
     ) : this(
         null, title, author, annotation, year, genre, publisher, isbn, pages, 0,
         Languages.ENGLISH, path, fileSize, name, FileType.UNKNOWN, folder, false,
         LocalDateTime.now(), null, LocalDateTime.now(), false
     ) {
+        this.file = File(path)
+        this.fileName = Util.getNameWithoutExtensionFromPath(path)
+        this.extension = Util.getExtensionFromPath(path)
+        this.type = FileUtil.getFileType(this.fileName)
+    }
+
+    constructor( id: Long?, file: File, meta: EbookMeta) : this(
+        id, meta.title, meta.author ?: "", meta.annotation ?: "", "", meta.genre ?: "", "", "", 0, 0,
+        Languages.ENGLISH, file.path, file.length(), file.nameWithoutExtension, FileType.UNKNOWN, file.parent, false,
+        LocalDateTime.now(), null, LocalDateTime.now(), false
+    ) {
+        this.language = when (meta.lang) {
+            "ja", "jp" -> Languages.JAPANESE
+            "en" -> Languages.ENGLISH
+            else -> Languages.PORTUGUESE
+        }
+
         this.file = File(path)
         this.fileName = Util.getNameWithoutExtensionFromPath(path)
         this.extension = Util.getExtensionFromPath(path)
@@ -101,7 +119,7 @@ class Book(
     var extension: String = ""
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FILE_SIZE)
-    var fileSize: Double = fileSize
+    var fileSize: Long = fileSize
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FILE_NAME)
     var name: String = name

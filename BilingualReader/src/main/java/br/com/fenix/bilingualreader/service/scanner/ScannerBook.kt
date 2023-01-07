@@ -4,10 +4,12 @@ import android.content.Context
 import android.os.Handler
 import android.os.Message
 import android.os.Process
+import br.com.ebook.foobnix.dao2.FileMeta
+import br.com.ebook.foobnix.ext.CacheZipUtils
+import br.com.ebook.foobnix.ui2.FileMetaCore
 import br.com.fenix.bilingualreader.model.entity.Book
-import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
-import br.com.fenix.bilingualreader.service.parses.manga.Parse
+import br.com.fenix.bilingualreader.model.enums.FileType
+import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
@@ -129,8 +131,8 @@ class ScannerBook(private val context: Context) {
         }
     }
 
-    private fun generateCover(parse: Parse, manga: Manga) =
-        MangaImageCoverController.instance.getCoverFromFile(context, manga.file, parse)
+    private fun generateCover(book: Book) =
+        BookImageCoverController.instance.getCoverFromFile(context, book.file)
 
     private inner class LibraryUpdateRunnable() : Runnable {
         override fun run() {
@@ -156,45 +158,33 @@ class ScannerBook(private val context: Context) {
                     .filterNot { it.isDirectory }.forEach {
                         walked = true
                         if (mIsStopped) return
-                        if (it.name.endsWith(".rar") ||
-                            it.name.endsWith(".zip") ||
-                            it.name.endsWith(".cbr") ||
-                            it.name.endsWith(".cbz")
-                        ) {
+
+                        if (FileType.isBook(it.name)) {
                             if (storageFiles.containsKey(it.name))
                                 storageFiles.remove(it.name)
                             else {
                                 isProcess = true
                                 try {
-                                    /*val parse: Parse? = ParseFactory.create(it)
-                                    try {
+                                    val ebookMeta = FileMetaCore.get()
+                                        .getEbookMeta(it.path, CacheZipUtils.CacheDir.ZipApp, false)
+                                    FileMetaCore.get().udpateFullMeta(FileMeta(it.path), ebookMeta)
 
-                                        if (parse != null)
-                                            if (parse.numPages() > 0) {
-                                                val book = if (storageDeletes.containsKey(it.name)) {
-                                                    storageFiles.remove(it.name)
-                                                    storageDeletes.getValue(it.name)
-                                                } else Book(
-                                                    null,
-                                                    it.name,
-                                                    "",
-                                                    it.path,
-                                                    it.parent,
-                                                    it.nameWithoutExtension,
-                                                    it.extension,
-                                                    parse.numPages()
-                                                )
+                                    val book = if (storageDeletes.containsKey(it.name)) {
+                                        storageFiles.remove(it.name)
+                                        storageDeletes.getValue(it.name)
+                                    } else Book(
+                                        null,
+                                        it,
+                                        ebookMeta
+                                    )
 
-                                                book.path = it.path
-                                                book.folder = it.parent
-                                                book.excluded = false
-                                                //generateCover(parse, book)
-                                                book.id = storage.save(book)
-                                                notifyMediaUpdatedAdd(book)
-                                            }
-                                    } finally {
-                                        Util.destroyParse(parse)
-                                    }*/
+                                    book.path = it.path
+                                    book.folder = it.parent
+                                    book.excluded = false
+                                    generateCover(book)
+                                    book.id = storage.save(book)
+                                    notifyMediaUpdatedAdd(book)
+
                                 } catch (e: Exception) {
                                     mLOGGER.error("Error load book " + it.name, e)
                                 } catch (e: IOException) {

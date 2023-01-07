@@ -5,10 +5,13 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.LruCache
 import android.widget.ImageView
+import br.com.ebook.foobnix.pdf.info.PageUrl
+import br.com.ebook.foobnix.sys.ImageExtractor
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.service.parses.book.Parse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
+import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import kotlinx.coroutines.*
@@ -98,8 +101,8 @@ class BookImageCoverController private constructor() {
         saveBitmapToCache(context, generateHash(book.file), bitmap)
     }
 
-    fun getCoverFromFile(context: Context, file: File, parse: Parse): Bitmap? {
-        return getCoverFromFile(context, generateHash(file), parse)
+    fun getCoverFromFile(context: Context, file: File): Bitmap? {
+        return getCoverFromFile(context, generateHash(file), file)
     }
 
     private fun generateHash(file: File): String =
@@ -108,42 +111,40 @@ class BookImageCoverController private constructor() {
     private fun getCoverFromFile(
         context: Context,
         hash: String,
-        parse: Parse,
+        file: File,
         isCoverSize: Boolean = true
     ): Bitmap? {
-        var index = 0
-        for (i in 0 until parse.numPages()) {
-            /*if (FileUtil.isImage(parse.getPagePath(i)!!)) {
-                index = i
-                break
-            }*/
-        }
-        var stream: InputStream? = parse.getPage(index)
-
         val cover: Bitmap?
 
         if (isCoverSize) {
-            val option = BitmapFactory.Options()
-            option.inJustDecodeBounds = true
-            BitmapFactory.decodeStream(stream, null, option)
-            option.inSampleSize = ImageUtil.calculateInSampleSize(
-                option,
+            val pageHtml = PageUrl(
+                file.path,
+                0,
                 ReaderConsts.COVER.COVER_THUMBNAIL_WIDTH,
-                ReaderConsts.COVER.COVER_THUMBNAIL_HEIGHT
+                0,
+                false,
+                true,
+                0
             )
-            option.inJustDecodeBounds = false
 
-            Util.closeInputStream(stream)
-            stream = parse.getPage(index)
-            cover = BitmapFactory.decodeStream(stream, null, option)
+            val extractor = ImageExtractor.getInstance(context)
+            cover =  extractor.proccessCoverPage(pageHtml)
+
             if (cover != null)
                 saveBitmapToCache(context, hash, cover)
-
-            Util.closeInputStream(stream)
         } else {
-            stream = parse.getPage(index)
-            cover = BitmapFactory.decodeStream(stream)
-            Util.closeInputStream(stream)
+            val pageHtml = PageUrl(
+                file.path,
+                0,
+                ReaderConsts.READER.MAX_PAGE_WIDTH,
+                0,
+                false,
+                true,
+                0
+            )
+
+            val extractor = ImageExtractor.getInstance(context)
+            cover =  extractor.proccessCoverPage(pageHtml)
         }
 
         return cover

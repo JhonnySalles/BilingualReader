@@ -1,0 +1,36 @@
+package br.com.ebook.foobnix.pdf.info.wrapper;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+
+import br.com.ebook.foobnix.android.utils.Objects;
+
+public class PasswordState {
+
+    private static PasswordState instance = new PasswordState();
+
+    public static PasswordState get() {
+        return instance;
+    }
+
+    private static final String PASSWORD_STATE = "PasswordState";
+    public boolean isAppPassword = false;
+    public String appPassword = "";
+
+    public void save(final Context a) {
+        if (a == null) {
+            return;
+        }
+        SharedPreferences sp = a.getSharedPreferences(PASSWORD_STATE, Context.MODE_PRIVATE);
+        Objects.saveToSP(PasswordState.get(), sp);
+    }
+
+    public void load(final Context a) {
+        if (a == null) {
+            return;
+        }
+        SharedPreferences sp = a.getSharedPreferences(PASSWORD_STATE, Context.MODE_PRIVATE);
+        Objects.loadFromSp(this, sp);
+    }
+
+}

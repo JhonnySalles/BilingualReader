@@ -28,6 +28,7 @@ import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
 import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.repository.Storage
+import br.com.fenix.bilingualreader.service.scanner.ScannerBook
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.view.adapter.library.BookGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookLineCardAdapter
@@ -584,10 +585,10 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
         mViewModel.updateList { change, _ -> if (change) sortList() }
 
-        /*if (!ScannerBook.getInstance(requireContext()).isRunning()) {
+        if (!ScannerBook.getInstance(requireContext()).isRunning()) {
             setIsRefreshing(true)
             ScannerBook.getInstance(requireContext()).scanLibrary()
-        }*/
+        }
     }
 
     private var itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {

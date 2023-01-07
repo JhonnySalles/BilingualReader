@@ -15,11 +15,11 @@ class DataBaseConsts private constructor() {
             const val FILE_TYPE = "type"
             const val FILE_FOLDER = "folder"
             const val FAVORITE = "favorite"
-            const val HAS_SUBTITLE = "hasSubtitle"
-            const val DATE_CREATE = "dateCreate"
-            const val LAST_ACCESS = "lastAccess"
+            const val HAS_SUBTITLE = "has_subtitle"
+            const val DATE_CREATE = "date_create"
+            const val LAST_ACCESS = "last_access"
             const val EXCLUDED = "excluded"
-            const val LAST_ALTERATION = "lastAlteration"
+            const val LAST_ALTERATION = "last_alteration"
             const val FK_ID_LIBRARY = "id_library"
         }
     }
@@ -44,17 +44,17 @@ class DataBaseConsts private constructor() {
             const val ID = "id"
             const val FK_ID_MANGA = "id_manga"
             const val LANGUAGE = "language"
-            const val CHAPTER_KEY = "chapterKey"
-            const val PAGE_KEY = "pageKey"
+            const val CHAPTER_KEY = "chapter_key"
+            const val PAGE_KEY = "page_key"
             const val PAGE = "pageCount"
             const val FILE_PATH = "path"
-            const val DATE_CREATE = "dateCreate"
-            const val LAST_ALTERATION = "lastAlteration"
+            const val DATE_CREATE = "date_create"
+            const val LAST_ALTERATION = "last_alteration"
         }
     }
 
     object JLPT {
-        const val TABLE_NAME = "JLPT"
+        const val TABLE_NAME = "Jlpt"
 
         object COLUMNS {
             const val ID = "id"
@@ -64,7 +64,7 @@ class DataBaseConsts private constructor() {
     }
 
     object KANJAX {
-        const val TABLE_NAME = "KANJAX"
+        const val TABLE_NAME = "Kanjax"
 
         object COLUMNS {
             const val ID = "id"
@@ -103,9 +103,9 @@ class DataBaseConsts private constructor() {
             const val FILE_TYPE = "type"
             const val FILE_FOLDER = "folder"
             const val LANGUAGE = "language"
-            const val DATE_CREATE = "dateCreate"
-            const val LAST_ACCESS = "lastAccess"
-            const val LAST_ALTERATION = "lastAlteration"
+            const val DATE_CREATE = "date_create"
+            const val LAST_ACCESS = "last_access"
+            const val LAST_ALTERATION = "last_alteration"
         }
     }
 
@@ -156,10 +156,10 @@ class DataBaseConsts private constructor() {
             const val FILE_FOLDER = "folder"
             const val FILE_SIZE = "size"
             const val FAVORITE = "favorite"
-            const val DATE_CREATE = "dateCreate"
-            const val LAST_ACCESS = "lastAccess"
+            const val DATE_CREATE = "date_create"
+            const val LAST_ACCESS = "last_access"
             const val EXCLUDED = "excluded"
-            const val LAST_ALTERATION = "lastAlteration"
+            const val LAST_ALTERATION = "last_alteration"
         }
     }
 

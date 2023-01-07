@@ -4,12 +4,12 @@
     tools:showIn="navigation_view">
     <group>
         <item
-            android:id="@+id/menu_library_content"
+            android:id="@+id/menu_manga_library_content"
             android:icon="@drawable/ic_library"
             android:title="@string/menu_libraries">
-            <menu android:id="@+id/menu_library_items">
+            <menu android:id="@+id/menu_manga_library_items">
                 <item
-                    android:id="@+id/menu_library_default"
+                    android:id="@+id/menu_manga_library_default"
                     android:icon="@drawable/ic_library"
                     android:orderInCategory="0"
                     android:title="@string/menu_library"/>
@@ -17,12 +17,12 @@
         </item>
 
         <item
-            android:id="@+id/menu_book_content"
+            android:id="@+id/menu_book_library_content"
             android:icon="@drawable/ic_book"
             android:title="@string/menu_books">
-            <menu android:id="@+id/menu_book_items">
+            <menu android:id="@+id/menu_book_library_items">
                 <item
-                    android:id="@+id/menu_book_default"
+                    android:id="@+id/menu_book_library_default"
                     android:icon="@drawable/ic_book"
                     android:orderInCategory="0"
                     android:title="@string/menu_book"/>

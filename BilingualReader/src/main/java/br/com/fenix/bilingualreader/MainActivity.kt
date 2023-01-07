@@ -26,6 +26,7 @@ import br.com.fenix.bilingualreader.view.ui.about.AboutFragment
 import br.com.fenix.bilingualreader.view.ui.configuration.ConfigFragment
 import br.com.fenix.bilingualreader.view.ui.help.HelpFragment
 import br.com.fenix.bilingualreader.view.ui.history.HistoryFragment
+import br.com.fenix.bilingualreader.view.ui.library.book.BookLibraryFragment
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryFragment
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyFragment
@@ -203,10 +204,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val fragment = supportFragmentManager.findFragmentById(item.itemId)
         val newFragment = fragment ?: when (item.itemId) {
-            R.id.menu_library_default -> {
+            R.id.menu_manga_library_default -> {
                 mLibraryModel.setLibrary(LibraryUtil.getDefault(this))
                 MangaLibraryFragment()
             }
+            R.id.menu_book_library_default -> BookLibraryFragment()
             R.id.menu_configuration -> ConfigFragment()
             R.id.menu_help -> HelpFragment()
             R.id.menu_about -> AboutFragment()
@@ -277,7 +279,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mLibraries: List<Library>
     fun setLibraries(libraries: List<Library>) {
         val menu = mNavigationView.menu
-        val submenu: Menu = menu.findItem(R.id.menu_library_content).subMenu
+        val submenu: Menu = menu.findItem(R.id.menu_manga_library_content).subMenu
 
         if (!::mLibraries.isInitialized)
             mLibraries = libraries
