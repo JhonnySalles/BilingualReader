@@ -298,6 +298,18 @@
     <string name="book_library_menu_delete">Delete</string>
     <string name="book_library_menu_delete_description">Do you really want to delete the file?</string>
 
+    <!-- POPUP LIBRARY - Manga / Comic -->
+    <string name="popup_library_manga_tab_item_ordering">Order</string>
+    <string name="popup_library_manga_tab_item_filter">Filter</string>
+
+    <string name="popup_library_manga_order_name">For name</string>
+    <string name="popup_library_manga_order_date">For date</string>
+    <string name="popup_library_manga_order_access">Last access</string>
+    <string name="popup_library_manga_order_favorite">Favorite first</string>
+
+    <string name="popup_library_manga_filter_favorite">Favorite</string>
+    <string name="popup_library_manga_filter_reading">Reading</string>
+
     <!-- MANGA DETAIL -->
     <string name="manga_detail_favorite">Favorite</string>
     <string name="manga_detail_clear_history">Clear history</string>

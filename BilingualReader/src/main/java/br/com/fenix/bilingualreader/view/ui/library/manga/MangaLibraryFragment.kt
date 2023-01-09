@@ -15,13 +15,21 @@ import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Libraries
@@ -33,12 +41,17 @@ import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.service.scanner.ScannerManga
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.view.adapter.library.MangaGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaLineCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.ui.manga_detail.MangaDetailActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
+import br.com.fenix.bilingualreader.view.ui.reader.manga.PopupSubtitleReader
+import br.com.fenix.bilingualreader.view.ui.reader.manga.PopupSubtitleVocabulary
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
 import java.util.*
 import kotlin.math.max
@@ -66,6 +79,10 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     private lateinit var mListener: MangaCardListener
     private lateinit var mScrollUp: FloatingActionButton
     private lateinit var mScrollDown: FloatingActionButton
+    private lateinit var mPopupFilterOrderView: ViewPager
+    private lateinit var mPopupFilterOrderTab: TabLayout
+    private lateinit var mPopupFilterFragment: PopupFilter
+    private lateinit var mPopupOrderFragment: PopupOrder
 
     private var mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
@@ -112,6 +129,8 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                 return false
             }
         })
+
+        MenuUtil.longClick(requireContext(), miGridOrder, R.drawable.ic_order_by_last_access, { println("tap") }, {println("long tap")} )
 
         enableSearchView(searchView, !mRefreshLayout.isRefreshing)
         val icon: Int = when (mGridType) {
@@ -236,6 +255,7 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     }
 
     private fun onChangeSort() {
+        println("icon tap")
         if (mRefreshLayout.isRefreshing)
             return
 
@@ -332,6 +352,9 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         mScrollUp = root.findViewById(R.id.manga_library_scroll_up)
         mScrollDown = root.findViewById(R.id.manga_library_scroll_down)
 
+        mPopupFilterOrderTab = root.findViewById(R.id.popup_order_filter_tab)
+        mPopupFilterOrderView = root.findViewById(R.id.popup_order_filter_view_pager)
+
         ComponentsUtil.setThemeColor(requireContext(), mRefreshLayout)
         mRefreshLayout.setOnRefreshListener(this)
         mRefreshLayout.isEnabled = true
@@ -354,6 +377,21 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
             (mScrollDown.drawable as AnimatedVectorDrawable).start()
             mRecyclerView.smoothScrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount)
         }
+
+        mPopupFilterOrderTab.setupWithViewPager(mPopupFilterOrderView)
+
+        mPopupFilterFragment = PopupFilter()
+        mPopupOrderFragment = PopupOrder()
+
+        val viewTranslatePagerAdapter =  ViewPagerAdapter(requireActivity().supportFragmentManager, 0)
+        viewTranslatePagerAdapter.addFragment(
+            mPopupFilterFragment,
+            resources.getString(R.string.popup_library_manga_filter_favorite)
+        )
+        viewTranslatePagerAdapter.addFragment(
+            mPopupOrderFragment,
+            resources.getString(R.string.popup_library_manga_filter_reading)
+        )
 
         mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -702,6 +740,28 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                 val isDeleted = manga.file.delete()
                 mLOGGER.info("File deleted ${manga.name}: $isDeleted")
             }
+        }
+    }
+
+    inner class ViewPagerAdapter(fm: FragmentManager, behavior: Int) :
+        FragmentPagerAdapter(fm, behavior) {
+        private val fragments: MutableList<Fragment> = ArrayList()
+        private val fragmentTitle: MutableList<String> = ArrayList()
+        fun addFragment(fragment: Fragment, title: String) {
+            fragments.add(fragment)
+            fragmentTitle.add(title)
+        }
+
+        override fun getItem(position: Int): Fragment {
+            return fragments[position]
+        }
+
+        override fun getCount(): Int {
+            return fragments.size
+        }
+
+        override fun getPageTitle(position: Int): CharSequence {
+            return fragmentTitle[position]
         }
     }
 

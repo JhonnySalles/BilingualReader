@@ -83,14 +83,13 @@
     <FrameLayout
         android:id="@+id/popup_menu_order_filter"
         style="@style/AppBackground.Popup"
-        android:layout_width="match_parent"
-        android:layout_height="350dp"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:paddingTop="1dp"
-        android:layout_gravity="bottom"
-        android:visibility="gone"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+        android:paddingTop="15dp"
+        android:layout_gravity="end"
+        android:visibility="gone">
 
         <ImageView
             android:id="@+id/popup_menu_order_filter_touch"

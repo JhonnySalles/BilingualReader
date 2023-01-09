@@ -170,6 +170,10 @@
         <item name="android:paddingEnd">16dp</item>
     </style>
 
+    <style name="OrderCheckBox" parent="Widget.MaterialComponents.CompoundButton.CheckBox">
+        <item name="android:textColor">?attr/colorPrimary</item>
+    </style>
+
     <style name="Button" parent="Widget.MaterialComponents.Button.OutlinedButton.Icon">
         <item name="android:textColor">?attr/colorOnPrimaryContainer</item>
         <item name="android:singleLine">true</item>
@@ -641,6 +645,5 @@
         <item name="android:textSize">12sp</item>
         <item name="android:textAllCaps">true</item>
     </style>
-
 
 </resources>

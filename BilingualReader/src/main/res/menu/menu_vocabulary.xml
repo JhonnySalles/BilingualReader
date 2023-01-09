@@ -12,7 +12,7 @@
 
     <item android:id="@+id/menu_vocabulary_list_order"
         android:title="@string/menu_vocabulary_order"
-        android:icon="@drawable/ic_order_by_last_acess"
+        android:icon="@drawable/ic_order_by_last_access"
         android:orderInCategory="101"
         app:showAsAction="always"/>
 

@@ -12,18 +12,13 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PointF
+import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import android.util.DisplayMetrics
 import android.util.TypedValue
-import android.view.Menu
-import android.view.MotionEvent
-import android.view.ScaleGestureDetector
+import android.view.*
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
-import android.view.View
-import android.widget.ImageView
-import android.widget.SearchView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
@@ -841,6 +836,28 @@ class MenuUtil {
             drawer.color = context.getColorFromAttr(R.attr.colorOnSurfaceVariant)
         }
 
+        fun longClick(context: Context, item: MenuItem, icon: Int, click: () -> (Unit), longCLick: () -> (Unit)): ImageButton {
+            val imageButton = ImageButton(context)
+            imageButton.setImageResource(icon)
+            val outValue = TypedValue()
+            context.theme.resolveAttribute(
+                android.R.attr.selectableItemBackgroundBorderless, outValue, true
+            )
+            // Verificar por que não troca para a cor padrão.
+            imageButton.background = context.getDrawable(outValue.resourceId)
+
+            imageButton.layoutParams = LinearLayout.LayoutParams(Util.dpToPx(context, 28), Util.dpToPx(context, 28))
+
+            item.actionView = imageButton
+            item.actionView.setOnLongClickListener {
+                longCLick()
+                true
+            }
+
+            item.actionView.setOnClickListener { click() }
+
+            return imageButton
+        }
     }
 }
 
@@ -886,6 +903,5 @@ class ThemeUtil {
             theme.resolveAttribute(attrColor, typedValue, resolveRefs)
             return typedValue.data
         }
-
     }
 }

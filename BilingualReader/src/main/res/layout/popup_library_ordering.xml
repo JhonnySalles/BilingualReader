@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/AppBackground"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.ui.library.manga.PopupOrder">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/margin"
+        android:paddingBottom="@dimen/margin_bottom">
+        <br.com.fenix.bilingualreader.view.components.TriStateCheckBox
+            android:id="@+id/popup_library_order_name"
+            style="@style/OrderCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/popup_library_manga_order_name"/>
+
+        <br.com.fenix.bilingualreader.view.components.TriStateCheckBox
+            android:id="@+id/popup_library_order_date"
+            style="@style/OrderCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/popup_library_manga_order_date"/>
+
+        <br.com.fenix.bilingualreader.view.components.TriStateCheckBox
+            android:id="@+id/popup_library_order_access"
+            style="@style/OrderCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/popup_library_manga_order_access"/>
+
+        <br.com.fenix.bilingualreader.view.components.TriStateCheckBox
+            android:id="@+id/popup_library_order_favorite"
+            style="@style/OrderCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/popup_library_manga_order_favorite"/>
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>
+

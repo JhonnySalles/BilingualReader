@@ -60,7 +60,8 @@ class PopupSubtitleConfiguration : Fragment() {
         mSubtitleLanguage = root.findViewById(R.id.cb_subtitle_language)
         mSubtitleLanguageAutoComplete = root.findViewById(R.id.menu_autocomplete_subtitle_language)
 
-        mUsePageLinkInSearchTranslate = root.findViewById(R.id.switch_use_page_linked_in_search_translate)
+        mUsePageLinkInSearchTranslate =
+            root.findViewById(R.id.switch_use_page_linked_in_search_translate)
 
         mSubTitleController = SubTitleController.getInstance(requireContext())
 
@@ -70,19 +71,23 @@ class PopupSubtitleConfiguration : Fragment() {
         )
         mUsePageLinkInSearchTranslate.setOnClickListener {
             mSubTitleController.setUseFileLink(mUsePageLinkInSearchTranslate.isChecked)
-            mPreferences.edit().putBoolean(GeneralConsts.KEYS.PAGE_LINK.USE_IN_SEARCH_TRANSLATE, mUsePageLinkInSearchTranslate.isChecked).apply()
+            mPreferences.edit().putBoolean(
+                GeneralConsts.KEYS.PAGE_LINK.USE_IN_SEARCH_TRANSLATE,
+                mUsePageLinkInSearchTranslate.isChecked
+            ).apply()
         }
 
         observer()
 
-        mSubtitleSelectedAutoComplete.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-            }
+        mSubtitleSelectedAutoComplete.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                }
 
-            override fun onNothingSelected(p0: AdapterView<*>?) {
-                mSubTitleController.clearSubtitlesSelected()
+                override fun onNothingSelected(p0: AdapterView<*>?) {
+                    mSubTitleController.clearSubtitlesSelected()
+                }
             }
-        }
 
         mSubtitleSelectedAutoComplete.setOnClickListener {
             mSubtitleSelectedAutoComplete.setText("", false)
@@ -105,7 +110,13 @@ class PopupSubtitleConfiguration : Fragment() {
 
         mMapLanguage = Util.getLanguages(requireContext())
 
-        mSubtitleLanguageAutoComplete.setAdapter(ArrayAdapter(requireContext(), R.layout.list_item, mMapLanguage.keys.toTypedArray()))
+        mSubtitleLanguageAutoComplete.setAdapter(
+            ArrayAdapter(
+                requireContext(),
+                R.layout.list_item,
+                mMapLanguage.keys.toTypedArray()
+            )
+        )
         mSubtitleLanguageAutoComplete.setOnClickListener {
             mSubtitleLanguageAutoComplete.setText("", false)
             mSubTitleController.clearLanguage()
@@ -116,7 +127,11 @@ class PopupSubtitleConfiguration : Fragment() {
                 if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
                     mMapLanguage.containsKey(parent.getItemAtPosition(position).toString())
                 )
-                    mSubTitleController.selectedLanguage(mMapLanguage[parent.getItemAtPosition(position).toString()]!!)
+                    mSubTitleController.selectedLanguage(
+                        mMapLanguage[parent.getItemAtPosition(
+                            position
+                        ).toString()]!!
+                    )
             }
 
         mLoadExternalSubtitleAutoComplete.setOnClickListener {
@@ -146,11 +161,13 @@ class PopupSubtitleConfiguration : Fragment() {
         return root
     }
 
-    private val externalTextWatcher : TextWatcher = object: TextWatcher {
-        override fun beforeTextChanged(s:CharSequence, start:Int, count:Int, after:Int) {
+    private val externalTextWatcher: TextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
         }
-        override fun onTextChanged(s:CharSequence, start:Int, before:Int, count:Int) {
+
+        override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
         }
+
         override fun afterTextChanged(s: Editable) {
             if (s.isEmpty())
                 mSubTitleController.clearExternalSubtitlesSelected()
