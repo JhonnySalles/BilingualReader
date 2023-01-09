@@ -12,16 +12,16 @@
         android:orientation="vertical"
         android:paddingTop="@dimen/margin"
         android:paddingBottom="@dimen/margin_bottom">
-        <br.com.fenix.bilingualreader.view.components.TriStateCheckBox
+        <CheckBox
             android:id="@+id/popup_library_filter_favorite"
-            style="@style/OrderCheckBox"
+            style="@style/CheckBox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="@string/popup_library_manga_filter_favorite"/>
 
-        <br.com.fenix.bilingualreader.view.components.TriStateCheckBox
+        <CheckBox
             android:id="@+id/popup_library_filter_reading"
-            style="@style/OrderCheckBox"
+            style="@style/CheckBox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="@string/popup_library_manga_filter_reading"/>

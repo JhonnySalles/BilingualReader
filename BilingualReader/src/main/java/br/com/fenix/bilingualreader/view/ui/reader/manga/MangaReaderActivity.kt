@@ -206,6 +206,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
             (btnMenuFileLink.icon as AnimatedVectorDrawable).start()
             openFileLink()
         }
+
         val btnPopupSubtitle = findViewById<MaterialButton>(R.id.reader_manga_btn_popup_subtitle)
         btnPopupSubtitle.setOnClickListener {
             (btnPopupSubtitle.icon as AnimatedVectorDrawable).start()

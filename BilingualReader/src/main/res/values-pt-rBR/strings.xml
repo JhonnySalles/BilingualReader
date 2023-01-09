@@ -308,7 +308,7 @@
     <string name="popup_library_manga_order_access">Último acesso</string>
     <string name="popup_library_manga_order_favorite">Favoritos primeiro</string>
 
-    <string name="popup_library_manga_filter_favorite">Favorito</string>
+    <string name="popup_library_manga_filter_favorite">Favoritos</string>
     <string name="popup_library_manga_filter_reading">Lendo</string>
 
     <!-- MANGA DETAIL -->

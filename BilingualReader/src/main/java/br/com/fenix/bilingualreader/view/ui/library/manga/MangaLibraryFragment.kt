@@ -15,15 +15,10 @@ import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
-import androidx.core.view.MenuHost
-import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -47,9 +42,7 @@ import br.com.fenix.bilingualreader.view.adapter.library.MangaLineCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.ui.manga_detail.MangaDetailActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
-import br.com.fenix.bilingualreader.view.ui.reader.manga.PopupSubtitleReader
-import br.com.fenix.bilingualreader.view.ui.reader.manga.PopupSubtitleVocabulary
-import com.google.android.material.button.MaterialButton
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
@@ -79,11 +72,14 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     private lateinit var mListener: MangaCardListener
     private lateinit var mScrollUp: FloatingActionButton
     private lateinit var mScrollDown: FloatingActionButton
+    private lateinit var mMenuPopupFilterOrder: FrameLayout
     private lateinit var mPopupFilterOrderView: ViewPager
     private lateinit var mPopupFilterOrderTab: TabLayout
     private lateinit var mPopupFilterFragment: PopupFilter
     private lateinit var mPopupOrderFragment: PopupOrder
+    private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
 
+    private var mMenuPopupBottomSheet = false
     private var mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
@@ -130,7 +126,7 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
             }
         })
 
-        MenuUtil.longClick(requireContext(), miGridOrder, R.drawable.ic_order_by_last_access, { println("tap") }, {println("long tap")} )
+        MenuUtil.longClick(requireContext(), miGridOrder, R.drawable.ic_order_by_last_access, { onChangeSort() }, { onOpenMenuSort() } )
 
         enableSearchView(searchView, !mRefreshLayout.isRefreshing)
         val icon: Int = when (mGridType) {
@@ -254,8 +250,18 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         return super.onOptionsItemSelected(menuItem)
     }
 
+    private fun onOpenMenuSort() {
+        mMenuPopupFilterOrder.visibility = View.VISIBLE
+        if (!mMenuPopupBottomSheet) {
+            mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
+            mMenuPopupFilterOrder.translationY = 100F
+            mMenuPopupFilterOrder.animate()
+                .setDuration(200)
+                .translationY(0f)
+        }
+    }
+
     private fun onChangeSort() {
-        println("icon tap")
         if (mRefreshLayout.isRefreshing)
             return
 
@@ -352,8 +358,13 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         mScrollUp = root.findViewById(R.id.manga_library_scroll_up)
         mScrollDown = root.findViewById(R.id.manga_library_scroll_down)
 
+        mMenuPopupFilterOrder = root.findViewById(R.id.popup_menu_order_filter)
         mPopupFilterOrderTab = root.findViewById(R.id.popup_order_filter_tab)
         mPopupFilterOrderView = root.findViewById(R.id.popup_order_filter_view_pager)
+
+        root.findViewById<ImageView>(R.id.popup_menu_order_filter_close).setOnClickListener {
+            mMenuPopupFilterOrder.visibility = View.GONE
+        }
 
         ComponentsUtil.setThemeColor(requireContext(), mRefreshLayout)
         mRefreshLayout.setOnRefreshListener(this)
@@ -383,15 +394,35 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         mPopupFilterFragment = PopupFilter()
         mPopupOrderFragment = PopupOrder()
 
+        if (root.findViewById<ImageView>(R.id.popup_menu_order_filter_touch) == null)
+            mMenuPopupBottomSheet = true
+        else {
+            BottomSheetBehavior.from(mMenuPopupFilterOrder).apply {
+                peekHeight = 195
+                this.state = BottomSheetBehavior.STATE_COLLAPSED
+                mBottomSheet = this
+            }
+            mBottomSheet.isDraggable = true
+
+            root.findViewById<ImageView>(R.id.popup_menu_order_filter_touch).setOnClickListener {
+                if (mBottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED)
+                    mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
+                else
+                    mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+        }
+
         val viewTranslatePagerAdapter =  ViewPagerAdapter(requireActivity().supportFragmentManager, 0)
         viewTranslatePagerAdapter.addFragment(
             mPopupFilterFragment,
-            resources.getString(R.string.popup_library_manga_filter_favorite)
+            resources.getString(R.string.popup_library_manga_tab_item_filter)
         )
         viewTranslatePagerAdapter.addFragment(
             mPopupOrderFragment,
-            resources.getString(R.string.popup_library_manga_filter_reading)
+            resources.getString(R.string.popup_library_manga_tab_item_ordering)
         )
+
+        mPopupFilterOrderView.adapter = viewTranslatePagerAdapter
 
         mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {

@@ -1,6 +1,8 @@
 package br.com.fenix.bilingualreader.model.enums
 
 enum class Order {
+    None,
+
     // Manga
     Name,
     Date,

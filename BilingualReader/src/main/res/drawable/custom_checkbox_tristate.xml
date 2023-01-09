@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:enterFadeDuration="@android:integer/config_shortAnimTime"
-    android:exitFadeDuration="@android:integer/config_shortAnimTime">
-    <item android:drawable="@drawable/ico_animated_checkbox_down" app:state_unchecked="true" />
-    <item app:state_indeterminate="true" />
-    <item android:drawable="@drawable/ico_animated_checkbox_up" app:state_checked="true" />
+    android:enterFadeDuration="@android:integer/config_shortAnimTime" android:exitFadeDuration="@android:integer/config_shortAnimTime">
+    <item android:drawable="@drawable/ico_animated_checkbox_unchecked" app:state_unchecked="true" />
+    <item android:drawable="@drawable/ico_animated_checkbox_indeterminate" app:state_indeterminate="true" />
+    <item android:drawable="@drawable/ico_animated_checkbox_checked" app:state_checked="true" />
+    <item android:drawable="@drawable/ico_animated_checkbox_unchecked" />
 </selector>

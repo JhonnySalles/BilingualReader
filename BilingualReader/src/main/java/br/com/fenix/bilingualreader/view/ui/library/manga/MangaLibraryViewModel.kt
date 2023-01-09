@@ -13,13 +13,20 @@ import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import java.util.*
+import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 
 class MangaLibraryViewModel(application: Application) : AndroidViewModel(application), Filterable {
+
 
     private var mStackLibrary = mutableMapOf<String, Triple<Int, Library, MutableList<Manga>>>()
     private var mLibrary: Library = Library(GeneralConsts.KEYS.LIBRARY.DEFAULT)
     private val mMangaRepository: MangaRepository = MangaRepository(application.applicationContext)
     private val mPreferences = GeneralConsts.getSharedPreferences(application.applicationContext)
+
+    private var mOrder: Order = Order.Name
+    private var mIsDesc: Boolean = false
+    private var mTypeFilter: FilterType = FilterType.None
+    private var mWordFilter = ""
 
     private var mListMangasFull = MutableLiveData<MutableList<Manga>>(mutableListOf())
     private var mListMangas = MutableLiveData<MutableList<Manga>>(mutableListOf())
@@ -39,7 +46,10 @@ class MangaLibraryViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun saveLastLibrary() {
-        mPreferences.edit().putLong(GeneralConsts.KEYS.LIBRARY.MANGA_LAST_LIBRARY, mLibrary.id ?: GeneralConsts.KEYS.LIBRARY.DEFAULT).apply()
+        mPreferences.edit().putLong(
+            GeneralConsts.KEYS.LIBRARY.MANGA_LAST_LIBRARY,
+            mLibrary.id ?: GeneralConsts.KEYS.LIBRARY.DEFAULT
+        ).apply()
     }
 
     fun getLibrary() =
@@ -220,28 +230,65 @@ class MangaLibraryViewModel(application: Application) : AndroidViewModel(applica
     fun isEmpty(): Boolean =
         mListMangas.value == null || mListMangas.value!!.isEmpty()
 
-    fun sorted(order: Order) {
-        when (order) {
-            Order.Date -> {
-                mListMangasFull.value!!.sortBy { it.dateCreate }
-                mListMangas.value!!.sortBy { it.dateCreate }
+    fun getSorted(): Order = mOrder
+    fun getIsDesc(): Boolean = mIsDesc
+
+    fun sorted(order: Order, isDesc: Boolean = false) {
+        mOrder = order
+        mIsDesc = isDesc
+
+        if (isDesc)
+            when (order) {
+                Order.Date -> {
+                    mListMangasFull.value!!.sortByDescending { it.dateCreate }
+                    mListMangas.value!!.sortByDescending { it.dateCreate }
+                }
+                Order.LastAccess -> {
+                    mListMangasFull.value!!.sortWith(compareBy<Manga> { it.lastAccess }.thenByDescending { it.name })
+                    mListMangas.value!!.sortWith(compareBy<Manga> { it.lastAccess }.thenByDescending { it.name })
+                }
+                Order.Favorite -> {
+                    mListMangasFull.value!!.sortWith(compareBy<Manga> { it.favorite }.thenByDescending { it.name })
+                    mListMangas.value!!.sortWith(compareBy<Manga> { it.favorite }.thenByDescending { it.name })
+                }
+                else -> {
+                    mListMangasFull.value!!.sortByDescending { it.name }
+                    mListMangas.value!!.sortByDescending { it.name }
+                }
             }
-            Order.LastAccess -> {
-                mListMangasFull.value!!.sortWith(compareByDescending<Manga> { it.lastAccess }.thenBy { it.name })
-                mListMangas.value!!.sortWith(compareByDescending<Manga> { it.lastAccess }.thenBy { it.name })
+        else
+            when (order) {
+                Order.Date -> {
+                    mListMangasFull.value!!.sortBy { it.dateCreate }
+                    mListMangas.value!!.sortBy { it.dateCreate }
+                }
+                Order.LastAccess -> {
+                    mListMangasFull.value!!.sortWith(compareByDescending<Manga> { it.lastAccess }.thenBy { it.name })
+                    mListMangas.value!!.sortWith(compareByDescending<Manga> { it.lastAccess }.thenBy { it.name })
+                }
+                Order.Favorite -> {
+                    mListMangasFull.value!!.sortWith(compareByDescending<Manga> { it.favorite }.thenBy { it.name })
+                    mListMangas.value!!.sortWith(compareByDescending<Manga> { it.favorite }.thenBy { it.name })
+                }
+                else -> {
+                    mListMangasFull.value!!.sortBy { it.name }
+                    mListMangas.value!!.sortBy { it.name }
+                }
             }
-            Order.Favorite -> {
-                mListMangasFull.value!!.sortWith(compareByDescending<Manga> { it.favorite }.thenBy { it.name })
-                mListMangas.value!!.sortWith(compareByDescending<Manga> { it.favorite }.thenBy { it.name })
-            }
-            else -> {
-                mListMangasFull.value!!.sortBy { it.name }
-                mListMangas.value!!.sortBy { it.name }
-            }
-        }
     }
 
+    fun getFilterType(): FilterType = mTypeFilter
+
+    fun filterType(filter: FilterType) {
+        mTypeFilter = filter
+        getFilter().filter(mWordFilter)
+    }
+
+    fun clearFilterType() = filterType(FilterType.None)
+
     fun clearFilter() {
+        mTypeFilter = FilterType.None
+        mWordFilter = ""
         val newList: MutableList<Manga> = mutableListOf()
         newList.addAll(mListMangasFull.value!!.filter(Objects::nonNull))
         mListMangas.value = newList
@@ -251,18 +298,35 @@ class MangaLibraryViewModel(application: Application) : AndroidViewModel(applica
         return mMangaFilter
     }
 
+    private fun filtered(manga: Manga?, filterPattern: String): Boolean {
+        if (manga == null)
+            return false
+
+        if (mTypeFilter != FilterType.None) {
+            if (mTypeFilter == FilterType.Reading && manga.lastAccess == null)
+                return false
+
+            if (mTypeFilter == FilterType.Favorite && !manga.favorite)
+                return false
+        }
+
+        return filterPattern.isEmpty() || manga.name.lowercase(Locale.getDefault())
+            .contains(filterPattern) || manga.type.lowercase(Locale.getDefault())
+            .contains(filterPattern)
+    }
+
     private val mMangaFilter = object : Filter() {
         override fun performFiltering(constraint: CharSequence?): FilterResults {
+            mWordFilter = constraint.toString()
             val filteredList: MutableList<Manga> = mutableListOf()
 
-            if (constraint == null || constraint.isEmpty()) {
+            if ((constraint == null || constraint.isEmpty()) && mTypeFilter == FilterType.None) {
                 filteredList.addAll(mListMangasFull.value!!.filter(Objects::nonNull))
             } else {
                 val filterPattern = constraint.toString().lowercase(Locale.getDefault()).trim()
 
-                filteredList.addAll(mListMangasFull.value!!.filter(Objects::nonNull).filter {
-                    it.name.lowercase(Locale.getDefault()).contains(filterPattern) ||
-                            it.type.lowercase(Locale.getDefault()).contains(filterPattern)
+                filteredList.addAll(mListMangasFull.value!!.filter {
+                    filtered(it, filterPattern)
                 })
             }
 

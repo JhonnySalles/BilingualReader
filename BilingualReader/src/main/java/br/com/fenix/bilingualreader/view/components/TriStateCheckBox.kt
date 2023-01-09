@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.view.components
 
 import android.content.Context
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.util.AttributeSet
 import androidx.annotation.StyleableRes
 import br.com.fenix.bilingualreader.R
@@ -57,6 +58,8 @@ class TriStateCheckBox : MaterialCheckBox {
 
             isChangingState = false
 
+            println("change state " + state)
+
             onStateChanged?.let { it(this@TriStateCheckBox, value) }
         }
 
@@ -66,10 +69,10 @@ class TriStateCheckBox : MaterialCheckBox {
         setButtonDrawable(R.drawable.custom_checkbox_tristate)
         setOnCheckedChangeListener { _, _ ->
             state = when (state) {
-                STATE_UNCHECKED -> STATE_CHECKED
+                STATE_UNCHECKED -> STATE_INDETERMINATE
                 STATE_INDETERMINATE -> STATE_CHECKED
                 STATE_CHECKED -> STATE_UNCHECKED
-                else -> -1
+                else -> STATE_INDETERMINATE
             }
         }
     }
@@ -82,7 +85,7 @@ class TriStateCheckBox : MaterialCheckBox {
                 STATE_UNCHECKED -> UNCHECKED
                 STATE_INDETERMINATE -> INDETERMINATE
                 STATE_CHECKED -> CHECKED
-                else -> throw IllegalStateException("$state is not a valid state for ${this.javaClass.name}")
+                else -> INDETERMINATE
             }
         )
 
