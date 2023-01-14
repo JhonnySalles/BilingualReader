@@ -1009,20 +1009,18 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, os)
 
                 if (isShare) {
-                    val image = File(uri.toString())
                     val shareIntent = Intent()
                     shareIntent.action = Intent.ACTION_SEND
                     shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     shareIntent.type = "image/*"
                     shareIntent.putExtra(Intent.EXTRA_TEXT, fileName)
-                    shareIntent.putExtra(Intent.EXTRA_STREAM, image)
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
                     startActivity(
                         Intent.createChooser(
                             shareIntent,
                             requireContext().getString(R.string.reading_manga_choice_share_chose_app)
                         )
                     )
-                    image.delete()
                 }
 
                 Util.closeOutputStream(os)
