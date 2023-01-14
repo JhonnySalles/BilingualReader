@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader.util.helpers
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.ActivityManager
 import android.content.*
 import android.content.pm.ApplicationInfo
@@ -13,6 +14,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PointF
 import android.graphics.drawable.Drawable
+import android.os.Handler
 import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.*
@@ -835,36 +837,15 @@ class MenuUtil {
             drawer.color = context.getColorFromAttr(R.attr.colorOnSurfaceVariant)
         }
 
-        fun longClick(
-            context: Context,
-            item: MenuItem,
-            icon: Int,
-            click: () -> (Unit),
-            longCLick: () -> (Unit)
-        ): ImageButton {
-            val imageButton = ImageButton(context)
-            imageButton.setImageResource(icon)
-            val outValue = TypedValue()
-            context.theme.resolveAttribute(
-                android.R.attr.selectableItemBackgroundBorderless, outValue, true
-            )
-
-            // Verificar por que não troca para a cor padrão.
-            imageButton.background = AppCompatResources.getDrawable(context, outValue.resourceId)
-
-            imageButton.layoutParams =
-                LinearLayout.LayoutParams(Util.dpToPx(context, 28), Util.dpToPx(context, 28))
-
-            imageButton.setOnLongClickListener {
-                longCLick()
-                true
+        fun longClick(menuItem: MenuItem, longCLick: () -> (Unit)) {
+            Handler().post {
+                menuItem.actionView?.setOnLongClickListener {
+                    longCLick()
+                    true
+                }
             }
-
-            imageButton.setOnClickListener { click() }
-            item.actionView = imageButton
-
-            return imageButton
         }
+
     }
 }
 

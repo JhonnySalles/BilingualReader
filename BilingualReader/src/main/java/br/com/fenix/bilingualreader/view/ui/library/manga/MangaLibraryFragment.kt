@@ -39,8 +39,8 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.view.adapter.library.MangaGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaLineCardAdapter
-import br.com.fenix.bilingualreader.view.components.PopupOrderSortedListener
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
+import br.com.fenix.bilingualreader.view.components.PopupOrderSortedListener
 import br.com.fenix.bilingualreader.view.ui.manga_detail.MangaDetailActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -126,8 +126,6 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
             }
         })
 
-        MenuUtil.longClick(requireContext(), miGridOrder, R.drawable.ic_order_by_last_access, { onChangeSort() }, { onOpenMenuSort() } )
-
         enableSearchView(searchView, !mRefreshLayout.isRefreshing)
         val icon: Int = when (mGridType) {
             LibraryType.GRID_SMALL -> R.drawable.ic_type_grid_small
@@ -136,6 +134,23 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
             else -> R.drawable.ic_type_list
         }
         miGridType.setIcon(icon)
+
+        Handler().post {
+            val item = requireActivity().findViewById<View?>(R.id.menu_manga_library_list_order)
+            item?.setOnLongClickListener {
+                onOpenMenuSort()
+                true
+            }
+        }
+
+        MenuUtil.longClick(miGridOrder) {
+            onOpenMenuSort()
+        }
+
+        miGridOrder.setOnMenuItemClickListener {
+            onChangeSort()
+            true
+        }
     }
 
     private fun filter(text: String?) {
