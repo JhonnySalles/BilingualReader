@@ -279,7 +279,7 @@ class PagesLinkFragment : Fragment() {
 
         mDelete.setOnClickListener {
             (mDelete.icon as AnimatedVectorDrawable).start()
-            AlertDialog.Builder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+            MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(getString(R.string.manga_library_menu_delete))
                 .setMessage(getString(R.string.page_link_delete_description))
                 .setPositiveButton(
@@ -529,7 +529,7 @@ class PagesLinkFragment : Fragment() {
                             val msg = if (loaded == LoadFile.ERROR_FILE_WRONG) getString(R.string.page_link_load_file_wrong) else getString(
                                 R.string.page_link_load_error
                             )
-                            AlertDialog.Builder(requireContext(), R.style.AppCompatAlertDialogStyle)
+                            MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatAlertDialogStyle)
                                 .setTitle(msg)
                                 .setMessage(path)
                                 .setPositiveButton(
@@ -552,7 +552,7 @@ class PagesLinkFragment : Fragment() {
                             val msg = if (loaded == LoadFile.ERROR_FILE_WRONG) getString(R.string.page_link_load_file_wrong) else getString(
                                 R.string.page_link_load_error
                             )
-                            AlertDialog.Builder(requireContext(), R.style.AppCompatAlertDialogStyle)
+                            MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatAlertDialogStyle)
                                 .setTitle(msg)
                                 .setMessage(link.path)
                                 .setPositiveButton(
@@ -784,7 +784,7 @@ class PagesLinkFragment : Fragment() {
         val paths = mViewModel.getPagesIndex(isMangaIndexes)
 
         if (paths.isEmpty()) {
-            AlertDialog.Builder(requireContext(), R.style.AppCompatAlertDialogStyle)
+            MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(resources.getString(R.string.reading_manga_page_index))
                 .setMessage(resources.getString(R.string.reading_manga_page_empty))
                 .setPositiveButton(

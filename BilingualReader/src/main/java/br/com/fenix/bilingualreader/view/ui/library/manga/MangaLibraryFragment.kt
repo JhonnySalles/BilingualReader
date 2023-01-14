@@ -43,6 +43,7 @@ import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.ui.manga_detail.MangaDetailActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
@@ -58,8 +59,6 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
     private lateinit var mViewModel: MangaLibraryViewModel
     private lateinit var mainFunctions: MainListener
-
-    private var mOrderBy: Order = Order.Name
 
     private lateinit var mMapOrder: HashMap<Order, String>
     private lateinit var mRoot: FrameLayout
@@ -265,7 +264,7 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         if (mRefreshLayout.isRefreshing)
             return
 
-        mOrderBy = when (mOrderBy) {
+        val orderBy = when (mViewModel.order.value?.first) {
             Order.Name -> Order.Date
             Order.Date -> Order.Favorite
             Order.Favorite -> Order.LastAccess
@@ -274,23 +273,26 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
         Toast.makeText(
             requireContext(),
-            getString(R.string.menu_manga_reading_order_change) + " ${mMapOrder[mOrderBy]}",
+            getString(R.string.menu_manga_reading_order_change) + " ${mMapOrder[orderBy]}",
             Toast.LENGTH_SHORT
         ).show()
 
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         with(sharedPreferences.edit()) {
-            this!!.putString(GeneralConsts.KEYS.LIBRARY.MANGA_ORDER, mOrderBy.toString())
+            this!!.putString(GeneralConsts.KEYS.LIBRARY.MANGA_ORDER, orderBy.toString())
             this.commit()
         }
 
-        if (mViewModel.listMangas.value != null)
-            sortList()
+        if (mViewModel.listMangas.value != null) {
+            mViewModel.sorted(orderBy)
+            val range = (mViewModel.listMangas.value?.size ?: 1)
+            notifyDataSet(0, range)
+        }
 
     }
 
     private fun sortList() {
-        mViewModel.sorted(mOrderBy)
+        mViewModel.sorted()
         val range = (mViewModel.listMangas.value?.size ?: 1)
         notifyDataSet(0, range)
     }
@@ -498,7 +500,7 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                 } else {
                     removeList(manga)
                     mViewModel.delete(manga)
-                    AlertDialog.Builder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+                    MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                         .setTitle(getString(R.string.manga_excluded))
                         .setMessage(getString(R.string.file_not_found))
                         .setPositiveButton(
@@ -601,12 +603,13 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
     private fun loadConfig() {
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
-        mOrderBy = Order.valueOf(
+        val orderBy = Order.valueOf(
             sharedPreferences.getString(
                 GeneralConsts.KEYS.LIBRARY.MANGA_ORDER,
                 Order.Name.toString()
             ).toString()
         )
+        mViewModel.sorted(orderBy)
     }
 
     override fun onRequestPermissionsResult(
@@ -743,7 +746,7 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                 val position = viewHolder.adapterPosition
                 var excluded = false
                 val dialog: AlertDialog =
-                    AlertDialog.Builder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+                    MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                         .setTitle(getString(R.string.manga_library_menu_delete))
                         .setMessage(getString(R.string.manga_library_menu_delete_description) + "\n" + manga.file.name)
                         .setPositiveButton(

@@ -26,6 +26,7 @@ import br.com.fenix.bilingualreader.view.adapter.themes.ThemesCardAdapter
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.menu.ConfigLibrariesViewModel
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputLayout
 import org.lucasr.twowayview.TwoWayView
@@ -498,7 +499,7 @@ class ConfigFragment : Fragment() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == GeneralConsts.REQUEST.PERMISSION_FILES_ACCESS && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-            AlertDialog.Builder(requireContext(), R.style.AppCompatAlertDialogStyle)
+            MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(requireContext().getString(R.string.alert_permission_files_access_denied_title))
                 .setMessage(requireContext().getString(R.string.alert_permission_files_access_denied))
                 .setPositiveButton(R.string.action_neutral) { _, _ -> }.create().show()
@@ -774,7 +775,7 @@ class ConfigFragment : Fragment() {
 
         } else {
             val dialog: AlertDialog =
-                AlertDialog.Builder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+                MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                     .setTitle(getString(R.string.manga_library_menu_delete))
                     .setMessage(
                         getString(

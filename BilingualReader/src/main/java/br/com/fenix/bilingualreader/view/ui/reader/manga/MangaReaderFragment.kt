@@ -239,7 +239,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     mLOGGER.info("Error in open file.")
             } else {
                 mLOGGER.info("File not founded.")
-                AlertDialog.Builder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+                MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                     .setTitle(getString(R.string.manga_excluded))
                     .setMessage(getString(R.string.file_not_found))
                     .setPositiveButton(
@@ -309,7 +309,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         (mPageNavLayout.findViewById<View>(R.id.reader_manga_nav_reader_progress) as SeekBar).also {
             mPageSeekBar = it
         }
-        mPageNavTextView = mPageNavLayout.findViewById<View>(R.id.reader_manga_nav_reader_title) as TextView
+        mPageNavTextView =
+            mPageNavLayout.findViewById<View>(R.id.reader_manga_nav_reader_title) as TextView
 
         if (mParse == null) {
             view.findViewById<ImageView>(R.id.image_error).visibility = View.VISIBLE
@@ -427,8 +428,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         super.onDestroy()
     }
 
-    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-        v?.performClick()
+    override fun onTouch(v: View, event: MotionEvent): Boolean {
+        v.performClick()
         return mGestureDetector.onTouchEvent(event)
     }
 
@@ -518,7 +519,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         if (mManga != null)
             mSubtitleController.changeSubtitleInReader(mManga!!, mCurrentPage)
 
-        (requireActivity() as MangaReaderActivity).changePage(mManga?.title ?: "", mParse?.getPagePath(mCurrentPage) ?: "", mCurrentPage + 1)
+        (requireActivity() as MangaReaderActivity).changePage(
+            mManga?.title ?: "",
+            mParse?.getPagePath(mCurrentPage) ?: "",
+            mCurrentPage + 1
+        )
     }
 
     inner class ComicPagerAdapter : PagerAdapter() {
@@ -575,7 +580,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 .tag(requireActivity())
 
             if (resize)
-                request.resize(ReaderConsts.READER.MAX_PAGE_WIDTH, ReaderConsts.READER.MAX_PAGE_HEIGHT)
+                request.resize(
+                    ReaderConsts.READER.MAX_PAGE_WIDTH,
+                    ReaderConsts.READER.MAX_PAGE_HEIGHT
+                )
                     .centerInside()
                     .onlyScaleDown()
 
@@ -594,7 +602,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 .tag(requireActivity())
 
             if (resize)
-                request.resize(ReaderConsts.READER.MAX_PAGE_WIDTH, ReaderConsts.READER.MAX_PAGE_HEIGHT)
+                request.resize(
+                    ReaderConsts.READER.MAX_PAGE_WIDTH,
+                    ReaderConsts.READER.MAX_PAGE_HEIGHT
+                )
                     .centerInside()
                     .onlyScaleDown()
 
@@ -664,9 +675,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     inner class MyTouchListener : SimpleOnGestureListener() {
 
-        override fun onLongPress(e: MotionEvent?) {
+        override fun onLongPress(e: MotionEvent) {
             super.onLongPress(e)
-            if (e == null) return
             val view: PageImageView = getCurrencyImageView() ?: return
             val coordinator = view.getPointerCoordinate(e)
             mSubtitleController.selectTextByCoordinate(coordinator)
@@ -718,7 +728,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private fun getPosition(e: MotionEvent): Position {
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-        val horizontalSize = resources.getDimensionPixelSize(R.dimen.reader_touch_demonstration_initial_horizontal)
+        val horizontalSize =
+            resources.getDimensionPixelSize(R.dimen.reader_touch_demonstration_initial_horizontal)
         val horizontal = (if (isLandscape) horizontalSize * 1.2 else horizontalSize * 1.5).toFloat()
 
         val x = e.x
@@ -768,7 +779,12 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         return (requireActivity() as AppCompatActivity).supportActionBar
     }
 
-    private val windowInsetsController by lazy { WindowInsetsControllerCompat(requireActivity().window, mViewPager) }
+    private val windowInsetsController by lazy {
+        WindowInsetsControllerCompat(
+            requireActivity().window,
+            mViewPager
+        )
+    }
 
     fun setFullscreen(fullscreen: Boolean) {
         mIsFullscreen = fullscreen
@@ -777,7 +793,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 windowInsetsController.let {
                     it.hide(WindowInsetsCompat.Type.systemBars())
-                    it.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                    it.systemBarsBehavior =
+                        WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                 }
                 WindowCompat.setDecorFitsSystemWindows(w, true)
             } else {
@@ -800,7 +817,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             mPopupSubtitle.visibility = View.GONE
             mPopupColor.visibility = View.GONE
             mRoot.fitsSystemWindows = false
-            changeContentsVisibility(fullscreen)
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 windowInsetsController.let {
@@ -827,8 +843,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             w.navigationBarColor = resources.getColor(R.color.status_bar_color)
 
             //mRoot.fitsSystemWindows = true
-            changeContentsVisibility(fullscreen)
         }
+
+        changeContentsVisibility(fullscreen)
     }
 
     private val duration = 200L
@@ -858,7 +875,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         mPageNavLayout.animate().alpha(finalAlpha).setDuration(duration)
             .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mPageNavLayout.visibility = visibility
                 }
@@ -866,7 +883,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         mToolbarBottom.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
             .setDuration(duration).setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mToolbarBottom.visibility = visibility
                 }
@@ -874,7 +891,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         mToolbarTop.animate().alpha(finalAlpha).translationY(finalTranslation)
             .setDuration(duration).setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mToolbarTop.visibility = visibility
                 }
@@ -882,7 +899,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         mNextButton.animate().alpha(finalAlpha).setDuration(duration)
             .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mNextButton.visibility = visibility
                 }
@@ -890,7 +907,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         mPreviousButton.animate().alpha(finalAlpha).setDuration(duration)
             .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mPreviousButton.visibility = visibility
                 }
@@ -920,7 +937,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mNewManga = newManga
         mNewMangaTitle = titleRes
         val dialog: AlertDialog =
-            AlertDialog.Builder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+            MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(titleRes)
                 .setMessage(newManga.file.name)
                 .setPositiveButton(
@@ -974,12 +991,19 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                         values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis())
                         values.put(Images.Media.MIME_TYPE, "image/jpeg")
 
-                        val uri: Uri? = requireContext().contentResolver.insert(Images.Media.EXTERNAL_CONTENT_URI, values)
+                        val uri: Uri? = requireContext().contentResolver.insert(
+                            Images.Media.EXTERNAL_CONTENT_URI,
+                            values
+                        )
                         os = requireContext().contentResolver.openOutputStream(uri!!)!!
                         val bitmap = BitmapFactory.decodeStream(it)
                         bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, os)
 
-                        if (language.equals(requireContext().getString(R.string.reading_manga_choice_share_image), true)) {
+                        if (language.equals(
+                                requireContext().getString(R.string.reading_manga_choice_share_image),
+                                true
+                            )
+                        ) {
                             val image = File(uri.toString())
                             val shareIntent = Intent()
                             shareIntent.action = Intent.ACTION_SEND

@@ -13,6 +13,7 @@
     <RelativeLayout
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
+        xmlns:custom="http://schemas.android.com/apk/res/br.com.fenix.bilingualreader"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true">
@@ -109,7 +110,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/title_small_size" />
 
-            <SeekBar
+            <br.com.fenix.bilingualreader.view.components.DottedSeekBar
                 android:id="@+id/reader_manga_nav_reader_progress"
                 style="@style/SeekBar"
                 android:layout_width="match_parent"
@@ -120,7 +121,8 @@
                 android:paddingBottom="10dp"
                 android:progressDrawable="@drawable/reader_nav_progress"
                 android:thumb="@drawable/reader_nav_thumb"
-                android:thumbOffset="6dp" />
+                custom:dots_drawable="@drawable/ico_progress_dot"
+                android:thumbOffset="6dp"/>
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton

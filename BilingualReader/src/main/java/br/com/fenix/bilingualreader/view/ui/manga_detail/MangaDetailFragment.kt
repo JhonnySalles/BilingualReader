@@ -29,6 +29,7 @@ import br.com.fenix.bilingualreader.view.adapter.manga_detail.InformationRelated
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.slf4j.LoggerFactory
 
 
@@ -305,7 +306,7 @@ class MangaDetailFragment : Fragment() {
 
     private fun deleteFile() {
         val manga = mViewModel.manga.value ?: return
-        AlertDialog.Builder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+        MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
             .setTitle(getString(R.string.manga_library_menu_delete))
             .setMessage(getString(R.string.manga_library_menu_delete_description) + "\n" + manga.file.name)
             .setPositiveButton(

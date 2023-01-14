@@ -10,41 +10,60 @@ import java.time.LocalDateTime
     tableName = DataBaseConsts.MANGA.TABLE_NAME,
     indices = [Index(value = [DataBaseConsts.MANGA.COLUMNS.FILE_NAME, DataBaseConsts.MANGA.COLUMNS.TITLE])]
 )
-class Manga(id: Long?, title: String, subTitle: String, path: String, folder: String, name: String, type: String, pages: Int, fkLibrary: Long?) : Serializable {
+class Manga(
+    id: Long?,
+    title: String,
+    subTitle: String,
+    path: String,
+    folder: String,
+    name: String,
+    type: String,
+    pages: Int,
+    chapters: IntArray,
+    bookMark: Int,
+    favorite: Boolean,
+    hasSubtitle: Boolean,
+    dateCreate: LocalDateTime?,
+    lastAccess: LocalDateTime?,
+    lastAlteration: LocalDateTime?,
+    fileAlteration: Long,
+    fkLibrary: Long?,
+    excluded: Boolean
+) : Serializable {
 
     constructor(
         id: Long?, title: String, subTitle: String,
         path: String, folder: String, name: String, type: String,
-        pages: Int, bookMark: Int, favorite: Boolean, hasSubtitle: Boolean,
+        pages: Int, chapters: IntArray, bookMark: Int, favorite: Boolean, hasSubtitle: Boolean,
         dateCreate: LocalDateTime?, lastAccess: LocalDateTime?,
-        lastAlteration : LocalDateTime?, fkLibrary: Long?,
-        sort: LocalDateTime? = null
-    ) : this(id, title, subTitle, path, folder, name, type, pages, fkLibrary) {
-        this.bookMark = bookMark
-        this.favorite = favorite
-        this.hasSubtitle = hasSubtitle
-        this.dateCreate = dateCreate
-        this.lastAccess = lastAccess
-        this.lastAccess = lastAlteration
+        lastAlteration: LocalDateTime?, fileAlteration: Long,
+        fkLibrary: Long?, sort: LocalDateTime? = null
+    ) : this( id, title, subTitle, path, folder, name, type,
+        pages, chapters, bookMark, favorite, hasSubtitle, dateCreate,
+        lastAccess, lastAlteration, fileAlteration, fkLibrary, false
+    ) {
         this.sort = sort
     }
 
+    @Ignore
     constructor(
-        id: Long?, title: String, subTitle: String,
-        path: String, folder: String, name: String, type: String,
-        pages: Int, bookMark: Int, favorite: Boolean, hasSubtitle: Boolean,
-        dateCreate: LocalDateTime?, lastAccess: LocalDateTime?,
-        lastAlteration: LocalDateTime?, fkLibrary: Long?,
-        excluded: Boolean = false
-    ) : this(id, title, subTitle, path, folder, name, type, pages, fkLibrary) {
-        this.bookMark = bookMark
-        this.favorite = favorite
-        this.hasSubtitle = hasSubtitle
-        this.dateCreate = dateCreate
-        this.lastAccess = lastAccess
-        this.lastAlteration = lastAlteration
-        this.excluded = excluded
-    }
+        id: Long?,
+        title: String,
+        subTitle: String,
+        path: String,
+        folder: String,
+        name: String,
+        type: String,
+        pages: Int,
+        chapters: IntArray,
+        fkLibrary: Long?,
+        fileAlteration: Long,
+    ) : this(
+        id, title, subTitle, path, folder, name, type,
+        pages, chapters, 0, false, false, LocalDateTime.now(),
+        null, null, fileAlteration, fkLibrary, false
+    )
+
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.ID)
@@ -59,8 +78,11 @@ class Manga(id: Long?, title: String, subTitle: String, path: String, folder: St
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.PAGES)
     var pages: Int = pages
 
+    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.CHAPTERS)
+    var chapters: IntArray = chapters
+
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.BOOK_MARK)
-    var bookMark: Int = 0
+    var bookMark: Int = bookMark
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FILE_PATH)
     var path: String = path
@@ -81,22 +103,25 @@ class Manga(id: Long?, title: String, subTitle: String, path: String, folder: St
     var folder: String = folder
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FAVORITE)
-    var favorite: Boolean = false
+    var favorite: Boolean = favorite
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.HAS_SUBTITLE)
-    var hasSubtitle: Boolean = false
+    var hasSubtitle: Boolean = hasSubtitle
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.DATE_CREATE)
-    var dateCreate: LocalDateTime? = LocalDateTime.now()
+    var dateCreate: LocalDateTime? = dateCreate
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS)
-    var lastAccess: LocalDateTime? = null
+    var lastAccess: LocalDateTime? = lastAccess
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION)
-    var lastAlteration: LocalDateTime? = LocalDateTime.now()
+    var lastAlteration: LocalDateTime? = lastAlteration
+
+    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FILE_ALTERATION)
+    var fileAlteration: Long = fileAlteration
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.EXCLUDED)
-    var excluded: Boolean = false
+    var excluded: Boolean = excluded
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY)
     var fkLibrary: Long? = fkLibrary
@@ -108,7 +133,7 @@ class Manga(id: Long?, title: String, subTitle: String, path: String, folder: St
     var update: Boolean = false
 
     @Ignore
-    var subTitles : List<SubTitle> = arrayListOf()
+    var subTitles: List<SubTitle> = arrayListOf()
 
     @Ignore
     var sort: LocalDateTime? = null

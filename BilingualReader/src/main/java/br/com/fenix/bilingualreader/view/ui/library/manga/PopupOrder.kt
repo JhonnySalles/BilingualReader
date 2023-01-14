@@ -5,9 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.enums.Filter
 import br.com.fenix.bilingualreader.model.enums.Order
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.view.components.TriStateCheckBox
 import org.slf4j.LoggerFactory
 
@@ -38,26 +42,28 @@ class PopupOrder : Fragment() {
         mOrderDate = root.findViewById(R.id.popup_library_order_date)
         mOrderAccess = root.findViewById(R.id.popup_library_order_access)
         mOrderFavorite = root.findViewById(R.id.popup_library_order_favorite)
-        val listCheck = arrayListOf(mOrderName, mOrderDate, mOrderAccess, mOrderFavorite)
 
-        for (check in listCheck)
+        setChecked(getCheckList(), mViewModel.order.value?.first ?: Order.Name, mViewModel.order.value?.second ?: false)
+        addListener()
+        observer()
+        return root
+    }
+
+    private fun setChecked(checkboxes: ArrayList<TriStateCheckBox>, order: Order, isDesc : Boolean) {
+        for (check in checkboxes)
             check.state = TriStateCheckBox.STATE_UNCHECKED
 
-        when (mViewModel.getSorted()) {
+        when (order) {
             Order.Name -> mOrderName.state =
-                if (mViewModel.getIsDesc()) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
+                if (isDesc) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
             Order.Date -> mOrderDate.state =
-                if (mViewModel.getIsDesc()) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
+                if (isDesc) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
             Order.LastAccess -> mOrderAccess.state =
-                if (mViewModel.getIsDesc()) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
+                if (isDesc) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
             Order.Favorite -> mOrderFavorite.state =
-                if (mViewModel.getIsDesc()) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
+                if (isDesc) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
             else -> {}
         }
-
-        addListener()
-
-        return root
     }
 
     private fun getNextState(checkbox : TriStateCheckBox) : Int {
@@ -69,8 +75,10 @@ class PopupOrder : Fragment() {
         }
     }
 
+    private fun getCheckList() = arrayListOf(mOrderName, mOrderDate, mOrderAccess, mOrderFavorite)
+
     private fun addListener() {
-        val listCheck = arrayListOf(mOrderName, mOrderDate, mOrderAccess, mOrderFavorite)
+        val listCheck = getCheckList()
 
         mOrderName.setOnCheckedChangeListener { _, _ ->
             removeListener(listCheck)
@@ -160,6 +168,24 @@ class PopupOrder : Fragment() {
     private fun removeListener(checkboxes: ArrayList<TriStateCheckBox>) {
         for (check in checkboxes)
             check.setOnCheckedChangeListener(null)
+    }
+
+    private fun observer() {
+        val listCheck = getCheckList()
+        mViewModel.order.observe(viewLifecycleOwner) {
+            removeListener(listCheck)
+            setChecked(getCheckList(), it.first, it.second)
+            addListener()
+            save(it.first)
+        }
+    }
+
+    private fun save(order: Order) {
+        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+        with(sharedPreferences.edit()) {
+            this!!.putString(GeneralConsts.KEYS.LIBRARY.MANGA_ORDER, order.toString())
+            this.commit()
+        }
     }
 
 }

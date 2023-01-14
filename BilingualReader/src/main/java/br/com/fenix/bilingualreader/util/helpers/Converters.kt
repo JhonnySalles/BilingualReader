@@ -31,4 +31,21 @@ class Converters {
         return dateTime.toString()
     }
 
+    @TypeConverter
+    fun fromIntArray(array: String): IntArray {
+        if (array.isEmpty())
+            return intArrayOf()
+
+        return array.split(",").map { it.toInt() }.toIntArray()
+    }
+
+    @TypeConverter
+    fun intArrayToString(array: IntArray): String {
+        if (array.isEmpty())
+            return ""
+
+        return array.joinToString(",")
+    }
+
+
 }

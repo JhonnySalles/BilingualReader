@@ -46,7 +46,7 @@ class VocabularyBookViewHolder(itemView: View, private val listener: VocabularyC
             val clipboard =
                 itemView.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip =
-                ClipData.newPlainText("Copied Text", vocabulary.word + " " + vocabulary.portuguese)
+                ClipData.newPlainText(itemView.context.getString(R.string.action_copy, ""), vocabulary.word + " " + vocabulary.portuguese)
             clipboard.setPrimaryClip(clip)
 
             Toast.makeText(

@@ -195,7 +195,9 @@ class ScannerManga(private val context: Context) {
                                                     it.nameWithoutExtension,
                                                     it.extension,
                                                     parse.numPages(),
-                                                    library.id
+                                                    parse.getChapters(),
+                                                    library.id,
+                                                    it.lastModified()
                                                 )
 
                                                 manga.path = it.path
@@ -290,7 +292,9 @@ class ScannerManga(private val context: Context) {
                                                         it.nameWithoutExtension,
                                                         it.extension,
                                                         parse.numPages(),
-                                                        library.id
+                                                        parse.getChapters(),
+                                                        library.id,
+                                                        it.lastModified()
                                                     )
 
                                                     manga.excluded = false

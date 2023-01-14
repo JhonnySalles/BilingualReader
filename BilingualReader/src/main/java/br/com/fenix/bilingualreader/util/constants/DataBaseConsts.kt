@@ -9,6 +9,7 @@ class DataBaseConsts private constructor() {
             const val TITLE = "title"
             const val SUB_TITLE = "subTitle"
             const val PAGES = "pages"
+            const val CHAPTERS = "chapters"
             const val BOOK_MARK = "bookMark"
             const val FILE_PATH = "path"
             const val FILE_NAME = "name"
@@ -20,6 +21,7 @@ class DataBaseConsts private constructor() {
             const val LAST_ACCESS = "last_access"
             const val EXCLUDED = "excluded"
             const val LAST_ALTERATION = "last_alteration"
+            const val FILE_ALTERATION = "file_alteration"
             const val FK_ID_LIBRARY = "id_library"
         }
     }

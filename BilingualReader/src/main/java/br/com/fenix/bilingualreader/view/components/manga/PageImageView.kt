@@ -106,9 +106,15 @@ open class PageImageView(context: Context, attributeSet: AttributeSet?) :
         mViewMode = ReaderMode.FIT_WIDTH
 
         val isTablet = resources.getBoolean(R.bool.isTablet)
-        mMagnifierSize = if (isTablet) resources.getDimension(R.dimen.reader_zoom_tablet_size) else resources.getDimension(R.dimen.reader_zoom_size)
-        mMagnifierRadius = if (isTablet) resources.getDimension(R.dimen.reader_zoom_magnifier_tablet_size) else resources.getDimension(R.dimen.reader_zoom_magnifier_size)
-        mMagnifierCenter = mMagnifierSize/2
+        mMagnifierSize =
+            if (isTablet) resources.getDimension(R.dimen.reader_zoom_tablet_size) else resources.getDimension(
+                R.dimen.reader_zoom_size
+            )
+        mMagnifierRadius =
+            if (isTablet) resources.getDimension(R.dimen.reader_zoom_magnifier_tablet_size) else resources.getDimension(
+                R.dimen.reader_zoom_magnifier_size
+            )
+        mMagnifierCenter = mMagnifierSize / 2
         mZoomPos = PointF(0F, 0F)
         mLastZoomPos = PointF(-1F, -1F)
         mPaint = Paint()
@@ -145,7 +151,7 @@ open class PageImageView(context: Context, attributeSet: AttributeSet?) :
         return !isScroll
     }
 
-    private fun getMultipleScale() : Float {
+    private fun getMultipleScale(): Float {
         val dWidth = drawable.intrinsicWidth
         val dHeight = drawable.intrinsicHeight
         val vWidth: Int = width
@@ -160,7 +166,7 @@ open class PageImageView(context: Context, attributeSet: AttributeSet?) :
             current * dHeight / max(dHeight, vHeight)
     }
 
-    private fun generateScale(multiple: Float) : Float {
+    private fun generateScale(multiple: Float): Float {
         val dWidth = drawable.intrinsicWidth
         val dHeight = drawable.intrinsicHeight
         val vWidth: Int = width
@@ -176,10 +182,14 @@ open class PageImageView(context: Context, attributeSet: AttributeSet?) :
 
     fun getScrollPercent(): Triple<Float, Float, Float> {
         val imageSize = computeCurrentImageSize()
-        return Triple((m[Matrix.MTRANS_X] / imageSize.x), (m[Matrix.MTRANS_Y] / imageSize.y), getMultipleScale())
+        return Triple(
+            (m[Matrix.MTRANS_X] / imageSize.x),
+            (m[Matrix.MTRANS_Y] / imageSize.y),
+            getMultipleScale()
+        )
     }
 
-    fun setScrollPercent(percent : Triple<Float, Float, Float>) {
+    fun setScrollPercent(percent: Triple<Float, Float, Float>) {
         val (x, y, zoom) = percent
         val scale = generateScale(zoom)
         mMatrix.setScale(scale, scale)
@@ -325,7 +335,7 @@ open class PageImageView(context: Context, attributeSet: AttributeSet?) :
             return true
         }
 
-        override fun onLongPress(e: MotionEvent?) {
+        override fun onLongPress(e: MotionEvent) {
             super.onLongPress(e)
             mBitmap = this@PageImageView.drawToBitmap()
             mShader = BitmapShader(mBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
@@ -363,7 +373,12 @@ open class PageImageView(context: Context, attributeSet: AttributeSet?) :
         m[Matrix.MTRANS_Y] = mScroller.currY.toFloat()
         matrix.mapPoints(coordinates)
         val imageSize = computeCurrentImageSize()
-        return floatArrayOf(coordinates[0], coordinates[1], imageSize.x.toFloat(), imageSize.y.toFloat())
+        return floatArrayOf(
+            coordinates[0],
+            coordinates[1],
+            imageSize.x.toFloat(),
+            imageSize.y.toFloat()
+        )
     }
 
     open fun getCurrentScale(): Float {
@@ -466,10 +481,11 @@ open class PageImageView(context: Context, attributeSet: AttributeSet?) :
                 mPaint.shader.setLocalMatrix(mMagnifierMatrix)
                 canvas?.drawCircle(mZoomPos.x, mZoomPos.y, mMagnifierRadius, mPaint)
             } else {
-                val x = if (mZoomPos.x < (width/2)) width.minus(mMagnifierSize) else 0F
+                val x = if (mZoomPos.x < (width / 2)) width.minus(mMagnifierSize) else 0F
 
                 if (mLastZoomPos.x != x)
-                    mLastZoomPos.y = if (mZoomPos.y < (height/2)) height.minus(mMagnifierSize) else 0F
+                    mLastZoomPos.y =
+                        if (mZoomPos.y < (height / 2)) height.minus(mMagnifierSize) else 0F
 
                 mLastZoomPos.x = x
 
@@ -480,8 +496,20 @@ open class PageImageView(context: Context, attributeSet: AttributeSet?) :
                 mMagnifierMatrix.postTranslate(mLastZoomPos.x, mLastZoomPos.y)
                 mPaint.shader.setLocalMatrix(mMagnifierMatrix)
 
-                canvas?.drawRect(mLastZoomPos.x-1, mLastZoomPos.y-2, mLastZoomPos.x + mMagnifierSize+1, mLastZoomPos.y + mMagnifierSize+1, mBorder)
-                canvas?.drawRect(mLastZoomPos.x, mLastZoomPos.y, mLastZoomPos.x + mMagnifierSize, mLastZoomPos.y + mMagnifierSize, mPaint)
+                canvas?.drawRect(
+                    mLastZoomPos.x - 1,
+                    mLastZoomPos.y - 2,
+                    mLastZoomPos.x + mMagnifierSize + 1,
+                    mLastZoomPos.y + mMagnifierSize + 1,
+                    mBorder
+                )
+                canvas?.drawRect(
+                    mLastZoomPos.x,
+                    mLastZoomPos.y,
+                    mLastZoomPos.x + mMagnifierSize,
+                    mLastZoomPos.y + mMagnifierSize,
+                    mPaint
+                )
             }
         }
     }

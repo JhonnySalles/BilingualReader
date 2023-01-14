@@ -198,8 +198,11 @@ class VocabularyRepository(context: Context) {
         mDataBaseDAO.insert(mBase.openHelper, idMangaOrBook, idVocabulary, appears, isManga)
     }
 
-    fun processVocabulary(idManga: Long?, chapters: List<Chapter>) {
-        if (idManga == null || chapters.isEmpty() || idManga == mLastImport)
+    fun processVocabulary(manga: Manga?, chapters: List<Chapter>) {
+        if (chapters.isEmpty() || manga == null || manga.id == null || manga.id == mLastImport)
+            return
+
+        if (manga.file.lastModified() > 0 && manga.file.lastModified() == manga.fileAlteration)
             return
 
         val chaptersList = Collections
@@ -231,13 +234,13 @@ class VocabularyRepository(context: Context) {
 
                             withContext(Dispatchers.Main) {
                                 vocabulary.id = save(vocabulary)
-                                vocabulary.id?.let { insert(idManga, it, appears) }
+                                vocabulary.id?.let { insert(manga.id!!, it, appears) }
                             }
                         }
                     }
 
-                    mLastImport = idManga
-                    mVocabImported.setText("$mMsgImport\n${mDataBaseDAO.getManga(idManga).title}")
+                    mLastImport = manga.id
+                    mVocabImported.setText("$mMsgImport\n${manga.title}")
                     mVocabImported.show()
                 } catch (e: Exception) {
                     mLOGGER.error("Error process vocabulary. ", e)

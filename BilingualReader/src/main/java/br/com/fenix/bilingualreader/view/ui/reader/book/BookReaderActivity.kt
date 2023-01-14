@@ -28,6 +28,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -120,7 +121,7 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
 
         if (changeBook == null) {
             val content = if (isNext) R.string.switch_next_comic_last_comic else R.string.switch_prev_comic_first_comic
-            AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle)
+            MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)
                 .setTitle(getString(R.string.switch_next_comic_not_found))
                 .setMessage(content)
                 .setPositiveButton(
@@ -134,7 +135,7 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
         val title = if (isNext) R.string.switch_next_comic else R.string.switch_prev_comic
 
         val dialog: AlertDialog =
-            AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle)
+            MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)
                 .setTitle(title)
                 .setMessage(changeBook.file.name)
                 .setPositiveButton(
@@ -186,7 +187,7 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
         val paths = parse.getPagePaths()
 
         if (paths.isEmpty()) {
-            AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle)
+            MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)
                 .setTitle(resources.getString(R.string.reading_book_page_index))
                 .setMessage(resources.getString(R.string.reading_book_page_empty))
                 .setPositiveButton(
@@ -325,7 +326,7 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
         mTouchView.alpha = 0.0f
         mTouchView.animate().alpha(1.0f).setDuration(300L)
             .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mTouchView.visibility = View.VISIBLE
                 }
@@ -338,7 +339,7 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
         mTouchView.alpha = 1.0f
         mTouchView.animate().alpha(0.0f).setDuration(300L)
             .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mTouchView.visibility = View.GONE
                 }

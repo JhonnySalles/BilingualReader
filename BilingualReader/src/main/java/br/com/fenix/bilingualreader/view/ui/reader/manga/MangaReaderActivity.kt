@@ -56,13 +56,13 @@ import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFr
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.reader.MangaChaptersCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
+import br.com.fenix.bilingualreader.view.components.DottedSeekBar
 import br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkActivity
 import br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkViewModel
 import br.com.fenix.bilingualreader.view.ui.window.FloatingButtons
 import br.com.fenix.bilingualreader.view.ui.window.FloatingSubtitleReader
 import br.com.fenix.bilingualreader.view.ui.window.FloatingWindowOcr
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
@@ -77,7 +77,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
     private val mViewModel: MangaReaderViewModel by viewModels()
 
     private lateinit var mReaderTitle: TextView
-    private lateinit var mReaderProgress: SeekBar
+    private lateinit var mReaderProgress: DottedSeekBar
     private lateinit var mNavReader: LinearLayout
     private lateinit var mToolBar: Toolbar
     private lateinit var mToolbarTitle: TextView
@@ -459,7 +459,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         if (changeManga == null) {
             val content =
                 if (isNext) R.string.switch_next_comic_last_comic else R.string.switch_prev_comic_first_comic
-            AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle)
+            MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)
                 .setTitle(getString(R.string.switch_next_comic_not_found))
                 .setMessage(content)
                 .setPositiveButton(
@@ -473,7 +473,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         val title = if (isNext) R.string.switch_next_comic else R.string.switch_prev_comic
 
         val dialog: AlertDialog =
-            AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle)
+            MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)
                 .setTitle(title)
                 .setMessage(changeManga.file.name)
                 .setPositiveButton(
@@ -525,6 +525,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         changePage(manga.title, "", manga.bookMark)
         mViewModel.clearChapter()
         mManga = manga
+        mReaderProgress.setDots(manga.chapters)
         mRepository.updateLastAccess(manga)
         setShortCutManga()
     }
@@ -604,7 +605,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         val paths = parse.getPagePaths()
 
         if (paths.isEmpty()) {
-            AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle)
+            MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)
                 .setTitle(resources.getString(R.string.reading_manga_page_index))
                 .setMessage(resources.getString(R.string.reading_manga_page_empty))
                 .setPositiveButton(
@@ -916,7 +917,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
             intent.putExtras(bundle)
             startActivity(intent)
         } else
-            AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle)
+            MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)
                 .setTitle(getString(R.string.page_link_manga_empty))
                 .setMessage(getString(R.string.page_link_manga_empty_description))
                 .setPositiveButton(
@@ -934,7 +935,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
                 else R.string.popup_reading_manga_subtitle_embedded_empty
             )
 
-            AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle)
+            MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)
                 .setTitle(getString(R.string.popup_reading_manga_subtitle_empty))
                 .setMessage(message)
                 .setPositiveButton(
@@ -977,7 +978,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         mTouchView.alpha = 0.0f
         mTouchView.animate().alpha(1.0f).setDuration(300L)
             .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mTouchView.visibility = View.VISIBLE
                 }
@@ -1038,7 +1039,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         mTouchView.alpha = 1.0f
         mTouchView.animate().alpha(0.0f).setDuration(300L)
             .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mTouchView.visibility = View.GONE
                 }
@@ -1057,7 +1058,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
 
         mChapterContent.animate().alpha(finalAlpha).setDuration(300L)
             .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mChapterContent.visibility = visibility
                 }

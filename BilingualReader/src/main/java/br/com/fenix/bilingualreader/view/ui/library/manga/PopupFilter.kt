@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Filter
+import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.view.components.TriStateCheckBox
 import org.slf4j.LoggerFactory
 
@@ -36,23 +37,28 @@ class PopupFilter : Fragment() {
         mFilterFavorite = root.findViewById(R.id.popup_library_filter_favorite)
         mFilterReading = root.findViewById(R.id.popup_library_filter_reading)
 
-        mFilterFavorite.isChecked = false
-        mFilterReading.isChecked = false
-
-        when (mViewModel.getFilterType()) {
-            Filter.Favorite -> mFilterFavorite.isChecked = true
-            Filter.Reading -> mFilterReading.isChecked = true
-            else -> {}
-        }
-
+        setChecked(getCheckList(), mViewModel.typeFilter.value ?: Filter.None)
+        observer()
         addListener()
 
         return root
     }
 
+    private fun setChecked(checkboxes: ArrayList<CheckBox>, filter: Filter) {
+        for (check in checkboxes)
+            check.isChecked = false
+
+        when (filter) {
+            Filter.Favorite -> mFilterFavorite.isChecked = true
+            Filter.Reading -> mFilterReading.isChecked = true
+            else -> {}
+        }
+    }
+
+    private fun getCheckList() = arrayListOf(mFilterFavorite, mFilterReading)
 
     private fun addListener() {
-        val list = arrayListOf(mFilterFavorite, mFilterReading)
+        val list = getCheckList()
 
         mFilterFavorite.setOnCheckedChangeListener { _, isChecked ->
             removeListener(list)
@@ -81,6 +87,14 @@ class PopupFilter : Fragment() {
     private fun removeListener(checkboxes : ArrayList<CheckBox>) {
         for (check in checkboxes)
             check.setOnCheckedChangeListener(null)
+    }
+
+    private fun observer() {
+        mViewModel.typeFilter.observe(viewLifecycleOwner) {
+            removeListener(getCheckList())
+            setChecked(getCheckList(), it)
+            addListener()
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.view.ui.history
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
@@ -21,6 +22,7 @@ import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.view.adapter.history.HistoryCardAdapter
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.time.LocalDateTime
 
 
@@ -42,13 +44,14 @@ class HistoryFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
 
         val miLibrary = menu.findItem(R.id.menu_history_manga_library)
-        miLibrary.subMenu.clear()
-        miLibrary.subMenu.add(requireContext().getString(R.string.history_menu_choice_library_all)).setOnMenuItemClickListener { _: MenuItem? ->
-            filterLibrary(null)
-            true
-        }
+        miLibrary.subMenu?.clear()
+        miLibrary.subMenu?.add(requireContext().getString(R.string.history_menu_choice_library_all))
+            ?.setOnMenuItemClickListener { _: MenuItem? ->
+                filterLibrary(null)
+                true
+            }
         for (library in mViewModel.getLibraryList())
-            miLibrary.subMenu.add(library.title).setOnMenuItemClickListener { _: MenuItem? ->
+            miLibrary.subMenu?.add(library.title)?.setOnMenuItemClickListener { _: MenuItem? ->
                 filterLibrary(library)
                 true
             }
@@ -70,7 +73,7 @@ class HistoryFragment : Fragment() {
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
-            R.id.menu_history_manga_library -> { }
+            R.id.menu_history_manga_library -> {}
         }
         return super.onOptionsItemSelected(menuItem)
     }
@@ -98,7 +101,10 @@ class HistoryFragment : Fragment() {
                     val intent = Intent(context, MangaReaderActivity::class.java)
                     val bundle = Bundle()
                     manga.lastAccess = LocalDateTime.now()
-                    bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, LibraryUtil.getDefault(requireContext()))
+                    bundle.putSerializable(
+                        GeneralConsts.KEYS.OBJECT.LIBRARY,
+                        LibraryUtil.getDefault(requireContext())
+                    )
                     bundle.putString(GeneralConsts.KEYS.MANGA.NAME, manga.title)
                     bundle.putInt(GeneralConsts.KEYS.MANGA.MARK, manga.bookMark)
                     bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
@@ -114,7 +120,7 @@ class HistoryFragment : Fragment() {
                         }
                     }
 
-                    AlertDialog.Builder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+                    MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                         .setTitle(getString(R.string.manga_excluded))
                         .setMessage(manga.file.path)
                         .setPositiveButton(
@@ -131,9 +137,11 @@ class HistoryFragment : Fragment() {
                 popup.menuInflater.inflate(R.menu.menu_manga_file, popup.menu)
 
                 if (manga.favorite)
-                    popup.menu.findItem(R.id.menu_manga_file_favorite).title = getString(R.string.manga_library_menu_favorite_remove)
+                    popup.menu.findItem(R.id.menu_manga_file_favorite).title =
+                        getString(R.string.manga_library_menu_favorite_remove)
                 else
-                    popup.menu.findItem(R.id.menu_manga_file_favorite).title = getString(R.string.manga_library_menu_favorite_add)
+                    popup.menu.findItem(R.id.menu_manga_file_favorite).title =
+                        getString(R.string.manga_library_menu_favorite_add)
 
                 popup.setOnMenuItemClickListener { item ->
                     when (item.itemId) {
@@ -150,7 +158,10 @@ class HistoryFragment : Fragment() {
                         }
                         R.id.menu_manga_file_delete -> {
                             val dialog: AlertDialog =
-                                AlertDialog.Builder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+                                MaterialAlertDialogBuilder(
+                                    requireActivity(),
+                                    R.style.AppCompatAlertDialogStyle
+                                )
                                     .setTitle(getString(R.string.manga_library_menu_delete))
                                     .setMessage(getString(R.string.history_delete_description) + "\n" + manga.file.name)
                                     .setPositiveButton(
@@ -177,38 +188,39 @@ class HistoryFragment : Fragment() {
         return root
     }
 
-    private var itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
-        override fun onMove(
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder
-        ): Boolean {
-            return false
-        }
+    private var itemTouchHelperCallback =
+        object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
 
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            val manga = mViewModel.getAndRemove(viewHolder.adapterPosition) ?: return
-            val position = viewHolder.adapterPosition
-            var excluded = false
-            val dialog: AlertDialog =
-                AlertDialog.Builder(requireActivity(), R.style.AppCompatAlertDialogStyle)
-                    .setTitle(getString(R.string.manga_library_menu_delete))
-                    .setMessage(getString(R.string.history_delete_description) + "\n" + manga.file.name)
-                    .setPositiveButton(
-                        R.string.action_delete
-                    ) { _, _ ->
-                        mViewModel.deletePermanent(manga)
-                        mRecycleView.adapter?.notifyItemRemoved(position)
-                        excluded = true
-                    }.setOnDismissListener {
-                        if (!excluded) {
-                            mViewModel.add(manga, position)
-                            mRecycleView.adapter?.notifyItemChanged(position)
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val manga = mViewModel.getAndRemove(viewHolder.adapterPosition) ?: return
+                val position = viewHolder.adapterPosition
+                var excluded = false
+                val dialog: AlertDialog =
+                    MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+                        .setTitle(getString(R.string.manga_library_menu_delete))
+                        .setMessage(getString(R.string.history_delete_description) + "\n" + manga.file.name)
+                        .setPositiveButton(
+                            R.string.action_delete
+                        ) { _, _ ->
+                            mViewModel.deletePermanent(manga)
+                            mRecycleView.adapter?.notifyItemRemoved(position)
+                            excluded = true
+                        }.setOnDismissListener {
+                            if (!excluded) {
+                                mViewModel.add(manga, position)
+                                mRecycleView.adapter?.notifyItemChanged(position)
+                            }
                         }
-                    }
-                    .create()
-            dialog.show()
+                        .create()
+                dialog.show()
+            }
         }
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -218,6 +230,7 @@ class HistoryFragment : Fragment() {
         historyAdapter.attachListener(mListener)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
         super.onResume()
         mViewModel.list {

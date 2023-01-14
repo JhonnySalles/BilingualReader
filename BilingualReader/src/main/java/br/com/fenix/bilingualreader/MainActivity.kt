@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.SubMenu
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -279,17 +280,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mLibraries: List<Library>
     fun setLibraries(libraries: List<Library>) {
         val menu = mNavigationView.menu
-        val submenu: Menu = menu.findItem(R.id.menu_manga_library_content).subMenu
+        val submenu: SubMenu? = menu.findItem(R.id.menu_manga_library_content).subMenu
 
         if (!::mLibraries.isInitialized)
             mLibraries = libraries
 
         for ((index, _) in mLibraries.withIndex())
-            submenu.removeItem(GeneralConsts.KEYS.LIBRARIES.INDEX_LIBRARIES + index)
+            submenu?.removeItem(GeneralConsts.KEYS.LIBRARIES.INDEX_LIBRARIES + index)
 
         for ((index, library) in libraries.withIndex())
-            submenu.add(0, GeneralConsts.KEYS.LIBRARIES.INDEX_LIBRARIES + index, 0, library.title)
-                .apply { setIcon(R.drawable.ic_library) }
+            submenu?.let {
+                it.add(0, GeneralConsts.KEYS.LIBRARIES.INDEX_LIBRARIES + index, 0, library.title).apply { setIcon(R.drawable.ic_library) }
+            }
 
         mLibraries = libraries
         mNavigationView.invalidate()

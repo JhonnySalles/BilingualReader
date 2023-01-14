@@ -17,10 +17,12 @@ class FileLink(
     language: Languages, dateCreate: LocalDateTime?, lastAccess: LocalDateTime?, lastAlteration: LocalDateTime?
 ) : Serializable {
 
+    @Ignore
     constructor(
         id: Long?, idManga: Long, pages: Int, path: String, name: String, type: String, folder: String, language: Languages
     ) : this(id, idManga, pages, path, name, type, folder, language, LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now())
 
+    @Ignore
     constructor(
         manga: Manga, parseManga: Parse?, pages: Int, path: String, name: String, type: String, folder: String
     ) : this(
@@ -40,6 +42,7 @@ class FileLink(
         this.parseManga = parseManga
     }
 
+    @Ignore
     constructor(manga: Manga, parseManga: Parse?) : this(
         null, manga.id!!, 0, "", "", "", "", Languages.PORTUGUESE,
         LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now()
@@ -48,6 +51,7 @@ class FileLink(
         this.parseManga = parseManga
     }
 
+    @Ignore
     constructor(manga: Manga) : this(
         null, manga.id!!, 0, "", "", "", "", Languages.PORTUGUESE,
         LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now()

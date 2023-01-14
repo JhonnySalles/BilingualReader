@@ -12,7 +12,6 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PointF
-import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import android.util.DisplayMetrics
 import android.util.TypedValue
@@ -21,7 +20,7 @@ import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
 import android.widget.*
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
-import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
 import br.com.fenix.bilingualreader.R
@@ -539,7 +538,7 @@ class MsgUtil {
 
         fun validPermission(context: Context, grantResults: IntArray) {
             if (!validPermission(grantResults))
-                AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle)
+                MaterialAlertDialogBuilder(context, R.style.AppCompatAlertDialogStyle)
                     .setTitle(context.getString(R.string.alert_permission_files_access_denied_title))
                     .setMessage(context.getString(R.string.alert_permission_files_access_denied))
                     .setPositiveButton(R.string.action_neutral) { _, _ -> }.create().show()
@@ -653,7 +652,7 @@ class ImageUtil {
                             .scaleY(1.0f)
                             .setDuration(300L)
                             .setListener(object : AnimatorListenerAdapter() {
-                                override fun onAnimationEnd(animation: Animator?) {
+                                override fun onAnimationEnd(animation: Animator) {
                                     super.onAnimationEnd(animation)
                                     mScaleFactor = 1.0f
                                     image.scaleX = mScaleFactor
@@ -836,25 +835,33 @@ class MenuUtil {
             drawer.color = context.getColorFromAttr(R.attr.colorOnSurfaceVariant)
         }
 
-        fun longClick(context: Context, item: MenuItem, icon: Int, click: () -> (Unit), longCLick: () -> (Unit)): ImageButton {
+        fun longClick(
+            context: Context,
+            item: MenuItem,
+            icon: Int,
+            click: () -> (Unit),
+            longCLick: () -> (Unit)
+        ): ImageButton {
             val imageButton = ImageButton(context)
             imageButton.setImageResource(icon)
             val outValue = TypedValue()
             context.theme.resolveAttribute(
                 android.R.attr.selectableItemBackgroundBorderless, outValue, true
             )
+
             // Verificar por que não troca para a cor padrão.
-            imageButton.background = context.getDrawable(outValue.resourceId)
+            imageButton.background = AppCompatResources.getDrawable(context, outValue.resourceId)
 
-            imageButton.layoutParams = LinearLayout.LayoutParams(Util.dpToPx(context, 28), Util.dpToPx(context, 28))
+            imageButton.layoutParams =
+                LinearLayout.LayoutParams(Util.dpToPx(context, 28), Util.dpToPx(context, 28))
 
-            item.actionView = imageButton
-            item.actionView.setOnLongClickListener {
+            imageButton.setOnLongClickListener {
                 longCLick()
                 true
             }
 
-            item.actionView.setOnClickListener { click() }
+            imageButton.setOnClickListener { click() }
+            item.actionView = imageButton
 
             return imageButton
         }

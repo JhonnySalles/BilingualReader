@@ -23,10 +23,12 @@ class MangaLibraryViewModel(application: Application) : AndroidViewModel(applica
     private val mMangaRepository: MangaRepository = MangaRepository(application.applicationContext)
     private val mPreferences = GeneralConsts.getSharedPreferences(application.applicationContext)
 
-    private var mOrder: Order = Order.Name
-    private var mIsDesc: Boolean = false
-    private var mTypeFilter: FilterType = FilterType.None
     private var mWordFilter = ""
+
+    private var mOrder = MutableLiveData(Pair(Order.Name, false))
+    val order: LiveData<Pair<Order, Boolean>> = mOrder
+    private var mTypeFilter = MutableLiveData(FilterType.None)
+    val typeFilter: LiveData<FilterType> = mTypeFilter
 
     private var mListMangasFull = MutableLiveData<MutableList<Manga>>(mutableListOf())
     private var mListMangas = MutableLiveData<MutableList<Manga>>(mutableListOf())
@@ -230,12 +232,12 @@ class MangaLibraryViewModel(application: Application) : AndroidViewModel(applica
     fun isEmpty(): Boolean =
         mListMangas.value == null || mListMangas.value!!.isEmpty()
 
-    fun getSorted(): Order = mOrder
-    fun getIsDesc(): Boolean = mIsDesc
+    fun sorted() {
+        sorted(mOrder.value?.first ?: Order.Name)
+    }
 
     fun sorted(order: Order, isDesc: Boolean = false) {
-        mOrder = order
-        mIsDesc = isDesc
+        mOrder.value = Pair(order, isDesc)
 
         if (isDesc)
             when (order) {
@@ -277,17 +279,15 @@ class MangaLibraryViewModel(application: Application) : AndroidViewModel(applica
             }
     }
 
-    fun getFilterType(): FilterType = mTypeFilter
-
     fun filterType(filter: FilterType) {
-        mTypeFilter = filter
+        mTypeFilter.value = filter
         getFilter().filter(mWordFilter)
     }
 
     fun clearFilterType() = filterType(FilterType.None)
 
     fun clearFilter() {
-        mTypeFilter = FilterType.None
+        mTypeFilter.value = FilterType.None
         mWordFilter = ""
         val newList: MutableList<Manga> = mutableListOf()
         newList.addAll(mListMangasFull.value!!.filter(Objects::nonNull))
@@ -302,11 +302,11 @@ class MangaLibraryViewModel(application: Application) : AndroidViewModel(applica
         if (manga == null)
             return false
 
-        if (mTypeFilter != FilterType.None) {
-            if (mTypeFilter == FilterType.Reading && manga.lastAccess == null)
+        if (mTypeFilter.value != FilterType.None) {
+            if (mTypeFilter.value == FilterType.Reading && manga.lastAccess == null)
                 return false
 
-            if (mTypeFilter == FilterType.Favorite && !manga.favorite)
+            if (mTypeFilter.value == FilterType.Favorite && !manga.favorite)
                 return false
         }
 
@@ -320,7 +320,7 @@ class MangaLibraryViewModel(application: Application) : AndroidViewModel(applica
             mWordFilter = constraint.toString()
             val filteredList: MutableList<Manga> = mutableListOf()
 
-            if ((constraint == null || constraint.isEmpty()) && mTypeFilter == FilterType.None) {
+            if ((constraint == null || constraint.isEmpty()) && mTypeFilter.value == FilterType.None) {
                 filteredList.addAll(mListMangasFull.value!!.filter(Objects::nonNull))
             } else {
                 val filterPattern = constraint.toString().lowercase(Locale.getDefault()).trim()

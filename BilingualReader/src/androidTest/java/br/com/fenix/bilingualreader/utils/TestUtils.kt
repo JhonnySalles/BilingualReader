@@ -53,6 +53,7 @@ class TestUtils {
                 Util.getNameWithoutExtensionFromPath(mangaPath),
                 Util.getExtensionFromPath(mangaPath),
                 10,
+                intArrayOf(2,4),
                 5,
                 (1..2).random() > 1,
                 (1..2).random() > 1,
@@ -86,8 +87,8 @@ class TestUtils {
         fun getManga(): Manga {
             return Manga(
                 1, Util.getNameFromPath(TEST_FILE_PATH), "", TEST_FILE_PATH, Util.getFolderFromPath(TEST_FILE_PATH),
-                Util.getNameWithoutExtensionFromPath(TEST_FILE_PATH), Util.getExtensionFromPath(TEST_FILE_PATH), 10, 5,
-                (1..2).random() > 1, (1..2).random() > 1, LocalDateTime.parse("2022-06-28T14:15:50.63"), LocalDateTime.now(),
+                Util.getNameWithoutExtensionFromPath(TEST_FILE_PATH), Util.getExtensionFromPath(TEST_FILE_PATH), 10, intArrayOf(2,4),
+                5,(1..2).random() > 1, (1..2).random() > 1, LocalDateTime.parse("2022-06-28T14:15:50.63"), LocalDateTime.now(),
                 LocalDateTime.now(), GeneralConsts.KEYS.LIBRARY.DEFAULT, (1..5).random() > 2
             )
         }
@@ -105,7 +106,7 @@ class TestUtils {
                 array.add(
                     Manga(
                         i.toLong(), Util.getNameFromPath(TEST_FILE_PATH), "", TEST_FILE_PATH, Util.getFolderFromPath(TEST_FILE_PATH),
-                        Util.getNameWithoutExtensionFromPath(TEST_FILE_PATH), Util.getExtensionFromPath(TEST_FILE_PATH), 125,
+                        Util.getNameWithoutExtensionFromPath(TEST_FILE_PATH), Util.getExtensionFromPath(TEST_FILE_PATH), 125, intArrayOf(5,15,50,75,91,115),
                         (0..100).random(), i in 2..5, (1..2).random() > 1, LocalDateTime.parse("2022-06-28T14:15:50.63"), LocalDateTime.now(),
                         LocalDateTime.now(), GeneralConsts.KEYS.LIBRARY.DEFAULT, i in 4..6
                     )

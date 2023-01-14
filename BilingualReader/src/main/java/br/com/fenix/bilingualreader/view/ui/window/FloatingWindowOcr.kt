@@ -26,7 +26,10 @@ import org.slf4j.LoggerFactory
 import kotlin.math.abs
 
 
-class FloatingWindowOcr constructor(private val context: Context, private val activity: AppCompatActivity) : WindowListener,
+class FloatingWindowOcr constructor(
+    private val context: Context,
+    private val activity: AppCompatActivity
+) : WindowListener,
     GestureDetector.OnDoubleTapListener {
 
     private val mLOGGER = LoggerFactory.getLogger(FloatingWindowOcr::class.java)
@@ -54,11 +57,12 @@ class FloatingWindowOcr constructor(private val context: Context, private val ac
         if (mCloseButton.visibility == View.VISIBLE) {
             mCloseButton.animate().alpha(0.0f).setDuration(300L)
                 .setListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator?) {
+                    override fun onAnimationEnd(animation: Animator) {
                         super.onAnimationEnd(animation)
                         mCloseButton.visibility = View.GONE
                         layoutParams.width -= context.resources.getDimension(R.dimen.floating_ocr_button_close_size)
-                            .toInt() + context.resources.getDimension(R.dimen.floating_ocr_button_close_margin).toInt()
+                            .toInt() + context.resources.getDimension(R.dimen.floating_ocr_button_close_margin)
+                            .toInt()
                         windowManager?.updateViewLayout(mFloatingView, layoutParams)
                     }
                 })
@@ -72,7 +76,8 @@ class FloatingWindowOcr constructor(private val context: Context, private val ac
     init {
         with(mFloatingView) {
             this@FloatingWindowOcr.mRealDisplaySize = getRealDisplaySizeFromContext()
-            this@FloatingWindowOcr.minSize = context.resources.getDimension(R.dimen.floating_ocr_min_size).toInt()
+            this@FloatingWindowOcr.minSize =
+                context.resources.getDimension(R.dimen.floating_ocr_min_size).toInt()
             this@FloatingWindowOcr.layoutParams = getDefaultParams()
 
             mCloseButton = this.findViewById(R.id.window_ocr_close)
@@ -84,7 +89,8 @@ class FloatingWindowOcr constructor(private val context: Context, private val ac
             windowView.setWindowListener(this@FloatingWindowOcr as WindowListener)
             resizeView.setWindowListener(this@FloatingWindowOcr as WindowListener)
 
-            val detectorCompat = GestureDetectorCompat(context, this@FloatingWindowOcr as WindowListener)
+            val detectorCompat =
+                GestureDetectorCompat(context, this@FloatingWindowOcr as WindowListener)
             windowView.setDetector(detectorCompat)
         }
     }
@@ -113,11 +119,12 @@ class FloatingWindowOcr constructor(private val context: Context, private val ac
         return Point(metrics.widthPixels, metrics.heightPixels)
     }
 
-    override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
-        if (e1 == null || e2 == null) {
-            return false
-        }
-
+    override fun onScroll(
+        e1: MotionEvent,
+        e2: MotionEvent,
+        distanceX: Float,
+        distanceY: Float
+    ): Boolean {
         layoutParams.x = mDX + e2.rawX.toInt()
         layoutParams.y = mDY + e2.rawY.toInt()
         fixBoxBounds()
@@ -125,36 +132,36 @@ class FloatingWindowOcr constructor(private val context: Context, private val ac
         return true
     }
 
-    override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+    override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
         return false
     }
 
-    override fun onDoubleTap(e: MotionEvent?): Boolean {
+    override fun onDoubleTap(e: MotionEvent): Boolean {
         return false
     }
 
-    override fun onDoubleTapEvent(e: MotionEvent?): Boolean {
-        if (e?.action == MotionEvent.ACTION_DOWN)
+    override fun onDoubleTapEvent(e: MotionEvent): Boolean {
+        if (e.action == MotionEvent.ACTION_DOWN)
             processTesseractAsync()
 
         return false
     }
 
-    private fun onUp(e: MotionEvent?): Boolean {
+    private fun onUp(e: MotionEvent): Boolean {
         return false
     }
 
-    override fun onDown(e: MotionEvent?): Boolean {
+    override fun onDown(e: MotionEvent): Boolean {
         return false
     }
 
-    override fun onShowPress(e: MotionEvent?) {}
+    override fun onShowPress(e: MotionEvent) {}
 
-    override fun onSingleTapUp(e: MotionEvent?): Boolean {
+    override fun onSingleTapUp(e: MotionEvent): Boolean {
         return false
     }
 
-    override fun onLongPress(e: MotionEvent?) {
+    override fun onLongPress(e: MotionEvent) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (mHandler.hasCallbacks(mDismissCloseButton))
                 mHandler.removeCallbacks(mDismissCloseButton)
@@ -166,23 +173,29 @@ class FloatingWindowOcr constructor(private val context: Context, private val ac
         if (mCloseButton.visibility != View.VISIBLE) {
             mCloseButton.visibility = View.VISIBLE
             mCloseButton.alpha = 0.0f
-            mCloseButton.animate().alpha(1.0f).setDuration(300L).setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
-                    super.onAnimationEnd(animation)
-                    mCloseButton.visibility = View.VISIBLE
-                }
-            })
+            mCloseButton.animate().alpha(1.0f).setDuration(300L)
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        super.onAnimationEnd(animation)
+                        mCloseButton.visibility = View.VISIBLE
+                    }
+                })
 
             layoutParams.width += context.resources.getDimension(R.dimen.floating_ocr_button_close_size)
-                .toInt() + context.resources.getDimension(R.dimen.floating_ocr_button_close_margin).toInt()
+                .toInt() + context.resources.getDimension(R.dimen.floating_ocr_button_close_margin)
+                .toInt()
             windowManager?.updateViewLayout(mFloatingView, layoutParams)
         }
     }
 
-    override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
-        if (e1 != null && e2 != null)
-            if (abs(velocityX) > 200 && (e1.x - e2.x > 100 || e2.x - e1.x > 100))
-                dismiss()
+    override fun onFling(
+        e1: MotionEvent,
+        e2: MotionEvent,
+        velocityX: Float,
+        velocityY: Float
+    ): Boolean {
+        if (abs(velocityX) > 200 && (e1.x - e2.x > 100 || e2.x - e1.x > 100))
+            dismiss()
 
         return false
     }
@@ -331,7 +344,12 @@ class FloatingWindowOcr constructor(private val context: Context, private val ac
             val language = (activity as OcrProcess).getLanguage()
             val location = IntArray(2)
             mFloatingView.getLocationOnScreen(location)
-            val image = (activity as OcrProcess).getImage(location[0], location[1], mFloatingView.width, mFloatingView.height) ?: return
+            val image = (activity as OcrProcess).getImage(
+                location[0],
+                location[1],
+                mFloatingView.width,
+                mFloatingView.height
+            ) ?: return
             Tesseract.getInstance(context).processAsync(language, image) {
                 (activity as OcrProcess).setText(it)
             }
@@ -344,7 +362,12 @@ class FloatingWindowOcr constructor(private val context: Context, private val ac
         return try {
             val location = IntArray(2)
             mFloatingView.getLocationOnScreen(location)
-            val image = (activity as OcrProcess).getImage(location[0], location[1], mFloatingView.width, mFloatingView.height)
+            val image = (activity as OcrProcess).getImage(
+                location[0],
+                location[1],
+                mFloatingView.width,
+                mFloatingView.height
+            )
                 ?: return null
 
             val tess = Tesseract.getInstance(context)

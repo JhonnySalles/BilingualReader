@@ -39,6 +39,7 @@ class Book(
     excluded: Boolean
 ) : Serializable {
 
+    @Ignore
     constructor(
         title: String, author: String, annotation: String,
         year: String, genre: String, publisher: String, isbn: String,
@@ -55,6 +56,7 @@ class Book(
         this.type = FileUtil.getFileType(this.fileName)
     }
 
+    @Ignore
     constructor( id: Long?, file: File, meta: EbookMeta) : this(
         id, meta.title, meta.author ?: "", meta.annotation ?: "", "", meta.genre ?: "", "", "", 0, 0,
         Languages.ENGLISH, file.path, file.length(), file.nameWithoutExtension, FileType.UNKNOWN, file.parent, false,
