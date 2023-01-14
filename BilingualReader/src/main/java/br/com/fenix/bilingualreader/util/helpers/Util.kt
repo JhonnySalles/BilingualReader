@@ -72,14 +72,14 @@ class Util {
             return sizeInBytes / 1024
         }
 
-        fun getDeviceWidth(context: Context): Int {
+        fun getDeviceWidth(): Int {
             val displayMetrics = Resources.getSystem().displayMetrics
-            return Math.round(displayMetrics.widthPixels / displayMetrics.density)
+            return (displayMetrics.widthPixels / displayMetrics.density).roundToInt()
         }
 
-        fun getDeviceHeight(context: Context): Int {
+        fun getDeviceHeight(): Int {
             val displayMetrics = Resources.getSystem().displayMetrics
-            return Math.round(displayMetrics.heightPixels / displayMetrics.density)
+            return (displayMetrics.heightPixels / displayMetrics.density).roundToInt()
         }
 
         fun MD5(string: String): String {

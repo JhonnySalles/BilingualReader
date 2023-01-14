@@ -18,7 +18,10 @@ import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import kotlin.math.abs
 
 
-class FloatingButtons constructor(private val context: Context, private val activity: AppCompatActivity) {
+class FloatingButtons constructor(
+    private val context: Context,
+    private val activity: AppCompatActivity
+) {
 
     private var windowManager: WindowManager? = null
         get() {
@@ -40,16 +43,20 @@ class FloatingButtons constructor(private val context: Context, private val acti
     var isShowing = false
 
     private val mOnFlingListener = object : GestureDetector.SimpleOnGestureListener() {
-        override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
-            if (e1 != null && e2 != null)
-                if (abs(e1.x - e2.x) > 150) {
-                    if (e2.x > e1.x)
-                        moveWindow(false)
-                    else if (e2.x < e1.x)
-                        moveWindow(true)
+        override fun onFling(
+            e1: MotionEvent,
+            e2: MotionEvent,
+            velocityX: Float,
+            velocityY: Float
+        ): Boolean {
+            if (abs(e1.x - e2.x) > 150) {
+                if (e2.x > e1.x)
+                    moveWindow(false)
+                else if (e2.x < e1.x)
+                    moveWindow(true)
 
-                    return false
-                }
+                return false
+            }
 
             return super.onFling(e1, e2, velocityX, velocityY)
         }
@@ -111,7 +118,7 @@ class FloatingButtons constructor(private val context: Context, private val acti
                     }
                 }
             }
-            else -> {  }
+            else -> {}
         }
         true
     }
@@ -133,7 +140,7 @@ class FloatingButtons constructor(private val context: Context, private val acti
             this.findViewById<AppCompatImageButton>(R.id.floating_manga_buttons_close)
                 .setOnClickListener { dismiss() }
             this.findViewById<AppCompatImageButton>(R.id.floating_manga_buttons_page_linked)
-                .setOnClickListener { mSubTitleController.drawPageLinked()  }
+                .setOnClickListener { mSubTitleController.drawPageLinked() }
             this.findViewById<AppCompatImageButton>(R.id.floating_manga_buttons_draw_text)
                 .setOnClickListener { mSubTitleController.drawSelectedText() }
             this.findViewById<AppCompatImageButton>(R.id.floating_manga_buttons_floating_window)
@@ -143,8 +150,10 @@ class FloatingButtons constructor(private val context: Context, private val acti
             mMoveWindow = this.findViewById(R.id.floating_manga_buttons_move_window)
             mMoveWindow.setOnClickListener { onMove() }
 
-            mIconToRight = AppCompatResources.getDrawable(context, R.drawable.ic_floating_button_change_right)
-            mIconToLeft = AppCompatResources.getDrawable(context, R.drawable.ic_floating_button_change_left)
+            mIconToRight =
+                AppCompatResources.getDrawable(context, R.drawable.ic_floating_button_change_right)
+            mIconToLeft =
+                AppCompatResources.getDrawable(context, R.drawable.ic_floating_button_change_left)
 
         }
 
@@ -153,7 +162,7 @@ class FloatingButtons constructor(private val context: Context, private val acti
         val metrics = Resources.getSystem().displayMetrics
         val displaySize = Point(metrics.widthPixels, metrics.heightPixels)
         mRealDisplaySize = displaySize
-        mMiddle = mRealDisplaySize.x/2
+        mMiddle = mRealDisplaySize.x / 2
         inLeft = true
 
         val layoutType = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O)
@@ -169,7 +178,7 @@ class FloatingButtons constructor(private val context: Context, private val acti
             width = ViewGroup.LayoutParams.WRAP_CONTENT
             height = ViewGroup.LayoutParams.WRAP_CONTENT
             x = 10
-            y = mRealDisplaySize.y/2
+            y = mRealDisplaySize.y / 2
         }
     }
 

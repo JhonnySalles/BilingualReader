@@ -27,6 +27,7 @@ class Manga(
     lastAccess: LocalDateTime?,
     lastAlteration: LocalDateTime?,
     fileAlteration: Long,
+    lastVocabImport: LocalDateTime?,
     fkLibrary: Long?,
     excluded: Boolean
 ) : Serializable {
@@ -36,11 +37,12 @@ class Manga(
         path: String, folder: String, name: String, type: String,
         pages: Int, chapters: IntArray, bookMark: Int, favorite: Boolean, hasSubtitle: Boolean,
         dateCreate: LocalDateTime?, lastAccess: LocalDateTime?,
-        lastAlteration: LocalDateTime?, fileAlteration: Long,
+        lastAlteration: LocalDateTime?, fileAlteration: Long, lastVocabImport: LocalDateTime?,
         fkLibrary: Long?, sort: LocalDateTime? = null
     ) : this( id, title, subTitle, path, folder, name, type,
         pages, chapters, bookMark, favorite, hasSubtitle, dateCreate,
-        lastAccess, lastAlteration, fileAlteration, fkLibrary, false
+        lastAccess, lastAlteration, fileAlteration, lastVocabImport,
+        fkLibrary, false
     ) {
         this.sort = sort
     }
@@ -61,7 +63,7 @@ class Manga(
     ) : this(
         id, title, subTitle, path, folder, name, type,
         pages, chapters, 0, false, false, LocalDateTime.now(),
-        null, null, fileAlteration, fkLibrary, false
+        null, null, fileAlteration, null, fkLibrary, false
     )
 
 
@@ -119,6 +121,9 @@ class Manga(
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FILE_ALTERATION)
     var fileAlteration: Long = fileAlteration
+
+    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.LAST_VOCABULARY_IMPORT)
+    var lastVocabImport: LocalDateTime? = lastVocabImport
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.EXCLUDED)
     var excluded: Boolean = excluded

@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.service.controller
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
@@ -62,12 +63,12 @@ class SubTitleController private constructor(private val context: Context) {
     private var mPagesKeys: MutableLiveData<List<String>> = MutableLiveData()
     var pagesKeys: LiveData<List<String>> = mPagesKeys
 
-    private var mChapterSelected: MutableLiveData<Chapter> = MutableLiveData()
-    var chapterSelected: LiveData<Chapter> = mChapterSelected
-    private var mPageSelected: MutableLiveData<Page> = MutableLiveData()
-    var pageSelected: LiveData<Page> = mPageSelected
-    private var mTextSelected: MutableLiveData<Text> = MutableLiveData()
-    var textSelected: LiveData<Text> = mTextSelected
+    private var mChapterSelected: MutableLiveData<Chapter?> = MutableLiveData()
+    var chapterSelected: LiveData<Chapter?> = mChapterSelected
+    private var mPageSelected: MutableLiveData<Page?> = MutableLiveData()
+    var pageSelected: LiveData<Page?> = mPageSelected
+    private var mTextSelected: MutableLiveData<Text?> = MutableLiveData()
+    var textSelected: LiveData<Text?> = mTextSelected
 
     private var mForceExpandFloatingPopup: MutableLiveData<Boolean> = MutableLiveData(true)
     var forceExpandFloatingPopup: LiveData<Boolean> = mForceExpandFloatingPopup
@@ -113,6 +114,7 @@ class SubTitleController private constructor(private val context: Context) {
     }
 
     companion object {
+        @SuppressLint("StaticFieldLeak")
         private lateinit var INSTANCE: SubTitleController
 
         fun getInstance(context: Context): SubTitleController {
@@ -160,10 +162,17 @@ class SubTitleController private constructor(private val context: Context) {
             }
         }
 
-    fun getChapterFromJson(listJson: List<String>, isSelected: Boolean = false) {
-        this.isSelected = isSelected
+    private fun clean() {
         mLanguages.clear()
         getSubtitle().clear()
+        mChaptersKeys.value = listOf()
+        mPagesKeys.value = listOf()
+    }
+
+
+    fun getChapterFromJson(listJson: List<String>, isSelected: Boolean = false) {
+        this.isSelected = isSelected
+        clean()
         isNotEmpty = listJson.isNotEmpty()
         if (listJson.isNotEmpty()) {
             val gson = Gson()
@@ -662,18 +671,13 @@ class SubTitleController private constructor(private val context: Context) {
     fun clearImageBackup() = mImageBackup.clear()
     fun removeImageBackup(pageNumber: Int) = mImageBackup.remove(pageNumber)
 
-    inner class MyTarget(layout: View, isText: Boolean = false, isKeepScroll: Boolean = true) : Target {
+    inner class MyTarget(layout: View, private val isText: Boolean = false, private val isKeepScroll: Boolean = true) : Target {
         private val mLayout: WeakReference<View> = WeakReference(layout)
-        private val isText = isText
-        private val isKeepScroll = isKeepScroll
 
         override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
             val layout = mLayout.get() ?: return
             val iv = layout.findViewById<View>(R.id.page_image_view) as PageImageView
             if (isText) {
-                if (bitmap == null)
-                    return
-
                 mImageBackup[MangaReaderFragment.mCurrentPage] = bitmap
 
                 val image: Bitmap = bitmap.copy(bitmap.config, true)

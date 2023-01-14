@@ -21,13 +21,6 @@
         android:fitsSystemWindows="true">
 
         <include
-            android:id="@+id/reader_manga_container_touch_demonstration"
-            layout="@layout/reader_manga_touch_demonstration"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
-
-        <include
             android:id="@+id/reader_manga_container_clock_battery"
             layout="@layout/reader_clock_battery"
             android:layout_width="wrap_content"
@@ -52,7 +45,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/main_toolbar_background"
-            android:theme="@style/MainToolbarContentTheme">
+            android:theme="@style/MainToolbarContentTheme"
+            app:elevation="0dp">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/reader_manga_toolbar_reader"

@@ -1,7 +1,6 @@
 package br.com.fenix.bilingualreader.view.components
 
 import android.content.Context
-import android.graphics.drawable.AnimatedVectorDrawable
 import android.util.AttributeSet
 import androidx.annotation.StyleableRes
 import br.com.fenix.bilingualreader.R

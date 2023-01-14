@@ -48,7 +48,7 @@ abstract class MangaDAO : DataBaseDAO<Manga> {
                 "        ${DataBaseConsts.MANGA.COLUMNS.FILE_FOLDER}, ${DataBaseConsts.MANGA.COLUMNS.FILE_NAME}, ${DataBaseConsts.MANGA.COLUMNS.FILE_TYPE}, ${DataBaseConsts.MANGA.COLUMNS.PAGES}, " +
                 "        ${DataBaseConsts.MANGA.COLUMNS.CHAPTERS}, ${DataBaseConsts.MANGA.COLUMNS.BOOK_MARK}, ${DataBaseConsts.MANGA.COLUMNS.FAVORITE}, ${DataBaseConsts.MANGA.COLUMNS.HAS_SUBTITLE}, " +
                 "        ${DataBaseConsts.MANGA.COLUMNS.DATE_CREATE}, ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, ${DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY}, ${DataBaseConsts.MANGA.COLUMNS.EXCLUDED} AS excluded, " +
-                "        ${DataBaseConsts.MANGA.COLUMNS.FILE_ALTERATION}, ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS} AS sort " +
+                "        ${DataBaseConsts.MANGA.COLUMNS.FILE_ALTERATION}, ${DataBaseConsts.MANGA.COLUMNS.LAST_VOCABULARY_IMPORT}, ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS} AS sort " +
                 " FROM " + DataBaseConsts.MANGA.TABLE_NAME +
                 " WHERE " + DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS + " is not null " +
                 "UNION" +
@@ -59,7 +59,8 @@ abstract class MangaDAO : DataBaseDAO<Manga> {
                 "        1 AS ${DataBaseConsts.MANGA.COLUMNS.HAS_SUBTITLE}, null AS ${DataBaseConsts.MANGA.COLUMNS.DATE_CREATE}, " +
                 "        Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '00:00:00.000' AS ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}," +
                 "        ${DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY}, ${DataBaseConsts.MANGA.COLUMNS.EXCLUDED} AS excluded, " +
-                "        0 AS ${DataBaseConsts.MANGA.COLUMNS.FILE_ALTERATION}, Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '25:60:60.000' AS sort " +
+                "        0 AS ${DataBaseConsts.MANGA.COLUMNS.FILE_ALTERATION}, 0 AS ${DataBaseConsts.MANGA.COLUMNS.LAST_VOCABULARY_IMPORT}, " +
+                "        Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '25:60:60.000' AS sort " +
                 " FROM  " + DataBaseConsts.MANGA.TABLE_NAME +
                 " WHERE " + DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS + " is not null " +
                 " GROUP BY Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 11)) " +

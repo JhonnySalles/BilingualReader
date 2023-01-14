@@ -1,7 +1,6 @@
 package br.com.fenix.bilingualreader.service.parses.manga
 
 import br.com.fenix.bilingualreader.model.enums.FileType
-import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import com.github.junrar.exception.RarException
 import com.github.junrar.exception.UnsupportedRarV5Exception
 import org.slf4j.LoggerFactory

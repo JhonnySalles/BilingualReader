@@ -8,16 +8,13 @@ import android.widget.ImageView
 import br.com.ebook.foobnix.pdf.info.PageUrl
 import br.com.ebook.foobnix.sys.ImageExtractor
 import br.com.fenix.bilingualreader.model.entity.Book
-import br.com.fenix.bilingualreader.service.parses.book.Parse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
-import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
 import java.io.File
-import java.io.InputStream
 
 
 class BookImageCoverController private constructor() {

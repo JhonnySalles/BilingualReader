@@ -107,8 +107,8 @@ class ConfigLibrariesFragment : Fragment() {
         }
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            val library = mViewModel.getLibraryAndRemove(viewHolder.adapterPosition) ?: return
-            val position = viewHolder.adapterPosition
+            val library = mViewModel.getLibraryAndRemove(viewHolder.bindingAdapterPosition) ?: return
+            val position = viewHolder.bindingAdapterPosition
             var excluded = false
             val dialog: AlertDialog =
                 MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
@@ -153,9 +153,8 @@ class ConfigLibrariesFragment : Fragment() {
 
         when (requestCode) {
             GeneralConsts.REQUEST.OPEN_MANGA_FOLDER -> {
-                var folder = ""
                 if (data != null && resultCode == RESULT_OK) {
-                    folder = Util.normalizeFilePath(data.data?.path.toString())
+                    val folder = Util.normalizeFilePath(data.data?.path.toString())
 
                     if (!Storage.isPermissionGranted(requireContext()))
                         Storage.takePermission(requireContext(), requireActivity())

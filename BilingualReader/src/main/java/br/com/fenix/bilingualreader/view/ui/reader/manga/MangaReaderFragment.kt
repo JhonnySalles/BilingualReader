@@ -701,6 +701,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             }
 
             when (position) {
+                Position.TOP -> shareImage(true)
                 Position.LEFT -> {
                     if (mIsLeftToRight) {
                         if (getCurrentPage() == 1) hitBeginning() else setCurrentPage(getCurrentPage() - 1)
@@ -980,54 +981,56 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             .setIcon(R.drawable.ic_save_share_image)
             .setItems(items) { _, selectItem ->
                 val language = items[selectItem]
-
-                mParse?.getPage(mCurrentPage)?.let {
-                    val os: OutputStream
-                    try {
-                        val fileName = (mManga?.name ?: mCurrentPage.toString()) + ".jpeg"
-                        val values = ContentValues()
-                        values.put(Images.Media.DISPLAY_NAME, fileName)
-                        values.put(Images.Media.TITLE, fileName)
-                        values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis())
-                        values.put(Images.Media.MIME_TYPE, "image/jpeg")
-
-                        val uri: Uri? = requireContext().contentResolver.insert(
-                            Images.Media.EXTERNAL_CONTENT_URI,
-                            values
-                        )
-                        os = requireContext().contentResolver.openOutputStream(uri!!)!!
-                        val bitmap = BitmapFactory.decodeStream(it)
-                        bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, os)
-
-                        if (language.equals(
-                                requireContext().getString(R.string.reading_manga_choice_share_image),
-                                true
-                            )
-                        ) {
-                            val image = File(uri.toString())
-                            val shareIntent = Intent()
-                            shareIntent.action = Intent.ACTION_SEND
-                            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                            shareIntent.type = "image/jpeg"
-                            shareIntent.putExtra(Intent.EXTRA_STREAM, image)
-                            shareIntent.putExtra(Intent.EXTRA_TEXT, fileName)
-                            startActivity(
-                                Intent.createChooser(
-                                    shareIntent,
-                                    requireContext().getString(R.string.reading_manga_choice_share_chose_app)
-                                )
-                            )
-                            image.delete()
-                        }
-
-                        Util.closeOutputStream(os)
-                    } catch (e: Exception) {
-                        mLOGGER.error("Error generate image to share.", e)
-                    } finally {
-                        Util.closeInputStream(it)
-                    }
-                }
+                shareImage(language.equals(
+                    requireContext().getString(R.string.reading_manga_choice_share_image),
+                    true
+                ))
             }
             .show()
+    }
+
+    private fun shareImage(isShare : Boolean) {
+        mParse?.getPage(mCurrentPage)?.let {
+            val os: OutputStream
+            try {
+                val fileName = (mManga?.name ?: mCurrentPage.toString()) + ".jpeg"
+                val values = ContentValues()
+                values.put(Images.Media.DISPLAY_NAME, fileName)
+                values.put(Images.Media.TITLE, fileName)
+                values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis())
+                values.put(Images.Media.MIME_TYPE, "image/jpeg")
+
+                val uri: Uri? = requireContext().contentResolver.insert(
+                    Images.Media.EXTERNAL_CONTENT_URI,
+                    values
+                )
+                os = requireContext().contentResolver.openOutputStream(uri!!)!!
+                val bitmap = BitmapFactory.decodeStream(it)
+                bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, os)
+
+                if (isShare) {
+                    val image = File(uri.toString())
+                    val shareIntent = Intent()
+                    shareIntent.action = Intent.ACTION_SEND
+                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    shareIntent.type = "image/*"
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, fileName)
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, image)
+                    startActivity(
+                        Intent.createChooser(
+                            shareIntent,
+                            requireContext().getString(R.string.reading_manga_choice_share_chose_app)
+                        )
+                    )
+                    image.delete()
+                }
+
+                Util.closeOutputStream(os)
+            } catch (e: Exception) {
+                mLOGGER.error("Error generate image to share.", e)
+            } finally {
+                Util.closeInputStream(it)
+            }
+        }
     }
 }

@@ -5,13 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.enums.Filter
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.view.components.PopupOrderSortedListener
 import br.com.fenix.bilingualreader.view.components.TriStateCheckBox
 import org.slf4j.LoggerFactory
 
@@ -26,9 +24,11 @@ class PopupOrder : Fragment() {
     private lateinit var mOrderAccess: TriStateCheckBox
     private lateinit var mOrderFavorite: TriStateCheckBox
 
+    private var mListeners = mutableListOf<PopupOrderSortedListener>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mViewModel = ViewModelProvider(requireActivity()).get(MangaLibraryViewModel::class.java)
+        mViewModel = ViewModelProvider(requireActivity())[MangaLibraryViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -70,7 +70,7 @@ class PopupOrder : Fragment() {
         return when (checkbox.state) {
             TriStateCheckBox.STATE_UNCHECKED -> TriStateCheckBox.STATE_CHECKED
             TriStateCheckBox.STATE_CHECKED -> TriStateCheckBox.STATE_INDETERMINATE
-            TriStateCheckBox.STATE_INDETERMINATE -> TriStateCheckBox.STATE_UNCHECKED
+            TriStateCheckBox.STATE_INDETERMINATE -> TriStateCheckBox.STATE_CHECKED
             else -> TriStateCheckBox.STATE_INDETERMINATE
         }
     }
@@ -98,6 +98,7 @@ class PopupOrder : Fragment() {
                 else -> {}
             }
 
+            callListener()
             addListener()
         }
 
@@ -119,6 +120,7 @@ class PopupOrder : Fragment() {
                 else -> {}
             }
 
+            callListener()
             addListener()
         }
 
@@ -140,6 +142,7 @@ class PopupOrder : Fragment() {
                 else -> {}
             }
 
+            callListener()
             addListener()
         }
 
@@ -161,6 +164,7 @@ class PopupOrder : Fragment() {
                 else -> {}
             }
 
+            callListener()
             addListener()
         }
     }
@@ -186,6 +190,19 @@ class PopupOrder : Fragment() {
             this!!.putString(GeneralConsts.KEYS.LIBRARY.MANGA_ORDER, order.toString())
             this.commit()
         }
+    }
+
+    private fun callListener() {
+        for(listener in mListeners)
+            listener.popupOrderOnChange()
+    }
+
+    fun addChangeListener(listener : PopupOrderSortedListener) {
+        mListeners.add(listener)
+    }
+
+    fun removeChangeListener(listener : PopupOrderSortedListener) {
+        mListeners.remove(listener)
     }
 
 }

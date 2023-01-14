@@ -13,7 +13,6 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.service.listener.ThemesListener
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
-import br.com.fenix.bilingualreader.util.helpers.Util
 import com.google.android.material.card.MaterialCardView
 
 class ThemesCardAdapter(var context: Context, list: MutableList<Pair<Themes, Boolean>>, listener: ThemesListener) : BaseAdapter() {
@@ -61,7 +60,6 @@ class ThemesCardAdapter(var context: Context, list: MutableList<Pair<Themes, Boo
 
         newView?.findViewById<LinearLayout>(R.id.theme_root)?.setOnClickListener {
             mListener.onClick(theme)
-            true
         }
 
         return newView

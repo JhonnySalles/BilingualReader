@@ -142,7 +142,7 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         override fun handleMessage(msg: Message) {
             val obj = msg.obj
             when (msg.what) {
-                GeneralConsts.SCANNER.MESSAGE_BOOK_UPDATE_FINISHED -> refreshLibraryAddDelayed(obj as Book)
+                GeneralConsts.SCANNER.MESSAGE_BOOK_UPDATED_ADD -> refreshLibraryAddDelayed(obj as Book)
                 GeneralConsts.SCANNER.MESSAGE_BOOK_UPDATED_REMOVE -> refreshLibraryRemoveDelayed(obj as Book)
                 GeneralConsts.SCANNER.MESSAGE_BOOK_UPDATE_FINISHED -> {
                     setIsRefreshing(false)
@@ -601,8 +601,8 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         }
 
         override fun onSwiped(viewHolder: ViewHolder, direction: Int) {
-            val book = mViewModel.getAndRemove(viewHolder.adapterPosition) ?: return
-            val position = viewHolder.adapterPosition
+            val book = mViewModel.getAndRemove(viewHolder.bindingAdapterPosition) ?: return
+            val position = viewHolder.bindingAdapterPosition
             var excluded = false
             val dialog: AlertDialog =
                 MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)

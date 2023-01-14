@@ -66,7 +66,7 @@ class MangaLibraryViewModel(application: Application) : AndroidViewModel(applica
             for (item in mStackLibrary) {
                 if (item.value.first == mStackLibrary.size) {
                     mLibrary = item.value.second
-                    mListMangasFull.value = item.value.third
+                    mListMangasFull.value = item.value.third.toMutableList()
                     mListMangas.value = item.value.third.toMutableList()
                     break
                 }

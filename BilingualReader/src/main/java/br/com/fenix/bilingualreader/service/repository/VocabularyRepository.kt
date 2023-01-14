@@ -5,11 +5,12 @@ import android.widget.Toast
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.*
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.book.VocabularyBookViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.manga.VocabularyMangaViewModel
-import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyViewModel
 import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import java.util.*
 import kotlin.streams.toList
 
@@ -198,11 +199,12 @@ class VocabularyRepository(context: Context) {
         mDataBaseDAO.insert(mBase.openHelper, idMangaOrBook, idVocabulary, appears, isManga)
     }
 
-    fun processVocabulary(manga: Manga?, chapters: List<Chapter>) {
-        if (chapters.isEmpty() || manga == null || manga.id == null || manga.id == mLastImport)
+    fun processVocabulary(idManga: Long?, chapters: List<Chapter>) {
+        if (chapters.isEmpty() || idManga == null || idManga == mLastImport)
             return
 
-        if (manga.file.lastModified() > 0 && manga.file.lastModified() == manga.fileAlteration)
+        val manga = mBase.getMangaDao().get(idManga)
+        if (manga.lastVocabImport != null && manga.file.lastModified() == manga.fileAlteration)
             return
 
         val chaptersList = Collections
@@ -240,6 +242,9 @@ class VocabularyRepository(context: Context) {
                     }
 
                     mLastImport = manga.id
+                    manga.lastVocabImport = LocalDateTime.now()
+                    mBase.getMangaDao().save(manga)
+
                     mVocabImported.setText("$mMsgImport\n${manga.title}")
                     mVocabImported.show()
                 } catch (e: Exception) {

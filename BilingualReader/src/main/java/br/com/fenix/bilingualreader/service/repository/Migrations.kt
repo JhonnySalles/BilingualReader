@@ -2,10 +2,8 @@ package br.com.fenix.bilingualreader.service.repository
 
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import org.slf4j.LoggerFactory
-import java.io.BufferedReader
 
 class Migrations {
     object SQLINITIAL {

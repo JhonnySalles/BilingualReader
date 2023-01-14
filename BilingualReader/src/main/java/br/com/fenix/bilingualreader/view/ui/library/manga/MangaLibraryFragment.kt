@@ -39,6 +39,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.view.adapter.library.MangaGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaLineCardAdapter
+import br.com.fenix.bilingualreader.view.components.PopupOrderSortedListener
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.ui.manga_detail.MangaDetailActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
@@ -51,7 +52,7 @@ import java.util.*
 import kotlin.math.max
 
 
-class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
+class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshLayout.OnRefreshListener {
 
     private val mLOGGER = LoggerFactory.getLogger(MangaLibraryFragment::class.java)
 
@@ -297,6 +298,11 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         notifyDataSet(0, range)
     }
 
+    override fun popupOrderOnChange() {
+        val range = (mViewModel.listMangas.value?.size ?: 1)
+        notifyDataSet(0, range)
+    }
+
     private fun onChangeLayout() {
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
@@ -395,6 +401,7 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
         mPopupFilterFragment = PopupFilter()
         mPopupOrderFragment = PopupOrder()
+        mPopupOrderFragment.addChangeListener(this)
 
         if (root.findViewById<ImageView>(R.id.popup_menu_order_filter_touch) == null)
             mMenuPopupBottomSheet = true
@@ -742,8 +749,8 @@ class MangaLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
             }
 
             override fun onSwiped(viewHolder: ViewHolder, direction: Int) {
-                val manga = mViewModel.getAndRemove(viewHolder.adapterPosition) ?: return
-                val position = viewHolder.adapterPosition
+                val manga = mViewModel.getAndRemove(viewHolder.bindingAdapterPosition) ?: return
+                val position = viewHolder.bindingAdapterPosition
                 var excluded = false
                 val dialog: AlertDialog =
                     MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)

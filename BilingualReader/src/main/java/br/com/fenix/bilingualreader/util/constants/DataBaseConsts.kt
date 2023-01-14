@@ -22,6 +22,7 @@ class DataBaseConsts private constructor() {
             const val EXCLUDED = "excluded"
             const val LAST_ALTERATION = "last_alteration"
             const val FILE_ALTERATION = "file_alteration"
+            const val LAST_VOCABULARY_IMPORT = "last_vocabulary_import"
             const val FK_ID_LIBRARY = "id_library"
         }
     }

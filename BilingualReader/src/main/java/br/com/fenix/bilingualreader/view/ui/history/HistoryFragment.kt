@@ -198,8 +198,8 @@ class HistoryFragment : Fragment() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val manga = mViewModel.getAndRemove(viewHolder.adapterPosition) ?: return
-                val position = viewHolder.adapterPosition
+                val manga = mViewModel.getAndRemove(viewHolder.bindingAdapterPosition) ?: return
+                val position = viewHolder.bindingAdapterPosition
                 var excluded = false
                 val dialog: AlertDialog =
                     MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)

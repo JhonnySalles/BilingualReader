@@ -14,7 +14,6 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import br.com.fenix.bilingualreader.MainActivity
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.*
-import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import br.com.fenix.bilingualreader.util.helpers.BackupError
 import br.com.fenix.bilingualreader.util.helpers.Converters
 import br.com.fenix.bilingualreader.util.helpers.ErrorRestoreDatabase

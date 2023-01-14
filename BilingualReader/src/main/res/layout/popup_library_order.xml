@@ -17,6 +17,7 @@
             style="@style/OrderCheckBox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:button="@null"
             android:text="@string/popup_library_manga_order_name"/>
 
         <br.com.fenix.bilingualreader.view.components.TriStateCheckBox
@@ -24,6 +25,7 @@
             style="@style/OrderCheckBox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:button="@null"
             android:text="@string/popup_library_manga_order_date"/>
 
         <br.com.fenix.bilingualreader.view.components.TriStateCheckBox
@@ -31,6 +33,7 @@
             style="@style/OrderCheckBox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:button="@null"
             android:text="@string/popup_library_manga_order_access"/>
 
         <br.com.fenix.bilingualreader.view.components.TriStateCheckBox
@@ -38,6 +41,7 @@
             style="@style/OrderCheckBox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:button="@null"
             android:text="@string/popup_library_manga_order_favorite"/>
     </LinearLayout>
 

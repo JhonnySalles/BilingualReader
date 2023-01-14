@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
-import android.widget.ImageButton
 import androidx.core.graphics.drawable.toBitmap
 import br.com.fenix.bilingualreader.R
 
