@@ -135,15 +135,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
         }
         miGridType.setIcon(icon)
 
-        Handler().post {
-            val item = requireActivity().findViewById<View?>(R.id.menu_manga_library_list_order)
-            item?.setOnLongClickListener {
-                onOpenMenuSort()
-                true
-            }
-        }
-
-        MenuUtil.longClick(miGridOrder) {
+        MenuUtil.longClick(requireActivity(), R.id.menu_manga_library_list_order) {
             onOpenMenuSort()
         }
 

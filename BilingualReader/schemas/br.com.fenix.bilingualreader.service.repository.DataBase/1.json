@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "5826ff694021035dd5dcb346c2b4c485",
+    "identityHash": "1e0ce866d591d6120dc0d4ebc0f8df48",
     "entities": [
       {
         "tableName": "Manga",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `subTitle` TEXT NOT NULL, `pages` INTEGER NOT NULL, `bookMark` INTEGER NOT NULL, `path` TEXT NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `folder` TEXT NOT NULL, `favorite` INTEGER NOT NULL, `hasSubtitle` INTEGER NOT NULL, `dateCreate` TEXT, `lastAccess` TEXT, `lastAlteration` TEXT, `excluded` INTEGER NOT NULL, `id_library` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `subTitle` TEXT NOT NULL, `pages` INTEGER NOT NULL, `chapters` TEXT NOT NULL, `bookMark` INTEGER NOT NULL, `path` TEXT NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `folder` TEXT NOT NULL, `favorite` INTEGER NOT NULL, `has_subtitle` INTEGER NOT NULL, `date_create` TEXT, `last_access` TEXT, `last_alteration` TEXT, `file_alteration` INTEGER NOT NULL, `last_vocabulary_import` TEXT, `excluded` INTEGER NOT NULL, `id_library` INTEGER)",
         "fields": [
           {
             "fieldPath": "id",
@@ -30,6 +30,12 @@
             "fieldPath": "pages",
             "columnName": "pages",
             "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chapters",
+            "columnName": "chapters",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -70,25 +76,37 @@
           },
           {
             "fieldPath": "hasSubtitle",
-            "columnName": "hasSubtitle",
+            "columnName": "has_subtitle",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
             "fieldPath": "dateCreate",
-            "columnName": "dateCreate",
+            "columnName": "date_create",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "lastAccess",
-            "columnName": "lastAccess",
+            "columnName": "last_access",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "lastAlteration",
-            "columnName": "lastAlteration",
+            "columnName": "last_alteration",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "fileAlteration",
+            "columnName": "file_alteration",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastVocabImport",
+            "columnName": "last_vocabulary_import",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -106,10 +124,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "id"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -127,7 +145,7 @@
       },
       {
         "tableName": "Book",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `author` TEXT NOT NULL, `annotation` TEXT NOT NULL, `year` TEXT NOT NULL, `genre` TEXT NOT NULL, `publisher` TEXT NOT NULL, `isbn` TEXT NOT NULL, `pages` INTEGER NOT NULL, `bookMark` INTEGER NOT NULL, `language` TEXT NOT NULL, `path` TEXT NOT NULL, `size` REAL NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `folder` TEXT NOT NULL, `favorite` INTEGER NOT NULL, `dateCreate` TEXT, `lastAccess` TEXT, `lastAlteration` TEXT, `excluded` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `author` TEXT NOT NULL, `annotation` TEXT NOT NULL, `year` TEXT NOT NULL, `genre` TEXT NOT NULL, `publisher` TEXT NOT NULL, `isbn` TEXT NOT NULL, `pages` INTEGER NOT NULL, `bookMark` INTEGER NOT NULL, `language` TEXT NOT NULL, `path` TEXT NOT NULL, `size` INTEGER NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `folder` TEXT NOT NULL, `favorite` INTEGER NOT NULL, `date_create` TEXT, `last_access` TEXT, `last_alteration` TEXT, `excluded` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -204,7 +222,7 @@
           {
             "fieldPath": "fileSize",
             "columnName": "size",
-            "affinity": "REAL",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -233,19 +251,19 @@
           },
           {
             "fieldPath": "dateCreate",
-            "columnName": "dateCreate",
+            "columnName": "date_create",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "lastAccess",
-            "columnName": "lastAccess",
+            "columnName": "last_access",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "lastAlteration",
-            "columnName": "lastAlteration",
+            "columnName": "last_alteration",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -257,10 +275,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "id"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -278,7 +296,7 @@
       },
       {
         "tableName": "SubTitles",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_manga` INTEGER NOT NULL, `language` TEXT NOT NULL, `chapterKey` TEXT NOT NULL, `pageKey` TEXT NOT NULL, `pageCount` INTEGER NOT NULL, `path` TEXT NOT NULL, `dateCreate` TEXT, `lastAlteration` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_manga` INTEGER NOT NULL, `language` TEXT NOT NULL, `chapter_key` TEXT NOT NULL, `page_key` TEXT NOT NULL, `pageCount` INTEGER NOT NULL, `path` TEXT NOT NULL, `date_create` TEXT, `last_alteration` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -300,13 +318,13 @@
           },
           {
             "fieldPath": "chapterKey",
-            "columnName": "chapterKey",
+            "columnName": "chapter_key",
             "affinity": "TEXT",
             "notNull": true
           },
           {
             "fieldPath": "pageKey",
-            "columnName": "pageKey",
+            "columnName": "page_key",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -324,22 +342,22 @@
           },
           {
             "fieldPath": "dateCreate",
-            "columnName": "dateCreate",
+            "columnName": "date_create",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "lastAlteration",
-            "columnName": "lastAlteration",
+            "columnName": "last_alteration",
             "affinity": "TEXT",
             "notNull": false
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "id"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -356,7 +374,7 @@
         "foreignKeys": []
       },
       {
-        "tableName": "JLPT",
+        "tableName": "Jlpt",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `kanji` TEXT NOT NULL, `level` INTEGER NOT NULL)",
         "fields": [
           {
@@ -379,27 +397,27 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "id"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
-            "name": "index_JLPT_kanji_level",
+            "name": "index_Jlpt_kanji_level",
             "unique": false,
             "columnNames": [
               "kanji",
               "level"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_JLPT_kanji_level` ON `${TABLE_NAME}` (`kanji`, `level`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Jlpt_kanji_level` ON `${TABLE_NAME}` (`kanji`, `level`)"
           }
         ],
         "foreignKeys": []
       },
       {
-        "tableName": "KANJAX",
+        "tableName": "Kanjax",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `kanji` TEXT NOT NULL, `keyword` TEXT NOT NULL, `meaning` TEXT NOT NULL, `koohii` TEXT NOT NULL, `kohii2` TEXT NOT NULL, `onyomi` TEXT NOT NULL, `kunyomi` TEXT NOT NULL, `onwords` TEXT NOT NULL, `kunwords` TEXT NOT NULL, `jlpt` INTEGER NOT NULL, `grade` INTEGER NOT NULL, `frequence` INTEGER NOT NULL, `strokes` INTEGER NOT NULL, `variants` TEXT NOT NULL, `radical` TEXT NOT NULL, `parts` TEXT NOT NULL, `utf8` TEXT NOT NULL, `sjis` TEXT NOT NULL, `keywords_pt` TEXT NOT NULL, `meaning_pt` TEXT NOT NULL)",
         "fields": [
           {
@@ -530,14 +548,14 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "id"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
-            "name": "index_KANJAX_id_kanji_keyword_keywords_pt",
+            "name": "index_Kanjax_id_kanji_keyword_keywords_pt",
             "unique": false,
             "columnNames": [
               "id",
@@ -546,14 +564,14 @@
               "keywords_pt"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_KANJAX_id_kanji_keyword_keywords_pt` ON `${TABLE_NAME}` (`id`, `kanji`, `keyword`, `keywords_pt`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Kanjax_id_kanji_keyword_keywords_pt` ON `${TABLE_NAME}` (`id`, `kanji`, `keyword`, `keywords_pt`)"
           }
         ],
         "foreignKeys": []
       },
       {
         "tableName": "FileLink",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_manga` INTEGER NOT NULL, `pages` INTEGER NOT NULL, `path` TEXT NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `folder` TEXT NOT NULL, `dateCreate` TEXT, `lastAccess` TEXT, `lastAlteration` TEXT, `language` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_manga` INTEGER NOT NULL, `pages` INTEGER NOT NULL, `path` TEXT NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `folder` TEXT NOT NULL, `date_create` TEXT, `last_access` TEXT, `last_alteration` TEXT, `language` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -599,19 +617,19 @@
           },
           {
             "fieldPath": "dateCreate",
-            "columnName": "dateCreate",
+            "columnName": "date_create",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "lastAccess",
-            "columnName": "lastAccess",
+            "columnName": "last_access",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "lastAlteration",
-            "columnName": "lastAlteration",
+            "columnName": "last_alteration",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -623,10 +641,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "id"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -756,10 +774,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "id"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -776,7 +794,7 @@
       },
       {
         "tableName": "Vocabulary",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `word` TEXT NOT NULL, `portuguese` TEXT, `english` TEXT, `reading` TEXT, `basic_form` TEXT, `revised` INTEGER NOT NULL, `favorite` INTEGER NOT NULL, `appears` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `word` TEXT NOT NULL, `portuguese` TEXT, `english` TEXT, `reading` TEXT, `basic_form` TEXT, `revised` INTEGER NOT NULL, `favorite` INTEGER NOT NULL DEFAULT 0, `appears` INTEGER NOT NULL DEFAULT 0)",
         "fields": [
           {
             "fieldPath": "id",
@@ -824,20 +842,22 @@
             "fieldPath": "favorite",
             "columnName": "favorite",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "0"
           },
           {
             "fieldPath": "appears",
             "columnName": "appears",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "0"
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "id"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -895,10 +915,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "id"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -943,10 +963,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "id"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -1033,10 +1053,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "id"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -1097,7 +1117,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5826ff694021035dd5dcb346c2b4c485')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1e0ce866d591d6120dc0d4ebc0f8df48')"
     ]
   }
 }

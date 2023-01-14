@@ -837,15 +837,14 @@ class MenuUtil {
             drawer.color = context.getColorFromAttr(R.attr.colorOnSurfaceVariant)
         }
 
-        fun longClick(menuItem: MenuItem, longCLick: () -> (Unit)) {
+        fun longClick(activity: Activity, menuItem: Int, longCLick: () -> (Unit)) {
             Handler().post {
-                menuItem.actionView?.setOnLongClickListener {
+                activity.findViewById<View?>(menuItem)?.setOnLongClickListener {
                     longCLick()
                     true
                 }
             }
         }
-
     }
 }
 
