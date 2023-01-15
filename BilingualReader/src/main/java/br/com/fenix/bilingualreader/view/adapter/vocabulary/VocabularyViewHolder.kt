@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.AnimatedVectorDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
@@ -20,11 +21,12 @@ import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import com.google.android.material.button.MaterialButton
 
+
 class VocabularyViewHolder(itemView: View, private val listener: VocabularyCardListener) :
     RecyclerView.ViewHolder(itemView) {
 
     companion object {
-        private fun openVocabulary(context: Context, vocabulary: String, type : Type) {
+        private fun openVocabulary(context: Context, vocabulary: String, type: Type) {
             val intent = Intent(context, VocabularyActivity::class.java)
             val bundle = Bundle()
             bundle.putString(GeneralConsts.KEYS.VOCABULARY.TEXT, vocabulary)
@@ -88,7 +90,11 @@ class VocabularyViewHolder(itemView: View, private val listener: VocabularyCardL
         }
 
         tatoeba.setOnClickListener {
-
+            val intent = Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse(GeneralConsts.LINKS.TATOEBA + vocabulary.word)
+            )
+            itemView.context.startActivity(intent)
         }
 
     }

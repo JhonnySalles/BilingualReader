@@ -222,6 +222,10 @@ class GeneralConsts private constructor() {
         const val FOLDER_LINK = "link"
     }
 
+    object LINKS {
+        const val TATOEBA = "https://tatoeba.org/pt-br/sentences/search?query="
+    }
+
     object REQUEST {
         const val PERMISSION_DRAW_OVERLAYS = 505
         const val PERMISSION_DRAW_OVERLAYS_FLOATING_OCR = 506
