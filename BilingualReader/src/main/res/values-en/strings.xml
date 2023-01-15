@@ -116,6 +116,8 @@
     <string name="config_book_library_folder">Library folder</string>
 
     <!-- CONFIG LIBRARIES -->
+    <string name="menu_libraries_delete_library">Delete Library</string>
+
     <string name="config_libraries_title_libraries">Libraries</string>
     <string name="config_libraries_add_library">Add Library</string>
     <string name="config_libraries_delete_library">Delete Library</string>
@@ -296,6 +298,7 @@
     <string name="manga_library_menu_copy">Copy</string>
 
     <!-- LIBRARY - Manga / Comic -->
+    <string name="book_library_default">Default</string>
     <string name="book_library_menu_delete">Delete</string>
     <string name="book_library_menu_delete_description">Do you really want to delete the file?</string>
 

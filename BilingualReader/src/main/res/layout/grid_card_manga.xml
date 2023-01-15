@@ -6,7 +6,8 @@
     style="@style/AppBackground.Card"
     android:layout_width="@dimen/manga_grid_card_layout_width"
     android:layout_height="@dimen/manga_grid_card_layout_height"
-    android:layout_margin="8dp">
+    android:layout_margin="8dp"
+    app:strokeWidth="0.0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         style="@style/Card"
@@ -51,15 +52,51 @@
                 android:textSize="@dimen/manga_grid_title_size"
                 android:transitionName="transition_manga_title"/>
 
-            <TextView
-                android:id="@+id/manga_grid_sub_title"
-                style="@style/TextNormal.Card"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/manga_line_detail"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:layout_marginBottom="2dp"
-                android:singleLine="true"
-                android:textSize="@dimen/manga_grid_sub_title" />
+                android:orientation="horizontal"
+                android:paddingTop="1dp">
+
+                <TextView
+                    android:id="@+id/manga_grid_pages"
+                    style="@style/TextNormal.Card"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="@dimen/manga_grid_content_size"
+                    android:singleLine="true"
+                    android:transitionName="transition_book_title"/>
+
+                <TextView
+                    android:id="@+id/manga_grid_file_type"
+                    style="@style/TextNormal.Card"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/manga_grid_content_size"
+                    android:gravity="right"
+                    android:textAlignment="gravity"
+                    android:paddingEnd="1.5dp"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:transitionName="transition_book_title"/>
+
+                <TextView
+                    android:id="@+id/manga_grid_last_access"
+                    style="@style/TextNormal.Card"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/manga_grid_content_size"
+                    android:gravity="right"
+                    android:ellipsize="end"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:textAlignment="gravity"
+                    android:transitionName="transition_book_title"/>
+            </LinearLayout>
         </LinearLayout>
 
         <ProgressBar

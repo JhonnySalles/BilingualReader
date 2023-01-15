@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.service.repository
 
 import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.Library
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
@@ -45,36 +46,36 @@ class BookRepository(context: Context) {
             mDataBase.delete(obj)
     }
 
-    fun list(): List<Book>? {
+    fun list(library: Library): List<Book>? {
         return try {
-            mDataBase.list()
+            mDataBase.list(library.id)
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book: " + e.message, e)
             null
         }
     }
 
-    fun listRecentChange(): List<Book>? {
+    fun listRecentChange(library: Library): List<Book>? {
         return try {
-            mDataBase.listRecentChange()
+            mDataBase.listRecentChange(library.id)
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book: " + e.message, e)
             null
         }
     }
 
-    fun listRecentDeleted(): List<Book>? {
+    fun listRecentDeleted(library: Library): List<Book>? {
         return try {
-            mDataBase.listRecentDeleted()
+            mDataBase.listRecentDeleted(library.id)
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book: " + e.message, e)
             null
         }
     }
 
-    fun listDeleted(): List<Book>? {
+    fun listDeleted(library: Library): List<Book>? {
         return try {
-            mDataBase.listDeleted()
+            mDataBase.listDeleted(library.id)
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book: " + e.message, e)
             null
@@ -128,6 +129,15 @@ class BookRepository(context: Context) {
         }
     }
 
+    fun findByFilePath(name: String): Book? {
+        return try {
+            mDataBase.getByPath(name)
+        } catch (e: Exception) {
+            mLOGGER.error("Error when find Book by file name: " + e.message, e)
+            null
+        }
+    }
+
     fun findByFileFolder(folder: String): List<Book>? {
         return try {
             mDataBase.listByFolder(folder)
@@ -137,9 +147,9 @@ class BookRepository(context: Context) {
         }
     }
 
-    fun listOrderByTitle(): List<Book>? {
+    fun listOrderByTitle(library: Library): List<Book>? {
         return try {
-            mDataBase.listOrderByTitle()
+            mDataBase.listOrderByTitle(library.id)
         } catch (e: Exception) {
             mLOGGER.error("Error when find Book by file folder: " + e.message, e)
             null

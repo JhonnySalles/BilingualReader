@@ -42,6 +42,7 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.PageMode
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
@@ -198,7 +199,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         super.onCreate(savedInstanceState)
         mCurrentPage = 0
         mStorage = Storage(requireContext())
-        mLibrary = LibraryUtil.getDefault(requireContext())
+        mLibrary = LibraryUtil.getDefault(requireContext(), Type.MANGA)
         mPreferences = GeneralConsts.getSharedPreferences(requireContext())
         mSubtitleController = SubTitleController.getInstance(requireContext())
 

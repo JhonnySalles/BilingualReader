@@ -92,7 +92,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mViewModel = ViewModelProvider(requireActivity()).get(MangaLibraryViewModel::class.java)
+        mViewModel = ViewModelProvider(requireActivity())[MangaLibraryViewModel::class.java]
         loadConfig()
         setHasOptionsMenu(true)
 
@@ -153,7 +153,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
         super.onResume()
 
         mViewModel.getLibrary().let {
-            if (it.type == Libraries.DEFAULT)
+            if (it.language == Libraries.DEFAULT)
                 mainFunctions.clearLibraryTitle()
             else
                 mainFunctions.changeLibraryTitle(it.title)

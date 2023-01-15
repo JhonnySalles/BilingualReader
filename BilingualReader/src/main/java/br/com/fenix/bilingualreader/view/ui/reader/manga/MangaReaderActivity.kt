@@ -265,7 +265,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
             mSubtitleController.drawPageLinked()
         }
 
-        mLibrary = LibraryUtil.getDefault(this)
+        mLibrary = LibraryUtil.getDefault(this, Type.MANGA)
         mStorage = Storage(applicationContext)
         val previous = findViewById<MaterialButton>(R.id.reader_manga_nav_previous_file)
         val next = findViewById<MaterialButton>(R.id.reader_manga_nav_next_file)

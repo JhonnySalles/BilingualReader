@@ -6,12 +6,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.Themes
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
 
 class ConfigLibrariesViewModel(application: Application) : AndroidViewModel(application) {
 
     private val mRepository: LibraryRepository = LibraryRepository(application.applicationContext)
 
+    private var mLibraryFull = mutableListOf<Library>()
     private var mListLibraries = MutableLiveData<MutableList<Library>>(mutableListOf())
     val libraries: LiveData<MutableList<Library>> = mListLibraries
 
@@ -24,7 +26,8 @@ class ConfigLibrariesViewModel(application: Application) : AndroidViewModel(appl
             return
 
         if (mListLibraries.value!!.contains(library)) {
-            mListLibraries.value!![mListLibraries.value!!.indexOf(library)].merge(library)
+            val item = mListLibraries.value!!.find { it == library }
+            library.id = item?.merge(library)
             mListLibraries.value = mListLibraries.value
         } else {
             val deleted = mRepository.findDeleted(library.path)
@@ -48,6 +51,7 @@ class ConfigLibrariesViewModel(application: Application) : AndroidViewModel(appl
     }
 
     fun deleteLibrary(library: Library) {
+        mListLibraries.value?.removeIf { it == library }
         if (library.id != null)
             mRepository.delete(library)
     }
@@ -63,9 +67,8 @@ class ConfigLibrariesViewModel(application: Application) : AndroidViewModel(appl
         return mRepository.findDeleted(path)
     }
 
-    fun loadLibrary() {
-        val libraries = mRepository.list()
-        mListLibraries.value = libraries.toMutableList()
+    fun loadLibrary(type: Type?) {
+        mListLibraries.value = mRepository.list(type).toMutableList()
     }
 
     fun loadThemes(initial: Themes = Themes.ORIGINAL) {
@@ -81,9 +84,11 @@ class ConfigLibrariesViewModel(application: Application) : AndroidViewModel(appl
         return if (mListLibraries.value != null) mListLibraries.value!!.removeAt(position) else null
     }
 
-    fun removeLibraryDefault(path: String) {
-        mRepository.removeDefault(path)
-        mListLibraries.value!!.removeIf { it.path.equals(path, true) }
+    fun removeLibraryDefault(vararg args: String) {
+        for (path in args) {
+            mRepository.removeDefault(path)
+            mListLibraries.value!!.removeIf { it.path.equals(path, true) }
+        }
     }
 
     fun getListLibrary(): List<Library> {

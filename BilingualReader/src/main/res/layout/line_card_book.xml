@@ -17,7 +17,8 @@
         style="@style/AppBackground.Card"
         android:layout_width="@dimen/book_line_card_image"
         android:layout_height="wrap_content"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        app:strokeWidth="0.0dp">
 
         <ImageView
             android:id="@+id/book_line_image_cover"
@@ -44,7 +45,6 @@
             style="@style/TextNormal.Line"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Isaac Aismov"
             android:textSize="@dimen/book_line_sub_title_size"
             android:transitionName="transition_book_title"/>
 
@@ -55,7 +55,6 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:gravity="center_vertical"
-            android:text="Fundação asdf  "
             android:textSize="@dimen/book_line_title_size"
             android:transitionName="transition_book_title"/>
 
@@ -64,7 +63,6 @@
             style="@style/TextNormal.Line"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Fundação - Isaac Asimov.mobi"
             android:textSize="@dimen/book_line_content_size"
             android:transitionName="transition_book_title"/>
 
@@ -92,7 +90,6 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginEnd="2dp"
-                        android:text="12/02/22"
                         android:textSize="@dimen/book_line_content_size" />
 
                     <TextView
@@ -103,7 +100,6 @@
                         android:layout_weight="1"
                         android:layout_marginEnd="2dp"
                         android:gravity="center"
-                        android:text="MOBI"
                         android:textSize="@dimen/book_line_content_size" />
 
                     <TextView
@@ -114,7 +110,6 @@
                         android:layout_weight="1"
                         android:layout_marginEnd="2dp"
                         android:gravity="end"
-                        android:text="1.01MB"
                         android:textSize="@dimen/book_line_content_size" />
 
                     <TextView
@@ -124,7 +119,6 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:gravity="end"
-                        android:text="(1610) 0%"
                         android:textSize="@dimen/book_line_content_size" />
 
                 </LinearLayout>

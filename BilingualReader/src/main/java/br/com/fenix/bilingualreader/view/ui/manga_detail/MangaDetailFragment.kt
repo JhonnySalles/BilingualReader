@@ -264,10 +264,10 @@ class MangaDetailFragment : Fragment() {
                 mInformationStatus.text = Html.fromHtml(Util.setBold(requireContext().getString(R.string.manga_detail_information_status)) + " " + it.status)
                 mInformationPublish.text = Html.fromHtml(
                     requireContext().getString(
-                        R.string.manga_detail_information_publish, Util.formatterDate(
+                        R.string.manga_detail_information_publish, GeneralConsts.formatterDate(
                             requireContext(),
                             it.startDate
-                        ), Util.formatterDate(
+                        ), GeneralConsts.formatterDate(
                             requireContext(),
                             it.endDate
                         )

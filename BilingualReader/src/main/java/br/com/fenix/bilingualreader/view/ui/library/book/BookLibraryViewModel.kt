@@ -6,22 +6,83 @@ import android.widget.Filterable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.ListMod
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import java.util.*
+import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 
 class BookLibraryViewModel(application: Application) : AndroidViewModel(application), Filterable {
 
+    private var mStackLibrary = mutableMapOf<String, Triple<Int, Library, MutableList<Book>>>()
+    private var mLibrary: Library = Library(GeneralConsts.KEYS.LIBRARY.DEFAULT)
     private val mBookRepository: BookRepository = BookRepository(application.applicationContext)
     private val mPreferences = GeneralConsts.getSharedPreferences(application.applicationContext)
+
+    private var mWordFilter = ""
+
+    private var mOrder = MutableLiveData(Pair(Order.Name, false))
+    val order: LiveData<Pair<Order, Boolean>> = mOrder
+    private var mTypeFilter = MutableLiveData(FilterType.None)
+    val typeFilter: LiveData<br.com.fenix.bilingualreader.model.enums.Filter> = mTypeFilter
 
     private var mListBookFull = MutableLiveData<MutableList<Book>>(mutableListOf())
     private var mListBook = MutableLiveData<MutableList<Book>>(mutableListOf())
     val listBook: LiveData<MutableList<Book>> = mListBook
-    
+
+    fun setDefaultLibrary(library: Library) {
+        if (mLibrary.id == library.id)
+            mLibrary = library
+    }
+
+    fun setLibrary(library: Library) {
+        if (mLibrary.id != library.id) {
+            mListBookFull.value = mutableListOf()
+            mListBook.value = mutableListOf()
+        }
+        mLibrary = library
+    }
+
+    fun saveLastLibrary() {
+        val key = if (mLibrary.id == GeneralConsts.KEYS.LIBRARY.DEFAULT)
+            R.id.menu_book_library_default
+        else
+            mLibrary.menuKey
+        mPreferences.edit().putLong(
+            GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY,
+            key.toLong()
+        ).apply()
+    }
+
+    fun getLibrary() =
+        mLibrary
+
+    fun existStack(id: String): Boolean =
+        mStackLibrary.contains(id)
+
+    fun restoreLastStackLibrary(id: String) {
+        if (mStackLibrary.contains(id)) {
+            mStackLibrary.remove(id)
+            for (item in mStackLibrary) {
+                if (item.value.first == mStackLibrary.size) {
+                    mLibrary = item.value.second
+                    mListBookFull.value = item.value.third.toMutableList()
+                    mListBook.value = item.value.third.toMutableList()
+                    break
+                }
+            }
+        }
+    }
+
+    fun addStackLibrary(id: String, library: Library) =
+        mStackLibrary.put(id, Triple(mStackLibrary.size + 1, library, mListBookFull.value!!))
+
+    fun removeStackLibrary(id: String) =
+        mStackLibrary.remove(id)
 
     fun save(obj: Book): Book {
         if (obj.id == 0L)
@@ -110,7 +171,7 @@ class BookLibraryViewModel(application: Application) : AndroidViewModel(applicat
         var change = false
         val indexes = mutableListOf<Pair<ListMod, Int>>()
         if (mListBookFull.value != null && mListBookFull.value!!.isNotEmpty()) {
-            val list = mBookRepository.listRecentChange()
+            val list = mBookRepository.listRecentChange(mLibrary)
             if (list != null && list.isNotEmpty()) {
                 change = true
                 for (Book in list) {
@@ -126,7 +187,7 @@ class BookLibraryViewModel(application: Application) : AndroidViewModel(applicat
                     }
                 }
             }
-            val listDel = mBookRepository.listRecentDeleted()
+            val listDel = mBookRepository.listRecentDeleted(mLibrary)
             if (listDel != null && listDel.isNotEmpty()) {
                 change = true
                 for (Book in listDel) {
@@ -139,7 +200,7 @@ class BookLibraryViewModel(application: Application) : AndroidViewModel(applicat
                 }
             }
         } else {
-            val list = mBookRepository.list()
+            val list = mBookRepository.list(mLibrary)
             if (list != null) {
                 indexes.add(Pair(ListMod.FULL, list.size))
                 mListBook.value = list.toMutableList()
@@ -157,7 +218,7 @@ class BookLibraryViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun list(refreshComplete: (Boolean) -> (Unit)) {
-        val list = mBookRepository.list()
+        val list = mBookRepository.list(mLibrary)
         if (list != null) {
             if (mListBookFull.value == null || mListBookFull.value!!.isEmpty()) {
                 mListBook.value = list.toMutableList()

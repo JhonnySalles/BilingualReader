@@ -1,10 +1,16 @@
 package br.com.fenix.bilingualreader.model.entity
 
 import androidx.room.*
+import br.com.fenix.bilingualreader.model.enums.FileType
+import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
+import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.Util
 import java.io.File
 import java.io.Serializable
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.*
 
 @Entity(
     tableName = DataBaseConsts.MANGA.TABLE_NAME,
@@ -13,59 +19,48 @@ import java.time.LocalDateTime
 class Manga(
     id: Long?,
     title: String,
-    subTitle: String,
     path: String,
     folder: String,
     name: String,
-    type: String,
+    fileSize: Long,
+    type: FileType,
     pages: Int,
     chapters: IntArray,
     bookMark: Int,
     favorite: Boolean,
     hasSubtitle: Boolean,
+    fkLibrary: Long?,
+    excluded: Boolean,
     dateCreate: LocalDateTime?,
     lastAccess: LocalDateTime?,
     lastAlteration: LocalDateTime?,
     fileAlteration: Long,
     lastVocabImport: LocalDateTime?,
-    fkLibrary: Long?,
-    excluded: Boolean
+    lastVerify: LocalDate?
 ) : Serializable {
 
     constructor(
-        id: Long?, title: String, subTitle: String,
-        path: String, folder: String, name: String, type: String,
+        id: Long?, title: String,
+        path: String, folder: String, name: String, size: Long, type: FileType,
         pages: Int, chapters: IntArray, bookMark: Int, favorite: Boolean, hasSubtitle: Boolean,
-        dateCreate: LocalDateTime?, lastAccess: LocalDateTime?,
+        fkLibrary: Long?, dateCreate: LocalDateTime?, lastAccess: LocalDateTime?,
         lastAlteration: LocalDateTime?, fileAlteration: Long, lastVocabImport: LocalDateTime?,
-        fkLibrary: Long?, sort: LocalDateTime? = null
-    ) : this( id, title, subTitle, path, folder, name, type,
-        pages, chapters, bookMark, favorite, hasSubtitle, dateCreate,
-        lastAccess, lastAlteration, fileAlteration, lastVocabImport,
-        fkLibrary, false
+        lastVerify: LocalDate?, sort: LocalDateTime? = null
+    ) : this( id, title, path, folder, name, size, type,
+        pages, chapters, bookMark, favorite, hasSubtitle, fkLibrary, false,
+        dateCreate, lastAccess, lastAlteration, fileAlteration, lastVocabImport, lastVerify
     ) {
         this.sort = sort
     }
 
     @Ignore
-    constructor(
-        id: Long?,
-        title: String,
-        subTitle: String,
-        path: String,
-        folder: String,
-        name: String,
-        type: String,
-        pages: Int,
-        chapters: IntArray,
-        fkLibrary: Long?,
-        fileAlteration: Long,
-    ) : this(
-        id, title, subTitle, path, folder, name, type,
-        pages, chapters, 0, false, false, LocalDateTime.now(),
-        null, null, fileAlteration, null, fkLibrary, false
-    )
-
+    constructor(fkLibrary: Long?, id: Long?, file: File, parse: Parse) : this(
+        id, file.nameWithoutExtension, file.path, file.parent, file.name, file.length(), FileType.UNKNOWN,
+        parse.numPages(), parse.getChapters(), 0, false, false, fkLibrary, false,
+        LocalDateTime.now(),null, null, file.lastModified(), null, null
+    ) {
+        this.type = FileUtil.getFileType(file.name)
+    }
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.ID)
@@ -73,9 +68,6 @@ class Manga(
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.TITLE)
     var title: String = title
-
-    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.SUB_TITLE)
-    var subTitle: String = subTitle
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.PAGES)
     var pages: Int = pages
@@ -90,16 +82,22 @@ class Manga(
     var path: String = path
 
     @Ignore
-    var fileName: String = title
+    var file: File = File(path)
 
     @Ignore
-    var file: File = File(path)
+    var fileName: String = Util.getNameWithoutExtensionFromPath(path)
+
+    @Ignore
+    var extension: String = Util.getExtensionFromPath(path)
+
+    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FILE_SIZE)
+    var fileSize: Long = fileSize
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FILE_NAME)
     var name: String = name
 
-    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FILE_TYPE)
-    var type: String = type
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FILE_TYPE)
+    var type: FileType = type
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FILE_FOLDER)
     var folder: String = folder
@@ -109,6 +107,12 @@ class Manga(
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.HAS_SUBTITLE)
     var hasSubtitle: Boolean = hasSubtitle
+
+    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.EXCLUDED)
+    var excluded: Boolean = excluded
+
+    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY)
+    var fkLibrary: Long? = fkLibrary
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.DATE_CREATE)
     var dateCreate: LocalDateTime? = dateCreate
@@ -125,11 +129,8 @@ class Manga(
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.LAST_VOCABULARY_IMPORT)
     var lastVocabImport: LocalDateTime? = lastVocabImport
 
-    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.EXCLUDED)
-    var excluded: Boolean = excluded
-
-    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY)
-    var fkLibrary: Long? = fkLibrary
+    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.LAST_VERIFY)
+    var lastVerify: LocalDate? = lastVerify
 
     @Ignore
     var library: Library = Library(null)
@@ -144,7 +145,7 @@ class Manga(
     var sort: LocalDateTime? = null
 
     override fun toString(): String {
-        return "Book(id=$id, title='$title', subTitle='$subTitle', pages=$pages, bookMark=$bookMark, type='$type', update=$update)"
+        return "Book(id=$id, title='$title', pages=$pages, bookMark=$bookMark, type='$type', update=$update)"
     }
 
     override fun equals(other: Any?): Boolean {

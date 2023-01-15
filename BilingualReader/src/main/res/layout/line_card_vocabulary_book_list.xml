@@ -25,6 +25,7 @@
         android:layout_width="@dimen/vocabulary_book_cover_size"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        app:strokeWidth="0.0dp"
         app:rippleColor="?attr/colorTertiary">
 
         <ImageView

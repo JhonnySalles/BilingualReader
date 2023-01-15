@@ -45,6 +45,7 @@ import br.com.ebook.foobnix.ext.MobiExtract;
 import br.com.ebook.foobnix.ext.RtfExtract;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
 import br.com.ebook.foobnix.pdf.info.PageUrl;
+import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
 import br.com.ebook.foobnix.pdf.search.activity.PageImageState;
@@ -69,6 +70,9 @@ public class ImageExtractor implements ImageDownloader {
         if (instance == null) {
             instance = new ImageExtractor(c);
             ExtUtils.init(c);
+            IMG.init(c);
+            CacheZipUtils.init(c);
+            BookCSS.get().load(c);
         }
         sp = c.getSharedPreferences("Errors", Context.MODE_PRIVATE);
         return instance;

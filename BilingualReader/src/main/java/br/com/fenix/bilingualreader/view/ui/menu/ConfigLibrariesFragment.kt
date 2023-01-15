@@ -5,15 +5,9 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.animation.AnimationUtils
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -23,9 +17,11 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.Libraries
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.listener.LibrariesCardListener
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.MsgUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
@@ -34,6 +30,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 
 
 class ConfigLibrariesFragment : Fragment() {
@@ -46,6 +43,7 @@ class ConfigLibrariesFragment : Fragment() {
     private lateinit var mAddButton: FloatingActionButton
     private lateinit var mListener: LibrariesCardListener
     private lateinit var mToolbar: androidx.appcompat.widget.Toolbar
+    private var mType : Type? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -64,8 +62,23 @@ class ConfigLibrariesFragment : Fragment() {
         (requireActivity() as MenuActivity).setActionBar(mToolbar)
 
         mListener = object : LibrariesCardListener {
-            override fun onClickLong(library: Library) {
+            override fun onClick(library: Library) {
                 addLibrary(library)
+            }
+
+            override fun onClickLong(library: Library, view : View, position: Int) {
+                val wrapper = ContextThemeWrapper(requireContext(), R.style.PopupMenu)
+                val popup = PopupMenu(wrapper, view, 0, R.attr.popupMenuStyle, R.style.PopupMenu)
+                popup.menuInflater.inflate(R.menu.menu_libraries_item, popup.menu)
+
+                popup.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.menu_libraries_item_delete ->  deleteLibrary(library, position)
+                    }
+                    true
+                }
+
+                popup.show()
             }
 
             override fun changeEnable(library: Library) {
@@ -77,7 +90,11 @@ class ConfigLibrariesFragment : Fragment() {
 
         observer()
 
-        mViewModel.loadLibrary()
+        mType = if(requireArguments().containsKey(GeneralConsts.KEYS.LIBRARY.LIBRARY_TYPE))
+            Type.valueOf(requireArguments().getString(GeneralConsts.KEYS.LIBRARY.LIBRARY_TYPE)!!)
+        else
+            null
+        mViewModel.loadLibrary(mType)
     }
 
     override fun onCreateView(
@@ -109,25 +126,7 @@ class ConfigLibrariesFragment : Fragment() {
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             val library = mViewModel.getLibraryAndRemove(viewHolder.bindingAdapterPosition) ?: return
             val position = viewHolder.bindingAdapterPosition
-            var excluded = false
-            val dialog: AlertDialog =
-                MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
-                    .setTitle(getString(R.string.config_libraries_delete_library))
-                    .setMessage(getString(R.string.config_libraries_confirm_delete_library) + "\n" + library.title)
-                    .setPositiveButton(
-                        R.string.action_delete
-                    ) { _, _ ->
-                        mViewModel.deleteLibrary(library)
-                        notifyDataSet(position, removed = true)
-                        excluded = true
-                    }.setOnDismissListener {
-                        if (!excluded) {
-                            mViewModel.addLibrary(library, position)
-                            notifyDataSet(position)
-                        }
-                    }
-                    .create()
-            dialog.show()
+            deleteLibrary(library, position)
         }
     }
 
@@ -255,7 +254,7 @@ class ConfigLibrariesFragment : Fragment() {
         if (library != null) {
             mLibraryTitle.editText?.setText(library.title)
             mLibraryPathAutoComplete.setText(library.path)
-            mLibraryTypeSelect = library.type
+            mLibraryTypeSelect = library.language
         }
 
         mLibraryLanguageAutoComplete.setText(
@@ -276,7 +275,8 @@ class ConfigLibrariesFragment : Fragment() {
         mLibrary?.run {
             title = mLibraryTitle.editText?.text.toString()
             path = mLibraryPath.editText?.text.toString()
-            type = mLibraryTypeSelect
+            language = mLibraryTypeSelect
+            type = mType ?: Type.MANGA
         }
 
         return mLibrary!!
@@ -307,6 +307,28 @@ class ConfigLibrariesFragment : Fragment() {
         }
 
         return validated
+    }
+
+    private fun deleteLibrary(library: Library, position: Int) {
+        var excluded = false
+        val dialog: AlertDialog =
+            MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+                .setTitle(getString(R.string.config_libraries_delete_library))
+                .setMessage(getString(R.string.config_libraries_confirm_delete_library) + "\n" + library.title)
+                .setPositiveButton(
+                    R.string.action_delete
+                ) { _, _ ->
+                    mViewModel.deleteLibrary(library)
+                    notifyDataSet(position, removed = true)
+                    excluded = true
+                }.setOnDismissListener {
+                    if (!excluded) {
+                        mViewModel.addLibrary(library, position)
+                        notifyDataSet(position)
+                    }
+                }
+                .create()
+        dialog.show()
     }
 
 

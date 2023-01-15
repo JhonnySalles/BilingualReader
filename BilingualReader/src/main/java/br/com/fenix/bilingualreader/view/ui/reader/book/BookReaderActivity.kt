@@ -26,6 +26,7 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Themes
@@ -76,6 +77,7 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
     private lateinit var mPreferences: SharedPreferences
     private lateinit var mStorage: Storage
     private lateinit var mRepository: BookRepository
+    private lateinit var mLibrary: Library
     private var mFragment: Fragment? = null
     private var mBook: Book? = null
 
@@ -123,9 +125,9 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
         if (mBook == null) return
 
         val changeBook = if (isNext)
-            mStorage.getNextBook(mBook!!)
+            mStorage.getNextBook(mLibrary, mBook!!)
         else
-            mStorage.getPrevBook(mBook!!)
+            mStorage.getPrevBook(mLibrary, mBook!!)
 
         if (changeBook == null) {
             val content = if (isNext) R.string.switch_next_comic_last_comic else R.string.switch_prev_comic_first_comic

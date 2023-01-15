@@ -2,7 +2,9 @@ package br.com.fenix.bilingualreader.util.helpers
 
 import android.graphics.Bitmap
 import androidx.room.TypeConverter
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.*
 
 class Converters {
 
@@ -29,6 +31,21 @@ class Converters {
             return null
 
         return dateTime.toString()
+    }
+
+    @TypeConverter
+    fun fromLocalDate(dateTime: String?): LocalDate? {
+        if (dateTime == null)
+            return null
+        return LocalDate.parse(dateTime)
+    }
+
+    @TypeConverter
+    fun localDateToString(date: LocalDate?): String? {
+        if (date == null)
+            return null
+
+        return date.toString()
     }
 
     @TypeConverter

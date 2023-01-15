@@ -39,7 +39,7 @@
             android:text="@string/config_title_themes" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/txt_theme_mode"
+            android:id="@+id/config_system_theme_mode"
             style="@style/TextInputDropMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
             app:startIconDrawable="@drawable/ic_theme_mode">
 
             <AutoCompleteTextView
-                android:id="@+id/menu_autocomplete_theme_mode"
+                android:id="@+id/config_system_menu_autocomplete_theme_mode"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
@@ -56,7 +56,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <org.lucasr.twowayview.TwoWayView
-            android:id="@+id/list_themes"
+            android:id="@+id/config_system_list_themes"
             android:layout_width="match_parent"
             android:layout_height="@dimen/config_theme_height"
             android:layout_margin="@dimen/margin_small"
@@ -90,7 +90,7 @@
             android:text="@string/config_title_system" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/txt_system_format_date"
+            android:id="@+id/config_system_format_date"
             style="@style/TextInputDropMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -99,7 +99,7 @@
             app:startIconDrawable="@drawable/ic_format_date">
 
             <AutoCompleteTextView
-                android:id="@+id/menu_autocomplete_system_format_date"
+                android:id="@+id/config_system_menu_autocomplete_format_date"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
@@ -124,7 +124,7 @@
             android:text="@string/config_title_database" />
 
         <Button
-            android:id="@+id/btn_backup"
+            android:id="@+id/config_system_backup"
             style="@style/Button.LabelStart"
             android:layout_width="match_parent"
             android:layout_height="60dp"
@@ -135,7 +135,7 @@
             app:icon="@drawable/ic_database_backup" />
 
         <Button
-            android:id="@+id/btn_restore"
+            android:id="@+id/config_system_restore"
             style="@style/Button.LabelStart"
             android:layout_width="match_parent"
             android:layout_height="60dp"
@@ -146,7 +146,7 @@
             app:icon="@drawable/ic_database_restore" />
 
         <TextView
-            android:id="@+id/txt_last_backup"
+            android:id="@+id/config_system_last_backup"
             style="@style/TextNormal.Config"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -172,7 +172,7 @@
             android:text="@string/config_title_monitoring" />
 
         <LinearLayout
-            android:id="@+id/tracker_my_anime_list"
+            android:id="@+id/config_system_tracker_my_anime_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/config_tracker_margin"
@@ -208,7 +208,7 @@
                 android:text="@string/config_monitoring_mal" />
 
             <ImageView
-                android:id="@+id/tracker_checked"
+                android:id="@+id/config_system_tracker_checked"
                 android:layout_width="@dimen/config_tracker_ico_size"
                 android:layout_height="@dimen/config_tracker_ico_size"
                 android:adjustViewBounds="true"

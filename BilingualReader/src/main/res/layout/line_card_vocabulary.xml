@@ -90,7 +90,7 @@
                 android:contentDescription="@string/vocabulary_manga_button"
                 android:text="@string/vocabulary_manga_button"
                 android:textSize="14sp"
-                app:icon="@drawable/ic_library"
+                app:icon="@drawable/ico_library"
                 app:iconSize="20dp"
                 app:iconTint="?attr/colorSecondary"
                 app:iconPadding="1dp"/>
@@ -105,7 +105,7 @@
                 android:contentDescription="@string/vocabulary_book_button"
                 android:text="@string/vocabulary_book_button"
                 android:textSize="14sp"
-                app:icon="@drawable/ic_book"
+                app:icon="@drawable/ico_book"
                 app:iconSize="20dp"
                 app:iconTint="?attr/colorSecondary"
                 app:iconPadding="1dp"/>

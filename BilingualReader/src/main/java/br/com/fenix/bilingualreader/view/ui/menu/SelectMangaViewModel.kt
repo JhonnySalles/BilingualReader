@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Libraries
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
@@ -24,7 +25,7 @@ class SelectMangaViewModel(application: Application) : AndroidViewModel(applicat
     private val mLibraryRepository: LibraryRepository = LibraryRepository(application.applicationContext)
     private val mMangaRepository: MangaRepository = MangaRepository(application.applicationContext)
 
-    private var mDefaultLibrary = LibraryUtil.getDefault(application.applicationContext)
+    private var mDefaultLibrary = LibraryUtil.getDefault(application.applicationContext, Type.MANGA)
     private var mLibrary: Library = mDefaultLibrary
 
     private var mListMangasFull = MutableLiveData<MutableList<Manga>>(mutableListOf())
@@ -105,7 +106,7 @@ class SelectMangaViewModel(application: Application) : AndroidViewModel(applicat
     fun getLibraryList(): List<Library> {
         val list = mutableListOf<Library>()
         list.add(mDefaultLibrary)
-        list.addAll(mLibraryRepository.list())
+        list.addAll(mLibraryRepository.list(Type.MANGA))
         return list
     }
 
@@ -136,7 +137,7 @@ class SelectMangaViewModel(application: Application) : AndroidViewModel(applicat
 
                 filteredList.addAll(mListMangasFull.value!!.filter {
                     it.name.lowercase(Locale.getDefault()).contains(filterPattern) ||
-                            it.type.lowercase(Locale.getDefault()).contains(filterPattern)
+                            it.type.compareExtension(filterPattern)
                 })
             }
 

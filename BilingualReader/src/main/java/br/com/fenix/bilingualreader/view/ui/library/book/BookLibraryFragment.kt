@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.ListMod
 import br.com.fenix.bilingualreader.model.enums.Order
@@ -29,6 +30,7 @@ import br.com.fenix.bilingualreader.service.listener.BookCardListener
 import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.service.scanner.ScannerBook
+import br.com.fenix.bilingualreader.service.scanner.ScannerManga
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.view.adapter.library.BookGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookLineCardAdapter
@@ -38,12 +40,16 @@ import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.slf4j.LoggerFactory
+import java.util.*
+import kotlin.collections.HashMap
 import kotlin.math.max
 
 
 class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
     private val mLOGGER = LoggerFactory.getLogger(BookLibraryFragment::class.java)
+
+    private val uniqueID: String = UUID.randomUUID().toString()
 
     private lateinit var mViewModel: BookLibraryViewModel
     private lateinit var mainFunctions: MainListener
@@ -77,6 +83,9 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         mViewModel = ViewModelProvider(requireActivity()).get(BookLibraryViewModel::class.java)
         loadConfig()
         setHasOptionsMenu(true)
+
+        if (!mViewModel.existStack(uniqueID))
+            mViewModel.addStackLibrary(uniqueID, mViewModel.getLibrary())
     }
 
     override fun onDestroyOptionsMenu() {
@@ -116,9 +125,14 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     override fun onResume() {
         super.onResume()
 
-        /*ScannerBook.getInstance(requireContext()).addUpdateHandler(mUpdateHandler)
-        if (ScannerBook.getInstance(requireContext()).isRunning())
-            setIsRefreshing(true)*/
+        mViewModel.getLibrary().let {
+            if (it.language == Libraries.DEFAULT)
+                mainFunctions.clearLibraryTitle()
+            else
+                mainFunctions.changeLibraryTitle(it.title)
+        }
+
+        ScannerBook.getInstance(requireContext()).addUpdateHandler(mUpdateHandler)
 
         if (mViewModel.isEmpty())
             onRefresh()
@@ -128,15 +142,22 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                     notifyDataSet(indexes)
             }
 
-        setIsRefreshing(false)
+        if (ScannerBook.getInstance(requireContext()).isRunning())
+            setIsRefreshing(true)
+        else
+            setIsRefreshing(false)
     }
 
     override fun onStop() {
-        //ScannerBook.getInstance(requireContext()).removeUpdateHandler(mUpdateHandler)
+        ScannerBook.getInstance(requireContext()).removeUpdateHandler(mUpdateHandler)
         mainFunctions.clearLibraryTitle()
         super.onStop()
     }
 
+    override fun onDestroy() {
+        mViewModel.removeStackLibrary(uniqueID)
+        super.onDestroy()
+    }
 
     private inner class UpdateHandler : Handler() {
         override fun handleMessage(msg: Message) {
@@ -245,7 +266,7 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         with(sharedPreferences.edit()) {
-            this!!.putString(GeneralConsts.KEYS.LIBRARY.MANGA_LIBRARY_TYPE, mGridType.toString())
+            this!!.putString(GeneralConsts.KEYS.LIBRARY.BOOK_LIBRARY_TYPE, mGridType.toString())
             this.commit()
         }
 
@@ -388,11 +409,23 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                 }
             }
 
+            override fun onClickFavorite(book: Book, view: View, position: Int) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onClickConfig(book: Book, view: View, position: Int) {
+                TODO("Not yet implemented")
+            }
+
             override fun onClickLong(book: Book, view: View, position: Int) {
                 if (mRefreshLayout.isRefreshing)
                     return
 
                 goBookDetail(book, view, position)
+            }
+
+            override fun onClickLongConfig(book: Book, view: View, position: Int) {
+                TODO("Not yet implemented")
             }
 
         }
@@ -407,7 +440,7 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
         generateLayout()
         setIsRefreshing(true)
-        //ScannerBook.getInstance(requireContext()).scanLibrary()
+        ScannerBook.getInstance(requireContext()).scanLibrary(mViewModel.getLibrary())
 
         val callback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
             // Prevent backpress if query is actived
@@ -498,7 +531,6 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
             val gridAdapter = BookGridCardAdapter()
             mRecyclerView.adapter = gridAdapter
 
-
             val columnWidth: Int = when (mGridType) {
                 LibraryBookType.GRID -> resources.getDimension(R.dimen.book_grid_card_layout_width)
                     .toInt()
@@ -588,7 +620,7 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
         if (!ScannerBook.getInstance(requireContext()).isRunning()) {
             setIsRefreshing(true)
-            ScannerBook.getInstance(requireContext()).scanLibrary()
+            ScannerBook.getInstance(requireContext()).scanLibrary(mViewModel.getLibrary())
         }
     }
 

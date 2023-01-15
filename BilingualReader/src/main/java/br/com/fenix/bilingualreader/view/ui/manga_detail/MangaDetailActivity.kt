@@ -9,6 +9,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Themes
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
@@ -39,7 +40,7 @@ class MangaDetailActivity : AppCompatActivity() {
         val library = if (bundle != null && bundle.containsKey(GeneralConsts.KEYS.OBJECT.LIBRARY))
             bundle[GeneralConsts.KEYS.OBJECT.LIBRARY] as Library
         else
-            LibraryUtil.getDefault(this)
+            LibraryUtil.getDefault(this, Type.MANGA)
 
         val fragment = MangaDetailFragment()
         fragment.mLibrary = library

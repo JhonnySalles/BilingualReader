@@ -445,6 +445,7 @@
 
     <style name="TextNormal.History.Title" parent="TextNormal">
         <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
+        <item name="android:textColor">?attr/colorOnTertiary</item>
     </style>
 
     <style name="TextNormal.History.Subtitle" parent="TextTitle">

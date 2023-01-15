@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
@@ -103,7 +104,7 @@ class HistoryFragment : Fragment() {
                     manga.lastAccess = LocalDateTime.now()
                     bundle.putSerializable(
                         GeneralConsts.KEYS.OBJECT.LIBRARY,
-                        LibraryUtil.getDefault(requireContext())
+                        LibraryUtil.getDefault(requireContext(), Type.MANGA)
                     )
                     bundle.putString(GeneralConsts.KEYS.MANGA.NAME, manga.title)
                     bundle.putInt(GeneralConsts.KEYS.MANGA.MARK, manga.bookMark)

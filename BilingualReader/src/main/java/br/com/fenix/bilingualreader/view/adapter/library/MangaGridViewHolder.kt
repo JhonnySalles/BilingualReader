@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.view.adapter.library
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -14,6 +15,7 @@ import br.com.fenix.bilingualreader.model.enums.LibraryType
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryFragment
 import com.google.android.material.card.MaterialCardView
 
@@ -56,10 +58,13 @@ class MangaGridViewHolder(itemView: View, private val listener: MangaCardListene
         mDefaultImageCover5 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_5)
     }
 
+    @SuppressLint("SetTextI18n")
     fun bind(manga: Manga) {
         val mangaImage = itemView.findViewById<ImageView>(R.id.manga_grid_image_cover)
         val mangaTitle = itemView.findViewById<TextView>(R.id.manga_grid_text_title)
-        val mangaSubTitle = itemView.findViewById<TextView>(R.id.manga_grid_sub_title)
+        val mangaFileType = itemView.findViewById<TextView>(R.id.manga_grid_file_type)
+        val mangaPagesRead = itemView.findViewById<TextView>(R.id.manga_grid_pages)
+        val mangaLastAccess = itemView.findViewById<TextView>(R.id.manga_grid_last_access)
         val mangaProgress = itemView.findViewById<ProgressBar>(R.id.manga_grid_progress)
         val cardView = itemView.findViewById<MaterialCardView>(R.id.manga_grid_card)
         val favorite = itemView.findViewById<ImageView>(R.id.manga_grid_favorite)
@@ -105,17 +110,16 @@ class MangaGridViewHolder(itemView: View, private val listener: MangaCardListene
         mangaImage.setImageBitmap(image)
         MangaImageCoverController.instance.setImageCoverAsync(itemView.context, manga, mangaImage)
 
+        val isSmall = manga.lastAccess != null && manga.bookMark > 0 && MangaLibraryFragment.mGridType != LibraryType.GRID_BIG
+
         mangaTitle.text = manga.title
-
-        if (manga.subTitle.isEmpty()) {
-            val title = if (manga.lastAccess != null)
-                "${manga.bookMark} / ${manga.pages}  -  ${GeneralConsts.formatterDate(itemView.context, manga.lastAccess!!)}"
-            else
-                "${manga.bookMark} / ${manga.pages}"
-
-            mangaSubTitle.text = title
+        mangaFileType.text = manga.type.toString()
+        mangaLastAccess.text = if (manga.lastAccess != null) GeneralConsts.formatterDate(itemView.context, manga.lastAccess!!, isSmall) else ""
+        mangaPagesRead.text = if (isSmall) {
+            val percent: Float = (manga.bookMark.toFloat() / manga.pages) * 100
+            "${Util.formatDecimal(percent)} %"
         } else
-            mangaSubTitle.text = manga.subTitle
+             "${manga.bookMark} / ${manga.pages}"
 
         mangaProgress.max = manga.pages
         mangaProgress.setProgress(manga.bookMark, false)

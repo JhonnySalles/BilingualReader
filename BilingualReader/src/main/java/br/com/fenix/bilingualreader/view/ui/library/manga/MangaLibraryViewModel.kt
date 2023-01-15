@@ -6,6 +6,7 @@ import android.widget.Filterable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.ListMod
@@ -48,9 +49,13 @@ class MangaLibraryViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun saveLastLibrary() {
+        val key = if (mLibrary.id == GeneralConsts.KEYS.LIBRARY.DEFAULT)
+            R.id.menu_manga_library_default
+        else
+            mLibrary.menuKey
         mPreferences.edit().putLong(
-            GeneralConsts.KEYS.LIBRARY.MANGA_LAST_LIBRARY,
-            mLibrary.id ?: GeneralConsts.KEYS.LIBRARY.DEFAULT
+            GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY,
+            key.toLong()
         ).apply()
     }
 
@@ -311,8 +316,7 @@ class MangaLibraryViewModel(application: Application) : AndroidViewModel(applica
         }
 
         return filterPattern.isEmpty() || manga.name.lowercase(Locale.getDefault())
-            .contains(filterPattern) || manga.type.lowercase(Locale.getDefault())
-            .contains(filterPattern)
+            .contains(filterPattern) || manga.type.compareExtension(filterPattern)
     }
 
     private val mMangaFilter = object : Filter() {

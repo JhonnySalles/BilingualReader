@@ -18,17 +18,17 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 
 class Storage(context: Context) {
 
-    private val mRepository = MangaRepository(context)
+    private val mMangaRepository = MangaRepository(context)
     private val mBookRepository = BookRepository(context)
 
     // --------------------------------------------------------- Comic / Manga ---------------------------------------------------------
     fun getPrevManga(library: Library, manga: Manga): Manga? {
-        var mangas = mRepository.findByFileFolder(manga.file.parent ?: "")
+        var mangas = mMangaRepository.findByFileFolder(manga.file.parent ?: "")
         var idx = mangas!!.indexOf(manga)
         var prev = if (idx > 0) mangas[idx - 1] else null
 
         if (prev == null) {
-            mangas = mRepository.listOrderByTitle(library)
+            mangas = mMangaRepository.listOrderByTitle(library)
             idx = mangas!!.indexOf(manga)
             prev = if (idx > 0) mangas[idx - 1] else null
         }
@@ -37,12 +37,12 @@ class Storage(context: Context) {
     }
 
     fun getNextManga(library: Library, manga: Manga): Manga? {
-        var mangas = mRepository.findByFileFolder(manga.file.parent ?: "")
+        var mangas = mMangaRepository.findByFileFolder(manga.file.parent ?: "")
         var idx = mangas!!.indexOf(manga)
         var next = if (idx != mangas.size - 1) mangas[idx + 1] else null
 
         if (next == null) {
-            mangas = mRepository.listOrderByTitle(library)
+            mangas = mMangaRepository.listOrderByTitle(library)
             idx = mangas!!.indexOf(manga)
             next = if (idx != mangas.size - 1) mangas[idx + 1] else null
         }
@@ -51,31 +51,34 @@ class Storage(context: Context) {
     }
 
     fun getManga(idManga: Long): Manga? =
-        mRepository.get(idManga)
+        mMangaRepository.get(idManga)
 
     fun findMangaByName(name: String): Manga? =
-        mRepository.findByFileName(name)
+        mMangaRepository.findByFileName(name)
+
+    fun findMangaByPath(name: String): Manga? =
+        mMangaRepository.findByFilePath(name)
 
     fun listMangas(library: Library): List<Manga>? =
-        mRepository.list(library)
+        mMangaRepository.list(library)
 
     fun listDeleted(library: Library): List<Manga>? =
-        mRepository.listDeleted(library)
+        mMangaRepository.listDeleted(library)
 
     fun delete(manga: Manga) {
-        mRepository.delete(manga)
+        mMangaRepository.delete(manga)
     }
 
     fun updateBookMark(manga: Manga) {
-        mRepository.updateBookMark(manga)
+        mMangaRepository.updateBookMark(manga)
     }
 
     fun save(manga: Manga): Long {
         return if (manga.id != null) {
-            mRepository.update(manga)
+            mMangaRepository.update(manga)
             manga.id!!
         } else
-            mRepository.save(manga)
+            mMangaRepository.save(manga)
     }
 
     // Used to get the cache images
@@ -141,16 +144,16 @@ class Storage(context: Context) {
     }
 
     fun updateLastAccess(manga: Manga) {
-        mRepository.updateLastAccess(manga)
+        mMangaRepository.updateLastAccess(manga)
     }
 
 
     // --------------------------------------------------------- Book ---------------------------------------------------------
-    fun listBook(): List<Book>? =
-        mBookRepository.list()
+    fun listBook(library: Library): List<Book>? =
+        mBookRepository.list(library)
 
-    fun listBookDeleted(): List<Book>? =
-        mBookRepository.listDeleted()
+    fun listBookDeleted(library: Library): List<Book>? =
+        mBookRepository.listDeleted(library)
 
     fun save(book: Book): Long {
         return if (book.id != null) {
@@ -160,13 +163,13 @@ class Storage(context: Context) {
             mBookRepository.save(book)
     }
 
-    fun getPrevBook(book: Book): Book? {
+    fun getPrevBook(library: Library, book: Book): Book? {
         var books = mBookRepository.findByFileFolder(book.file.parent ?: "")
         var idx = books!!.indexOf(book)
         var prev = if (idx > 0) books[idx - 1] else null
 
         if (prev == null) {
-            books = mBookRepository.listOrderByTitle()
+            books = mBookRepository.listOrderByTitle(library)
             idx = books!!.indexOf(book)
             prev = if (idx > 0) books[idx - 1] else null
         }
@@ -174,13 +177,13 @@ class Storage(context: Context) {
         return prev
     }
 
-    fun getNextBook(book: Book): Book? {
+    fun getNextBook(library: Library, book: Book): Book? {
         var books = mBookRepository.findByFileFolder(book.file.parent ?: "")
         var idx = books!!.indexOf(book)
         var next = if (idx != books.size - 1) books[idx + 1] else null
 
         if (next == null) {
-            books = mBookRepository.listOrderByTitle()
+            books = mBookRepository.listOrderByTitle(library)
             idx = books!!.indexOf(book)
             next = if (idx != books.size - 1) books[idx + 1] else null
         }
@@ -193,6 +196,9 @@ class Storage(context: Context) {
 
     fun findBookByName(name: String): Book? =
         mBookRepository.findByFileName(name)
+
+    fun findBookByPath(name: String): Book? =
+        mBookRepository.findByFilePath(name)
 
     fun delete(book: Book) {
         mBookRepository.delete(book)

@@ -9,7 +9,9 @@ import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import java.io.File
 import java.io.Serializable
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.*
 
 @Entity(
     tableName = DataBaseConsts.BOOK.TABLE_NAME,
@@ -28,50 +30,49 @@ class Book(
     bookMark: Int,
     language: Languages,
     path: String,
-    fileSize: Long,
+    folder: String,
     name: String,
     type: FileType,
-    folder: String,
+    fileSize: Long,
     favorite: Boolean,
+    fkLibrary: Long?,
+    excluded: Boolean,
     dateCreate: LocalDateTime?,
     lastAccess: LocalDateTime?,
     lastAlteration: LocalDateTime?,
-    excluded: Boolean
+    fileAlteration: Long,
+    lastVocabImport: LocalDateTime?,
+    lastVerify: LocalDate?
 ) : Serializable {
 
     @Ignore
     constructor(
-        title: String, author: String, annotation: String,
+        fkLibrary: Long?, title: String, author: String, annotation: String,
         year: String, genre: String, publisher: String, isbn: String,
         path: String, folder: String, name: String, fileSize: Long,
         pages: Int
     ) : this(
         null, title, author, annotation, year, genre, publisher, isbn, pages, 0,
-        Languages.ENGLISH, path, fileSize, name, FileType.UNKNOWN, folder, false,
-        LocalDateTime.now(), null, LocalDateTime.now(), false
+        Languages.ENGLISH, path, folder, name, FileType.UNKNOWN, fileSize, false, fkLibrary, false,
+        LocalDateTime.now(), null, LocalDateTime.now(), 0, null, null
     ) {
-        this.file = File(path)
-        this.fileName = Util.getNameWithoutExtensionFromPath(path)
-        this.extension = Util.getExtensionFromPath(path)
         this.type = FileUtil.getFileType(this.fileName)
+        this.fileAlteration = this.file.lastModified()
     }
 
     @Ignore
-    constructor( id: Long?, file: File, meta: EbookMeta) : this(
+    constructor(fkLibrary: Long?, id: Long?, file: File, meta: EbookMeta) : this(
         id, meta.title, meta.author ?: "", meta.annotation ?: "", "", meta.genre ?: "", "", "", 0, 0,
-        Languages.ENGLISH, file.path, file.length(), file.nameWithoutExtension, FileType.UNKNOWN, file.parent, false,
-        LocalDateTime.now(), null, LocalDateTime.now(), false
+        Languages.ENGLISH, file.path, file.parent, file.nameWithoutExtension, FileType.UNKNOWN, file.length(), false, fkLibrary,
+        false, LocalDateTime.now(), null, LocalDateTime.now(), 0, null, null
     ) {
         this.language = when (meta.lang) {
             "ja", "jp" -> Languages.JAPANESE
             "en" -> Languages.ENGLISH
             else -> Languages.PORTUGUESE
         }
-
-        this.file = File(path)
-        this.fileName = Util.getNameWithoutExtensionFromPath(path)
-        this.extension = Util.getExtensionFromPath(path)
-        this.type = FileUtil.getFileType(this.fileName)
+        this.type = FileUtil.getFileType(file.name)
+        this.fileAlteration = this.file.lastModified()
     }
 
     @PrimaryKey(autoGenerate = true)
@@ -115,10 +116,10 @@ class Book(
     var file: File = File(path)
 
     @Ignore
-    var fileName: String = ""
+    var fileName: String = Util.getNameWithoutExtensionFromPath(path)
 
     @Ignore
-    var extension: String = ""
+    var extension: String = Util.getExtensionFromPath(path)
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FILE_SIZE)
     var fileSize: Long = fileSize
@@ -135,6 +136,12 @@ class Book(
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FAVORITE)
     var favorite: Boolean = favorite
 
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.EXCLUDED)
+    var excluded: Boolean = excluded
+
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY)
+    var fkLibrary: Long? = fkLibrary
+
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.DATE_CREATE)
     var dateCreate: LocalDateTime? = dateCreate
 
@@ -144,8 +151,14 @@ class Book(
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION)
     var lastAlteration: LocalDateTime? = lastAlteration
 
-    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.EXCLUDED)
-    var excluded: Boolean = excluded
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FILE_ALTERATION)
+    var fileAlteration: Long = fileAlteration
+
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.LAST_VOCABULARY_IMPORT)
+    var lastVocabImport: LocalDateTime? = lastVocabImport
+
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.LAST_VERIFY)
+    var lastVerify: LocalDate? = lastVerify
 
     override fun toString(): String {
         return "Book(id=$id, title='$title', author='$author', language=$language, path='$path', fileName='$fileName', extension='$extension', fileSize=$fileSize, name='$name', favorite=$favorite, excluded=$excluded)"

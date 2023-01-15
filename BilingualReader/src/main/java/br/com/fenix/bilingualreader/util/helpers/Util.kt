@@ -17,12 +17,17 @@ import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.util.DisplayMetrics
 import android.util.TypedValue
-import android.view.*
+import android.view.Menu
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
-import android.widget.*
+import android.view.View
+import android.widget.ImageView
+import android.widget.SearchView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
 import br.com.fenix.bilingualreader.R
@@ -31,6 +36,7 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Themes
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
@@ -396,14 +402,6 @@ class Util {
             return text.substringBeforeLast("Volume").replace(" - ", "").trim()
         }
 
-        fun formatterDate(context: Context, date: Date?): String {
-            if (date == null)
-                return context.getString(R.string.date_format_unknown)
-            val preferences = GeneralConsts.getSharedPreferences(context)
-            val pattern = preferences.getString(GeneralConsts.KEYS.SYSTEM.FORMAT_DATA, "yyyy-MM-dd")
-            return SimpleDateFormat(pattern, Locale.getDefault()).format(date)
-        }
-
         fun setBold(text: String): String =
             "<b>$text</b>"
 
@@ -437,6 +435,10 @@ class Util {
             return Pair(string1, string2)
         }
 
+        fun formatDecimal(percent : Float): String {
+            return "%,.2f".format(percent)
+        }
+
     }
 }
 
@@ -460,6 +462,12 @@ class FileUtil(val context: Context) {
             } catch (e: Exception) {
                 FileType.UNKNOWN
             }
+        }
+
+        fun formatSize(size: Long): String {
+            if (size < 1024) return "$size B"
+            val z = (63 - java.lang.Long.numberOfLeadingZeros(size)) / 10
+            return String.format("%.1f %sB", size.toDouble() / (1L shl z * 10), " KMGTPE"[z])
         }
 
     }
@@ -607,19 +615,16 @@ class MsgUtil {
 
 class LibraryUtil {
     companion object LibraryUtils {
-        fun getDefault(context: Context): Library {
+        fun getDefault(context: Context, type: Type): Library {
             val preference: SharedPreferences = GeneralConsts.getSharedPreferences(context)
-            val path = preference.getString(GeneralConsts.KEYS.LIBRARY.MANGA_FOLDER, "") ?: ""
+            val key = if (type == Type.BOOK) GeneralConsts.KEYS.LIBRARY.BOOK_FOLDER else GeneralConsts.KEYS.LIBRARY.MANGA_FOLDER
+            val path = preference.getString(key, "") ?: ""
+            val string = if (type == Type.BOOK) context.getString(R.string.book_library_default) else context.getString(R.string.manga_library_default)
             return Library(
                 GeneralConsts.KEYS.LIBRARY.DEFAULT,
-                context.getString(R.string.manga_library_default),
+                string,
                 path
             )
-        }
-
-        fun getBook(context: Context): String {
-            val preference: SharedPreferences = GeneralConsts.getSharedPreferences(context)
-            return preference.getString(GeneralConsts.KEYS.LIBRARY.BOOK_FOLDER, "") ?: ""
         }
     }
 }

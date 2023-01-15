@@ -66,13 +66,13 @@ class SelectMangaFragment : Fragment() {
 
         if (savedInstanceState == null) {
             mViewModel.clearMangaSelected()
-            arguments?.let {
-                if (it.containsKey(GeneralConsts.KEYS.MANGA.ID))
-                    mViewModel.id = it.getLong(GeneralConsts.KEYS.MANGA.ID)
 
-                if (it.containsKey(GeneralConsts.KEYS.MANGA.NAME))
-                    mViewModel.manga = it.getString(GeneralConsts.KEYS.MANGA.NAME)!!
-            }
+            if (requireArguments().containsKey(GeneralConsts.KEYS.MANGA.ID))
+                mViewModel.id = requireArguments().getLong(GeneralConsts.KEYS.MANGA.ID)
+
+            if (requireArguments().containsKey(GeneralConsts.KEYS.MANGA.NAME))
+                mViewModel.manga = requireArguments().getString(GeneralConsts.KEYS.MANGA.NAME)!!
+
             mViewModel.setDefaultLibrary(Libraries.PORTUGUESE)
         }
     }
@@ -245,7 +245,7 @@ class SelectMangaFragment : Fragment() {
     }
 
     private fun titleLibrary() {
-        if (mViewModel.getLibrary().type == Libraries.DEFAULT)
+        if (mViewModel.getLibrary().language == Libraries.DEFAULT)
             mTitle.text = getString(R.string.app_name)
         else
             mTitle.text = mViewModel.getLibrary().title

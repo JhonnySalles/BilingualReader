@@ -36,10 +36,11 @@ class LibrariesLineViewHolder(itemView: View, private val listener: LibrariesCar
 
         title.text = library.title
         path.text = library.path
-        language.text = mMapLanguage[library.type]
+        language.text = mMapLanguage[library.language]
 
+        container.setOnClickListener { listener.onClick(library) }
         container.setOnLongClickListener {
-            listener.onClickLong(library)
+            listener.onClickLong(library, it, layoutPosition)
             true
         }
 

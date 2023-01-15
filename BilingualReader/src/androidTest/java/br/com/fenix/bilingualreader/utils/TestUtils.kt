@@ -4,12 +4,14 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
 import java.io.File
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 class TestUtils {
@@ -47,28 +49,32 @@ class TestUtils {
             val manga = Manga(
                 1,
                 Util.getNameFromPath(mangaPath),
-                "",
                 mangaPath,
                 Util.getFolderFromPath(mangaPath),
                 Util.getNameWithoutExtensionFromPath(mangaPath),
-                Util.getExtensionFromPath(mangaPath),
+                10 *1024,
+                FileType.CBR,
                 10,
-                intArrayOf(2,4),
+                intArrayOf(2, 4),
                 5,
                 (1..2).random() > 1,
                 (1..2).random() > 1,
+                GeneralConsts.KEYS.LIBRARY.DEFAULT,
+                (1..5).random() > 2,
                 LocalDateTime.parse("2022-06-28T14:15:50.63"),
                 LocalDateTime.now(),
                 LocalDateTime.now(),
-                GeneralConsts.KEYS.LIBRARY.DEFAULT,
-                (1..5).random() > 2
+                0,
+                if ((1..2).random() > 1) LocalDateTime.now() else null,
+                if ((1..2).random() > 1) LocalDate.now() else null
             )
 
             if (filePath.isNotEmpty()) {
                 val parse = ParseFactory.create(filePath) ?: return manga
                 try {
                     if (parse is RarParse) {
-                        val folder = GeneralConsts.CACHE_FOLDER.LINKED + '/' + Util.normalizeNameCache(manga.name)
+                        val folder =
+                            GeneralConsts.CACHE_FOLDER.LINKED + '/' + Util.normalizeNameCache(manga.name)
                         val cacheDir = File(GeneralConsts.getCacheDir(context), folder)
                         (parse as RarParse?)!!.setCacheDirectory(cacheDir)
                     }
@@ -86,10 +92,26 @@ class TestUtils {
 
         fun getManga(): Manga {
             return Manga(
-                1, Util.getNameFromPath(TEST_FILE_PATH), "", TEST_FILE_PATH, Util.getFolderFromPath(TEST_FILE_PATH),
-                Util.getNameWithoutExtensionFromPath(TEST_FILE_PATH), Util.getExtensionFromPath(TEST_FILE_PATH), 10, intArrayOf(2,4),
-                5,(1..2).random() > 1, (1..2).random() > 1, LocalDateTime.parse("2022-06-28T14:15:50.63"), LocalDateTime.now(),
-                LocalDateTime.now(), GeneralConsts.KEYS.LIBRARY.DEFAULT, (1..5).random() > 2
+                1,
+                Util.getNameFromPath(TEST_FILE_PATH),
+                TEST_FILE_PATH,
+                Util.getFolderFromPath(TEST_FILE_PATH),
+                Util.getNameWithoutExtensionFromPath(TEST_FILE_PATH),
+                3*2048,
+                FileType.CB7,
+                10,
+                intArrayOf(2, 4),
+                5,
+                (1..2).random() > 1,
+                (1..2).random() > 1,
+                GeneralConsts.KEYS.LIBRARY.DEFAULT,
+                (1..5).random() > 2,
+                LocalDateTime.parse("2022-06-28T14:15:50.63"),
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                0,
+                if ((1..5).random() > 2) LocalDateTime.now() else null,
+                if ((1..2).random() > 1) LocalDate.now() else null
             )
         }
 
@@ -105,10 +127,26 @@ class TestUtils {
             for (i in 0 until 10)
                 array.add(
                     Manga(
-                        i.toLong(), Util.getNameFromPath(TEST_FILE_PATH), "", TEST_FILE_PATH, Util.getFolderFromPath(TEST_FILE_PATH),
-                        Util.getNameWithoutExtensionFromPath(TEST_FILE_PATH), Util.getExtensionFromPath(TEST_FILE_PATH), 125, intArrayOf(5,15,50,75,91,115),
-                        (0..100).random(), i in 2..5, (1..2).random() > 1, LocalDateTime.parse("2022-06-28T14:15:50.63"), LocalDateTime.now(),
-                        LocalDateTime.now(), GeneralConsts.KEYS.LIBRARY.DEFAULT, i in 4..6
+                        i.toLong(),
+                        Util.getNameFromPath(TEST_FILE_PATH),
+                        TEST_FILE_PATH,
+                        Util.getFolderFromPath(TEST_FILE_PATH),
+                        Util.getNameWithoutExtensionFromPath(TEST_FILE_PATH),
+                        i*2048L,
+                        FileType.CBZ,
+                        125,
+                        intArrayOf(5, 15, 50, 75, 91, 115),
+                        (0..100).random(),
+                        i in 2..5,
+                        (1..2).random() > 1,
+                        GeneralConsts.KEYS.LIBRARY.DEFAULT,
+                        i in 4..6,
+                        LocalDateTime.parse("2022-06-28T14:15:50.63"),
+                        LocalDateTime.now(),
+                        LocalDateTime.now(),
+                        0,
+                        if (i in 4..6) LocalDateTime.now() else null,
+                        if ((1..2).random() > 1) LocalDate.now() else null
                     )
                 )
 

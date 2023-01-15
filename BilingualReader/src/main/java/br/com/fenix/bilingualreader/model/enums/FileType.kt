@@ -75,6 +75,15 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
         return false
     }
 
+    fun compareExtension(path: String): Boolean {
+        val name = path.lowercase()
+        for (ext in extensions) {
+            if (name.endsWith(ext))
+                return true
+        }
+        return false
+    }
+
     fun getMimeType(): String =
         mimeTypes.joinToString { "|" }
 

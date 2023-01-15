@@ -6,6 +6,8 @@ import android.os.Message
 import android.os.Process
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.FileType
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
@@ -18,6 +20,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 import java.lang.ref.WeakReference
+import java.time.LocalDate
 
 class ScannerManga(private val context: Context) {
 
@@ -26,7 +29,7 @@ class ScannerManga(private val context: Context) {
     private var mUpdateHandler: MutableList<Handler> = ArrayList()
     private var mUpdateThread: Thread? = null
 
-    private var mLibrary: Library = LibraryUtil.getDefault(context)
+    private var mLibrary: Library = LibraryUtil.getDefault(context, Type.MANGA)
     private var mIsStopped = false
     private var mIsRestarted = false
 
@@ -63,6 +66,10 @@ class ScannerManga(private val context: Context) {
             mIsRestarted = true
         } else
             scanLibrary(library)
+    }
+
+    fun stopScan() {
+        mIsStopped = true
     }
 
     fun scanLibrary(library: Library) {
@@ -146,6 +153,7 @@ class ScannerManga(private val context: Context) {
                 val libraryPath = library.path
                 if (libraryPath == "" || !File(libraryPath).exists()) return
 
+                mIsStopped = false
                 val storage = Storage(context)
                 val storageFiles: MutableMap<String, Manga> = HashMap()
                 val storageDeletes: MutableMap<String, Manga> = HashMap()
@@ -164,11 +172,7 @@ class ScannerManga(private val context: Context) {
                     .filterNot { it.isDirectory }.forEach {
                         walked = true
                         if (mIsStopped) return
-                        if (it.name.endsWith(".rar") ||
-                            it.name.endsWith(".zip") ||
-                            it.name.endsWith(".cbr") ||
-                            it.name.endsWith(".cbz")
-                        ) {
+                        if (FileType.isManga(it.name)) {
                             if (storageFiles.containsKey(it.path))
                                 storageFiles.remove(it.path)
                             else {
@@ -183,22 +187,11 @@ class ScannerManga(private val context: Context) {
 
                                         if (parse != null)
                                             if (parse.numPages() > 0) {
-                                                val manga = if (storageDeletes.containsKey(it.name)) {
-                                                    storageFiles.remove(it.name)
-                                                    storageDeletes.getValue(it.name)
-                                                } else Manga(
-                                                    null,
-                                                    it.name,
-                                                    "",
-                                                    it.path,
-                                                    it.parent,
-                                                    it.nameWithoutExtension,
-                                                    it.extension,
-                                                    parse.numPages(),
-                                                    parse.getChapters(),
-                                                    library.id,
-                                                    it.lastModified()
-                                                )
+                                                val manga = if (storageDeletes.containsKey(it.nameWithoutExtension)) {
+                                                    storageFiles.remove(it.nameWithoutExtension)
+                                                    storageDeletes.getValue(it.nameWithoutExtension)
+                                                } else
+                                                    Manga(library.id, null, it, parse)
 
                                                 manga.path = it.path
                                                 manga.folder = it.parent
@@ -262,13 +255,9 @@ class ScannerManga(private val context: Context) {
                     val file = File(libraryPath)
                     file.walk().onFail { _, ioException -> mLOGGER.warn("File walk libraries error", ioException) }
                         .filterNot { it.isDirectory }.forEach {
-                            if (it.name.endsWith(".rar") ||
-                                it.name.endsWith(".zip") ||
-                                it.name.endsWith(".cbr") ||
-                                it.name.endsWith(".cbz")
-                            ) {
-                                if (storageFiles.containsKey(it.name))
-                                    storageFiles.remove(it.name)
+                            if (FileType.isManga(it.name)) {
+                                if (storageFiles.containsKey(it.nameWithoutExtension))
+                                    storageFiles.remove(it.nameWithoutExtension)
                                 else {
                                     try {
                                         val parse: Parse? = ParseFactory.create(it)
@@ -280,29 +269,24 @@ class ScannerManga(private val context: Context) {
 
                                             if (parse != null)
                                                 if (parse.numPages() > 0) {
-                                                    val manga = if (storageDeletes.containsKey(it.name)) {
-                                                        storageFiles.remove(it.name)
-                                                        storageDeletes.getValue(it.name)
-                                                    } else Manga(
-                                                        null,
-                                                        it.name,
-                                                        "",
-                                                        it.path,
-                                                        it.parent,
-                                                        it.nameWithoutExtension,
-                                                        it.extension,
-                                                        parse.numPages(),
-                                                        parse.getChapters(),
-                                                        library.id,
-                                                        it.lastModified()
-                                                    )
+                                                    val manga = if (storageDeletes.containsKey(it.nameWithoutExtension)) {
+                                                        storageFiles.remove(it.nameWithoutExtension)
+                                                        storageDeletes.getValue(it.nameWithoutExtension)
+                                                    } else
+                                                        Manga(library.id, null, it, parse)
 
-                                                    manga.excluded = false
+                                                    val item = storage.findMangaByPath(it.path)
+                                                    if (item == null || item.lastVerify != LocalDate.now()) {
+                                                        manga.path = it.path
+                                                        manga.folder = it.parent
+                                                        manga.excluded = false
+                                                        manga.hasSubtitle = parse.hasSubtitles()
 
-                                                    if (!isSilent)
-                                                        generateCover(parse, manga)
+                                                        if (!isSilent)
+                                                            generateCover(parse, manga)
 
-                                                    manga.id = storage.save(manga)
+                                                        manga.id = storage.save(manga)
+                                                    }
                                                 }
                                         } finally {
                                             Util.destroyParse(parse)

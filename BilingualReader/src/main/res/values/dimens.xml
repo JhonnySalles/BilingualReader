@@ -18,9 +18,9 @@
     <dimen name="manga_grid_card_layout_width">150dp</dimen>
     <dimen name="manga_grid_card_layout_height">200dp</dimen>
     <dimen name="manga_grid_title_size">12sp</dimen>
-    <dimen name="manga_grid_sub_title">10sp</dimen>
     <dimen name="manga_grid_favorite">20dp</dimen>
     <dimen name="manga_grid_subtitle">20dp</dimen>
+    <dimen name="manga_grid_content_size">10sp</dimen>
 
     <dimen name="manga_grid_card_layout_width_medium">120dp</dimen>
     <dimen name="manga_grid_card_layout_width_landscape_medium">130dp</dimen>
@@ -30,8 +30,8 @@
 
     <dimen name="manga_line_card_image">50dp</dimen>
     <dimen name="manga_line_title_size">15sp</dimen>
-    <dimen name="manga_line_sub_title">10sp</dimen>
     <dimen name="manga_line_favorite">10dp</dimen>
+    <dimen name="manga_line_content_size">12sp</dimen>
 
     <dimen name="manga_list_padding">80dp</dimen>
 
@@ -143,8 +143,8 @@
 
     <dimen name="history_card_image">70dp</dimen>
     <dimen name="history_title_size">18sp</dimen>
-    <dimen name="history_sub_title">15sp</dimen>
     <dimen name="history_library">10sp</dimen>
+    <dimen name="history_content_size">12sp</dimen>
 
     <dimen name="history_divider_title">20sp</dimen>
 

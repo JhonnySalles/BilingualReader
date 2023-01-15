@@ -10,6 +10,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.service.controller.MangaImageController
 import br.com.fenix.bilingualreader.service.listener.InformationCardListener
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
 
 class InformationRelatedViewHolder(itemView: View, private val listener: InformationCardListener) : RecyclerView.ViewHolder(itemView) {
@@ -41,10 +42,10 @@ class InformationRelatedViewHolder(itemView: View, private val listener: Informa
         status.text = Html.fromHtml(Util.setBold(itemView.context.getString(R.string.manga_detail_information_status)) + " " + information.status)
         publish.text = Html.fromHtml(
             itemView.context.getString(
-                R.string.manga_detail_information_publish, Util.formatterDate(
+                R.string.manga_detail_information_publish, GeneralConsts.formatterDate(
                     itemView.context,
                     information.startDate
-                ), Util.formatterDate(
+                ), GeneralConsts.formatterDate(
                     itemView.context,
                     information.endDate
                 )

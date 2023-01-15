@@ -8,15 +8,23 @@ import br.com.ebook.foobnix.dao2.FileMeta
 import br.com.ebook.foobnix.ext.CacheZipUtils
 import br.com.ebook.foobnix.ui2.FileMetaCore
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.Library
+import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.FileType
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
+import br.com.fenix.bilingualreader.service.parses.manga.Parse
+import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
+import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
+import br.com.fenix.bilingualreader.util.helpers.Util
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 import java.lang.ref.WeakReference
+import java.time.LocalDate
 
 class ScannerBook(private val context: Context) {
 
@@ -25,7 +33,7 @@ class ScannerBook(private val context: Context) {
     private var mUpdateHandler: MutableList<Handler> = ArrayList()
     private var mUpdateThread: Thread? = null
 
-    private var mLibrary: String = LibraryUtil.getBook(context)
+    private var mLibrary: Library = LibraryUtil.getDefault(context, Type.BOOK)
     private var mIsStopped = false
     private var mIsRestarted = false
 
@@ -35,7 +43,7 @@ class ScannerBook(private val context: Context) {
         Handler() {
         private val mScannerRef: WeakReference<ScannerBook> = WeakReference<ScannerBook>(scanner)
         override fun handleMessage(msg: Message) {
-            mScannerRef.get()?.scanLibrary()
+            mScannerRef.get()?.scanLibrary(mLibrary)
         }
     }
 
@@ -56,17 +64,21 @@ class ScannerBook(private val context: Context) {
                 mUpdateThread!!.isAlive && mUpdateThread!!.state != Thread.State.TERMINATED && mUpdateThread!!.state != Thread.State.NEW
     }
 
-    fun forceScanLibrary() {
+    fun forceScanLibrary(library: Library) {
         if (isRunning()) {
             mIsStopped = true
             mIsRestarted = true
         } else
-            scanLibrary()
+            scanLibrary(library)
     }
 
-    fun scanLibrary() {
+    fun stopScan() {
+        mIsStopped = true
+    }
+
+    fun scanLibrary(library: Library) {
         if (mUpdateThread == null || mUpdateThread!!.state == Thread.State.TERMINATED) {
-            val runnable = LibraryUpdateRunnable()
+            val runnable = LibraryUpdateRunnable(library)
             mUpdateThread = Thread(runnable)
             mUpdateThread!!.priority =
                 Process.THREAD_PRIORITY_DEFAULT + Process.THREAD_PRIORITY_LESS_FAVORABLE
@@ -74,8 +86,11 @@ class ScannerBook(private val context: Context) {
         }
     }
 
-    fun scanLibrariesSilent() {
-        val runnable = LibraryUpdateRunnable()
+    fun scanLibrariesSilent(libraries: List<Library>?) {
+        if (libraries == null || libraries.isEmpty())
+            return
+
+        val runnable = LibrariesUpdateRunnable(libraries, isSilent = true)
         val thread = Thread(runnable)
         thread.priority = Process.THREAD_PRIORITY_DEFAULT + Process.THREAD_PRIORITY_LESS_FAVORABLE
         thread.start()
@@ -90,6 +105,7 @@ class ScannerBook(private val context: Context) {
     }
 
     fun removeUpdateHandler(handler: Handler) {
+        mIsStopped = true
         mUpdateHandler.remove(handler)
     }
 
@@ -110,7 +126,7 @@ class ScannerBook(private val context: Context) {
     private fun notifyLibraryUpdateFinished(isProcessed: Boolean) {
         val msg = Message()
         msg.obj = isProcessed
-        msg.what = GeneralConsts.SCANNER.MESSAGE_MANGA_UPDATE_FINISHED
+        msg.what = GeneralConsts.SCANNER.MESSAGE_BOOK_UPDATE_FINISHED
         notifyHandlers(msg, 200)
     }
 
@@ -134,57 +150,58 @@ class ScannerBook(private val context: Context) {
     private fun generateCover(book: Book) =
         BookImageCoverController.instance.getCoverFromFile(context, book.file)
 
-    private inner class LibraryUpdateRunnable() : Runnable {
+
+    private inner class LibraryUpdateRunnable(var library: Library) : Runnable {
         override fun run() {
             var isProcess = false
             try {
-                if (mLibrary == "" || !File(mLibrary).exists()) return
+                val libraryPath = library.path
+                if (libraryPath == "" || !File(libraryPath).exists()) return
 
+                mIsStopped = false
                 val storage = Storage(context)
                 val storageFiles: MutableMap<String, Book> = HashMap()
                 val storageDeletes: MutableMap<String, Book> = HashMap()
 
                 // create list of files available in storage
-                for (c in storage.listBook()!!)
-                    storageFiles[c.title] = c
+                for (c in storage.listBook(library)!!)
+                    storageFiles[c.path] = c
 
-                for (c in storage.listBookDeleted()!!)
-                    storageDeletes[c.title] = c
+                for (c in storage.listBookDeleted(library)!!)
+                    storageDeletes[c.name] = c
 
                 var walked = false
                 // search and add comics if necessary
-                val file = File(mLibrary)
+                val file = File(libraryPath)
                 file.walk().onFail { _, ioException -> mLOGGER.warn("File walk error", ioException) }
                     .filterNot { it.isDirectory }.forEach {
                         walked = true
                         if (mIsStopped) return
 
                         if (FileType.isBook(it.name)) {
-                            if (storageFiles.containsKey(it.name))
-                                storageFiles.remove(it.name)
+                            if (storageFiles.containsKey(it.path))
+                                storageFiles.remove(it.path)
                             else {
                                 isProcess = true
                                 try {
-                                    val ebookMeta = FileMetaCore.get()
-                                        .getEbookMeta(it.path, CacheZipUtils.CacheDir.ZipApp, false)
-                                    FileMetaCore.get().udpateFullMeta(FileMeta(it.path), ebookMeta)
 
-                                    val book = if (storageDeletes.containsKey(it.name)) {
-                                        storageFiles.remove(it.name)
-                                        storageDeletes.getValue(it.name)
-                                    } else Book(
-                                        null,
-                                        it,
-                                        ebookMeta
-                                    )
+                                    val book = if (storageDeletes.containsKey(it.nameWithoutExtension)) {
+                                        storageFiles.remove(it.nameWithoutExtension)
+                                        storageDeletes.getValue(it.nameWithoutExtension)
+                                    } else {
+                                        val ebookMeta = FileMetaCore.get()
+                                            .getEbookMeta(it.path, CacheZipUtils.CacheDir.ZipApp, false)
+                                        FileMetaCore.get().udpateFullMeta(FileMeta(it.path), ebookMeta)
+                                        Book(library.id,null,  it,  ebookMeta)
+                                    }
 
                                     book.path = it.path
                                     book.folder = it.parent
                                     book.excluded = false
                                     generateCover(book)
                                     book.id = storage.save(book)
+                                    book.lastVerify = LocalDate.now()
                                     notifyMediaUpdatedAdd(book)
-
                                 } catch (e: Exception) {
                                     mLOGGER.error("Error load book " + it.name, e)
                                 } catch (e: IOException) {
@@ -208,6 +225,71 @@ class ScannerBook(private val context: Context) {
                     mRestartHandler.sendEmptyMessageDelayed(1, 200)
                 } else
                     notifyLibraryUpdateFinished(isProcess)
+            }
+        }
+    }
+
+    private inner class LibrariesUpdateRunnable(val libraries: List<Library>, val isSilent: Boolean = false) : Runnable {
+        override fun run() {
+            try {
+                val storage = Storage(context)
+
+                for (library in libraries) {
+                    val libraryPath = library.path
+                    if (libraryPath == "" || !File(libraryPath).exists())
+                        continue
+
+                    val storageFiles: MutableMap<String, Book> = HashMap()
+                    val storageDeletes: MutableMap<String, Book> = HashMap()
+
+                    // create list of files available in storage
+                    for (c in storage.listBook(library)!!)
+                        storageFiles[c.path] = c
+
+                    for (c in storage.listBookDeleted(library)!!)
+                        storageDeletes[c.name] = c
+
+                    val file = File(libraryPath)
+                    file.walk().onFail { _, ioException -> mLOGGER.warn("File walk libraries error", ioException) }
+                        .filterNot { it.isDirectory }.forEach {
+                            if (FileType.isBook(it.name)) {
+                                if (storageFiles.containsKey(it.path))
+                                    storageFiles.remove(it.path)
+                                else {
+                                    try {
+                                        val book = if (storageDeletes.containsKey(it.nameWithoutExtension)) {
+                                            storageFiles.remove(it.nameWithoutExtension)
+                                            storageDeletes.getValue(it.nameWithoutExtension)
+                                        } else {
+                                            val ebookMeta = FileMetaCore.get()
+                                                .getEbookMeta(it.path, CacheZipUtils.CacheDir.ZipApp, false)
+                                            FileMetaCore.get().udpateFullMeta(FileMeta(it.path), ebookMeta)
+                                            Book(library.id,null,  it,  ebookMeta)
+                                        }
+
+                                        val item = storage.findBookByPath(it.path)
+                                        if (item == null || item.lastVerify != LocalDate.now()) {
+                                            book.path = it.path
+                                            book.folder = it.parent
+                                            book.excluded = false
+                                            book.lastVerify = LocalDate.now()
+
+                                            if (!isSilent)
+                                                generateCover(book)
+
+                                            book.id = storage.save(book)
+                                        }
+                                    } catch (e: Exception) {
+                                        mLOGGER.error("Error load book on library " + it.name, e)
+                                    } catch (e: IOException) {
+                                        mLOGGER.error("Error load book on library " + it.name, e)
+                                    }
+                                }
+                            }
+                        }
+                }
+            } catch (e: Exception) {
+                mLOGGER.error("Error thread libraries", e)
             }
         }
     }

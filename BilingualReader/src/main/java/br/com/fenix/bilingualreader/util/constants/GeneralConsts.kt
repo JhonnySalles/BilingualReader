@@ -3,7 +3,9 @@ package br.com.fenix.bilingualreader.util.constants
 import android.annotation.TargetApi
 import android.content.Context
 import android.content.SharedPreferences
+import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts.PATTERNS.DATE_PATTERN
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts.PATTERNS.DATE_PATTERN_SMALL
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts.PATTERNS.TIME_PATTERN
 import java.io.File
 import java.text.SimpleDateFormat
@@ -21,9 +23,14 @@ class GeneralConsts private constructor() {
             return context.getSharedPreferences(KEYS.PREFERENCE_NAME, Context.MODE_PRIVATE)
         }
 
-        fun formatterDate(context: Context, dateTime: Date): String {
+        fun formatterDate(context: Context, dateTime: Date?, isSmall: Boolean = false): String {
+            if (dateTime == null)
+                return context.getString(R.string.date_format_unknown)
+
             val preferences = getSharedPreferences(context)
-            val pattern = preferences.getString(KEYS.SYSTEM.FORMAT_DATA, DATE_PATTERN)
+            val format = if (isSmall) DATE_PATTERN_SMALL else DATE_PATTERN
+            val key = if (isSmall) KEYS.SYSTEM.FORMAT_DATA_SMALL else KEYS.SYSTEM.FORMAT_DATA
+            val pattern = preferences.getString(key, format)
             return SimpleDateFormat(pattern, Locale.getDefault()).format(dateTime)
         }
 
@@ -34,9 +41,11 @@ class GeneralConsts private constructor() {
         }
 
         @TargetApi(26)
-        fun formatterDate(context: Context, dateTime: LocalDateTime): String {
+        fun formatterDate(context: Context, dateTime: LocalDateTime, isSmall: Boolean = false): String {
             val preferences = getSharedPreferences(context)
-            val pattern = preferences.getString(KEYS.SYSTEM.FORMAT_DATA, DATE_PATTERN)
+            val format = if (isSmall) DATE_PATTERN_SMALL else DATE_PATTERN
+            val key = if (isSmall) KEYS.SYSTEM.FORMAT_DATA_SMALL else KEYS.SYSTEM.FORMAT_DATA
+            val pattern = preferences.getString(key, format)
             return dateTime.format(DateTimeFormatter.ofPattern(pattern))
         }
 
@@ -52,6 +61,7 @@ class GeneralConsts private constructor() {
         const val DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss"
         const val BACKUP_DATE_PATTERN = "yyyy-MM-dd_HH-mm-ss"
         const val DATE_PATTERN = "yyyy-MM-dd"
+        const val DATE_PATTERN_SMALL = "yy-MM-dd"
         const val TIME_PATTERN = "hh:mm:ss a"
     }
 
@@ -65,15 +75,18 @@ class GeneralConsts private constructor() {
             const val MANGA_FOLDER = "MANGA_LIBRARY_FOLDER"
             const val MANGA_ORDER = "MANGA_LIBRARY_ORDER"
             const val MANGA_LIBRARY_TYPE = "MANGA_LAST_LIBRARY_TYPE"
-            const val MANGA_LAST_LIBRARY = "MANGA_LAST_LIBRARY"
 
             const val BOOK_FOLDER = "BOOK_FOLDER"
             const val BOOK_ORDER = "BOOK_LIBRARY_ORDER"
             const val BOOK_LIBRARY_TYPE = "BOOK_LAST_LIBRARY_TYPE"
+
+            const val LAST_LIBRARY = "LAST_LIBRARY"
+            const val LIBRARY_TYPE = "LIBRARY_TYPE"
         }
 
         object LIBRARIES {
-            const val INDEX_LIBRARIES = 1000
+            const val MANGA_INDEX_LIBRARIES = 1000
+            const val BOOK_INDEX_LIBRARIES = 2000
         }
 
         object SUBTITLE {
@@ -92,6 +105,7 @@ class GeneralConsts private constructor() {
         object SYSTEM {
             const val LANGUAGE = "SYSTEM_LANGUAGE"
             const val FORMAT_DATA = "SYSTEM_FORMAT_DATA"
+            const val FORMAT_DATA_SMALL = "FORMAT_DATA_SMALL"
         }
 
         object MANGA {
@@ -175,12 +189,14 @@ class GeneralConsts private constructor() {
 
     object CONFIG {
         val DATA_FORMAT = listOf("dd/MM/yyyy", "MM/dd/yy", "dd/MM/yy", "yyyy-MM-dd")
+        val DATA_FORMAT_SMALL = listOf("dd/MM/yy", "MM/dd/yy", "dd/MM/yy", "yy-MM-dd")
     }
 
     object CACHE_FOLDER {
         const val TESSERACT = "tesseract"
         const val RAR = "RarTemp"
-        const val COVERS = "Covers"
+        const val MANGA_COVERS = "MangaCovers"
+        const val BOOK_COVERS = "BookCovers"
         const val LINKED = "Linked"
         const val IMAGE = "Image"
         const val THREAD = "thread"

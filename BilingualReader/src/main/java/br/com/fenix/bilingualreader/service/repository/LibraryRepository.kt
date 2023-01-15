@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader.service.repository
 import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.Libraries
+import br.com.fenix.bilingualreader.model.enums.Type
 import org.slf4j.LoggerFactory
 
 class LibraryRepository(context: Context) {
@@ -23,9 +24,12 @@ class LibraryRepository(context: Context) {
             mDataBase.delete(obj.id!!)
     }
 
-    fun list(): List<Library> {
+    fun list(type: Type?): List<Library> {
         return try {
-            mDataBase.list()
+            if (type != null)
+                mDataBase.list().filter { it.type == type }
+            else
+                mDataBase.list()
         } catch (e: Exception) {
             mLOGGER.error("Error when list Library: " + e.message, e)
             listOf()

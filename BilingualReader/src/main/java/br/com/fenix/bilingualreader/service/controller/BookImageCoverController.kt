@@ -61,7 +61,7 @@ class BookImageCoverController private constructor() {
         try {
             saveBitmapToLru(key, bitmap)
             val cacheDir =
-                File(GeneralConsts.getCacheDir(context), GeneralConsts.CACHE_FOLDER.COVERS)
+                File(GeneralConsts.getCacheDir(context), GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
             if (!cacheDir.exists())
                 cacheDir.mkdir()
 
@@ -80,7 +80,7 @@ class BookImageCoverController private constructor() {
 
             val file = File(
                 GeneralConsts.getCacheDir(context),
-                GeneralConsts.CACHE_FOLDER.COVERS + '/' + key
+                GeneralConsts.CACHE_FOLDER.BOOK_COVERS + '/' + key
             )
 
             if (file.exists()) {
@@ -125,7 +125,7 @@ class BookImageCoverController private constructor() {
             )
 
             val extractor = ImageExtractor.getInstance(context)
-            cover =  extractor.proccessCoverPage(pageHtml)
+            cover = extractor.proccessCoverPage(pageHtml)
 
             if (cover != null)
                 saveBitmapToCache(context, hash, cover)
@@ -141,7 +141,7 @@ class BookImageCoverController private constructor() {
             )
 
             val extractor = ImageExtractor.getInstance(context)
-            cover =  extractor.proccessCoverPage(pageHtml)
+            cover = extractor.proccessCoverPage(pageHtml)
         }
 
         return cover
@@ -158,19 +158,7 @@ class BookImageCoverController private constructor() {
             if (!book.file.exists())
                 return image
 
-            /*val parse = ParseFactory.create(book.file) ?: return image
-            try {
-                if (parse is RarParse) {
-                    val folder =
-                        GeneralConsts.CACHE_FOLDER.RAR + '/' + Util.normalizeNameCache(book.file.nameWithoutExtension)
-                    val cacheDir = File(GeneralConsts.getCacheDir(context), folder)
-                    (parse as RarParse?)!!.setCacheDirectory(cacheDir)
-                }
-
-                image = getCoverFromFile(context, hash, parse, isCoverSize)
-            } finally {
-                Util.destroyParse(parse)
-            }*/
+            image = getCoverFromFile(context, hash, book.file, isCoverSize)
         }
 
         return image
