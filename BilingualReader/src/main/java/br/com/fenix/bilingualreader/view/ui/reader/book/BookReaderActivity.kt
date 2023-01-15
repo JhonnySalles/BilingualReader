@@ -293,11 +293,11 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
     }
 
     override fun onBackPressed() {
-        if (mMenuPopupTranslate.visibility != View.GONE || mMenuPopupColor.visibility != View.GONE) {
+        /*if (mMenuPopupTranslate.visibility != View.GONE || mMenuPopupColor.visibility != View.GONE) {
             mMenuPopupTranslate.visibility = View.GONE
             mMenuPopupColor.visibility = View.GONE
             return
-        }
+        }*/
 
         super.onBackPressed()
         finish()

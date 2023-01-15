@@ -2,7 +2,7 @@ package br.com.fenix.bilingualreader.util.secrets
 
 import android.content.Context
 import android.content.res.AssetManager
-import br.com.fenix.bilingualreader.view.ui.manga_detail.MangaDetailFragment
+import br.com.fenix.bilingualreader.view.ui.detail.manga.MangaDetailFragment
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.io.InputStream

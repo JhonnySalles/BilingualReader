@@ -39,6 +39,13 @@
 
     <color name="manga_detail_list_divider">#484848</color>
 
+    <color name="book_detail_title_background">#212121</color>
+    <color name="book_detail_title_background_top">#000000</color>
+    <color name="book_detail_title_background_center">#DD000000</color>
+    <color name="book_detail_title_background_bottom">#00000000</color>
+
+    <color name="book_detail_list_divider">#484848</color>
+
     <color name="floating_background_semi_transparent">#BF000000</color>
     <color name="floating_button_color">#FFFFFF</color>
     <color name="floating_button_subtitle_background_selected">#000000</color>

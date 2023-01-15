@@ -30,12 +30,11 @@ import br.com.fenix.bilingualreader.service.listener.BookCardListener
 import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.service.scanner.ScannerBook
-import br.com.fenix.bilingualreader.service.scanner.ScannerManga
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.view.adapter.library.BookGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookLineCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
-import br.com.fenix.bilingualreader.view.ui.manga_detail.MangaDetailActivity
+import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -409,12 +408,29 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                 }
             }
 
-            override fun onClickFavorite(book: Book, view: View, position: Int) {
-                TODO("Not yet implemented")
+            override fun onClickFavorite(book: Book) {
+                mViewModel.save(book)
             }
 
-            override fun onClickConfig(book: Book, view: View, position: Int) {
-                TODO("Not yet implemented")
+            override fun onClickConfig(book: Book, root: View, item: View, position: Int) {
+                val wrapper = ContextThemeWrapper(requireContext(), R.style.PopupMenu)
+                val popup = PopupMenu(wrapper, item, 0, R.attr.popupMenuStyle, R.style.PopupMenu)
+                popup.menuInflater.inflate(R.menu.menu_book_config, popup.menu)
+
+                popup.setOnMenuItemClickListener { menu ->
+                    when (menu.itemId) {
+                        R.id.menu_book_config_send -> shareBook(book)
+                        R.id.menu_book_config_clear_progress -> {
+                            mViewModel.clearHistory(book)
+                            notifyDataSet(position)
+                        }
+                        R.id.menu_book_config_delete -> deleteBook(book, position)
+                        R.id.menu_book_config_detail -> goBookDetail(book, root, position)
+                        R.id.menu_book_config_tag ->  {}
+                    }
+                    true
+                }
+                popup.show()
             }
 
             override fun onClickLong(book: Book, view: View, position: Int) {
@@ -424,8 +440,8 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                 goBookDetail(book, view, position)
             }
 
-            override fun onClickLongConfig(book: Book, view: View, position: Int) {
-                TODO("Not yet implemented")
+            override fun onClickLongConfig(book: Book, root: View, item: View, position: Int) {
+
             }
 
         }
@@ -470,31 +486,38 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
     private var itemRefresh: Int? = null
     private fun goBookDetail(book: Book, view: View, position: Int) {
-        return
         itemRefresh = position
-        val intent = Intent(requireContext(), MangaDetailActivity::class.java)
+        val intent = Intent(requireContext(), DetailActivity::class.java)
         val bundle = Bundle()
+        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mViewModel.getLibrary())
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
         intent.putExtras(bundle)
 
         val idText = if (mGridType != LibraryBookType.LINE)
-            R.id.manga_grid_text_title
+            R.id.book_grid_title
         else
-            R.id.manga_line_text_title
+            R.id.book_line_title
+
+        val idAuthor = if (mGridType != LibraryBookType.LINE)
+            R.id.book_grid_sub_title
+        else
+            R.id.book_line_sub_title
 
         val idProgress = if (mGridType != LibraryBookType.LINE)
-            R.id.manga_grid_progress
+            R.id.book_grid_progress
         else
-            R.id.manga_line_progress
+            R.id.book_line_progress
 
         val title = view.findViewById<TextView>(idText)
+        val author = view.findViewById<TextView>(idAuthor)
         val progress = view.findViewById<ProgressBar>(idProgress)
         val pImageCover: Pair<View, String> = Pair(view, "transition_book_cover")
-        val pTitleCover: Pair<View, String> = Pair(title, "transition_book_title")
+        val pTitle: Pair<View, String> = Pair(title, "transition_book_title")
+        val pAuthor: Pair<View, String> = Pair(author, "transition_book_author")
         val pProgress: Pair<View, String> = Pair(progress, "transition_progress_bar")
 
         val options = ActivityOptions
-            .makeSceneTransitionAnimation(requireActivity(), *arrayOf(pImageCover, pTitleCover, pProgress))
+            .makeSceneTransitionAnimation(requireActivity(), *arrayOf(pImageCover, pTitle, pAuthor, pProgress))
         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
         startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_DETAIL, options.toBundle())
     }
@@ -635,26 +658,30 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         override fun onSwiped(viewHolder: ViewHolder, direction: Int) {
             val book = mViewModel.getAndRemove(viewHolder.bindingAdapterPosition) ?: return
             val position = viewHolder.bindingAdapterPosition
-            var excluded = false
-            val dialog: AlertDialog =
-                MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
-                    .setTitle(getString(R.string.book_library_menu_delete))
-                    .setMessage(getString(R.string.book_library_menu_delete_description) + "\n" + book.file.name)
-                    .setPositiveButton(
-                        R.string.action_delete
-                    ) { _, _ ->
-                        deleteFile(book)
-                        notifyDataSet(position, removed = true)
-                        excluded = true
-                    }.setOnDismissListener {
-                        if (!excluded) {
-                            mViewModel.add(book, position)
-                            notifyDataSet(position)
-                        }
-                    }
-                    .create()
-            dialog.show()
+            deleteBook(book, position)
         }
+    }
+
+    private fun deleteBook(book: Book, position: Int) {
+        var excluded = false
+        val dialog: AlertDialog =
+            MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+                .setTitle(getString(R.string.book_library_menu_delete))
+                .setMessage(getString(R.string.book_library_menu_delete_description) + "\n" + book.file.name)
+                .setPositiveButton(
+                    R.string.action_delete
+                ) { _, _ ->
+                    deleteFile(book)
+                    notifyDataSet(position, removed = true)
+                    excluded = true
+                }.setOnDismissListener {
+                    if (!excluded) {
+                        mViewModel.add(book, position)
+                        notifyDataSet(position)
+                    }
+                }
+                .create()
+        dialog.show()
     }
 
     private fun deleteFile(book: Book?) {
@@ -665,6 +692,25 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                 val isDeleted = book.file.delete()
                 mLOGGER.info("File deleted ${book.name}: $isDeleted")
             }
+        }
+    }
+
+    private fun shareBook(book: Book) {
+        try {
+            val shareIntent = Intent()
+            shareIntent.action = Intent.ACTION_SEND
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            shareIntent.type = book.type.getMimeType()
+            shareIntent.putExtra(Intent.EXTRA_TEXT, book.fileName)
+            shareIntent.putExtra(Intent.EXTRA_STREAM, book.file.toURI())
+            startActivity(
+                Intent.createChooser(
+                    shareIntent,
+                    requireContext().getString(R.string.book_library_share)
+                )
+            )
+        } catch (e: Exception) {
+            mLOGGER.error("Error share book.", e)
         }
     }
 

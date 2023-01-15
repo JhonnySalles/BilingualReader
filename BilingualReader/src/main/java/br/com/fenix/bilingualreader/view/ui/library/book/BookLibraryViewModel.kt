@@ -233,6 +233,10 @@ class BookLibraryViewModel(application: Application) : AndroidViewModel(applicat
         refreshComplete(mListBook.value!!.isNotEmpty())
     }
 
+    fun clearHistory(book: Book) {
+        mBookRepository.clearHistory(book)
+    }
+
     fun isEmpty(): Boolean =
         mListBook.value == null || mListBook.value!!.isEmpty()
 

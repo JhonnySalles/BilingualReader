@@ -310,7 +310,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             .commit()
     }
 
-    private lateinit var mLibraries: List<Library>
+    private var mLibraries: List<Library> = listOf()
     private fun cleanLibraries(menu : Menu) {
         var submenu: SubMenu? = menu.findItem(R.id.menu_manga_library_content).subMenu
         var list = mLibraries.filter { it.type == Type.MANGA }
@@ -337,9 +337,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     fun setLibraries(libraries: List<Library>) {
         val menu = mNavigationView.menu
-
-        if (!::mLibraries.isInitialized)
-            mLibraries = libraries
 
         cleanLibraries(menu)
         setLibraries(menu.findItem(R.id.menu_manga_library_content).subMenu, Type.MANGA, libraries)

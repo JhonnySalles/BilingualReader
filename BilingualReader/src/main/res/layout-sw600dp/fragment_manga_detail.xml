@@ -8,7 +8,7 @@
     android:clipToPadding="false"
     android:clipChildren="false"
     android:fillViewport="false"
-    tools:context=".view.ui.manga_detail.MangaDetailFragment">
+    tools:context=".view.ui.detail.manga.MangaDetailFragment">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

@@ -1,0 +1,93 @@
+package br.com.fenix.bilingualreader.view.ui.detail
+
+import android.content.Intent
+import android.os.Bundle
+import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.Fragment
+import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.Library
+import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.Themes
+import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
+import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.view.ui.detail.book.BookDetailFragment
+import br.com.fenix.bilingualreader.view.ui.detail.manga.MangaDetailFragment
+
+
+class DetailActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
+        setTheme(theme.getValue())
+
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_detail)
+
+        val toolbar = findViewById<Toolbar>(R.id.toolbar_detail)
+        MenuUtil.tintToolbar(toolbar, theme)
+        setSupportActionBar(toolbar)
+
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowTitleEnabled(true)
+
+        val bundle: Bundle? = intent.extras
+
+        var fragment : Fragment = MangaDetailFragment()
+
+        bundle?.let {
+            if (it.containsKey(GeneralConsts.KEYS.OBJECT.MANGA)) {
+                fragment = MangaDetailFragment()
+                val manga = bundle[GeneralConsts.KEYS.OBJECT.MANGA] as Manga
+                val library = if (bundle.containsKey(GeneralConsts.KEYS.OBJECT.LIBRARY))
+                    bundle[GeneralConsts.KEYS.OBJECT.LIBRARY] as Library
+                else
+                    LibraryUtil.getDefault(this, Type.MANGA)
+
+                (fragment as MangaDetailFragment).let { fr ->
+                    fr.mLibrary = library
+                    fr.mManga = manga
+                }
+            } else if (it.containsKey(GeneralConsts.KEYS.OBJECT.BOOK)) {
+                fragment = BookDetailFragment()
+                val book = bundle[GeneralConsts.KEYS.OBJECT.BOOK] as Book
+                val library = if (bundle.containsKey(GeneralConsts.KEYS.OBJECT.LIBRARY))
+                    bundle[GeneralConsts.KEYS.OBJECT.LIBRARY] as Library
+                else
+                    LibraryUtil.getDefault(this, Type.BOOK)
+
+                (fragment as BookDetailFragment).let { fr ->
+                    fr.mLibrary = library
+                    fr.mBook = book
+                }
+            }
+        }
+
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.root_frame_detail, fragment)
+            .commit()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                supportFinishAfterTransition()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val intent = Intent()
+        setResult(RESULT_OK, intent)
+        supportFinishAfterTransition()
+    }
+
+}

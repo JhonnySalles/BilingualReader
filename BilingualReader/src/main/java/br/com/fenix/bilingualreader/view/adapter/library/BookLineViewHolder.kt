@@ -51,24 +51,16 @@ class BookLineViewHolder(itemView: View, private val listener: BookCardListener)
             true
         }
 
-        favorite.setOnClickListener { listener.onClickFavorite(book, it, layoutPosition) }
-        config.setOnClickListener { listener.onClickConfig(book, it, layoutPosition) }
+        favorite.setOnClickListener { listener.onClickFavorite(book) }
+        config.setOnClickListener { listener.onClickConfig(book, cardView, it, layoutPosition) }
         config.setOnLongClickListener {
-            listener.onClickLongConfig(book, it, layoutPosition)
+            listener.onClickLongConfig(book, cardView, it, layoutPosition)
             true
         }
 
         favorite.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
 
-        val image = when ((1..5).random()) {
-            1 -> BookGridViewHolder.mDefaultImageCover1
-            2 -> BookGridViewHolder.mDefaultImageCover2
-            3 -> BookGridViewHolder.mDefaultImageCover3
-            4 -> BookGridViewHolder.mDefaultImageCover4
-            else -> BookGridViewHolder.mDefaultImageCover5
-        }
-
-        bookImage.setImageBitmap(image)
+        bookImage.setImageBitmap(mDefaultImageCover)
         BookImageCoverController.instance.setImageCoverAsync(itemView.context, book, bookImage)
 
         bookTitle.text = book.title
@@ -87,7 +79,6 @@ class BookLineViewHolder(itemView: View, private val listener: BookCardListener)
 
         bookProgress.max = book.pages
         bookProgress.setProgress(book.bookMark, false)
-
     }
 
 }

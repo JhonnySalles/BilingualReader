@@ -299,6 +299,14 @@
     <string name="manga_library_menu_copy">Copiado</string>
 
     <!-- LIBRARY - Manga / Comic -->
+    <string name="menu_book_config_send">Enviar o arquivo</string>
+    <string name="menu_book_config_clear_progress">Limpar progresso</string>
+    <string name="menu_book_config_delete">Deletar</string>
+    <string name="menu_book_config_detail">Detalhe do arquivo</string>
+    <string name="menu_book_config_tag">Adicionar tags</string>
+
+    <string name="book_library_share">Compartilhar livro</string>
+
     <string name="book_library_default">Default</string>
     <string name="book_library_menu_delete">Deletar</string>
     <string name="book_library_menu_delete_description">Deseja excluir o arquivo?</string>
@@ -337,6 +345,28 @@
     <string name="manga_detail_information_publish_in_publication">em publicação</string>
     <string name="manga_detail_information_authors">Autores:</string>
     <string name="manga_detail_information_genre">Gêneros:</string>
+
+    <!-- MANGA DETAIL -->
+    <string name="book_detail_favorite">Favorito</string>
+    <string name="book_detail_clear_history">Limpar histórico</string>
+    <string name="book_detail_mark_read">Marcar lido</string>
+    <string name="book_detail_delete">Deletar</string>
+    <string name="book_detail_chapters_title">Capítulos</string>
+    <string name="book_detail_subtitles_title">Legendas</string>
+    <string name="book_detail_file_links_title">Arquivos vinculados</string>
+    <string name="book_detail_manga_deleted">Arquivo apagado</string>
+    <string name="book_detail_vocabulary">Vocabulário</string>
+
+    <string name="book_detail_information">Informações</string>
+    <string name="book_detail_related">Relacionados</string>
+    <string name="book_detail_tags">Tags</string>
+
+    <string name="book_detail_information_file"><b>Arquivo:</b> %s</string>
+    <string name="book_detail_information_isbn"><b>ISBN:</b> %s</string>
+    <string name="book_detail_information_year"><b>Ano:</b> %s</string>
+    <string name="book_detail_information_publisher"><b>Editora:</b> %s</string>
+    <string name="book_detail_information_annotation"><b>Anotações:</b> %s</string>
+    <string name="book_detail_information_genres"><b>Gênero:</b> %s</string>
 
     <!-- HISTORY -->
     <string name="history_last_access">Último acesso</string>

@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.ui.manga_detail
+package br.com.fenix.bilingualreader.view.ui.detail.manga
 
 import android.content.Intent
 import android.graphics.drawable.AnimatedVectorDrawable
@@ -24,7 +24,8 @@ import br.com.fenix.bilingualreader.service.listener.InformationCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
-import br.com.fenix.bilingualreader.view.adapter.manga_detail.InformationRelatedCardAdapter
+import br.com.fenix.bilingualreader.view.adapter.detail.manga.InformationRelatedCardAdapter
+import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import com.google.android.material.button.MaterialButton
@@ -316,7 +317,7 @@ class MangaDetailFragment : Fragment() {
                     val isDeleted = manga.file.delete()
                     mLOGGER.info("File deleted ${manga.name}: $isDeleted")
                 }
-                (requireActivity() as MangaDetailActivity).onBackPressed()
+                (requireActivity() as DetailActivity).onBackPressed()
             }
             .setNegativeButton(
                 R.string.action_negative

@@ -88,10 +88,14 @@ class BookGridViewHolder(itemView: View, private val listener: BookCardListener)
             true
         }
 
-        favorite.setOnClickListener { listener.onClickFavorite(book, it, layoutPosition) }
-        config.setOnClickListener { listener.onClickConfig(book, it, layoutPosition) }
+        favorite.setOnClickListener {
+            book.favorite = !book.favorite
+            favorite.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+            listener.onClickFavorite(book)
+        }
+        config.setOnClickListener { listener.onClickConfig(book, cardView, it, layoutPosition) }
         config.setOnLongClickListener {
-            listener.onClickLongConfig(book, it, layoutPosition)
+            listener.onClickLongConfig(book, cardView, it, layoutPosition)
             true
         }
 

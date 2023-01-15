@@ -31,6 +31,7 @@ import androidx.annotation.ColorInt
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.FileType
@@ -527,6 +528,18 @@ class FileUtil(val context: Context) {
         Toast.makeText(
             context,
             context.getString(R.string.action_copy_name, manga.fileName),
+            Toast.LENGTH_LONG
+        ).show()
+    }
+
+    fun copyName(book: Book) {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("Copied Text", book.fileName)
+        clipboard.setPrimaryClip(clip)
+
+        Toast.makeText(
+            context,
+            context.getString(R.string.action_copy_name, book.fileName),
             Toast.LENGTH_LONG
         ).show()
     }

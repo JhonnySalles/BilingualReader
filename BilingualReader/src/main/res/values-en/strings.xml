@@ -298,6 +298,14 @@
     <string name="manga_library_menu_copy">Copy</string>
 
     <!-- LIBRARY - Manga / Comic -->
+    <string name="menu_book_config_send">Send file</string>
+    <string name="menu_book_config_clear_progress">Clear progress</string>
+    <string name="menu_book_config_delete">Delete</string>
+    <string name="menu_book_config_detail">File detail</string>
+    <string name="menu_book_config_tag">Add tags</string>
+
+    <string name="book_library_share">Book share</string>
+
     <string name="book_library_default">Default</string>
     <string name="book_library_menu_delete">Delete</string>
     <string name="book_library_menu_delete_description">Do you really want to delete the file?</string>
@@ -336,6 +344,28 @@
     <string name="manga_detail_information_publish_in_publication">in publication</string>
     <string name="manga_detail_information_authors">Authors:</string>
     <string name="manga_detail_information_genre">Genres:</string>
+
+    <!-- BOOK DETAIL -->
+    <string name="book_detail_favorite">Favorite</string>
+    <string name="book_detail_clear_history">Clear history</string>
+    <string name="book_detail_mark_read">Mark as read</string>
+    <string name="book_detail_delete">Delete</string>
+    <string name="book_detail_chapters_title">Chapters</string>
+    <string name="book_detail_subtitles_title">Subtitles</string>
+    <string name="book_detail_file_links_title">Files links</string>
+    <string name="book_detail_manga_deleted">File deleted</string>
+    <string name="book_detail_vocabulary">Vocabulary</string>
+
+    <string name="book_detail_information">Information</string>
+    <string name="book_detail_related">Related</string>
+    <string name="book_detail_tags">Tags</string>
+
+    <string name="book_detail_information_file"><b>File:</b> %s</string>
+    <string name="book_detail_information_isbn"><b>ISBN:</b> %s</string>
+    <string name="book_detail_information_year"><b>Year:</b> %s</string>
+    <string name="book_detail_information_publisher"><b>Publisher:</b> %s</string>
+    <string name="book_detail_information_annotation"><b>Annotation:</b> %s</string>
+    <string name="book_detail_information_genres"><b>Genres:</b> %s</string>
 
     <!-- HISTORY -->
     <string name="history_last_access">Last access</string>

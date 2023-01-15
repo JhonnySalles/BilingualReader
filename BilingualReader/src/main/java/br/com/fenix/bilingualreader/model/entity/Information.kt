@@ -1,7 +1,12 @@
 package br.com.fenix.bilingualreader.model.entity
 
+import android.content.Context
+import android.icu.text.IDNA
+import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.service.tracker.mal.MalMangaDetail
 import br.com.fenix.bilingualreader.service.tracker.mal.MalTransform
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import java.util.*
 
 class Information(
@@ -33,6 +38,12 @@ class Information(
     var authors: String = authors
     var origin: String = ""
 
+    var annotation: String = ""
+    var publisher: String = ""
+    var year: String = ""
+    var isbn: String = ""
+    var file: String = ""
+
     fun setManga(manga: MalMangaDetail) {
         this.link = "https://myanimelist.net/manga/${manga.id}"
         this.imageLink = manga.mainPicture?.medium.toString()
@@ -63,5 +74,16 @@ class Information(
         this.genres = manga.genres?.joinToString { it.name } ?: ""
         this.authors = manga.authors?.joinToString { it.author.firstName + " " + it.author.lastName + "(" + it.role + ")" } ?: ""
         this.origin = MY_ANIME_LIST
+    }
+
+    fun setBook(context: Context, book: Book) : Information {
+        this.genres = book.genre
+        this.annotation = book.annotation
+        this.publisher = book.publisher
+        this.year = book.year
+        this.isbn = book.isbn
+        this.file = book.fileName + "  " + FileUtil.formatSize(book.fileSize) + "  " + GeneralConsts.formatterDate(context, book.fileAlteration)
+
+        return this
     }
 }

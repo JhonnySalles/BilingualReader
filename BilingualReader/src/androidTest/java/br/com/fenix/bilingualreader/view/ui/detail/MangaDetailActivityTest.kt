@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.ui.manga_detail
+package br.com.fenix.bilingualreader.view.ui.detail
 
 import android.content.Intent
 import android.os.Bundle
@@ -15,6 +15,7 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.utils.TestUtils
+import br.com.fenix.bilingualreader.view.ui.detail.manga.MangaDetailFragment
 import junit.framework.TestCase.assertTrue
 import org.hamcrest.Matchers.not
 import org.junit.FixMethodOrder
@@ -32,7 +33,7 @@ class MangaDetailActivityTest {
     private var intent: Intent? = null
 
     init {
-        intent = Intent(ApplicationProvider.getApplicationContext(), MangaDetailActivity::class.java)
+        intent = Intent(ApplicationProvider.getApplicationContext(), DetailActivity::class.java)
         val bundle = Bundle()
         manga = TestUtils.getManga(ApplicationProvider.getApplicationContext())
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, Library(-1, Libraries.DEFAULT.name, ""))
@@ -42,14 +43,14 @@ class MangaDetailActivityTest {
 
 
     @get:Rule
-    val activityScenarioRule = ActivityScenarioRule<MangaDetailActivity>(intent)
+    val activityScenarioRule = ActivityScenarioRule<DetailActivity>(intent)
 
     @Test
     fun `1_test_manga_detail`() {
         val scenario = activityScenarioRule.scenario
 
         scenario.onActivity {
-            val fragment = it.supportFragmentManager.findFragmentById(R.id.root_frame_manga_detail)
+            val fragment = it.supportFragmentManager.findFragmentById(R.id.root_frame_detail)
             assertTrue(fragment is MangaDetailFragment)
         }
 
@@ -67,7 +68,7 @@ class MangaDetailActivityTest {
             onView(withId(R.id.manga_detail_button_favorite)).check(
                 matches(
                     CustomMatchers.Button.withActionIconDrawable(
-                        R.drawable.ic_favorite_mark,
+                        R.drawable.ico_favorite_mark,
                         true
                     )
                 )
@@ -76,7 +77,7 @@ class MangaDetailActivityTest {
             onView(withId(R.id.manga_detail_button_favorite)).check(
                 matches(
                     CustomMatchers.Button.withActionIconDrawable(
-                        R.drawable.ic_favorite_unmark,
+                        R.drawable.ico_favorite_unmark,
                         true
                     )
                 )

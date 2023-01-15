@@ -122,8 +122,8 @@ class MangaImageCoverController private constructor() {
             BitmapFactory.decodeStream(stream, null, option)
             option.inSampleSize = ImageUtil.calculateInSampleSize(
                 option,
-                ReaderConsts.COVER.COVER_THUMBNAIL_WIDTH,
-                ReaderConsts.COVER.COVER_THUMBNAIL_HEIGHT
+                ReaderConsts.COVER.MANGA_COVER_THUMBNAIL_WIDTH,
+                ReaderConsts.COVER.MANGA_COVER_THUMBNAIL_HEIGHT
             )
             option.inJustDecodeBounds = false
 

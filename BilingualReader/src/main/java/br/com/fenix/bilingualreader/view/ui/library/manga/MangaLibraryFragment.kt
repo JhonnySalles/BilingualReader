@@ -41,7 +41,7 @@ import br.com.fenix.bilingualreader.view.adapter.library.MangaGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaLineCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.PopupOrderSortedListener
-import br.com.fenix.bilingualreader.view.ui.manga_detail.MangaDetailActivity
+import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -79,7 +79,6 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
     private lateinit var mPopupOrderFragment: PopupOrder
     private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
 
-    private var mMenuPopupBottomSheet = false
     private var mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
@@ -259,13 +258,11 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
 
     private fun onOpenMenuSort() {
         mMenuPopupFilterOrder.visibility = View.VISIBLE
-        if (!mMenuPopupBottomSheet) {
-            mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
-            mMenuPopupFilterOrder.translationY = 100F
-            mMenuPopupFilterOrder.animate()
-                .setDuration(200)
-                .translationY(0f)
-        }
+        mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
+        mMenuPopupFilterOrder.translationY = 100F
+        mMenuPopupFilterOrder.animate()
+            .setDuration(200)
+            .translationY(0f)
     }
 
     private fun onChangeSort() {
@@ -410,22 +407,18 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
         mPopupOrderFragment = PopupOrder()
         mPopupOrderFragment.addChangeListener(this)
 
-        if (root.findViewById<ImageView>(R.id.popup_menu_order_filter_touch) == null)
-            mMenuPopupBottomSheet = true
-        else {
-            BottomSheetBehavior.from(mMenuPopupFilterOrder).apply {
-                peekHeight = 195
-                this.state = BottomSheetBehavior.STATE_COLLAPSED
-                mBottomSheet = this
-            }
-            mBottomSheet.isDraggable = true
+        BottomSheetBehavior.from(mMenuPopupFilterOrder).apply {
+            peekHeight = 195
+            this.state = BottomSheetBehavior.STATE_COLLAPSED
+            mBottomSheet = this
+        }
+        mBottomSheet.isDraggable = true
 
-            root.findViewById<ImageView>(R.id.popup_menu_order_filter_touch).setOnClickListener {
-                if (mBottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED)
-                    mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
-                else
-                    mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-            }
+        root.findViewById<ImageView>(R.id.popup_menu_order_filter_touch).setOnClickListener {
+            if (mBottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED)
+                mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
+            else
+                mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
         val viewTranslatePagerAdapter =  ViewPagerAdapter(requireActivity().supportFragmentManager, 0)
@@ -576,7 +569,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
     private var itemRefresh: Int? = null
     private fun goMangaDetail(manga: Manga, view: View, position: Int) {
         itemRefresh = position
-        val intent = Intent(requireContext(), MangaDetailActivity::class.java)
+        val intent = Intent(requireContext(), DetailActivity::class.java)
         val bundle = Bundle()
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mViewModel.getLibrary())
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
@@ -594,13 +587,13 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
         val title = view.findViewById<TextView>(idText)
         val progress = view.findViewById<ProgressBar>(idProgress)
         val pImageCover: Pair<View, String> = Pair(view, "transition_manga_cover")
-        val pTitleCover: Pair<View, String> = Pair(title, "transition_manga_title")
+        val pTitle: Pair<View, String> = Pair(title, "transition_manga_title")
         val pProgress: Pair<View, String> = Pair(progress, "transition_progress_bar")
 
         val options = ActivityOptions
             .makeSceneTransitionAnimation(
                 requireActivity(),
-                *arrayOf(pImageCover, pTitleCover, pProgress)
+                *arrayOf(pImageCover, pTitle, pProgress)
             )
         requireActivity().overridePendingTransition(
             R.anim.fade_in_fragment_add_enter,

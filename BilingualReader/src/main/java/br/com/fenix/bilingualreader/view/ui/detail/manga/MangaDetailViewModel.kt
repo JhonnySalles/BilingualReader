@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.ui.manga_detail
+package br.com.fenix.bilingualreader.view.ui.detail.manga
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -42,8 +42,8 @@ class MangaDetailViewModel(application: Application) : AndroidViewModel(applicat
     private var mListSubtitles = MutableLiveData<MutableList<String>>(mutableListOf())
     val listSubtitles: LiveData<MutableList<String>> = mListSubtitles
 
-    private var mInformation = MutableLiveData<Information>(null)
-    val information: LiveData<Information> = mInformation
+    private var mInformation = MutableLiveData<Information?>(null)
+    val information: LiveData<Information?> = mInformation
 
     private var mInformationRelations = MutableLiveData<MutableList<Information>>(mutableListOf())
     val informationRelations: LiveData<MutableList<Information>> = mInformationRelations

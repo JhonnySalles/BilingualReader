@@ -9,8 +9,10 @@ class ReaderConsts {
     }
 
     object COVER {
-        const val COVER_THUMBNAIL_HEIGHT = 300
-        const val COVER_THUMBNAIL_WIDTH = 200
+        const val MANGA_COVER_THUMBNAIL_HEIGHT = 300
+        const val MANGA_COVER_THUMBNAIL_WIDTH = 200
+        const val BOOK_COVER_THUMBNAIL_HEIGHT = 400
+        const val BOOK_COVER_THUMBNAIL_WIDTH = 300
     }
 
     object PAGE {

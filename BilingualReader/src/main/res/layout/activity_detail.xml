@@ -11,17 +11,17 @@
     android:clipChildren="false"
     android:theme="@style/Theme.MangaReader.NoNavigationBar"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".view.ui.manga_detail.MangaDetailActivity">
+    tools:context=".view.ui.detail.DetailActivity">
 
     <View
-        android:id="@+id/manga_detail_background"
+        android:id="@+id/detail_background"
         style="@style/AppBackground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"/>
 
     <LinearLayout
-        android:id="@+id/root_frame_manga_detail"
+        android:id="@+id/root_frame_detail"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -44,7 +44,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/toolbar_manga_detail"
+                android:id="@+id/toolbar_detail"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/default_navigator_header_size"
                 android:gravity="start|center"

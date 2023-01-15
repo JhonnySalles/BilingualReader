@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.adapter.manga_detail
+package br.com.fenix.bilingualreader.view.adapter.detail.manga
 
 import android.text.Html
 import android.view.View

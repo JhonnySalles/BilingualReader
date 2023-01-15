@@ -117,7 +117,7 @@ class BookImageCoverController private constructor() {
             val pageHtml = PageUrl(
                 file.path,
                 0,
-                ReaderConsts.COVER.COVER_THUMBNAIL_WIDTH,
+                ReaderConsts.COVER.BOOK_COVER_THUMBNAIL_WIDTH,
                 0,
                 false,
                 true,

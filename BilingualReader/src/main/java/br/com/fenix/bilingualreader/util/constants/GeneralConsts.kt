@@ -9,8 +9,12 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts.PATTERNS.DATE_P
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts.PATTERNS.TIME_PATTERN
 import java.io.File
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAccessor
 import java.util.*
 
 class GeneralConsts private constructor() {
@@ -38,6 +42,13 @@ class GeneralConsts private constructor() {
             val preferences = getSharedPreferences(context)
             val pattern = preferences.getString(KEYS.SYSTEM.FORMAT_DATA, DATE_PATTERN) + TIME_PATTERN
             return SimpleDateFormat(pattern, Locale.getDefault()).format(dateTime)
+        }
+
+        fun formatterDate(context: Context, date: Long): String {
+            val preferences = getSharedPreferences(context)
+            val pattern = preferences.getString(KEYS.SYSTEM.FORMAT_DATA, DATE_PATTERN)
+            val dateTime = Instant.ofEpochMilli(date).atZone(ZoneId.systemDefault()).toLocalDate()
+            return dateTime.format(DateTimeFormatter.ofPattern(pattern))
         }
 
         @TargetApi(26)

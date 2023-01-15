@@ -52,7 +52,12 @@
             android:theme="@style/Theme.MangaReader.NoActionBar"
             android:parentActivityName="br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity"/>
         <activity
-            android:name="br.com.fenix.bilingualreader.view.ui.manga_detail.MangaDetailActivity"
+            android:name="br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity"
+            android:exported="true"
+            android:theme="@style/Theme.MangaReader.FullScreen"
+            android:parentActivityName="br.com.fenix.bilingualreader.MainActivity"/>
+        <activity
+            android:name="br.com.fenix.bilingualreader.view.ui.detail.DetailActivity"
             android:exported="true"
             android:theme="@style/Theme.MangaReader.NoActionBar"
             android:parentActivityName="br.com.fenix.bilingualreader.MainActivity"/>
