@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.model.entity.FileLink
 import br.com.fenix.bilingualreader.model.entity.Information
+import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.service.listener.ApiListener
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
@@ -28,8 +29,9 @@ class MangaDetailViewModel(application: Application) : AndroidViewModel(applicat
     private val mFileLinkRepository: FileLinkRepository = FileLinkRepository(application.applicationContext)
     private val cache = GeneralConsts.getCacheDir(application.applicationContext)
 
-    private var mManga = MutableLiveData<Manga>(null)
-    val manga: LiveData<Manga> = mManga
+    var library: Library? = null
+    private var mManga = MutableLiveData<Manga?>(null)
+    val manga: LiveData<Manga?> = mManga
 
     private var mPaths: Map<String, Int> = mapOf()
 

@@ -14,6 +14,7 @@ import androidx.fragment.app.viewModels
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
+import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.MangaImageController
@@ -21,6 +22,7 @@ import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.InformationCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
@@ -35,9 +37,6 @@ class BookDetailFragment : Fragment() {
     private val mLOGGER = LoggerFactory.getLogger(BookDetailFragment::class.java)
 
     private val mViewModel: BookDetailViewModel by viewModels()
-
-    var mLibrary: Library? = null
-    var mBook: Book? = null
 
     private lateinit var mBackgroundImage: ImageView
     private lateinit var mImage: ImageView
@@ -118,11 +117,23 @@ class BookDetailFragment : Fragment() {
         mInformationGenres = root.findViewById(R.id.book_detail_information_genres)
         mInformationFile = root.findViewById(R.id.book_detail_information_file)
 
-        mMakReadButton.setOnClickListener { markRead() }
-        mDeleteButton.setOnClickListener { deleteFile() }
         mFavoriteButton.setOnClickListener { favorite() }
-        mClearHistoryButton.setOnClickListener { clearHistory() }
-        mVocabularyButton.setOnClickListener { openVocabulary() }
+        mMakReadButton.setOnClickListener {
+            (mMakReadButton.icon as AnimatedVectorDrawable).start()
+            markRead()
+        }
+        mDeleteButton.setOnClickListener {
+            (mDeleteButton.icon as AnimatedVectorDrawable).start()
+            deleteFile()
+        }
+        mClearHistoryButton.setOnClickListener {
+            (mClearHistoryButton.icon as AnimatedVectorDrawable).start()
+            clearHistory()
+        }
+        mVocabularyButton.setOnClickListener {
+            (mVocabularyButton.icon as AnimatedVectorDrawable).start()
+            openVocabulary()
+        }
 
         mFileLinksList.adapter =
             ArrayAdapter(requireContext(), R.layout.list_item_all_text, mFileLinks)
@@ -130,24 +141,26 @@ class BookDetailFragment : Fragment() {
             ArrayAdapter(requireContext(), R.layout.list_item_all_text, mChapters)
 
         mTitle.setOnLongClickListener {
-            mBook?.let { FileUtil(requireContext()).copyName(it) }
+            mViewModel.book.value?.let { bk -> FileUtil(requireContext()).copyName(bk) }
             true
         }
 
         mChaptersList.setOnItemClickListener { _, _, index, _ ->
-            if (mBook != null && index >= 0 && mChapters.size > index) {
-                val folder = mChapters[index]
-                val page = mViewModel.getPage(folder)
-                mBook!!.bookMark = page
-                mViewModel.save(mBook)
-                val intent = Intent(context, MangaReaderActivity::class.java)
-                val bundle = Bundle()
-                bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mLibrary)
-                bundle.putString(GeneralConsts.KEYS.MANGA.NAME, mBook!!.title)
-                bundle.putInt(GeneralConsts.KEYS.MANGA.MARK, mBook!!.bookMark)
-                bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, mBook!!)
-                intent.putExtras(bundle)
-                context?.startActivity(intent)
+            mViewModel.book.value?.let {
+                if (index >= 0 && mChapters.size > index) {
+                    val folder = mChapters[index]
+                    val page = mViewModel.getPage(folder)
+                    it.bookMark = page
+                    mViewModel.save(it)
+                    val intent = Intent(context, MangaReaderActivity::class.java)
+                    val bundle = Bundle()
+                    bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mViewModel.library)
+                    bundle.putString(GeneralConsts.KEYS.MANGA.NAME, it.title)
+                    bundle.putInt(GeneralConsts.KEYS.MANGA.MARK, it.bookMark)
+                    bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, it)
+                    intent.putExtras(bundle)
+                    context?.startActivity(intent)
+                }
             }
         }
 
@@ -165,8 +178,15 @@ class BookDetailFragment : Fragment() {
 
         observer()
 
-        if (mBook != null)
-            mViewModel.setBook(requireContext(), mBook!!)
+        arguments?.let {
+            mViewModel.library = if (it.containsKey(GeneralConsts.KEYS.OBJECT.LIBRARY))
+                it[GeneralConsts.KEYS.OBJECT.LIBRARY] as Library
+            else
+                LibraryUtil.getDefault(requireContext(), Type.BOOK)
+
+            if (it.containsKey(GeneralConsts.KEYS.OBJECT.BOOK))
+                mViewModel.setBook(requireContext(), it[GeneralConsts.KEYS.OBJECT.BOOK] as Book)
+        }
 
         return root
     }
@@ -195,8 +215,11 @@ class BookDetailFragment : Fragment() {
                 mProgress.max = it.pages
                 mProgress.setProgress(it.bookMark, false)
 
-                mFavoriteButton.setIconResource(if (it.favorite) R.drawable.ico_animated_favorited_marked else R.drawable.ico_animated_favorited_unmarked)
-                (mFavoriteButton.icon as AnimatedVectorDrawable).start()
+                if (mFavoriteButton.tag != it.favorite) {
+                    mFavoriteButton.setIconResource(if (it.favorite) R.drawable.ico_animated_favorited_marked else R.drawable.ico_animated_favorited_unmarked)
+                    (mFavoriteButton.icon as AnimatedVectorDrawable).start()
+                }
+                mFavoriteButton.tag = it.favorite
 
                 if (it.excluded) {
                     mDeleted.text = getString(R.string.book_detail_manga_deleted)
@@ -316,15 +339,17 @@ class BookDetailFragment : Fragment() {
     }
 
     private fun openVocabulary() {
-        val intent = Intent(requireContext(), VocabularyActivity::class.java)
-        val bundle = Bundle()
-        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, mBook)
-        bundle.putSerializable(GeneralConsts.KEYS.VOCABULARY.TYPE, Type.MANGA)
-        intent.putExtras(bundle)
-        requireActivity().overridePendingTransition(
-            R.anim.fade_in_fragment_add_enter,
-            R.anim.fade_out_fragment_remove_exit
-        )
-        startActivity(intent)
+        mViewModel.book.value?.let {
+            val intent = Intent(requireContext(), VocabularyActivity::class.java)
+            val bundle = Bundle()
+            bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, it)
+            bundle.putSerializable(GeneralConsts.KEYS.VOCABULARY.TYPE, Type.MANGA)
+            intent.putExtras(bundle)
+            requireActivity().overridePendingTransition(
+                R.anim.fade_in_fragment_add_enter,
+                R.anim.fade_out_fragment_remove_exit
+            )
+            startActivity(intent)
+        }
     }
 }

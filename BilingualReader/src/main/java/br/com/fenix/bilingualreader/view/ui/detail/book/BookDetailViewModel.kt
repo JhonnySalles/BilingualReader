@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.FileLink
 import br.com.fenix.bilingualreader.model.entity.Information
+import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.FileLinkRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -21,8 +22,8 @@ class BookDetailViewModel(application: Application) : AndroidViewModel(applicati
     private val mBookRepository: BookRepository = BookRepository(application.applicationContext)
     private val mFileLinkRepository: FileLinkRepository =
         FileLinkRepository(application.applicationContext)
-    private val cache = GeneralConsts.getCacheDir(application.applicationContext)
 
+    var library: Library? = null
     private var mBook = MutableLiveData<Book?>(null)
     val book: LiveData<Book?> = mBook
 

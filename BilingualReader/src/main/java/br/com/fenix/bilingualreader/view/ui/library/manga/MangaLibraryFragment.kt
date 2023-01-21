@@ -584,11 +584,14 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
         else
             R.id.manga_line_progress
 
-        val title = view.findViewById<TextView>(idText)
-        val progress = view.findViewById<ProgressBar>(idProgress)
-        val pImageCover: Pair<View, String> = Pair(view, "transition_manga_cover")
-        val pTitle: Pair<View, String> = Pair(title, "transition_manga_title")
-        val pProgress: Pair<View, String> = Pair(progress, "transition_progress_bar")
+        val idCover = if (mGridType != LibraryType.LINE)
+            R.id.manga_grid_image_cover
+        else
+            R.id.manga_line_image_cover
+
+        val pImageCover: Pair<View, String> = Pair(view.findViewById<ImageView>(idCover), "transition_manga_cover")
+        val pTitle: Pair<View, String> = Pair(view.findViewById<TextView>(idText), "transition_manga_title")
+        val pProgress: Pair<View, String> = Pair(view.findViewById<ProgressBar>(idProgress), "transition_progress_bar")
 
         val options = ActivityOptions
             .makeSceneTransitionAnimation(

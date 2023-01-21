@@ -40,33 +40,13 @@ class DetailActivity : AppCompatActivity() {
         var fragment : Fragment = MangaDetailFragment()
 
         bundle?.let {
-            if (it.containsKey(GeneralConsts.KEYS.OBJECT.MANGA)) {
+            if (it.containsKey(GeneralConsts.KEYS.OBJECT.MANGA))
                 fragment = MangaDetailFragment()
-                val manga = bundle[GeneralConsts.KEYS.OBJECT.MANGA] as Manga
-                val library = if (bundle.containsKey(GeneralConsts.KEYS.OBJECT.LIBRARY))
-                    bundle[GeneralConsts.KEYS.OBJECT.LIBRARY] as Library
-                else
-                    LibraryUtil.getDefault(this, Type.MANGA)
-
-                (fragment as MangaDetailFragment).let { fr ->
-                    fr.mLibrary = library
-                    fr.mManga = manga
-                }
-            } else if (it.containsKey(GeneralConsts.KEYS.OBJECT.BOOK)) {
+            else if (it.containsKey(GeneralConsts.KEYS.OBJECT.BOOK))
                 fragment = BookDetailFragment()
-                val book = bundle[GeneralConsts.KEYS.OBJECT.BOOK] as Book
-                val library = if (bundle.containsKey(GeneralConsts.KEYS.OBJECT.LIBRARY))
-                    bundle[GeneralConsts.KEYS.OBJECT.LIBRARY] as Library
-                else
-                    LibraryUtil.getDefault(this, Type.BOOK)
-
-                (fragment as BookDetailFragment).let { fr ->
-                    fr.mLibrary = library
-                    fr.mBook = book
-                }
-            }
         }
 
+        fragment.arguments = bundle
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.root_frame_detail, fragment)

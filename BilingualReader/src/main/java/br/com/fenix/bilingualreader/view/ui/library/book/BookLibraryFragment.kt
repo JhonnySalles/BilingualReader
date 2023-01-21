@@ -22,10 +22,7 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
-import br.com.fenix.bilingualreader.model.enums.Libraries
-import br.com.fenix.bilingualreader.model.enums.LibraryBookType
-import br.com.fenix.bilingualreader.model.enums.ListMod
-import br.com.fenix.bilingualreader.model.enums.Order
+import br.com.fenix.bilingualreader.model.enums.*
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
 import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.repository.Storage
@@ -35,6 +32,7 @@ import br.com.fenix.bilingualreader.view.adapter.library.BookGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookLineCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
+import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryFragment
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -508,13 +506,15 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         else
             R.id.book_line_progress
 
-        val title = view.findViewById<TextView>(idText)
-        val author = view.findViewById<TextView>(idAuthor)
-        val progress = view.findViewById<ProgressBar>(idProgress)
-        val pImageCover: Pair<View, String> = Pair(view, "transition_book_cover")
-        val pTitle: Pair<View, String> = Pair(title, "transition_book_title")
-        val pAuthor: Pair<View, String> = Pair(author, "transition_book_author")
-        val pProgress: Pair<View, String> = Pair(progress, "transition_progress_bar")
+        val idCover = if (MangaLibraryFragment.mGridType != LibraryType.LINE)
+            R.id.book_grid_image_cover
+        else
+            R.id.book_line_image_cover
+
+        val pImageCover: Pair<View, String> = Pair(view.findViewById<ImageView>(idCover), "transition_book_cover")
+        val pTitle: Pair<View, String> = Pair(view.findViewById<TextView>(idText), "transition_book_title")
+        val pAuthor: Pair<View, String> = Pair(view.findViewById<TextView>(idAuthor), "transition_book_author")
+        val pProgress: Pair<View, String> = Pair(view.findViewById<ProgressBar>(idProgress), "transition_progress_bar")
 
         val options = ActivityOptions
             .makeSceneTransitionAnimation(requireActivity(), *arrayOf(pImageCover, pTitle, pAuthor, pProgress))

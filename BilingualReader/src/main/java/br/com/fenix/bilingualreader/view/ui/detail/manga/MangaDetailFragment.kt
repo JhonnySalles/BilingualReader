@@ -23,6 +23,7 @@ import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.InformationCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.detail.manga.InformationRelatedCardAdapter
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
@@ -38,9 +39,6 @@ class MangaDetailFragment : Fragment() {
     private val mLOGGER = LoggerFactory.getLogger(MangaDetailFragment::class.java)
 
     private val mViewModel: MangaDetailViewModel by viewModels()
-
-    var mLibrary: Library? = null
-    var mManga: Manga? = null
 
     private lateinit var mBackgroundImage: ImageView
     private lateinit var mImage: ImageView
@@ -118,11 +116,23 @@ class MangaDetailFragment : Fragment() {
         mRelatedRelatedList = root.findViewById(R.id.manga_detail_relations_lists)
         mRelatedOrigin = root.findViewById(R.id.manga_detail_relations_origin)
 
-        mMakReadButton.setOnClickListener { markRead() }
-        mDeleteButton.setOnClickListener { deleteFile() }
         mFavoriteButton.setOnClickListener { favorite() }
-        mClearHistoryButton.setOnClickListener { clearHistory() }
-        mVocabularyButton.setOnClickListener { openVocabulary() }
+        mMakReadButton.setOnClickListener {
+            (mMakReadButton.icon as AnimatedVectorDrawable).start()
+            markRead()
+        }
+        mDeleteButton.setOnClickListener {
+            (mDeleteButton.icon as AnimatedVectorDrawable).start()
+            deleteFile()
+        }
+        mClearHistoryButton.setOnClickListener {
+            (mClearHistoryButton.icon as AnimatedVectorDrawable).start()
+            clearHistory()
+        }
+        mVocabularyButton.setOnClickListener {
+            (mVocabularyButton.icon as AnimatedVectorDrawable).start()
+            openVocabulary()
+        }
 
         mSubtitlesList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mSubtitles)
         mFileLinksList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mFileLinks)
@@ -132,24 +142,26 @@ class MangaDetailFragment : Fragment() {
         mRelatedRelatedList.layoutManager = LinearLayoutManager(requireContext())
 
         mTitle.setOnLongClickListener {
-            mManga?.let { FileUtil(requireContext()).copyName(it) }
+            mViewModel.manga.value?.let { mg -> FileUtil(requireContext()).copyName(mg) }
             true
         }
 
         mChaptersList.setOnItemClickListener { _, _, index, _ ->
-            if (mManga != null && index >= 0 && mChapters.size > index) {
-                val folder = mChapters[index]
-                val page = mViewModel.getPage(folder)
-                mManga!!.bookMark = page
-                mViewModel.save(mManga)
-                val intent = Intent(context, MangaReaderActivity::class.java)
-                val bundle = Bundle()
-                bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mLibrary)
-                bundle.putString(GeneralConsts.KEYS.MANGA.NAME, mManga!!.title)
-                bundle.putInt(GeneralConsts.KEYS.MANGA.MARK, mManga!!.bookMark)
-                bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, mManga!!)
-                intent.putExtras(bundle)
-                context?.startActivity(intent)
+            mViewModel.manga.value?.let {
+                if (index >= 0 && mChapters.size > index) {
+                    val folder = mChapters[index]
+                    val page = mViewModel.getPage(folder)
+                    it.bookMark = page
+                    mViewModel.save(it)
+                    val intent = Intent(context, MangaReaderActivity::class.java)
+                    val bundle = Bundle()
+                    bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mViewModel.library)
+                    bundle.putString(GeneralConsts.KEYS.MANGA.NAME, it.title)
+                    bundle.putInt(GeneralConsts.KEYS.MANGA.MARK, it.bookMark)
+                    bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, it)
+                    intent.putExtras(bundle)
+                    context?.startActivity(intent)
+                }
             }
         }
 
@@ -169,8 +181,15 @@ class MangaDetailFragment : Fragment() {
 
         observer()
 
-        if (mManga != null)
-            mViewModel.setManga(mManga!!)
+        arguments?.let {
+            mViewModel.library = if (it.containsKey(GeneralConsts.KEYS.OBJECT.LIBRARY))
+                it[GeneralConsts.KEYS.OBJECT.LIBRARY] as Library
+            else
+                LibraryUtil.getDefault(requireContext(), Type.MANGA)
+
+            if (it.containsKey(GeneralConsts.KEYS.OBJECT.MANGA))
+                mViewModel.setManga(it[GeneralConsts.KEYS.OBJECT.MANGA] as Manga)
+        }
 
         return root
     }
@@ -193,8 +212,11 @@ class MangaDetailFragment : Fragment() {
                 mProgress.max = it.pages
                 mProgress.setProgress(it.bookMark, false)
 
-                mFavoriteButton.setIconResource(if (it.favorite) R.drawable.ico_animated_favorited_marked else R.drawable.ico_animated_favorited_unmarked)
-                (mFavoriteButton.icon as AnimatedVectorDrawable).start()
+                if (mFavoriteButton.tag != it.favorite) {
+                    mFavoriteButton.setIconResource(if (it.favorite) R.drawable.ico_animated_favorited_marked else R.drawable.ico_animated_favorited_unmarked)
+                    (mFavoriteButton.icon as AnimatedVectorDrawable).start()
+                }
+                mFavoriteButton.tag = it.favorite
 
                 if (it.excluded) {
                     mDeleted.text = getString(R.string.manga_detail_manga_deleted)
@@ -356,12 +378,14 @@ class MangaDetailFragment : Fragment() {
     }
 
     private fun openVocabulary() {
-        val intent = Intent(requireContext(), VocabularyActivity::class.java)
-        val bundle = Bundle()
-        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, mManga)
-        bundle.putSerializable(GeneralConsts.KEYS.VOCABULARY.TYPE, Type.MANGA)
-        intent.putExtras(bundle)
-        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
-        startActivity(intent)
+        mViewModel.manga.value?.let {
+            val intent = Intent(requireContext(), VocabularyActivity::class.java)
+            val bundle = Bundle()
+            bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, it)
+            bundle.putSerializable(GeneralConsts.KEYS.VOCABULARY.TYPE, Type.MANGA)
+            intent.putExtras(bundle)
+            requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+            startActivity(intent)
+        }
     }
 }
