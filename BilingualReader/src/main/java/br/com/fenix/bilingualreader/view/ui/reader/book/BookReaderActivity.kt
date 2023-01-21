@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.view.ui.reader.book
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.drawable.AnimatedVectorDrawable
@@ -12,7 +13,6 @@ import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
@@ -23,20 +23,19 @@ import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
-import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess
 import br.com.fenix.bilingualreader.service.repository.BookRepository
+import br.com.fenix.bilingualreader.service.repository.LibraryRepository
+import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
@@ -58,16 +57,9 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
     private lateinit var mToolbarTitleContent: LinearLayout
     private lateinit var mSubToolbar: LinearLayout
     private lateinit var mLanguageOcrDescription: TextView
-    private lateinit var mMenuPopupTranslate: FrameLayout
-    private lateinit var mPopupTranslateView: ViewPager
-    private lateinit var mMenuPopupColor: FrameLayout
-    private lateinit var mPopupColorView: ViewPager
-    private lateinit var mPopupColorTab: TabLayout
-    private lateinit var mBottomSheetTranslate: BottomSheetBehavior<FrameLayout>
-    private lateinit var mBottomSheetColor: BottomSheetBehavior<FrameLayout>
+
 
     private lateinit var mClockAndBattery: LinearLayout
-    private lateinit var mBattery: TextView
     private lateinit var mTouchView: ConstraintLayout
 
     private var mHandler = Handler(Looper.getMainLooper())
@@ -96,32 +88,63 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_reader)
 
+        mRepository = BookRepository(applicationContext)
+
+        if (savedInstanceState == null) {
+            if (Intent.ACTION_VIEW == intent.action) {
+                if (intent.extras != null && intent.extras!!.containsKey(GeneralConsts.KEYS.BOOK.ID)) {
+                    val book =
+                        mRepository.get(intent.extras!!.getLong(GeneralConsts.KEYS.BOOK.ID))
+                    book?.fkLibrary?.let {
+                        val library = LibraryRepository(this)
+                        mLibrary = library.get(it) ?: mLibrary
+                    }
+                    initialize(book)
+                } else
+                    intent.data?.path?.let {
+                        val file = File(it)
+                        initialize(file, 0)
+                    }
+            } else {
+                val extras = intent.extras
+
+                if (extras != null)
+                    mLibrary = extras.getSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY) as Library
+
+                val book =
+                    if (extras != null) (extras.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK) as Book?) else null
+                book?.let {
+                    it.bookMark = extras?.getInt(GeneralConsts.KEYS.BOOK.MARK) ?: 0
+                }
+
+                initialize(book)
+            }
+        } else
+            mFragment =
+                supportFragmentManager.findFragmentById(R.id.root_frame_book_reader) as BookReaderFragment?
     }
 
-    private fun initialize(manga: Manga?) {
-        /*val fragment: MangaReaderFragment = if (manga != null && manga.file.exists()) {
-            setManga(manga)
-            MangaReaderFragment.create(mLibrary, manga)
+    private fun initialize(book: Book?) {
+        val fragment: BookReaderFragment = if (book != null && book.file.exists()) {
+            setBook(book)
+            BookReaderFragment.create(mLibrary, book)
         } else
-            MangaReaderFragment.create()
+            BookReaderFragment.create()
 
-        val fileLink: PagesLinkViewModel by viewModels()
-        mSubtitleController.setFileLink(fileLink.getFileLink(manga))
-        setFragment(fragment)*/
+        setFragment(fragment)
     }
 
     private fun initialize(file: File?, page: Int) {
-        /*val fragment: MangaReaderFragment = if (file != null) {
+        val fragment: BookReaderFragment = if (file != null) {
             changePage(file.name, "", page)
-            MangaReaderFragment.create(mLibrary, file)
+            BookReaderFragment.create(mLibrary, file)
         } else
-            MangaReaderFragment.create()
+            BookReaderFragment.create()
 
-        mSubtitleController.setFileLink(null)
-        setFragment(fragment)*/
+        setFragment(fragment)
     }
 
-    private fun switchManga(isNext: Boolean = true) {
+    private fun switchBook(isNext: Boolean = true) {
         if (mBook == null) return
 
         val changeBook = if (isNext)
@@ -163,7 +186,7 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
     fun changeBook(book: Book) {
         setBook(book)
 
-        //****setFragment(Fragment.create(mLibrary, manga))
+        //****setFragment(Fragment.create(mLibrary, book))
     }
 
     fun setLanguage(language: Languages) {
@@ -179,6 +202,7 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
     }
 
     fun changePage(title: String, text: String, page: Int) {
+        return
         mReaderTitle.text = if (page > -1) "$page/${mBook?.pages ?: ""}" else ""
         mToolbarTitle.text = title
         mToolbarSubTitle.text = text
@@ -283,7 +307,7 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
         //mFragment = if (fragment is MangaReaderFragment) fragment else null
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.root_frame_reader, fragment)
+            .replace(R.id.root_frame_book_reader, fragment)
             .commit()
     }
 

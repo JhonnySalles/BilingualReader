@@ -386,6 +386,7 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                 if (book.file.exists()) {
                     val intent = Intent(context, BookReaderActivity::class.java)
                     val bundle = Bundle()
+                    bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mViewModel.getLibrary())
                     bundle.putString(GeneralConsts.KEYS.BOOK.NAME, book.title)
                     bundle.putInt(GeneralConsts.KEYS.BOOK.MARK, book.bookMark)
                     bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)

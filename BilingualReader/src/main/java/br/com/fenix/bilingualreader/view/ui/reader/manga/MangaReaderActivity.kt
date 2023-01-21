@@ -422,7 +422,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
             }
         } else
             mFragment =
-                supportFragmentManager.findFragmentById(R.id.root_frame_reader) as MangaReaderFragment?
+                supportFragmentManager.findFragmentById(R.id.root_frame_manga_reader) as MangaReaderFragment?
     }
 
     private fun initialize(manga: Manga?) {
@@ -599,7 +599,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
 
     private fun dialogPageIndex() {
         val currentFragment =
-            supportFragmentManager.findFragmentById(R.id.root_frame_reader) ?: return
+            supportFragmentManager.findFragmentById(R.id.root_frame_manga_reader) ?: return
         val parse = (currentFragment as MangaReaderFragment).mParse ?: return
 
         val paths = parse.getPagePaths()
@@ -740,7 +740,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         mFragment = if (fragment is MangaReaderFragment) fragment else null
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.root_frame_reader, fragment)
+            .replace(R.id.root_frame_manga_reader, fragment)
             .commit()
     }
 
@@ -1181,14 +1181,14 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
 
     override fun getImage(): Bitmap? {
         val currentFragment =
-            supportFragmentManager.findFragmentById(R.id.root_frame_reader) ?: return null
+            supportFragmentManager.findFragmentById(R.id.root_frame_manga_reader) ?: return null
         val view = (currentFragment as MangaReaderFragment).getCurrencyImageView() ?: return null
         return view.drawable.toBitmap()
     }
 
     override fun getImage(x: Int, y: Int, width: Int, height: Int): Bitmap? {
         val currentFragment =
-            supportFragmentManager.findFragmentById(R.id.root_frame_reader) ?: return null
+            supportFragmentManager.findFragmentById(R.id.root_frame_manga_reader) ?: return null
         val view = (currentFragment as MangaReaderFragment).getCurrencyImageView() ?: return null
         view.isDrawingCacheEnabled = true
         view.buildDrawingCache()

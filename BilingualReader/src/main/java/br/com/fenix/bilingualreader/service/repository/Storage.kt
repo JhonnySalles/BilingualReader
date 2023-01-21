@@ -207,4 +207,8 @@ class Storage(context: Context) {
     fun updateBookMark(book: Book) {
         mBookRepository.updateBookMark(book)
     }
+
+    fun updateLastAccess(book: Book) {
+        mBookRepository.updateLastAccess(book)
+    }
 }

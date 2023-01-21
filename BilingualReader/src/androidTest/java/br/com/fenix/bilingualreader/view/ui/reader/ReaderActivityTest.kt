@@ -64,48 +64,48 @@ class ReaderActivityTest {
         val scenario = activityScenarioRule.scenario
 
         scenario.onActivity {
-            val fragment = it.supportFragmentManager.findFragmentById(R.id.root_frame_reader)
+            val fragment = it.supportFragmentManager.findFragmentById(R.id.root_frame_manga_reader)
             assertTrue(fragment is MangaReaderFragment)
         }
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
-        onView(withId(R.id.root_frame_reader)).perform(click())
+        onView(withId(R.id.root_frame_manga_reader)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
         onView(withId(R.id.reader_manga_btn_floating_popup)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
-        onView(withId(R.id.root_frame_reader)).perform(click())
+        onView(withId(R.id.root_frame_manga_reader)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
         onView(withId(R.id.reader_manga_btn_menu_page_linked)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
-        onView(withId(R.id.root_frame_reader)).perform(click())
+        onView(withId(R.id.root_frame_manga_reader)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
         onView(withId(R.id.reader_manga_btn_popup_color)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
-        onView(withId(R.id.root_frame_reader)).perform(click())
+        onView(withId(R.id.root_frame_manga_reader)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
         onView(withId(R.id.reader_manga_btn_popup_subtitle)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
-        onView(withId(R.id.root_frame_reader)).perform(click())
+        onView(withId(R.id.root_frame_manga_reader)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
         onView(withId(R.id.reader_manga_btn_menu_ocr)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
-        onView(withId(R.id.root_frame_reader)).perform(click())
+        onView(withId(R.id.root_frame_manga_reader)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
         onView(withId(R.id.reader_manga_btn_screen_rotate)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
-        onView(withId(R.id.root_frame_reader)).perform(click())
+        onView(withId(R.id.root_frame_manga_reader)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
         onView(withId(R.id.reader_manga_nav_next_file)).perform(click())
@@ -113,7 +113,7 @@ class ReaderActivityTest {
         onView(withId(CustomTypes.AlertDialogButton.POSITIVE.resId)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
-        onView(withId(R.id.root_frame_reader)).perform(click())
+        onView(withId(R.id.root_frame_manga_reader)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
         onView(withId(R.id.reader_manga_nav_previous_file)).perform(click())

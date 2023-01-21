@@ -12,7 +12,7 @@
         tools:context=".view.ui.reader.manga.MangaReaderActivity">
 
         <FrameLayout
-            android:id="@+id/root_frame_reader"
+            android:id="@+id/root_frame_manga_reader"
             style="@style/AppBackground.Reader"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
