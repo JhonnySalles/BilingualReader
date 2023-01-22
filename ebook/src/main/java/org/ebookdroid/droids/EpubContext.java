@@ -39,7 +39,7 @@ public class EpubContext extends PdfContext {
         }
 
         String bookPath = BookCSS.get().isAutoHypens ? cacheFile.getPath() : fileName;
-        final MuPdfDocument muPdfDocument = new MuPdfDocument(this, MuPdfDocument.FORMAT_PDF, bookPath, password);
+        final MuPdfDocument muPdfDocument = new MuPdfDocument(this, MuPdfDocument.FORMAT_PDF, fileName, password);
 
         final File jsonFile = new File(cacheFile + ".json");
         if (jsonFile.isFile()) {

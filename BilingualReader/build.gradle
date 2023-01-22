@@ -105,7 +105,8 @@ dependencies {
     //implementation 'com.kttdevelopment:mal4j:2.8.1'
 
     / ** BOOK **/
-    implementation project(path: ':ebook')
+    implementation project(':ebook')
+    implementation project(':mupdf')
 
     / ** TEST **/
     testImplementation 'junit:junit:4.13.2'

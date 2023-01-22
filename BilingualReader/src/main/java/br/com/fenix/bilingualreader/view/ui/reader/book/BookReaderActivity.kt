@@ -44,6 +44,12 @@ import java.io.File
 
 class BookReaderActivity : AppCompatActivity(), OcrProcess {
 
+    init {
+        System.loadLibrary("mypdf")
+        System.loadLibrary("mobi")
+    }
+
+
     private val mLOGGER = LoggerFactory.getLogger(BookReaderActivity::class.java)
 
     private val mViewModel: BookReaderViewModel by viewModels()

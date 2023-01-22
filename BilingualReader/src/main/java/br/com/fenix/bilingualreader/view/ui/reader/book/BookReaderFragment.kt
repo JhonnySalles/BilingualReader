@@ -21,10 +21,16 @@ import androidx.viewpager.widget.ViewPager
 import br.com.ebook.application.eBookApplication
 import br.com.ebook.foobnix.android.utils.LOG
 import br.com.ebook.foobnix.ext.CacheZipUtils
+import br.com.ebook.foobnix.pdf.info.AppSharedPreferences
+import br.com.ebook.foobnix.pdf.info.ExtUtils
+import br.com.ebook.foobnix.pdf.info.IMG
+import br.com.ebook.foobnix.pdf.info.TintUtil
 import br.com.ebook.foobnix.pdf.info.model.BookCSS
+import br.com.ebook.foobnix.pdf.info.wrapper.AppState
 import br.com.ebook.foobnix.pdf.search.activity.HorizontalModeController
 import br.com.ebook.foobnix.pdf.search.activity.ImagePageFragment
 import br.com.ebook.foobnix.pdf.search.activity.UpdatableFragmentPagerAdapter
+import br.com.ebook.foobnix.sys.ImageExtractor
 import br.com.ebook.foobnix.ui2.AppDB
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
@@ -39,6 +45,7 @@ import br.com.fenix.bilingualreader.view.components.book.VerticalViewPager
 import br.com.fenix.bilingualreader.view.components.manga.PageImageView
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.ebookdroid.core.codec.CodecDocument
 import org.slf4j.LoggerFactory
 import java.io.File
 
@@ -60,6 +67,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
     private var mNewBook: Book? = null
     private var mNewBookTitle = 0
     private lateinit var mStorage: Storage
+
+    private var codeDocument:CodecDocument? = null
 
 
     var dc: HorizontalModeController? = null
@@ -156,7 +165,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                     .create()
                     .show()
             }
+
+            codeDocument = ImageExtractor.getNewCodecContext(file!!.path, "", imageWidth, imageHeight);
         }
+
         setHasOptionsMenu(true)
     }
 
@@ -186,6 +198,15 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         AppDB.get().open(requireContext())
         CacheZipUtils.init(requireContext())
         BookCSS.get().load(requireContext())
+
+
+        AppState.get().load(requireContext())
+        AppSharedPreferences.get().init(requireContext())
+
+        ExtUtils.init(requireContext())
+        IMG.init(requireContext())
+
+        TintUtil.init()
         dc?.init(requireActivity())
 
         val count: Int = dc?.pageCount ?: 0
