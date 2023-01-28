@@ -100,4 +100,12 @@ class ConfigLibrariesViewModel(application: Application) : AndroidViewModel(appl
             mListThemes.value = mListThemes.value!!.map { Pair(it.first, it.first == theme) }.toMutableList()
     }
 
+    fun getDefault(type: Type) : String {
+        return mRepository.getDefault(type)
+    }
+
+    fun saveDefault(type: Type, path: String) {
+        mRepository.saveDefault(type, path)
+    }
+
 }

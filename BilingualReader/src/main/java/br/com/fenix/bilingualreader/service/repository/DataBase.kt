@@ -21,6 +21,7 @@ import de.raphaelebner.roomdatabasebackup.core.RoomBackup
 import org.slf4j.LoggerFactory
 import java.io.BufferedReader
 import java.io.File
+import java.util.concurrent.Executors
 
 
 @Database(
@@ -61,6 +62,11 @@ abstract class DataBase : RoomDatabase() {
                         Migrations.MIGRATION_13_14
                     )
                     .allowMainThreadQueries()
+                    /*.setQueryCallback(object : QueryCallback { // Shows query
+                        override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                            println("SQL Query: $sqlQuery SQL Args: $bindArgs")
+                        }
+                    }, Executors.newSingleThreadExecutor())*/
                     .build() // MainThread uses another thread in db conection
             }
             return INSTANCE

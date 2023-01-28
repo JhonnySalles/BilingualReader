@@ -8,7 +8,7 @@
     android:orientation="vertical"
     tools:context=".view.ui.vocabulary.VocabularyFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/vocabulary_root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -73,6 +73,74 @@
             app:layout_constraintRight_toRightOf="parent"
             app:maxImageSize="@dimen/vocabulary_down_image_width" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <FrameLayout
+            android:id="@+id/vocabulary_popup_menu_order_filter"
+            style="@style/AppBackground.Popup"
+            android:layout_width="match_parent"
+            android:layout_height="350dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingTop="1dp"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+            <ImageView
+                android:id="@+id/vocabulary_popup_menu_order_filter_touch"
+                style="@style/TextTitle.Popup"
+                android:layout_width="70dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|top"
+                android:contentDescription="@string/popup_reading_manga_open"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_line_popup"/>
+
+            <ImageView
+                android:id="@+id/vocabulary_popup_menu_order_filter_close"
+                style="@style/TextTitle.Popup"
+                android:layout_width="70dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|top"
+                android:layout_marginTop="1dp"
+                android:contentDescription="@string/popup_reading_manga_close"
+                android:scaleType="center"
+                android:src="@drawable/ic_close"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:orientation="vertical">
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/vocabulary_popup_order_filter_tab"
+                    style="@style/PopupTab"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:tabGravity="fill"
+                    app:tabMode="fixed"
+                    app:tabPaddingBottom="0dp"
+                    app:tabPaddingEnd="0dp"
+                    app:tabPaddingStart="0dp"
+                    app:tabPaddingTop="0dp">
+
+                    <com.google.android.material.tabs.TabItem
+                        android:id="@+id/vocabulary_tab_item_ordering"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/popup_vocabulary_tab_item_ordering" />
+
+                </com.google.android.material.tabs.TabLayout>
+
+                <androidx.viewpager.widget.ViewPager
+                    android:id="@+id/vocabulary_popup_order_filter_view_pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingTop="2dp"
+                    app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+            </LinearLayout>
+        </FrameLayout>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </FrameLayout>

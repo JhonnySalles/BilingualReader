@@ -11,6 +11,10 @@ enum class Order {
 
     //Book
     Genre,
-    Author;
+    Author,
+
+    //Vocabulary
+    Description,
+    Frequency;
     
 }

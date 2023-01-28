@@ -10,11 +10,9 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts.PATTERNS.TIME_P
 import java.io.File
 import java.text.SimpleDateFormat
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.time.temporal.TemporalAccessor
 import java.util.*
 
 class GeneralConsts private constructor() {
@@ -80,14 +78,13 @@ class GeneralConsts private constructor() {
         const val PREFERENCE_NAME = "SHARED_PREFS"
 
         object LIBRARY {
-            const val DEFAULT = -1L
+            const val DEFAULT_MANGA = -1L
+            const val DEFAULT_BOOK = -2L
             const val ORIENTATION = "LAST_ORIENTATION"
 
-            const val MANGA_FOLDER = "MANGA_LIBRARY_FOLDER"
             const val MANGA_ORDER = "MANGA_LIBRARY_ORDER"
             const val MANGA_LIBRARY_TYPE = "MANGA_LAST_LIBRARY_TYPE"
 
-            const val BOOK_FOLDER = "BOOK_FOLDER"
             const val BOOK_ORDER = "BOOK_LIBRARY_ORDER"
             const val BOOK_LIBRARY_TYPE = "BOOK_LAST_LIBRARY_TYPE"
 

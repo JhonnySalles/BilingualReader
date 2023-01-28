@@ -2,9 +2,12 @@ package br.com.fenix.bilingualreader.service.repository
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.ui.text.toLowerCase
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.*
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.model.enums.Order
+import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.book.VocabularyBookViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.manga.VocabularyMangaViewModel
@@ -22,6 +25,15 @@ class VocabularyRepository(context: Context) {
     private val mMsgImport = context.getString(R.string.vocabulary_imported)
     private val mVocabImported = Toast.makeText(context, mMsgImport, Toast.LENGTH_SHORT)
     private var mLastImport: Long? = null
+
+    private fun getOrderDesc(order: Order) : String {
+        return when(order) {
+            Order.Description -> DataBaseConsts.VOCABULARY.COLUMNS.WORD
+            Order.Favorite -> DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE
+            Order.Frequency -> DataBaseConsts.VOCABULARY.COLUMNS.APPEARS
+            else -> ""
+        }
+    }
 
     fun save(obj: Vocabulary): Long {
         val exist = mDataBaseDAO.exists(obj.word, obj.basicForm ?: "")
@@ -71,17 +83,19 @@ class VocabularyRepository(context: Context) {
         padding: Int,
         size: Int
     ): List<Vocabulary> {
+        val orderInverse = if (query.order.first == Order.Favorite) !query.order.second else query.order.second
         return if (query.vocabulary.isNotEmpty())
             mDataBaseDAO.list(
                 query.vocabulary,
                 query.vocabulary,
                 query.favorite,
-                query.orderInverse,
+                getOrderDesc(query.order.first),
+                orderInverse,
                 padding,
                 size
             )
         else
-            mDataBaseDAO.list(query.favorite, query.orderInverse, padding, size)
+            mDataBaseDAO.list(query.favorite, getOrderDesc(query.order.first), orderInverse, padding, size)
     }
 
     // --------------------------------------------------------- Comic / Manga ---------------------------------------------------------
@@ -90,29 +104,32 @@ class VocabularyRepository(context: Context) {
         padding: Int,
         size: Int
     ): List<Vocabulary> {
+        val orderInverse = if (query.order.first == Order.Favorite) !query.order.second else query.order.second
         return if (query.manga.isNotEmpty() && query.vocabulary.isNotEmpty())
             mDataBaseDAO.listByManga(
                 query.manga,
                 query.vocabulary,
                 query.vocabulary,
                 query.favorite,
-                query.orderInverse,
+                getOrderDesc(query.order.first),
+                orderInverse,
                 padding,
                 size
             )
         else if (query.manga.isNotEmpty())
-            mDataBaseDAO.listByManga(query.manga, query.favorite, query.orderInverse, padding, size)
+            mDataBaseDAO.listByManga(query.manga, query.favorite, getOrderDesc(query.order.first), orderInverse, padding, size)
         else if (query.vocabulary.isNotEmpty())
             mDataBaseDAO.list(
                 query.vocabulary,
                 query.vocabulary,
                 query.favorite,
-                query.orderInverse,
+                getOrderDesc(query.order.first),
+                orderInverse,
                 padding,
                 size
             )
         else
-            mDataBaseDAO.list(query.favorite, query.orderInverse, padding, size)
+            mDataBaseDAO.list(query.favorite, getOrderDesc(query.order.first), orderInverse, padding, size)
     }
 
     fun findVocabMangaByVocabulary(mangaName: String, vocabulary: Vocabulary): Vocabulary {
@@ -143,29 +160,32 @@ class VocabularyRepository(context: Context) {
 
     // --------------------------------------------------------- Book ---------------------------------------------------------
     fun listBook(query: VocabularyBookViewModel.Query, padding: Int, size: Int): List<Vocabulary> {
+        val orderInverse = if (query.order.first == Order.Favorite) !query.order.second else query.order.second
         return if (query.book.isNotEmpty() && query.vocabulary.isNotEmpty())
             mDataBaseDAO.listByBook(
                 query.book,
                 query.vocabulary,
                 query.vocabulary,
                 query.favorite,
-                query.orderInverse,
+                getOrderDesc(query.order.first),
+                orderInverse,
                 padding,
                 size
             )
         else if (query.book.isNotEmpty())
-            mDataBaseDAO.listByBook(query.book, query.favorite, query.orderInverse, padding, size)
+            mDataBaseDAO.listByBook(query.book, query.favorite, getOrderDesc(query.order.first), orderInverse, padding, size)
         else if (query.vocabulary.isNotEmpty())
             mDataBaseDAO.list(
                 query.vocabulary,
                 query.vocabulary,
                 query.favorite,
-                query.orderInverse,
+                getOrderDesc(query.order.first),
+                orderInverse,
                 padding,
                 size
             )
         else
-            mDataBaseDAO.list(query.favorite, query.orderInverse, padding, size)
+            mDataBaseDAO.list(query.favorite, getOrderDesc(query.order.first), orderInverse, padding, size)
     }
 
     fun findVocabBookByVocabulary(bookName: String, vocabulary: Vocabulary): Vocabulary {
@@ -191,8 +211,7 @@ class VocabularyRepository(context: Context) {
         return list
     }
 
-    fun getBook(idBook: Long) =
-        mDataBaseDAO.getBook(idBook)
+    fun getBook(idBook: Long) = mDataBaseDAO.getBook(idBook)
 
     // --------------------------------------------------------- Substring ---------------------------------------------------------
     fun insert(idMangaOrBook: Long, idVocabulary: Long, appears: Int, isManga: Boolean = true) {

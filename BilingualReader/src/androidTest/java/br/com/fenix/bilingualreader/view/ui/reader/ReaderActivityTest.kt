@@ -44,7 +44,7 @@ class ReaderActivityTest {
         intent = Intent(ApplicationProvider.getApplicationContext(), MangaReaderActivity::class.java)
 
         val bundle = Bundle()
-        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, Library(-1, Libraries.DEFAULT.name, ""))
+        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA, Libraries.DEFAULT.name, ""))
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
         bundle.putString(GeneralConsts.KEYS.MANGA.NAME, manga.title)
         bundle.putInt(GeneralConsts.KEYS.MANGA.PAGE_NUMBER, 0)

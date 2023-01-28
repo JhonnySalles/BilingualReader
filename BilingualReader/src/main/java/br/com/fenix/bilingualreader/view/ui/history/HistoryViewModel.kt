@@ -60,7 +60,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
     private fun getLibraries(list: List<Manga>) {
         val libraries = mLibraryRepository.list(Type.MANGA)
         list.forEach {
-            if (it.fkLibrary != GeneralConsts.KEYS.LIBRARY.DEFAULT)
+            if (it.fkLibrary != GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
                 it.library = libraries.find { lb -> lb.id == it.fkLibrary } ?: it.library
         }
     }

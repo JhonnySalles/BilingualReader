@@ -132,7 +132,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val idLibrary = GeneralConsts.getSharedPreferences(this)
                 .getLong(
                     GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY,
-                    GeneralConsts.KEYS.LIBRARY.DEFAULT
+                    GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
                 )
 
             fragment = if (idLibrary.compareTo(R.id.menu_manga_library_default) == 0 ||
@@ -213,7 +213,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val idLibrary = GeneralConsts.getSharedPreferences(this)
             .getLong(
                 GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY,
-                GeneralConsts.KEYS.LIBRARY.DEFAULT
+                GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
             )
         ScannerManga(this).scanLibrariesSilent(scan.filter { it.id != idLibrary && idLibrary.compareTo(it.menuKey) != 0 })
 

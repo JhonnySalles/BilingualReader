@@ -13,15 +13,14 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PointF
+import android.graphics.drawable.Animatable2
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.util.DisplayMetrics
 import android.util.TypedValue
-import android.view.Menu
-import android.view.MotionEvent
-import android.view.ScaleGestureDetector
+import android.view.*
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
-import android.view.View
 import android.widget.ImageView
 import android.widget.SearchView
 import android.widget.TextView
@@ -39,6 +38,7 @@ import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
+import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -49,7 +49,6 @@ import java.math.BigInteger
 import java.nio.channels.FileChannel
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
-import java.text.SimpleDateFormat
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -629,15 +628,16 @@ class MsgUtil {
 class LibraryUtil {
     companion object LibraryUtils {
         fun getDefault(context: Context, type: Type): Library {
-            val preference: SharedPreferences = GeneralConsts.getSharedPreferences(context)
-            val key = if (type == Type.BOOK) GeneralConsts.KEYS.LIBRARY.BOOK_FOLDER else GeneralConsts.KEYS.LIBRARY.MANGA_FOLDER
-            val path = preference.getString(key, "") ?: ""
-            val string = if (type == Type.BOOK) context.getString(R.string.book_library_default) else context.getString(R.string.manga_library_default)
-            return Library(
-                GeneralConsts.KEYS.LIBRARY.DEFAULT,
-                string,
-                path
-            )
+            val base = DataBase.getDataBase(context).getLibrariesDao()
+            val string = if (type == Type.BOOK)
+                context.getString(R.string.book_library_default)
+            else
+                context.getString(R.string.manga_library_default)
+            val key = if (type == Type.BOOK)
+                GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK
+            else
+                GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
+            return Library(key, string, base.getDefault(key)?.path ?: "", type = type, excluded = true)
         }
     }
 }
@@ -862,6 +862,23 @@ class MenuUtil {
                     true
                 }
             }
+        }
+
+        fun animatedSequenceDrawable(menu: MenuItem, vararg id: Int) {
+            executeAnimatedSequence(menu, 0, id)
+        }
+
+        private fun executeAnimatedSequence(menu: MenuItem, sequence : Int, id: IntArray) {
+            menu.setIcon(id[sequence])
+            (menu.icon as AnimatedVectorDrawable).registerAnimationCallback (object : Animatable2.AnimationCallback() {
+                override fun onAnimationEnd(drawable: Drawable?) {
+                    super.onAnimationEnd(drawable)
+                    val next = sequence.plus(1)
+                    if (id.size > next)
+                        executeAnimatedSequence(menu, next, id)
+                }
+            })
+            (menu.icon as AnimatedVectorDrawable).start()
         }
     }
 }

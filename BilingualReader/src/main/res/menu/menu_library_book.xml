@@ -12,7 +12,7 @@
 
     <item android:id="@+id/menu_book_library_list_order"
         android:title="@string/menu_book_reading_order"
-        android:icon="@drawable/ic_order_by_last_access"
+        android:icon="@drawable/ico_animated_sort_to_desc_name"
         android:orderInCategory="101"
         app:showAsAction="always">
     </item>

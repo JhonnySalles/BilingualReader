@@ -444,11 +444,7 @@ class ConfigFragment : Fragment() {
                         Storage.takePermission(requireContext(), requireActivity())
                 }
 
-                GeneralConsts.getSharedPreferences(requireContext()).edit().putString(
-                    GeneralConsts.KEYS.LIBRARY.MANGA_FOLDER,
-                    folder
-                ).apply()
-
+                mViewModel.saveDefault(Type.MANGA, folder)
                 mMangaLibraryPathAutoComplete.setText(folder)
             }
 
@@ -461,11 +457,7 @@ class ConfigFragment : Fragment() {
                         Storage.takePermission(requireContext(), requireActivity())
                 }
 
-                GeneralConsts.getSharedPreferences(requireContext()).edit().putString(
-                    GeneralConsts.KEYS.LIBRARY.BOOK_FOLDER,
-                    folder
-                ).apply()
-
+                mViewModel.saveDefault(Type.BOOK, folder)
                 mBookLibraryPathAutoComplete.setText(folder)
             }
 
@@ -566,22 +558,15 @@ class ConfigFragment : Fragment() {
     }
 
     private fun saveConfig() {
+        mViewModel.saveDefault(Type.MANGA, mMangaLibraryPath.editText?.text.toString())
+        mViewModel.saveDefault(Type.BOOK, mBookLibraryPath.editText?.text.toString())
+
         val sharedPreferences =
             GeneralConsts.getSharedPreferences(requireContext())
         with(sharedPreferences.edit()) {
-            this!!.putString(
-                GeneralConsts.KEYS.LIBRARY.MANGA_FOLDER,
-                mMangaLibraryPath.editText?.text.toString()
-            )
-
             this.putString(
                 GeneralConsts.KEYS.LIBRARY.MANGA_ORDER,
                 mMangaOrderSelect.toString()
-            )
-
-            this.putString(
-                GeneralConsts.KEYS.LIBRARY.BOOK_FOLDER,
-                mBookLibraryPath.editText?.text.toString()
             )
 
             this.putString(
@@ -672,12 +657,7 @@ class ConfigFragment : Fragment() {
     private fun loadConfig() {
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
 
-        mMangaLibraryPath.editText?.setText(
-            sharedPreferences.getString(
-                GeneralConsts.KEYS.LIBRARY.MANGA_FOLDER,
-                ""
-            )
-        )
+        mMangaLibraryPath.editText?.setText(mViewModel.getDefault(Type.MANGA))
 
         mMangaPageModeSelect = PageMode.valueOf(
             sharedPreferences.getString(
@@ -746,12 +726,7 @@ class ConfigFragment : Fragment() {
             false
         )
 
-        mBookLibraryPath.editText?.setText(
-            sharedPreferences.getString(
-                GeneralConsts.KEYS.LIBRARY.BOOK_FOLDER,
-                ""
-            )
-        )
+        mBookLibraryPath.editText?.setText(mViewModel.getDefault(Type.BOOK))
 
         mBookLibraryOrderAutoComplete.setText(
             mBookMapOrder.filterValues { it == mBookOrderSelect }.keys.first(),

@@ -10,6 +10,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingState
 import androidx.paging.cachedIn
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
+import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -21,12 +22,21 @@ class VocabularyBookViewModel(application: Application) : AndroidViewModel(appli
 
     private val mLOGGER = LoggerFactory.getLogger(VocabularyBookViewModel::class.java)
 
-    private val mDataBase: VocabularyRepository = VocabularyRepository(application.applicationContext)
+    private val mDataBase: VocabularyRepository =
+        VocabularyRepository(application.applicationContext)
 
     private var mIsQuery = MutableLiveData(false)
     val isQuery: LiveData<Boolean> = mIsQuery
 
-    inner class Query(var book: String = "", var vocabulary: String = "", var favorite: Boolean = false, var orderInverse: Boolean = false)
+    private var mOrder = MutableLiveData(Pair(Order.Description, false))
+    val order: LiveData<Pair<Order, Boolean>> = mOrder
+
+    inner class Query(
+        var book: String = "",
+        var vocabulary: String = "",
+        var favorite: Boolean = false,
+        var order: Pair<Order, Boolean> = Pair(Order.Description, false)
+    )
 
     private val currentQuery = MutableStateFlow(Query())
 
@@ -44,7 +54,14 @@ class VocabularyBookViewModel(application: Application) : AndroidViewModel(appli
     }
 
     fun setQuery(book: String, vocabulary: String) {
-        setQuery(Query(book, vocabulary, currentQuery.value.favorite, currentQuery.value.orderInverse))
+        setQuery(
+            Query(
+                book,
+                vocabulary,
+                currentQuery.value.favorite,
+                currentQuery.value.order
+            )
+        )
     }
 
     fun setQueryVocabulary(vocabulary: String) {
@@ -53,7 +70,7 @@ class VocabularyBookViewModel(application: Application) : AndroidViewModel(appli
                 currentQuery.value.book,
                 vocabulary,
                 currentQuery.value.favorite,
-                currentQuery.value.orderInverse
+                currentQuery.value.order
             )
         )
     }
@@ -64,7 +81,7 @@ class VocabularyBookViewModel(application: Application) : AndroidViewModel(appli
                 book,
                 currentQuery.value.vocabulary,
                 currentQuery.value.favorite,
-                currentQuery.value.orderInverse
+                currentQuery.value.order
             )
         )
     }
@@ -75,18 +92,21 @@ class VocabularyBookViewModel(application: Application) : AndroidViewModel(appli
                 currentQuery.value.book,
                 currentQuery.value.vocabulary,
                 favorite,
-                currentQuery.value.orderInverse
+                currentQuery.value.order
             )
         )
     }
 
     fun setQueryOrder(orderInverse: Boolean) {
+        val sort = Pair(mOrder.value!!.first, orderInverse)
+        mOrder.value = sort
+
         setQuery(
             Query(
                 currentQuery.value.book,
                 currentQuery.value.vocabulary,
                 currentQuery.value.favorite,
-                orderInverse
+                sort
             )
         )
     }
@@ -102,11 +122,24 @@ class VocabularyBookViewModel(application: Application) : AndroidViewModel(appli
     fun getFavorite(): Boolean =
         currentQuery.value.favorite
 
-    fun getOrder(): Boolean =
-        currentQuery.value.orderInverse
+    fun getOrder(): Pair<Order, Boolean> = currentQuery.value.order
 
     fun update(vocabulary: Vocabulary) {
         mDataBase.update(vocabulary)
+    }
+
+    fun sorted(order: Order, isDesc: Boolean = false) {
+        val sort = Pair(order, isDesc)
+        mOrder.value = sort
+
+        setQuery(
+            Query(
+                currentQuery.value.book,
+                currentQuery.value.vocabulary,
+                currentQuery.value.favorite,
+                sort
+            )
+        )
     }
 
     inner class PagingSource(private val dao: VocabularyRepository, private val query: Query) :

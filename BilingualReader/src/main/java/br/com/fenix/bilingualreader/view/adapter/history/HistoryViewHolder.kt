@@ -55,7 +55,7 @@ class HistoryViewHolder(itemView: View, private val listener: MangaCardListener)
         val percent: Float = if (manga.bookMark > 0) ((manga.bookMark.toFloat() / manga.pages) * 100) else 0f
         mangaPagesRead.text = "${manga.bookMark} / ${manga.pages}" + if (percent > 0) (" (" + Util.formatDecimal(percent) + ")") else ""
 
-        mangaLibrary.text = if (manga.fkLibrary == GeneralConsts.KEYS.LIBRARY.DEFAULT)
+        mangaLibrary.text = if (manga.fkLibrary == GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
             itemView.context.getString(R.string.manga_library_default).uppercase()
         else
             manga.library.title.uppercase()

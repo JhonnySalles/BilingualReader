@@ -84,7 +84,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <FrameLayout
-            android:id="@+id/popup_menu_order_filter"
+            android:id="@+id/manga_library_popup_menu_order_filter"
             style="@style/AppBackground.Popup"
             android:layout_width="match_parent"
             android:layout_height="350dp"
@@ -96,7 +96,7 @@
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
             <ImageView
-                android:id="@+id/popup_menu_order_filter_touch"
+                android:id="@+id/manga_library_popup_menu_order_filter_touch"
                 style="@style/TextTitle.Popup"
                 android:layout_width="70dp"
                 android:layout_height="wrap_content"
@@ -106,7 +106,7 @@
                 android:src="@drawable/ic_line_popup"/>
 
             <ImageView
-                android:id="@+id/popup_menu_order_filter_close"
+                android:id="@+id/manga_library_popup_menu_order_filter_close"
                 style="@style/TextTitle.Popup"
                 android:layout_width="70dp"
                 android:layout_height="wrap_content"
@@ -123,7 +123,7 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/popup_order_filter_tab"
+                    android:id="@+id/manga_library_popup_order_filter_tab"
                     style="@style/PopupTab"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -135,13 +135,13 @@
                     app:tabPaddingTop="0dp">
 
                     <com.google.android.material.tabs.TabItem
-                        android:id="@+id/tab_item_ordering"
+                        android:id="@+id/manga_library_tab_item_ordering"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/popup_library_manga_tab_item_ordering" />
 
                     <com.google.android.material.tabs.TabItem
-                        android:id="@+id/tab_item_filter"
+                        android:id="@+id/manga_library_tab_item_filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/popup_library_manga_tab_item_filter" />
@@ -149,7 +149,7 @@
                 </com.google.android.material.tabs.TabLayout>
 
                 <androidx.viewpager.widget.ViewPager
-                    android:id="@+id/popup_order_filter_view_pager"
+                    android:id="@+id/manga_library_popup_order_filter_view_pager"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:paddingTop="2dp"

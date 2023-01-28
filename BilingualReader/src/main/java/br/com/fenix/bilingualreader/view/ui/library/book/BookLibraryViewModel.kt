@@ -19,7 +19,7 @@ import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 class BookLibraryViewModel(application: Application) : AndroidViewModel(application), Filterable {
 
     private var mStackLibrary = mutableMapOf<String, Triple<Int, Library, MutableList<Book>>>()
-    private var mLibrary: Library = Library(GeneralConsts.KEYS.LIBRARY.DEFAULT)
+    private var mLibrary: Library = Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK)
     private val mBookRepository: BookRepository = BookRepository(application.applicationContext)
     private val mPreferences = GeneralConsts.getSharedPreferences(application.applicationContext)
 
@@ -48,7 +48,7 @@ class BookLibraryViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun saveLastLibrary() {
-        val key = if (mLibrary.id == GeneralConsts.KEYS.LIBRARY.DEFAULT)
+        val key = if (mLibrary.id == GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK)
             R.id.menu_book_library_default
         else
             mLibrary.menuKey

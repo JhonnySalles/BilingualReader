@@ -18,6 +18,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -40,7 +41,7 @@ import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.view.adapter.library.MangaGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaLineCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
-import br.com.fenix.bilingualreader.view.components.PopupOrderSortedListener
+import br.com.fenix.bilingualreader.view.components.PopupOrderListener
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -52,7 +53,7 @@ import java.util.*
 import kotlin.math.max
 
 
-class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshLayout.OnRefreshListener {
+class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener {
 
     private val mLOGGER = LoggerFactory.getLogger(MangaLibraryFragment::class.java)
 
@@ -61,7 +62,6 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
     private lateinit var mViewModel: MangaLibraryViewModel
     private lateinit var mainFunctions: MainListener
 
-    private lateinit var mMapOrder: HashMap<Order, String>
     private lateinit var mRoot: FrameLayout
     private lateinit var mRefreshLayout: SwipeRefreshLayout
     private lateinit var mRecyclerView: RecyclerView
@@ -76,15 +76,18 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
     private lateinit var mPopupFilterOrderView: ViewPager
     private lateinit var mPopupFilterOrderTab: TabLayout
     private lateinit var mPopupFilterFragment: PopupFilter
-    private lateinit var mPopupOrderFragment: PopupOrder
+    private lateinit var mPopupOrderFragment: LibraryMangaPopupOrder
     private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
 
+    private lateinit var mMapOrder: HashMap<Order, String>
     private var mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
 
     companion object {
         var mGridType: LibraryType = LibraryType.GRID_BIG
+        var mSortType: Order = Order.Name
+        var mSortDesc: Boolean = false
     }
 
     private val mUpdateHandler: Handler = UpdateHandler()
@@ -126,21 +129,38 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
         })
 
         enableSearchView(searchView, !mRefreshLayout.isRefreshing)
-        val icon: Int = when (mGridType) {
+        val iconGrid: Int = when (mGridType) {
             LibraryType.GRID_SMALL -> R.drawable.ic_type_grid_small
             LibraryType.GRID_BIG -> R.drawable.ic_type_grid_big
             LibraryType.GRID_MEDIUM -> R.drawable.ic_type_grid_medium
             else -> R.drawable.ic_type_list
         }
-        miGridType.setIcon(icon)
+        miGridType.setIcon(iconGrid)
+
+        val iconSort: Int = when (mSortType) {
+            Order.LastAccess -> R.drawable.ico_animated_sort_to_desc_last_access
+            Order.Favorite -> R.drawable.ico_animated_sort_to_desc_favorited
+            Order.Date -> R.drawable.ico_animated_sort_to_desc_date_created
+            else -> R.drawable.ico_animated_sort_to_desc_name
+        }
+        miGridOrder.setIcon(iconSort)
 
         MenuUtil.longClick(requireActivity(), R.id.menu_manga_library_list_order) {
-            onOpenMenuSort()
+            if (!mRefreshLayout.isRefreshing)
+                onOpenMenuSort()
         }
 
         miGridOrder.setOnMenuItemClickListener {
             onChangeSort()
             true
+        }
+
+        mViewModel.order.observe(viewLifecycleOwner) {
+            if (it.first == mSortType && it.second == mSortDesc)
+                return@observe
+
+            val isDesc = if (mSortType == it.first) it.second else null
+            onChangeIconSort(it.first, isDesc)
         }
     }
 
@@ -293,16 +313,55 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
             val range = (mViewModel.listMangas.value?.size ?: 1)
             notifyDataSet(0, range)
         }
+    }
 
+    private fun onChangeIconSort(order: Order, isDesc: Boolean?) {
+        if (isDesc != null) {
+            val icon: Int? = when (order) {
+                Order.Name -> if (isDesc) R.drawable.ico_animated_sort_to_desc_name else R.drawable.ico_animated_sort_to_asc_name
+                Order.Favorite -> if (isDesc) R.drawable.ico_animated_sort_to_desc_favorited else R.drawable.ico_animated_sort_to_asc_favorited
+                Order.LastAccess -> if (isDesc) R.drawable.ico_animated_sort_to_desc_last_access else R.drawable.ico_animated_sort_to_asc_last_access
+                Order.Date -> if (isDesc) R.drawable.ico_animated_sort_to_desc_date_created else R.drawable.ico_animated_sort_to_asc_date_created
+                else -> null
+            }
+            mSortDesc = isDesc
+            if (icon != null)
+                MenuUtil.animatedSequenceDrawable(miGridOrder, icon)
+        } else {
+            val initial: Int? = if (mSortDesc)
+                when (mSortType) {
+                    Order.Name -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_name
+                    Order.Favorite -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_favorited
+                    Order.LastAccess -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_last_access
+                    Order.Date -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_date_created
+                    else -> null
+                } else
+                when (mSortType) {
+                    Order.Name -> R.drawable.ico_animated_sort_asc_ico_exit_name
+                    Order.Favorite -> R.drawable.ico_animated_sort_asc_ico_exit_favorited
+                    Order.LastAccess -> R.drawable.ico_animated_sort_asc_ico_exit_last_access
+                    Order.Date -> R.drawable.ico_animated_sort_asc_ico_exit_date_created
+                    else -> null
+                }
+
+            val final: Int? = when (order) {
+                Order.Name -> R.drawable.ico_animated_sort_asc_ico_enter_name
+                Order.Favorite -> R.drawable.ico_animated_sort_asc_ico_enter_favorited
+                Order.LastAccess -> R.drawable.ico_animated_sort_asc_ico_enter_last_access
+                Order.Date -> R.drawable.ico_animated_sort_asc_ico_enter_date_created
+                else -> null
+            }
+
+            if (initial != null && final != null)
+                MenuUtil.animatedSequenceDrawable(miGridOrder, initial, final)
+
+            mSortDesc = false
+        }
+        mSortType = order
     }
 
     private fun sortList() {
         mViewModel.sorted()
-        val range = (mViewModel.listMangas.value?.size ?: 1)
-        notifyDataSet(0, range)
-    }
-
-    override fun popupOrderOnChange() {
         val range = (mViewModel.listMangas.value?.size ?: 1)
         notifyDataSet(0, range)
     }
@@ -348,14 +407,6 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_manga_library, container, false)
-        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
-        mGridType = LibraryType.valueOf(
-            sharedPreferences.getString(
-                GeneralConsts.KEYS.LIBRARY.MANGA_LIBRARY_TYPE,
-                LibraryType.LINE.toString()
-            )
-                .toString()
-        )
 
         mMapOrder = hashMapOf(
             Order.Name to getString(R.string.config_option_manga_order_name),
@@ -370,13 +421,14 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
         mScrollUp = root.findViewById(R.id.manga_library_scroll_up)
         mScrollDown = root.findViewById(R.id.manga_library_scroll_down)
 
-        mMenuPopupFilterOrder = root.findViewById(R.id.popup_menu_order_filter)
-        mPopupFilterOrderTab = root.findViewById(R.id.popup_order_filter_tab)
-        mPopupFilterOrderView = root.findViewById(R.id.popup_order_filter_view_pager)
+        mMenuPopupFilterOrder = root.findViewById(R.id.manga_library_popup_menu_order_filter)
+        mPopupFilterOrderTab = root.findViewById(R.id.manga_library_popup_order_filter_tab)
+        mPopupFilterOrderView = root.findViewById(R.id.manga_library_popup_order_filter_view_pager)
 
-        root.findViewById<ImageView>(R.id.popup_menu_order_filter_close).setOnClickListener {
-            mMenuPopupFilterOrder.visibility = View.GONE
-        }
+        root.findViewById<ImageView>(R.id.manga_library_popup_menu_order_filter_close)
+            .setOnClickListener {
+                mMenuPopupFilterOrder.visibility = View.GONE
+            }
 
         ComponentsUtil.setThemeColor(requireContext(), mRefreshLayout)
         mRefreshLayout.setOnRefreshListener(this)
@@ -404,8 +456,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
         mPopupFilterOrderTab.setupWithViewPager(mPopupFilterOrderView)
 
         mPopupFilterFragment = PopupFilter()
-        mPopupOrderFragment = PopupOrder()
-        mPopupOrderFragment.addChangeListener(this)
+        mPopupOrderFragment = LibraryMangaPopupOrder(this)
 
         BottomSheetBehavior.from(mMenuPopupFilterOrder).apply {
             peekHeight = 195
@@ -414,24 +465,26 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
         }
         mBottomSheet.isDraggable = true
 
-        root.findViewById<ImageView>(R.id.popup_menu_order_filter_touch).setOnClickListener {
-            if (mBottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED)
-                mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
-            else
-                mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-        }
+        root.findViewById<ImageView>(R.id.manga_library_popup_menu_order_filter_touch)
+            .setOnClickListener {
+                if (mBottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED)
+                    mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
+                else
+                    mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
 
-        val viewTranslatePagerAdapter =  ViewPagerAdapter(requireActivity().supportFragmentManager, 0)
-        viewTranslatePagerAdapter.addFragment(
+        val viewFilterOrderPagerAdapter =
+            ViewPagerAdapter(requireActivity().supportFragmentManager, 0)
+        viewFilterOrderPagerAdapter.addFragment(
             mPopupFilterFragment,
             resources.getString(R.string.popup_library_manga_tab_item_filter)
         )
-        viewTranslatePagerAdapter.addFragment(
+        viewFilterOrderPagerAdapter.addFragment(
             mPopupOrderFragment,
             resources.getString(R.string.popup_library_manga_tab_item_ordering)
         )
 
-        mPopupFilterOrderView.adapter = viewTranslatePagerAdapter
+        mPopupFilterOrderView.adapter = viewFilterOrderPagerAdapter
 
         mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -589,9 +642,12 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
         else
             R.id.manga_line_image_cover
 
-        val pImageCover: Pair<View, String> = Pair(view.findViewById<ImageView>(idCover), "transition_manga_cover")
-        val pTitle: Pair<View, String> = Pair(view.findViewById<TextView>(idText), "transition_manga_title")
-        val pProgress: Pair<View, String> = Pair(view.findViewById<ProgressBar>(idProgress), "transition_progress_bar")
+        val pImageCover: Pair<View, String> =
+            Pair(view.findViewById<ImageView>(idCover), "transition_manga_cover")
+        val pTitle: Pair<View, String> =
+            Pair(view.findViewById<TextView>(idText), "transition_manga_title")
+        val pProgress: Pair<View, String> =
+            Pair(view.findViewById<ProgressBar>(idProgress), "transition_progress_bar")
 
         val options = ActivityOptions
             .makeSceneTransitionAnimation(
@@ -613,13 +669,22 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
 
     private fun loadConfig() {
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
-        val orderBy = Order.valueOf(
+        mSortType = Order.valueOf(
             sharedPreferences.getString(
                 GeneralConsts.KEYS.LIBRARY.MANGA_ORDER,
                 Order.Name.toString()
             ).toString()
         )
-        mViewModel.sorted(orderBy)
+
+        mGridType = LibraryType.valueOf(
+            sharedPreferences.getString(
+                GeneralConsts.KEYS.LIBRARY.MANGA_LIBRARY_TYPE,
+                LibraryType.LINE.toString()
+            )
+                .toString()
+        )
+
+        mViewModel.sorted(mSortType)
     }
 
     override fun onRequestPermissionsResult(
@@ -785,6 +850,27 @@ class MangaLibraryFragment : Fragment(), PopupOrderSortedListener, SwipeRefreshL
                 mLOGGER.info("File deleted ${manga.name}: $isDeleted")
             }
         }
+    }
+
+    override fun popupOrderOnChange() {
+        val range = (mViewModel.listMangas.value?.size ?: 1)
+        notifyDataSet(0, range)
+    }
+
+    override fun popupSorted(order: Order) {
+        mViewModel.sorted(order)
+    }
+
+    override fun popupSorted(order: Order, isDesc: Boolean) {
+        mViewModel.sorted(order, isDesc)
+    }
+
+    override fun popupGetOrder(): kotlin.Pair<Order, Boolean>? {
+        return mViewModel.order.value
+    }
+
+    override fun popupGetObserver(): LiveData<kotlin.Pair<Order, Boolean>> {
+        return mViewModel.order
     }
 
     inner class ViewPagerAdapter(fm: FragmentManager, behavior: Int) :

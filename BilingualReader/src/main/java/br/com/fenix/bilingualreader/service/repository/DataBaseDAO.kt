@@ -5,6 +5,7 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper
 import br.com.fenix.bilingualreader.model.entity.*
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Libraries
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 
 
@@ -249,28 +250,49 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
     @Query(
         "SELECT V.* " +
                 " FROM " + DataBaseConsts.VOCABULARY.TABLE_NAME + " V " +
-                " WHERE CASE WHEN 1 = :favorite THEN " + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + " = :favorite ELSE 1 > 0 END " +
+                " WHERE CASE :favorite WHEN 1 THEN " + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + " = :favorite ELSE 1 > 0 END " +
                 " GROUP BY " + DataBaseConsts.VOCABULARY.COLUMNS.WORD +
-                " ORDER BY  CASE WHEN 1 = :orderInverse THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + " ELSE '' END ASC, " +
-                " CASE WHEN 0 = :orderInverse THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + " ELSE '' END DESC, " +
-                DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
+                " ORDER BY " +
+                " CASE :orderInverse WHEN 0 THEN " +
+                "     CASE :orderType WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.WORD + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.WORD +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE +
+                "     ELSE '' END  " +
+                " ELSE '' END ASC," +
+                " CASE :orderInverse WHEN 1 THEN " +
+                "     CASE :orderType WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.WORD + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.WORD +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE +
+                "     ELSE '' END  " +
+                " ELSE '' END DESC," + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
     )
-    abstract fun list(favorite: Boolean, orderInverse: Boolean, padding: Int, size: Int): List<Vocabulary>
+    abstract fun list(favorite: Boolean, orderType: String, orderInverse: Boolean, padding: Int, size: Int): List<Vocabulary>
 
     @Query(
         "SELECT V.* " +
                 " FROM " + DataBaseConsts.VOCABULARY.TABLE_NAME + " V " +
                 " WHERE (" + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIKE '%' || :vocabulary || '%' OR " + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + " LIKE '%' || :basicForm || '%' )" +
-                " AND CASE WHEN 1 = :favorite THEN " + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + " = :favorite ELSE 1 > 0 END " +
+                " AND CASE :favorite WHEN 1 THEN " + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + " = :favorite ELSE 1 > 0 END " +
                 " GROUP BY " + DataBaseConsts.VOCABULARY.COLUMNS.WORD +
-                " ORDER BY  CASE WHEN 1 = :orderInverse THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + " ELSE '' END ASC, " +
-                " CASE WHEN 0 = :orderInverse THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + " ELSE '' END DESC, " +
-                DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
+                " ORDER BY" +
+                " CASE :orderInverse WHEN 0 THEN " +
+                "     CASE :orderType WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.WORD + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.WORD +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE +
+                "     ELSE '' END  " +
+                " ELSE '' END ASC," +
+                " CASE :orderInverse WHEN 1 THEN " +
+                "     CASE :orderType WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.WORD + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.WORD +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE +
+                "     ELSE '' END  " +
+                " ELSE '' END DESC," + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
     )
     abstract fun list(
         vocabulary: String,
         basicForm: String,
         favorite: Boolean,
+        orderType: String,
         orderInverse: Boolean,
         padding: Int,
         size: Int
@@ -303,11 +325,21 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
                 " WHERE CASE WHEN LENGTH(:manga) <> 0 THEN MG." + DataBaseConsts.MANGA.COLUMNS.TITLE + " LIKE '%' || :manga || '%' ELSE 1 > 0 END " +
                 " AND CASE WHEN 1 = :favorite THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + " = :favorite ELSE 1 > 0 END " +
                 " GROUP BY " + DataBaseConsts.VOCABULARY.COLUMNS.WORD +
-                " ORDER BY  CASE WHEN 1 = :orderInverse THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + " ELSE '' END ASC, " +
-                " CASE WHEN 0 = :orderInverse THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + " ELSE '' END DESC, " +
-                DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
+                " ORDER BY " +
+                " CASE :orderInverse WHEN 0 THEN " +
+                "     CASE :orderType WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.WORD + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.WORD +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE +
+                "     ELSE '' END  " +
+                " ELSE '' END ASC," +
+                " CASE :orderInverse WHEN 1 THEN " +
+                "     CASE :orderType WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.WORD + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.WORD +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE +
+                "     ELSE '' END  " +
+                " ELSE '' END DESC," + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
     )
-    abstract fun listByManga(manga: String, favorite: Boolean, orderInverse: Boolean, padding: Int, size: Int): List<Vocabulary>
+    abstract fun listByManga(manga: String, favorite: Boolean, orderType: String, orderInverse: Boolean, padding: Int, size: Int): List<Vocabulary>
 
     @Query(
         "SELECT V.* " +
@@ -318,15 +350,26 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
                 " AND (V." + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIKE '%' || :vocabulary || '%' OR V." + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + " LIKE '%' || :basicForm || '%' )" +
                 " AND CASE WHEN 1 = :favorite THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + " = :favorite ELSE 1 > 0 END " +
                 " GROUP BY " + DataBaseConsts.VOCABULARY.COLUMNS.WORD +
-                " ORDER BY  CASE WHEN 1 = :orderInverse THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + " ELSE '' END ASC, " +
-                " CASE WHEN 0 = :orderInverse THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + " ELSE '' END DESC, " +
-                DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
+                " ORDER BY " +
+                " CASE :orderInverse WHEN 0 THEN " +
+                "     CASE :orderType WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.WORD + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.WORD +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE +
+                "     ELSE '' END  " +
+                " ELSE '' END ASC," +
+                " CASE :orderInverse WHEN 1 THEN " +
+                "     CASE :orderType WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.WORD + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.WORD +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE +
+                "     ELSE '' END  " +
+                " ELSE '' END DESC," + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
     )
     abstract fun listByManga(
         manga: String,
         vocabulary: String,
         basicForm: String,
         favorite: Boolean,
+        orderType: String,
         orderInverse: Boolean,
         padding: Int,
         size: Int
@@ -358,11 +401,21 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
                 " WHERE CASE WHEN LENGTH(:book) <> 0 THEN MB." + DataBaseConsts.BOOK.COLUMNS.TITLE + " LIKE '%' || :book || '%' ELSE 1 > 0 END " +
                 " AND CASE WHEN 1 = :favorite THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + " = :favorite ELSE 1 > 0 END " +
                 " GROUP BY " + DataBaseConsts.VOCABULARY.COLUMNS.WORD +
-                " ORDER BY  CASE WHEN 1 = :orderInverse THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + " ELSE '' END ASC, " +
-                " CASE WHEN 0 = :orderInverse THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + " ELSE '' END DESC, " +
-                DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
+                " ORDER BY " +
+                " CASE :orderInverse WHEN 0 THEN " +
+                "     CASE :orderType WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.WORD + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.WORD +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE +
+                "     ELSE '' END  " +
+                " ELSE '' END ASC," +
+                " CASE :orderInverse WHEN 1 THEN " +
+                "     CASE :orderType WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.WORD + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.WORD +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE +
+                "     ELSE '' END  " +
+                " ELSE '' END DESC," + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
     )
-    abstract fun listByBook(book: String, favorite: Boolean, orderInverse: Boolean, padding: Int, size: Int): List<Vocabulary>
+    abstract fun listByBook(book: String, favorite: Boolean, orderType: String, orderInverse: Boolean, padding: Int, size: Int): List<Vocabulary>
 
     @Query(
         "SELECT V.* " +
@@ -373,15 +426,26 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
                 " AND (V." + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIKE '%' || :vocabulary || '%' OR V." + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + " LIKE '%' || :basicForm || '%' )" +
                 " AND CASE WHEN 1 = :favorite THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + " = :favorite ELSE 1 > 0 END " +
                 " GROUP BY " + DataBaseConsts.VOCABULARY.COLUMNS.WORD +
-                " ORDER BY  CASE WHEN 1 = :orderInverse THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + " ELSE '' END ASC, " +
-                " CASE WHEN 0 = :orderInverse THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + " ELSE '' END DESC, " +
-                DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
+                " ORDER BY " +
+                " CASE :orderInverse WHEN 0 THEN " +
+                "     CASE :orderType WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.WORD + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.WORD +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE +
+                "     ELSE '' END  " +
+                " ELSE '' END ASC," +
+                " CASE :orderInverse WHEN 1 THEN " +
+                "     CASE :orderType WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.WORD + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.WORD +
+                "          WHEN '" + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE + "' THEN V." + DataBaseConsts.VOCABULARY.COLUMNS.FAVORITE +
+                "     ELSE '' END  " +
+                " ELSE '' END DESC," + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
     )
     abstract fun listByBook(
         book: String,
         vocabulary: String,
         basicForm: String,
         favorite: Boolean,
+        orderType: String,
         orderInverse: Boolean,
         padding: Int,
         size: Int
@@ -460,6 +524,9 @@ abstract class LibrariesDAO : DataBaseDAO<Library> {
 
     @Query("UPDATE " + DataBaseConsts.LIBRARIES.TABLE_NAME + " SET " + DataBaseConsts.LIBRARIES.COLUMNS.EXCLUDED + " = 1 WHERE " + DataBaseConsts.LIBRARIES.COLUMNS.PATH + " = :path")
     abstract fun removeDefault(path: String)
+
+    @Query("SELECT * FROM " + DataBaseConsts.LIBRARIES.TABLE_NAME + " WHERE " + DataBaseConsts.LIBRARIES.COLUMNS.ID + " = :id")
+    abstract fun getDefault(id: Long) : Library?
 
 }
 

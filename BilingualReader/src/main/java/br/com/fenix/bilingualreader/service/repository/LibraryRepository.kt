@@ -4,9 +4,10 @@ import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import org.slf4j.LoggerFactory
 
-class LibraryRepository(context: Context) {
+class LibraryRepository(var context: Context) {
 
     private val mLOGGER = LoggerFactory.getLogger(LibraryRepository::class.java)
     private var mDataBase = DataBase.getDataBase(context).getLibrariesDao()
@@ -76,7 +77,29 @@ class LibraryRepository(context: Context) {
         try {
             mDataBase.removeDefault(path)
         } catch (e: Exception) {
-            mLOGGER.error("Error when delete Library: " + e.message, e)
+            mLOGGER.error("Error when remove Default Library: " + e.message, e)
+        }
+    }
+
+    fun getDefault(type: Type): String {
+        return try {
+            LibraryUtil.getDefault(context, type).path
+        } catch (e: Exception) {
+            mLOGGER.error("Error when get Default Library: " + e.message, e)
+            ""
+        }
+    }
+
+    fun saveDefault(type: Type, path: String) {
+        try {
+            val library = LibraryUtil.getDefault(context, type)
+            library.path = path
+            if (mDataBase.getDefault(library.id!!) != null)
+                mDataBase.update(library)
+            else
+                mDataBase.save(library)
+        } catch (e: Exception) {
+            mLOGGER.error("Error when save Default Library: " + e.message, e)
         }
     }
 

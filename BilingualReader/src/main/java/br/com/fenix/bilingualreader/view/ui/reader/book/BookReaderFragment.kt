@@ -166,7 +166,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                     .show()
             }
 
-            codeDocument = ImageExtractor.getNewCodecContext(file!!.path, "", imageWidth, imageHeight);
+            //codeDocument = ImageExtractor.getNewCodecContext(file!!.path, "", imageWidth, imageHeight);
         }
 
         setHasOptionsMenu(true)

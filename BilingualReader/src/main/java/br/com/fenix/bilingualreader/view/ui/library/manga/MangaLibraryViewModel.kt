@@ -20,7 +20,7 @@ class MangaLibraryViewModel(application: Application) : AndroidViewModel(applica
 
 
     private var mStackLibrary = mutableMapOf<String, Triple<Int, Library, MutableList<Manga>>>()
-    private var mLibrary: Library = Library(GeneralConsts.KEYS.LIBRARY.DEFAULT)
+    private var mLibrary: Library = Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
     private val mMangaRepository: MangaRepository = MangaRepository(application.applicationContext)
     private val mPreferences = GeneralConsts.getSharedPreferences(application.applicationContext)
 
@@ -49,7 +49,7 @@ class MangaLibraryViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun saveLastLibrary() {
-        val key = if (mLibrary.id == GeneralConsts.KEYS.LIBRARY.DEFAULT)
+        val key = if (mLibrary.id == GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
             R.id.menu_manga_library_default
         else
             mLibrary.menuKey

@@ -66,6 +66,10 @@
     <string name="config_option_book_order_author">Autor</string>
     <string name="config_option_book_order_genre">Gênero</string>
 
+    <string name="config_option_vocabulary_order_description">Por descrição</string>
+    <string name="config_option_vocabulary_order_frequency">Por frequência</string>
+    <string name="config_option_vocabulary_order_favorite">Favoritos primeiro</string>
+
     <string name="config_manga_reading_show_clock_and_battery">Mostrar o relógio e o percentual bateria?</string>
     <string name="config_manga_reading_use_magnifier_type">Utiliza o zoom em modo de lupa?</string>
 
@@ -439,6 +443,13 @@
     <string name="menu_vocabulary_search">Procurar</string>
     <string name="menu_vocabulary_order">Ordem</string>
     <string name="menu_vocabulary_favorite">Favoritos</string>
+
+    <string name="popup_vocabulary_tab_item_ordering">Ordenação</string>
+
+    <string name="popup_vocabulary_order_description">Por descrição</string>
+    <string name="popup_vocabulary_order_favorite">Por favoritos</string>
+    <string name="popup_vocabulary_order_frequency">Por frequência</string>
+
 
     <!-- KANJI -->
     <string name="kanji_jlpt"><b><i>jlpt:</i></b> N%d</string>

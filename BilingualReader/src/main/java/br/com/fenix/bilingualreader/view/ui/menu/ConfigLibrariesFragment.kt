@@ -296,8 +296,7 @@ class ConfigLibrariesFragment : Fragment() {
             mLibraryPath.isErrorEnabled = true
             mLibraryPath.error = getString(R.string.config_libraries_title_path_required)
         } else {
-            val preference: SharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
-            val default = preference.getString(GeneralConsts.KEYS.LIBRARY.MANGA_FOLDER, "") ?: ""
+            val default = mViewModel.getDefault(mType ?: Type.MANGA)
 
             if (default.isNotEmpty() && mLibraryPath.editText?.text?.toString()?.equals(default, true) == true) {
                 validated = false
