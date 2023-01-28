@@ -92,7 +92,6 @@
                 android:textSize="14sp"
                 app:icon="@drawable/ico_library"
                 app:iconSize="20dp"
-                app:iconTint="?attr/colorSecondary"
                 app:iconPadding="1dp"/>
 
             <com.google.android.material.button.MaterialButton
@@ -107,7 +106,6 @@
                 android:textSize="14sp"
                 app:icon="@drawable/ico_book"
                 app:iconSize="20dp"
-                app:iconTint="?attr/colorSecondary"
                 app:iconPadding="1dp"/>
 
             <com.google.android.material.button.MaterialButton

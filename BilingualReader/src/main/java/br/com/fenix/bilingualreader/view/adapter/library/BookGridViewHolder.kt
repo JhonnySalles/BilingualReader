@@ -121,7 +121,7 @@ class BookGridViewHolder(itemView: View, private val listener: BookCardListener)
             if (book.bookMark > 0) ((book.bookMark.toFloat() / book.pages) * 100) else 0f
         bookPagesRead.text = Util.formatDecimal(percent)
 
-        bookLastAccess.text = if (book.lastAccess == null) "" else GeneralConsts.formatterDateTime(
+        bookLastAccess.text = if (book.lastAccess == null) "" else GeneralConsts.formatterDate(
             itemView.context,
             book.lastAccess!!
         )

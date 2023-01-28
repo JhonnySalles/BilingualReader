@@ -6,6 +6,7 @@ import android.os.Message
 import android.os.Process
 import br.com.ebook.foobnix.dao2.FileMeta
 import br.com.ebook.foobnix.ext.CacheZipUtils
+import br.com.ebook.foobnix.sys.ImageExtractor
 import br.com.ebook.foobnix.ui2.FileMetaCore
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -30,6 +31,7 @@ class ScannerBook(private val context: Context) {
 
     private val mLOGGER = LoggerFactory.getLogger(ScannerBook::class.java)
 
+    private val mImgExtractor = ImageExtractor.getInstance(context)
     private var mUpdateHandler: MutableList<Handler> = ArrayList()
     private var mUpdateThread: Thread? = null
 
@@ -195,9 +197,12 @@ class ScannerBook(private val context: Context) {
                                         Book(library.id,null,  it,  ebookMeta)
                                     }
 
+                                    val codeDocument = ImageExtractor.getNewCodecContext(it.path, "", Util.screenWidth(), Util.screenHeight());
+
                                     book.path = it.path
                                     book.folder = it.parent
                                     book.excluded = false
+                                    book.pages = codeDocument.pageCount
                                     generateCover(book)
                                     book.id = storage.save(book)
                                     book.lastVerify = LocalDate.now()

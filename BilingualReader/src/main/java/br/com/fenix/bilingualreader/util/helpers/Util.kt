@@ -5,7 +5,10 @@ import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.ActivityManager
-import android.content.*
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.DialogInterface
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -88,6 +91,14 @@ class Util {
         fun getDeviceHeight(): Int {
             val displayMetrics = Resources.getSystem().displayMetrics
             return (displayMetrics.heightPixels / displayMetrics.density).roundToInt()
+        }
+
+        fun screenHeight(): Int {
+            return Resources.getSystem().displayMetrics.heightPixels
+        }
+
+        fun screenWidth(): Int {
+            return Resources.getSystem().displayMetrics.widthPixels
         }
 
         fun MD5(string: String): String {
