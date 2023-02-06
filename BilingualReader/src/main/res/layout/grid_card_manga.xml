@@ -44,7 +44,7 @@
             app:layout_constraintRight_toRightOf="parent">
 
             <!-- Title, secondary and supporting text -->
-            <TextView
+            <br.com.fenix.bilingualreader.view.components.TextViewWithBorder
                 android:id="@+id/manga_grid_text_title"
                 style="@style/TextNormal.Card.Title"
                 android:layout_width="wrap_content"
@@ -59,7 +59,7 @@
                 android:orientation="horizontal"
                 android:paddingTop="1dp">
 
-                <TextView
+                <br.com.fenix.bilingualreader.view.components.TextViewWithBorder
                     android:id="@+id/manga_grid_pages"
                     style="@style/TextNormal.Card"
                     android:layout_width="0dp"
@@ -69,7 +69,7 @@
                     android:singleLine="true"
                     android:transitionName="transition_book_title"/>
 
-                <TextView
+                <br.com.fenix.bilingualreader.view.components.TextViewWithBorder
                     android:id="@+id/manga_grid_file_type"
                     style="@style/TextNormal.Card"
                     android:layout_width="wrap_content"
@@ -83,7 +83,7 @@
                     android:singleLine="true"
                     android:transitionName="transition_book_title"/>
 
-                <TextView
+                <br.com.fenix.bilingualreader.view.components.TextViewWithBorder
                     android:id="@+id/manga_grid_last_access"
                     style="@style/TextNormal.Card"
                     android:layout_width="wrap_content"
