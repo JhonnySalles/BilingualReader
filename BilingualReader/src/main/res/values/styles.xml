@@ -15,6 +15,7 @@
 
     <style name="ThemeBackground.Card.ContentBackground">
         <item name="android:background">?attr/colorTertiaryContainer</item>
+        <item name="android:alpha">0.7</item>
     </style>
 
     <style name="ThemeTextTitle" parent="Theme.MangaReader">
