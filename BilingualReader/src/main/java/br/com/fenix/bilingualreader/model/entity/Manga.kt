@@ -29,6 +29,10 @@ class Manga(
     bookMark: Int,
     favorite: Boolean,
     hasSubtitle: Boolean,
+    series: String,
+    publisher: String,
+    volume: String,
+    release: LocalDate?,
     fkLibrary: Long?,
     excluded: Boolean,
     dateCreate: LocalDateTime?,
@@ -43,11 +47,12 @@ class Manga(
         id: Long?, title: String,
         path: String, folder: String, name: String, size: Long, type: FileType,
         pages: Int, chapters: IntArray, bookMark: Int, favorite: Boolean, hasSubtitle: Boolean,
+        series: String, publisher: String, volume: String, release: LocalDate?,
         fkLibrary: Long?, dateCreate: LocalDateTime?, lastAccess: LocalDateTime?,
         lastAlteration: LocalDateTime?, fileAlteration: Long, lastVocabImport: LocalDateTime?,
         lastVerify: LocalDate?, sort: LocalDateTime? = null
-    ) : this( id, title, path, folder, name, size, type,
-        pages, chapters, bookMark, favorite, hasSubtitle, fkLibrary, false,
+    ) : this( id, title, path, folder, name, size, type, pages, chapters, bookMark, favorite,
+        hasSubtitle, series, publisher, volume, release, fkLibrary, false,
         dateCreate, lastAccess, lastAlteration, fileAlteration, lastVocabImport, lastVerify
     ) {
         this.sort = sort
@@ -56,10 +61,16 @@ class Manga(
     @Ignore
     constructor(fkLibrary: Long?, id: Long?, file: File, parse: Parse) : this(
         id, file.nameWithoutExtension, file.path, file.parent, file.name, file.length(), FileType.UNKNOWN,
-        parse.numPages(), parse.getChapters(), 0, false, false, fkLibrary, false,
-        LocalDateTime.now(),null, null, file.lastModified(), null, null
+        parse.numPages(), parse.getChapters(), 0, false, parse.hasSubtitles(), "", "", "", null,
+        fkLibrary, false, LocalDateTime.now(),null, null, file.lastModified(), null, null
     ) {
         this.type = FileUtil.getFileType(file.name)
+        parse.getComicInfo()?.let {
+            this.series = it.series.toString()
+            this.publish = it.publisher.toString()
+            this.volume = it.volume.toString()
+            this.release = if (it.year != null) LocalDate.of(it.year, it.month?:1, it.day?:1) else null
+        }
     }
 
     @PrimaryKey(autoGenerate = true)
@@ -107,6 +118,18 @@ class Manga(
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.HAS_SUBTITLE)
     var hasSubtitle: Boolean = hasSubtitle
+
+    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.SERIES)
+    var series: String = series
+
+    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.PUBLISHER)
+    var publish: String = publisher
+
+    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.RELEASE)
+    var volume: String = volume
+
+    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.VOLUME)
+    var release: LocalDate? = release
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.EXCLUDED)
     var excluded: Boolean = excluded

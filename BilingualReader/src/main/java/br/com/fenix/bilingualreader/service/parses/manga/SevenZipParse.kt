@@ -1,9 +1,12 @@
 package br.com.fenix.bilingualreader.service.parses.manga
 
+import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
+import org.simpleframework.xml.Serializer
+import org.simpleframework.xml.core.Persister
 import java.io.BufferedReader
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -14,6 +17,7 @@ class SevenZipParse : Parse {
 
     private var mEntries = ArrayList<SevenZEntry>()
     private var mSubtitles = ArrayList<SevenZEntry>()
+    private var mComicInfo: SevenZEntry? = null
 
     private class SevenZEntry(val entry: SevenZArchiveEntry, val bytes: ByteArray)
 
@@ -33,13 +37,18 @@ class SevenZipParse : Parse {
                 val content = ByteArray(entry.size.toInt())
                 sevenZFile.read(content)
                 mSubtitles.add(SevenZEntry(entry, content))
+            } else if (FileUtil.isXml(entry.name) && entry.name.contains("comicinfo", true)) {
+                val content = ByteArray(entry.size.toInt())
+                sevenZFile.read(content)
+                mComicInfo = SevenZEntry(entry, content)
             }
 
             entry = sevenZFile.nextEntry
         }
 
         mEntries.sortWith(compareBy<SevenZEntry> { Util.getFolderFromPath((it as ZipEntry).name) }.thenComparing { a, b ->
-            Util.getNormalizedNameOrdering((a as ZipEntry).name).compareTo(Util.getNormalizedNameOrdering((b as ZipEntry).name))
+            Util.getNormalizedNameOrdering((a as ZipEntry).name)
+                .compareTo(Util.getNormalizedNameOrdering((b as ZipEntry).name))
         })
     }
 
@@ -106,6 +115,19 @@ class SevenZipParse : Parse {
 
     override fun getChapters(): IntArray {
         return getPagePaths().filter { it.value != 0 }.map { it.value }.toIntArray()
+    }
+
+    override fun getComicInfo(): ComicInfo? {
+        return if (mComicInfo != null) {
+            val page = ByteArrayInputStream(mComicInfo!!.bytes)
+            val serializer: Serializer = Persister()
+            try {
+                serializer.read(ComicInfo::class.java, page)
+            } catch (e: Exception) {
+                null
+            }
+        } else
+            null
     }
 
     override fun getPage(num: Int): InputStream {

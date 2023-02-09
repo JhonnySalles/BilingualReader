@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.service.parses.manga
 
+import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import java.io.File
 import java.io.InputStream
 
@@ -15,4 +16,5 @@ interface Parse {
     fun getPagePath(num: Int): String?
     fun getPagePaths(): Map<String, Int>
     fun getChapters(): IntArray
+    fun getComicInfo() : ComicInfo?
 }

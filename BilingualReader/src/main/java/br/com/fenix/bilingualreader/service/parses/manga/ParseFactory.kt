@@ -26,7 +26,7 @@ class ParseFactory {
                 FileType.CBZ.`is`(fileName) || FileType.ZIP.`is`(fileName) -> parser = ZipParse()
                 FileType.CBR.`is`(fileName) || FileType.RAR.`is`(fileName) -> parser = RarParse()
                 FileType.CBT.`is`(fileName) || FileType.TAR.`is`(fileName) -> parser = TarParse()
-                FileType.CB7.`is`(fileName) || FileType.SEVENZ.`is`(fileName) -> parser = SevenZipParse()
+                FileType.CB7.`is`(fileName) || FileType.SEVENZ.`is`(fileName) -> parser =  SevenZipParse()
             }
 
             return tryParse(parser, file)

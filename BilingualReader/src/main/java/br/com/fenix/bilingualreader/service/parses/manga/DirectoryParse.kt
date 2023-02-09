@@ -1,13 +1,17 @@
 package br.com.fenix.bilingualreader.service.parses.manga
 
+import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
+import org.simpleframework.xml.Serializer
+import org.simpleframework.xml.core.Persister
 import java.io.*
 
 class DirectoryParse : Parse {
 
     private val mFiles = ArrayList<File>()
     private val mSubtitles = ArrayList<File>()
+    private var mComicInfo: File? = null
 
     override fun parse(file: File?) {
         if (file == null)
@@ -25,6 +29,8 @@ class DirectoryParse : Parse {
                     mFiles.add(f)
                 else if (FileUtil.isJson(f.absolutePath))
                     mSubtitles.add(f)
+                else if (FileUtil.isXml(f.absolutePath) && f.name.contains("comicinfo", true))
+                    mComicInfo = f
             }
         }
         mFiles.sortBy { it.name }
@@ -60,7 +66,7 @@ class DirectoryParse : Parse {
     override fun getSubtitlesNames(): Map<String, Int> {
         val paths = mutableMapOf<String, Int>()
 
-        for((index, header) in mSubtitles.withIndex()) {
+        for ((index, header) in mSubtitles.withIndex()) {
             val path = Util.getNameFromPath(getName(header))
             if (path.isNotEmpty() && !paths.containsKey(path))
                 paths[path] = index
@@ -82,7 +88,7 @@ class DirectoryParse : Parse {
     override fun getPagePaths(): Map<String, Int> {
         val paths = mutableMapOf<String, Int>()
 
-        for((index, header) in mFiles.withIndex()) {
+        for ((index, header) in mFiles.withIndex()) {
             val path = Util.getFolderFromPath(getName(header))
             if (path.isNotEmpty() && !paths.containsKey(path))
                 paths[path] = index
@@ -93,6 +99,19 @@ class DirectoryParse : Parse {
 
     override fun getChapters(): IntArray {
         return getPagePaths().filter { it.value != 0 }.map { it.value }.toIntArray()
+    }
+
+    override fun getComicInfo(): ComicInfo? {
+        return if (mComicInfo != null) {
+            val page = FileInputStream(mComicInfo!!)
+            val serializer: Serializer = Persister()
+            try {
+                serializer.read(ComicInfo::class.java, page)
+            } catch (e: Exception) {
+                null
+            }
+        } else
+            null
     }
 
     override fun getPage(num: Int): InputStream {

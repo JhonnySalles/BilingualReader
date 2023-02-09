@@ -457,6 +457,11 @@ class FileUtil(val context: Context) {
 
     companion object FileUtil {
 
+        fun isXml(filename: String): Boolean {
+            return filename.lowercase(Locale.getDefault())
+                .matches(Regex(".*\\.(xml)$"))
+        }
+
         fun isJson(filename: String): Boolean {
             return filename.lowercase(Locale.getDefault())
                 .matches(Regex(".*\\.(json)$"))
