@@ -44,6 +44,8 @@ import br.com.fenix.bilingualreader.service.kanji.Formatter
 import br.com.fenix.bilingualreader.service.listener.ChapterCardListener
 import br.com.fenix.bilingualreader.service.ocr.GoogleVision
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess
+import br.com.fenix.bilingualreader.service.parses.manga.Parse
+import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.service.repository.Storage
@@ -521,13 +523,25 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         mViewModel.selectPage(page)
     }
 
-    private fun setManga(manga: Manga) {
-        changePage(manga.title, "", manga.bookMark)
-        mViewModel.clearChapter()
+    private fun setManga(manga: Manga, isRestore : Boolean = false) {
+        if (!isRestore) {
+            mViewModel.clearChapter()
+            mManga = manga
+            mRepository.updateLastAccess(manga)
+            setShortCutManga()
+        }
+
         mManga = manga
-        mReaderProgress.setDots(manga.chapters)
-        mRepository.updateLastAccess(manga)
-        setShortCutManga()
+        changePage(manga.title, "", manga.bookMark)
+
+        var parse: Parse? = null
+        try {
+            parse = ParseFactory.create(manga.path)
+        } catch (e : Exception) {
+        } finally {
+            mReaderProgress.setDots(parse?.getChapters() ?: intArrayOf())
+            Util.destroyParse(parse)
+        }
     }
 
     private fun setShortCutManga() {
@@ -676,10 +690,8 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         mLibrary = savedInstanceState.getSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY) as Library
 
         val manga = (savedInstanceState.getSerializable(GeneralConsts.KEYS.OBJECT.MANGA) as Manga?)
-        if (manga != null) {
-            mManga = manga
-            changePage(manga.title, "", manga.bookMark)
-        }
+        if (manga != null)
+            setManga(manga, true)
     }
 
     private var mLastFloatingWindowOcr = false

@@ -133,8 +133,8 @@
                 android:paddingBottom="10dp"
                 android:progressDrawable="@drawable/reader_nav_progress"
                 android:thumb="@drawable/reader_nav_thumb"
-                custom:dots_drawable="@drawable/ico_progress_dot"
-                android:thumbOffset="6dp"/>
+                android:thumbOffset="6dp"
+                custom:dots_drawable="@drawable/ico_progress_dot" />
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
