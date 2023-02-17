@@ -10,7 +10,6 @@ import java.io.File
 import java.io.Serializable
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
 
 @Entity(
     tableName = DataBaseConsts.MANGA.TABLE_NAME,
@@ -43,17 +42,16 @@ class Manga(
     lastVerify: LocalDate?
 ) : Serializable {
 
-    constructor(
-        id: Long?, title: String,
+    constructor( id: Long?, title: String,
         path: String, folder: String, name: String, size: Long, type: FileType,
         pages: Int, chapters: IntArray, bookMark: Int, favorite: Boolean, hasSubtitle: Boolean,
-        series: String, publisher: String, volume: String, release: LocalDate?,
-        fkLibrary: Long?, dateCreate: LocalDateTime?, lastAccess: LocalDateTime?,
-        lastAlteration: LocalDateTime?, fileAlteration: Long, lastVocabImport: LocalDateTime?,
-        lastVerify: LocalDate?, sort: LocalDateTime? = null
+        series: String, publisher: String, volume: String, idLibrary: Long?, excluded: Boolean,
+        dateCreate: LocalDateTime?, fileAlteration: Long, lastVocabularyImport: LocalDateTime?,
+        lastVerify: LocalDate?, release: LocalDate?, lastAlteration: LocalDateTime?,
+        lastAccess: LocalDateTime?, sort: LocalDateTime? = null
     ) : this( id, title, path, folder, name, size, type, pages, chapters, bookMark, favorite,
-        hasSubtitle, series, publisher, volume, release, fkLibrary, false,
-        dateCreate, lastAccess, lastAlteration, fileAlteration, lastVocabImport, lastVerify
+        hasSubtitle, series, publisher, volume, release, idLibrary, excluded,
+        dateCreate, lastAccess, lastAlteration, fileAlteration, lastVocabularyImport, lastVerify
     ) {
         this.sort = sort
     }
@@ -67,7 +65,7 @@ class Manga(
         this.type = FileUtil.getFileType(file.name)
         parse.getComicInfo()?.let {
             this.series = it.series.toString()
-            this.publish = it.publisher.toString()
+            this.publisher = it.publisher.toString()
             this.volume = it.volume.toString()
             this.release = if (it.year != null) LocalDate.of(it.year, it.month?:1, it.day?:1) else null
         }
@@ -123,12 +121,12 @@ class Manga(
     var series: String = series
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.PUBLISHER)
-    var publish: String = publisher
-
-    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.RELEASE)
-    var volume: String = volume
+    var publisher: String = publisher
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.VOLUME)
+    var volume: String = volume
+
+    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.RELEASE)
     var release: LocalDate? = release
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.EXCLUDED)

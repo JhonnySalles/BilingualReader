@@ -10,13 +10,9 @@ import br.com.ebook.foobnix.sys.ImageExtractor
 import br.com.ebook.foobnix.ui2.FileMetaCore
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
-import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
-import br.com.fenix.bilingualreader.service.parses.manga.Parse
-import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
-import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil

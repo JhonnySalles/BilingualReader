@@ -3,9 +3,7 @@ package br.com.fenix.bilingualreader.service.repository
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import br.com.fenix.bilingualreader.model.entity.*
-import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Libraries
-import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 
 
@@ -43,27 +41,28 @@ abstract class MangaDAO : DataBaseDAO<Manga> {
     @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY + " = :library AND " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 1 AND " + DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION + " >= datetime('now','-1 day')")
     abstract fun listRecentDeleted(library: Long?): List<Manga>
 
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
         "SELECT * FROM ( " +
                 " SELECT ${DataBaseConsts.MANGA.COLUMNS.ID}, ${DataBaseConsts.MANGA.COLUMNS.TITLE}, ${DataBaseConsts.MANGA.COLUMNS.FILE_PATH}, " +
-                "        ${DataBaseConsts.MANGA.COLUMNS.FILE_FOLDER}, ${DataBaseConsts.MANGA.COLUMNS.FILE_NAME}, ${DataBaseConsts.MANGA.COLUMNS.FILE_SIZE}, ${DataBaseConsts.MANGA.COLUMNS.FILE_TYPE}, ${DataBaseConsts.MANGA.COLUMNS.PAGES}, " +
-                "        ${DataBaseConsts.MANGA.COLUMNS.CHAPTERS}, ${DataBaseConsts.MANGA.COLUMNS.BOOK_MARK}, ${DataBaseConsts.MANGA.COLUMNS.FAVORITE}, ${DataBaseConsts.MANGA.COLUMNS.HAS_SUBTITLE}, " +
-                "        ${DataBaseConsts.MANGA.COLUMNS.SERIES}, ${DataBaseConsts.MANGA.COLUMNS.PUBLISHER}, ${DataBaseConsts.MANGA.COLUMNS.VOLUME}, ${DataBaseConsts.MANGA.COLUMNS.RELEASE},  " +
-                "        ${DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY}, ${DataBaseConsts.MANGA.COLUMNS.EXCLUDED}, ${DataBaseConsts.MANGA.COLUMNS.DATE_CREATE}, ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS},  " +
+                "        ${DataBaseConsts.MANGA.COLUMNS.FILE_FOLDER}, ${DataBaseConsts.MANGA.COLUMNS.FILE_NAME}, ${DataBaseConsts.MANGA.COLUMNS.FILE_SIZE}, ${DataBaseConsts.MANGA.COLUMNS.FILE_TYPE}, " +
+                "        ${DataBaseConsts.MANGA.COLUMNS.PAGES}, ${DataBaseConsts.MANGA.COLUMNS.CHAPTERS}, ${DataBaseConsts.MANGA.COLUMNS.BOOK_MARK}, ${DataBaseConsts.MANGA.COLUMNS.FAVORITE}, " +
+                "        ${DataBaseConsts.MANGA.COLUMNS.HAS_SUBTITLE}, ${DataBaseConsts.MANGA.COLUMNS.SERIES}, ${DataBaseConsts.MANGA.COLUMNS.PUBLISHER}, ${DataBaseConsts.MANGA.COLUMNS.VOLUME}, " +
+                "        ${DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY}, ${DataBaseConsts.MANGA.COLUMNS.EXCLUDED}, ${DataBaseConsts.MANGA.COLUMNS.DATE_CREATE}, " +
                 "        ${DataBaseConsts.MANGA.COLUMNS.FILE_ALTERATION}, ${DataBaseConsts.MANGA.COLUMNS.LAST_VOCABULARY_IMPORT}, ${DataBaseConsts.MANGA.COLUMNS.LAST_VERIFY}, " +
+                "        ${DataBaseConsts.MANGA.COLUMNS.RELEASE}, ${DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION}, ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, " +
                 "        ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS} AS sort " +
                 " FROM " + DataBaseConsts.MANGA.TABLE_NAME +
                 " WHERE " + DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS + " is not null " +
                 "UNION" +
-                " SELECT null AS ${DataBaseConsts.MANGA.COLUMNS.ID}, '' AS ${DataBaseConsts.MANGA.COLUMNS.TITLE},'' AS ${DataBaseConsts.MANGA.COLUMNS.FILE_PATH}, " +
+                " SELECT null AS ${DataBaseConsts.MANGA.COLUMNS.ID}, '' AS ${DataBaseConsts.MANGA.COLUMNS.TITLE}, '' AS ${DataBaseConsts.MANGA.COLUMNS.FILE_PATH}, " +
                 "        '' AS ${DataBaseConsts.MANGA.COLUMNS.FILE_FOLDER}, '' AS ${DataBaseConsts.MANGA.COLUMNS.FILE_NAME}, 0 AS ${DataBaseConsts.MANGA.COLUMNS.FILE_SIZE}, " +
                 "        'UNKNOWN' AS ${DataBaseConsts.MANGA.COLUMNS.FILE_TYPE}, 0 AS ${DataBaseConsts.MANGA.COLUMNS.PAGES}, '' AS ${DataBaseConsts.MANGA.COLUMNS.CHAPTERS}, " +
                 "        0 AS ${DataBaseConsts.MANGA.COLUMNS.BOOK_MARK}, 0 AS ${DataBaseConsts.MANGA.COLUMNS.FAVORITE}, 1 AS ${DataBaseConsts.MANGA.COLUMNS.HAS_SUBTITLE}, " +
-                "        '' AS ${DataBaseConsts.MANGA.COLUMNS.SERIES}, '' AS ${DataBaseConsts.MANGA.COLUMNS.PUBLISHER}, '' AS ${DataBaseConsts.MANGA.COLUMNS.VOLUME}, null AS ${DataBaseConsts.MANGA.COLUMNS.RELEASE},  " +
+                "        '' AS ${DataBaseConsts.MANGA.COLUMNS.SERIES}, '' AS ${DataBaseConsts.MANGA.COLUMNS.PUBLISHER}, '' AS ${DataBaseConsts.MANGA.COLUMNS.VOLUME}, " +
                 "        -1 AS ${DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY}, 0 AS ${DataBaseConsts.MANGA.COLUMNS.EXCLUDED}, null AS ${DataBaseConsts.MANGA.COLUMNS.DATE_CREATE}, " +
-                "        Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '00:00:00.000' AS ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}," +
                 "        0 AS ${DataBaseConsts.MANGA.COLUMNS.FILE_ALTERATION}, null AS ${DataBaseConsts.MANGA.COLUMNS.LAST_VOCABULARY_IMPORT}, null AS ${DataBaseConsts.MANGA.COLUMNS.LAST_VERIFY}, " +
+                "        ${DataBaseConsts.MANGA.COLUMNS.RELEASE}, null AS ${DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION}, " +
+                "        Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '00:00:00.000' AS ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, " +
                 "        Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '25:60:60.000' AS sort " +
                 " FROM  " + DataBaseConsts.MANGA.TABLE_NAME +
                 " WHERE " + DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS + " is not null " +

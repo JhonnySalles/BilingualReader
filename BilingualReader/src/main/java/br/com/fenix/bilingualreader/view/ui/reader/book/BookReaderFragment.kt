@@ -18,7 +18,6 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.viewpager.widget.ViewPager
-import br.com.ebook.application.eBookApplication
 import br.com.ebook.foobnix.android.utils.LOG
 import br.com.ebook.foobnix.ext.CacheZipUtils
 import br.com.ebook.foobnix.pdf.info.AppSharedPreferences
@@ -30,7 +29,6 @@ import br.com.ebook.foobnix.pdf.info.wrapper.AppState
 import br.com.ebook.foobnix.pdf.search.activity.HorizontalModeController
 import br.com.ebook.foobnix.pdf.search.activity.ImagePageFragment
 import br.com.ebook.foobnix.pdf.search.activity.UpdatableFragmentPagerAdapter
-import br.com.ebook.foobnix.sys.ImageExtractor
 import br.com.ebook.foobnix.ui2.AppDB
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book

@@ -1,8 +1,6 @@
 package br.com.fenix.bilingualreader.model.entity
 
 import android.content.Context
-import android.icu.text.IDNA
-import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.service.tracker.mal.MalMangaDetail
 import br.com.fenix.bilingualreader.service.tracker.mal.MalTransform
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts

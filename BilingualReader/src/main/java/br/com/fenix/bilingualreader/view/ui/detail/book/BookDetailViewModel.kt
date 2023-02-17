@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.view.ui.detail.book
 
 import android.app.Application
 import android.content.Context
-import android.icu.text.IDNA
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,7 +11,6 @@ import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.FileLinkRepository
-import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import org.slf4j.LoggerFactory
 
 class BookDetailViewModel(application: Application) : AndroidViewModel(application) {

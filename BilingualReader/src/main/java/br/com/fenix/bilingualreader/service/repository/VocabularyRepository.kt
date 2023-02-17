@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.service.repository
 
 import android.content.Context
 import android.widget.Toast
-import androidx.compose.ui.text.toLowerCase
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.*
 import br.com.fenix.bilingualreader.model.enums.Languages

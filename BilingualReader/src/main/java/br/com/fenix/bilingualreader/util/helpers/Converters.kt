@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import androidx.room.TypeConverter
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
 
 class Converters {
 
@@ -34,17 +33,16 @@ class Converters {
     }
 
     @TypeConverter
-    fun fromLocalDate(dateTime: String?): LocalDate? {
-        if (dateTime == null)
+    fun fromLocalDate(date: String?): LocalDate? {
+        if (date == null)
             return null
-        return LocalDate.parse(dateTime)
+        return LocalDate.parse(date)
     }
 
     @TypeConverter
     fun localDateToString(date: LocalDate?): String? {
         if (date == null)
             return null
-
         return date.toString()
     }
 

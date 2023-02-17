@@ -21,7 +21,6 @@ import de.raphaelebner.roomdatabasebackup.core.RoomBackup
 import org.slf4j.LoggerFactory
 import java.io.BufferedReader
 import java.io.File
-import java.util.concurrent.Executors
 
 
 @Database(
