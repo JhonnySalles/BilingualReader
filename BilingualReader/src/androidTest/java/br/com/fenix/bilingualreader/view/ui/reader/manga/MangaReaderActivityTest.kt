@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.ui.reader
+package br.com.fenix.bilingualreader.view.ui.reader.manga
 
 import android.content.Intent
 import android.os.Bundle
@@ -15,8 +15,6 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.utils.TestUtils
-import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
-import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderFragment
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import org.junit.FixMethodOrder
@@ -30,7 +28,7 @@ import java.util.concurrent.TimeUnit
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(AndroidJUnit4::class)
-class ReaderActivityTest {
+class MangaReaderActivityTest {
 
     // Inform a file test here
     private val filePath = "/storage/emulated/0/Manga/jp/Aho Girl - Volume 01 (Jap).cbr" // "storage/emulated/0/Manga/Manga of test.cbr"
@@ -38,8 +36,8 @@ class ReaderActivityTest {
     private var intent: Intent? = null
 
     init {
-        assertFalse("Not informed comic file, please declare 'filePath' in ReaderActivityTest", filePath.isEmpty())
-        assertTrue("Comic file informed not found, please verify declared 'filePath' in ReaderActivityTest", manga.file.exists())
+        assertFalse("Not informed comic file, please declare 'filePath' in " + MangaReaderActivityTest::class.java.name, filePath.isEmpty())
+        assertTrue("Comic file informed not found, please verify declared 'filePath' in " + MangaReaderActivityTest::class.java.name, manga.file.exists())
 
         intent = Intent(ApplicationProvider.getApplicationContext(), MangaReaderActivity::class.java)
 
