@@ -16,10 +16,11 @@ android {
         minSdkVersion 14
         targetSdk 31
     }
-
-    lintOptions {
+    lint {
         abortOnError false
     }
+    namespace 'com.artifex.mu'
+
 }
 
 dependencies {
