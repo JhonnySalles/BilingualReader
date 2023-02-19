@@ -118,6 +118,7 @@
     <dimen name="book_detail_information_related_texts_size">10sp</dimen>
 
     <dimen name="title_size">18sp</dimen>
+    <dimen name="title_medium_size">15sp</dimen>
     <dimen name="title_small_size">12sp</dimen>
     <dimen name="title_index_dialog_size">20sp</dimen>
     <dimen name="title_small_index_dialog_size">16sp</dimen>
@@ -136,6 +137,11 @@
     <dimen name="reader_touch_demonstration_text_size">12sp</dimen>
     <dimen name="reader_touch_demonstration_initial_horizontal">50dp</dimen>
     <dimen name="reader_touch_demonstration_initial_vertical">120dp</dimen>
+
+    <dimen name="reader_font_size_small">6sp</dimen>
+    <dimen name="reader_font_size_medium">8sp</dimen>
+    <dimen name="reader_font_size_big">12sp</dimen>
+    <dimen name="reader_font_size_xxl">14sp</dimen>
 
     <dimen name="popup_reader_title">15sp</dimen>
     <dimen name="popup_reader_file_page_name">10sp</dimen>

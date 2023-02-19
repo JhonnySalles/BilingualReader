@@ -52,8 +52,8 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
-import br.com.fenix.bilingualreader.view.components.manga.PageImageView
-import br.com.fenix.bilingualreader.view.components.manga.PageViewPager
+import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
+import br.com.fenix.bilingualreader.view.components.manga.ImageViewPager
 import br.com.fenix.bilingualreader.view.managers.MangaHandler
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
@@ -88,7 +88,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mPagerAdapter: ComicPagerAdapter
     private lateinit var mPreferences: SharedPreferences
     private lateinit var mGestureDetector: GestureDetector
-    private lateinit var mViewPager: PageViewPager
+    private lateinit var mViewPager: ImageViewPager
     private lateinit var mPreviousButton: MaterialButton
     private lateinit var mNextButton: MaterialButton
 
@@ -169,10 +169,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     private var mCurrentFragment: FrameLayout? = null
-    fun getCurrencyImageView(): PageImageView? {
+    fun getCurrencyImageView(): ImageViewPage? {
         if (mCurrentFragment == null)
             return null
-        return mCurrentFragment?.findViewById(R.id.page_image_view) as PageImageView
+        return mCurrentFragment?.findViewById(R.id.page_image_view) as ImageViewPage
     }
 
     private fun onRefresh() {
@@ -305,7 +305,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mToolbarBottom = requireActivity().findViewById(R.id.reader_manga_toolbar_reader_bottom)
         mPreviousButton = requireActivity().findViewById(R.id.reader_manga_nav_previous_file)
         mNextButton = requireActivity().findViewById(R.id.reader_manga_nav_next_file)
-        mViewPager = view.findViewById<View>(R.id.fragment_reader) as PageViewPager
+        mViewPager = view.findViewById<View>(R.id.fragment_reader) as ImageViewPager
 
         (mPageNavLayout.findViewById<View>(R.id.reader_manga_nav_reader_progress) as SeekBar).also {
             mPageSeekBar = it
@@ -350,7 +350,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     setCurrentPage(mViewPager.adapter!!.count - position)
             }
         })
-        mViewPager.setOnSwipeOutListener(object : PageViewPager.OnSwipeOutListener {
+        mViewPager.setOnSwipeOutListener(object : ImageViewPager.OnSwipeOutListener {
             override fun onSwipeOutAtStart() {
                 if (mIsLeftToRight) hitBeginning() else hitEnding()
             }
@@ -545,13 +545,13 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
             val inflater =
                 requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            val layout: View = inflater.inflate(R.layout.fragment_reader_page, container, false)
-            val pageImageView: PageImageView =
-                layout.findViewById<View>(R.id.page_image_view) as PageImageView
-            if (mReaderMode === ReaderMode.ASPECT_FILL) pageImageView.setTranslateToRightEdge(!mIsLeftToRight)
-            pageImageView.setViewMode(mReaderMode)
-            pageImageView.useMagnifierType = mUseMagnifierType
-            pageImageView.setOnTouchListener(this@MangaReaderFragment)
+            val layout: View = inflater.inflate(R.layout.fragment_manga_page, container, false)
+            val imageViewPage: ImageViewPage =
+                layout.findViewById<View>(R.id.page_image_view) as ImageViewPage
+            if (mReaderMode === ReaderMode.ASPECT_FILL) imageViewPage.setTranslateToRightEdge(!mIsLeftToRight)
+            imageViewPage.setViewMode(mReaderMode)
+            imageViewPage.useMagnifierType = mUseMagnifierType
+            imageViewPage.setOnTouchListener(this@MangaReaderFragment)
             container.addView(layout)
             val t = MyTarget(layout, position)
             loadImage(t)
@@ -678,7 +678,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         override fun onLongPress(e: MotionEvent) {
             super.onLongPress(e)
-            val view: PageImageView = getCurrencyImageView() ?: return
+            val view: ImageViewPage = getCurrencyImageView() ?: return
             val coordinator = view.getPointerCoordinate(e)
             mSubtitleController.selectTextByCoordinate(coordinator)
         }
@@ -765,13 +765,13 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
     }
 
-    private fun updatePageViews(parentView: ViewGroup, change: (PageImageView) -> (Unit)) {
+    private fun updatePageViews(parentView: ViewGroup, change: (ImageViewPage) -> (Unit)) {
         for (i in 0 until parentView.childCount) {
             val child = parentView.getChildAt(i)
             if (child is ViewGroup) {
                 updatePageViews(child, change)
-            } else if (child is PageImageView) {
-                val view: PageImageView = child
+            } else if (child is ImageViewPage) {
+                val view: ImageViewPage = child
                 change(view)
             }
         }

@@ -163,6 +163,7 @@ class Manga(
     var subTitles: List<SubTitle> = arrayListOf()
 
     @Ignore
+    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.SORT)
     var sort: LocalDateTime? = null
 
     override fun toString(): String {

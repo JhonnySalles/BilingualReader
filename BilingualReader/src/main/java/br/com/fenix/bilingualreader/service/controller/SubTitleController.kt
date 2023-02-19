@@ -24,7 +24,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
-import br.com.fenix.bilingualreader.view.components.manga.PageImageView
+import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderFragment
 import com.google.gson.Gson
 import com.squareup.picasso.Picasso
@@ -644,7 +644,7 @@ class SubTitleController private constructor(private val context: Context) {
         if (mReaderFragment == null || pageSelected.value == null || pageSelected.value?.texts!!.isEmpty())
             return
 
-        val view: PageImageView = mReaderFragment!!.getCurrencyImageView() ?: return
+        val view: ImageViewPage = mReaderFragment!!.getCurrencyImageView() ?: return
         if (mImageBackup.containsKey(MangaReaderFragment.mCurrentPage)) {
             val percentScroll = view.getScrollPercent()
             view.setImageBitmap(mImageBackup.remove(MangaReaderFragment.mCurrentPage))
@@ -656,7 +656,7 @@ class SubTitleController private constructor(private val context: Context) {
     }
 
     private fun drawPageLinked(path: Uri) {
-        val view: PageImageView = mReaderFragment!!.getCurrencyImageView() ?: return
+        val view: ImageViewPage = mReaderFragment!!.getCurrencyImageView() ?: return
         if (mImageBackup.containsKey(MangaReaderFragment.mCurrentPage)) {
             val percentScroll = view.getScrollPercent()
             view.setImageBitmap(mImageBackup.remove(MangaReaderFragment.mCurrentPage))
@@ -676,7 +676,7 @@ class SubTitleController private constructor(private val context: Context) {
 
         override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
             val layout = mLayout.get() ?: return
-            val iv = layout.findViewById<View>(R.id.page_image_view) as PageImageView
+            val iv = layout.findViewById<View>(R.id.page_image_view) as ImageViewPage
             if (isText) {
                 mImageBackup[MangaReaderFragment.mCurrentPage] = bitmap
 
@@ -935,7 +935,7 @@ class SubTitleController private constructor(private val context: Context) {
 
     fun drawPageLinked() {
         if (mImageBackup.containsKey(MangaReaderFragment.mCurrentPage)) {
-            val view: PageImageView = mReaderFragment!!.getCurrencyImageView() ?: return
+            val view: ImageViewPage = mReaderFragment!!.getCurrencyImageView() ?: return
             val percentScroll = view.getScrollPercent()
             view.setImageBitmap(mImageBackup.remove(MangaReaderFragment.mCurrentPage))
             view.setScrollPercent(percentScroll)

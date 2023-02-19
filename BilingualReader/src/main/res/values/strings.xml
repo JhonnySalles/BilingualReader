@@ -156,6 +156,13 @@
     <string name="menu_book_reading_font">Fonts</string>
     <string name="menu_book_reading_book_mark">Book mark</string>
 
+    <string name="reading_book_title_position">Position %d of %d • %s%%</string>
+    <string name="reading_book_title_chapter">Chapter %d: %s</string>
+
+    <string name="reading_book_page_index">Page index</string>
+    <string name="reading_book_page_empty">File has no folders</string>
+
+
     <!-- READER - MANGA / COMIC -->
     <string name="reader_reload">Reload</string>
     <string name="reader_not_found">Not found</string>
@@ -555,4 +562,6 @@
     <string name="percent" translatable="false">%d%%</string>
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
+    <string name="progress" translatable="false">%d / %d</string>
+    <string name="book_chapter" translatable="false">%s • %d / %d</string>
 </resources>

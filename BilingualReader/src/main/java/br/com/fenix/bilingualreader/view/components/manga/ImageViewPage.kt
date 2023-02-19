@@ -23,7 +23,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 
-open class PageImageView(context: Context, attributeSet: AttributeSet?) :
+open class ImageViewPage(context: Context, attributeSet: AttributeSet?) :
     androidx.appcompat.widget.AppCompatImageView(context, attributeSet) {
 
     constructor(context: Context) : this(context, null)
@@ -306,8 +306,8 @@ open class PageImageView(context: Context, attributeSet: AttributeSet?) :
         ): Boolean {
             val imageSize: Point = computeCurrentImageSize()
             val offset: Point = computeCurrentOffset()
-            var minX: Int = -imageSize.x - this@PageImageView.width
-            var minY: Int = -imageSize.y - this@PageImageView.height
+            var minX: Int = -imageSize.x - this@ImageViewPage.width
+            var minY: Int = -imageSize.y - this@ImageViewPage.height
             var maxX = 0
             var maxY = 0
             if (offset.x > 0) {
@@ -323,7 +323,7 @@ open class PageImageView(context: Context, attributeSet: AttributeSet?) :
                 velocityX.toInt(), velocityY.toInt(),
                 minX, maxX, minY, maxY
             )
-            ViewCompat.postInvalidateOnAnimation(this@PageImageView)
+            ViewCompat.postInvalidateOnAnimation(this@ImageViewPage)
             return true
         }
 
@@ -337,12 +337,12 @@ open class PageImageView(context: Context, attributeSet: AttributeSet?) :
 
         override fun onLongPress(e: MotionEvent) {
             super.onLongPress(e)
-            mBitmap = this@PageImageView.drawToBitmap()
+            mBitmap = this@ImageViewPage.drawToBitmap()
             mShader = BitmapShader(mBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
             mPaint = Paint()
             mZooming = true
             mLastZoomPos = PointF(-1F, -1F)
-            this@PageImageView.invalidate()
+            this@ImageViewPage.invalidate()
         }
     }
 

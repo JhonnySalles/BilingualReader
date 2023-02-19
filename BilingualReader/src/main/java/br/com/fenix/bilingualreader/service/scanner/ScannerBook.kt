@@ -193,12 +193,9 @@ class ScannerBook(private val context: Context) {
                                         Book(library.id,null,  it,  ebookMeta)
                                     }
 
-                                    val codeDocument = ImageExtractor.getNewCodecContext(it.path, "", Util.screenWidth(), Util.screenHeight());
-
                                     book.path = it.path
                                     book.folder = it.parent
                                     book.excluded = false
-                                    book.pages = codeDocument.pageCount
                                     generateCover(book)
                                     book.id = storage.save(book)
                                     book.lastVerify = LocalDate.now()

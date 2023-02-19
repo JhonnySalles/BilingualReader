@@ -5,7 +5,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import androidx.viewpager.widget.ViewPager
 
-class PageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(context, attributeSet) {
+class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(context, attributeSet) {
     private var mStartX = 0f
     private var mSwipeOutListener: OnSwipeOutListener? = null
 

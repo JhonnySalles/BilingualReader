@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.view.ui.reader.manga
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.annotation.SuppressLint
 import android.content.*
 import android.content.pm.ActivityInfo
 import android.content.pm.ShortcutInfo
@@ -517,7 +518,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
     }
 
     fun changePage(title: String, text: String, page: Int) {
-        mReaderTitle.text = if (page > -1) "$page/${mManga?.pages ?: ""}" else ""
+        mReaderTitle.text = if (page > -1 && mManga != null) getString(R.string.progress, page, mManga!!.pages) else ""
         mToolbarTitle.text = title
         mToolbarSubTitle.text = text
         mViewModel.selectPage(page)
@@ -675,6 +676,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
             .show()
     }
 
+    @SuppressLint("MissingSuperCall")
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
         savedInstanceState.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mLibrary)
 

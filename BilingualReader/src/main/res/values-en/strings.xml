@@ -154,6 +154,13 @@
     <string name="menu_book_reading_font">Fonts</string>
     <string name="menu_book_reading_book_mark">Book mark</string>
 
+    <string name="reading_book_title_position">Position %d of %d • %s%%</string>
+    <string name="reading_book_title_chapter">Chapter %d: %s</string>
+
+    <string name="reading_book_page_index">Page index</string>
+    <string name="reading_book_page_empty">File has no folders</string>
+
+
     <!-- READER - Manga / Comic -->
     <string name="reader_reload">Reload</string>
     <string name="reader_not_found">Not found</string>

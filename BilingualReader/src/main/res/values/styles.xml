@@ -565,9 +565,10 @@
     </style>
 
     <style name="Slider" >
-        <item name="trackColor">?attr/colorOnPrimaryContainer</item>
+        <item name="trackColorInactive">?attr/colorOnPrimaryContainer</item>
         <item name="trackColorActive">?attr/colorTertiary</item>
         <item name="thumbColor">?attr/colorPrimaryContainer</item>
+        <item name="tickVisible">false</item>
     </style>
 
 

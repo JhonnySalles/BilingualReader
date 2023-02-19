@@ -198,7 +198,7 @@ public class ImageExtractor implements ImageDownloader {
                 LOG.d("PDF getBookAuthor", bookAuthor, bookTitle);
             }
         } else {
-            codeCache = getNewCodecContext(path, "", pageUrl.getWidth(), pageUrl.getHeight());
+            codeCache = getNewCodecContext(path, "", pageUrl.getWidth(), pageUrl.getHeight(), AppState.get().fontSizeSp);
         }
 
         if (codeCache == null) {
@@ -542,7 +542,7 @@ public class ImageExtractor implements ImageDownloader {
         }
     }
 
-    public static synchronized CodecDocument getNewCodecContext(final String path, String passw, int w, int h) {
+    public static synchronized CodecDocument getNewCodecContext(final String path, String passw, int w, int h, int font) {
 
         if (path.equals(pathCache) /* && whCache == h + w */ && codeCache != null && !codeCache.isRecycled()) {
             LOG.d("getNewCodecContext cache", path, w, h);
@@ -588,7 +588,7 @@ public class ImageExtractor implements ImageDownloader {
             return null;
         }
 
-        pageCount = codeCache.getPageCount(w, h, AppState.get().fontSizeSp);
+        pageCount = codeCache.getPageCount(w, h, font);
         pathCache = path;
         whCache = h + w;
         return codeCache;

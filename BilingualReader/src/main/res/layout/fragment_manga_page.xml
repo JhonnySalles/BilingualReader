@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <br.com.fenix.bilingualreader.view.components.manga.PageImageView
+    <br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
         android:id="@+id/page_image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -57,7 +57,7 @@ class MangaReaderActivityTest {
     private val awaitProcessSeconds = 2L
 
     @Test
-    fun `1_test_manga_detail`() {
+    fun `1_test_manga_read`() {
         val waiter = CountDownLatch(1)
         val scenario = activityScenarioRule.scenario
 

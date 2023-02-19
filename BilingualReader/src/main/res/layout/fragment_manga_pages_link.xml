@@ -112,7 +112,6 @@
                 android:theme="@style/MainToolbarTheme">
 
                 <LinearLayout
-                    android:id="@+id/reader_manga_toolbar_title_content"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"

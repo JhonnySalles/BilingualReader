@@ -190,7 +190,7 @@ public abstract class HorizontalModeController extends DocumentController {
         pasw = TxtUtils.nullToEmpty(pasw);
 
         TempHolder.get().init(bookPath);
-        codeDocument = ImageExtractor.getNewCodecContext(getBookPath(), pasw, imageWidth, imageHeight);
+        codeDocument = ImageExtractor.getNewCodecContext(getBookPath(), pasw, imageWidth, imageHeight, AppState.get().fontSizeSp);
         if (codeDocument != null) {
             pagesCount = codeDocument.getPageCount();
         } else {

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/frame_reader_root"
+    android:id="@+id/frame_reader_page_root"
     style="@style/AppBackground.Reader"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <br.com.fenix.bilingualreader.view.components.book.WebViewPager
-        android:id="@+id/fragment_book_reader"
+    <br.com.fenix.bilingualreader.view.components.book.WebViewPage
+        android:id="@+id/page_web_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"/>
 
 </FrameLayout>

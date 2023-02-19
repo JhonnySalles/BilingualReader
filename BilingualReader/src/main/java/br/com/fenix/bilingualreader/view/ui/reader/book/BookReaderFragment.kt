@@ -1,35 +1,31 @@
 package br.com.fenix.bilingualreader.view.ui.reader.book
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.graphics.Point
 import android.os.*
+import android.util.Base64
 import android.util.DisplayMetrics
 import android.view.*
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.FrameLayout
-import android.widget.Toast
+import android.widget.LinearLayout
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
-import br.com.ebook.foobnix.android.utils.LOG
-import br.com.ebook.foobnix.ext.CacheZipUtils
-import br.com.ebook.foobnix.pdf.info.AppSharedPreferences
-import br.com.ebook.foobnix.pdf.info.ExtUtils
-import br.com.ebook.foobnix.pdf.info.IMG
-import br.com.ebook.foobnix.pdf.info.TintUtil
-import br.com.ebook.foobnix.pdf.info.model.BookCSS
-import br.com.ebook.foobnix.pdf.info.wrapper.AppState
-import br.com.ebook.foobnix.pdf.search.activity.HorizontalModeController
-import br.com.ebook.foobnix.pdf.search.activity.ImagePageFragment
-import br.com.ebook.foobnix.pdf.search.activity.UpdatableFragmentPagerAdapter
-import br.com.ebook.foobnix.ui2.AppDB
+import br.com.ebook.foobnix.sys.ImageExtractor
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -39,23 +35,32 @@ import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
-import br.com.fenix.bilingualreader.view.components.book.VerticalViewPager
-import br.com.fenix.bilingualreader.view.components.manga.PageImageView
-import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderViewModel
+import br.com.fenix.bilingualreader.view.components.book.WebViewPage
+import br.com.fenix.bilingualreader.view.components.book.WebViewPager
+import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.slider.Slider
 import org.ebookdroid.core.codec.CodecDocument
 import org.slf4j.LoggerFactory
 import java.io.File
+import kotlin.math.roundToInt
 
 
 class BookReaderFragment : Fragment(), View.OnTouchListener {
 
     private val mLOGGER = LoggerFactory.getLogger(BookReaderFragment::class.java)
 
-    private val mViewModel: MangaReaderViewModel by activityViewModels()
+    private val mViewModel: BookReaderViewModel by activityViewModels()
 
     private lateinit var mRoot: CoordinatorLayout
-    private lateinit var mViewPager: VerticalViewPager
+    private lateinit var mToolbarTop: AppBarLayout
+    private lateinit var mToolbarBottom: LinearLayout
+    private lateinit var mViewPager: WebViewPager
+    private lateinit var mPagerAdapter: BookPagerAdapter
+
+    private lateinit var mPageSlider: Slider
+    private lateinit var mGestureDetector: GestureDetector
 
     private var mIsFullscreen = false
     private var mFileName: String? = null
@@ -66,27 +71,16 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
     private var mNewBookTitle = 0
     private lateinit var mStorage: Storage
 
-    private var codeDocument:CodecDocument? = null
+    private var mIsLeftToRight = false
+    private var mFontSize : Int = 12
+    private val mWidth : Int = Resources.getSystem().displayMetrics.widthPixels
+    private val mHeight: Int = Resources.getSystem().displayMetrics.heightPixels
 
-
-    var dc: HorizontalModeController? = null
+    var mCodecDocument: CodecDocument? = null
 
     companion object {
         var mCurrentPage = 0
-        private var mCacheFolderIndex = 0
-        private val mCacheFolder = arrayOf(
-            GeneralConsts.CACHE_FOLDER.A,
-            GeneralConsts.CACHE_FOLDER.B,
-            GeneralConsts.CACHE_FOLDER.C,
-            GeneralConsts.CACHE_FOLDER.D
-        )
-
         fun create(): BookReaderFragment {
-            if (mCacheFolderIndex >= 2)
-                mCacheFolderIndex = 0
-            else
-                mCacheFolderIndex += 1
-
             val fragment = BookReaderFragment()
             val args = Bundle()
             fragment.arguments = args
@@ -94,11 +88,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         }
 
         fun create(library: Library, path: File): BookReaderFragment {
-            if (mCacheFolderIndex >= 2)
-                mCacheFolderIndex = 0
-            else
-                mCacheFolderIndex += 1
-
             val fragment = BookReaderFragment()
             val args = Bundle()
             args.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, library)
@@ -108,11 +97,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         }
 
         fun create(library: Library, book: Book): BookReaderFragment {
-            if (mCacheFolderIndex >= 2)
-                mCacheFolderIndex = 0
-            else
-                mCacheFolderIndex += 1
-
             val fragment = BookReaderFragment()
             val args = Bundle()
             args.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, library)
@@ -130,6 +114,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         mStorage = Storage(requireContext())
         mLibrary = LibraryUtil.getDefault(requireContext(), Type.MANGA)
 
+        mFontSize = requireContext().resources.getDimension(R.dimen.reader_font_size_small).toInt()
         val bundle: Bundle? = arguments
         if (bundle != null && !bundle.isEmpty) {
             mLibrary = bundle.getSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY) as Library
@@ -148,8 +133,18 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                 if (mBook == null)
                     mBook = mStorage.findBookByName(file.name)
 
-                if (mBook != null) {
+                val metrics = Resources.getSystem().displayMetrics
+                mCodecDocument = ImageExtractor.getNewCodecContext(
+                    file.path,
+                    "",
+                    metrics.widthPixels,
+                    metrics.heightPixels,
+                    mFontSize
+                )
+
+                if (mBook != null && mCodecDocument != null) {
                     mCurrentPage = mBook!!.bookMark
+                    mBook!!.pages = mCodecDocument!!.getPageCount(mWidth, mHeight, mFontSize)
                     mStorage.updateLastAccess(mBook!!)
                 }
             } else {
@@ -163,8 +158,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                     .create()
                     .show()
             }
-
-            //codeDocument = ImageExtractor.getNewCodecContext(file!!.path, "", imageWidth, imageHeight);
         }
 
         setHasOptionsMenu(true)
@@ -179,76 +172,24 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         val view: View = inflater.inflate(R.layout.fragment_book_reader, container, false)
 
         mRoot = requireActivity().findViewById(R.id.root_activity_book_reader)
-        mViewPager = view.findViewById<View>(R.id.fragment_book_reader) as VerticalViewPager
+        mViewPager = view.findViewById<View>(R.id.fragment_book_reader) as WebViewPager
+        mPageSlider = requireActivity().findViewById(R.id.reader_book_toolbar_bottom_progress)
 
-        val displayMetrics = DisplayMetrics()
-        requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
+        mToolbarTop = requireActivity().findViewById(R.id.reader_book_toolbar_top)
+        mToolbarBottom = requireActivity().findViewById(R.id.reader_book_toolbar_bottom)
 
-        dc = object : HorizontalModeController(requireActivity(), displayMetrics.widthPixels, displayMetrics.heightPixels) {
-            override fun onGoToPageImpl(page: Int) {
+        mPageSlider.valueTo = mCodecDocument?.getPageCount(mWidth, mHeight, mFontSize) ?.toFloat() ?: 2f
+        mPageSlider.valueFrom = 1F
+        mPageSlider.addOnChangeListener { _, value, fromUser ->
+            if (fromUser)
+                if (mIsLeftToRight) setCurrentPage(value.roundToInt())
+                else
+                    setCurrentPage((mPageSlider.valueTo - value).roundToInt())
 
-            }
-
-            override fun showInterstialAndClose() {}
         }
-        requireActivity().intent.data = mBook?.path?.toUri()
 
-        AppDB.get().open(requireContext())
-        CacheZipUtils.init(requireContext())
-        BookCSS.get().load(requireContext())
-
-
-        AppState.get().load(requireContext())
-        AppSharedPreferences.get().init(requireContext())
-
-        ExtUtils.init(requireContext())
-        IMG.init(requireContext())
-
-        TintUtil.init()
-        dc?.init(requireActivity())
-
-        val count: Int = dc?.pageCount ?: 0
-        val mPagerAdapter = object : UpdatableFragmentPagerAdapter(requireActivity().supportFragmentManager) {
-            override fun getCount(): Int {
-                return count
-            }
-
-            override fun getItem(position: Int): Fragment {
-                val imageFragment = ImagePageFragment()
-                val b = Bundle()
-                b.putInt(ImagePageFragment.POS, position)
-                b.putString(ImagePageFragment.PAGE_PATH, dc?.getPageUrl(position).toString())
-                imageFragment.arguments = b
-                return imageFragment
-            }
-
-            override fun saveState(): Parcelable? {
-                return try {
-                    super.saveState()
-                } catch (e: Exception) {
-                    Toast.makeText(
-                        requireContext(),
-                        R.string.msg_unexpected_error,
-                        Toast.LENGTH_LONG
-                    ).show()
-                    LOG.e(e)
-                    null
-                }
-            }
-
-            override fun restoreState(arg0: Parcelable?, arg1: ClassLoader?) {
-                try {
-                    super.restoreState(arg0, arg1)
-                } catch (e: Exception) {
-                    Toast.makeText(
-                        requireContext(),
-                        R.string.msg_unexpected_error,
-                        Toast.LENGTH_LONG
-                    ).show()
-                    LOG.e(e)
-                }
-            }
-        }
+        mPagerAdapter = BookPagerAdapter()
+        mGestureDetector = GestureDetector(requireActivity(), MyTouchListener())
 
         mViewPager.isSaveEnabled = false
         mViewPager.isSaveFromParentEnabled = false
@@ -258,7 +199,19 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         mViewPager.setOnTouchListener(this)
         mViewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
             override fun onPageSelected(position: Int) {
+                if (mIsLeftToRight)
+                    setCurrentPage(position + 1)
+                else
+                    setCurrentPage(mViewPager.adapter!!.count - position)
+            }
+        })
+        mViewPager.setOnSwipeOutListener(object : WebViewPager.OnSwipeOutListener {
+            override fun onSwipeOutAtStart() {
+                if (mIsLeftToRight) hitBeginning() else hitEnding()
+            }
 
+            override fun onSwipeOutAtEnd() {
+                if (mIsLeftToRight) hitEnding() else hitBeginning()
             }
         })
 
@@ -284,12 +237,13 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
 
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         v.performClick()
-        return true //mGestureDetector.onTouchEvent(event)
+        return mGestureDetector.onTouchEvent(event)
     }
 
     fun getCurrentPage(): Int {
         return when {
-            ::mViewPager.isInitialized -> mViewPager.currentItem.plus(1)
+            mIsLeftToRight -> if (::mViewPager.isInitialized) mViewPager.currentItem.plus(1) else 1
+            ::mViewPager.isInitialized && mViewPager.adapter != null -> (mViewPager.adapter!!.count - mViewPager.currentItem)
             else -> 1
         }
     }
@@ -339,13 +293,13 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         }
     }
 
-    private fun updatePageViews(parentView: ViewGroup, change: (PageImageView) -> (Unit)) {
+    private fun updatePageViews(parentView: ViewGroup, change: (ImageViewPage) -> (Unit)) {
         for (i in 0 until parentView.childCount) {
             val child = parentView.getChildAt(i)
             if (child is ViewGroup) {
                 updatePageViews(child, change)
-            } else if (child is PageImageView) {
-                val view: PageImageView = child
+            } else if (child is ImageViewPage) {
+                val view: ImageViewPage = child
                 change(view)
             }
         }
@@ -431,9 +385,193 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         val finalTranslation = if (isFullScreen) -50f else 0f
 
         if (!isFullScreen) {
+            mToolbarBottom.visibility = visibility
+            mToolbarTop.visibility = visibility
+            mToolbarBottom.alpha = initialAlpha
+            mToolbarTop.alpha = initialAlpha
+            mToolbarTop.translationY = initialTranslation
+        }
+
+        mToolbarBottom.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
+            .setDuration(duration).setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    super.onAnimationEnd(animation)
+                    mToolbarBottom.visibility = visibility
+                }
+            })
+
+        mToolbarTop.animate().alpha(finalAlpha).translationY(finalTranslation)
+            .setDuration(duration).setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    super.onAnimationEnd(animation)
+                    mToolbarTop.visibility = visibility
+                }
+            })
+    }
+
+    fun setCurrentPage(page: Int) {
+        if (mIsLeftToRight) {
+            mViewPager.currentItem = page - 1
+            mPageSlider.value = if (page <= 0) 1F else (page - 1).toFloat()
+        } else {
+            mViewPager.currentItem = mViewPager.adapter!!.count - page
+            mPageSlider.value = if (page > mPageSlider.valueTo) mPageSlider.valueTo else (mViewPager.adapter!!.count - page).toFloat()
+        }
+
+        mCurrentPage = mViewPager.currentItem
+
+        if (mCurrentPage < 0)
+            mCurrentPage = 0
+
+        if (mCodecDocument != null && mCodecDocument?.outline != null && mCodecDocument?.outline!!.isNotEmpty())
+            for (link in mCodecDocument?.outline!!) {
+                val number = link.link.replace(Regex("[^\\d+]"), "")
+                if (number.isNotEmpty() && mCurrentPage <= number.toInt()) {
+                    mBook!!.chapter = number.toInt()
+                    mBook!!.chapterDescription = link.title
+                    break
+                }
+            }
+
+        (requireActivity() as BookReaderActivity).changePage(
+            mBook!!.chapter,
+            mBook!!.chapterDescription,
+            mCurrentPage,
+            mViewPager.adapter!!.count
+        )
+    }
+
+    fun isFullscreen(): Boolean = mIsFullscreen
+
+    fun hitBeginning() {
+
+    }
+
+    fun hitEnding() {
+
+    }
+
+    inner class MyTouchListener : GestureDetector.SimpleOnGestureListener() {
+
+        override fun onLongPress(e: MotionEvent) {
+            super.onLongPress(e)
 
         }
 
+        override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+            if (!isFullscreen()) {
+                setFullscreen(fullscreen = true)
+                return true
+            }
+
+            val position = getPosition(e)
+            if ((requireActivity() as BookReaderActivity).touchPosition(position))
+                return true
+
+            when (position) {
+                Position.LEFT -> {
+                    if (mIsLeftToRight) {
+                        if (getCurrentPage() == 1) hitBeginning() else setCurrentPage(getCurrentPage() - 1)
+                    } else {
+                        if (getCurrentPage() == mViewPager.adapter!!.count
+                        ) hitEnding() else setCurrentPage(getCurrentPage() + 1)
+                    }
+                }
+                Position.RIGHT -> {
+                    if (mIsLeftToRight) {
+                        if (getCurrentPage() == mViewPager.adapter!!.count
+                        ) hitEnding() else setCurrentPage(getCurrentPage() + 1)
+                    } else {
+                        if (getCurrentPage() == 1) hitBeginning() else setCurrentPage(getCurrentPage() - 1)
+                    }
+                }
+                Position.CENTER -> setFullscreen(fullscreen = false)
+                else -> setFullscreen(fullscreen = false)
+            }
+
+            return true
+        }
+    }
+
+    inner class BookPagerAdapter : PagerAdapter() {
+        override fun isViewFromObject(view: View, o: Any): Boolean {
+            return view === o
+        }
+
+        override fun getCount(): Int {
+            return mCodecDocument?.getPageCount(mWidth, mHeight, mFontSize) ?: 1
+        }
+
+        override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
+            if (mCurrentFragment !== `object`)
+                mCurrentFragment = `object` as FrameLayout
+            super.setPrimaryItem(container, position, `object`)
+        }
+
+        private val mDefaultCss = "<head><style> " +
+                "body { " +
+                "  background-color: linen; " +
+                "} " +
+                "p {" +
+                "  line-height: 6px;" +
+                "  margin-bottom: 30px;" +
+                "} " +
+                "</style></head>"
+        override fun instantiateItem(container: ViewGroup, position: Int): Any {
+            val inflater =
+                requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            val layout: View = inflater.inflate(R.layout.fragment_book_page, container, false)
+            val webViewPage: WebViewPage =
+                layout.findViewById<View>(R.id.page_web_view) as WebViewPage
+
+            var html = "<!DOCTYPE html><html>" + mDefaultCss + "<body>" + mCodecDocument?.getPageInner(position)?.pageHTMLWithImages + "</body></html>"
+
+            if (html.contains("<image-begin>image"))
+                html = html.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
+
+            webViewPage.loadData(html, "text/html", "UTF-8")
+            webViewPage.setOnTouchListener(this@BookReaderFragment)
+            webViewPage.settings.javaScriptEnabled = true
+            webViewPage.settings.defaultFontSize = mFontSize
+            webViewPage.webViewClient = object : WebViewClient() {
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    injectCSS(webViewPage)
+                    super.onPageFinished(view, url)
+                }
+            }
+
+            container.addView(layout)
+
+            return layout
+        }
+
+        private var mPageCSS: ByteArray? = null
+        private fun injectCSS(webView : WebView) {
+            if (mPageCSS == null)
+                return
+
+            try {
+                val encoded: String = Base64.encodeToString(mPageCSS, Base64.NO_WRAP)
+                webView.loadUrl(
+                    "javascript:(function() {" +
+                            "var parent = document.getElementsByTagName('head').item(0);" +
+                            "var style = document.createElement('style');" +
+                            "style.type = 'text/css';" +  // Tell the browser to BASE64-decode the string into your script !!!
+                            "style.innerHTML = window.atob('" + encoded + "');" +
+                            "parent.appendChild(style)" +
+                            "})()"
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
+            val layout = `object` as View
+            container.removeView(layout)
+            val iv = layout.findViewById<View>(R.id.page_web_view) as WebViewPage
+            iv.destroy()
+        }
     }
 
 }
