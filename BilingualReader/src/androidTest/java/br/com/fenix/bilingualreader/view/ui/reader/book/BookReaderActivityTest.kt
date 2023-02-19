@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit
 class BookReaderActivityTest {
 
     // Inform a file test here
-    private val filePath = "/storage/1D01-1E06/Livros/The Foundation Trilogy_ Foundation, Foundation and Empire, Second Foundation   ( PDFDrive ).epub" // "storage/emulated/0/Manga/Manga of test.cbr"
+    private val filePath = "/storage/1D01-1E06/Livros/Trilogia da Fundação - Isaac Asimov.epub" // "storage/emulated/0/Manga/Manga of test.cbr"
     private val book: Book = TestUtils.getBook(ApplicationProvider.getApplicationContext(), filePath)
     private var intent: Intent? = null
 

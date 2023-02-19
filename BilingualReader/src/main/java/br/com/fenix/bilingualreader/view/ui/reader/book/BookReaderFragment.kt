@@ -510,11 +510,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
 
         private val mDefaultCss = "<head><style> " +
                 "body { " +
-                "  background-color: linen; " +
-                "} " +
-                "p {" +
-                "  line-height: 6px;" +
-                "  margin-bottom: 30px;" +
+                "  background-color: white;" +
+                "  color: black;" +
+                "  line-height: 140%;" +
+                "  margin-bottom: 50px;" +
                 "} " +
                 "</style></head>"
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
@@ -524,10 +523,12 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
             val webViewPage: WebViewPage =
                 layout.findViewById<View>(R.id.page_web_view) as WebViewPage
 
-            var html = "<!DOCTYPE html><html>" + mDefaultCss + "<body>" + mCodecDocument?.getPageInner(position)?.pageHTMLWithImages + "</body></html>"
+            var html = "<!DOCTYPE html><html>" + mDefaultCss + "<body>" + mCodecDocument?.getPage(position)?.pageHTMLWithImages + "</body></html>"
 
             if (html.contains("<image-begin>image"))
                 html = html.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
+
+            html = html.replace("<p>" , "").replace("</p>", "").replace("<end-line>", "<br>")
 
             webViewPage.loadData(html, "text/html", "UTF-8")
             webViewPage.setOnTouchListener(this@BookReaderFragment)

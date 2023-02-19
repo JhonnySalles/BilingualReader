@@ -141,6 +141,20 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="ReaderBookToolbarTheme" parent="Base.Theme.MangaReader">
+        <item name="android:textColor">?attr/colorTertiary</item>
+        <item name="android:textColorPrimary">?attr/colorTertiary</item>
+        <item name="android:textColorSecondary">?attr/colorTertiary</item>
+        <item name="android:ellipsize">start</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:shadowColor">@color/shadow</item>
+        <item name="android:shadowDx">1.5</item>
+        <item name="android:shadowDy">1.3</item>
+        <item name="android:shadowRadius">1.6</item>
+    </style>
+
     <style name="MainNavigation" parent="Base.Theme.MangaReader">
         <item name="android:background">?attr/colorSurface</item>
         <item name="itemTextColor">?attr/colorPrimary</item>

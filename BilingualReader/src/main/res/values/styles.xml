@@ -545,7 +545,6 @@
     </style>
 
     <style name="ProgressBar" parent="@android:style/Widget.ProgressBar.Horizontal">
-        <item name="android:background">?attr/colorOnPrimaryContainer</item>
         <item name="android:indeterminateTint">?attr/colorPrimaryContainer</item>
         <item name="android:progressBackgroundTint">?attr/colorOnPrimaryContainer</item>
         <item name="android:progressTint">?attr/colorPrimaryContainer</item>

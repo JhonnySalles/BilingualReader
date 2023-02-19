@@ -138,10 +138,10 @@
     <dimen name="reader_touch_demonstration_initial_horizontal">50dp</dimen>
     <dimen name="reader_touch_demonstration_initial_vertical">120dp</dimen>
 
-    <dimen name="reader_font_size_small">6sp</dimen>
-    <dimen name="reader_font_size_medium">8sp</dimen>
-    <dimen name="reader_font_size_big">12sp</dimen>
-    <dimen name="reader_font_size_xxl">14sp</dimen>
+    <dimen name="reader_font_size_small">5sp</dimen>
+    <dimen name="reader_font_size_medium">7sp</dimen>
+    <dimen name="reader_font_size_big">10sp</dimen>
+    <dimen name="reader_font_size_xxl">12sp</dimen>
 
     <dimen name="popup_reader_title">15sp</dimen>
     <dimen name="popup_reader_file_page_name">10sp</dimen>

@@ -59,7 +59,7 @@
 
             <TextView
                 android:id="@+id/reader_book_toolbar_chapter"
-                style="@style/ReaderToolbarTheme"
+                style="@style/ReaderBookToolbarTheme"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -72,7 +72,6 @@
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
             android:layout_alignParentBottom="true"
-            android:paddingTop="5dp"
             android:paddingBottom="5dp"
             android:background="@drawable/main_toolbar_background_inverse"
             android:gravity="center"
@@ -89,7 +88,7 @@
 
                 <TextView
                     android:id="@+id/reader_book_toolbar_bottom_title"
-                    style="@style/ReaderToolbarTheme"
+                    style="@style/ReaderBookToolbarTheme"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/title_size"/>
@@ -116,7 +115,7 @@
 
                 <TextView
                     android:id="@+id/reader_book_toolbar_bottom_author"
-                    style="@style/TextTitle.PageNumber"
+                    style="@style/ReaderToolbarTheme"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/title_size"
