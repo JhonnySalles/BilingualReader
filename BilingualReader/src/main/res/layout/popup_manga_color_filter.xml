@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/AppBackground"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/margin_bottom"
+    tools:context=".view.ui.reader.manga.PopupMangaColorFilterFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Color filter -->
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/popup_manga_switch_color_filter"
+            style="@style/SwitchMaterial"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/popup_reading_manga_custom_color_filter"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Red filter -->
+
+        <TextView
+            android:id="@+id/popup_manga_color_filter_red_symbol"
+            style="@style/TextNormal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/popup_reader_color_filter_padding"
+            android:text="@string/color_filter_r_value"
+            app:layout_constraintBottom_toBottomOf="@id/popup_manga_seekbar_color_filter_red"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/popup_manga_seekbar_color_filter_red" />
+
+        <SeekBar
+            android:id="@+id/popup_manga_seekbar_color_filter_red"
+            style="@style/SeekBar.Color"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toStartOf="@id/popup_manga_color_filter_red_value"
+            app:layout_constraintStart_toEndOf="@id/popup_manga_color_filter_symbols_barrier"
+            app:layout_constraintTop_toBottomOf="@id/popup_manga_switch_color_filter" />
+
+        <TextView
+            android:id="@+id/popup_manga_color_filter_red_value"
+            style="@style/TextNormal"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toBottomOf="@id/popup_manga_seekbar_color_filter_red"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/popup_manga_seekbar_color_filter_red"
+            tools:text="255" />
+
+        <!-- Green filter -->
+
+        <TextView
+            android:id="@+id/popup_manga_color_filter_green_symbol"
+            style="@style/TextNormal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/popup_reader_color_filter_padding"
+            android:text="@string/color_filter_g_value"
+            app:layout_constraintBottom_toBottomOf="@id/popup_manga_seekbar_color_filter_green"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/popup_manga_seekbar_color_filter_green" />
+
+        <SeekBar
+            android:id="@+id/popup_manga_seekbar_color_filter_green"
+            style="@style/SeekBar.Color"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toStartOf="@id/popup_manga_color_filter_green_value"
+            app:layout_constraintStart_toEndOf="@id/popup_manga_color_filter_symbols_barrier"
+            app:layout_constraintTop_toBottomOf="@id/popup_manga_seekbar_color_filter_red" />
+
+        <TextView
+            android:id="@+id/popup_manga_color_filter_green_value"
+            style="@style/TextNormal"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toBottomOf="@id/popup_manga_seekbar_color_filter_green"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/popup_manga_seekbar_color_filter_green"
+            tools:text="255" />
+
+        <!-- Blue filter -->
+
+        <TextView
+            android:id="@+id/popup_manga_color_filter_blue_symbol"
+            style="@style/TextNormal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/popup_reader_color_filter_padding"
+            android:text="@string/color_filter_b_value"
+            app:layout_constraintBottom_toBottomOf="@id/popup_manga_seekbar_color_filter_blue"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/popup_manga_seekbar_color_filter_blue" />
+
+        <SeekBar
+            android:id="@+id/popup_manga_seekbar_color_filter_blue"
+            style="@style/SeekBar.Color"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toStartOf="@id/popup_manga_color_filter_blue_value"
+            app:layout_constraintStart_toEndOf="@id/popup_manga_color_filter_symbols_barrier"
+            app:layout_constraintTop_toBottomOf="@id/popup_manga_seekbar_color_filter_green" />
+
+        <TextView
+            android:id="@+id/popup_manga_color_filter_blue_value"
+            style="@style/TextNormal"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toBottomOf="@id/popup_manga_seekbar_color_filter_blue"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/popup_manga_seekbar_color_filter_blue"
+            tools:text="255" />
+
+        <!-- Alpha filter -->
+        <TextView
+            android:id="@+id/popup_manga_color_filter_alpha_symbol"
+            style="@style/TextNormal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/popup_reader_color_filter_padding"
+            android:text="@string/color_filter_a_value"
+            app:layout_constraintBottom_toBottomOf="@id/popup_manga_seekbar_color_filter_alpha"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/popup_manga_seekbar_color_filter_alpha" />
+
+        <SeekBar
+            android:id="@+id/popup_manga_seekbar_color_filter_alpha"
+            style="@style/SeekBar.Color"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toStartOf="@id/popup_manga_color_filter_alpha_value"
+            app:layout_constraintStart_toEndOf="@id/popup_manga_color_filter_symbols_barrier"
+            app:layout_constraintTop_toBottomOf="@id/popup_manga_seekbar_color_filter_blue" />
+
+        <TextView
+            android:id="@+id/popup_manga_color_filter_alpha_value"
+            style="@style/TextNormal"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toBottomOf="@id/popup_manga_seekbar_color_filter_alpha"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/popup_manga_seekbar_color_filter_alpha"
+            tools:text="255" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/popup_manga_color_filter_symbols_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="end"
+            app:constraint_referenced_ids="popup_manga_color_filter_alpha_symbol,popup_manga_color_filter_blue_symbol,popup_manga_color_filter_red_symbol,popup_manga_color_filter_green_symbol" />
+
+        <!-- Blue Light -->
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/popup_manga_switch_blue_light"
+            style="@style/SwitchMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/popup_reading_manga_blue_light"
+            app:layout_constraintTop_toBottomOf="@id/popup_manga_seekbar_color_filter_alpha" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/popup_manga_blue_light_alpha_symbol"
+            style="@style/IconBlueAlpha"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/popup_reader_blue_light_padding"
+            android:textAppearance="?attr/textAppearanceTitleSmall"
+            app:layout_constraintBottom_toBottomOf="@id/popup_manga_seekbar_blue_light_alpha"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/popup_manga_seekbar_blue_light_alpha"
+            app:srcCompat="@drawable/ic_blue_light"/>
+
+        <SeekBar
+            android:id="@+id/popup_manga_seekbar_blue_light_alpha"
+            style="@style/SeekBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:max="200"
+            android:padding="8dp"
+            app:layout_constraintEnd_toStartOf="@id/popup_manga_color_filter_alpha_value"
+            app:layout_constraintStart_toEndOf="@id/popup_manga_color_filter_symbols_barrier"
+            app:layout_constraintTop_toBottomOf="@id/popup_manga_switch_blue_light" />
+
+        <TextView
+            android:id="@+id/popup_manga_color_blue_light_value"
+            style="@style/TextNormal"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toBottomOf="@id/popup_manga_seekbar_blue_light_alpha"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/popup_manga_seekbar_blue_light_alpha"
+            tools:text="50 %" />
+
+        <!-- Grayscale -->
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/popup_manga_switch_grayscale"
+            style="@style/SwitchMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/popup_reading_manga_grayscale"
+            app:layout_constraintTop_toBottomOf="@id/popup_manga_seekbar_blue_light_alpha" />
+
+        <!-- Invert Color -->
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/popup_manga_switch_invert_color"
+            style="@style/SwitchMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/popup_reading_manga_invert_color"
+            app:layout_constraintTop_toBottomOf="@id/popup_manga_switch_grayscale" />
+
+        <!-- Sepia -->
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/popup_manga_switch_sepia_color"
+            style="@style/SwitchMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/popup_reading_manga_sepia"
+            app:layout_constraintTop_toBottomOf="@id/popup_manga_switch_invert_color" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.core.widget.NestedScrollView>

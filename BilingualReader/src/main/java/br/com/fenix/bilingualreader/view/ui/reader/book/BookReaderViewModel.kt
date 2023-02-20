@@ -2,26 +2,230 @@ package br.com.fenix.bilingualreader.view.ui.reader.book
 
 import android.app.Application
 import android.content.SharedPreferences
+import android.graphics.Color
+import android.view.ContextThemeWrapper
+import android.widget.TextView
+import androidx.appcompat.widget.TintTypedArray
+import androidx.appcompat.widget.TintTypedArray.obtainStyledAttributes
+import androidx.core.content.withStyledAttributes
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.BookConfiguration
+import br.com.fenix.bilingualreader.model.enums.*
+import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.FontUtil
 import org.slf4j.LoggerFactory
 
-class BookReaderViewModel(application: Application) : AndroidViewModel(application) {
+class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
-    private val mContext = application.applicationContext
-    private var mPreferences: SharedPreferences? = GeneralConsts.getSharedPreferences(mContext)
+    private var mPreferences: SharedPreferences =
+        GeneralConsts.getSharedPreferences(app.applicationContext)
+    private val mRepository: BookRepository = BookRepository(app.applicationContext)
 
     private val mLOGGER = LoggerFactory.getLogger(BookReaderViewModel::class.java)
+
+    private var mListFonts: MutableLiveData<MutableList<Pair<FontType, Boolean>>> = MutableLiveData(arrayListOf())
+    val fonts: LiveData<MutableList<Pair<FontType, Boolean>>> = mListFonts
+
+    private var mAlignmentType: MutableLiveData<AlignmentType> =
+        MutableLiveData(AlignmentType.Center)
+    val alignmentType: LiveData<AlignmentType> = mAlignmentType
+
+    private var mMarginType: MutableLiveData<MarginType> = MutableLiveData(MarginType.Small)
+    val marginType: LiveData<MarginType> = mMarginType
+
+    private var mSpacingType: MutableLiveData<SpacingType> = MutableLiveData(SpacingType.Small)
+    val spacingType: LiveData<SpacingType> = mSpacingType
+
+    private var mScrollingType: MutableLiveData<ScrollingType> =
+        MutableLiveData(ScrollingType.Pagination)
+    val scrollingType: LiveData<ScrollingType> = mScrollingType
+
+    private var mFontType: MutableLiveData<FontType> = MutableLiveData(FontType.TimesNewRoman)
+    val fontType: LiveData<FontType> = mFontType
+
+    private var mFontSize: MutableLiveData<Float> = MutableLiveData(
+        GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT
+    )
+    val fontSize: LiveData<Float> = mFontSize
+
+    private var mDefaultCss: String = ""
+    var mWebFontSize = FontUtil.pixelToDips(app.applicationContext, fontSize.value!!)
 
     init {
         loadPreferences()
     }
 
-    private fun loadPreferences() {
+    fun getDefaultCSS() : String {
+        if (mDefaultCss.isEmpty())
+            mDefaultCss = generateCSS()
+        return mDefaultCss
     }
 
-    private fun savePreferences() {
+    private fun generateCSS(): String {
 
+        var background = "#000000"
+        var fontColor = "#FFFFFF"
+
+        /* Será necessário verificar uma forma de trazer as cores.
+        val attrs =
+            intArrayOf(android.R.attr.background, android.R.attr.color, android.R.attr.colorAccent)
+        app.applicationContext.withStyledAttributes(R.style.ReaderBookCssColors, attrs) {
+            val teste = getColor(0, Color.BLACK)
+            background = Integer.toHexString(getColor(attrs[0], Color.BLACK))
+            fontColor = Integer.toHexString(getColor(attrs[1], Color.WHITE))
+        }*/
+
+        val fontType = fontType.value?.getName() ?: FontType.TimesNewRoman.getName()
+
+        val margin = when (marginType.value) {
+            MarginType.Small -> "1px"
+            MarginType.Medium -> "3px"
+            MarginType.Big -> "6px"
+            else -> "1px"
+        }
+
+        val spacing = when (spacingType.value) {
+            SpacingType.Small -> "140%"
+            SpacingType.Medium -> "160%"
+            SpacingType.Big -> "180%"
+            else -> "140%"
+        }
+
+        val alignment = when (alignmentType.value) {
+            AlignmentType.Center -> "justify"
+            AlignmentType.Right -> "right"
+            AlignmentType.Left -> "left"
+            else -> "justify"
+        }
+
+        return "<head><style> " +
+                "@font-face {" +
+                "    font-family: MyFont;" +
+                "    src: url(\"file:///android_asset/fonts/$fontType\");" +
+                "}" +
+                "body { " +
+                "  background-color: $background;" +
+                "  color: $fontColor;" +
+                "  line-height: $spacing;" +
+                "  text-align: $alignment;" +
+                "  margin: $margin;" +
+                "  margin-bottom: 50px;" +
+                "} " +
+                "</style></head>"
+    }
+
+    private fun loadPreferences() {
+        mAlignmentType.value = AlignmentType.valueOf(
+            mPreferences.getString(
+                GeneralConsts.KEYS.READER.BOOK_PAGE_ALIGNMENT,
+                AlignmentType.Center.toString()
+            )!!
+        )
+
+        mMarginType.value = MarginType.valueOf(
+            mPreferences.getString(
+                GeneralConsts.KEYS.READER.BOOK_PAGE_MARGIN,
+                MarginType.Small.toString()
+            )!!
+        )
+
+        mSpacingType.value = SpacingType.valueOf(
+            mPreferences.getString(
+                GeneralConsts.KEYS.READER.BOOK_PAGE_SPACING,
+                SpacingType.Small.toString()
+            )!!
+        )
+
+        mScrollingType.value = ScrollingType.valueOf(
+            mPreferences.getString(
+                GeneralConsts.KEYS.READER.BOOK_PAGE_SCROLLING_MODE,
+                ScrollingType.Pagination.toString()
+            )!!
+        )
+
+        mFontType.value = FontType.valueOf(
+            mPreferences.getString(
+                GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE,
+                FontType.TimesNewRoman.toString()
+            )!!
+        )
+
+        mFontSize.value = mPreferences.getFloat(
+            GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE,
+            GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT
+        )
+
+        mDefaultCss = generateCSS()
+    }
+
+    fun loadDefaultConfiguration() {
+        loadPreferences()
+    }
+
+    fun loadBookConfiguration(configuration: BookConfiguration?) {
+        if (configuration == null)
+            loadPreferences()
+        else {
+            mAlignmentType.value = configuration.alignment
+            mMarginType.value = configuration.margin
+            mScrollingType.value = configuration.scrolling
+            mSpacingType.value = configuration.spacing
+            mFontType.value = configuration.fontType
+            mFontSize.value = configuration.fontSize
+            mDefaultCss = generateCSS()
+        }
+    }
+
+
+    fun saveBookConfiguration(idBook: Long) {
+        val config = mRepository.findConfiguration(idBook) ?: BookConfiguration(
+            null,
+            idBook,
+            AlignmentType.Center,
+            MarginType.Small,
+            SpacingType.Small,
+            ScrollingType.Pagination,
+            FontType.TimesNewRoman,
+            GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT
+        )
+        saveBookConfiguration(config)
+    }
+
+    fun saveBookConfiguration(configuration: BookConfiguration) {
+        configuration.alignment = alignmentType.value!!
+        configuration.margin = marginType.value!!
+        configuration.scrolling = scrollingType.value!!
+        configuration.spacing = spacingType.value!!
+        configuration.fontType = fontType.value!!
+        configuration.fontSize = fontSize.value!!
+
+        if (configuration.id == null)
+            mRepository.saveConfiguration(configuration)
+        else
+            mRepository.updateConfiguration(configuration)
+    }
+
+    fun loadFonts() {
+        mListFonts.value = FontType.values().map { Pair(it, it == mFontType.value) }.toMutableList()
+    }
+
+    fun getSelectedFontTypeIndex(): Int  {
+        val index = mListFonts.value?.indexOfFirst { it.second } ?: 0
+        return if (index == -1) 0 else index
+    }
+
+    fun setSelectFont(font: FontType) {
+        mFontType.value = font
+        if (mListFonts.value != null)
+            mListFonts.value = mListFonts.value!!.map { Pair(it.first, it.first == font) }.toMutableList()
+    }
+
+    fun changeFontSize(value : Float) {
+        mFontSize.value = value
     }
 
 }

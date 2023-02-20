@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.model.entity.Library
+import br.com.fenix.bilingualreader.model.enums.FontType
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
@@ -19,6 +20,9 @@ class ConfigLibrariesViewModel(application: Application) : AndroidViewModel(appl
 
     private var mListThemes: MutableLiveData<MutableList<Pair<Themes, Boolean>>> = MutableLiveData(arrayListOf())
     val themes: LiveData<MutableList<Pair<Themes, Boolean>>> = mListThemes
+
+    private var mListFonts: MutableLiveData<MutableList<Pair<FontType, Boolean>>> = MutableLiveData(arrayListOf())
+    val fonts: LiveData<MutableList<Pair<FontType, Boolean>>> = mListFonts
 
 
     fun newLibrary(library: Library) {
@@ -80,6 +84,15 @@ class ConfigLibrariesViewModel(application: Application) : AndroidViewModel(appl
         return if (index == -1) 0 else index
     }
 
+    fun loadFonts(initial: FontType = FontType.TimesNewRoman) {
+        mListFonts.value = FontType.values().map { Pair(it, it == initial) }.toMutableList()
+    }
+
+    fun getSelectedFontTypeIndex(): Int  {
+        val index = mListFonts.value?.indexOfFirst { it.second } ?: 0
+        return if (index == -1) 0 else index
+    }
+
     fun getLibraryAndRemove(position: Int): Library? {
         return if (mListLibraries.value != null) mListLibraries.value!!.removeAt(position) else null
     }
@@ -98,6 +111,11 @@ class ConfigLibrariesViewModel(application: Application) : AndroidViewModel(appl
     fun setEnableTheme(theme: Themes) {
         if (mListThemes.value != null)
             mListThemes.value = mListThemes.value!!.map { Pair(it.first, it.first == theme) }.toMutableList()
+    }
+
+    fun setEnableFont(font: FontType) {
+        if (mListFonts.value != null)
+            mListFonts.value = mListFonts.value!!.map { Pair(it.first, it.first == font) }.toMutableList()
     }
 
     fun getDefault(type: Type) : String {

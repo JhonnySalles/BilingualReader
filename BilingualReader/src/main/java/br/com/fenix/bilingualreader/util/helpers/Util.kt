@@ -446,7 +446,7 @@ class Util {
             return Pair(string1, string2)
         }
 
-        fun formatDecimal(percent : Float): String {
+        fun formatDecimal(percent: Float): String {
             return "%,.2f".format(percent)
         }
 
@@ -653,7 +653,13 @@ class LibraryUtil {
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK
             else
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
-            return Library(key, string, base.getDefault(key)?.path ?: "", type = type, excluded = true)
+            return Library(
+                key,
+                string,
+                base.getDefault(key)?.path ?: "",
+                type = type,
+                excluded = true
+            )
         }
     }
 }
@@ -884,9 +890,10 @@ class MenuUtil {
             executeAnimatedSequence(menu, 0, id)
         }
 
-        private fun executeAnimatedSequence(menu: MenuItem, sequence : Int, id: IntArray) {
+        private fun executeAnimatedSequence(menu: MenuItem, sequence: Int, id: IntArray) {
             menu.setIcon(id[sequence])
-            (menu.icon as AnimatedVectorDrawable).registerAnimationCallback (object : Animatable2.AnimationCallback() {
+            (menu.icon as AnimatedVectorDrawable).registerAnimationCallback(object :
+                Animatable2.AnimationCallback() {
                 override fun onAnimationEnd(drawable: Drawable?) {
                     super.onAnimationEnd(drawable)
                     val next = sequence.plus(1)
@@ -941,5 +948,21 @@ class ThemeUtil {
             theme.resolveAttribute(attrColor, typedValue, resolveRefs)
             return typedValue.data
         }
+    }
+}
+
+class FontUtil {
+    companion object FontUtils {
+        fun dipToPixels(context: Context, dipValue: Float): Float {
+            val metrics = context.resources.displayMetrics
+            return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics)
+        }
+
+        fun pixelToDips(context: Context, pixelValue: Float): Int {
+            val metrics = context.resources.displayMetrics
+            return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, pixelValue, metrics)
+                .roundToInt()
+        }
+
     }
 }

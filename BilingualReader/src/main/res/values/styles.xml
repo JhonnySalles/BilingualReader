@@ -538,6 +538,19 @@
         <item name="android:textColor">?attr/colorTertiary</item>
     </style>
 
+    <style name="TextFont" parent="Theme.MangaReader" >
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="iconTint">?attr/colorPrimary</item>
+    </style>
+
+    <style name="TextFont.Example" parent="Theme.MangaReader" >
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="TextFont.Description" parent="Theme.MangaReader" >
+        <item name="android:textSize">12sp</item>
+    </style>
+
     <style name="SeekBar" >
         <item name="android:progressBackgroundTint">?attr/colorOnPrimaryContainer</item>
         <item name="android:progressTint">?attr/colorPrimaryContainer</item>
@@ -563,13 +576,19 @@
         <item name="android:max">255</item>
     </style>
 
-    <style name="Slider" >
+    <style name="Slider">
         <item name="trackColorInactive">?attr/colorOnPrimaryContainer</item>
         <item name="trackColorActive">?attr/colorTertiary</item>
         <item name="thumbColor">?attr/colorPrimaryContainer</item>
         <item name="tickVisible">false</item>
     </style>
 
+    <style name="Slider.FontSize" parent="Slider" >
+        <item name="android:valueFrom">5f</item>
+        <item name="android:valueTo">12f</item>
+        <item name="android:value">5f</item>
+        <item name="android:stepSize">1</item>
+    </style>
 
     <style name="IconHelp" >
         <item name="android:adjustViewBounds">true</item>
@@ -701,6 +720,17 @@
     <style name="TextPopupTab" parent="TextAppearance.Design.Tab">
         <item name="android:textSize">12sp</item>
         <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="FontContent">
+        <item name="android:padding">12dp</item>
+        <item name="android:background">@drawable/custom_ripple</item>
+    </style>
+
+    <style name="ReaderBookCssColors" >
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="android:color">?attr/colorSurface</item>
+        <item name="android:colorAccent">?attr/colorTertiaryContainer</item>
     </style>
 
 </resources>

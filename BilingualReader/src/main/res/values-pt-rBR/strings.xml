@@ -150,8 +150,8 @@
     <string name="menu_book_reading_order">Ordem da lista</string>
     <string name="menu_reading_book_order_change">Ordernado: %s</string>
     <string name="menu_book_reading_chapter">Capítulos</string>
-    <string name="menu_book_reading_page">Tipo de página</string>
-    <string name="menu_book_reading_font">Fonte</string>
+    <string name="menu_book_reading_annotation">Anotações</string>
+    <string name="menu_book_reading_font_and_page">Fonte e página</string>
     <string name="menu_book_reading_book_mark">Marcador</string>
 
     <string name="reading_book_title_position">Posição %d de %d • %s%%</string>
@@ -159,6 +159,28 @@
 
     <string name="reading_book_page_index">Índice</string>
     <string name="reading_book_page_empty">Arquivo não contem capítulos</string>
+
+    <!-- READER POPUP TITLES -->
+    <string name="popup_reading_book_open">Abrir</string>
+    <string name="popup_reading_book_close">Fechar</string>
+    <string name="popup_reading_book_tab_item_font">Fonte</string>
+    <string name="popup_reading_book_tab_item_layout">Layout</string>
+
+    <!-- READER POPUP LAYOUT -->
+    <string name="popup_reading_layout_scrolling_type">Tipo de rolagem</string>
+    <string name="popup_reading_layout_margin">Margem</string>
+    <string name="popup_reading_layout_margin_small">Pequena</string>
+    <string name="popup_reading_layout_margin_medium">Medio</string>
+    <string name="popup_reading_layout_margin_big">Grande</string>
+    <string name="popup_reading_layout_spacing">Espaçamento</string>
+    <string name="popup_reading_layout_spacing_small">Pequena</string>
+    <string name="popup_reading_layout_spacing_medium">Medio</string>
+    <string name="popup_reading_layout_spacing_big">Grande</string>
+    <string name="popup_reading_layout_alignment">Alinhamento</string>
+    <string name="popup_reading_layout_alignment_complete">Completo</string>
+    <string name="popup_reading_layout_alignment_right">Direita</string>
+    <string name="popup_reading_layout_alignment_left">Esquerda</string>
+
 
     <!-- READER -->
     <string name="reader_reload">Recarregar</string>

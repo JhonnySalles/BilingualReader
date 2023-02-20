@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.service.repository
 
 import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.BookConfiguration
 import br.com.fenix.bilingualreader.model.entity.Library
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -10,6 +11,7 @@ class BookRepository(context: Context) {
 
     private val mLOGGER = LoggerFactory.getLogger(BookRepository::class.java)
     private var mDataBase = DataBase.getDataBase(context).getBookDao()
+    private var mConfiguration = DataBase.getDataBase(context).getBookConfigurationDao()
 
     fun save(obj: Book): Long {
         obj.lastAlteration = LocalDateTime.now()
@@ -169,6 +171,23 @@ class BookRepository(context: Context) {
         } catch (e: Exception) {
             mLOGGER.error("Error when find last Book open: " + e.message, e)
             Pair(null, null)
+        }
+    }
+
+    fun saveConfiguration(config: BookConfiguration) {
+        mConfiguration.save(config)
+    }
+
+    fun updateConfiguration(config: BookConfiguration) {
+        mConfiguration.update(config)
+    }
+
+    fun findConfiguration(idBook: Long) : BookConfiguration? {
+        return try {
+            mConfiguration.findConfiguration(idBook)
+        } catch (e: Exception) {
+            mLOGGER.error("Error when find Book Configuration: " + e.message, e)
+            null
         }
     }
 

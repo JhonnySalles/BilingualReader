@@ -15,5 +15,4 @@ enum class Themes(private val value: Int) {
     RED(R.style.Theme_MangaReader_Red);
 
     open fun getValue() : Int = this.value
-
 }

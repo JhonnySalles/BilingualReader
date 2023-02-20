@@ -5,10 +5,8 @@ import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.graphics.Point
 import android.os.*
 import android.util.Base64
-import android.util.DisplayMetrics
 import android.view.*
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -34,6 +32,7 @@ import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
+import br.com.fenix.bilingualreader.util.helpers.FontUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.view.components.book.WebViewPage
 import br.com.fenix.bilingualreader.view.components.book.WebViewPager
@@ -67,12 +66,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
 
     private lateinit var mLibrary: Library
     private var mBook: Book? = null
-    private var mNewBook: Book? = null
-    private var mNewBookTitle = 0
     private lateinit var mStorage: Storage
 
     private var mIsLeftToRight = false
-    private var mFontSize : Int = 12
     private val mWidth : Int = Resources.getSystem().displayMetrics.widthPixels
     private val mHeight: Int = Resources.getSystem().displayMetrics.heightPixels
 
@@ -114,7 +110,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         mStorage = Storage(requireContext())
         mLibrary = LibraryUtil.getDefault(requireContext(), Type.MANGA)
 
-        mFontSize = requireContext().resources.getDimension(R.dimen.reader_font_size_small).toInt()
         val bundle: Bundle? = arguments
         if (bundle != null && !bundle.isEmpty) {
             mLibrary = bundle.getSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY) as Library
@@ -139,12 +134,13 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                     "",
                     metrics.widthPixels,
                     metrics.heightPixels,
-                    mFontSize
+                    FontUtil.pixelToDips(requireContext(), mViewModel.fontSize.value!!)
                 )
 
                 if (mBook != null && mCodecDocument != null) {
+                    mFileName = file.name
                     mCurrentPage = mBook!!.bookMark
-                    mBook!!.pages = mCodecDocument!!.getPageCount(mWidth, mHeight, mFontSize)
+                    mBook!!.pages = mCodecDocument!!.getPageCount(mWidth, mHeight, FontUtil.pixelToDips(requireContext(), mViewModel.fontSize.value!!))
                     mStorage.updateLastAccess(mBook!!)
                 }
             } else {
@@ -173,12 +169,12 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
 
         mRoot = requireActivity().findViewById(R.id.root_activity_book_reader)
         mViewPager = view.findViewById<View>(R.id.fragment_book_reader) as WebViewPager
-        mPageSlider = requireActivity().findViewById(R.id.reader_book_toolbar_bottom_progress)
+        mPageSlider = requireActivity().findViewById(R.id.reader_book_bottom_progress)
 
         mToolbarTop = requireActivity().findViewById(R.id.reader_book_toolbar_top)
         mToolbarBottom = requireActivity().findViewById(R.id.reader_book_toolbar_bottom)
 
-        mPageSlider.valueTo = mCodecDocument?.getPageCount(mWidth, mHeight, mFontSize) ?.toFloat() ?: 2f
+        mPageSlider.valueTo = mCodecDocument?.getPageCount(mWidth, mHeight, FontUtil.pixelToDips(requireContext(), mViewModel.fontSize.value!!)) ?.toFloat() ?: 2f
         mPageSlider.valueFrom = 1F
         mPageSlider.addOnChangeListener { _, value, fromUser ->
             if (fromUser)
@@ -216,14 +212,12 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         })
 
         requireActivity().title = mFileName
-        //mViewModel.filters.observe(viewLifecycleOwner) { onRefresh() }
 
         return view
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_reader_book, menu)
-
     }
 
     override fun onPause() {
@@ -499,7 +493,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         }
 
         override fun getCount(): Int {
-            return mCodecDocument?.getPageCount(mWidth, mHeight, mFontSize) ?: 1
+            return mCodecDocument?.getPageCount(mWidth, mHeight, FontUtil.pixelToDips(requireContext(), mViewModel.fontSize.value!!)) ?: 1
         }
 
         override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
@@ -508,14 +502,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
             super.setPrimaryItem(container, position, `object`)
         }
 
-        private val mDefaultCss = "<head><style> " +
-                "body { " +
-                "  background-color: white;" +
-                "  color: black;" +
-                "  line-height: 140%;" +
-                "  margin-bottom: 50px;" +
-                "} " +
-                "</style></head>"
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
             val inflater =
                 requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -523,7 +509,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
             val webViewPage: WebViewPage =
                 layout.findViewById<View>(R.id.page_web_view) as WebViewPage
 
-            var html = "<!DOCTYPE html><html>" + mDefaultCss + "<body>" + mCodecDocument?.getPage(position)?.pageHTMLWithImages + "</body></html>"
+            var html = "<!DOCTYPE html><html>" + mViewModel.getDefaultCSS() + "<body>" + mCodecDocument?.getPage(position)?.pageHTMLWithImages + "</body></html>"
 
             if (html.contains("<image-begin>image"))
                 html = html.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
@@ -533,38 +519,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
             webViewPage.loadData(html, "text/html", "UTF-8")
             webViewPage.setOnTouchListener(this@BookReaderFragment)
             webViewPage.settings.javaScriptEnabled = true
-            webViewPage.settings.defaultFontSize = mFontSize
-            webViewPage.webViewClient = object : WebViewClient() {
-                override fun onPageFinished(view: WebView?, url: String?) {
-                    injectCSS(webViewPage)
-                    super.onPageFinished(view, url)
-                }
-            }
-
+            webViewPage.settings.defaultFontSize = mViewModel.mWebFontSize
             container.addView(layout)
 
             return layout
-        }
-
-        private var mPageCSS: ByteArray? = null
-        private fun injectCSS(webView : WebView) {
-            if (mPageCSS == null)
-                return
-
-            try {
-                val encoded: String = Base64.encodeToString(mPageCSS, Base64.NO_WRAP)
-                webView.loadUrl(
-                    "javascript:(function() {" +
-                            "var parent = document.getElementsByTagName('head').item(0);" +
-                            "var style = document.createElement('style');" +
-                            "style.type = 'text/css';" +  // Tell the browser to BASE64-decode the string into your script !!!
-                            "style.innerHTML = window.atob('" + encoded + "');" +
-                            "parent.appendChild(style)" +
-                            "})()"
-                )
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
         }
 
         override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {

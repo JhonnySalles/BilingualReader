@@ -1,5 +1,8 @@
 package br.com.fenix.bilingualreader.util.constants
 
+import androidx.room.ColumnInfo
+import br.com.fenix.bilingualreader.model.enums.*
+
 class DataBaseConsts private constructor() {
     object MANGA {
         const val TABLE_NAME = "Manga"
@@ -176,6 +179,21 @@ class DataBaseConsts private constructor() {
             const val FILE_ALTERATION = "file_alteration"
             const val LAST_VOCABULARY_IMPORT = "last_vocabulary_import"
             const val LAST_VERIFY = "last_verify"
+        }
+    }
+
+    object BOOKCONFIGURATION {
+        const val TABLE_NAME = "BookConfiguration"
+
+        object COLUMNS {
+            const val ID = "id"
+            const val FK_ID_BOOK = "id_book"
+            const val ALIGNMENT = "alignment"
+            const val MARGIN = "margin"
+            const val SPACING = "spacing"
+            const val SCROLLING = "scrolling"
+            const val FONT_TYPE = "font_type"
+            const val FONT_SIZE = "font_size"
         }
     }
 

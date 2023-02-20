@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/font_root"
+    style="@style/FontContent"
+    android:layout_width="wrap_content"
+    android:layout_height="100dp"
+    android:orientation="vertical">
+    <TextView
+        android:id="@+id/font_example"
+        style="@style/TextFont.Example"
+        android:layout_weight="1"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="@string/popup_reading_font_style_example" />
+
+    <TextView
+        android:id="@+id/font_description"
+        style="@style/TextFont.Description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center" />
+</LinearLayout>
+

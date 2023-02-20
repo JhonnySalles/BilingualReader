@@ -152,8 +152,8 @@
     <string name="menu_book_reading_order">List order</string>
     <string name="menu_reading_book_order_change">Sort: %s</string>
     <string name="menu_book_reading_chapter">Chapters</string>
-    <string name="menu_book_reading_page">Page type</string>
-    <string name="menu_book_reading_font">Fonts</string>
+    <string name="menu_book_reading_annotation">Annotation</string>
+    <string name="menu_book_reading_font_and_page">Font and page</string>
     <string name="menu_book_reading_book_mark">Book mark</string>
 
     <string name="reading_book_title_position">Position %d of %d • %s%%</string>
@@ -161,6 +161,43 @@
 
     <string name="reading_book_page_index">Page index</string>
     <string name="reading_book_page_empty">File has no folders</string>
+
+    <!-- READER POPUP TITLES -->
+    <string name="popup_reading_book_open">Open</string>
+    <string name="popup_reading_book_tab_item_font">Font</string>
+    <string name="popup_reading_book_tab_item_layout">Layout</string>
+
+    <!-- READER POPUP FONTS -->
+    <string name="popup_reading_font_size_description" translatable="false">A</string>
+    <string name="popup_reading_font_style_example" translatable="false">Aa</string>
+    <string name="popup_reading_font_style_example_japanese" translatable="false">あう－漢字</string>
+
+    <string name="popup_reading_font_style_algerian" translatable="false">Algerian</string>
+    <string name="popup_reading_font_style_arial" translatable="false">Arial</string>
+    <string name="popup_reading_font_style_autumn_flowers" translatable="false">Autumn FLowers</string>
+    <string name="popup_reading_font_style_babel_stone_erjian_1" translatable="false">Babel Stone Erjian</string>
+    <string name="popup_reading_font_style_babel_stone_erjian_2" translatable="false">Babel Stone Erjian 2</string>
+    <string name="popup_reading_font_style_babel_stone_han" translatable="false">Babel Stone Han</string>
+    <string name="popup_reading_font_style_blackadder" translatable="false">Balckadder</string>
+    <string name="popup_reading_font_style_comic_sans" translatable="false">Comic Sans</string>
+    <string name="popup_reading_font_style_french_script" translatable="false">French script</string>
+    <string name="popup_reading_font_style_robots_reborn" translatable="false">Robots reborn</string>
+    <string name="popup_reading_font_style_times_new_roman" translatable="false">Times new Roman</string>
+
+    <!-- READER POPUP LAYOUT -->
+    <string name="popup_reading_layout_scrolling_type">Scrolling type</string>
+    <string name="popup_reading_layout_margin">Margin</string>
+    <string name="popup_reading_layout_margin_small">Small</string>
+    <string name="popup_reading_layout_margin_medium">Medium</string>
+    <string name="popup_reading_layout_margin_big">Big</string>
+    <string name="popup_reading_layout_spacing">Spacing</string>
+    <string name="popup_reading_layout_spacing_small">Small</string>
+    <string name="popup_reading_layout_spacing_medium">Medium</string>
+    <string name="popup_reading_layout_spacing_big">Big</string>
+    <string name="popup_reading_layout_alignment">Alignment</string>
+    <string name="popup_reading_layout_alignment_complete">Complete</string>
+    <string name="popup_reading_layout_alignment_right">Right</string>
+    <string name="popup_reading_layout_alignment_left">Left</string>
 
 
     <!-- READER - MANGA / COMIC -->

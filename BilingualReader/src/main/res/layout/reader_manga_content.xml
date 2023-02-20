@@ -101,7 +101,7 @@
         </com.google.android.material.appbar.AppBarLayout>
 
         <LinearLayout
-            android:id="@+id/reader_manga_nav_reader"
+            android:id="@+id/reader_manga_bottom_progress_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -116,14 +116,14 @@
             android:paddingRight="10dp">
 
             <TextView
-                android:id="@+id/reader_manga_nav_reader_title"
+                android:id="@+id/reader_manga_bottom_progress_title"
                 style="@style/TextTitle.PageNumber"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/title_small_size" />
 
             <br.com.fenix.bilingualreader.view.components.DottedSeekBar
-                android:id="@+id/reader_manga_nav_reader_progress"
+                android:id="@+id/reader_manga_bottom_progress"
                 style="@style/SeekBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

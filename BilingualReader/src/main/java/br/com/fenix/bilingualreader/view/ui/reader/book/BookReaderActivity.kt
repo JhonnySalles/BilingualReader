@@ -15,10 +15,14 @@ import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.viewpager.widget.ViewPager
 import br.com.ebook.foobnix.android.utils.Dips
 import br.com.ebook.foobnix.ext.CacheZipUtils
 import br.com.ebook.foobnix.pdf.info.AppSharedPreferences
@@ -29,18 +33,16 @@ import br.com.ebook.foobnix.pdf.info.wrapper.AppState
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
-import br.com.fenix.bilingualreader.model.enums.Languages
-import br.com.fenix.bilingualreader.model.enums.Position
-import br.com.fenix.bilingualreader.model.enums.Themes
+import br.com.fenix.bilingualreader.model.enums.*
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.google.android.material.tabs.TabLayout
@@ -50,7 +52,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 
 
-class BookReaderActivity : AppCompatActivity(), OcrProcess {
+class BookReaderActivity : AppCompatActivity() {
 
     init {
         System.loadLibrary("mypdf")
@@ -61,12 +63,11 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
 
     private val mViewModel: BookReaderViewModel by viewModels()
 
-    private lateinit var mToolBarTop: AppBarLayout
+    private lateinit var mToolBarTop: Toolbar
     private lateinit var mToolBarChapter: TextView
     private lateinit var mToolBarTitle : TextView
-    private lateinit var mToolBarTitleContent : LinearLayout
 
-    private lateinit var mToolBarBottomTitle: TextView
+    private lateinit var mToolBarBottomProgressTitle: TextView
     private lateinit var mToolBarBottom: LinearLayout
     private lateinit var mToolBarBottomProgress: Slider
     private lateinit var mToolBarBottomAuthor: TextView
@@ -76,6 +77,13 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
     private lateinit var mBackgroundProgress: ProgressBar
     private lateinit var mBackgroundClock: TextClock
     private lateinit var mBackgroundBattery: TextView
+
+    private lateinit var mConfiguration: FrameLayout
+    private lateinit var mConfigurationTab: TabLayout
+    private lateinit var mConfigurationView: ViewPager
+
+    private lateinit var mPopupReaderFont: PopupBookFont
+    private lateinit var mPopupReaderLayout: PopupBookLayout
 
     private lateinit var mTouchView: ConstraintLayout
 
@@ -89,12 +97,6 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
     private lateinit var mLibrary: Library
     private var mFragment: BookReaderFragment? = null
     private var mBook: Book? = null
-
-    companion object {
-        private lateinit var mPopupTranslateTab: TabLayout
-        fun selectTabReader() =
-            mPopupTranslateTab.selectTab(mPopupTranslateTab.getTabAt(0), true)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val theme = Themes.valueOf(
@@ -120,14 +122,14 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
 
         mRepository = BookRepository(applicationContext)
 
-        mToolBarTop = findViewById(R.id.reader_book_toolbar_top)
+        mToolBarTop = findViewById(R.id.toolbar_book_reader)
+        MenuUtil.tintToolbar(mToolBarTop, theme)
         mToolBarChapter = findViewById(R.id.reader_book_toolbar_chapter)
         mToolBarTitle = findViewById(R.id.reader_book_toolbar_title)
-        mToolBarTitleContent = findViewById(R.id.reader_book_toolbar_title_content)
 
         mToolBarBottom = findViewById(R.id.reader_book_toolbar_bottom)
-        mToolBarBottomTitle = findViewById(R.id.reader_book_toolbar_bottom_title)
-        mToolBarBottomProgress = findViewById(R.id.reader_book_toolbar_bottom_progress)
+        mToolBarBottomProgressTitle = findViewById(R.id.reader_book_bottom_progress_title)
+        mToolBarBottomProgress = findViewById(R.id.reader_book_bottom_progress)
         mToolBarBottomAuthor = findViewById(R.id.reader_book_toolbar_bottom_author)
 
         mBackgroundContainer = findViewById(R.id.container_book_progress)
@@ -136,11 +138,36 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
         mBackgroundClock = findViewById(R.id.book_progress_clock)
         mBackgroundBattery = findViewById(R.id.book_progress_battery)
 
-        mToolBarTitleContent.setOnClickListener { dialogPageIndex() }
-        mToolBarTitleContent.setOnLongClickListener {
+        setSupportActionBar(mToolBarTop)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowTitleEnabled(true)
+
+        mConfiguration = findViewById(R.id.popup_book_configuration)
+        mConfigurationTab = findViewById(R.id.popup_book_configuration_tab)
+        mConfigurationView = findViewById(R.id.popup_book_configuration_view_pager)
+
+        mToolBarTitle.setOnClickListener { dialogPageIndex() }
+        mToolBarTitle.setOnLongClickListener {
             mBook?.let { FileUtil(this).copyName(it) }
             true
         }
+
+        mPopupReaderFont = PopupBookFont()
+        mPopupReaderLayout = PopupBookLayout()
+
+        mConfigurationTab.setupWithViewPager(mConfigurationView)
+
+        val viewPagerAdapter = ViewPagerAdapter(supportFragmentManager, 0)
+        viewPagerAdapter.addFragment(
+            mPopupReaderFont,
+            resources.getString(R.string.popup_reading_book_tab_item_font)
+        )
+        viewPagerAdapter.addFragment(
+            mPopupReaderLayout,
+            resources.getString(R.string.popup_reading_book_tab_item_layout)
+        )
+
+        mConfigurationView.adapter = viewPagerAdapter
 
         if (savedInstanceState == null) {
             if (Intent.ACTION_VIEW == intent.action) {
@@ -245,7 +272,7 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
     }
 
     fun changePage(chapter: Int, description: String, page: Int, pages: Int) {
-        mToolBarBottomTitle.text =
+        mToolBarBottomProgressTitle.text =
             if (page > 0) getString(R.string.reading_book_title_position, page, pages, Util.formatDecimal(page.toFloat() / pages * 100)) else ""
         mToolBarChapter.text =
             if (chapter > 0) getString(R.string.reading_book_title_chapter, chapter, description) else description
@@ -364,8 +391,35 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
             .commit()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    private fun optionsSave(any: Any?) {
+        if (any == null)
+            return
 
+        when (any) {
+            is PageMode -> mPreferences.edit()
+                .putString(GeneralConsts.KEYS.READER.MANGA_PAGE_MODE, any.toString())
+                .apply()
+            is ReaderMode -> mPreferences.edit()
+                .putString(GeneralConsts.KEYS.READER.MANGA_READER_MODE, any.toString())
+                .apply()
+            is Boolean -> mPreferences.edit()
+                .putBoolean(GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY, any)
+                .apply()
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                return true
+            }
+            R.id.menu_item_reader_book_chapter -> {}
+            R.id.menu_item_reader_book_search -> {}
+            R.id.menu_item_reader_book_annotation -> {}
+            R.id.menu_item_reader_book_font_style -> {}
+            R.id.menu_item_reader_book_mark_page -> {}
+        }
         return super.onOptionsItemSelected(item)
     }
 
@@ -378,48 +432,6 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
 
         super.onBackPressed()
         finish()
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        val favoriteItem = menu.findItem(R.id.menu_item_reader_favorite)
-        val icon = if (mBook != null && mBook!!.favorite)
-            ContextCompat.getDrawable(this, R.drawable.ico_favorite_mark)
-        else
-            ContextCompat.getDrawable(this, R.drawable.ico_favorite_unmark)
-        icon?.setTint(getColorFromAttr(R.attr.colorSecondary))
-        favoriteItem.icon = icon
-        return super.onPrepareOptionsMenu(menu)
-    }
-
-    private fun changeFavorite(item: MenuItem) {
-        if (mBook == null)
-            return
-
-        mBook?.favorite = !mBook!!.favorite
-
-        val icon = if (mBook!!.favorite)
-            ContextCompat.getDrawable(this, R.drawable.ico_animated_favorited_marked)
-        else
-            ContextCompat.getDrawable(this, R.drawable.ico_animated_favorited_unmarked)
-        icon?.setTint(getColorFromAttr(R.attr.colorSecondary))
-        item.icon = icon
-        (item.icon as AnimatedVectorDrawable).start()
-        mRepository.update(mBook!!)
-    }
-
-    private fun openViewTouch() {
-        mFragment?.setFullscreen(true)
-
-        mTouchView.alpha = 0.0f
-        mTouchView.animate().alpha(1.0f).setDuration(300L)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    super.onAnimationEnd(animation)
-                    mTouchView.visibility = View.VISIBLE
-                }
-            })
-
-        mHandler.postDelayed(mDismissTouchView, 5000)
     }
 
     fun touchPosition(position: Position): Boolean {
@@ -481,28 +493,26 @@ class BookReaderActivity : AppCompatActivity(), OcrProcess {
             })
     }
 
-    override fun getImage(): Bitmap? {
-        TODO("Not yet implemented")
-    }
+    inner class ViewPagerAdapter(fm: FragmentManager, behavior: Int) :
+        FragmentPagerAdapter(fm, behavior) {
+        private val fragments: MutableList<Fragment> = ArrayList()
+        private val fragmentTitle: MutableList<String> = ArrayList()
+        fun addFragment(fragment: Fragment, title: String) {
+            fragments.add(fragment)
+            fragmentTitle.add(title)
+        }
 
-    override fun getImage(x: Int, y: Int, width: Int, height: Int): Bitmap? {
-        TODO("Not yet implemented")
-    }
+        override fun getItem(position: Int): Fragment {
+            return fragments[position]
+        }
 
-    override fun getLanguage(): Languages {
-        TODO("Not yet implemented")
-    }
+        override fun getCount(): Int {
+            return fragments.size
+        }
 
-    override fun setText(text: String?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun setText(text: ArrayList<String>) {
-        TODO("Not yet implemented")
-    }
-
-    override fun clearList() {
-        TODO("Not yet implemented")
+        override fun getPageTitle(position: Int): CharSequence {
+            return fragmentTitle[position]
+        }
     }
 
     private fun getBatteryPercent() {

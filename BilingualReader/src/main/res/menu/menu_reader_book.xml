@@ -2,40 +2,39 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/menu_book_chapter"
+        android:id="@+id/menu_item_reader_book_chapter"
         android:icon="@drawable/ic_book_chapter"
         android:orderInCategory="100"
         android:title="@string/menu_book_reading_chapter"
-        app:showAsAction="always"></item>
+        app:showAsAction="always" />
 
     <item
-        android:id="@+id/menu_book_search"
+        android:id="@+id/menu_item_reader_book_search"
         android:icon="@drawable/ic_search"
         android:orderInCategory="101"
         android:title="@string/menu_search"
         android:visible="true"
-        app:actionViewClass="android.widget.SearchView"
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/menu_book_page"
+        android:id="@+id/menu_item_reader_book_annotation"
         android:icon="@drawable/ic_book_page"
         android:orderInCategory="102"
-        android:title="@string/menu_book_reading_page"
-        app:showAsAction="always"></item>
+        android:title="@string/menu_book_reading_annotation"
+        app:showAsAction="always"/>
 
     <item
-        android:id="@+id/menu_book_font"
+        android:id="@+id/menu_item_reader_book_font_style"
         android:icon="@drawable/ic_book_font"
         android:orderInCategory="103"
-        android:title="@string/menu_book_reading_font"
-        app:showAsAction="always"></item>
+        android:title="@string/menu_book_reading_font_and_page"
+        app:showAsAction="always"/>
 
     <item
-        android:id="@+id/menu_book_mark"
+        android:id="@+id/menu_item_reader_book_mark_page"
         android:icon="@drawable/ic_book_mark"
         android:orderInCategory="104"
         android:title="@string/menu_book_reading_book_mark"
-        app:showAsAction="always"></item>
+        app:showAsAction="always"/>
 
 </menu>

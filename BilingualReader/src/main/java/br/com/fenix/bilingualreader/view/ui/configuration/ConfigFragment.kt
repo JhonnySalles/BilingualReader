@@ -17,17 +17,20 @@ import androidx.lifecycle.ViewModelProvider
 import br.com.fenix.bilingualreader.MainActivity
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.*
+import br.com.fenix.bilingualreader.service.listener.FontsListener
 import br.com.fenix.bilingualreader.service.listener.ThemesListener
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.*
+import br.com.fenix.bilingualreader.view.adapter.fonts.FontsCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.themes.ThemesCardAdapter
 import br.com.fenix.bilingualreader.view.ui.library.book.BookLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.menu.ConfigLibrariesViewModel
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.slider.Slider
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputLayout
 import org.lucasr.twowayview.TwoWayView
@@ -109,7 +112,11 @@ class ConfigFragment : Fragment() {
     private lateinit var mBookLibraryOrder: TextInputLayout
     private lateinit var mBookLibraryOrderAutoComplete: AutoCompleteTextView
 
+    private lateinit var mBookFontType: TwoWayView
+    private lateinit var mBookFontSize: Slider
+
     private var mBookOrderSelect: Order = Order.Name
+    private var mBookFontSelect: FontType = FontType.TimesNewRoman
 
     private lateinit var mBookMapOrder: HashMap<String, Order>
 
@@ -131,6 +138,9 @@ class ConfigFragment : Fragment() {
         mBookLibraryOrder = view.findViewById(R.id.config_book_library_order)
         mBookLibraryOrderAutoComplete =
             view.findViewById(R.id.config_book_menu_autocomplete_library_order)
+
+        mBookFontType = view.findViewById(R.id.config_book_list_fonts)
+        mBookFontSize = view.findViewById(R.id.config_book_font_size)
 
         mConfigSystemThemeMode = view.findViewById(R.id.config_system_theme_mode)
         mConfigSystemThemeModeAutoComplete =
@@ -410,6 +420,7 @@ class ConfigFragment : Fragment() {
         mConfigSystemMalMonitoring.setOnClickListener { changeMonitoring() }
 
         prepareThemes()
+        prepareFonts()
         loadConfig()
 
         mViewModel.loadLibrary(null)
@@ -605,6 +616,16 @@ class ConfigFragment : Fragment() {
             )
 
             this.putString(
+                GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE,
+                mBookFontSelect.toString()
+            )
+
+            this.putFloat(
+                GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE,
+                mBookFontSize.value
+            )
+
+            this.putString(
                 GeneralConsts.KEYS.SYSTEM.FORMAT_DATA,
                 mConfigSystemDateSelect
             )
@@ -717,6 +738,10 @@ class ConfigFragment : Fragment() {
             GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE,
             false
         )
+        mBookFontSize.value = sharedPreferences.getFloat(
+            GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE,
+            GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT
+        )
         mMangaUseDualPageCalculate.isChecked = sharedPreferences.getBoolean(
             GeneralConsts.KEYS.PAGE_LINK.USE_DUAL_PAGE_CALCULATE,
             false
@@ -791,6 +816,12 @@ class ConfigFragment : Fragment() {
             sharedPreferences.getString(
                 GeneralConsts.KEYS.THEME.THEME_USED,
                 Themes.ORIGINAL.toString()
+            )!!
+        )
+        mBookFontSelect = FontType.valueOf(
+            sharedPreferences.getString(
+                GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE,
+                FontType.TimesNewRoman.toString()
             )!!
         )
 
@@ -895,6 +926,42 @@ class ConfigFragment : Fragment() {
             this.commit()
         }
         requireActivity().recreate()
+    }
+
+    private fun prepareFonts() {
+        val listener = object : FontsListener {
+            override fun onClick(font: Pair<FontType, Boolean>) {
+                mBookFontSelect = font.first
+                saveFont()
+
+                mViewModel.setEnableFont(font.first)
+            }
+        }
+
+        val font = FontType.valueOf(
+            GeneralConsts.getSharedPreferences(requireContext())
+                .getString(GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE, FontType.TimesNewRoman.toString())!!
+        )
+
+        mViewModel.loadFonts(font)
+        val lineAdapter = FontsCardAdapter(requireContext(), mViewModel.fonts.value!!, listener)
+        mBookFontType.adapter = lineAdapter
+        mBookFontType.scrollBy(mViewModel.getSelectedFontTypeIndex())
+
+        mViewModel.fonts.observe(viewLifecycleOwner) {
+            lineAdapter.updateList(it)
+        }
+    }
+
+    private fun saveFont() {
+        with(GeneralConsts.getSharedPreferences(requireContext()).edit()) {
+            this.putString(
+                GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE,
+                mBookFontSelect.toString()
+            )
+
+            this.commit()
+        }
     }
 
 }

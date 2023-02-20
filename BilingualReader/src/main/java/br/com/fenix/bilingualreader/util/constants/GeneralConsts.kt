@@ -3,7 +3,10 @@ package br.com.fenix.bilingualreader.util.constants
 import android.annotation.TargetApi
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.enums.*
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts.PATTERNS.DATE_PATTERN
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts.PATTERNS.DATE_PATTERN_SMALL
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts.PATTERNS.TIME_PATTERN
@@ -108,6 +111,14 @@ class GeneralConsts private constructor() {
             const val MANGA_PAGE_MODE = "MANGA_READER_PAGE_MODE"
             const val MANGA_SHOW_CLOCK_AND_BATTERY = "MANGA_SHOW_CLOCK_AND_BATTERY"
             const val MANGA_USE_MAGNIFIER_TYPE = "MANGA_USE_MAGNIFIER_TYPE"
+
+            const val BOOK_PAGE_ALIGNMENT = "BOOK_PAGE_ALIGNMENT"
+            const val BOOK_PAGE_MARGIN = "BOOK_PAGE_MARGIN"
+            const val BOOK_PAGE_SPACING = "BOOK_PAGE_SPACING"
+            const val BOOK_PAGE_SCROLLING_MODE = "BOOK_PAGE_SCROLLING_MODE"
+            const val BOOK_PAGE_FONT_TYPE = "BOOK_PAGE_FONT_TYPE"
+            const val BOOK_PAGE_FONT_SIZE = "BOOK_PAGE_FONT_SIZE"
+            const val BOOK_PAGE_FONT_SIZE_DEFAULT = 5f
         }
 
         object SYSTEM {

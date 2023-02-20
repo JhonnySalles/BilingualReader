@@ -81,12 +81,12 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
 
     private lateinit var mReaderTitle: TextView
     private lateinit var mReaderProgress: DottedSeekBar
-    private lateinit var mNavReader: LinearLayout
+    private lateinit var mProgressContent: LinearLayout
     private lateinit var mToolBar: Toolbar
-    private lateinit var mToolbarTitle: TextView
-    private lateinit var mToolbarSubTitle: TextView
-    private lateinit var mToolbarTitleContent: LinearLayout
-    private lateinit var mSubToolbar: LinearLayout
+    private lateinit var mToolBarTitle: TextView
+    private lateinit var mToolBarSubTitle: TextView
+    private lateinit var mToolBarTitleContent: LinearLayout
+    private lateinit var mSubToolBar: LinearLayout
     private lateinit var mLanguageOcrDescription: TextView
     private lateinit var mMenuPopupTranslate: FrameLayout
     private lateinit var mPopupTranslateView: ViewPager
@@ -96,10 +96,10 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
     private lateinit var mBottomSheetTranslate: BottomSheetBehavior<FrameLayout>
     private lateinit var mBottomSheetColor: BottomSheetBehavior<FrameLayout>
 
-    private lateinit var mPopupReaderColorFilterFragment: PopupReaderColorFilterFragment
-    private lateinit var mPopupSubtitleConfigurationFragment: PopupSubtitleConfiguration
-    private lateinit var mPopupSubtitleReaderFragment: PopupSubtitleReader
-    private lateinit var mPopupSubtitleVocabularyFragment: PopupSubtitleVocabulary
+    private lateinit var mPopupMangaColorFilterFragment: PopupMangaColorFilterFragment
+    private lateinit var mPopupMangaSubtitleConfigurationFragment: PopupMangaSubtitleConfiguration
+    private lateinit var mPopupMangaSubtitleReaderFragment: PopupMangaSubtitleReader
+    private lateinit var mPopupMangaSubtitleVocabularyFragment: PopupMangaSubtitleVocabulary
 
     private lateinit var mFloatingSubtitleReader: FloatingSubtitleReader
     private lateinit var mFloatingWindowOcr: FloatingWindowOcr
@@ -152,11 +152,11 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
 
         mToolBar = findViewById(R.id.reader_manga_toolbar_reader)
         MenuUtil.tintToolbar(mToolBar, theme)
-        mToolbarTitle = findViewById(R.id.reader_manga_toolbar_title_custom)
-        mToolbarSubTitle = findViewById(R.id.reader_manga_toolbar_subtitle_custom)
-        MenuUtil.tintColor(this, mToolbarSubTitle)
-        mToolbarTitleContent = findViewById(R.id.reader_manga_toolbar_title_content)
-        mSubToolbar = findViewById(R.id.reader_manga_sub_toolbar)
+        mToolBarTitle = findViewById(R.id.reader_manga_toolbar_title_custom)
+        mToolBarSubTitle = findViewById(R.id.reader_manga_toolbar_subtitle_custom)
+        MenuUtil.tintColor(this, mToolBarSubTitle)
+        mToolBarTitleContent = findViewById(R.id.reader_manga_toolbar_title_content)
+        mSubToolBar = findViewById(R.id.reader_manga_sub_toolbar)
         mLanguageOcrDescription = findViewById(R.id.reader_manga_ocr_language)
         mLanguageOcrDescription.setOnClickListener {
             choiceLanguage {
@@ -168,13 +168,13 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowTitleEnabled(true)
 
-        mReaderTitle = findViewById(R.id.reader_manga_nav_reader_title)
-        mReaderProgress = findViewById(R.id.reader_manga_nav_reader_progress)
-        mNavReader = findViewById(R.id.reader_manga_nav_reader)
-        mMenuPopupTranslate = findViewById(R.id.popup_menu_translate)
-        mMenuPopupColor = findViewById(R.id.popup_menu_color)
+        mReaderTitle = findViewById(R.id.reader_manga_bottom_progress_title)
+        mReaderProgress = findViewById(R.id.reader_manga_bottom_progress)
+        mProgressContent = findViewById(R.id.reader_manga_bottom_progress_content)
+        mMenuPopupTranslate = findViewById(R.id.popup_manga_translate)
+        mMenuPopupColor = findViewById(R.id.popup_manga_color)
 
-        if (findViewById<ImageView>(R.id.popup_menu_translate_touch) == null)
+        if (findViewById<ImageView>(R.id.popup_manga_translate_center_button) == null)
             mMenuPopupBottomSheet = true
         else {
             mBottomSheetTranslate = BottomSheetBehavior.from(mMenuPopupTranslate).apply {
@@ -184,7 +184,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
             }
             mBottomSheetTranslate.isDraggable = false
 
-            findViewById<ImageView>(R.id.popup_menu_translate_touch).setOnClickListener {
+            findViewById<ImageView>(R.id.popup_manga_translate_center_button).setOnClickListener {
                 if (mBottomSheetTranslate.state == BottomSheetBehavior.STATE_COLLAPSED)
                     mBottomSheetTranslate.state = BottomSheetBehavior.STATE_EXPANDED
                 else
@@ -192,13 +192,13 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
             }
         }
 
-        findViewById<ImageView>(R.id.popup_menu_translate_close).setOnClickListener {
+        findViewById<ImageView>(R.id.popup_manga_translate_close_button).setOnClickListener {
             mMenuPopupTranslate.visibility = View.GONE
         }
-        findViewById<ImageView>(R.id.popup_menu_color_close).setOnClickListener {
+        findViewById<ImageView>(R.id.popup_manga_color_close_button).setOnClickListener {
             mMenuPopupColor.visibility = View.GONE
         }
-        val btnMenuFloating = findViewById<ImageView>(R.id.popup_menu_translate_floating_touch)
+        val btnMenuFloating = findViewById<ImageView>(R.id.popup_manga_translate_floating_button)
         btnMenuFloating.setOnClickListener {
             (btnMenuFloating.drawable as AnimatedVectorDrawable).start()
             openFloatingSubtitle()
@@ -282,24 +282,24 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
             switchManga(true)
         }
 
-        mToolbarTitleContent.setOnClickListener { dialogPageIndex() }
-        mToolbarTitleContent.setOnLongClickListener {
+        mToolBarTitleContent.setOnClickListener { dialogPageIndex() }
+        mToolBarTitleContent.setOnLongClickListener {
             mManga?.let { FileUtil(this).copyName(it) }
             true
         }
 
-        mPopupTranslateTab = findViewById(R.id.popup_translate_tab)
-        mPopupTranslateView = findViewById(R.id.popup_translate_view_pager)
+        mPopupTranslateTab = findViewById(R.id.popup_manga_translate_tab)
+        mPopupTranslateView = findViewById(R.id.popup_manga_translate_view_pager)
 
         mClockAndBattery = findViewById(R.id.reader_manga_container_clock_battery)
         mBattery = findViewById(R.id.txt_battery)
         mTouchView = findViewById(R.id.reader_manga_container_touch_demonstration)
 
-        mPopupReaderColorFilterFragment = PopupReaderColorFilterFragment()
-        mPopupSubtitleConfigurationFragment = PopupSubtitleConfiguration()
-        mPopupSubtitleReaderFragment = PopupSubtitleReader()
-        mPopupSubtitleVocabularyFragment = PopupSubtitleVocabulary()
-        mPopupSubtitleVocabularyFragment.setBackground(getColorFromAttr(R.attr.colorSurface))
+        mPopupMangaColorFilterFragment = PopupMangaColorFilterFragment()
+        mPopupMangaSubtitleConfigurationFragment = PopupMangaSubtitleConfiguration()
+        mPopupMangaSubtitleReaderFragment = PopupMangaSubtitleReader()
+        mPopupMangaSubtitleVocabularyFragment = PopupMangaSubtitleVocabulary()
+        mPopupMangaSubtitleVocabularyFragment.setBackground(getColorFromAttr(R.attr.colorSurface))
 
         mFloatingButtons = FloatingButtons(applicationContext, this)
         mFloatingSubtitleReader = FloatingSubtitleReader(applicationContext, this)
@@ -310,24 +310,24 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
 
         val viewTranslatePagerAdapter = ViewPagerAdapter(supportFragmentManager, 0)
         viewTranslatePagerAdapter.addFragment(
-            mPopupSubtitleReaderFragment,
+            mPopupMangaSubtitleReaderFragment,
             resources.getString(R.string.popup_reading_manga_tab_item_subtitle)
         )
         viewTranslatePagerAdapter.addFragment(
-            mPopupSubtitleVocabularyFragment,
+            mPopupMangaSubtitleVocabularyFragment,
             resources.getString(R.string.popup_reading_manga_tab_item_subtitle_vocabulary)
         )
         viewTranslatePagerAdapter.addFragment(
-            mPopupSubtitleConfigurationFragment,
+            mPopupMangaSubtitleConfigurationFragment,
             resources.getString(R.string.popup_reading_manga_tab_item_subtitle_import)
         )
 
         mPopupTranslateView.adapter = viewTranslatePagerAdapter
 
-        mPopupColorTab = findViewById(R.id.popup_color_tab)
-        mPopupColorView = findViewById(R.id.popup_color_view_pager)
+        mPopupColorTab = findViewById(R.id.popup_manga_color_tab)
+        mPopupColorView = findViewById(R.id.popup_manga_color_view_pager)
 
-        if (findViewById<ImageView>(R.id.popup_menu_color_touch) != null) {
+        if (findViewById<ImageView>(R.id.popup_manga_color_center_button) != null) {
             mBottomSheetColor = BottomSheetBehavior.from(mMenuPopupColor).apply {
                 peekHeight = 195
                 this.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -335,7 +335,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
             }
             mBottomSheetColor.isDraggable = false
 
-            findViewById<ImageView>(R.id.popup_menu_color_touch).setOnClickListener {
+            findViewById<ImageView>(R.id.popup_manga_color_center_button).setOnClickListener {
                 if (mBottomSheetColor.state == BottomSheetBehavior.STATE_COLLAPSED)
                     mBottomSheetColor.state = BottomSheetBehavior.STATE_EXPANDED
                 else
@@ -347,7 +347,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
 
         val viewColorPagerAdapter = ViewPagerAdapter(supportFragmentManager, 0)
         viewColorPagerAdapter.addFragment(
-            mPopupReaderColorFilterFragment,
+            mPopupMangaColorFilterFragment,
             resources.getString(R.string.popup_reading_manga_tab_item_brightness)
         )
         mPopupColorView.adapter = viewColorPagerAdapter
@@ -505,7 +505,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         mViewModel.mLanguageOcr = language
         mLanguageOcrDescription.text =
             getString(R.string.languages_description, Util.languageToString(this, language))
-        mSubToolbar.visibility = View.VISIBLE
+        mSubToolBar.visibility = View.VISIBLE
     }
 
     private fun changeShowBatteryClock(enabled: Boolean) {
@@ -519,8 +519,8 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
 
     fun changePage(title: String, text: String, page: Int) {
         mReaderTitle.text = if (page > -1 && mManga != null) getString(R.string.progress, page, mManga!!.pages) else ""
-        mToolbarTitle.text = title
-        mToolbarSubTitle.text = text
+        mToolBarTitle.text = title
+        mToolBarSubTitle.text = text
         mViewModel.selectPage(page)
     }
 
@@ -637,7 +637,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         title.orientation = LinearLayout.VERTICAL
         title.setPadding(resources.getDimensionPixelOffset(R.dimen.page_link_page_index_title_padding))
         val name = TextView(this)
-        name.text = mToolbarTitle.text
+        name.text = mToolBarTitle.text
         name.setTextSize(
             TypedValue.COMPLEX_UNIT_PX,
             resources.getDimension(R.dimen.title_index_dialog_size)
@@ -654,12 +654,12 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         title.addView(index)
         title.setOnLongClickListener {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clip = ClipData.newPlainText("Copied Text", mToolbarTitle.text)
+            val clip = ClipData.newPlainText("Copied Text", mToolBarTitle.text)
             clipboard.setPrimaryClip(clip)
 
             Toast.makeText(
                 this,
-                getString(R.string.action_copy, mToolbarTitle.text),
+                getString(R.string.action_copy, mToolBarTitle.text),
                 Toast.LENGTH_LONG
             ).show()
 
@@ -781,29 +781,29 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
                 finish()
                 return true
             }
-            R.id.reading_left_to_right -> optionsSave(PageMode.Comics)
-            R.id.reading_right_to_left -> optionsSave(PageMode.Manga)
-            R.id.view_mode_aspect_fill -> optionsSave(ReaderMode.ASPECT_FILL)
-            R.id.view_mode_aspect_fit -> optionsSave(ReaderMode.ASPECT_FIT)
-            R.id.view_mode_fit_width -> optionsSave(ReaderMode.FIT_WIDTH)
-            R.id.menu_item_popup_open_floating -> openFloatingSubtitle()
-            R.id.menu_item_reader_favorite -> changeFavorite(item)
-            R.id.menu_item_popup_subtitle -> mMenuPopupTranslate.visibility =
+            R.id.reading_manga_left_to_right -> optionsSave(PageMode.Comics)
+            R.id.reading_manga_right_to_left -> optionsSave(PageMode.Manga)
+            R.id.manga_view_mode_aspect_fill -> optionsSave(ReaderMode.ASPECT_FILL)
+            R.id.manga_view_mode_aspect_fit -> optionsSave(ReaderMode.ASPECT_FIT)
+            R.id.manga_view_mode_fit_width -> optionsSave(ReaderMode.FIT_WIDTH)
+            R.id.menu_item_reader_manga_popup_open_floating -> openFloatingSubtitle()
+            R.id.menu_item_reader_manga_favorite -> changeFavorite(item)
+            R.id.menu_item_reader_manga_popup_subtitle -> mMenuPopupTranslate.visibility =
                 if (mMenuPopupTranslate.visibility == View.GONE) {
                     mMenuPopupColor.visibility = View.GONE
                     if (!mMenuPopupBottomSheet)
                         mBottomSheetTranslate.state = BottomSheetBehavior.STATE_EXPANDED
                     View.VISIBLE
                 } else View.GONE
-            R.id.menu_item_popup_color -> mMenuPopupColor.visibility =
+            R.id.menu_item_reader_manga_popup_color -> mMenuPopupColor.visibility =
                 if (mMenuPopupTranslate.visibility == View.GONE) {
                     mMenuPopupTranslate.visibility = View.GONE
                     if (!mMenuPopupBottomSheet)
                         mBottomSheetColor.state = BottomSheetBehavior.STATE_EXPANDED
                     View.VISIBLE
                 } else View.GONE
-            R.id.menu_item_file_link -> openFileLink()
-            R.id.menu_item_open_kaku -> {
+            R.id.menu_item_reader_manga_file_link -> openFileLink()
+            R.id.menu_item_reader_manga_open_kaku -> {
                 val launchIntent = packageManager.getLaunchIntentForPackage("ca.fuwafuwa.kaku")
                 launchIntent?.let { startActivity(it) } ?: Toast.makeText(
                     application,
@@ -811,9 +811,9 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
                     Toast.LENGTH_SHORT
                 ).show()
             }
-            R.id.menu_item_floating_buttons -> openFloatingButtons()
-            R.id.menu_item_view_touch_screen -> openViewTouch()
-            R.id.menu_item_show_clock_and_battery -> {
+            R.id.menu_item_reader_manga_floating_buttons -> openFloatingButtons()
+            R.id.menu_item_reader_manga_view_touch_screen -> openViewTouch()
+            R.id.menu_item_reader_manga_show_clock_and_battery -> {
                 item.isChecked = !item.isChecked
                 changeShowBatteryClock(item.isChecked)
             }
@@ -852,7 +852,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        val favoriteItem = menu.findItem(R.id.menu_item_reader_favorite)
+        val favoriteItem = menu.findItem(R.id.menu_item_reader_manga_favorite)
         val icon = if (mManga != null && mManga!!.favorite)
             ContextCompat.getDrawable(this, R.drawable.ico_favorite_mark)
         else

@@ -531,3 +531,11 @@ abstract class LibrariesDAO : DataBaseDAO<Library> {
 
 }
 
+
+@Dao
+abstract class BookConfigurationDAO : DataBaseDAO<BookConfiguration> {
+
+    @Query("SELECT * FROM " + DataBaseConsts.BOOKCONFIGURATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOKCONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook")
+    abstract fun findConfiguration(idBook: Long): BookConfiguration?
+
+}

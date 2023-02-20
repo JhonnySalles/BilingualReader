@@ -112,9 +112,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mSubtitleController: SubTitleController
 
     init {
-        mResourceViewMode[R.id.view_mode_aspect_fill] = ReaderMode.ASPECT_FILL
-        mResourceViewMode[R.id.view_mode_aspect_fit] = ReaderMode.ASPECT_FIT
-        mResourceViewMode[R.id.view_mode_fit_width] = ReaderMode.FIT_WIDTH
+        mResourceViewMode[R.id.manga_view_mode_aspect_fill] = ReaderMode.ASPECT_FILL
+        mResourceViewMode[R.id.manga_view_mode_aspect_fit] = ReaderMode.ASPECT_FIT
+        mResourceViewMode[R.id.manga_view_mode_fit_width] = ReaderMode.FIT_WIDTH
     }
 
     companion object {
@@ -299,19 +299,19 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         mRoot = requireActivity().findViewById(R.id.root_activity_manga_reader)
         mToolbarTop = requireActivity().findViewById(R.id.reader_manga_toolbar_reader_top)
-        mPopupSubtitle = requireActivity().findViewById(R.id.popup_menu_translate)
-        mPopupColor = requireActivity().findViewById(R.id.popup_menu_color)
-        mPageNavLayout = requireActivity().findViewById(R.id.reader_manga_nav_reader)
+        mPopupSubtitle = requireActivity().findViewById(R.id.popup_manga_translate)
+        mPopupColor = requireActivity().findViewById(R.id.popup_manga_color)
+        mPageNavLayout = requireActivity().findViewById(R.id.reader_manga_bottom_progress_content)
         mToolbarBottom = requireActivity().findViewById(R.id.reader_manga_toolbar_reader_bottom)
         mPreviousButton = requireActivity().findViewById(R.id.reader_manga_nav_previous_file)
         mNextButton = requireActivity().findViewById(R.id.reader_manga_nav_next_file)
         mViewPager = view.findViewById<View>(R.id.fragment_reader) as ImageViewPager
 
-        (mPageNavLayout.findViewById<View>(R.id.reader_manga_nav_reader_progress) as SeekBar).also {
+        (mPageNavLayout.findViewById<View>(R.id.reader_manga_bottom_progress) as SeekBar).also {
             mPageSeekBar = it
         }
         mPageNavTextView =
-            mPageNavLayout.findViewById<View>(R.id.reader_manga_nav_reader_title) as TextView
+            mPageNavLayout.findViewById<View>(R.id.reader_manga_bottom_progress_title) as TextView
 
         if (mParse == null) {
             view.findViewById<ImageView>(R.id.image_error).visibility = View.VISIBLE
@@ -382,17 +382,17 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_reader_manga, menu)
         when (mReaderMode) {
-            ReaderMode.ASPECT_FILL -> menu.findItem(R.id.view_mode_aspect_fill).isChecked = true
-            ReaderMode.ASPECT_FIT -> menu.findItem(R.id.view_mode_aspect_fit).isChecked = true
-            ReaderMode.FIT_WIDTH -> menu.findItem(R.id.view_mode_fit_width).isChecked = true
+            ReaderMode.ASPECT_FILL -> menu.findItem(R.id.manga_view_mode_aspect_fill).isChecked = true
+            ReaderMode.ASPECT_FIT -> menu.findItem(R.id.manga_view_mode_aspect_fit).isChecked = true
+            ReaderMode.FIT_WIDTH -> menu.findItem(R.id.manga_view_mode_fit_width).isChecked = true
         }
         if (mIsLeftToRight)
-            menu.findItem(R.id.reading_left_to_right).isChecked = true
+            menu.findItem(R.id.reading_manga_left_to_right).isChecked = true
         else
-            menu.findItem(R.id.reading_right_to_left).isChecked = true
+            menu.findItem(R.id.reading_manga_right_to_left).isChecked = true
 
-        menu.findItem(R.id.menu_item_use_magnifier_type).isChecked = mUseMagnifierType
-        menu.findItem(R.id.menu_item_show_clock_and_battery).isChecked = mPreferences.getBoolean(
+        menu.findItem(R.id.menu_item_reader_manga_use_magnifier_type).isChecked = mUseMagnifierType
+        menu.findItem(R.id.menu_item_reader_manga_show_clock_and_battery).isChecked = mPreferences.getBoolean(
             GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY,
             false
         )
@@ -444,7 +444,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.view_mode_aspect_fill, R.id.view_mode_aspect_fit, R.id.view_mode_fit_width -> {
+            R.id.manga_view_mode_aspect_fill, R.id.manga_view_mode_aspect_fit, R.id.manga_view_mode_fit_width -> {
                 item.isChecked = true
                 mReaderMode = mResourceViewMode[item.itemId] ?: ReaderMode.FIT_WIDTH
                 updatePageViews(mViewPager) {
@@ -454,15 +454,15 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     it.setViewMode(mReaderMode)
                 }
             }
-            R.id.reading_left_to_right, R.id.reading_right_to_left -> {
+            R.id.reading_manga_left_to_right, R.id.reading_manga_right_to_left -> {
                 item.isChecked = true
                 val page = getCurrentPage()
-                mIsLeftToRight = item.itemId == R.id.reading_left_to_right
+                mIsLeftToRight = item.itemId == R.id.reading_manga_left_to_right
                 setCurrentPage(page, false)
                 mViewPager.adapter?.notifyDataSetChanged()
                 updateSeekBar()
             }
-            R.id.menu_item_use_magnifier_type -> {
+            R.id.menu_item_reader_manga_use_magnifier_type -> {
                 item.isChecked = !item.isChecked
                 mUseMagnifierType = item.isChecked
                 updatePageViews(mViewPager) {
@@ -477,7 +477,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     this.commit()
                 }
             }
-            R.id.menu_item_save_share_image -> openPopupSaveShareImage()
+            R.id.menu_item_reader_manga_save_share_image -> openPopupSaveShareImage()
         }
         return super.onOptionsItemSelected(item)
     }

@@ -86,5 +86,77 @@
             android:text="@string/config_title_libraries"
             app:icon="@drawable/ic_library_small" />
 
+        <com.google.android.material.divider.MaterialDivider
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin_small"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small" />
+
+        <org.lucasr.twowayview.TwoWayView
+            android:id="@+id/config_book_list_fonts"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/config_book_font_type_height"
+            android:layout_margin="@dimen/margin_small"
+            android:clipToPadding="false"
+            android:drawSelectorOnTop="false"
+            android:orientation="horizontal"
+            android:scrollbarStyle="outsideOverlay"
+            android:scrollbars="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0" />
+
+        <com.google.android.material.divider.MaterialDivider
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin_small"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                style="@style/TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin"
+                android:layout_marginEnd="@dimen/margin_small"
+                android:layout_gravity="center"
+                android:text="@string/popup_reading_font_size_description"
+                android:textSize="20sp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_alignment_divider" />
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/config_book_font_size"
+                style="@style/Slider.FontSize"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxHeight="2dp"
+                android:minHeight="2dp"/>
+
+            <TextView
+                style="@style/TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginEnd="@dimen/margin"
+                android:layout_gravity="center"
+                android:text="@string/popup_reading_font_size_description"
+                android:textSize="32sp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_alignment_divider" />
+        </LinearLayout>
+
     </LinearLayout>
 </LinearLayout>

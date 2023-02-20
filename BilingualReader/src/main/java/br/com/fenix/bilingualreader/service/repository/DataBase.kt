@@ -25,14 +25,16 @@ import java.io.File
 
 @Database(
     version = 1, exportSchema = true,
-    entities = [Manga::class, Book::class, SubTitle::class, KanjiJLPT::class, Kanjax::class, FileLink::class, PageLink::class,
-        Vocabulary::class, Library::class, VocabularyManga::class, VocabularyBook::class]
+    entities = [Manga::class, Book::class, Library::class, SubTitle::class, KanjiJLPT::class, Kanjax::class,
+        FileLink::class, PageLink::class, Vocabulary::class, VocabularyManga::class, VocabularyBook::class,
+        BookConfiguration::class]
 )
 @TypeConverters(Converters::class)
 abstract class DataBase : RoomDatabase() {
 
     abstract fun getMangaDao(): MangaDAO
     abstract fun getBookDao(): BookDAO
+    abstract fun getBookConfigurationDao(): BookConfigurationDAO
     abstract fun getSubTitleDao(): SubTitleDAO
     abstract fun getKanjiJLPTDao(): KanjiJLPTDAO
     abstract fun getKanjaxDao(): KanjaxDAO

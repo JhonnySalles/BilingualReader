@@ -27,10 +27,9 @@ import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
 import java.io.File
 
-class MangaReaderViewModel(application: Application) : AndroidViewModel(application) {
+class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
-    private val mContext = application.applicationContext
-    private var mPreferences: SharedPreferences? = GeneralConsts.getSharedPreferences(mContext)
+    private var mPreferences: SharedPreferences = GeneralConsts.getSharedPreferences(app.applicationContext)
 
     private val mLOGGER = LoggerFactory.getLogger(MangaReaderViewModel::class.java)
 
@@ -133,52 +132,52 @@ class MangaReaderViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     private fun loadPreferences() {
-        mCustomFilter.value = mPreferences!!.getBoolean(
+        mCustomFilter.value = mPreferences.getBoolean(
             GeneralConsts.KEYS.COLOR_FILTER.CUSTOM_FILTER,
             false
         )
 
-        mColorRed.value = mPreferences!!.getInt(
+        mColorRed.value = mPreferences.getInt(
             GeneralConsts.KEYS.COLOR_FILTER.COLOR_RED,
             0
         )
 
-        mColorGreen.value = mPreferences!!.getInt(
+        mColorGreen.value = mPreferences.getInt(
             GeneralConsts.KEYS.COLOR_FILTER.COLOR_BLUE,
             0
         )
 
-        mColorBlue.value = mPreferences!!.getInt(
+        mColorBlue.value = mPreferences.getInt(
             GeneralConsts.KEYS.COLOR_FILTER.COLOR_GREEN,
             0
         )
 
-        mColorAlpha.value = mPreferences!!.getInt(
+        mColorAlpha.value = mPreferences.getInt(
             GeneralConsts.KEYS.COLOR_FILTER.COLOR_ALPHA,
             0
         )
 
-        mGrayScale.value = mPreferences!!.getBoolean(
+        mGrayScale.value = mPreferences.getBoolean(
             GeneralConsts.KEYS.COLOR_FILTER.GRAY_SCALE,
             false
         )
 
-        mInvertColor.value = mPreferences!!.getBoolean(
+        mInvertColor.value = mPreferences.getBoolean(
             GeneralConsts.KEYS.COLOR_FILTER.INVERT_COLOR,
             false
         )
 
-        mSepia.value = mPreferences!!.getBoolean(
+        mSepia.value = mPreferences.getBoolean(
             GeneralConsts.KEYS.COLOR_FILTER.SEPIA,
             false
         )
 
-        mBlueLight.value = mPreferences!!.getBoolean(
+        mBlueLight.value = mPreferences.getBoolean(
             GeneralConsts.KEYS.COLOR_FILTER.BLUE_LIGHT,
             false
         )
 
-        mBlueLightAlpha.value = mPreferences!!.getInt(
+        mBlueLightAlpha.value = mPreferences.getInt(
             GeneralConsts.KEYS.COLOR_FILTER.BLUE_LIGHT_ALPHA,
             100
         )
@@ -187,8 +186,8 @@ class MangaReaderViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     private fun savePreferences() {
-        with(mPreferences?.edit()) {
-            this!!.putBoolean(
+        with(mPreferences.edit()) {
+            this.putBoolean(
                 GeneralConsts.KEYS.COLOR_FILTER.CUSTOM_FILTER,
                 mCustomFilter.value!!
             )
@@ -248,10 +247,10 @@ class MangaReaderViewModel(application: Application) : AndroidViewModel(applicat
             filters.add(GrayscaleTransformation())
 
         if (mInvertColor.value!!)
-            filters.add(InvertFilterTransformation(mContext))
+            filters.add(InvertFilterTransformation(app.applicationContext))
 
         if (mSepia.value!!)
-            filters.add(SepiaFilterTransformation(mContext))
+            filters.add(SepiaFilterTransformation(app.applicationContext))
 
         mFilters.value = filters
     }
@@ -307,7 +306,7 @@ class MangaReaderViewModel(application: Application) : AndroidViewModel(applicat
             loaded = true
             val list = arrayListOf<Pages>()
             if (parse is RarParse) {
-                val cacheDir = File(GeneralConsts.getCacheDir(mContext), GeneralConsts.CACHE_FOLDER.IMAGE)
+                val cacheDir = File(GeneralConsts.getCacheDir(app.applicationContext), GeneralConsts.CACHE_FOLDER.IMAGE)
                 (parse as RarParse?)!!.setCacheDirectory(cacheDir)
             }
 

@@ -138,11 +138,6 @@
     <dimen name="reader_touch_demonstration_initial_horizontal">50dp</dimen>
     <dimen name="reader_touch_demonstration_initial_vertical">120dp</dimen>
 
-    <dimen name="reader_font_size_small">5sp</dimen>
-    <dimen name="reader_font_size_medium">7sp</dimen>
-    <dimen name="reader_font_size_big">10sp</dimen>
-    <dimen name="reader_font_size_xxl">12sp</dimen>
-
     <dimen name="popup_reader_title">15sp</dimen>
     <dimen name="popup_reader_file_page_name">10sp</dimen>
     <dimen name="popup_reader_text">20sp</dimen>
@@ -185,6 +180,7 @@
     <dimen name="config_tracker_margin">10dp</dimen>
     <dimen name="config_theme_height">200dp</dimen>
     <dimen name="config_theme_selected_stroke">3dp</dimen>
+    <dimen name="config_book_font_type_height">100dp</dimen>
 
     <dimen name="about_app_name">18sp</dimen>
     <dimen name="about_title_size">16sp</dimen>
