@@ -26,7 +26,8 @@ class Migrations {
         const val VOCABULARY: String = "INSERT INTO " + DataBaseConsts.VOCABULARY.TABLE_NAME +
                 " (" + DataBaseConsts.VOCABULARY.COLUMNS.WORD + ", " + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + ", " +
                 DataBaseConsts.VOCABULARY.COLUMNS.READING + ", " + DataBaseConsts.VOCABULARY.COLUMNS.ENGLISH + ", " +
-                DataBaseConsts.VOCABULARY.COLUMNS.PORTUGUESE + ", " + DataBaseConsts.VOCABULARY.COLUMNS.REVISED  + ") VALUES "
+                DataBaseConsts.VOCABULARY.COLUMNS.PORTUGUESE + ", " + DataBaseConsts.VOCABULARY.COLUMNS.JLPT + ", " +
+                DataBaseConsts.VOCABULARY.COLUMNS.REVISED  + ") VALUES "
 
     }
 

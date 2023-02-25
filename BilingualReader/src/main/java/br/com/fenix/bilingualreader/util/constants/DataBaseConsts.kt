@@ -208,6 +208,7 @@ class DataBaseConsts private constructor() {
             const val ENGLISH = "english"
             const val READING = "reading"
             const val REVISED = "revised"
+            const val JLPT = "jlpt"
             const val FAVORITE = "favorite"
             const val APPEARS = "appears"
         }

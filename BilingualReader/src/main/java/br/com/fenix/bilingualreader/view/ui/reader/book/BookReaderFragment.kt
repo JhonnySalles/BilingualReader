@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.graphics.Color
 import android.os.*
 import android.util.Base64
 import android.view.*
@@ -29,6 +30,7 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.service.controller.WebInterface
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
@@ -488,6 +490,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     inner class BookPagerAdapter : PagerAdapter() {
+        private val mInterface = WebInterface(requireContext())
+
         override fun isViewFromObject(view: View, o: Any): Boolean {
             return view === o
         }
@@ -520,6 +524,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
             webViewPage.setOnTouchListener(this@BookReaderFragment)
             webViewPage.settings.javaScriptEnabled = true
             webViewPage.settings.defaultFontSize = mViewModel.mWebFontSize
+            webViewPage.setBackgroundColor(Color.TRANSPARENT)
+            // Use variable android in javascript to call functions java
+            webViewPage.addJavascriptInterface(mInterface, "android")
             container.addView(layout)
 
             return layout

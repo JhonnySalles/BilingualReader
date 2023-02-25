@@ -44,4 +44,6 @@
         <attr name="dots_positions" format="reference"/>
         <attr name="dots_drawable" format="reference"/>
     </declare-styleable>
+
+    <bool name="isNight">false</bool>
 </resources>

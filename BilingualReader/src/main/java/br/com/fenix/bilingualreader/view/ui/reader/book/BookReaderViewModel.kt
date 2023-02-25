@@ -66,18 +66,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     }
 
     private fun generateCSS(): String {
-
-        var background = "#000000"
-        var fontColor = "#FFFFFF"
-
-        /* Será necessário verificar uma forma de trazer as cores.
-        val attrs =
-            intArrayOf(android.R.attr.background, android.R.attr.color, android.R.attr.colorAccent)
-        app.applicationContext.withStyledAttributes(R.style.ReaderBookCssColors, attrs) {
-            val teste = getColor(0, Color.BLACK)
-            background = Integer.toHexString(getColor(attrs[0], Color.BLACK))
-            fontColor = Integer.toHexString(getColor(attrs[1], Color.WHITE))
-        }*/
+        //Not use #, because webview not showing, use %23 for #
+        val fontColor = if(app.resources.getBoolean(R.bool.isNight)) "%23ffffff" else "%23000000"
 
         val fontType = fontType.value?.getName() ?: FontType.TimesNewRoman.getName()
 
@@ -103,17 +93,17 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         }
 
         return "<head><style> " +
-                "@font-face {" +
-                "    font-family: MyFont;" +
-                "    src: url(\"file:///android_asset/fonts/$fontType\");" +
-                "}" +
+                "@font-face { " +
+                "  font-family: MyFont; " +
+                "  src: url(\"file:///android_asset/fonts/$fontType\"); " +
+                "} " +
                 "body { " +
-                "  background-color: $background;" +
-                "  color: $fontColor;" +
-                "  line-height: $spacing;" +
-                "  text-align: $alignment;" +
-                "  margin: $margin;" +
-                "  margin-bottom: 50px;" +
+                "  font-family: MyFont, times;" +
+                "  color: $fontColor; " +
+                "  line-height: $spacing; " +
+                "  text-align: $alignment; " +
+                "  margin: $margin $margin 50px $margin; " +
+                "  margin-bottom: 50px; " +
                 "} " +
                 "</style></head>"
     }

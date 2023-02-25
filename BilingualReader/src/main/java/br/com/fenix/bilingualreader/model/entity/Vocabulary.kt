@@ -32,6 +32,10 @@ data class Vocabulary(
     @ColumnInfo(name = DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM)
     val basicForm: String?,
 
+    @ColumnInfo(name = DataBaseConsts.VOCABULARY.COLUMNS.JLPT)
+    @SerializedName("jlpt")
+    val jlpt: Int,
+
     @ColumnInfo(name = DataBaseConsts.VOCABULARY.COLUMNS.REVISED)
     @SerializedName("revisado")
     val revised: Boolean,
