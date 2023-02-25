@@ -146,7 +146,7 @@ class BookReaderActivity : AppCompatActivity() {
         mConfigurationTab = findViewById(R.id.popup_book_configuration_tab)
         mConfigurationView = findViewById(R.id.popup_book_configuration_view_pager)
 
-        mToolBarTitle.setOnClickListener { dialogPageIndex() }
+        mToolBarTitle.setOnClickListener {  }
         mToolBarTitle.setOnLongClickListener {
             mBook?.let { FileUtil(this).copyName(it) }
             true
@@ -414,21 +414,20 @@ class BookReaderActivity : AppCompatActivity() {
                 finish()
                 return true
             }
-            R.id.menu_item_reader_book_chapter -> {}
+            R.id.menu_item_reader_book_chapter -> { dialogPageIndex() }
             R.id.menu_item_reader_book_search -> {}
             R.id.menu_item_reader_book_annotation -> {}
-            R.id.menu_item_reader_book_font_style -> {}
+            R.id.menu_item_reader_book_font_style -> { mConfiguration.visibility = View.VISIBLE }
             R.id.menu_item_reader_book_mark_page -> {}
         }
         return super.onOptionsItemSelected(item)
     }
 
     override fun onBackPressed() {
-        /*if (mMenuPopupTranslate.visibility != View.GONE || mMenuPopupColor.visibility != View.GONE) {
-            mMenuPopupTranslate.visibility = View.GONE
-            mMenuPopupColor.visibility = View.GONE
+        if (mConfiguration.visibility != View.GONE) {
+            mConfiguration.visibility = View.GONE
             return
-        }*/
+        }
 
         super.onBackPressed()
         finish()

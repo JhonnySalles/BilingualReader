@@ -24,8 +24,6 @@ class PopupBookFont : Fragment() {
     private lateinit var mFontType: TwoWayView
     private lateinit var mFontSize: Slider
 
-    private var mMapFonts: HashMap<FontType, LinearLayout> = hashMapOf()
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -49,10 +47,10 @@ class PopupBookFont : Fragment() {
 
     private fun observer() {
         mViewModel.fontSize.observe(viewLifecycleOwner) {
-            mFontSize.value = if (it < mFontSize.valueTo)
-                mFontSize.valueTo
-            else if (it < mFontSize.valueFrom)
+            mFontSize.value = if (it < mFontSize.valueFrom)
                 mFontSize.valueFrom
+            else if (it > mFontSize.valueTo)
+                mFontSize.valueTo
             else
                 it.toFloat()
         }

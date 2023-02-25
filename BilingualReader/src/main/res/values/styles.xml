@@ -584,9 +584,9 @@
     </style>
 
     <style name="Slider.FontSize" parent="Slider" >
-        <item name="android:valueFrom">5f</item>
-        <item name="android:valueTo">12f</item>
-        <item name="android:value">5f</item>
+        <item name="android:valueFrom">5</item>
+        <item name="android:valueTo">12</item>
+        <item name="android:value">5</item>
         <item name="android:stepSize">1</item>
     </style>
 

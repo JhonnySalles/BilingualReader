@@ -20,4 +20,8 @@ enum class FontType(private val font: Int, private val nameFile: String, private
     open fun getDescription() : Int = this.description
     open fun isJapanese() : Boolean = this.isJapanese
 
+    companion object {
+        fun getCssFont() = FontType.values().joinToString(separator = "") { " @font-face { font-family: ${it.name}; src: url(\"font/${it.nameFile}\"); } " }
+    }
+
 }

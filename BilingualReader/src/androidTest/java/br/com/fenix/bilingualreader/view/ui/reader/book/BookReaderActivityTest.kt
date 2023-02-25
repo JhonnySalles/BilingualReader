@@ -73,7 +73,7 @@ class BookReaderActivityTest {
         //onView(withId(R.id.root_frame_book_reader)).perform(click())
 
 
-        waiter.await(3, TimeUnit.MINUTES)
+        waiter.await(10, TimeUnit.MINUTES)
     }
 
 }

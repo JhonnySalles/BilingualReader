@@ -52,7 +52,11 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     )
     val fontSize: LiveData<Float> = mFontSize
 
-    private var mDefaultCss: String = ""
+    private var mFontCss: MutableLiveData<String> = MutableLiveData("")
+    val fontCss: LiveData<String> = mFontCss
+
+    private var mFontsLocation: String = FontType.getCssFont()
+    private var mDefaultCss : String = ""
     var mWebFontSize = FontUtil.pixelToDips(app.applicationContext, fontSize.value!!)
 
     init {
@@ -67,9 +71,10 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
     private fun generateCSS(): String {
         //Not use #, because webview not showing, use %23 for #
-        val fontColor = if(app.resources.getBoolean(R.bool.isNight)) "%23ffffff" else "%23000000"
+        val fontColor = if(app.resources.getBoolean(R.bool.isNight)) "#ffffff" else "#000000"
 
-        val fontType = fontType.value?.getName() ?: FontType.TimesNewRoman.getName()
+        val fontType = fontType.value?.name ?: FontType.TimesNewRoman.name
+        val fontSize =  FontUtil.pixelToDips(app.applicationContext, fontSize.value!!).toString() + "px"
 
         val margin = when (marginType.value) {
             MarginType.Small -> "1px"
@@ -92,20 +97,20 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             else -> "justify"
         }
 
-        return "<head><style> " +
-                "@font-face { " +
-                "  font-family: MyFont; " +
-                "  src: url(\"file:///android_asset/fonts/$fontType\"); " +
-                "} " +
+        val style = "<style type=\"text/css\"> " +
+                mFontsLocation +
                 "body { " +
-                "  font-family: MyFont, times;" +
+                "  font-family: $fontType, times; " +
+                "  font-size: $fontSize; " +
                 "  color: $fontColor; " +
                 "  line-height: $spacing; " +
                 "  text-align: $alignment; " +
                 "  margin: $margin $margin 50px $margin; " +
                 "  margin-bottom: 50px; " +
                 "} " +
-                "</style></head>"
+                "</style>"
+        mFontCss.value = style
+        return "<head>$style</head>"
     }
 
     private fun loadPreferences() {
@@ -212,10 +217,12 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         mFontType.value = font
         if (mListFonts.value != null)
             mListFonts.value = mListFonts.value!!.map { Pair(it.first, it.first == font) }.toMutableList()
+        mDefaultCss = generateCSS()
     }
 
     fun changeFontSize(value : Float) {
         mFontSize.value = value
+        mDefaultCss = generateCSS()
     }
 
 }
