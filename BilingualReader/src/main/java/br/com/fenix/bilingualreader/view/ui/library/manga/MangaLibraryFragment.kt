@@ -1,20 +1,26 @@
 package br.com.fenix.bilingualreader.view.ui.library.manga
 
 import android.app.ActivityOptions
+import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.database.Cursor
+import android.database.MatrixCursor
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.*
+import android.provider.BaseColumns
 import android.util.Pair
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -28,16 +34,14 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.model.enums.Libraries
-import br.com.fenix.bilingualreader.model.enums.LibraryType
-import br.com.fenix.bilingualreader.model.enums.ListMod
-import br.com.fenix.bilingualreader.model.enums.Order
+import br.com.fenix.bilingualreader.model.enums.*
 import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.service.scanner.ScannerManga
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.library.MangaGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaLineCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
@@ -114,14 +118,76 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         miGridType = menu.findItem(R.id.menu_manga_library_grid_type)
         miGridOrder = menu.findItem(R.id.menu_manga_library_list_order)
         miSearch = menu.findItem(R.id.menu_manga_library_search)
+
         searchView = miSearch.actionView as SearchView
         searchView.imeOptions = EditorInfo.IME_ACTION_DONE
+
+        val from = arrayOf(SearchManager.SUGGEST_COLUMN_TEXT_1)
+        val to = intArrayOf(R.id.list_item_suggestion)
+        val suggestions = Util.getFilters(requireContext()).keys.toList()
+        val cursorAdapter = SimpleCursorAdapter(requireContext(), R.layout.list_item_suggestion, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER)
+
+        searchView.suggestionsAdapter = cursorAdapter
+        searchView.setOnSuggestionListener(object: SearchView.OnSuggestionListener {
+            override fun onSuggestionSelect(position: Int): Boolean {
+                return false
+            }
+
+            override fun onSuggestionClick(position: Int): Boolean {
+                val cursor = searchView.suggestionsAdapter.getItem(position) as Cursor?
+                if( cursor != null) {
+                    val colum = cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1)
+                    val selection = cursor.getString(colum)
+                    val query =  searchView.query.toString().substringBeforeLast('@', "") + " " + selection
+                    searchView.setQuery(query.trim(), false)
+                }
+                return true
+            }
+        })
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
+                val cursor = MatrixCursor(
+                    arrayOf(
+                        BaseColumns._ID,
+                        SearchManager.SUGGEST_COLUMN_TEXT_1
+                    )
+                )
+                cursorAdapter.changeCursor(cursor)
+
+                if (newText != null) {
+                    var substring = newText.substringAfterLast('@', "")
+                    if (substring.isNotEmpty()) {
+                        if (!substring.contains(':')) {
+                            substring = substring.replace("@", "")
+                            suggestions.forEachIndexed { index, suggestion ->
+                                if (substring.isEmpty())
+                                    cursor.addRow(arrayOf(index, "@$suggestion:"))
+                                else if (suggestion.contains(substring, true))
+                                    cursor.addRow(arrayOf(index, "@$suggestion:"))
+                            }
+                            return false
+                        } else if (!substring.contains(' ')) {
+                            if (substring.contains(Util.filterToString(requireContext(), br.com.fenix.bilingualreader.model.enums.Filter.Type) , true)) {
+                                substring = substring.substringBefore(":")
+                                FileType.getManga().forEachIndexed { index, type ->
+                                    cursor.addRow(arrayOf(index, "@$substring:$type "))
+                                }
+                            }
+                            return false
+                        }
+                    } else if (newText.endsWith("@", true)) {
+                        suggestions.forEachIndexed { index, suggestion ->
+                            cursor.addRow(arrayOf(index, "@$suggestion:"))
+                        }
+                        return false
+                    }
+                }
+
                 mRefreshLayout.isEnabled = newText == null || newText.isEmpty()
                 filter(newText)
                 return false

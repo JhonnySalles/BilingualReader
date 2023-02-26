@@ -49,6 +49,7 @@
                 style="@style/TextNormal.Card.Title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin"
                 android:textSize="@dimen/manga_grid_title_size"
                 android:transitionName="transition_manga_title"/>
 

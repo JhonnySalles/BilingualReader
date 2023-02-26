@@ -330,6 +330,13 @@
     <string name="manga_library_default">Padrão</string>
     <string name="manga_library_menu_copy">Copiado</string>
 
+    <string-array name="manga_filters">
+        <item>Autor</item>
+        <item>Editora</item>
+        <item>Tipo</item>
+        <item>Volume</item>
+    </string-array>
+
     <!-- LIBRARY - Manga / Comic -->
     <string name="menu_book_config_send">Enviar o arquivo</string>
     <string name="menu_book_config_clear_progress">Limpar progresso</string>

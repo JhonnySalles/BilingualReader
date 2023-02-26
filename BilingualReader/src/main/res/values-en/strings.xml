@@ -329,6 +329,13 @@
     <string name="manga_library_default">Default</string>
     <string name="manga_library_menu_copy">Copy</string>
 
+    <string-array name="manga_filters">
+        <item>Author</item>
+        <item>Publisher</item>
+        <item>Type</item>
+        <item>Volume</item>
+    </string-array>
+
     <!-- LIBRARY - Manga / Comic -->
     <string name="menu_book_config_send">Send file</string>
     <string name="menu_book_config_clear_progress">Clear progress</string>

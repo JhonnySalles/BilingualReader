@@ -491,6 +491,13 @@
         <item name="android:background">?attr/colorSurface</item>
     </style>
 
+    <style name="TextNormal.ListSuggestion" parent="TextNormal">
+        <item name="android:ellipsize">end</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceSubtitle2</item>
+        <item name="android:background">?attr/colorSurface</item>
+    </style>
+
     <style name="TextNormal.History" parent="TextNormal">
         <item name="android:textAppearance">?attr/textAppearanceSubtitle2</item>
     </style>

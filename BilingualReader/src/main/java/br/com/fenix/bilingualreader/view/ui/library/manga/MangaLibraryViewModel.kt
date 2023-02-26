@@ -13,16 +13,18 @@ import br.com.fenix.bilingualreader.model.enums.ListMod
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.Util
+import com.artifex.mu.ChoosePDFItem
 import java.util.*
 import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 
-class MangaLibraryViewModel(application: Application) : AndroidViewModel(application), Filterable {
+class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filterable {
 
 
     private var mStackLibrary = mutableMapOf<String, Triple<Int, Library, MutableList<Manga>>>()
     private var mLibrary: Library = Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
-    private val mMangaRepository: MangaRepository = MangaRepository(application.applicationContext)
-    private val mPreferences = GeneralConsts.getSharedPreferences(application.applicationContext)
+    private val mMangaRepository: MangaRepository = MangaRepository(app.applicationContext)
+    private val mPreferences = GeneralConsts.getSharedPreferences(app.applicationContext)
 
     private var mWordFilter = ""
 
@@ -303,7 +305,7 @@ class MangaLibraryViewModel(application: Application) : AndroidViewModel(applica
         return mMangaFilter
     }
 
-    private fun filtered(manga: Manga?, filterPattern: String): Boolean {
+    private fun filtered(manga: Manga?, filterPattern: String, filterConditions :ArrayList<Pair<br.com.fenix.bilingualreader.model.enums.Filter, String>>): Boolean {
         if (manga == null)
             return false
 
@@ -312,6 +314,31 @@ class MangaLibraryViewModel(application: Application) : AndroidViewModel(applica
                 return false
 
             if (mTypeFilter.value == FilterType.Favorite && !manga.favorite)
+                return false
+        }
+
+        if (filterConditions.isNotEmpty()) {
+            var condition = false
+            filterConditions.forEach {
+                when (it.first) {
+                    br.com.fenix.bilingualreader.model.enums.Filter.Type -> {
+                        if (manga.type.name.contains(it.second, true))
+                            condition = true
+                    }
+                    br.com.fenix.bilingualreader.model.enums.Filter.Volume -> {
+                        val volume = manga.title.substringAfterLast("Volume", "").replace(Regex("[^\\d]+"), "")
+                        if (manga.volume.equals(it.second, true) || volume.contains(it.second, true))
+                            condition = true
+                    }
+                    br.com.fenix.bilingualreader.model.enums.Filter.Publisher -> {
+                        if (manga.publisher.contains(it.second, true))
+                            condition = true
+                    }
+                    else -> {}
+                }
+            }
+
+            if (!condition)
                 return false
         }
 
@@ -327,10 +354,28 @@ class MangaLibraryViewModel(application: Application) : AndroidViewModel(applica
             if ((constraint == null || constraint.isEmpty()) && mTypeFilter.value == FilterType.None) {
                 filteredList.addAll(mListMangasFull.value!!.filter(Objects::nonNull))
             } else {
-                val filterPattern = constraint.toString().lowercase(Locale.getDefault()).trim()
+                var filterPattern = constraint.toString()
+                val filterCondition = arrayListOf<Pair<br.com.fenix.bilingualreader.model.enums.Filter, String>>()
+                constraint?.contains('@').run {
+                    constraint?.split(" ")?.let {
+                        for (word in it) {
+                            if (word.contains(Regex("@[\\S]+:(\\S++ |\\S++)"))) {
+                                filterPattern = filterPattern.replace(word, "", true)
+                                val type = Util.stringToFilter(app.applicationContext, word.substringBefore(":").replace("@", ""))
+                                if (type != br.com.fenix.bilingualreader.model.enums.Filter.None) {
+                                    val condition = word.substringAfter(":")
+                                    if (condition.isNotEmpty())
+                                        filterCondition.add(Pair(type, condition))
+                                }
+                            }
+                        }
+                    }
+                }
+
+                filterPattern = filterPattern.lowercase(Locale.getDefault()).trim()
 
                 filteredList.addAll(mListMangasFull.value!!.filter {
-                    filtered(it, filterPattern)
+                    filtered(it, filterPattern, filterCondition)
                 })
             }
 

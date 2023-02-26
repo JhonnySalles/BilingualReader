@@ -36,10 +36,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.model.enums.FileType
-import br.com.fenix.bilingualreader.model.enums.Languages
-import br.com.fenix.bilingualreader.model.enums.Themes
-import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.model.enums.*
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -383,6 +380,42 @@ class Util {
             val mapLanguages = getLanguages(context)
             return if (mapLanguages.containsValue(language))
                 mapLanguages.filter { language == it.value }.keys.first()
+            else
+                ""
+        }
+
+
+        private var mapFilter: HashMap<String, Filter>? = null
+        fun getFilters(context: Context): HashMap<String, Filter> {
+            return if (mapFilter != null)
+                mapFilter!!
+            else {
+                val types = context.resources.getStringArray(R.array.manga_filters)
+                mapFilter = hashMapOf(
+                    types[0] to Filter.Author,
+                    types[1] to Filter.Publisher,
+                    types[2] to Filter.Type,
+                    types[3] to Filter.Volume
+                )
+                mapFilter!!
+            }
+        }
+
+        fun stringToFilter(context: Context, text: String): Filter {
+            var filter = Filter.None
+            val mapFilters = getFilters(context)
+            for (item in mapFilters)
+                if (item.key.equals(text, true)) {
+                    filter = item.value
+                    break
+                }
+            return filter
+        }
+
+        fun filterToString(context: Context, filter: Filter): String {
+            val mapFilters = getFilters(context)
+            return if (mapFilters.containsValue(filter))
+                mapFilters.filter { filter == it.value }.keys.first()
             else
                 ""
         }
