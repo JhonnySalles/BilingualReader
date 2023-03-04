@@ -1,14 +1,15 @@
 package br.com.fenix.bilingualreader.service.tracker
 
+import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.service.tracker.mal.MalMangaDetail
 
 class ParseInformation {
     companion object {
-        fun <T> getInformation(list: List<T>): MutableList<Information> {
+        fun <T> getInformation(context: Context, list: List<T>): MutableList<Information> {
             val newList = mutableListOf<Information>()
             for (item in list)
-                newList.add(getInformation(item))
+                newList.add(getInformation(context, item))
 
             newList.removeIf {
                 it.title.isEmpty()
@@ -17,15 +18,15 @@ class ParseInformation {
             return newList
         }
 
-        fun <T> getInformation(item: T): Information {
+        fun <T> getInformation(context: Context, item: T): Information {
             return when (item) {
-                is MalMangaDetail -> Information(item as MalMangaDetail)
+                is MalMangaDetail -> Information(context, item as MalMangaDetail)
                 else -> Information()
             }
         }
 
-        fun getInformation(item: MalMangaDetail): Information {
-            return Information(item)
+        fun getInformation(context: Context, item: MalMangaDetail): Information {
+            return Information(context, item)
         }
     }
 }

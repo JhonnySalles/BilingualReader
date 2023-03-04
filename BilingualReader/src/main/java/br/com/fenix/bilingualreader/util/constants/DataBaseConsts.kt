@@ -20,6 +20,7 @@ class DataBaseConsts private constructor() {
             const val FILE_SIZE = "size"
             const val FAVORITE = "favorite"
             const val HAS_SUBTITLE = "has_subtitle"
+            const val AUTHOR = "author"
             const val SERIES = "series"
             const val PUBLISHER = "publisher"
             const val RELEASE = "release"

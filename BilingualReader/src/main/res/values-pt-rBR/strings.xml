@@ -333,6 +333,7 @@
     <string-array name="manga_filters">
         <item>Autor</item>
         <item>Editora</item>
+        <item>Série</item>
         <item>Tipo</item>
         <item>Volume</item>
     </string-array>
@@ -373,17 +374,35 @@
     <string name="manga_detail_manga_deleted">Arquivo apagado</string>
     <string name="manga_detail_vocabulary">Vocabulário</string>
 
-    <string name="manga_detail_information">Informações</string>
+    <!-- Use CDATA for format string in html -->
+    <string name="manga_detail_local_information_title">Detalhes</string>
+    <string name="manga_detail_local_information_series"><![CDATA[<b>Série:</b> %s]]></string>
+    <string name="manga_detail_local_information_volume"><![CDATA[<b>Volume:</b> %s]]></string>
+    <string name="manga_detail_local_information_publisher"><![CDATA[<b>Editora:</b> %s]]></string>
+    <string name="manga_detail_local_information_release"><![CDATA[<b>Publicação:</b> %s]]></string>
+    <string name="manga_detail_web_information_publish_from_to"><![CDATA[<b>Publicação:</b> %s até %s]]></string>
+    <string name="manga_detail_local_information_authors"><![CDATA[<b>Autores:</b> %s]]></string>
+
+    <string name="manga_detail_local_information_comic_info_title"><![CDATA[<b>Titulo:</b> %s]]></string>
+    <string name="manga_detail_local_information_comic_info_language"><![CDATA[<b>Linguagem:</b> %s]]></string>
+    <string name="manga_detail_local_information_comic_info_story_arch"><![CDATA[<b>Estória do arco:</b> %s]]></string>
+    <string name="manga_detail_local_information_comic_info_genre"><![CDATA[<b>Gênero:</b> %s]]></string>
+    <string name="manga_detail_local_information_comic_info_characters"><![CDATA[<b>Personagens:</b> %s]]></string>
+    <string name="manga_detail_local_information_comic_info_teams"><![CDATA[<b>Times:</b> %s]]></string>
+    <string name="manga_detail_local_information_comic_info_locations"><![CDATA[<b>Localizações:</b> %s]]></string>
+    <string name="manga_detail_local_information_comic_info_book_marks_title">Marcações nas páginas</string>
+
+    <string name="manga_detail_web_information">Informações Web</string>
     <string name="manga_detail_related">Relacionados</string>
 
-    <string name="manga_detail_information_alternative_titles">Títulos alternativos:</string>
-    <string name="manga_detail_information_status">Estatus:</string>
-    <string name="manga_detail_information_volumes">Volumes:</string>
-    <string name="manga_detail_information_chapters">Capítulos:</string>
-    <string name="manga_detail_information_publish"><b>Publicação:</b> %s até %s</string>
-    <string name="manga_detail_information_publish_in_publication">em publicação</string>
-    <string name="manga_detail_information_authors">Autores:</string>
-    <string name="manga_detail_information_genre">Gêneros:</string>
+    <string name="manga_detail_web_information_alternative_titles"><![CDATA[<b>Títulos alternativos:</b> %s]]></string>
+    <string name="manga_detail_web_information_status"><![CDATA[<b>Estatus:</b> %s]]></string>
+    <string name="manga_detail_web_information_volumes"><![CDATA[<b>Volumes:</b> %s]]></string>
+    <string name="manga_detail_web_information_chapters"><![CDATA[<b>Capítulos:</b> %s]]></string>
+    <string name="manga_detail_web_information_publish"><![CDATA[<b>Publicação:</b> %s]]></string>
+    <string name="manga_detail_web_information_publish_in_publication">in publication</string>
+    <string name="manga_detail_web_information_authors"><![CDATA[<b>Autores:</b> %s]]></string>
+    <string name="manga_detail_web_information_genre"><![CDATA[<b>Gêneros:</b> %s]]></string>
 
     <!-- MANGA DETAIL -->
     <string name="book_detail_favorite">Favorito</string>
@@ -568,5 +587,13 @@
     <string name="about_app_suggestion">Sugestão</string>
     <string name="about_app_mail">E-Mail</string>
     <string name="about_app_library">Bibliotecas</string>
+
+    <!-- COMMON -->
+    <string name="text_author">Autor</string>
+    <string name="text_writer">Escritor</string>
+    <string name="text_penciller">Desenhista</string>
+    <string name="text_inker">Arte-finalista</string>
+    <string name="text_cover_artist">Artista de capa</string>
+    <string name="text_colorist">Colorista</string>
 
 </resources>

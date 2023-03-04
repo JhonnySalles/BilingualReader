@@ -333,6 +333,14 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                         if (manga.publisher.contains(it.second, true))
                             condition = true
                     }
+                    br.com.fenix.bilingualreader.model.enums.Filter.Series -> {
+                        if (manga.series.contains(it.second, true))
+                            condition = true
+                    }
+                    br.com.fenix.bilingualreader.model.enums.Filter.Author -> {
+                        if (manga.author.contains(it.second, true))
+                            condition = true
+                    }
                     else -> {}
                 }
             }

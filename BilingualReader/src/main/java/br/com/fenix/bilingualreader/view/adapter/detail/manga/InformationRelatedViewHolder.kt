@@ -38,26 +38,12 @@ class InformationRelatedViewHolder(itemView: View, private val listener: Informa
             MangaImageController.instance.setImageAsync(itemView.context, information.imageLink!!, image)
 
         title.text = information.title
-        alternativeTitles.text = Html.fromHtml(Util.setBold(itemView.context.getString(R.string.manga_detail_information_alternative_titles)) + " " + information.alternativeTitles)
-        status.text = Html.fromHtml(Util.setBold(itemView.context.getString(R.string.manga_detail_information_status)) + " " + information.status)
-        publish.text = Html.fromHtml(
-            itemView.context.getString(
-                R.string.manga_detail_information_publish, GeneralConsts.formatterDate(
-                    itemView.context,
-                    information.startDate
-                ), GeneralConsts.formatterDate(
-                    itemView.context,
-                    information.endDate
-                )
-            )
-        )
-        volumes.text = Html.fromHtml(
-            Util.setBold(itemView.context.getString(R.string.manga_detail_information_volumes)) + " " + information.volumes + ", " + Util.setBold(
-                itemView.context.getString(R.string.manga_detail_information_chapters)
-            ) + " " + information.chapters
-        )
-        authors.text = Html.fromHtml(Util.setBold(itemView.context.getString(R.string.manga_detail_information_authors)) + " " + information.authors)
-        genres.text = Html.fromHtml(Util.setBold(itemView.context.getString(R.string.manga_detail_information_genre)) + " " + information.genres)
+        alternativeTitles.text = Html.fromHtml(information.alternativeTitles)
+        status.text = Html.fromHtml(information.status)
+        publish.text = Html.fromHtml(information.release)
+        volumes.text = Html.fromHtml(information.volumes + ", " + information.chapters)
+        authors.text = Html.fromHtml(information.authors)
+        genres.text = Html.fromHtml(information.genres)
     }
 
 }

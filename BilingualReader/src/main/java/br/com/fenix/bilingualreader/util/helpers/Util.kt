@@ -394,8 +394,9 @@ class Util {
                 mapFilter = hashMapOf(
                     types[0] to Filter.Author,
                     types[1] to Filter.Publisher,
-                    types[2] to Filter.Type,
-                    types[3] to Filter.Volume
+                    types[2] to Filter.Series,
+                    types[3] to Filter.Type,
+                    types[4] to Filter.Volume
                 )
                 mapFilter!!
             }

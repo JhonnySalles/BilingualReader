@@ -9,6 +9,7 @@ enum class Filter {
     Author,
     Type,
     Publisher,
+    Series,
     Volume;
 
 }

@@ -124,6 +124,7 @@ class SevenZipParse : Parse {
             try {
                 serializer.read(ComicInfo::class.java, page)
             } catch (e: Exception) {
+                e.printStackTrace()
                 null
             }
         } else

@@ -8,133 +8,133 @@ import org.simpleframework.xml.ElementList
 import org.simpleframework.xml.Root
 
 @Root(name = "ComicInfo", strict = false)
-class ComicInfo(
-	@Element(name = "Title" , required = false ) 
-	val title: String?,
+data class ComicInfo @JvmOverloads constructor(
+	@field:Element(name = "Title" , required = false ) @param:Element(name = "Title")
+	var title: String? = null,
 
-	@Element(name = "Series" , required = false )
-	val series: String?,
+	@field:Element(name = "Series" , required = false ) @param:Element(name = "Series")
+	var series: String? = null,
 
-	@Element(name = "Number" , required = false )
-	val number: Float?,
+	@field:Element(name = "Number" , required = false ) @param:Element(name = "Number")
+	var number: Float? = null,
 
-	@Element(name = "Volume" , required = false )
-	val volume: Int?,
+	@field:Element(name = "Volume" , required = false ) @param:Element(name = "Volume")
+	var volume: Int? = null,
 
-	@Element(name = "Notes" , required = false )
-	val notes: String?,
+	@field:Element(name = "Notes" , required = false ) @param:Element(name = "Notes")
+	var notes: String? = null,
 
-	@Element(name = "Year" , required = false )
-	val year: Int?,
+	@field:Element(name = "Year" , required = false ) @param:Element(name = "Year")
+	var year: Int? = null,
 
-	@Element(name = "Month" , required = false )
-	val month: Int?,
+	@field:Element(name = "Month" , required = false ) @param:Element(name = "Month")
+	var month: Int? = null,
 
-	@Element(name = "Day" , required = false )
-	val day: Int?,
+	@field:Element(name = "Day" , required = false ) @param:Element(name = "Day")
+	var day: Int? = null,
 
-	@Element(name = "Writer" , required = false )
-	val writer: String?,
+	@field:Element(name = "Writer" , required = false ) @param:Element(name = "Writer")
+	var writer: String? = null,
 
-	@Element(name = "Penciller" , required = false )
-	val penciller: String?,
+	@field:Element(name = "Penciller" , required = false ) @param:Element(name = "Penciller")
+	var penciller: String? = null,
 
-	@Element(name = "Inker" , required = false )
-	val inker: String?,
+	@field:Element(name = "Inker" , required = false ) @param:Element(name = "Inker")
+	var inker: String? = null,
 
-	@Element(name = "CoverArtist" , required = false )
-	val coverArtist: String?,
+	@field:Element(name = "CoverArtist" , required = false ) @param:Element(name = "CoverArtist")
+	var coverArtist: String? = null,
 
-	@Element(name = "Colorist" , required = false )
-	val colorist: String?,
+	@field:Element(name = "Colorist" , required = false ) @param:Element(name = "Colorist")
+	var colorist: String? = null,
 
-	@Element(name = "Letterer" , required = false )
-	val letterer: String?,
+	@field:Element(name = "Letterer" , required = false ) @param:Element(name = "Letterer")
+	var letterer: String? = null,
 
-	@Element(name = "Publisher" , required = false )
-	val publisher: String?,
+	@field:Element(name = "Publisher" , required = false ) @param:Element(name = "Publisher")
+	var publisher: String? = null,
 
-	@Element(name = "Tags" , required = false )
-	val tags: String?,
+	@field:Element(name = "Tags" , required = false ) @param:Element(name = "Tags")
+	var tags: String? = null,
 
-	@Element(name = "Web" , required = false )
-	val web: String?,
+	@field:Element(name = "Web" , required = false ) @param:Element(name = "Web")
+	var web: String? = null,
 
-	@Element(name = "Editor" , required = false )
-	val editor: String?,
+	@field:Element(name = "Editor" , required = false ) @param:Element(name = "Editor")
+	var editor: String? = null,
 
-	@Element(name = "Translator" , required = false )
-	val translator: String?,
+	@field:Element(name = "Translator" , required = false ) @param:Element(name = "Translator")
+	var translator: String? = null,
 
-	@Element(name = "PageCount" , required = false )
-	val pageCount: Int?,
+	@field:Element(name = "PageCount" , required = false ) @param:Element(name = "PageCount")
+	var pageCount: Int? = null,
 
-	@ElementList(name = "Pages" , required = false )
-	val pages: List<ComicInfoPage>?,
+	@field:ElementList(name = "Pages" , required = false ) @param:ElementList(name = "Pages")
+	var pages: List<ComicInfoPage>? = null,
 
-	@Element(name = "Count" , required = false )
-	val count: Int?,
+	@field:Element(name = "Count" , required = false ) @param:Element(name = "Count")
+	var count: Int? = null,
 
-	@Element(name = "AlternateSeries" , required = false )
-	val alternateSeries: String?,
+	@field:Element(name = "AlternateSeries" , required = false ) @param:Element(name = "AlternateSeries")
+	var alternateSeries: String? = null,
 
-	@Element(name = "AlternateNumber" , required = false )
-	val alternateNumber: Float?,
+	@field:Element(name = "AlternateNumber" , required = false ) @param:Element(name = "AlternateNumber")
+	var alternateNumber: Float? = null,
 
-	@Element(name = "StoryArc" , required = false )
-	val storyArc: String?,
+	@field:Element(name = "StoryArc" , required = false ) @param:Element(name = "StoryArc")
+	var storyArc: String? = null,
 
-	@Element(name = "StoryArcNumber" , required = false )
-	val storyArcNumber: String?,
+	@field:Element(name = "StoryArcNumber" , required = false ) @param:Element(name = "StoryArcNumber")
+	var storyArcNumber: String? = null,
 
-	@Element(name = "SeriesGroup" , required = false )
-	val seriesGroup: String?,
+	@field:Element(name = "SeriesGroup" , required = false ) @param:Element(name = "SeriesGroup")
+	var seriesGroup: String? = null,
 
-	@Element(name = "AlternateCount" , required = false )
-	val alternateCount: Int?,
+	@field:Element(name = "AlternateCount" , required = false ) @param:Element(name = "AlternateCount")
+	var alternateCount: Int? = null,
 
-	@Element(name = "Summary" , required = false )
-	val summary: String?,
+	@field:Element(name = "Summary" , required = false ) @param:Element(name = "Summary")
+	var summary: String? = null,
 
-	@Element(name = "Imprint" , required = false )
-	val imprint: String?,
+	@field:Element(name = "Imprint" , required = false ) @param:Element(name = "Imprint")
+	var imprint: String? = null,
 
-	@Element(name = "Genre" , required = false )
-	val genre: String?,
+	@field:Element(name = "Genre" , required = false ) @param:Element(name = "Genre")
+	var genre: String? = null,
 
-	@Element(name = "LanguageISO" , required = false )
-	val languageISO: String?,
+	@field:Element(name = "LanguageISO" , required = false ) @param:Element(name = "LanguageISO")
+	var languageISO: String? = null,
 
-	@Element(name = "Format" , required = false )
-	val format: String?,
+	@field:Element(name = "Format" , required = false ) @param:Element(name = "Format")
+	var format: String? = null,
 
-	@Element(name = "AgeRating" , required = false )
-	val ageRating: ComicInfoAgeRating?,
+	@field:Element(name = "AgeRating" , required = false ) @param:Element(name = "AgeRating")
+	var ageRating: ComicInfoAgeRating? = null,
 
-	@Element(name = "CommunityRating" , required = false )
-	val communityRating: Float?,
+	@field:Element(name = "CommunityRating" , required = false ) @param:Element(name = "CommunityRating")
+	var communityRating: Float? = null,
 
-	@Element(name = "BlackAndWhite" , required = false )
-	val blackAndWhite: ComicInfoYesNo?,
+	@field:Element(name = "BlackAndWhite" , required = false ) @param:Element(name = "BlackAndWhite")
+	var blackAndWhite: ComicInfoYesNo? = null,
 
-	@Element(name = "Manga" , required = false )
-	val manga: ComicInfoManga?,
+	@field:Element(name = "Manga" , required = false ) @param:Element(name = "Manga")
+	var manga: ComicInfoManga? = null,
 
-	@Element(name = "Characters" , required = false )
-	val characters: String?,
+	@field:Element(name = "Characters" , required = false ) @param:Element(name = "Characters")
+	var characters: String? = null,
 
-	@Element(name = "Teams" , required = false )
-	val teams: String?,
+	@field:Element(name = "Teams" , required = false ) @param:Element(name = "Teams")
+	var teams: String? = null,
 
-	@Element(name = "Locations" , required = false )
-	val locations: String?,
+	@field:Element(name = "Locations" , required = false ) @param:Element(name = "Locations")
+	var locations: String? = null,
 
-	@Element(name = "ScanInformation" , required = false )
-	val scanInformation: String?,
+	@field:Element(name = "ScanInformation" , required = false ) @param:Element(name = "ScanInformation")
+	var scanInformation: String? = null,
 
-	@Element(name = "MainCharacterOrTeam" , required = false )
-	val mainCharacterOrTeam: String?,
+	@field:Element(name = "MainCharacterOrTeam" , required = false ) @param:Element(name = "MainCharacterOrTeam")
+	var mainCharacterOrTeam: String? = null,
 
-	@Element(name = "Review" , required = false )
-	val review: String?,
+	@field:Element(name = "Review" , required = false ) @param:Element(name = "Review")
+	var review: String? = null
 )

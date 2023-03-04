@@ -28,6 +28,7 @@ class Manga(
     bookMark: Int,
     favorite: Boolean,
     hasSubtitle: Boolean,
+    author: String,
     series: String,
     publisher: String,
     volume: String,
@@ -45,12 +46,12 @@ class Manga(
     constructor( id: Long?, title: String,
         path: String, folder: String, name: String, size: Long, type: FileType,
         pages: Int, chapters: IntArray, bookMark: Int, favorite: Boolean, hasSubtitle: Boolean,
-        series: String, publisher: String, volume: String, idLibrary: Long?, excluded: Boolean,
-        dateCreate: LocalDateTime?, fileAlteration: Long, lastVocabularyImport: LocalDateTime?,
+        author: String , series: String, publisher: String, volume: String, idLibrary: Long?,
+        excluded: Boolean, dateCreate: LocalDateTime?, fileAlteration: Long, lastVocabularyImport: LocalDateTime?,
         lastVerify: LocalDate?, release: LocalDate?, lastAlteration: LocalDateTime?,
         lastAccess: LocalDateTime?, sort: LocalDateTime? = null
     ) : this( id, title, path, folder, name, size, type, pages, chapters, bookMark, favorite,
-        hasSubtitle, series, publisher, volume, release, idLibrary, excluded,
+        hasSubtitle, author, series, publisher, volume, release, idLibrary, excluded,
         dateCreate, lastAccess, lastAlteration, fileAlteration, lastVocabularyImport, lastVerify
     ) {
         this.sort = sort
@@ -59,17 +60,30 @@ class Manga(
     @Ignore
     constructor(fkLibrary: Long?, id: Long?, file: File, parse: Parse) : this(
         id, file.nameWithoutExtension, file.path, file.parent, file.name, file.length(), FileType.UNKNOWN,
-        parse.numPages(), parse.getChapters(), 0, false, parse.hasSubtitles(), "", "", "", null,
-        fkLibrary, false, LocalDateTime.now(),null, null, file.lastModified(), null, null
+        parse.numPages(), parse.getChapters(), 0, false, parse.hasSubtitles(), "", "", "",
+        "", null, fkLibrary, false, LocalDateTime.now(),null, null, file.lastModified(),
+        null, null
     ) {
         this.type = FileUtil.getFileType(file.name)
         this.volume = title.substringAfterLast("Volume", "").trim().replace(Regex("[^\\d.][\\s\\S]+"), "")
 
         parse.getComicInfo()?.let {
+            this.author = ""
+
+            if (it.writer != null && it.writer!!.isNotEmpty())
+                author += it.writer + ", "
+            if (it.penciller != null && it.penciller!!.isNotEmpty() && !author.contains(it.penciller!!, true))
+                author += it.penciller + ", "
+            if (it.inker != null && it.inker!!.isNotEmpty() && !author.contains(it.inker!!, true))
+                author += it.inker + ", "
+
+            if (author.contains(","))
+                author = author.substringBeforeLast(", ") + "."
+
             this.series = it.series.toString()
             this.publisher = it.publisher.toString()
             this.volume = it.volume.toString()
-            this.release = if (it.year != null) LocalDate.of(it.year, it.month?:1, it.day?:1) else null
+            this.release = if (it.year != null) LocalDate.of(it.year!!, it.month?:1, it.day?:1) else null
         }
     }
 
@@ -118,6 +132,9 @@ class Manga(
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.HAS_SUBTITLE)
     var hasSubtitle: Boolean = hasSubtitle
+
+    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.AUTHOR)
+    var author: String = author
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.SERIES)
     var series: String = series

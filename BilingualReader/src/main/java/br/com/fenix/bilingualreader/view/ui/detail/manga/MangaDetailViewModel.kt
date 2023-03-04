@@ -21,13 +21,13 @@ import br.com.fenix.bilingualreader.util.helpers.Util
 import org.slf4j.LoggerFactory
 import java.io.File
 
-class MangaDetailViewModel(application: Application) : AndroidViewModel(application) {
+class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
 
     private val mLOGGER = LoggerFactory.getLogger(MangaDetailViewModel::class.java)
 
-    private val mMangaRepository: MangaRepository = MangaRepository(application.applicationContext)
-    private val mFileLinkRepository: FileLinkRepository = FileLinkRepository(application.applicationContext)
-    private val cache = GeneralConsts.getCacheDir(application.applicationContext)
+    private val mMangaRepository: MangaRepository = MangaRepository(app.applicationContext)
+    private val mFileLinkRepository: FileLinkRepository = FileLinkRepository(app.applicationContext)
+    private val cache = GeneralConsts.getCacheDir(app.applicationContext)
 
     var library: Library? = null
     private var mManga = MutableLiveData<Manga?>(null)
@@ -44,20 +44,24 @@ class MangaDetailViewModel(application: Application) : AndroidViewModel(applicat
     private var mListSubtitles = MutableLiveData<MutableList<String>>(mutableListOf())
     val listSubtitles: LiveData<MutableList<String>> = mListSubtitles
 
-    private var mInformation = MutableLiveData<Information?>(null)
-    val information: LiveData<Information?> = mInformation
+    private var mLocalInformation = MutableLiveData<Information?>(null)
+    val localInformation: LiveData<Information?> = mLocalInformation
 
-    private var mInformationRelations = MutableLiveData<MutableList<Information>>(mutableListOf())
-    val informationRelations: LiveData<MutableList<Information>> = mInformationRelations
+    private var mWebInformation = MutableLiveData<Information?>(null)
+    val webInformation: LiveData<Information?> = mWebInformation
 
-    private val mTracker = MyAnimeListTracker(application.applicationContext)
+    private var mWebInformationRelations = MutableLiveData<MutableList<Information>>(mutableListOf())
+    val webInformationRelations: LiveData<MutableList<Information>> = mWebInformationRelations
+
+    private val mTracker = MyAnimeListTracker(app.applicationContext)
 
     fun setManga(manga: Manga) {
         mManga.value = manga
 
         mListFileLinks.value = if (manga.id != null) mFileLinkRepository.findAllByManga(manga.id!!)?.toMutableList() else mutableListOf()
-        mInformation.value = null
-        mInformationRelations.value = mutableListOf()
+        mWebInformation.value = null
+        mLocalInformation.value = null
+        mWebInformationRelations.value = mutableListOf()
 
         val parse = ParseFactory.create(manga.file) ?: return
         try {
@@ -66,6 +70,8 @@ class MangaDetailViewModel(application: Application) : AndroidViewModel(applicat
                 val cacheDir = File(cache, folder)
                 (parse as RarParse?)!!.setCacheDirectory(cacheDir)
             }
+
+            parse.getComicInfo()?.let { mLocalInformation.value = Information(app.applicationContext, it) }
 
             mPaths = parse.getPagePaths()
             mListChapters.value = mPaths.keys.toMutableList()
@@ -96,18 +102,18 @@ class MangaDetailViewModel(application: Application) : AndroidViewModel(applicat
 
     private val PATTERN = Regex("[^\\w\\s]")
     fun <T> setInformation(mangas: List<T>) {
-        val list = ParseInformation.getInformation(mangas)
+        val list = ParseInformation.getInformation(app.applicationContext, mangas)
 
         val name = Util.getNameFromMangaTitle(mManga.value?.title ?: "").replace(PATTERN, "")
 
-        mInformation.value = list.find {
+        mWebInformation.value = list.find {
             it.title.replace(PATTERN, "").trim().equals(name, true) ||
                     it.alternativeTitles.contains(name, true)
         }
-        if (mInformation.value != null)
-            list.remove(mInformation.value)
+        if (mWebInformation.value != null)
+            list.remove(mWebInformation.value)
 
-        mInformationRelations.value = list
+        mWebInformationRelations.value = list
     }
 
     fun getPage(folder: String): Int {
