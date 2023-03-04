@@ -240,7 +240,8 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
             (btnFloatingSubtitle.icon as AnimatedVectorDrawable).start()
             openFloatingSubtitle()
         }
-        val btnFloatingButtons = findViewById<MaterialButton>(R.id.reader_manga_btn_floating_buttons)
+        val btnFloatingButtons =
+            findViewById<MaterialButton>(R.id.reader_manga_btn_floating_buttons)
         btnFloatingButtons.setOnClickListener {
             (btnFloatingButtons.icon as AnimatedVectorDrawable).start()
             openFloatingButtons()
@@ -518,13 +519,17 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
     }
 
     fun changePage(title: String, text: String, page: Int) {
-        mReaderTitle.text = if (page > -1 && mManga != null) getString(R.string.progress, page, mManga!!.pages) else ""
+        mReaderTitle.text = if (page > -1 && mManga != null) getString(
+            R.string.progress,
+            page,
+            mManga!!.pages
+        ) else ""
         mToolBarTitle.text = title
         mToolBarSubTitle.text = text
         mViewModel.selectPage(page)
     }
 
-    private fun setManga(manga: Manga, isRestore : Boolean = false) {
+    private fun setManga(manga: Manga, isRestore: Boolean = false) {
         if (!isRestore) {
             mViewModel.clearChapter()
             mManga = manga
@@ -538,7 +543,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         var parse: Parse? = null
         try {
             parse = ParseFactory.create(manga.path)
-        } catch (e : Exception) {
+        } catch (e: Exception) {
         } finally {
             mReaderProgress.setDots(parse?.getChapters() ?: intArrayOf())
             Util.destroyParse(parse)
@@ -617,7 +622,17 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
             supportFragmentManager.findFragmentById(R.id.root_frame_manga_reader) ?: return
         val parse = (currentFragment as MangaReaderFragment).mParse ?: return
 
-        val paths = parse.getPagePaths()
+        var paths = mapOf<String, Int>()
+
+        parse.getComicInfo()?.let {
+            it.pages?.let { p ->
+                paths = p.filter { c -> c.bookmark != null && c.image != null }
+                    .associate { c -> c.bookmark!! to c.image!! }
+            }
+        }
+
+        if (paths.isEmpty())
+            paths = parse.getPagePaths()
 
         if (paths.isEmpty()) {
             MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)

@@ -46,7 +46,7 @@ class Information() {
     var locations: String = ""
     var storyArch: String = ""
 
-    var bookMarks = listOf<Pair<Int, String>>()
+    var bookMarks = mapOf<String, Int>()
 
     var annotation: String = ""
     var publisher: String = ""
@@ -204,8 +204,8 @@ class Information() {
             )
 
         manga.pages?.let {
-            bookMarks = it.filter { p -> p.bookmark != null && p.image != null }
-                .map { p -> Pair(p.image!!, p.bookmark!!) }
+            bookMarks = it.filter { c -> c.bookmark != null && c.image != null }
+                .associate { c -> c.bookmark!! to (c.image!! + 1) }
         }
 
         this.origin = COMIC_INFO

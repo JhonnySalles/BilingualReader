@@ -231,12 +231,12 @@ class MangaDetailFragment : Fragment() {
         mLocalInformationComicInfoBookMarks.setOnItemClickListener { _, _, index, _ ->
             mViewModel.localInformation.value?.let {
                 if (index >= 0 && mBookMarks.size > index && mViewModel.manga.value != null) {
-                    it.bookMarks.first { b -> b.second == mBookMarks[index] }.let { b ->
-                        val manga = mViewModel.manga.value
-                        manga!!.bookMark = b.first + 1
-                        mViewModel.save(manga)
-                        openManga(manga)
-                    }
+                    val mark = mBookMarks[index]
+                    val page = it.bookMarks[mark] ?: 1
+                    val manga = mViewModel.manga.value
+                    manga!!.bookMark = page
+                    mViewModel.save(manga)
+                    openManga(manga)
                 }
             }
         }
@@ -478,7 +478,7 @@ class MangaDetailFragment : Fragment() {
 
                 if (it.bookMarks.isNotEmpty()) {
                     mLocalInformationComicInfoBookMarksContent.visibility = View.VISIBLE
-                    mBookMarks.addAll(it.bookMarks.map { b -> b.second })
+                    mBookMarks.addAll(it.bookMarks.keys.toList())
                 } else
                     mLocalInformationComicInfoBookMarksContent.visibility = View.GONE
 
