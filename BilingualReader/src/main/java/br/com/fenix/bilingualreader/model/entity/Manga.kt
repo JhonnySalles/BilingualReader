@@ -63,6 +63,8 @@ class Manga(
         fkLibrary, false, LocalDateTime.now(),null, null, file.lastModified(), null, null
     ) {
         this.type = FileUtil.getFileType(file.name)
+        this.volume = title.substringAfterLast("Volume", "").trim().replace(Regex("[^\\d.][\\s\\S]+"), "")
+
         parse.getComicInfo()?.let {
             this.series = it.series.toString()
             this.publisher = it.publisher.toString()

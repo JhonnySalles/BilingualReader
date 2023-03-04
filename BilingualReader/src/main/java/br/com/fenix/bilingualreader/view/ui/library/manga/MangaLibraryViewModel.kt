@@ -326,8 +326,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                             condition = true
                     }
                     br.com.fenix.bilingualreader.model.enums.Filter.Volume -> {
-                        val volume = manga.title.substringAfterLast("Volume", "").replace(Regex("[^\\d]+"), "")
-                        if (manga.volume.equals(it.second, true) || volume.contains(it.second, true))
+                        if (manga.volume.equals(it.second, true))
                             condition = true
                     }
                     br.com.fenix.bilingualreader.model.enums.Filter.Publisher -> {
