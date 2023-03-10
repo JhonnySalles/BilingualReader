@@ -1,0 +1,210 @@
+{
+  "version": 1,
+  "layers": {
+    "vectorLayer": {
+      "id": "673",
+      "name": "vector",
+      "type": "vector",
+      "width": 24,
+      "height": 24,
+      "children": [
+        {
+          "id": "674",
+          "name": "align_right",
+          "type": "group",
+          "children": [
+            {
+              "id": "675",
+              "name": "base_line_1",
+              "type": "group",
+              "pivotX": 12,
+              "pivotY": 6,
+              "children": [
+                {
+                  "id": "676",
+                  "name": "line_1",
+                  "type": "path",
+                  "pathData": "M 5 6.2 C 4.735 6.2 4.48 6.305 4.293 6.493 C 4.105 6.68 4 6.935 4 7.2 C 4 7.465 4.105 7.72 4.293 7.907 C 4.48 8.095 4.735 8.2 5 8.2 L 19 8.2 C 19.265 8.2 19.52 8.095 19.707 7.907 C 19.895 7.72 20 7.465 20 7.2 C 20 6.935 19.895 6.68 19.707 6.493 C 19.52 6.305 19.265 6.2 19 6.2 Z",
+                  "fillColor": "#ffffff"
+                }
+              ]
+            },
+            {
+              "id": "677",
+              "name": "base_line_2",
+              "type": "group",
+              "pivotX": 12,
+              "children": [
+                {
+                  "id": "678",
+                  "name": "line_2",
+                  "type": "path",
+                  "pathData": "M 4.919 10.93 C 4.654 10.93 4.399 11.036 4.212 11.223 C 4.024 11.411 3.919 11.665 3.919 11.93 C 3.919 12.195 4.024 12.45 4.212 12.637 C 4.399 12.825 4.654 12.93 4.919 12.93 L 18.919 12.93 C 19.184 12.93 19.439 12.825 19.626 12.637 C 19.813 12.45 19.919 12.195 19.919 11.93 C 19.919 11.665 19.813 11.411 19.626 11.223 C 19.439 11.036 19.184 10.93 18.919 10.93 Z",
+                  "fillColor": "#ffffff"
+                }
+              ]
+            },
+            {
+              "id": "679",
+              "name": "base_line_3",
+              "type": "group",
+              "pivotX": 12,
+              "pivotY": 18,
+              "children": [
+                {
+                  "id": "680",
+                  "name": "line_3",
+                  "type": "path",
+                  "pathData": "M 5 15.8 C 4.735 15.8 4.48 15.905 4.293 16.093 C 4.105 16.28 4 16.535 4 16.8 C 4 17.065 4.105 17.32 4.293 17.507 C 4.48 17.695 4.735 17.8 5 17.8 L 19 17.8 C 19.265 17.8 19.52 17.695 19.707 17.507 C 19.895 17.32 20 17.065 20 16.8 C 20 16.535 19.895 16.28 19.707 16.093 C 19.52 15.905 19.265 15.8 19 15.8 Z",
+                  "fillColor": "#ffffff"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "hiddenLayerIds": []
+  },
+  "timeline": {
+    "animation": {
+      "id": "681",
+      "name": "anim",
+      "duration": 1000,
+      "blocks": [
+        {
+          "id": "682",
+          "layerId": "675",
+          "propertyName": "translateY",
+          "startTime": 512,
+          "endTime": 1000,
+          "interpolator": "ANTICIPATE_OVERSHOOT",
+          "type": "number",
+          "fromValue": 9,
+          "toValue": 0
+        },
+        {
+          "id": "683",
+          "layerId": "679",
+          "propertyName": "translateY",
+          "startTime": 512,
+          "endTime": 1000,
+          "interpolator": "ANTICIPATE_OVERSHOOT",
+          "type": "number",
+          "fromValue": -9,
+          "toValue": 0
+        },
+        {
+          "id": "684",
+          "layerId": "675",
+          "propertyName": "translateY",
+          "startTime": 0,
+          "endTime": 488,
+          "interpolator": "ANTICIPATE_OVERSHOOT",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 9
+        },
+        {
+          "id": "685",
+          "layerId": "679",
+          "propertyName": "translateY",
+          "startTime": 0,
+          "endTime": 488,
+          "interpolator": "ANTICIPATE_OVERSHOOT",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": -9
+        },
+        {
+          "id": "691",
+          "layerId": "675",
+          "propertyName": "scaleX",
+          "startTime": 0,
+          "endTime": 244,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 1.3
+        },
+        {
+          "id": "692",
+          "layerId": "679",
+          "propertyName": "scaleX",
+          "startTime": 0,
+          "endTime": 244,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.3
+        },
+        {
+          "id": "695",
+          "layerId": "675",
+          "propertyName": "scaleX",
+          "startTime": 244,
+          "endTime": 488,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1.3,
+          "toValue": 1
+        },
+        {
+          "id": "696",
+          "layerId": "679",
+          "propertyName": "scaleX",
+          "startTime": 244,
+          "endTime": 488,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.3,
+          "toValue": 1
+        },
+        {
+          "id": "697",
+          "layerId": "679",
+          "propertyName": "scaleX",
+          "startTime": 512,
+          "endTime": 756,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 1.3
+        },
+        {
+          "id": "698",
+          "layerId": "679",
+          "propertyName": "scaleX",
+          "startTime": 756,
+          "endTime": 1000,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1.3,
+          "toValue": 1
+        },
+        {
+          "id": "699",
+          "layerId": "675",
+          "propertyName": "scaleX",
+          "startTime": 512,
+          "endTime": 756,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.3
+        },
+        {
+          "id": "700",
+          "layerId": "675",
+          "propertyName": "scaleX",
+          "startTime": 756,
+          "endTime": 1000,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.3,
+          "toValue": 1
+        }
+      ]
+    }
+  }
+}

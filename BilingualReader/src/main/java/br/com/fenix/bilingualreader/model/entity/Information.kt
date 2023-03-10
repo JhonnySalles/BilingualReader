@@ -24,6 +24,10 @@ class Information() {
         setManga(context, manga)
     }
 
+    constructor(context: Context, book: Book) : this() {
+        setBook(context, book)
+    }
+
     var link: String = ""
     var imageLink: String? = null
     var title: String = ""
@@ -211,7 +215,7 @@ class Information() {
         this.origin = COMIC_INFO
     }
 
-    fun setBook(context: Context, book: Book): Information {
+    private fun setBook(context: Context, book: Book): Information {
         this.genres = book.genre
         this.annotation = book.annotation
         this.publisher = book.publisher

@@ -45,7 +45,7 @@ class BookDetailViewModel(application: Application) : AndroidViewModel(applicati
         mListFileLinks.value = if (book.id != null) mFileLinkRepository.findAllByManga(book.id!!)
             ?.toMutableList() else mutableListOf()
 
-        mInformation.value = Information().setBook(context, book)
+        mInformation.value = Information(context, book)
     }
 
     fun getPage(folder: String): Int {

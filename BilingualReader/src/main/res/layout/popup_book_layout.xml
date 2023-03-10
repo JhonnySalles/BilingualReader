@@ -66,7 +66,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/popup_book_layout_margin_small"
-            style="@style/Button.RoundedIconOnly"
+            style="@style/Button.SquaredIconOnly"
             android:layout_width="@dimen/popup_reader_button_width"
             android:layout_height="@dimen/popup_reader_button_width"
             android:layout_marginTop="5dp"
@@ -83,7 +83,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/popup_book_layout_margin_medium"
-            style="@style/Button.RoundedIconOnly"
+            style="@style/Button.SquaredIconOnly"
             android:layout_width="@dimen/popup_reader_button_width"
             android:layout_height="@dimen/popup_reader_button_width"
             android:layout_marginTop="5dp"
@@ -98,7 +98,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/popup_book_layout_margin_big"
-            style="@style/Button.RoundedIconOnly"
+            style="@style/Button.SquaredIconOnly"
             android:layout_width="@dimen/popup_reader_button_width"
             android:layout_height="@dimen/popup_reader_button_width"
             android:layout_marginTop="5dp"
@@ -137,14 +137,14 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/popup_book_layout_spacing_small"
-            style="@style/Button.RoundedIconOnly"
+            style="@style/Button.SquaredIconOnly"
             android:layout_width="@dimen/popup_reader_button_width"
             android:layout_height="@dimen/popup_reader_button_width"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="1dp"
             android:minHeight="@dimen/popup_reader_button_min_height"
             android:tooltipText="@string/popup_reading_layout_spacing_small"
-            app:icon="@drawable/ico_animated_text_before"
+            app:icon="@drawable/ico_animated_spacing_small"
             app:layout_constraintHorizontal_chainStyle="spread"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/popup_book_layout_spacing_medium"
@@ -152,14 +152,14 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/popup_book_layout_spacing_medium"
-            style="@style/Button.RoundedIconOnly"
+            style="@style/Button.SquaredIconOnly"
             android:layout_width="@dimen/popup_reader_button_width"
             android:layout_height="@dimen/popup_reader_button_width"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="1dp"
             android:minHeight="@dimen/popup_reader_button_min_height"
             android:tooltipText="@string/popup_reading_layout_spacing_medium"
-            app:icon="@drawable/ico_animated_text_next"
+            app:icon="@drawable/ico_animated_spacing_medium"
             app:layout_constraintHorizontal_chainStyle="spread"
             app:layout_constraintLeft_toRightOf="@+id/popup_book_layout_spacing_small"
             app:layout_constraintRight_toLeftOf="@+id/popup_book_layout_spacing_big"
@@ -167,14 +167,14 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/popup_book_layout_spacing_big"
-            style="@style/Button.RoundedIconOnly"
+            style="@style/Button.SquaredIconOnly"
             android:layout_width="@dimen/popup_reader_button_width"
             android:layout_height="@dimen/popup_reader_button_width"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="1dp"
             android:minHeight="@dimen/popup_reader_button_min_height"
             android:tooltipText="@string/popup_reading_layout_spacing_big"
-            app:icon="@drawable/ico_animated_text_next"
+            app:icon="@drawable/ico_animated_spacing_big"
             app:layout_constraintHorizontal_chainStyle="spread"
             app:layout_constraintLeft_toRightOf="@+id/popup_book_layout_spacing_medium"
             app:layout_constraintRight_toRightOf="parent"
@@ -204,17 +204,16 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_alignment_divider" />
 
-
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/popup_book_layout_alignment_complete"
-            style="@style/Button.RoundedIconOnly"
+            android:id="@+id/popup_book_layout_alignment_justify"
+            style="@style/Button.SquaredIconOnly"
             android:layout_width="@dimen/popup_reader_button_width"
             android:layout_height="@dimen/popup_reader_button_width"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="1dp"
             android:minHeight="@dimen/popup_reader_button_min_height"
             android:tooltipText="@string/popup_reading_layout_alignment_complete"
-            app:icon="@drawable/ico_animated_text_next"
+            app:icon="@drawable/ico_animated_align_justify"
             app:layout_constraintHorizontal_chainStyle="spread"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/popup_book_layout_alignment_left"
@@ -222,34 +221,48 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/popup_book_layout_alignment_left"
-            style="@style/Button.RoundedIconOnly"
+            style="@style/Button.SquaredIconOnly"
             android:layout_width="@dimen/popup_reader_button_width"
             android:layout_height="@dimen/popup_reader_button_width"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="1dp"
             android:minHeight="@dimen/popup_reader_button_min_height"
             android:tooltipText="@string/popup_reading_layout_alignment_left"
-            app:icon="@drawable/ico_animated_text_next"
+            app:icon="@drawable/ico_animated_align_left"
             app:layout_constraintHorizontal_chainStyle="spread"
-            app:layout_constraintLeft_toRightOf="@+id/popup_book_layout_alignment_complete"
+            app:layout_constraintLeft_toRightOf="@+id/popup_book_layout_alignment_justify"
+            app:layout_constraintRight_toLeftOf="@+id/popup_book_layout_alignment_center"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_alignment_description"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/popup_book_layout_alignment_center"
+            style="@style/Button.SquaredIconOnly"
+            android:layout_width="@dimen/popup_reader_button_width"
+            android:layout_height="@dimen/popup_reader_button_width"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="1dp"
+            android:minHeight="@dimen/popup_reader_button_min_height"
+            android:tooltipText="@string/popup_reading_layout_alignment_left"
+            app:icon="@drawable/ico_animated_align_center"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintLeft_toRightOf="@+id/popup_book_layout_alignment_left"
             app:layout_constraintRight_toLeftOf="@+id/popup_book_layout_alignment_right"
             app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_alignment_description"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/popup_book_layout_alignment_right"
-            style="@style/Button.RoundedIconOnly"
+            style="@style/Button.SquaredIconOnly"
             android:layout_width="@dimen/popup_reader_button_width"
             android:layout_height="@dimen/popup_reader_button_width"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="1dp"
             android:minHeight="@dimen/popup_reader_button_min_height"
             android:tooltipText="@string/popup_reading_layout_alignment_right"
-            app:icon="@drawable/ico_animated_text_next"
+            app:icon="@drawable/ico_animated_align_right"
             app:layout_constraintHorizontal_chainStyle="spread"
-            app:layout_constraintLeft_toRightOf="@+id/popup_book_layout_alignment_left"
+            app:layout_constraintLeft_toRightOf="@+id/popup_book_layout_alignment_center"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_alignment_description"/>
-
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

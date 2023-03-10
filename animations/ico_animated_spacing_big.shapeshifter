@@ -1,0 +1,120 @@
+{
+  "version": 1,
+  "layers": {
+    "vectorLayer": {
+      "id": "1",
+      "name": "vector",
+      "type": "vector",
+      "width": 24,
+      "height": 24,
+      "children": [
+        {
+          "id": "125",
+          "name": "align_right",
+          "type": "group",
+          "children": [
+            {
+              "id": "207",
+              "name": "base_line_1",
+              "type": "group",
+              "pivotY": 6,
+              "children": [
+                {
+                  "id": "3",
+                  "name": "line_1",
+                  "type": "path",
+                  "pathData": "M 5 5 C 4.735 5 4.48 5.105 4.293 5.293 C 4.105 5.48 4 5.735 4 6 C 4 6.265 4.105 6.52 4.293 6.707 C 4.48 6.895 4.735 7 5 7 L 19 7 C 19.265 7 19.52 6.895 19.707 6.707 C 19.895 6.52 20 6.265 20 6 C 20 5.735 19.895 5.48 19.707 5.293 C 19.52 5.105 19.265 5 19 5 Z",
+                  "fillColor": "#ffffff"
+                }
+              ]
+            },
+            {
+              "id": "208",
+              "name": "base_line_2",
+              "type": "group",
+              "pivotX": 12,
+              "children": [
+                {
+                  "id": "123",
+                  "name": "line_2",
+                  "type": "path",
+                  "pathData": "M 4.919 10.93 C 4.654 10.93 4.399 11.036 4.212 11.223 C 4.024 11.411 3.919 11.665 3.919 11.93 C 3.919 12.195 4.024 12.45 4.212 12.637 C 4.399 12.825 4.654 12.93 4.919 12.93 L 18.919 12.93 C 19.184 12.93 19.439 12.825 19.626 12.637 C 19.813 12.45 19.919 12.195 19.919 11.93 C 19.919 11.665 19.813 11.411 19.626 11.223 C 19.439 11.036 19.184 10.93 18.919 10.93 Z",
+                  "fillColor": "#ffffff"
+                }
+              ]
+            },
+            {
+              "id": "209",
+              "name": "base_line_3",
+              "type": "group",
+              "pivotY": 18,
+              "children": [
+                {
+                  "id": "124",
+                  "name": "line_3",
+                  "type": "path",
+                  "pathData": "M 5 17 C 4.735 17 4.48 17.105 4.293 17.293 C 4.105 17.48 4 17.735 4 18 C 4 18.265 4.105 18.52 4.293 18.707 C 4.48 18.895 4.735 19 5 19 L 19 19 C 19.265 19 19.52 18.895 19.707 18.707 C 19.895 18.52 20 18.265 20 18 C 20 17.735 19.895 17.48 19.707 17.293 C 19.52 17.105 19.265 17 19 17 Z",
+                  "fillColor": "#ffffff"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "hiddenLayerIds": []
+  },
+  "timeline": {
+    "animation": {
+      "id": "2",
+      "name": "anim",
+      "duration": 1000,
+      "blocks": [
+        {
+          "id": "523",
+          "layerId": "207",
+          "propertyName": "translateY",
+          "startTime": 512,
+          "endTime": 1000,
+          "interpolator": "ANTICIPATE_OVERSHOOT",
+          "type": "number",
+          "fromValue": 12,
+          "toValue": 0
+        },
+        {
+          "id": "524",
+          "layerId": "209",
+          "propertyName": "translateY",
+          "startTime": 512,
+          "endTime": 1000,
+          "interpolator": "ANTICIPATE_OVERSHOOT",
+          "type": "number",
+          "fromValue": -12,
+          "toValue": 0
+        },
+        {
+          "id": "525",
+          "layerId": "207",
+          "propertyName": "translateY",
+          "startTime": 0,
+          "endTime": 488,
+          "interpolator": "ANTICIPATE_OVERSHOOT",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 12
+        },
+        {
+          "id": "526",
+          "layerId": "209",
+          "propertyName": "translateY",
+          "startTime": 0,
+          "endTime": 488,
+          "interpolator": "ANTICIPATE_OVERSHOOT",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": -12
+        }
+      ]
+    }
+  }
+}

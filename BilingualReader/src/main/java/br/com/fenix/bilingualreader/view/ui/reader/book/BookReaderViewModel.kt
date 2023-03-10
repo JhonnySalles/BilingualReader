@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.view.ui.reader.book
 
 import android.app.Application
 import android.content.SharedPreferences
-import android.graphics.Color
 import android.view.ContextThemeWrapper
 import android.widget.TextView
 import androidx.appcompat.widget.TintTypedArray
@@ -31,7 +30,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     val fonts: LiveData<MutableList<Pair<FontType, Boolean>>> = mListFonts
 
     private var mAlignmentType: MutableLiveData<AlignmentType> =
-        MutableLiveData(AlignmentType.Center)
+        MutableLiveData(AlignmentType.Justify)
     val alignmentType: LiveData<AlignmentType> = mAlignmentType
 
     private var mMarginType: MutableLiveData<MarginType> = MutableLiveData(MarginType.Small)
@@ -70,17 +69,16 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     }
 
     private fun generateCSS(): String {
-        //Not use #, because webview not showing, use %23 for #
         val fontColor = if(app.resources.getBoolean(R.bool.isNight)) "#ffffff" else "#000000"
 
         val fontType = fontType.value?.name ?: FontType.TimesNewRoman.name
         val fontSize =  FontUtil.pixelToDips(app.applicationContext, fontSize.value!!).toString() + "px"
 
         val margin = when (marginType.value) {
-            MarginType.Small -> "1px"
-            MarginType.Medium -> "3px"
-            MarginType.Big -> "6px"
-            else -> "1px"
+            MarginType.Small -> "10px"
+            MarginType.Medium -> "25px"
+            MarginType.Big -> "40px"
+            else -> "10px"
         }
 
         val spacing = when (spacingType.value) {
@@ -91,9 +89,10 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         }
 
         val alignment = when (alignmentType.value) {
-            AlignmentType.Center -> "justify"
+            AlignmentType.Justify -> "justify"
             AlignmentType.Right -> "right"
             AlignmentType.Left -> "left"
+            AlignmentType.Center -> "center"
             else -> "justify"
         }
 
@@ -117,7 +116,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         mAlignmentType.value = AlignmentType.valueOf(
             mPreferences.getString(
                 GeneralConsts.KEYS.READER.BOOK_PAGE_ALIGNMENT,
-                AlignmentType.Center.toString()
+                AlignmentType.Justify.toString()
             )!!
         )
 
@@ -180,7 +179,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         val config = mRepository.findConfiguration(idBook) ?: BookConfiguration(
             null,
             idBook,
-            AlignmentType.Center,
+            AlignmentType.Justify,
             MarginType.Small,
             SpacingType.Small,
             ScrollingType.Pagination,
@@ -222,6 +221,21 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
     fun changeFontSize(value : Float) {
         mFontSize.value = value
+        mDefaultCss = generateCSS()
+    }
+
+    fun setSelectAlignment(alignment: AlignmentType) {
+        mAlignmentType.value = alignment
+        mDefaultCss = generateCSS()
+    }
+
+    fun setSelectSpacing(spacing: SpacingType) {
+        mSpacingType.value = spacing
+        mDefaultCss = generateCSS()
+    }
+
+    fun setSelectMargin(margin: MarginType) {
+        mMarginType.value = margin
         mDefaultCss = generateCSS()
     }
 
