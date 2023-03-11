@@ -130,7 +130,7 @@ class PopupMangaSubtitleReader : Fragment() {
             )
         }
 
-        mSubTitleController.pageSelected.observe(viewLifecycleOwner) {
+        mSubTitleController.subTitlePageSelected.observe(viewLifecycleOwner) {
             var key = ""
             if (it != null)
                 key = mSubTitleController.getPageKey(it)
@@ -138,22 +138,22 @@ class PopupMangaSubtitleReader : Fragment() {
             mSubtitlePageAutoComplete.setText(key, false)
         }
 
-        mSubTitleController.textSelected.observe(viewLifecycleOwner) {
+        mSubTitleController.subTitleTextSelected.observe(viewLifecycleOwner) {
             var title = ""
             mSubtitleContent.text = ""
             if (it != null) {
                 val index =
-                    mSubTitleController.pageSelected.value?.texts?.indexOf(mSubTitleController.textSelected.value)
+                    mSubTitleController.subTitlePageSelected.value?.subTitleTexts?.indexOf(mSubTitleController.subTitleTextSelected.value)
                         ?.plus(1)
                 title =
-                    "$mLabelChapter ${mSubTitleController.chapterSelected.value?.chapter.toString()} - $mLabelText $index/${mSubTitleController.pageSelected.value?.texts?.size}"
+                    "$mLabelChapter ${mSubTitleController.subTitleChapterSelected.value?.chapter.toString()} - $mLabelText $index/${mSubTitleController.subTitlePageSelected.value?.subTitleTexts?.size}"
 
                 Formatter.generateKanjiColor(requireContext(), it.text) { kanji ->
                     mSubtitleContent.text = kanji
                 }
-            } else if (mSubTitleController.chapterSelected.value != null && mSubTitleController.pageSelected.value != null)
+            } else if (mSubTitleController.subTitleChapterSelected.value != null && mSubTitleController.subTitlePageSelected.value != null)
                 title =
-                    "$mLabelChapter ${mSubTitleController.chapterSelected.value?.chapter.toString()} - $mLabelText 0/${if (mSubTitleController.pageSelected.value?.texts == null) 0 else mSubTitleController.pageSelected.value?.texts?.size}"
+                    "$mLabelChapter ${mSubTitleController.subTitleChapterSelected.value?.chapter.toString()} - $mLabelText 0/${if (mSubTitleController.subTitlePageSelected.value?.subTitleTexts == null) 0 else mSubTitleController.subTitlePageSelected.value?.subTitleTexts?.size}"
 
             mSubtitleTitle.text = title
         }

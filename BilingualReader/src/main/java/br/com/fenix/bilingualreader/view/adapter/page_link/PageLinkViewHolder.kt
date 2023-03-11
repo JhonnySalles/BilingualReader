@@ -12,7 +12,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.PageLink
+import br.com.fenix.bilingualreader.model.entity.LinkedPage
 import br.com.fenix.bilingualreader.model.enums.PageLinkType
 import br.com.fenix.bilingualreader.service.listener.PageLinkCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -60,7 +60,7 @@ class PageLinkViewHolder(itemView: View, private val listener: PageLinkCardListe
         mUsePagePath = GeneralConsts.getSharedPreferences(itemView.context).getBoolean(GeneralConsts.KEYS.PAGE_LINK.USE_PAGE_PATH_FOR_LINKED, false)
     }
 
-    fun bind(page: PageLink, position: Int) {
+    fun bind(page: LinkedPage, position: Int) {
         val root = itemView.findViewById<ConstraintLayout>(R.id.page_link_card)
         val mangaRoot = itemView.findViewById<MaterialCardView>(R.id.manga_link_root)
         val mangaImage = itemView.findViewById<ImageView>(R.id.manga_link_image)
@@ -283,7 +283,7 @@ class PageLinkViewHolder(itemView: View, private val listener: PageLinkCardListe
         }
     }
 
-    private fun setSelectedPageLink(page: PageLink, pageRoot: MaterialCardView, dualPageRoot: MaterialCardView, itemPosition: Int = -1,
+    private fun setSelectedPageLink(page: LinkedPage, pageRoot: MaterialCardView, dualPageRoot: MaterialCardView, itemPosition: Int = -1,
                                     dragPosition : Int = 0, isClear: Boolean = false, isDualPageDrop: Boolean = false) {
         if(isClear || (itemPosition != -1 && itemPosition.compareTo(dragPosition) == 0 && !page.isDualImage && page.fileLinkLeftPage != PageLinkConsts.VALUES.PAGE_EMPTY)) {
             dualPageRoot.strokeWidth = 0
@@ -308,7 +308,7 @@ class PageLinkViewHolder(itemView: View, private val listener: PageLinkCardListe
         }
     }
 
-    private fun getDoubleClick(root: View, page: PageLink, isManga : Boolean = false, isRight: Boolean = false) : DoubleClick {
+    private fun getDoubleClick(root: View, page: LinkedPage, isManga : Boolean = false, isRight: Boolean = false) : DoubleClick {
         return DoubleClick(object : DoubleClickListener {
             override fun onSingleClick(view: View?) {
                 listener.onClick(root, page, isManga, isRight)

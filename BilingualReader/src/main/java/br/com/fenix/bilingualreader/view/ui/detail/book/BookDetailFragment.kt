@@ -248,7 +248,7 @@ class BookDetailFragment : Fragment() {
             (mChaptersList.adapter as ArrayAdapter<*>).notifyDataSetChanged()
         }
 
-        mViewModel.listFileLinks.observe(viewLifecycleOwner) { fileLinks ->
+        mViewModel.listLinkedFileLinks.observe(viewLifecycleOwner) { fileLinks ->
             val list = fileLinks?.map { it.path }?.toMutableList() ?: mutableListOf()
             mFileLinks.clear()
             mFileLinks.addAll(list)

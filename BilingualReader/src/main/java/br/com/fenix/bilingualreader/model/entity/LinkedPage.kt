@@ -10,7 +10,7 @@ import java.io.Serializable
     tableName = DataBaseConsts.PAGESLINK.TABLE_NAME,
     indices = [Index(value = [DataBaseConsts.PAGESLINK.COLUMNS.FK_ID_FILE])]
 )
-class PageLink(
+class LinkedPage(
     id: Long?,
     idFile: Long?,
     mangaPage: Int,
@@ -174,9 +174,9 @@ class PageLink(
         this.isFileLeftDualPage = isFileLeftDualPage
     }
 
-    constructor(pageLink: PageLink) : this(
-        pageLink.id, pageLink.mangaPage, pageLink.mangaPages, pageLink.mangaPageName,
-        pageLink.mangaPagePath, pageLink.isMangaDualPage, pageLink.imageMangaPage
+    constructor(linkedPage: LinkedPage) : this(
+        linkedPage.id, linkedPage.mangaPage, linkedPage.mangaPages, linkedPage.mangaPageName,
+        linkedPage.mangaPagePath, linkedPage.isMangaDualPage, linkedPage.imageMangaPage
     )
 
     @PrimaryKey(autoGenerate = true)
@@ -243,7 +243,7 @@ class PageLink(
     @Ignore
     var imageRightFileLinkPage: Bitmap? = null
 
-    fun merge(another: PageLink) {
+    fun merge(another: LinkedPage) {
         this.fileLinkLeftPage = another.fileLinkLeftPage
         this.fileLinkLeftPages = another.fileLinkLeftPages
         this.fileLinkLeftPageName = another.fileLinkLeftPageName
@@ -259,14 +259,14 @@ class PageLink(
         this.isFileRightDualPage = another.isFileRightDualPage
     }
 
-    fun addLeftPageLink(another: PageLink) {
+    fun addLeftPageLink(another: LinkedPage) {
         this.addLeftPageLink(
             another.fileLinkLeftPage, another.fileLinkLeftPages, another.fileLinkLeftPageName,
             another.fileLinkLeftPagePath, another.isFileLeftDualPage, another.imageLeftFileLinkPage
         )
     }
 
-    fun addLeftFromRightPageLink(another: PageLink) {
+    fun addLeftFromRightPageLink(another: LinkedPage) {
         this.addLeftPageLink(
             another.fileLinkRightPage, another.fileLinkLeftPages, another.fileLinkRightPageName,
             another.fileLinkRightPagePath, another.isFileRightDualPage, another.imageRightFileLinkPage
@@ -282,14 +282,14 @@ class PageLink(
         this.isFileLeftDualPage = isFileLeftDualPage
     }
 
-    fun addRightFromLeftPageLink(another: PageLink) {
+    fun addRightFromLeftPageLink(another: LinkedPage) {
         this.addRightPageLink(
             another.fileLinkLeftPage, another.fileLinkLeftPageName, another.fileLinkLeftPagePath,
             another.isFileLeftDualPage, another.imageLeftFileLinkPage
         )
     }
 
-    fun addRightPageLink(another: PageLink) {
+    fun addRightPageLink(another: LinkedPage) {
         this.addRightPageLink(
             another.fileLinkRightPage, another.fileLinkRightPageName, another.fileLinkRightPagePath,
             another.isFileRightDualPage, another.imageRightFileLinkPage

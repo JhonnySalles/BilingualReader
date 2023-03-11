@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import br.com.fenix.bilingualreader.model.entity.FileLink
+import br.com.fenix.bilingualreader.model.entity.LinkedFile
 import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
@@ -38,8 +38,8 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
     private var mListChapters = MutableLiveData<MutableList<String>>(mutableListOf())
     val listChapters: LiveData<MutableList<String>> = mListChapters
 
-    private var mListFileLinks = MutableLiveData<MutableList<FileLink>>(mutableListOf())
-    val listFileLinks: LiveData<MutableList<FileLink>> = mListFileLinks
+    private var mListLinkedFileLinks = MutableLiveData<MutableList<LinkedFile>>(mutableListOf())
+    val listLinkedFileLinks: LiveData<MutableList<LinkedFile>> = mListLinkedFileLinks
 
     private var mListSubtitles = MutableLiveData<MutableList<String>>(mutableListOf())
     val listSubtitles: LiveData<MutableList<String>> = mListSubtitles
@@ -58,7 +58,7 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
     fun setManga(manga: Manga) {
         mManga.value = manga
 
-        mListFileLinks.value = if (manga.id != null) mFileLinkRepository.findAllByManga(manga.id!!)?.toMutableList() else mutableListOf()
+        mListLinkedFileLinks.value = if (manga.id != null) mFileLinkRepository.findAllByManga(manga.id!!)?.toMutableList() else mutableListOf()
         mWebInformation.value = null
         mLocalInformation.value = null
         mWebInformationRelations.value = mutableListOf()
@@ -122,7 +122,7 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
 
     fun clear() {
         mManga.value = null
-        mListFileLinks.value = mutableListOf()
+        mListLinkedFileLinks.value = mutableListOf()
         mListChapters.value = mutableListOf()
         mListSubtitles.value = mutableListOf()
     }

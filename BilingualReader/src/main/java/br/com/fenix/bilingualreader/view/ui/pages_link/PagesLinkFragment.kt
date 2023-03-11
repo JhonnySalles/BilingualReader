@@ -24,9 +24,9 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.FileLink
+import br.com.fenix.bilingualreader.model.entity.LinkedFile
 import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.model.entity.PageLink
+import br.com.fenix.bilingualreader.model.entity.LinkedPage
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.LoadFile
 import br.com.fenix.bilingualreader.model.enums.PageLinkType
@@ -334,12 +334,12 @@ class PagesLinkFragment : Fragment() {
         mForceImageReload.setOnClickListener { mViewModel.reLoadImages() }
 
         mListener = object : PageLinkCardListener {
-            override fun onClick(view: View, page: PageLink, isManga: Boolean, isRight: Boolean) {
+            override fun onClick(view: View, page: LinkedPage, isManga: Boolean, isRight: Boolean) {
                 if (!isManga)
                     openPopupFunctions(view, page, isRight)
             }
 
-            override fun onClickLong(view: View, page: PageLink, origin: PageLinkType, position: Int): Boolean {
+            override fun onClickLong(view: View, page: LinkedPage, origin: PageLinkType, position: Int): Boolean {
                 mAutoReorderPages = false
                 val pageLink = if (origin == PageLinkType.NOT_LINKED) mViewModel.getPageNotLink(page) else mViewModel.getPageLink(page)
                 val item = ClipData.Item(pageLink)
@@ -362,11 +362,11 @@ class PagesLinkFragment : Fragment() {
                 return true
             }
 
-            override fun onDoubleClick(view: View, page: PageLink, isManga: Boolean, isRight: Boolean) {
+            override fun onDoubleClick(view: View, page: LinkedPage, isManga: Boolean, isRight: Boolean) {
                 openImageDetail(page, isManga)
             }
 
-            override fun onDropItem(origin: PageLinkType, destiny: PageLinkType, dragIndex: String, drop: PageLink) {
+            override fun onDropItem(origin: PageLinkType, destiny: PageLinkType, dragIndex: String, drop: LinkedPage) {
                 when {
                     origin == PageLinkType.DUAL_PAGE || destiny == PageLinkType.DUAL_PAGE -> {
                         val pageLink = if (origin == PageLinkType.NOT_LINKED)
@@ -396,7 +396,7 @@ class PagesLinkFragment : Fragment() {
                 onPageLinkScrolling(pointScreen)
             }
 
-            override fun onAddNotLink(page: PageLink, isRight: Boolean) {
+            override fun onAddNotLink(page: LinkedPage, isRight: Boolean) {
                 mViewModel.addNotLinked(page, isRight)
             }
         }
@@ -500,7 +500,7 @@ class PagesLinkFragment : Fragment() {
         if (savedInstanceState != null) {
             val fileLink = savedInstanceState.getSerializable(GeneralConsts.KEYS.OBJECT.PAGE_LINK)
             if (fileLink != null)
-                mViewModel.reload(fileLink as FileLink) { index, type -> notifyItemChanged(type, index) }
+                mViewModel.reload(fileLink as LinkedFile) { index, type -> notifyItemChanged(type, index) }
             else
                 mViewModel.reLoadImages(PageLinkType.ALL, true, isCloseThreads = true)
             mMangaName.text = mViewModel.getMangaName()
@@ -602,7 +602,7 @@ class PagesLinkFragment : Fragment() {
             (mRecyclerPageNotLink.adapter as PageNotLinkCardAdapter).updateList(it)
         }
 
-        mViewModel.fileLink.observe(viewLifecycleOwner) {
+        mViewModel.linkedFile.observe(viewLifecycleOwner) {
             val description = it?.name ?: ""
             mFileLinkAutoComplete.setText(description)
         }
@@ -763,7 +763,7 @@ class PagesLinkFragment : Fragment() {
     }
 
     private fun openMenuIndexes() {
-        val fileLinkLoaded = mViewModel.fileLink.value?.path?.isNotEmpty() ?: false
+        val fileLinkLoaded = mViewModel.linkedFile.value?.path?.isNotEmpty() ?: false
         if (!fileLinkLoaded)
             openMenuIndexes(true)
         else {
@@ -868,7 +868,7 @@ class PagesLinkFragment : Fragment() {
         startActivityForResult(intent, GeneralConsts.REQUEST.OPEN_PAGE_LINK)
     }
 
-    private fun createNotLinkView(page: PageLink): Bitmap {
+    private fun createNotLinkView(page: LinkedPage): Bitmap {
         val card = LayoutInflater.from(requireContext()).inflate(R.layout.grid_card_page_link, null, false)
         val root = card.findViewById<MaterialCardView>(R.id.page_link_root)
 
@@ -894,7 +894,7 @@ class PagesLinkFragment : Fragment() {
         return shadow
     }
 
-    private fun openPopupFunctions(view: View, page: PageLink, isRight: Boolean) {
+    private fun openPopupFunctions(view: View, page: LinkedPage, isRight: Boolean) {
         if (page.isNotLinked)
             return
 
@@ -924,7 +924,7 @@ class PagesLinkFragment : Fragment() {
         popup.show()
     }
 
-    private fun openImageDetail(page: PageLink, isManga: Boolean) {
+    private fun openImageDetail(page: LinkedPage, isManga: Boolean) {
         if (!isManga && page.fileLinkLeftPage == PageLinkConsts.VALUES.PAGE_EMPTY)
             return
 

@@ -12,7 +12,7 @@ import java.time.LocalDateTime
     tableName = DataBaseConsts.FILELINK.TABLE_NAME,
     indices = [Index(value = [DataBaseConsts.FILELINK.COLUMNS.FK_ID_MANGA, DataBaseConsts.FILELINK.COLUMNS.FILE_NAME])]
 )
-class FileLink(
+class LinkedFile(
     id: Long?, idManga: Long, pages: Int, path: String, name: String, type: String, folder: String,
     language: Languages, dateCreate: LocalDateTime?, lastAccess: LocalDateTime?, lastAlteration: LocalDateTime?
 ) : Serializable {
@@ -101,10 +101,10 @@ class FileLink(
     var file: File = File(path)
 
     @Ignore
-    var pagesLink: List<PageLink>? = null
+    var pagesLink: List<LinkedPage>? = null
 
     @Ignore
-    var pagesNotLink: List<PageLink>? = null
+    var pagesNotLink: List<LinkedPage>? = null
 
     @Ignore
     var parseManga: Parse? = null
@@ -120,7 +120,7 @@ class FileLink(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as FileLink
+        other as LinkedFile
 
         if (id != other.id) return false
         if (idManga != other.idManga) return false

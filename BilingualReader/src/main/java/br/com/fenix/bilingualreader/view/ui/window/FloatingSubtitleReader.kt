@@ -19,8 +19,8 @@ import androidx.appcompat.widget.AppCompatImageButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.NestedScrollView
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.Page
-import br.com.fenix.bilingualreader.model.entity.Text
+import br.com.fenix.bilingualreader.model.entity.SubTitlePage
+import br.com.fenix.bilingualreader.model.entity.SubTitleText
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.kanji.Formatter
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess
@@ -234,7 +234,7 @@ class FloatingSubtitleReader constructor(
             )
 
             mSubtitleText.setOnLongClickListener {
-                val text = mSubTitleController.textSelected.value?.text ?: ""
+                val text = mSubTitleController.subTitleTextSelected.value?.text ?: ""
                 makeCopyText(text)
                 true
             }
@@ -437,14 +437,14 @@ class FloatingSubtitleReader constructor(
         }
     }
 
-    fun updatePage(page: Page?) {
-        if (page != null) {
-            if (page.vocabulary != null && page.vocabulary.isNotEmpty()) {
+    fun updatePage(subTitlePage: SubTitlePage?) {
+        if (subTitlePage != null) {
+            if (subTitlePage.vocabulary != null && subTitlePage.vocabulary.isNotEmpty()) {
                 mVocabulary =
-                    page.vocabulary.map { vocab -> vocab.word to vocab.word + " - " + vocab.portuguese + if (!vocab.revised) "¹" else "" }
+                    subTitlePage.vocabulary.map { vocab -> vocab.word to vocab.word + " - " + vocab.portuguese + if (!vocab.revised) "¹" else "" }
                         .toMap()
                 mVocabularyItem.clear()
-                mVocabularyItem.addAll(page.vocabulary.map { vocab -> vocab.word + " - " + vocab.portuguese + if (!vocab.revised) "¹" else "" })
+                mVocabularyItem.addAll(subTitlePage.vocabulary.map { vocab -> vocab.word + " - " + vocab.portuguese + if (!vocab.revised) "¹" else "" })
                 mListPageVocabulary.visibility = View.VISIBLE
             } else {
                 mVocabularyItem.clear()
@@ -509,29 +509,29 @@ class FloatingSubtitleReader constructor(
         }
     }
 
-    fun updateText(text: Text?) {
+    fun updateText(subTitleText: SubTitleText?) {
         var title = ""
         mSubtitleText.text = ""
         mSubtitleScrollContent.smoothScrollTo(0, 0)
-        if (text != null) {
+        if (subTitleText != null) {
             val index =
-                mSubTitleController.pageSelected.value?.texts?.indexOf(mSubTitleController.textSelected.value)
+                mSubTitleController.subTitlePageSelected.value?.subTitleTexts?.indexOf(mSubTitleController.subTitleTextSelected.value)
                     ?.plus(1)
 
             title =
-                "$mLabelChapter ${mSubTitleController.chapterSelected.value?.chapter.toString()} - " +
-                        "$mLabelPage ${mSubTitleController.pageSelected.value!!.number} - " +
-                        "$mLabelText $index/${mSubTitleController.pageSelected.value?.texts?.size}"
+                "$mLabelChapter ${mSubTitleController.subTitleChapterSelected.value?.chapter.toString()} - " +
+                        "$mLabelPage ${mSubTitleController.subTitlePageSelected.value!!.number} - " +
+                        "$mLabelText $index/${mSubTitleController.subTitlePageSelected.value?.subTitleTexts?.size}"
 
             Formatter.generateFurigana(
-                text.text,
+                subTitleText.text,
                 furigana = { mSubtitleText.text = it },
                 vocabularyClick = { findVocabulary(it) })
-        } else if (mSubTitleController.chapterSelected.value != null && mSubTitleController.pageSelected.value != null) {
+        } else if (mSubTitleController.subTitleChapterSelected.value != null && mSubTitleController.subTitlePageSelected.value != null) {
             title =
-                "$mLabelChapter ${mSubTitleController.chapterSelected.value?.chapter.toString()} - " +
-                        "$mLabelPage ${mSubTitleController.pageSelected.value!!.number} - "
-            "$mLabelText 0/${if (mSubTitleController.pageSelected.value?.texts == null) 0 else mSubTitleController.pageSelected.value?.texts?.size}"
+                "$mLabelChapter ${mSubTitleController.subTitleChapterSelected.value?.chapter.toString()} - " +
+                        "$mLabelPage ${mSubTitleController.subTitlePageSelected.value!!.number} - "
+            "$mLabelText 0/${if (mSubTitleController.subTitlePageSelected.value?.subTitleTexts == null) 0 else mSubTitleController.subTitlePageSelected.value?.subTitleTexts?.size}"
         }
 
         mSubtitleTitle.text = title

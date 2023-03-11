@@ -26,7 +26,7 @@ import java.io.File
 @Database(
     version = 1, exportSchema = true,
     entities = [Manga::class, Book::class, Library::class, SubTitle::class, KanjiJLPT::class, Kanjax::class,
-        FileLink::class, PageLink::class, Vocabulary::class, VocabularyManga::class, VocabularyBook::class,
+        LinkedFile::class, LinkedPage::class, Vocabulary::class, VocabularyManga::class, VocabularyBook::class,
         BookConfiguration::class]
 )
 @TypeConverters(Converters::class)

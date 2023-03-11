@@ -216,7 +216,7 @@ class PopupMangaSubtitleConfiguration : Fragment() {
             )
         }
 
-        mSubTitleController.chapterSelected.observe(viewLifecycleOwner) {
+        mSubTitleController.subTitleChapterSelected.observe(viewLifecycleOwner) {
             var text = ""
             if (it != null)
                 text = mSubTitleController.getChapterKey(it)

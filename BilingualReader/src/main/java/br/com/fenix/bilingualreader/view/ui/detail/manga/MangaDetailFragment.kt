@@ -411,7 +411,7 @@ class MangaDetailFragment : Fragment() {
                 View.GONE
         }
 
-        mViewModel.listFileLinks.observe(viewLifecycleOwner) { fileLinks ->
+        mViewModel.listLinkedFileLinks.observe(viewLifecycleOwner) { fileLinks ->
             val list = fileLinks?.map { it.path }?.toMutableList() ?: mutableListOf()
             mFileLinks.clear()
             mFileLinks.addAll(list)

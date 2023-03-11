@@ -3,7 +3,7 @@ package br.com.fenix.bilingualreader.model.entity
 import br.com.fenix.bilingualreader.model.enums.Languages
 import com.google.gson.annotations.SerializedName
 
-data class Chapter(
+data class SubTitleChapter(
     @SerializedName("manga")
     var manga: String,
     @SerializedName("volume")
@@ -14,7 +14,7 @@ data class Chapter(
     var language: Languages,
     val scan: String,
     @SerializedName("paginas")
-    val pages: List<Page>,
+    val subTitlePages: List<SubTitlePage>,
     val extra: Boolean,
     val raw: Boolean,
     @SerializedName("vocabularios")
@@ -24,7 +24,7 @@ data class Chapter(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as Chapter
+        other as SubTitleChapter
 
         if (manga != other.manga) return false
         if (volume != other.volume) return false

@@ -204,16 +204,16 @@ abstract class KanjaxDAO : DataBaseDAO<Kanjax> {
 
 
 @Dao
-abstract class FileLinkDAO : DataBaseDAO<FileLink> {
+abstract class FileLinkDAO : DataBaseDAO<LinkedFile> {
 
     @Query("SELECT * FROM " + DataBaseConsts.FILELINK.TABLE_NAME + " WHERE " + DataBaseConsts.FILELINK.COLUMNS.FK_ID_MANGA + " = :idManga AND " + DataBaseConsts.FILELINK.COLUMNS.FILE_NAME + " = :fileName AND " + DataBaseConsts.FILELINK.COLUMNS.PAGES + " = :pages")
-    abstract fun get(idManga: Long, fileName: String, pages: Int): FileLink?
+    abstract fun get(idManga: Long, fileName: String, pages: Int): LinkedFile?
 
     @Query("SELECT * FROM " + DataBaseConsts.FILELINK.TABLE_NAME + " WHERE " + DataBaseConsts.FILELINK.COLUMNS.FK_ID_MANGA + " = :idManga")
-    abstract fun get(idManga: Long): List<FileLink>?
+    abstract fun get(idManga: Long): List<LinkedFile>?
 
     @Query("SELECT * FROM " + DataBaseConsts.FILELINK.TABLE_NAME + " WHERE " + DataBaseConsts.FILELINK.COLUMNS.FK_ID_MANGA + " = :idManga ORDER BY " + DataBaseConsts.FILELINK.COLUMNS.LAST_ACCESS + " DESC LIMIT 1")
-    abstract fun getLastAccess(idManga: Long): FileLink?
+    abstract fun getLastAccess(idManga: Long): LinkedFile?
 
     @Query("DELETE FROM " + DataBaseConsts.FILELINK.TABLE_NAME + " WHERE " + DataBaseConsts.FILELINK.COLUMNS.FK_ID_MANGA + " = :idManga AND " + DataBaseConsts.FILELINK.COLUMNS.FILE_NAME + " = :fileName")
     abstract fun delete(idManga: Long, fileName: String)
@@ -228,13 +228,13 @@ abstract class FileLinkDAO : DataBaseDAO<FileLink> {
 
 
 @Dao
-abstract class PageLinkDAO : DataBaseDAO<PageLink> {
+abstract class PageLinkDAO : DataBaseDAO<LinkedPage> {
 
     @Query("SELECT * FROM " + DataBaseConsts.PAGESLINK.TABLE_NAME + " WHERE " + DataBaseConsts.PAGESLINK.COLUMNS.NOT_LINKED + " = 0 AND " + DataBaseConsts.PAGESLINK.COLUMNS.FK_ID_FILE + " = :idFile")
-    abstract fun getPageLink(idFile: Long): List<PageLink>
+    abstract fun getPageLink(idFile: Long): List<LinkedPage>
 
     @Query("SELECT * FROM " + DataBaseConsts.PAGESLINK.TABLE_NAME + " WHERE " + DataBaseConsts.PAGESLINK.COLUMNS.NOT_LINKED + " = 1 AND " + DataBaseConsts.PAGESLINK.COLUMNS.FK_ID_FILE + " = :idFile")
-    abstract fun getPageNotLink(idFile: Long): List<PageLink>
+    abstract fun getPageNotLink(idFile: Long): List<LinkedPage>
 
     @Query("DELETE FROM " + DataBaseConsts.PAGESLINK.TABLE_NAME + " WHERE " + DataBaseConsts.PAGESLINK.COLUMNS.FK_ID_FILE + " = :idFile")
     abstract fun deleteAll(idFile: Long)

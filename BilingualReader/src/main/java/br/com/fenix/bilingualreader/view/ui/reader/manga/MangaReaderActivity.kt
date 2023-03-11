@@ -894,11 +894,11 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
     }
 
     private fun prepareFloatingSubtitle() {
-        mSubtitleController.pageSelected.observe(this) {
+        mSubtitleController.subTitlePageSelected.observe(this) {
             mFloatingSubtitleReader.updatePage(it)
         }
 
-        mSubtitleController.textSelected.observe(this) {
+        mSubtitleController.subTitleTextSelected.observe(this) {
             mFloatingSubtitleReader.updateText(it)
         }
 
@@ -911,7 +911,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
             mFloatingSubtitleReader.updateOcrList(it)
         }
 
-        if (mSubtitleController.mManga != null && mSubtitleController.mManga!!.id != null && mSubtitleController.textSelected.value == null) {
+        if (mSubtitleController.mManga != null && mSubtitleController.mManga!!.id != null && mSubtitleController.subTitleTextSelected.value == null) {
             val mSubtitleRepository = SubTitleRepository(applicationContext)
             val lastSubtitle = mSubtitleRepository.findByIdManga(mSubtitleController.mManga!!.id!!)
             if (lastSubtitle != null)
