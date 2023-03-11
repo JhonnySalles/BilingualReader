@@ -9,25 +9,25 @@ import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.Serializable
 
 @Entity(
-    tableName = DataBaseConsts.BOOKCONFIGURATION.TABLE_NAME,
-    indices = [Index(value = [DataBaseConsts.BOOKCONFIGURATION.COLUMNS.FK_ID_BOOK])]
+    tableName = DataBaseConsts.BOOK_CONFIGURATION.TABLE_NAME,
+    indices = [Index(value = [DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK])]
 )
 data class BookConfiguration (
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = DataBaseConsts.BOOKCONFIGURATION.COLUMNS.ID)
+    @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.ID)
     var id: Long?,
-    @ColumnInfo(name = DataBaseConsts.BOOKCONFIGURATION.COLUMNS.FK_ID_BOOK)
-    var idBook: Long,
-    @ColumnInfo(name = DataBaseConsts.BOOKCONFIGURATION.COLUMNS.ALIGNMENT)
+    @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK)
+    val idBook: Long,
+    @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.ALIGNMENT)
     var alignment: AlignmentLayoutType,
-    @ColumnInfo(name = DataBaseConsts.BOOKCONFIGURATION.COLUMNS.MARGIN)
+    @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.MARGIN)
     var margin: MarginLayoutType,
-    @ColumnInfo(name = DataBaseConsts.BOOKCONFIGURATION.COLUMNS.SPACING)
+    @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.SPACING)
     var spacing: SpacingLayoutType,
-    @ColumnInfo(name = DataBaseConsts.BOOKCONFIGURATION.COLUMNS.SCROLLING)
+    @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.SCROLLING)
     var scrolling: ScrollingType,
-    @ColumnInfo(name = DataBaseConsts.BOOKCONFIGURATION.COLUMNS.FONT_TYPE)
+    @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FONT_TYPE)
     var fontType: FontType,
-    @ColumnInfo(name = DataBaseConsts.BOOKCONFIGURATION.COLUMNS.FONT_SIZE)
+    @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FONT_SIZE)
     var fontSize: Float
 ) : Serializable

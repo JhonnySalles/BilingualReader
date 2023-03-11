@@ -43,7 +43,7 @@
                     android:clipToPadding="false"
                     android:columnCount="3"
                     android:layoutAnimation="@anim/layout_animation_library_line"
-                    android:paddingBottom="@dimen/manga_list_padding"
+                    android:paddingBottom="@dimen/manga_library_padding"
                     android:scrollbars="vertical" />
 
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
@@ -54,16 +54,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top|center"
-                android:layout_margin="@dimen/page_link_scrolling_button_margin"
+                android:layout_margin="@dimen/manga_library_scrolling_button_margin"
                 android:contentDescription="@string/action_scroll_up"
                 android:src="@drawable/ico_animated_scroll_up"
                 android:visibility="gone"
-                app:borderWidth="@dimen/page_link_up_border"
-                app:fabCustomSize="@dimen/page_link_up_width"
+                app:borderWidth="@dimen/manga_library_up_border"
+                app:fabCustomSize="@dimen/manga_library_up_width"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:maxImageSize="@dimen/page_link_up_image_width" />
+                app:maxImageSize="@dimen/manga_library_up_image_width" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/manga_library_scroll_down"
@@ -71,16 +71,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|center"
-                android:layout_margin="@dimen/page_link_scrolling_button_margin"
+                android:layout_margin="@dimen/manga_library_scrolling_button_margin"
                 android:contentDescription="@string/action_scroll_down"
                 android:src="@drawable/ico_animated_scroll_down"
                 android:visibility="gone"
-                app:borderWidth="@dimen/page_link_down_border"
-                app:fabCustomSize="@dimen/page_link_down_width"
+                app:borderWidth="@dimen/manga_library_down_border"
+                app:fabCustomSize="@dimen/manga_library_down_width"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:maxImageSize="@dimen/page_link_down_image_width" />
+                app:maxImageSize="@dimen/manga_library_down_image_width" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <FrameLayout

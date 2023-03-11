@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/book_mark_divider"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="1dp"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/book_mark_divider_separator"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="5dp"
+        android:visibility="gone"
+        android:background="?attr/colorPrimary"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/book_mark_divider_title"
+            style="@style/TextTitle.History"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="5dp"
+            android:textAppearance="?attr/textAppearanceTitleMedium"
+            android:textSize="@dimen/book_mark_padding_divider_title" />
+
+        <TextView
+            android:id="@+id/book_mark_divider_count"
+            style="@style/TextTitle.History"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:textAppearance="?attr/textAppearanceTitleMedium"
+            android:textSize="@dimen/book_mark_padding_divider_title" />
+    </LinearLayout>
+</LinearLayout>

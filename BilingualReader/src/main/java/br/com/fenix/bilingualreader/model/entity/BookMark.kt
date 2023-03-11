@@ -1,50 +1,65 @@
 package br.com.fenix.bilingualreader.model.entity
 
-import br.com.fenix.bilingualreader.model.enums.Languages
-import com.google.gson.annotations.SerializedName
+import androidx.room.*
+import br.com.fenix.bilingualreader.model.enums.Color
+import br.com.fenix.bilingualreader.model.enums.MarkType
+import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
+import java.io.Serializable
+import java.time.LocalDateTime
 
+@Entity(
+    tableName = DataBaseConsts.BOOK_MARK.TABLE_NAME,
+    indices = [Index(value = [DataBaseConsts.BOOK_MARK.COLUMNS.FK_ID_BOOK, DataBaseConsts.BOOK_MARK.COLUMNS.FK_ID_BOOK])]
+)
 data class BookMark(
-    @SerializedName("manga")
-    var manga: String,
-    @SerializedName("volume")
-    var volume: Float,
-    @SerializedName("capitulo")
-    val chapter: Float,
-    @SerializedName("lingua")
-    var language: Languages,
-    val scan: String,
-    @SerializedName("paginas")
-    val subTitlePages: List<SubTitlePage>,
-    val extra: Boolean,
-    val raw: Boolean,
-    @SerializedName("vocabularios")
-    val vocabulary: MutableSet<Vocabulary>
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.ID)
+    var id: Long?,
+    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.FK_ID_BOOK)
+    val id_book: Long?,
+    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.PAGE)
+    var page: Int,
+    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.PAGES)
+    var pages: Int,
+    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.TYPE)
+    val type: MarkType,
+    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER_NUMBER)
+    val chapterNumber: Float,
+    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER)
+    val chapter: String,
+    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.TEXT)
+    var text: String,
+    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.ANNOTATION)
+    var annotation: String,
+    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.FAVORITE)
+    var favorite: Boolean,
+    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.COLOR)
+    var color: Color,
+    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.ALTERATION)
+    var alteration: LocalDateTime,
+    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.CREATED)
+    var created: LocalDateTime,
+) : Serializable {
+    @Ignore
+    constructor(
+        id_book: Long?, page: Int, pages: Int, type: MarkType, chapterNumber: Float, chapter: String, text: String,
+        annotation: String, favorite: Boolean = false, color: Color = Color.None,
+    ) : this(
+        null, id_book, page, pages, type, chapterNumber, chapter, text, annotation, favorite,
+        color, LocalDateTime.now(), LocalDateTime.now()
+    )
 
-        other as BookMark
-
-        if (manga != other.manga) return false
-        if (volume != other.volume) return false
-        if (chapter != other.chapter) return false
-        if (language != other.language) return false
-        if (scan != other.scan) return false
-        if (extra != other.extra) return false
-        if (raw != other.raw) return false
-
-        return true
+    constructor(
+        id: Long?, id_book: Long?, page: Int, pages: Int, type: MarkType, chapterNumber: Float, chapter: String, text: String,
+        annotation: String, favorite: Boolean, color: Color, alteration: LocalDateTime, created: LocalDateTime, count: Int
+    ) : this(
+        id, id_book, page, pages, type, chapterNumber, chapter, text, annotation, favorite,
+        color, alteration, created
+    ) {
+        this.count = count
     }
 
-    override fun hashCode(): Int {
-        var result = manga.hashCode()
-        result = 31 * result + volume.hashCode()
-        result = 31 * result + chapter.hashCode()
-        result = 31 * result + language.hashCode()
-        result = 31 * result + scan.hashCode()
-        result = 31 * result + extra.hashCode()
-        result = 31 * result + raw.hashCode()
-        return result
-    }
+    @Ignore
+    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.COUNT)
+    var count: Int = 0
 }

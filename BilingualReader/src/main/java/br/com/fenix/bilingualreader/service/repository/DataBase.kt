@@ -25,15 +25,16 @@ import java.io.File
 
 @Database(
     version = 1, exportSchema = true,
-    entities = [Manga::class, Book::class, Library::class, SubTitle::class, KanjiJLPT::class, Kanjax::class,
+    entities = [Manga::class, Library::class, SubTitle::class, KanjiJLPT::class, Kanjax::class,
         LinkedFile::class, LinkedPage::class, Vocabulary::class, VocabularyManga::class, VocabularyBook::class,
-        BookConfiguration::class]
+        Book::class, BookMark::class, BookConfiguration::class]
 )
 @TypeConverters(Converters::class)
 abstract class DataBase : RoomDatabase() {
 
     abstract fun getMangaDao(): MangaDAO
     abstract fun getBookDao(): BookDAO
+    abstract fun getBookMark(): BookMarkDAO
     abstract fun getBookConfigurationDao(): BookConfigurationDAO
     abstract fun getSubTitleDao(): SubTitleDAO
     abstract fun getKanjiJLPTDao(): KanjiJLPTDAO
@@ -57,9 +58,18 @@ abstract class DataBase : RoomDatabase() {
                 INSTANCE = Room.databaseBuilder(context, DataBase::class.java, DATABASE_NAME)
                     .addCallback(rdc)
                     .addMigrations(
-                        Migrations.MIGRATION_1_2, Migrations.MIGRATION_2_3, Migrations.MIGRATION_3_4, Migrations.MIGRATION_4_5,
-                        Migrations.MIGRATION_5_6, Migrations.MIGRATION_6_7, Migrations.MIGRATION_7_8, Migrations.MIGRATION_8_9,
-                        Migrations.MIGRATION_9_10, Migrations.MIGRATION_10_11, Migrations.MIGRATION_11_12, Migrations.MIGRATION_12_13,
+                        Migrations.MIGRATION_1_2,
+                        Migrations.MIGRATION_2_3,
+                        Migrations.MIGRATION_3_4,
+                        Migrations.MIGRATION_4_5,
+                        Migrations.MIGRATION_5_6,
+                        Migrations.MIGRATION_6_7,
+                        Migrations.MIGRATION_7_8,
+                        Migrations.MIGRATION_8_9,
+                        Migrations.MIGRATION_9_10,
+                        Migrations.MIGRATION_10_11,
+                        Migrations.MIGRATION_11_12,
+                        Migrations.MIGRATION_12_13,
                         Migrations.MIGRATION_13_14
                     )
                     .allowMainThreadQueries()
@@ -80,10 +90,12 @@ abstract class DataBase : RoomDatabase() {
                 val kanji = mAssets.open("kanji.sql").bufferedReader().use(BufferedReader::readText)
                 database.execSQL(Migrations.SQLINITIAL.KANJI + kanji)
 
-                val kanjax = mAssets.open("kanjax.sql").bufferedReader().use(BufferedReader::readText)
+                val kanjax =
+                    mAssets.open("kanjax.sql").bufferedReader().use(BufferedReader::readText)
                 database.execSQL(Migrations.SQLINITIAL.KANJAX + kanjax)
 
-                val vocabulary = mAssets.open("vocabulary.sql").bufferedReader().use(BufferedReader::readText)
+                val vocabulary =
+                    mAssets.open("vocabulary.sql").bufferedReader().use(BufferedReader::readText)
                 database.execSQL(Migrations.SQLINITIAL.VOCABULARY + vocabulary)
 
                 mLOGGER.info("Completed initial database data.")
@@ -102,11 +114,11 @@ abstract class DataBase : RoomDatabase() {
                 .backupIsEncrypted(false)
                 .apply {
                     onCompleteListener { success, message, exitCode ->
-                        mLOGGER.error("Backup database. success: $success, msg: $message, code: $exitCode.")
+                        mLOGGER.warn("Backup database. success: $success, msg: $message, code: $exitCode.")
                         if (success)
                             backup.restartApp(Intent(context, MainActivity::class.java))
                         else {
-                            mLOGGER.error("Error when backup database", message)
+                            mLOGGER.error("Error when backup database: $message.")
                             throw BackupError("Error when backup database")
                         }
                     }
@@ -124,7 +136,7 @@ abstract class DataBase : RoomDatabase() {
                 .apply {
                     onCompleteListener { success, message, exitCode ->
                         mLOGGER.error("Backup database. success: $success, msg: $message, code: $exitCode.")
-                        if (success){
+                        if (success) {
                             Toast.makeText(
                                 context,
                                 context.getString(R.string.config_database_backup_success),

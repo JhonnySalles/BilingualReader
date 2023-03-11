@@ -578,6 +578,14 @@
         <item name="android:textSize">12sp</item>
     </style>
 
+    <style name="TextNormal.BookMark" parent="TextNormal">
+        <item name="tint">?attr/colorPrimary</item>
+    </style>
+
+    <style name="TextTitle.BookMark" parent="TextTitle">
+        <item name="tint">?attr/colorSecondary</item>
+    </style>
+
     <style name="SeekBar" >
         <item name="android:progressBackgroundTint">?attr/colorOnPrimaryContainer</item>
         <item name="android:progressTint">?attr/colorPrimaryContainer</item>

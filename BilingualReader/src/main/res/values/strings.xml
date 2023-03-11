@@ -200,6 +200,24 @@
     <string name="popup_reading_layout_alignment_right">Right</string>
     <string name="popup_reading_layout_alignment_left">Left</string>
 
+    <!-- BOOK MARK -->
+    <string name="book_mark_menu_search">Search</string>
+    <string name="book_mark_filters">Filters</string>
+
+    <string name="book_mark_list_divide_title" translatable="false">%f • %s</string>
+    <string name="book_mark_list_divide_count" translatable="false">(%f)</string>
+    <string name="book_mark_list_title_detach">Page %f • Detach</string>
+    <string name="book_mark_list_title_mark">Page %f • Marker</string>
+    <string name="book_mark_list_add_note">Add note</string>
+    <string name="book_mark_list_favorite">Favorite</string>
+    <string name="book_mark_list_options">Options</string>
+
+    <!-- BOOK MARK POPUP LAYOUT -->
+    <string name="book_mark_popup_filter_open">Open</string>
+    <string name="book_mark_popup_filter_close">Close</string>
+    <string name="book_mark_tab_item_filter">Filter</string>
+    <string name="book_mark_tab_item_chapters">Chapters</string>
+
 
     <!-- READER - MANGA / COMIC -->
     <string name="reader_reload">Reload</string>

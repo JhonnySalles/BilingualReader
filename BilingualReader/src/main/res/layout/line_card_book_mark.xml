@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/book_mark_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    android:background="@drawable/book_mark_custom_ripple"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:layout_marginBottom="5dp">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/book_mark_favorite"
+            style="@style/Button.IconOnly"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:textColor="?attr/colorSecondary"
+            android:contentDescription="@string/book_mark_list_favorite"
+            app:iconSize="25dp"
+            app:iconTint="?attr/colorSecondary"
+            app:icon="@drawable/ico_animated_favorited_unmarked"/>
+        <TextView
+            android:id="@+id/book_mark_title"
+            style="@style/TextTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="5dp"
+            android:textAllCaps="true"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/book_mark_options"
+            style="@style/Button.IconOnly"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:textColor="?attr/colorPrimary"
+            android:contentDescription="@string/book_mark_list_options"
+            android:layout_marginStart="5dp"
+            app:iconSize="25dp"
+            app:iconTint="?attr/colorPrimary"
+            app:icon="@drawable/ico_animated_options"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/book_mark_color"
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/book_mark_text"
+                style="@style/TextNormal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"/>
+
+            <LinearLayout
+                android:id="@+id/book_mark_note_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical">
+                <ImageView
+                    style="@style/TextNormal.BookMark"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_book_mark_note"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/book_mark_without_note"
+                    style="@style/Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="35dp"
+                    android:layout_marginStart="10dp"
+                    android:contentDescription="@string/book_mark_list_add_note"
+                    android:text="@string/book_mark_list_add_note"
+                    android:textSize="12sp"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/book_mark_note"
+                    style="@style/TextNormal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:textColor="?attr/colorOnSecondaryContainer"
+                    android:textSize="11sp"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

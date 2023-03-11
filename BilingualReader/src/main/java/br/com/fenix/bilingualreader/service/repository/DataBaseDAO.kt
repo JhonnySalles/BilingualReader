@@ -267,7 +267,13 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
                 "     ELSE '' END  " +
                 " ELSE '' END DESC," + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
     )
-    abstract fun list(favorite: Boolean, orderType: String, orderInverse: Boolean, padding: Int, size: Int): List<Vocabulary>
+    abstract fun list(
+        favorite: Boolean,
+        orderType: String,
+        orderInverse: Boolean,
+        padding: Int,
+        size: Int
+    ): List<Vocabulary>
 
     @Query(
         "SELECT V.* " +
@@ -343,7 +349,14 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
                 "     ELSE '' END  " +
                 " ELSE '' END DESC," + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
     )
-    abstract fun listByManga(manga: String, favorite: Boolean, orderType: String, orderInverse: Boolean, padding: Int, size: Int): List<Vocabulary>
+    abstract fun listByManga(
+        manga: String,
+        favorite: Boolean,
+        orderType: String,
+        orderInverse: Boolean,
+        padding: Int,
+        size: Int
+    ): List<Vocabulary>
 
     @Query(
         "SELECT V.* " +
@@ -419,7 +432,14 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
                 "     ELSE '' END  " +
                 " ELSE '' END DESC," + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
     )
-    abstract fun listByBook(book: String, favorite: Boolean, orderType: String, orderInverse: Boolean, padding: Int, size: Int): List<Vocabulary>
+    abstract fun listByBook(
+        book: String,
+        favorite: Boolean,
+        orderType: String,
+        orderInverse: Boolean,
+        padding: Int,
+        size: Int
+    ): List<Vocabulary>
 
     @Query(
         "SELECT V.* " +
@@ -473,7 +493,13 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
     abstract fun getBook(id: Long): Book
 
     // --------------------------------------------------------- Subtitle ---------------------------------------------------------
-    fun insert(dbHelper: SupportSQLiteOpenHelper, idMangaOrBook: Long, idVocabulary: Long, appears: Int, isManga: Boolean = true) {
+    fun insert(
+        dbHelper: SupportSQLiteOpenHelper,
+        idMangaOrBook: Long,
+        idVocabulary: Long,
+        appears: Int,
+        isManga: Boolean = true
+    ) {
         val database = dbHelper.readableDatabase
 
         if (isManga)
@@ -530,7 +556,40 @@ abstract class LibrariesDAO : DataBaseDAO<Library> {
     abstract fun removeDefault(path: String)
 
     @Query("SELECT * FROM " + DataBaseConsts.LIBRARIES.TABLE_NAME + " WHERE " + DataBaseConsts.LIBRARIES.COLUMNS.ID + " = :id")
-    abstract fun getDefault(id: Long) : Library?
+    abstract fun getDefault(id: Long): Library?
+
+}
+
+
+@Dao
+abstract class BookMarkDAO : DataBaseDAO<BookMark> {
+
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK_MARK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook")
+    abstract fun findAll(idBook: Long): List<BookMark>
+
+    @Query(
+        "SELECT * FROM ( " +
+                " SELECT ${DataBaseConsts.BOOK_MARK.COLUMNS.ID}, ${DataBaseConsts.BOOK_MARK.COLUMNS.FK_ID_BOOK}, ${DataBaseConsts.BOOK_MARK.COLUMNS.PAGE}, " +
+                "        ${DataBaseConsts.BOOK_MARK.COLUMNS.PAGES}, ${DataBaseConsts.BOOK_MARK.COLUMNS.TYPE}, ${DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER_NUMBER}, " +
+                "        ${DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER}, ${DataBaseConsts.BOOK_MARK.COLUMNS.TEXT}, ${DataBaseConsts.BOOK_MARK.COLUMNS.ANNOTATION}, " +
+                "        ${DataBaseConsts.BOOK_MARK.COLUMNS.FAVORITE}, ${DataBaseConsts.BOOK_MARK.COLUMNS.COLOR}, ${DataBaseConsts.BOOK_MARK.COLUMNS.ALTERATION}, " +
+                "        ${DataBaseConsts.BOOK_MARK.COLUMNS.CREATED}, 0 AS ${DataBaseConsts.BOOK_MARK.COLUMNS.COUNT} " +
+                " FROM " + DataBaseConsts.BOOK_MARK.TABLE_NAME +
+                " WHERE " + DataBaseConsts.BOOK_MARK.COLUMNS.FK_ID_BOOK + " = :idBook " +
+                "UNION" +
+                " SELECT null AS ${DataBaseConsts.BOOK_MARK.COLUMNS.ID}, 0 AS ${DataBaseConsts.BOOK_MARK.COLUMNS.FK_ID_BOOK}, 0 AS ${DataBaseConsts.BOOK_MARK.COLUMNS.PAGE}, " +
+                "        0 AS ${DataBaseConsts.BOOK_MARK.COLUMNS.PAGES}, 'BookMark' AS ${DataBaseConsts.BOOK_MARK.COLUMNS.TYPE}, mark.${DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER_NUMBER}, " +
+                "        mark.${DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER}, '' AS ${DataBaseConsts.BOOK_MARK.COLUMNS.TEXT}, '' AS ${DataBaseConsts.BOOK_MARK.COLUMNS.ANNOTATION}, " +
+                "        false AS ${DataBaseConsts.BOOK_MARK.COLUMNS.FAVORITE}, 'None' AS ${DataBaseConsts.BOOK_MARK.COLUMNS.COLOR}, '2000-01-01T00:00:00.000' AS ${DataBaseConsts.BOOK_MARK.COLUMNS.ALTERATION}, " +
+                "        '2000-01-01T00:00:00.000' AS ${DataBaseConsts.BOOK_MARK.COLUMNS.CREATED}, " +
+                "        (SELECT Count(*) FROM " + DataBaseConsts.BOOK_MARK.TABLE_NAME + " aux WHERE aux." + DataBaseConsts.BOOK_MARK.COLUMNS.FK_ID_BOOK + " = mark." + DataBaseConsts.BOOK_MARK.COLUMNS.FK_ID_BOOK + "" +
+                "         AND aux." + DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER + " = mark." + DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER + ") AS ${DataBaseConsts.BOOK_MARK.COLUMNS.COUNT} " +
+                " FROM  " + DataBaseConsts.BOOK_MARK.TABLE_NAME + " mark " +
+                " WHERE mark." + DataBaseConsts.BOOK_MARK.COLUMNS.FK_ID_BOOK + " = :idBook " +
+                " GROUP BY ${DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER_NUMBER}) " +
+                "ORDER BY ${DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER_NUMBER} ASC, ${DataBaseConsts.BOOK_MARK.COLUMNS.COUNT} DESC "
+    )
+    abstract fun listMarks(idBook: Long): List<BookMark>
 
 }
 
@@ -538,7 +597,8 @@ abstract class LibrariesDAO : DataBaseDAO<Library> {
 @Dao
 abstract class BookConfigurationDAO : DataBaseDAO<BookConfiguration> {
 
-    @Query("SELECT * FROM " + DataBaseConsts.BOOKCONFIGURATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOKCONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook")
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK_CONFIGURATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook")
     abstract fun findConfiguration(idBook: Long): BookConfiguration?
 
 }
+
