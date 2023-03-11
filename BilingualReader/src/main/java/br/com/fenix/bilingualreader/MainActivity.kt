@@ -13,6 +13,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
+import br.com.fenix.bilingualreader.databinding.ActivityMainBinding
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.ThemeMode
 import br.com.fenix.bilingualreader.model.enums.Themes
@@ -56,6 +57,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mToggle: ActionBarDrawerToggle
     private lateinit var mDrawer: DrawerLayout
 
+    private lateinit var binding: ActivityMainBinding
+
     private val mDefaultUncaughtHandler = Thread.getDefaultUncaughtExceptionHandler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,14 +86,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         clearCache()
 
-        setContentView(R.layout.activity_main)
+        //setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         mToolBar = findViewById(R.id.main_toolbar)
         MenuUtil.tintToolbar(mToolBar, theme)
         setSupportActionBar(mToolBar)
 
         // drawer_Layout is a default layout from app
-        mDrawer = findViewById(R.id.drawer_layout)
+        mDrawer = binding.drawerLayout
         mToggle = ActionBarDrawerToggle(
             this,
             mDrawer,
@@ -102,7 +108,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mToggle.syncState()
 
         // nav_view have a menu layout
-        mNavigationView = findViewById(R.id.nav_view)
+        mNavigationView = binding.navView
         mNavigationView.setNavigationItemSelectedListener(this)
 
         mMangaLibraryModel = ViewModelProvider(this)[MangaLibraryViewModel::class.java]

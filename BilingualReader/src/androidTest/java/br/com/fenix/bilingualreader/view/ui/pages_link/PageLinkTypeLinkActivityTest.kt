@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(AndroidJUnit4::class)
-class PagesLinkActivityTest {
+class PageLinkTypeLinkActivityTest {
 
     // Inform a file test here
     private val filePath = "" // "storage/emulated/0/Manga/Manga of test.cbr"
