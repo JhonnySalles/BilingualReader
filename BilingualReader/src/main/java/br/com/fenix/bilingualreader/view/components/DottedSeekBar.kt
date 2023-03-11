@@ -70,6 +70,7 @@ class DottedSeekBar : androidx.appcompat.widget.AppCompatSeekBar {
 
     @Synchronized
     override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
         if (mDotsPositions.isNotEmpty() && mDotMark != null) {
             val w: Int = mDotMark!!.intrinsicWidth
             val h: Int = mDotMark!!.intrinsicHeight
@@ -77,17 +78,16 @@ class DottedSeekBar : androidx.appcompat.widget.AppCompatSeekBar {
             val halfH = if (h >= 0) h / 2 else 1
             mDotMark!!.setBounds(-halfW, -halfH, halfW, halfH)
 
-            val padding = paddingLeft - (thumb.intrinsicHeight / 6)
+            val top = paddingTop + (measuredHeight - paddingTop - paddingBottom) /2 - (h / 2f)
+            val padding = paddingLeft - (thumb.intrinsicWidth / 4f)
             val range = (max - min).toFloat()
             val available = (measuredWidth - paddingLeft - paddingRight)
             val image = mDotMark!!.toBitmap()
             for (position in mDotsPositions) {
                 val scale : Float = if (range > 0) (position - min) / range else 0f
                 val step = (available * scale + 0.5f)
-                canvas.drawBitmap(image, padding + step, 5f, null)
+                canvas.drawBitmap(image, padding + step, top, null)
             }
         }
-
-        super.onDraw(canvas)
     }
 }

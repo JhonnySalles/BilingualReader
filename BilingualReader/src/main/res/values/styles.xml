@@ -584,6 +584,12 @@
         <item name="android:thumbTint">?attr/colorPrimaryContainer</item>
     </style>
 
+    <style name="SeekBarDotted" >
+        <item name="android:progressBackgroundTint">?attr/colorOnPrimaryContainer</item>
+        <item name="android:progressTint">?attr/colorPrimaryContainer</item>
+        <item name="android:thumbTint">?attr/colorTertiary</item>
+    </style>
+
     <style name="ProgressBar" parent="@android:style/Widget.ProgressBar.Horizontal">
         <item name="android:indeterminateTint">?attr/colorPrimaryContainer</item>
         <item name="android:progressBackgroundTint">?attr/colorOnPrimaryContainer</item>

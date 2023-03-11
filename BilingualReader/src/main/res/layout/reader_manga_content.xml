@@ -124,7 +124,7 @@
 
             <br.com.fenix.bilingualreader.view.components.DottedSeekBar
                 android:id="@+id/reader_manga_bottom_progress"
-                style="@style/SeekBar"
+                style="@style/SeekBarDotted"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxHeight="2dp"
@@ -134,7 +134,7 @@
                 android:progressDrawable="@drawable/reader_nav_progress"
                 android:thumb="@drawable/reader_nav_thumb"
                 android:thumbOffset="6dp"
-                custom:dots_drawable="@drawable/ico_progress_dot" />
+                custom:dots_drawable="@drawable/ico_progress_dot"/>
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
