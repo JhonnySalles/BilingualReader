@@ -174,15 +174,15 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         }
     }
 
-    private fun notifyDataSet(indexes: MutableList<kotlin.Pair<ListMod, Int>>) {
-        if (indexes.any { it.first == ListMod.FULL })
+    private fun notifyDataSet(indexes: MutableList<kotlin.Pair<ListMode, Int>>) {
+        if (indexes.any { it.first == ListMode.FULL })
             notifyDataSet(0, (mViewModel.listBook.value?.size ?: 1))
         else {
             for (index in indexes)
                 when (index.first) {
-                    ListMod.ADD -> notifyDataSet(index.second, insert = true)
-                    ListMod.REM -> notifyDataSet(index.second, removed = true)
-                    ListMod.MOD -> notifyDataSet(index.second)
+                    ListMode.ADD -> notifyDataSet(index.second, insert = true)
+                    ListMode.REM -> notifyDataSet(index.second, removed = true)
+                    ListMode.MOD -> notifyDataSet(index.second)
                     else -> notifyDataSet(index.second)
                 }
         }
@@ -506,7 +506,7 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         else
             R.id.book_line_progress
 
-        val idCover = if (MangaLibraryFragment.mGridType != LibraryType.LINE)
+        val idCover = if (MangaLibraryFragment.mGridType != LibraryMangaType.LINE)
             R.id.book_grid_image_cover
         else
             R.id.book_line_image_cover

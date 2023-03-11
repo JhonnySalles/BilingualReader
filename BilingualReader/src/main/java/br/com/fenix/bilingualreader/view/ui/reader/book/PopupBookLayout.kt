@@ -9,10 +9,10 @@ import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.enums.AlignmentType
-import br.com.fenix.bilingualreader.model.enums.BookType
-import br.com.fenix.bilingualreader.model.enums.MarginType
-import br.com.fenix.bilingualreader.model.enums.SpacingType
+import br.com.fenix.bilingualreader.model.enums.AlignmentLayoutType
+import br.com.fenix.bilingualreader.model.enums.BookLayoutType
+import br.com.fenix.bilingualreader.model.enums.MarginLayoutType
+import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
 import org.slf4j.LoggerFactory
@@ -63,50 +63,50 @@ class PopupBookLayout : Fragment() {
 
         mMarginSmall.setOnClickListener {
             (mMarginSmall.icon as AnimatedVectorDrawable).start()
-            mViewModel.setSelectMargin(MarginType.Small)
+            mViewModel.setSelectMargin(MarginLayoutType.Small)
         }
         mMarginMedium.setOnClickListener {
             (mMarginMedium.icon as AnimatedVectorDrawable).start()
-            mViewModel.setSelectMargin(MarginType.Medium)
+            mViewModel.setSelectMargin(MarginLayoutType.Medium)
         }
         mMarginBig.setOnClickListener {
             (mMarginBig.icon as AnimatedVectorDrawable).start()
-            mViewModel.setSelectMargin(MarginType.Big)
+            mViewModel.setSelectMargin(MarginLayoutType.Big)
         }
 
         mSpacingSmall.setOnClickListener {
             (mSpacingSmall.icon as AnimatedVectorDrawable).start()
-            mViewModel.setSelectSpacing(SpacingType.Small)
+            mViewModel.setSelectSpacing(SpacingLayoutType.Small)
         }
         mSpacingMedium.setOnClickListener {
             (mSpacingMedium.icon as AnimatedVectorDrawable).start()
-            mViewModel.setSelectSpacing(SpacingType.Medium)
+            mViewModel.setSelectSpacing(SpacingLayoutType.Medium)
         }
         mSpacingBig.setOnClickListener {
             (mSpacingBig.icon as AnimatedVectorDrawable).start()
-            mViewModel.setSelectSpacing(SpacingType.Big)
+            mViewModel.setSelectSpacing(SpacingLayoutType.Big)
         }
 
         mAlignmentJustify.setOnClickListener {
             (mAlignmentJustify.icon as AnimatedVectorDrawable).start()
-            mViewModel.setSelectAlignment(AlignmentType.Justify)
+            mViewModel.setSelectAlignment(AlignmentLayoutType.Justify)
         }
         mAlignmentCenter.setOnClickListener {
             (mAlignmentCenter.icon as AnimatedVectorDrawable).start()
-            mViewModel.setSelectAlignment(AlignmentType.Center)
+            mViewModel.setSelectAlignment(AlignmentLayoutType.Center)
         }
         mAlignmentLeft.setOnClickListener {
             (mAlignmentLeft.icon as AnimatedVectorDrawable).start()
-            mViewModel.setSelectAlignment(AlignmentType.Left)
+            mViewModel.setSelectAlignment(AlignmentLayoutType.Left)
         }
         mAlignmentRight.setOnClickListener {
             (mAlignmentRight.icon as AnimatedVectorDrawable).start()
-            mViewModel.setSelectAlignment(AlignmentType.Right)
+            mViewModel.setSelectAlignment(AlignmentLayoutType.Right)
         }
 
-        setButtonMarked(getAlignmentsButton(), getSelected(mViewModel.alignmentType.value ?: AlignmentType.Justify))
-        setButtonMarked(getMarginsButton(), getSelected(mViewModel.marginType.value ?: MarginType.Small))
-        setButtonMarked(getSpacingsButton(), getSelected(mViewModel.spacingType.value ?: SpacingType.Small))
+        setButtonMarked(getAlignmentsButton(), getSelected(mViewModel.alignmentType.value ?: AlignmentLayoutType.Justify))
+        setButtonMarked(getMarginsButton(), getSelected(mViewModel.marginType.value ?: MarginLayoutType.Small))
+        setButtonMarked(getSpacingsButton(), getSelected(mViewModel.spacingType.value ?: SpacingLayoutType.Small))
 
         observer()
         return root
@@ -126,27 +126,27 @@ class PopupBookLayout : Fragment() {
             button.setStrokeWidthResource(if (button != marked) R.dimen.popup_reader_button_border_width else R.dimen.popup_reader_button_selected_border_width)
     }
 
-    private fun getSelected(type: BookType): MaterialButton? {
+    private fun getSelected(type: BookLayoutType): MaterialButton? {
         return when (type) {
-            is AlignmentType -> {
+            is AlignmentLayoutType -> {
                 when (type) {
-                    AlignmentType.Justify -> mAlignmentJustify
-                    AlignmentType.Center -> mAlignmentCenter
-                    AlignmentType.Right -> mAlignmentRight
+                    AlignmentLayoutType.Justify -> mAlignmentJustify
+                    AlignmentLayoutType.Center -> mAlignmentCenter
+                    AlignmentLayoutType.Right -> mAlignmentRight
                     else -> mAlignmentLeft
                 }
             }
-            is MarginType -> {
+            is MarginLayoutType -> {
                 when (type) {
-                    MarginType.Medium -> mMarginMedium
-                    MarginType.Big -> mMarginBig
+                    MarginLayoutType.Medium -> mMarginMedium
+                    MarginLayoutType.Big -> mMarginBig
                     else -> mMarginSmall
                 }
             }
-            is SpacingType -> {
+            is SpacingLayoutType -> {
                 when (type) {
-                    SpacingType.Medium -> mSpacingMedium
-                    SpacingType.Big -> mSpacingBig
+                    SpacingLayoutType.Medium -> mSpacingMedium
+                    SpacingLayoutType.Big -> mSpacingBig
                     else -> mSpacingSmall
                 }
             }

@@ -10,7 +10,7 @@ import android.widget.ProgressBar
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.model.enums.LibraryType
+import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -80,9 +80,9 @@ class MangaGridViewHolder(itemView: View, private val listener: MangaCardListene
         subtitle.visibility  = if (manga.hasSubtitle) View.VISIBLE else View.GONE
 
         when (MangaLibraryFragment.mGridType) {
-            LibraryType.GRID_MEDIUM -> if (mIsLandscape) cardView.layoutParams.width = mMangaCardWidthLandscapeMedium
+            LibraryMangaType.GRID_MEDIUM -> if (mIsLandscape) cardView.layoutParams.width = mMangaCardWidthLandscapeMedium
             else cardView.layoutParams.width = mMangaCardWidthMedium
-            LibraryType.GRID_SMALL ->
+            LibraryMangaType.GRID_SMALL ->
                 if (mIsLandscape) {
                     cardView.layoutParams.width = mMangaCardWidthSmall
                     cardView.layoutParams.height = mMangaCardHeightSmall
@@ -112,7 +112,7 @@ class MangaGridViewHolder(itemView: View, private val listener: MangaCardListene
         mangaImage.setImageBitmap(image)
         MangaImageCoverController.instance.setImageCoverAsync(itemView.context, manga, mangaImage)
 
-        val isSmall = manga.lastAccess != null && manga.bookMark > 0 && MangaLibraryFragment.mGridType != LibraryType.GRID_BIG
+        val isSmall = manga.lastAccess != null && manga.bookMark > 0 && MangaLibraryFragment.mGridType != LibraryMangaType.GRID_BIG
 
         mangaTitle.text = manga.title
         mangaFileType.text = manga.type.toString()

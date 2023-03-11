@@ -19,11 +19,11 @@ data class BookConfiguration (
     @ColumnInfo(name = DataBaseConsts.BOOKCONFIGURATION.COLUMNS.FK_ID_BOOK)
     var idBook: Long,
     @ColumnInfo(name = DataBaseConsts.BOOKCONFIGURATION.COLUMNS.ALIGNMENT)
-    var alignment: AlignmentType,
+    var alignment: AlignmentLayoutType,
     @ColumnInfo(name = DataBaseConsts.BOOKCONFIGURATION.COLUMNS.MARGIN)
-    var margin: MarginType,
+    var margin: MarginLayoutType,
     @ColumnInfo(name = DataBaseConsts.BOOKCONFIGURATION.COLUMNS.SPACING)
-    var spacing: SpacingType,
+    var spacing: SpacingLayoutType,
     @ColumnInfo(name = DataBaseConsts.BOOKCONFIGURATION.COLUMNS.SCROLLING)
     var scrolling: ScrollingType,
     @ColumnInfo(name = DataBaseConsts.BOOKCONFIGURATION.COLUMNS.FONT_TYPE)

@@ -2,11 +2,6 @@ package br.com.fenix.bilingualreader.view.ui.reader.book
 
 import android.app.Application
 import android.content.SharedPreferences
-import android.view.ContextThemeWrapper
-import android.widget.TextView
-import androidx.appcompat.widget.TintTypedArray
-import androidx.appcompat.widget.TintTypedArray.obtainStyledAttributes
-import androidx.core.content.withStyledAttributes
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -29,15 +24,15 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private var mListFonts: MutableLiveData<MutableList<Pair<FontType, Boolean>>> = MutableLiveData(arrayListOf())
     val fonts: LiveData<MutableList<Pair<FontType, Boolean>>> = mListFonts
 
-    private var mAlignmentType: MutableLiveData<AlignmentType> =
-        MutableLiveData(AlignmentType.Justify)
-    val alignmentType: LiveData<AlignmentType> = mAlignmentType
+    private var mAlignmentType: MutableLiveData<AlignmentLayoutType> =
+        MutableLiveData(AlignmentLayoutType.Justify)
+    val alignmentType: LiveData<AlignmentLayoutType> = mAlignmentType
 
-    private var mMarginType: MutableLiveData<MarginType> = MutableLiveData(MarginType.Small)
-    val marginType: LiveData<MarginType> = mMarginType
+    private var mMarginType: MutableLiveData<MarginLayoutType> = MutableLiveData(MarginLayoutType.Small)
+    val marginType: LiveData<MarginLayoutType> = mMarginType
 
-    private var mSpacingType: MutableLiveData<SpacingType> = MutableLiveData(SpacingType.Small)
-    val spacingType: LiveData<SpacingType> = mSpacingType
+    private var mSpacingType: MutableLiveData<SpacingLayoutType> = MutableLiveData(SpacingLayoutType.Small)
+    val spacingType: LiveData<SpacingLayoutType> = mSpacingType
 
     private var mScrollingType: MutableLiveData<ScrollingType> =
         MutableLiveData(ScrollingType.Pagination)
@@ -75,24 +70,24 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         val fontSize =  FontUtil.pixelToDips(app.applicationContext, fontSize.value!!).toString() + "px"
 
         val margin = when (marginType.value) {
-            MarginType.Small -> "10px"
-            MarginType.Medium -> "25px"
-            MarginType.Big -> "40px"
+            MarginLayoutType.Small -> "10px"
+            MarginLayoutType.Medium -> "25px"
+            MarginLayoutType.Big -> "40px"
             else -> "10px"
         }
 
         val spacing = when (spacingType.value) {
-            SpacingType.Small -> "140%"
-            SpacingType.Medium -> "160%"
-            SpacingType.Big -> "180%"
+            SpacingLayoutType.Small -> "140%"
+            SpacingLayoutType.Medium -> "160%"
+            SpacingLayoutType.Big -> "180%"
             else -> "140%"
         }
 
         val alignment = when (alignmentType.value) {
-            AlignmentType.Justify -> "justify"
-            AlignmentType.Right -> "right"
-            AlignmentType.Left -> "left"
-            AlignmentType.Center -> "center"
+            AlignmentLayoutType.Justify -> "justify"
+            AlignmentLayoutType.Right -> "right"
+            AlignmentLayoutType.Left -> "left"
+            AlignmentLayoutType.Center -> "center"
             else -> "justify"
         }
 
@@ -113,24 +108,24 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     }
 
     private fun loadPreferences() {
-        mAlignmentType.value = AlignmentType.valueOf(
+        mAlignmentType.value = AlignmentLayoutType.valueOf(
             mPreferences.getString(
                 GeneralConsts.KEYS.READER.BOOK_PAGE_ALIGNMENT,
-                AlignmentType.Justify.toString()
+                AlignmentLayoutType.Justify.toString()
             )!!
         )
 
-        mMarginType.value = MarginType.valueOf(
+        mMarginType.value = MarginLayoutType.valueOf(
             mPreferences.getString(
                 GeneralConsts.KEYS.READER.BOOK_PAGE_MARGIN,
-                MarginType.Small.toString()
+                MarginLayoutType.Small.toString()
             )!!
         )
 
-        mSpacingType.value = SpacingType.valueOf(
+        mSpacingType.value = SpacingLayoutType.valueOf(
             mPreferences.getString(
                 GeneralConsts.KEYS.READER.BOOK_PAGE_SPACING,
-                SpacingType.Small.toString()
+                SpacingLayoutType.Small.toString()
             )!!
         )
 
@@ -179,9 +174,9 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         val config = mRepository.findConfiguration(idBook) ?: BookConfiguration(
             null,
             idBook,
-            AlignmentType.Justify,
-            MarginType.Small,
-            SpacingType.Small,
+            AlignmentLayoutType.Justify,
+            MarginLayoutType.Small,
+            SpacingLayoutType.Small,
             ScrollingType.Pagination,
             FontType.TimesNewRoman,
             GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT
@@ -224,17 +219,17 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         mDefaultCss = generateCSS()
     }
 
-    fun setSelectAlignment(alignment: AlignmentType) {
+    fun setSelectAlignment(alignment: AlignmentLayoutType) {
         mAlignmentType.value = alignment
         mDefaultCss = generateCSS()
     }
 
-    fun setSelectSpacing(spacing: SpacingType) {
+    fun setSelectSpacing(spacing: SpacingLayoutType) {
         mSpacingType.value = spacing
         mDefaultCss = generateCSS()
     }
 
-    fun setSelectMargin(margin: MarginType) {
+    fun setSelectMargin(margin: MarginLayoutType) {
         mMarginType.value = margin
         mDefaultCss = generateCSS()
     }

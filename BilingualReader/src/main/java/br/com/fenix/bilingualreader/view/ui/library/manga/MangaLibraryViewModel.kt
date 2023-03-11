@@ -9,12 +9,11 @@ import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.model.enums.ListMod
+import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.artifex.mu.ChoosePDFItem
 import java.util.*
 import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 
@@ -170,9 +169,9 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
         return index
     }
 
-    fun updateList(refreshComplete: (Boolean, indexes: MutableList<Pair<ListMod, Int>>) -> (Unit)) {
+    fun updateList(refreshComplete: (Boolean, indexes: MutableList<Pair<ListMode, Int>>) -> (Unit)) {
         var change = false
-        val indexes = mutableListOf<Pair<ListMod, Int>>()
+        val indexes = mutableListOf<Pair<ListMode, Int>>()
         if (mListMangasFull.value != null && mListMangasFull.value!!.isNotEmpty()) {
             val list = mMangaRepository.listRecentChange(mLibrary)
             if (list != null && list.isNotEmpty()) {
@@ -182,11 +181,11 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                         mListMangasFull.value!![mListMangasFull.value!!.indexOf(manga)].update(manga)
                         val index = mListMangas.value!!.indexOf(manga)
                         if (index > -1)
-                            indexes.add(Pair(ListMod.MOD, index))
+                            indexes.add(Pair(ListMode.MOD, index))
                     } else {
                         mListMangas.value!!.add(manga)
                         mListMangasFull.value!!.add(manga)
-                        indexes.add(Pair(ListMod.ADD, mListMangas.value!!.size))
+                        indexes.add(Pair(ListMode.ADD, mListMangas.value!!.size))
                     }
                 }
             }
@@ -198,20 +197,20 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                         val index = mListMangas.value!!.indexOf(manga)
                         mListMangas.value!!.remove(manga)
                         mListMangasFull.value!!.remove(manga)
-                        indexes.add(Pair(ListMod.REM, index))
+                        indexes.add(Pair(ListMode.REM, index))
                     }
                 }
             }
         } else {
             val list = mMangaRepository.list(mLibrary)
             if (list != null) {
-                indexes.add(Pair(ListMod.FULL, list.size))
+                indexes.add(Pair(ListMode.FULL, list.size))
                 mListMangas.value = list.toMutableList()
                 mListMangasFull.value = list.toMutableList()
             } else {
                 mListMangas.value = mutableListOf()
                 mListMangasFull.value = mutableListOf()
-                indexes.add(Pair(ListMod.FULL, 0))
+                indexes.add(Pair(ListMode.FULL, 0))
             }
             //Receive value force refresh, not necessary notify
             change = false

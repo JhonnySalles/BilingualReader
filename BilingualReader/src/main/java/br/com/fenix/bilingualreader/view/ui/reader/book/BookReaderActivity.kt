@@ -4,11 +4,8 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.content.*
-import android.graphics.Bitmap
-import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.*
 import android.util.TypedValue
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
@@ -17,7 +14,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -34,7 +30,6 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.*
-import br.com.fenix.bilingualreader.service.ocr.OcrProcess
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
 import br.com.fenix.bilingualreader.service.repository.Storage

@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.model.entity
 
 import br.com.fenix.bilingualreader.model.enums.ComicInfoPageType
 import org.simpleframework.xml.Attribute
-import org.simpleframework.xml.Element
 import org.simpleframework.xml.Root
 
 @Root(name = "Page", strict = false)

@@ -9,7 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
-import br.com.fenix.bilingualreader.model.enums.ListMod
+import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -167,9 +167,9 @@ class BookLibraryViewModel(application: Application) : AndroidViewModel(applicat
         return index
     }
 
-    fun updateList(refreshComplete: (Boolean, indexes: MutableList<Pair<ListMod, Int>>) -> (Unit)) {
+    fun updateList(refreshComplete: (Boolean, indexes: MutableList<Pair<ListMode, Int>>) -> (Unit)) {
         var change = false
-        val indexes = mutableListOf<Pair<ListMod, Int>>()
+        val indexes = mutableListOf<Pair<ListMode, Int>>()
         if (mListBookFull.value != null && mListBookFull.value!!.isNotEmpty()) {
             val list = mBookRepository.listRecentChange(mLibrary)
             if (list != null && list.isNotEmpty()) {
@@ -179,11 +179,11 @@ class BookLibraryViewModel(application: Application) : AndroidViewModel(applicat
                         mListBookFull.value!![mListBookFull.value!!.indexOf(Book)].update(Book)
                         val index = mListBook.value!!.indexOf(Book)
                         if (index > -1)
-                            indexes.add(Pair(ListMod.MOD, index))
+                            indexes.add(Pair(ListMode.MOD, index))
                     } else {
                         mListBook.value!!.add(Book)
                         mListBookFull.value!!.add(Book)
-                        indexes.add(Pair(ListMod.ADD, mListBook.value!!.size))
+                        indexes.add(Pair(ListMode.ADD, mListBook.value!!.size))
                     }
                 }
             }
@@ -195,20 +195,20 @@ class BookLibraryViewModel(application: Application) : AndroidViewModel(applicat
                         val index = mListBook.value!!.indexOf(Book)
                         mListBook.value!!.remove(Book)
                         mListBookFull.value!!.remove(Book)
-                        indexes.add(Pair(ListMod.REM, index))
+                        indexes.add(Pair(ListMode.REM, index))
                     }
                 }
             }
         } else {
             val list = mBookRepository.list(mLibrary)
             if (list != null) {
-                indexes.add(Pair(ListMod.FULL, list.size))
+                indexes.add(Pair(ListMode.FULL, list.size))
                 mListBook.value = list.toMutableList()
                 mListBookFull.value = list.toMutableList()
             } else {
                 mListBook.value = mutableListOf()
                 mListBookFull.value = mutableListOf()
-                indexes.add(Pair(ListMod.FULL, 0))
+                indexes.add(Pair(ListMode.FULL, 0))
             }
             //Receive value force refresh, not necessary notify
             change = false

@@ -101,8 +101,8 @@ class ConfigFragment : Fragment() {
     private lateinit var mMangaMapThemeMode: HashMap<String, ThemeMode>
     private lateinit var mMangaMapThemes: HashMap<String, Themes>
 
-    private var mMangaPageModeSelect: PageMode = PageMode.Comics
-    private var mMangaReaderModeSelect: ReaderMode = ReaderMode.FIT_WIDTH
+    private var mMangaPageModeSelectType: PageMode = PageMode.Comics
+    private var mMangaReaderModeSelectType: ReaderMode = ReaderMode.FIT_WIDTH
     private var mMangaOrderSelect: Order = Order.Name
 
     // --------------------------------------------------------- Book ---------------------------------------------------------
@@ -301,7 +301,7 @@ class ConfigFragment : Fragment() {
         mMangaReaderComicModeAutoComplete.setAdapter(adapterReaderMode)
         mMangaReaderComicModeAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
-                mMangaReaderModeSelect =
+                mMangaReaderModeSelectType =
                     if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
                         mMangaMapReaderMode.containsKey(
                             parent.getItemAtPosition(position).toString()
@@ -321,7 +321,7 @@ class ConfigFragment : Fragment() {
         mMangaPageModeAutoComplete.setAdapter(adapterPageMode)
         mMangaPageModeAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
-                mMangaPageModeSelect =
+                mMangaPageModeSelectType =
                     if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
                         mMangaMapPageMode.containsKey(parent.getItemAtPosition(position).toString())
                     )
@@ -597,12 +597,12 @@ class ConfigFragment : Fragment() {
 
             this.putString(
                 GeneralConsts.KEYS.READER.MANGA_PAGE_MODE,
-                mMangaPageModeSelect.toString()
+                mMangaPageModeSelectType.toString()
             )
 
             this.putString(
                 GeneralConsts.KEYS.READER.MANGA_READER_MODE,
-                mMangaReaderModeSelect.toString()
+                mMangaReaderModeSelectType.toString()
             )
 
             this.putBoolean(
@@ -680,13 +680,13 @@ class ConfigFragment : Fragment() {
 
         mMangaLibraryPath.editText?.setText(mViewModel.getDefault(Type.MANGA))
 
-        mMangaPageModeSelect = PageMode.valueOf(
+        mMangaPageModeSelectType = PageMode.valueOf(
             sharedPreferences.getString(
                 GeneralConsts.KEYS.READER.MANGA_PAGE_MODE,
                 PageMode.Comics.toString()
             )!!
         )
-        mMangaReaderModeSelect = ReaderMode.valueOf(
+        mMangaReaderModeSelectType = ReaderMode.valueOf(
             sharedPreferences.getString(
                 GeneralConsts.KEYS.READER.MANGA_READER_MODE,
                 ReaderMode.FIT_WIDTH.toString()
@@ -723,11 +723,11 @@ class ConfigFragment : Fragment() {
             false
         )
         mMangaReaderComicModeAutoComplete.setText(
-            mMangaMapReaderMode.filterValues { it == mMangaReaderModeSelect }.keys.first(),
+            mMangaMapReaderMode.filterValues { it == mMangaReaderModeSelectType }.keys.first(),
             false
         )
         mMangaPageModeAutoComplete.setText(
-            mMangaMapPageMode.filterValues { it == mMangaPageModeSelect }.keys.first(),
+            mMangaMapPageMode.filterValues { it == mMangaPageModeSelectType }.keys.first(),
             false
         )
         mMangaShowClockAndBattery.isChecked = sharedPreferences.getBoolean(

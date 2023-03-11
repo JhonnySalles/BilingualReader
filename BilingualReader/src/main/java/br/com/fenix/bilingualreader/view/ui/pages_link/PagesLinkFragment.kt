@@ -29,7 +29,7 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.PageLink
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.LoadFile
-import br.com.fenix.bilingualreader.model.enums.Pages
+import br.com.fenix.bilingualreader.model.enums.PageLinkType
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.listener.PageLinkCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -257,7 +257,7 @@ class PagesLinkFragment : Fragment() {
 
         mAutoProcess.setOnClickListener {
             (mAutoProcess.icon as AnimatedVectorDrawable).start()
-            mViewModel.autoReorderDoublePages(Pages.LINKED, true)
+            mViewModel.autoReorderDoublePages(PageLinkType.LINKED, true)
         }
         mReorderPages.setOnClickListener {
             (mReorderPages.icon as AnimatedVectorDrawable).start()
@@ -339,15 +339,15 @@ class PagesLinkFragment : Fragment() {
                     openPopupFunctions(view, page, isRight)
             }
 
-            override fun onClickLong(view: View, page: PageLink, origin: Pages, position: Int): Boolean {
+            override fun onClickLong(view: View, page: PageLink, origin: PageLinkType, position: Int): Boolean {
                 mAutoReorderPages = false
-                val pageLink = if (origin == Pages.NOT_LINKED) mViewModel.getPageNotLink(page) else mViewModel.getPageLink(page)
+                val pageLink = if (origin == PageLinkType.NOT_LINKED) mViewModel.getPageNotLink(page) else mViewModel.getPageLink(page)
                 val item = ClipData.Item(pageLink)
-                val name = if (origin == Pages.DUAL_PAGE) page.fileLinkRightPageName else page.fileLinkLeftPageName
+                val name = if (origin == PageLinkType.DUAL_PAGE) page.fileLinkRightPageName else page.fileLinkLeftPageName
                 val dragData = ClipData(position.toString(), arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN), item)
                 dragData.addItem(ClipData.Item(origin.name))
                 dragData.addItem(ClipData.Item(name))
-                val myShadow = if (origin == Pages.NOT_LINKED && page.imageLeftFileLinkPage != null)
+                val myShadow = if (origin == PageLinkType.NOT_LINKED && page.imageLeftFileLinkPage != null)
                     ImageShadowBuilder(createNotLinkView(page))
                 else
                     View.DragShadowBuilder(view)
@@ -366,23 +366,23 @@ class PagesLinkFragment : Fragment() {
                 openImageDetail(page, isManga)
             }
 
-            override fun onDropItem(origin: Pages, destiny: Pages, dragIndex: String, drop: PageLink) {
+            override fun onDropItem(origin: PageLinkType, destiny: PageLinkType, dragIndex: String, drop: PageLink) {
                 when {
-                    origin == Pages.DUAL_PAGE || destiny == Pages.DUAL_PAGE -> {
-                        val pageLink = if (origin == Pages.NOT_LINKED)
+                    origin == PageLinkType.DUAL_PAGE || destiny == PageLinkType.DUAL_PAGE -> {
+                        val pageLink = if (origin == PageLinkType.NOT_LINKED)
                             mViewModel.getPageNotLink(Integer.valueOf(dragIndex))
                         else
                             mViewModel.getPageLink(Integer.valueOf(dragIndex))
                         mViewModel.onMoveDualPage(origin, pageLink, destiny, drop)
                     }
-                    origin == Pages.LINKED && destiny == Pages.LINKED -> mViewModel.onMove(
+                    origin == PageLinkType.LINKED && destiny == PageLinkType.LINKED -> mViewModel.onMove(
                         mViewModel.getPageLink(Integer.valueOf(dragIndex)),
                         drop
                     )
-                    origin == Pages.LINKED && destiny == Pages.NOT_LINKED -> {
+                    origin == PageLinkType.LINKED && destiny == PageLinkType.NOT_LINKED -> {
                         mViewModel.onNotLinked(mViewModel.getPageLink(Integer.valueOf(dragIndex)))
                     }
-                    origin == Pages.NOT_LINKED && destiny == Pages.LINKED -> mViewModel.fromNotLinked(
+                    origin == PageLinkType.NOT_LINKED && destiny == PageLinkType.LINKED -> mViewModel.fromNotLinked(
                         mViewModel.getPageNotLink(
                             Integer.valueOf(
                                 dragIndex
@@ -443,8 +443,8 @@ class PagesLinkFragment : Fragment() {
                 }
 
                 DragEvent.ACTION_DROP -> {
-                    when (val origin = Pages.valueOf(dragEvent.clipData.getItemAt(PageLinkConsts.CLIPDATA.PAGE_TYPE).text.toString())) {
-                        Pages.LINKED -> mViewModel.onNotLinked(
+                    when (val origin = PageLinkType.valueOf(dragEvent.clipData.getItemAt(PageLinkConsts.CLIPDATA.PAGE_TYPE).text.toString())) {
+                        PageLinkType.LINKED -> mViewModel.onNotLinked(
                             mViewModel.getPageLink(
                                 Integer.valueOf(
                                     dragEvent.clipData.getItemAt(
@@ -453,9 +453,9 @@ class PagesLinkFragment : Fragment() {
                                 )
                             )
                         )
-                        Pages.DUAL_PAGE -> {
+                        PageLinkType.DUAL_PAGE -> {
                             val pageLink = mViewModel.getPageLink(Integer.valueOf(dragEvent.clipData.getItemAt(PageLinkConsts.CLIPDATA.PAGE_LINK).text.toString()))
-                            mViewModel.onMoveDualPage(origin, pageLink, Pages.NOT_LINKED, pageLink)
+                            mViewModel.onMoveDualPage(origin, pageLink, PageLinkType.NOT_LINKED, pageLink)
                         }
                         else -> {}
                     }
@@ -502,7 +502,7 @@ class PagesLinkFragment : Fragment() {
             if (fileLink != null)
                 mViewModel.reload(fileLink as FileLink) { index, type -> notifyItemChanged(type, index) }
             else
-                mViewModel.reLoadImages(Pages.ALL, true, isCloseThreads = true)
+                mViewModel.reLoadImages(PageLinkType.ALL, true, isCloseThreads = true)
             mMangaName.text = mViewModel.getMangaName()
         } else {
             val bundle = this.arguments
@@ -625,29 +625,29 @@ class PagesLinkFragment : Fragment() {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun notifyItemChanged(type: Pages, index: Int?, add: Boolean = false, remove: Boolean = false) {
+    private fun notifyItemChanged(type: PageLinkType, index: Int?, add: Boolean = false, remove: Boolean = false) {
         when {
-            type == Pages.NOT_LINKED && add && index != null && index > -1 -> (mRecyclerPageNotLink.adapter as PageNotLinkCardAdapter).notifyItemInserted(
+            type == PageLinkType.NOT_LINKED && add && index != null && index > -1 -> (mRecyclerPageNotLink.adapter as PageNotLinkCardAdapter).notifyItemInserted(
                 index
             )
-            type == Pages.NOT_LINKED && remove && index != null && index > -1 -> (mRecyclerPageNotLink.adapter as PageNotLinkCardAdapter).notifyItemRemoved(
+            type == PageLinkType.NOT_LINKED && remove && index != null && index > -1 -> (mRecyclerPageNotLink.adapter as PageNotLinkCardAdapter).notifyItemRemoved(
                 index
             )
-            type == Pages.NOT_LINKED && index != null && index > -1 -> (mRecyclerPageNotLink.adapter as PageNotLinkCardAdapter).notifyItemChanged(
+            type == PageLinkType.NOT_LINKED && index != null && index > -1 -> (mRecyclerPageNotLink.adapter as PageNotLinkCardAdapter).notifyItemChanged(
                 index
             )
-            type == Pages.NOT_LINKED && (index == null || index == -1) -> (mRecyclerPageNotLink.adapter as PageNotLinkCardAdapter).notifyDataSetChanged()
+            type == PageLinkType.NOT_LINKED && (index == null || index == -1) -> (mRecyclerPageNotLink.adapter as PageNotLinkCardAdapter).notifyDataSetChanged()
 
-            type != Pages.NOT_LINKED && add && index != null && index > -1 -> (mRecyclerPageLink.adapter as PageLinkCardAdapter).notifyItemInserted(
+            type != PageLinkType.NOT_LINKED && add && index != null && index > -1 -> (mRecyclerPageLink.adapter as PageLinkCardAdapter).notifyItemInserted(
                 index
             )
-            type != Pages.NOT_LINKED && remove && index != null && index > -1 -> (mRecyclerPageLink.adapter as PageLinkCardAdapter).notifyItemRemoved(
+            type != PageLinkType.NOT_LINKED && remove && index != null && index > -1 -> (mRecyclerPageLink.adapter as PageLinkCardAdapter).notifyItemRemoved(
                 index
             )
-            type != Pages.NOT_LINKED && index != null && index > -1 -> (mRecyclerPageLink.adapter as PageLinkCardAdapter).notifyItemChanged(
+            type != PageLinkType.NOT_LINKED && index != null && index > -1 -> (mRecyclerPageLink.adapter as PageLinkCardAdapter).notifyItemChanged(
                 index
             )
-            type != Pages.NOT_LINKED && (index == null || index == -1) -> (mRecyclerPageLink.adapter as PageLinkCardAdapter).notifyDataSetChanged()
+            type != PageLinkType.NOT_LINKED && (index == null || index == -1) -> (mRecyclerPageLink.adapter as PageLinkCardAdapter).notifyDataSetChanged()
         }
     }
 
@@ -1001,7 +1001,7 @@ class PagesLinkFragment : Fragment() {
             ).show()
     }
 
-    private val mVerifyAllImagesFinished = Runnable { mViewModel.reLoadImages(Pages.ALL, true) }
+    private val mVerifyAllImagesFinished = Runnable { mViewModel.reLoadImages(PageLinkType.ALL, true) }
     private val mVerifyAllImagesFinishedDelay = Runnable { verifyAllImagesFinished() }
 
     private fun verifyAllImagesFinished() {
@@ -1091,8 +1091,8 @@ class PagesLinkFragment : Fragment() {
                         isEnding = true,
                         message = getString(R.string.page_link_process_undo_last_change_done)
                     )
-                    notifyItemChanged(Pages.LINKED, null)
-                    notifyItemChanged(Pages.NOT_LINKED, null)
+                    notifyItemChanged(PageLinkType.LINKED, null)
+                    notifyItemChanged(PageLinkType.NOT_LINKED, null)
                 }
             }
         }

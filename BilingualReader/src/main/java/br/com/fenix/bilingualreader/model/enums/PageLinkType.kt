@@ -1,6 +1,6 @@
 package br.com.fenix.bilingualreader.model.enums
 
-enum class Pages {
+enum class PageLinkType {
     LINKED,
     NOT_LINKED,
     DUAL_PAGE,

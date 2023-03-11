@@ -87,7 +87,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
 
     companion object {
-        var mGridType: LibraryType = LibraryType.GRID_BIG
+        var mGridType: LibraryMangaType = LibraryMangaType.GRID_BIG
         var mSortType: Order = Order.Name
         var mSortDesc: Boolean = false
     }
@@ -199,9 +199,9 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
         enableSearchView(searchView, !mRefreshLayout.isRefreshing)
         val iconGrid: Int = when (mGridType) {
-            LibraryType.GRID_SMALL -> R.drawable.ic_type_grid_small
-            LibraryType.GRID_BIG -> R.drawable.ic_type_grid_big
-            LibraryType.GRID_MEDIUM -> R.drawable.ic_type_grid_medium
+            LibraryMangaType.GRID_SMALL -> R.drawable.ic_type_grid_small
+            LibraryMangaType.GRID_BIG -> R.drawable.ic_type_grid_big
+            LibraryMangaType.GRID_MEDIUM -> R.drawable.ic_type_grid_medium
             else -> R.drawable.ic_type_list
         }
         miGridType.setIcon(iconGrid)
@@ -295,15 +295,15 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         }
     }
 
-    private fun notifyDataSet(indexes: MutableList<kotlin.Pair<ListMod, Int>>) {
-        if (indexes.any { it.first == ListMod.FULL })
+    private fun notifyDataSet(indexes: MutableList<kotlin.Pair<ListMode, Int>>) {
+        if (indexes.any { it.first == ListMode.FULL })
             notifyDataSet(0, (mViewModel.listMangas.value?.size ?: 1))
         else {
             for (index in indexes)
                 when (index.first) {
-                    ListMod.ADD -> notifyDataSet(index.second, insert = true)
-                    ListMod.REM -> notifyDataSet(index.second, removed = true)
-                    ListMod.MOD -> notifyDataSet(index.second)
+                    ListMode.ADD -> notifyDataSet(index.second, insert = true)
+                    ListMode.REM -> notifyDataSet(index.second, removed = true)
+                    ListMode.MOD -> notifyDataSet(index.second)
                     else -> notifyDataSet(index.second)
                 }
         }
@@ -439,10 +439,10 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
         mGridType = when (mGridType) {
-            LibraryType.LINE -> LibraryType.GRID_BIG
-            LibraryType.GRID_BIG -> LibraryType.GRID_MEDIUM
-            LibraryType.GRID_MEDIUM -> if (isLandscape) LibraryType.GRID_SMALL else LibraryType.LINE
-            else -> LibraryType.LINE
+            LibraryMangaType.LINE -> LibraryMangaType.GRID_BIG
+            LibraryMangaType.GRID_BIG -> LibraryMangaType.GRID_MEDIUM
+            LibraryMangaType.GRID_MEDIUM -> if (isLandscape) LibraryMangaType.GRID_SMALL else LibraryMangaType.LINE
+            else -> LibraryMangaType.LINE
         }
 
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
@@ -458,9 +458,9 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     private fun onChangeIconLayout() {
         val icon: Int = when (mGridType) {
-            LibraryType.GRID_SMALL -> R.drawable.ico_animated_type_grid_gridmedium_to_gridsmall
-            LibraryType.GRID_BIG -> R.drawable.ico_animated_type_grid_list_to_gridbig
-            LibraryType.GRID_MEDIUM -> R.drawable.ico_animated_type_grid_gridbig_to_gridmedium
+            LibraryMangaType.GRID_SMALL -> R.drawable.ico_animated_type_grid_gridmedium_to_gridsmall
+            LibraryMangaType.GRID_BIG -> R.drawable.ico_animated_type_grid_list_to_gridbig
+            LibraryMangaType.GRID_MEDIUM -> R.drawable.ico_animated_type_grid_gridbig_to_gridmedium
             else -> if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
                 R.drawable.ico_animated_type_grid_gridsmall_to_list
             else
@@ -696,17 +696,17 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mViewModel.getLibrary())
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
         intent.putExtras(bundle)
-        val idText = if (mGridType != LibraryType.LINE)
+        val idText = if (mGridType != LibraryMangaType.LINE)
             R.id.manga_grid_text_title
         else
             R.id.manga_line_text_title
 
-        val idProgress = if (mGridType != LibraryType.LINE)
+        val idProgress = if (mGridType != LibraryMangaType.LINE)
             R.id.manga_grid_progress
         else
             R.id.manga_line_progress
 
-        val idCover = if (mGridType != LibraryType.LINE)
+        val idCover = if (mGridType != LibraryMangaType.LINE)
             R.id.manga_grid_image_cover
         else
             R.id.manga_line_image_cover
@@ -745,10 +745,10 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             ).toString()
         )
 
-        mGridType = LibraryType.valueOf(
+        mGridType = LibraryMangaType.valueOf(
             sharedPreferences.getString(
                 GeneralConsts.KEYS.LIBRARY.MANGA_LIBRARY_TYPE,
-                LibraryType.LINE.toString()
+                LibraryMangaType.LINE.toString()
             )
                 .toString()
         )
@@ -768,19 +768,19 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     private fun generateLayout() {
-        if (mGridType != LibraryType.LINE) {
+        if (mGridType != LibraryMangaType.LINE) {
             val gridAdapter = MangaGridCardAdapter()
             mRecyclerView.adapter = gridAdapter
 
             val isLandscape =
                 resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
             val columnWidth: Int = when (mGridType) {
-                LibraryType.GRID_BIG -> resources.getDimension(R.dimen.manga_grid_card_layout_width)
+                LibraryMangaType.GRID_BIG -> resources.getDimension(R.dimen.manga_grid_card_layout_width)
                     .toInt()
-                LibraryType.GRID_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_landscape_medium)
+                LibraryMangaType.GRID_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_landscape_medium)
                     .toInt() else resources.getDimension(R.dimen.manga_grid_card_layout_width_medium)
                     .toInt()
-                LibraryType.GRID_SMALL -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_small)
+                LibraryMangaType.GRID_SMALL -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_small)
                     .toInt()
                 else resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
                 else -> resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
@@ -803,21 +803,21 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     private fun setAnimationRecycler(isAnimate: Boolean) {
-        if (mGridType != LibraryType.LINE)
+        if (mGridType != LibraryMangaType.LINE)
             (mRecyclerView.adapter as MangaGridCardAdapter).isAnimation = isAnimate
         else
             (mRecyclerView.adapter as MangaLineCardAdapter).isAnimation = isAnimate
     }
 
     private fun removeList(manga: Manga) {
-        if (mGridType != LibraryType.LINE)
+        if (mGridType != LibraryMangaType.LINE)
             (mRecyclerView.adapter as MangaGridCardAdapter).removeList(manga)
         else
             (mRecyclerView.adapter as MangaLineCardAdapter).removeList(manga)
     }
 
     private fun updateList(list: MutableList<Manga>) {
-        if (mGridType != LibraryType.LINE)
+        if (mGridType != LibraryMangaType.LINE)
             (mRecyclerView.adapter as MangaGridCardAdapter).updateList(list)
         else
             (mRecyclerView.adapter as MangaLineCardAdapter).updateList(list)
