@@ -9,7 +9,7 @@
     android:clipToPadding="false"
     android:clipChildren="false"
     android:fitsSystemWindows="true"
-    tools:context=".view.ui.book_mark.BookMarkFragment">
+    tools:context=".view.ui.book.BookMarkFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/book_mark_content"
@@ -26,9 +26,9 @@
             android:layout_centerHorizontal="true"
             android:layout_margin="@dimen/margin_small"
             android:clipToPadding="false"
-            android:columnCount="3"
+            android:columnCount="1"
             android:layoutAnimation="@anim/layout_animation_library_line"
-            android:paddingBottom="@dimen/manga_list_padding"
+            android:paddingBottom="@dimen/book_mark_list_padding"
             android:scrollbars="vertical" />
 
 

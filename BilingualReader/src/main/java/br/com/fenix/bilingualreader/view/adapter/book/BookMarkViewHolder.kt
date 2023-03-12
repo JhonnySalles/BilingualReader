@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.adapter.book_mark
+package br.com.fenix.bilingualreader.view.adapter.book
 
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.view.View

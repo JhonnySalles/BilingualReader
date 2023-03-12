@@ -201,6 +201,18 @@ class DataBaseConsts private constructor() {
         }
     }
 
+    object BOOK_SEARCH_HISTORY {
+        const val TABLE_NAME = "BookSearchHistory"
+
+        object COLUMNS {
+            const val ID = "id"
+            const val FK_ID_BOOK = "id_book"
+            const val SEARCH = "search"
+            const val PAGE = "page"
+            const val DATE = "date"
+        }
+    }
+
     object BOOK_CONFIGURATION {
         const val TABLE_NAME = "BookConfiguration"
 

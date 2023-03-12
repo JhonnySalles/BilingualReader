@@ -325,6 +325,16 @@
         <item name="iconGravity">textStart</item>
     </style>
 
+    <style name="ButtonWithoutBackground" parent="Widget.MaterialComponents.Button.OutlinedButton.Icon">
+        <item name="android:singleLine">true</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:gravity">center</item>
+        <item name="rippleColor">?attr/colorTertiary</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
     <style name="Button.IconOnly" parent="Button">
         <item name="android:layout_gravity">center</item>
         <item name="android:gravity">center</item>

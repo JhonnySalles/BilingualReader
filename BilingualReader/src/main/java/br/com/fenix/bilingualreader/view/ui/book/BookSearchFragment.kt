@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.ui.book_mark
+package br.com.fenix.bilingualreader.view.ui.book
 
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Build
@@ -6,54 +6,36 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.*
-import android.view.inputmethod.EditorInfo
-import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.SearchView
-import android.widget.Toast
-import androidx.coordinatorlayout.widget.CoordinatorLayout
+import android.widget.ListView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.BookMark
+import br.com.fenix.bilingualreader.model.entity.BookSearch
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.model.enums.Order
-import br.com.fenix.bilingualreader.service.listener.BookMarkListener
-import br.com.fenix.bilingualreader.service.listener.VocabularyCardListener
-import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.util.helpers.MenuUtil
-import br.com.fenix.bilingualreader.view.adapter.book_mark.BookMarkLineAdapter
-import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyCardAdapter
-import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyLoadState
+import br.com.fenix.bilingualreader.service.listener.BookSearchListener
+import br.com.fenix.bilingualreader.view.adapter.book.BookSearchLineAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaListCardAdapter
-import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.InitializeVocabulary
 import br.com.fenix.bilingualreader.view.components.PopupOrderListener
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.tabs.TabLayout
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 
 
-class BookMarkFragment : Fragment(), PopupOrderListener, InitializeVocabulary<Vocabulary> {
+class BookSearchFragment : Fragment(), PopupOrderListener, InitializeVocabulary<Vocabulary> {
 
-    private val mLOGGER = LoggerFactory.getLogger(BookMarkFragment::class.java)
+    private val mLOGGER = LoggerFactory.getLogger(BookSearchFragment::class.java)
 
     private lateinit var mScrollUp: FloatingActionButton
     private lateinit var mScrollDown: FloatingActionButton
+    private lateinit var mHistoryContent: ListView
+    private lateinit var mHistoryListView: ListView
     private lateinit var mRecyclerView: RecyclerView
 
-    private lateinit var mListener: BookMarkListener
+    private lateinit var mListener: BookSearchListener
 
     private var mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
@@ -82,12 +64,14 @@ class BookMarkFragment : Fragment(), PopupOrderListener, InitializeVocabulary<Vo
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val root = inflater.inflate(R.layout.fragment_book_mark, container, false)
+        val root = inflater.inflate(R.layout.fragment_book_search, container, false)
 
-        mRecyclerView = root.findViewById(R.id.book_mark_recycler_view)
+        mRecyclerView = root.findViewById(R.id.book_search_recycler_view)
+        mHistoryContent = root.findViewById(R.id.book_search_history_content)
+        mHistoryListView = root.findViewById(R.id.book_search_history)
 
-        mScrollUp = root.findViewById(R.id.book_mark_scroll_up)
-        mScrollDown = root.findViewById(R.id.book_mark_scroll_down)
+        mScrollUp = root.findViewById(R.id.book_search_scroll_up)
+        mScrollDown = root.findViewById(R.id.book_search_scroll_down)
 
 
         mScrollUp.visibility = View.GONE
@@ -148,30 +132,18 @@ class BookMarkFragment : Fragment(), PopupOrderListener, InitializeVocabulary<Vo
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mListener = object : BookMarkListener {
-            override fun onClick(mark: BookMark) {
+        mListener = object : BookSearchListener {
+            override fun onClick(search: BookSearch) {
                 TODO("Not yet implemented")
             }
 
-            override fun onClickLong(mark: BookMark, view: View, position: Int) {
-                TODO("Not yet implemented")
-            }
-
-            override fun onClickFavorite(mark: BookMark) {
-                TODO("Not yet implemented")
-            }
-
-            override fun onClickOptions(mark: BookMark, view: View, position: Int) {
-                TODO("Not yet implemented")
-            }
-
-            override fun onClickNote(mark: BookMark) {
+            override fun onClickLong(search: BookSearch, view: View, position: Int) {
                 TODO("Not yet implemented")
             }
 
         }
 
-        val adapter = BookMarkLineAdapter()
+        val adapter = BookSearchLineAdapter()
         adapter.attachListener(mListener)
         mRecyclerView.adapter = adapter
         mRecyclerView.layoutManager = LinearLayoutManager(requireContext())

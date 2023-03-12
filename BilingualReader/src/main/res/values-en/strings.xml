@@ -197,6 +197,13 @@
     <string name="book_mark_tab_item_filter">Filter</string>
     <string name="book_mark_tab_item_chapters">Chapters</string>
 
+    <!-- BOOK SEARCH -->
+    <string name="book_search_menu">Search</string>
+    <string name="book_search_history_title">Recent search</string>
+    <string name="book_search_history_clear">Clear history</string>
+    <string name="book_search_history_delete">Delete</string>
+    <string name="book_search_page">Page %i</string>
+
 
     <!-- READER - Manga / Comic -->
     <string name="reader_reload">Reload</string>
