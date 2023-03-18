@@ -180,7 +180,7 @@ class DataBaseConsts private constructor() {
         }
     }
 
-    object BOOK_MARK {
+    object BOOK_ANNOTATION {
         const val TABLE_NAME = "BookMark"
 
         object COLUMNS {
@@ -208,7 +208,6 @@ class DataBaseConsts private constructor() {
             const val ID = "id"
             const val FK_ID_BOOK = "id_book"
             const val SEARCH = "search"
-            const val PAGE = "page"
             const val DATE = "date"
         }
     }

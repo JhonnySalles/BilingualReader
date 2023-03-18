@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/menu_item_reader_book_chapter"
-        android:icon="@drawable/ic_book_chapter"
+        android:icon="@drawable/ico_animated_book_chapter"
         android:orderInCategory="100"
         android:title="@string/menu_book_reading_chapter"
         app:showAsAction="always" />
@@ -25,14 +25,14 @@
 
     <item
         android:id="@+id/menu_item_reader_book_font_style"
-        android:icon="@drawable/ic_book_font"
+        android:icon="@drawable/ico_animated_book_font_style"
         android:orderInCategory="103"
         android:title="@string/menu_book_reading_font_and_page"
         app:showAsAction="always"/>
 
     <item
         android:id="@+id/menu_item_reader_book_mark_page"
-        android:icon="@drawable/ic_book_mark"
+        android:icon="@drawable/ico_animated_book_mark"
         android:orderInCategory="104"
         android:title="@string/menu_book_reading_book_mark"
         app:showAsAction="always"/>

@@ -2,6 +2,8 @@
 <resources>
     <string name="app_name">Bilingual Reader</string>
 
+    <string name="action_confirm">Confirmar</string>
+    <string name="action_cancel">Cancelar</string>
     <string name="action_positive">Sim</string>
     <string name="action_negative">Não</string>
     <string name="action_delete">Apagar</string>
@@ -181,21 +183,44 @@
     <string name="popup_reading_layout_alignment_right">Direita</string>
     <string name="popup_reading_layout_alignment_left">Esquerda</string>
 
-    <!-- BOOK MARK -->
-    <string name="book_mark_menu_search">Procurar</string>
-    <string name="book_mark_filters">Filtros</string>
+    <!-- BOOK ANNOTATION -->
+    <string name="book_annotation_menu_search">Procurar</string>
+    <string name="book_annotation_filters">Filtros</string>
 
-    <string name="book_mark_list_title_detach">Página %f • Destaque</string>
-    <string name="book_mark_list_title_mark">Página %f • Marcador</string>
-    <string name="book_mark_list_add_note">Adicionar nota</string>
-    <string name="book_mark_list_favorite">Favorito</string>
-    <string name="book_mark_list_options">Opções</string>
+    <string name="book_annotation_type_annotation">Destaque</string>
+    <string name="book_annotation_type_book_mark">Marcador</string>
 
-    <!-- BOOK MARK POPUP LAYOUT -->
-    <string name="book_mark_popup_filter_open">Abrir</string>
-    <string name="book_mark_popup_filter_close">Fechar</string>
-    <string name="book_mark_tab_item_filter">Filtros</string>
-    <string name="book_mark_tab_item_chapters">Capítulos</string>
+    <string name="book_annotation_delete">Apagar</string>
+    <string name="book_annotation_delete_description">Deseja realmente apagar o %s?</string>
+
+    <string name="book_annotation_note">Nota</string>
+
+    <string name="book_annotation_list_title_detach">Página %f • Destaque</string>
+    <string name="book_annotation_list_title_mark">Página %f • Marcador</string>
+    <string name="book_annotation_list_add_note">Adicionar nota</string>
+    <string name="book_annotation_list_favorite">Favorito</string>
+    <string name="book_annotation_list_options">Opções</string>
+
+    <string name="book_annotation_menu_item_favorite_add">Adicionar favorito</string>
+    <string name="book_annotation_menu_item_favorite_remove">Remover favorito</string>
+    <string name="book_annotation_menu_item_delete">Deletar</string>
+    <string name="book_annotation_menu_item_change_detach">Trocar de destaque</string>
+
+    <!-- BOOK ANNOTATION POPUP LAYOUT -->
+    <string name="book_annotation_popup_filter_open">Abrir</string>
+    <string name="book_annotation_popup_filter_close">Fechar</string>
+    <string name="book_annotation_tab_item_filter">Filtros</string>
+    <string name="book_annotation_tab_item_chapters">Capítulos</string>
+
+    <!-- BOOK ANNOTATION DETACH -->
+    <string name="book_annotation_change_detach_title">Destaque</string>
+    <string name="book_annotation_change_detach_description">Selecione a cor de destaque:</string>
+
+    <string name="book_annotation_color_none">Nenhum</string>
+    <string name="book_annotation_color_blue">Azul</string>
+    <string name="book_annotation_color_green">Verde</string>
+    <string name="book_annotation_color_red">Vermelho</string>
+    <string name="book_annotation_color_yellow">Amarelo</string>
 
     <!-- BOOK SEARCH -->
     <string name="book_search_menu">Pesquisa</string>
@@ -203,6 +228,8 @@
     <string name="book_search_history_clear">Limpar histórico</string>
     <string name="book_search_history_delete">Apagar</string>
     <string name="book_search_page">Página %i</string>
+
+    <string name="book_search_menu_item_add_annotation">Adicionar marcador</string>
 
 
     <!-- READER - Manga / Comic -->

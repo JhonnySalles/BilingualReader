@@ -562,34 +562,34 @@ abstract class LibrariesDAO : DataBaseDAO<Library> {
 
 
 @Dao
-abstract class BookMarkDAO : DataBaseDAO<BookMark> {
+abstract class BookAnnotationDAO : DataBaseDAO<BookAnnotation> {
 
-    @Query("SELECT * FROM " + DataBaseConsts.BOOK_MARK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook")
-    abstract fun findAll(idBook: Long): List<BookMark>
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook")
+    abstract fun findAll(idBook: Long): List<BookAnnotation>
 
     @Query(
         "SELECT * FROM ( " +
-                " SELECT ${DataBaseConsts.BOOK_MARK.COLUMNS.ID}, ${DataBaseConsts.BOOK_MARK.COLUMNS.FK_ID_BOOK}, ${DataBaseConsts.BOOK_MARK.COLUMNS.PAGE}, " +
-                "        ${DataBaseConsts.BOOK_MARK.COLUMNS.PAGES}, ${DataBaseConsts.BOOK_MARK.COLUMNS.TYPE}, ${DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER_NUMBER}, " +
-                "        ${DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER}, ${DataBaseConsts.BOOK_MARK.COLUMNS.TEXT}, ${DataBaseConsts.BOOK_MARK.COLUMNS.ANNOTATION}, " +
-                "        ${DataBaseConsts.BOOK_MARK.COLUMNS.FAVORITE}, ${DataBaseConsts.BOOK_MARK.COLUMNS.COLOR}, ${DataBaseConsts.BOOK_MARK.COLUMNS.ALTERATION}, " +
-                "        ${DataBaseConsts.BOOK_MARK.COLUMNS.CREATED}, 0 AS ${DataBaseConsts.BOOK_MARK.COLUMNS.COUNT} " +
-                " FROM " + DataBaseConsts.BOOK_MARK.TABLE_NAME +
-                " WHERE " + DataBaseConsts.BOOK_MARK.COLUMNS.FK_ID_BOOK + " = :idBook " +
+                " SELECT ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ID}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGE}, " +
+                "        ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGES}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TYPE}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER_NUMBER}, " +
+                "        ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TEXT}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ANNOTATION}, " +
+                "        ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FAVORITE}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COLOR}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION}, " +
+                "        ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CREATED}, 0 AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COUNT} " +
+                " FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME +
+                " WHERE " + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + " = :idBook " +
                 "UNION" +
-                " SELECT null AS ${DataBaseConsts.BOOK_MARK.COLUMNS.ID}, 0 AS ${DataBaseConsts.BOOK_MARK.COLUMNS.FK_ID_BOOK}, 0 AS ${DataBaseConsts.BOOK_MARK.COLUMNS.PAGE}, " +
-                "        0 AS ${DataBaseConsts.BOOK_MARK.COLUMNS.PAGES}, 'BookMark' AS ${DataBaseConsts.BOOK_MARK.COLUMNS.TYPE}, mark.${DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER_NUMBER}, " +
-                "        mark.${DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER}, '' AS ${DataBaseConsts.BOOK_MARK.COLUMNS.TEXT}, '' AS ${DataBaseConsts.BOOK_MARK.COLUMNS.ANNOTATION}, " +
-                "        false AS ${DataBaseConsts.BOOK_MARK.COLUMNS.FAVORITE}, 'None' AS ${DataBaseConsts.BOOK_MARK.COLUMNS.COLOR}, '2000-01-01T00:00:00.000' AS ${DataBaseConsts.BOOK_MARK.COLUMNS.ALTERATION}, " +
-                "        '2000-01-01T00:00:00.000' AS ${DataBaseConsts.BOOK_MARK.COLUMNS.CREATED}, " +
-                "        (SELECT Count(*) FROM " + DataBaseConsts.BOOK_MARK.TABLE_NAME + " aux WHERE aux." + DataBaseConsts.BOOK_MARK.COLUMNS.FK_ID_BOOK + " = mark." + DataBaseConsts.BOOK_MARK.COLUMNS.FK_ID_BOOK + "" +
-                "         AND aux." + DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER + " = mark." + DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER + ") AS ${DataBaseConsts.BOOK_MARK.COLUMNS.COUNT} " +
-                " FROM  " + DataBaseConsts.BOOK_MARK.TABLE_NAME + " mark " +
-                " WHERE mark." + DataBaseConsts.BOOK_MARK.COLUMNS.FK_ID_BOOK + " = :idBook " +
-                " GROUP BY ${DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER_NUMBER}) " +
-                "ORDER BY ${DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER_NUMBER} ASC, ${DataBaseConsts.BOOK_MARK.COLUMNS.COUNT} DESC "
+                " SELECT null AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ID}, 0 AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK}, 0 AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGE}, " +
+                "        0 AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGES}, 'BookMark' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TYPE}, mark.${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER_NUMBER}, " +
+                "        mark.${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER}, '' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TEXT}, '' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ANNOTATION}, " +
+                "        false AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FAVORITE}, 'None' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COLOR}, '2000-01-01T00:00:00.000' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION}, " +
+                "        '2000-01-01T00:00:00.000' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CREATED}, " +
+                "        (SELECT Count(*) FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " aux WHERE aux." + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + " = mark." + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + "" +
+                "         AND aux." + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER + " = mark." + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER + ") AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COUNT} " +
+                " FROM  " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " mark " +
+                " WHERE mark." + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + " = :idBook " +
+                " GROUP BY ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER_NUMBER}) " +
+                "ORDER BY ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER_NUMBER} ASC, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COUNT} DESC "
     )
-    abstract fun listMarks(idBook: Long): List<BookMark>
+    abstract fun list(idBook: Long): List<BookAnnotation>
 
 }
 
@@ -598,7 +598,15 @@ abstract class BookMarkDAO : DataBaseDAO<BookMark> {
 abstract class BookConfigurationDAO : DataBaseDAO<BookConfiguration> {
 
     @Query("SELECT * FROM " + DataBaseConsts.BOOK_CONFIGURATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook")
-    abstract fun findConfiguration(idBook: Long): BookConfiguration?
+    abstract fun find(idBook: Long): BookConfiguration?
+
+}
+
+@Dao
+abstract class BookSearchDAO : DataBaseDAO<BookSearch> {
+
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK_SEARCH_HISTORY.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_SEARCH_HISTORY.COLUMNS.FK_ID_BOOK + " = :idBook")
+    abstract fun findAll(idBook: Long): List<BookSearch>
 
 }
 

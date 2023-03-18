@@ -6,27 +6,27 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.BookMark
+import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.enums.MarkType
-import br.com.fenix.bilingualreader.service.listener.BookMarkListener
+import br.com.fenix.bilingualreader.service.listener.BookAnnotationListener
 import com.google.android.material.button.MaterialButton
 
-class BookMarkViewHolder(itemView: View, private val listener: BookMarkListener) :
+class BookAnnotationViewHolder(itemView: View, private val listener: BookAnnotationListener) :
     RecyclerView.ViewHolder(itemView) {
 
-    fun bind(mark: BookMark, position: Int) {
-        val root = itemView.findViewById<LinearLayout>(R.id.book_mark_root)
+    fun bind(mark: BookAnnotation, position: Int) {
+        val root = itemView.findViewById<LinearLayout>(R.id.book_annotation_root)
 
-        val favorite = itemView.findViewById<MaterialButton>(R.id.book_mark_favorite)
-        val options = itemView.findViewById<MaterialButton>(R.id.book_mark_options)
+        val favorite = itemView.findViewById<MaterialButton>(R.id.book_annotation_favorite)
+        val options = itemView.findViewById<MaterialButton>(R.id.book_annotation_options)
 
-        val title = itemView.findViewById<TextView>(R.id.book_mark_title)
-        val text = itemView.findViewById<TextView>(R.id.book_mark_text)
-        val color = itemView.findViewById<View>(R.id.book_mark_color)
+        val title = itemView.findViewById<TextView>(R.id.book_annotation_title)
+        val text = itemView.findViewById<TextView>(R.id.book_annotation_text)
+        val color = itemView.findViewById<View>(R.id.book_annotation_color)
 
-        val noteContent = itemView.findViewById<LinearLayout>(R.id.book_mark_note_content)
-        val addNote = itemView.findViewById<MaterialButton>(R.id.book_mark_without_note)
-        val note = itemView.findViewById<TextView>(R.id.book_mark_note)
+        val noteContent = itemView.findViewById<LinearLayout>(R.id.book_annotation_note_content)
+        val addNote = itemView.findViewById<MaterialButton>(R.id.book_annotation_without_note)
+        val note = itemView.findViewById<TextView>(R.id.book_annotation_note)
 
         root.setOnClickListener { listener.onClick(mark) }
         addNote.setOnClickListener { listener.onClickNote(mark) }
@@ -49,14 +49,14 @@ class BookMarkViewHolder(itemView: View, private val listener: BookMarkListener)
         text.text = mark.text
 
         if (mark.type == MarkType.BookMark) {
-            title.text = itemView.context.getString(R.string.book_mark_list_title_mark, mark.page)
+            title.text = itemView.context.getString(R.string.book_annotation_list_title_mark, mark.page)
 
             note.text = ""
 
             color.visibility = View.GONE
             noteContent.visibility = View.GONE
         } else {
-            title.text = itemView.context.getString(R.string.book_mark_list_title_detach, mark.page)
+            title.text = itemView.context.getString(R.string.book_annotation_list_title_detach, mark.page)
 
             color.visibility = View.VISIBLE
             color.setBackgroundColor(mark.color.getColor())

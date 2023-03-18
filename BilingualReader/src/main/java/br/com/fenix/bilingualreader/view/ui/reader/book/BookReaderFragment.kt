@@ -3,13 +3,14 @@ package br.com.fenix.bilingualreader.view.ui.reader.book
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Color
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.*
 import android.util.Base64
 import android.view.*
-import android.webkit.WebSettings
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.appcompat.app.ActionBar
@@ -37,6 +38,7 @@ import br.com.fenix.bilingualreader.util.helpers.FontUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.view.components.book.WebViewPage
 import br.com.fenix.bilingualreader.view.components.book.WebViewPager
+import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
@@ -57,6 +59,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mRoot: CoordinatorLayout
     private lateinit var mToolbarTop: AppBarLayout
     private lateinit var mToolbarBottom: LinearLayout
+    private lateinit var miChapter: MenuItem
+    private lateinit var miAnnotation: MenuItem
+    private lateinit var miFontStyle: MenuItem
+    private lateinit var miMarkPage: MenuItem
+    private lateinit var miSearch: MenuItem
     private lateinit var mViewPager: WebViewPager
     private lateinit var mPagerAdapter: BookPagerAdapter
 
@@ -229,6 +236,13 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_reader_book, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+
+        miChapter = menu.findItem(R.id.menu_item_reader_book_chapter)
+        miAnnotation = menu.findItem(R.id.menu_item_reader_book_annotation)
+        miFontStyle = menu.findItem(R.id.menu_item_reader_book_font_style)
+        miMarkPage = menu.findItem(R.id.menu_item_reader_book_mark_page)
+        miSearch = menu.findItem(R.id.menu_item_reader_book_search)
     }
 
     override fun onPause() {
@@ -253,9 +267,22 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
+        when (menuItem.itemId) {
+            R.id.menu_item_reader_book_chapter -> (miChapter.icon as AnimatedVectorDrawable).start()
+            R.id.menu_item_reader_book_font_style -> (miFontStyle.icon as AnimatedVectorDrawable).start()
+            R.id.menu_item_reader_book_mark_page -> (miMarkPage.icon as AnimatedVectorDrawable).start()
+            R.id.menu_item_reader_book_annotation -> {
+                //(miAnnotation.icon as AnimatedVectorDrawable).start()
+                openBookAnnotation()
+            }
+            R.id.menu_item_reader_book_search -> {
+                //(miSearch.icon as AnimatedVectorDrawable).start()
+                openBookSearch()
+            }
+        }
 
-        return super.onOptionsItemSelected(item)
+        return super.onOptionsItemSelected(menuItem)
     }
 
     private fun getPosition(e: MotionEvent): Position {
@@ -482,6 +509,25 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
 
     fun hitEnding() {
 
+    }
+
+    private fun openBookAnnotation() {
+        val intent = Intent(requireContext(), MenuActivity::class.java)
+        val bundle = Bundle()
+        bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_book_annotation)
+        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, mBook!!)
+        intent.putExtras(bundle)
+        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+        startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_ANNOTATION, null)
+    }
+    private fun openBookSearch() {
+        val intent = Intent(requireContext(), MenuActivity::class.java)
+        val bundle = Bundle()
+        bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_book_search)
+        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.DOCUMENT, mCodecDocument)
+        intent.putExtras(bundle)
+        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+        startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_SEARCH, null)
     }
 
     inner class MyTouchListener : GestureDetector.SimpleOnGestureListener() {

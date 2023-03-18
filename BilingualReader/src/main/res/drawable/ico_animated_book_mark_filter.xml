@@ -1,0 +1,142 @@
+<animated-vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:name="vector"
+            android:width="24dp"
+            android:height="24dp"
+            android:viewportWidth="24"
+            android:viewportHeight="24">
+            <group
+                android:name="base"
+                android:pivotX="12"
+                android:pivotY="12">
+                <path
+                    android:name="bar_1"
+                    android:pathData="M 5.081 21.814 L 5.081 2.465"
+                    android:fillColor="?attr/colorSecondary"
+                    android:strokeColor="?attr/colorSecondary"
+                    android:strokeWidth="1.54593"
+                    android:strokeLineCap="round"
+                    android:strokeLineJoin="round"/>
+                <path
+                    android:name="bar_2"
+                    android:pathData="M 12.053 21.814 L 12.053 2.465"
+                    android:fillColor="?attr/colorSecondary"
+                    android:strokeColor="?attr/colorSecondary"
+                    android:strokeWidth="1.54593"
+                    android:strokeLineCap="round"
+                    android:strokeLineJoin="round"/>
+                <path
+                    android:name="bar_3"
+                    android:pathData="M 18.911 21.814 L 18.911 2.465"
+                    android:fillColor="?attr/colorSecondary"
+                    android:strokeColor="?attr/colorSecondary"
+                    android:strokeWidth="1.54593"
+                    android:strokeLineCap="round"
+                    android:strokeLineJoin="round"/>
+                <group android:name="base_point_1">
+                    <path
+                        android:name="point_1"
+                        android:pathData="M 5.018 3.889 C 6.197 3.889 7.153 4.832 7.153 5.995 C 7.153 7.159 6.197 8.102 5.018 8.102 C 3.839 8.102 2.883 7.159 2.883 5.995 C 2.883 4.832 3.839 3.889 5.018 3.889 Z"
+                        android:fillColor="?attr/colorSecondary"
+                        android:strokeAlpha="0"
+                        android:strokeWidth="1.28991"/>
+                </group>
+                <group android:name="base_point_2">
+                    <path
+                        android:name="point_2"
+                        android:pathData="M 12.043 15.964 C 13.222 15.964 14.178 16.907 14.178 18.07 C 14.178 19.233 13.222 20.176 12.043 20.176 C 10.864 20.176 9.908 19.233 9.908 18.07 C 9.908 16.907 10.864 15.964 12.043 15.964 Z"
+                        android:fillColor="?attr/colorSecondary"
+                        android:strokeAlpha="0"
+                        android:strokeWidth="1.28991"/>
+                </group>
+                <group
+                    android:name="base_point_3"
+                    android:pivotX="16"
+                    android:pivotY="19">
+                    <path
+                        android:name="point_3"
+                        android:pathData="M 19.011 9.934 C 20.19 9.934 21.146 10.877 21.146 12.04 C 21.146 13.204 20.19 14.146 19.011 14.146 C 17.832 14.146 16.876 13.204 16.876 12.04 C 16.876 10.877 17.832 9.934 19.011 9.934 Z"
+                        android:fillColor="?attr/colorSecondary"
+                        android:strokeAlpha="0"
+                        android:strokeWidth="1.28991"/>
+                </group>
+            </group>
+        </vector>
+    </aapt:attr>
+    <target android:name="base_point_1">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:propertyName="translateY"
+                    android:startOffset="125"
+                    android:duration="372"
+                    android:valueFrom="0"
+                    android:valueTo="13"
+                    android:valueType="floatType"
+                    android:interpolator="@android:anim/overshoot_interpolator"/>
+                <objectAnimator
+                    android:propertyName="translateY"
+                    android:startOffset="728"
+                    android:duration="415"
+                    android:valueFrom="13"
+                    android:valueTo="0"
+                    android:valueType="floatType"
+                    android:interpolator="@android:anim/overshoot_interpolator"/>
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="base_point_2">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:propertyName="translateY"
+                    android:startOffset="197"
+                    android:duration="389"
+                    android:valueFrom="0"
+                    android:valueTo="-13"
+                    android:valueType="floatType"
+                    android:interpolator="@android:anim/anticipate_interpolator"/>
+                <objectAnimator
+                    android:propertyName="translateY"
+                    android:startOffset="604"
+                    android:duration="465"
+                    android:valueFrom="-13"
+                    android:valueTo="0"
+                    android:valueType="floatType"
+                    android:interpolator="@android:anim/anticipate_interpolator"/>
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="base_point_3">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:propertyName="translateY"
+                    android:duration="388"
+                    android:valueFrom="0"
+                    android:valueTo="-6"
+                    android:valueType="floatType"
+                    android:interpolator="@android:anim/decelerate_interpolator"/>
+                <objectAnimator
+                    android:propertyName="translateY"
+                    android:startOffset="629"
+                    android:duration="326"
+                    android:valueFrom="-6"
+                    android:valueTo="7"
+                    android:valueType="floatType"
+                    android:interpolator="@android:anim/accelerate_interpolator"/>
+                <objectAnimator
+                    android:propertyName="translateY"
+                    android:startOffset="955"
+                    android:duration="245"
+                    android:valueFrom="7"
+                    android:valueTo="0"
+                    android:valueType="floatType"
+                    android:interpolator="@android:anim/linear_interpolator"/>
+            </set>
+        </aapt:attr>
+    </target>
+</animated-vector>

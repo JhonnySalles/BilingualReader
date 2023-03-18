@@ -30,7 +30,7 @@ import java.time.LocalDateTime
 class HistoryFragment : Fragment() {
 
     private lateinit var mViewModel: HistoryViewModel
-    private lateinit var mRecycleView: RecyclerView
+    private lateinit var mRecyclerView: RecyclerView
     private lateinit var mListener: MangaCardListener
     private lateinit var miSearch: MenuItem
     private lateinit var searchView: SearchView
@@ -94,8 +94,8 @@ class HistoryFragment : Fragment() {
     ): View? {
         mViewModel = ViewModelProvider(this).get(HistoryViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_manga_history, container, false)
-        mRecycleView = root.findViewById(R.id.history_list)
-        ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecycleView)
+        mRecyclerView = root.findViewById(R.id.history_list)
+        ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecyclerView)
         mListener = object : MangaCardListener {
             override fun onClick(manga: Manga) {
                 if (!manga.excluded && manga.file.exists()) {
@@ -116,7 +116,7 @@ class HistoryFragment : Fragment() {
                     if (!manga.excluded) {
                         manga.excluded = true
                         mViewModel.updateDelete(manga)
-                        mRecycleView.adapter?.let {
+                        mRecyclerView.adapter?.let {
                             (it as HistoryCardAdapter).notifyItemChanged(manga)
                         }
                     }
@@ -135,29 +135,29 @@ class HistoryFragment : Fragment() {
             override fun onClickLong(manga: Manga, view: View, position: Int) {
                 val wrapper = ContextThemeWrapper(requireContext(), R.style.PopupMenu)
                 val popup = PopupMenu(wrapper, view, 0, R.attr.popupMenuStyle, R.style.PopupMenu)
-                popup.menuInflater.inflate(R.menu.menu_manga_file, popup.menu)
+                popup.menuInflater.inflate(R.menu.menu_item_manga_file, popup.menu)
 
                 if (manga.favorite)
-                    popup.menu.findItem(R.id.menu_manga_file_favorite).title =
+                    popup.menu.findItem(R.id.menu_item_manga_file_favorite).title =
                         getString(R.string.manga_library_menu_favorite_remove)
                 else
-                    popup.menu.findItem(R.id.menu_manga_file_favorite).title =
+                    popup.menu.findItem(R.id.menu_item_manga_file_favorite).title =
                         getString(R.string.manga_library_menu_favorite_add)
 
                 popup.setOnMenuItemClickListener { item ->
                     when (item.itemId) {
-                        R.id.menu_manga_file_favorite -> {
+                        R.id.menu_item_manga_file_favorite -> {
                             manga.favorite = !manga.favorite
                             mViewModel.save(manga)
-                            mRecycleView.adapter?.notifyItemChanged(position)
+                            mRecyclerView.adapter?.notifyItemChanged(position)
                         }
-                        R.id.menu_manga_file_clear -> {
+                        R.id.menu_item_manga_file_clear -> {
                             manga.lastAccess = LocalDateTime.MIN
                             manga.bookMark = 0
                             mViewModel.clear(manga)
-                            mRecycleView.adapter?.notifyItemChanged(position)
+                            mRecyclerView.adapter?.notifyItemChanged(position)
                         }
-                        R.id.menu_manga_file_delete -> {
+                        R.id.menu_item_manga_file_delete -> {
                             val dialog: AlertDialog =
                                 MaterialAlertDialogBuilder(
                                     requireActivity(),
@@ -169,7 +169,7 @@ class HistoryFragment : Fragment() {
                                         R.string.action_positive
                                     ) { _, _ ->
                                         mViewModel.deletePermanent(manga)
-                                        mRecycleView.adapter?.notifyItemRemoved(position)
+                                        mRecyclerView.adapter?.notifyItemRemoved(position)
                                     }
                                     .setNegativeButton(
                                         R.string.action_negative
@@ -177,7 +177,7 @@ class HistoryFragment : Fragment() {
                                     .create()
                             dialog.show()
                         }
-                        R.id.menu_manga_file_copy_name -> FileUtil(requireContext()).copyName(manga)
+                        R.id.menu_item_manga_file_copy_name -> FileUtil(requireContext()).copyName(manga)
                     }
                     true
                 }
@@ -210,12 +210,12 @@ class HistoryFragment : Fragment() {
                             R.string.action_delete
                         ) { _, _ ->
                             mViewModel.deletePermanent(manga)
-                            mRecycleView.adapter?.notifyItemRemoved(position)
+                            mRecyclerView.adapter?.notifyItemRemoved(position)
                             excluded = true
                         }.setOnDismissListener {
                             if (!excluded) {
                                 mViewModel.add(manga, position)
-                                mRecycleView.adapter?.notifyItemChanged(position)
+                                mRecyclerView.adapter?.notifyItemChanged(position)
                             }
                         }
                         .create()
@@ -226,8 +226,8 @@ class HistoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val historyAdapter = HistoryCardAdapter()
-        mRecycleView.adapter = historyAdapter
-        mRecycleView.layoutManager = GridLayoutManager(requireContext(), 1)
+        mRecyclerView.adapter = historyAdapter
+        mRecyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
         historyAdapter.attachListener(mListener)
     }
 
@@ -236,14 +236,14 @@ class HistoryFragment : Fragment() {
         super.onResume()
         mViewModel.list {
             if (it > -1)
-                mRecycleView.adapter?.notifyItemChanged(0, it)
+                mRecyclerView.adapter?.notifyItemChanged(0, it)
             else
-                mRecycleView.adapter?.notifyDataSetChanged()
+                mRecyclerView.adapter?.notifyDataSetChanged()
         }
     }
 
     private fun updateList(list: ArrayList<Manga>) {
-        (mRecycleView.adapter as HistoryCardAdapter).updateList(list)
+        (mRecyclerView.adapter as HistoryCardAdapter).updateList(list)
     }
 
     private fun observer() {

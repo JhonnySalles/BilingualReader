@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.content.*
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.*
 import android.util.TypedValue
 import android.view.MenuItem

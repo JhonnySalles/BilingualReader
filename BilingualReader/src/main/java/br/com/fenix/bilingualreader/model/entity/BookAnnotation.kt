@@ -8,36 +8,36 @@ import java.io.Serializable
 import java.time.LocalDateTime
 
 @Entity(
-    tableName = DataBaseConsts.BOOK_MARK.TABLE_NAME,
-    indices = [Index(value = [DataBaseConsts.BOOK_MARK.COLUMNS.FK_ID_BOOK, DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER])]
+    tableName = DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME,
+    indices = [Index(value = [DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK, DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER])]
 )
-data class BookMark(
+data class BookAnnotation(
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.ID)
+    @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ID)
     var id: Long?,
-    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.FK_ID_BOOK)
+    @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK)
     val id_book: Long,
-    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.PAGE)
+    @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGE)
     var page: Int,
-    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.PAGES)
+    @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGES)
     var pages: Int,
-    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.TYPE)
+    @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TYPE)
     val type: MarkType,
-    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER_NUMBER)
+    @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER_NUMBER)
     val chapterNumber: Float,
-    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.CHAPTER)
+    @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER)
     val chapter: String,
-    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.TEXT)
+    @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TEXT)
     var text: String,
-    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.ANNOTATION)
+    @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ANNOTATION)
     var annotation: String,
-    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.FAVORITE)
+    @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FAVORITE)
     var favorite: Boolean,
-    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.COLOR)
+    @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COLOR)
     var color: Color,
-    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.ALTERATION)
+    @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION)
     var alteration: LocalDateTime,
-    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.CREATED)
+    @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CREATED)
     var created: LocalDateTime,
 ) : Serializable {
     @Ignore
@@ -60,6 +60,6 @@ data class BookMark(
     }
 
     @Ignore
-    @ColumnInfo(name = DataBaseConsts.BOOK_MARK.COLUMNS.COUNT)
+    @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COUNT)
     var count: Int = 0
 }

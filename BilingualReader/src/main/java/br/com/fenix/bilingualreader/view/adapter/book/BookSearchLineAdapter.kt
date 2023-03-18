@@ -11,7 +11,7 @@ import br.com.fenix.bilingualreader.service.listener.BookSearchListener
 class BookSearchLineAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private lateinit var mListener: BookSearchListener
-    private var mBookMarkList: ArrayList<BookSearch> = arrayListOf()
+    private var mBookMarkList: MutableList<BookSearch> = mutableListOf()
 
     companion object {
         private const val HEADER = 1
@@ -49,7 +49,7 @@ class BookSearchLineAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return mBookMarkList.size
     }
 
-    fun updateList(list: ArrayList<BookSearch>) {
+    fun updateList(list: MutableList<BookSearch>) {
         mBookMarkList = list
         notifyDataSetChanged()
     }

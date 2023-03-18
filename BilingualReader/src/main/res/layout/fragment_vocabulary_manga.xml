@@ -52,7 +52,7 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/vocabulary_manga_text"
-                    style="@style/TextInputEditText"
+                    style="@style/TextInputSelect"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:enabled="true"
@@ -61,7 +61,7 @@
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/vocabulary_manga_edittext"
-                        style="@style/TextFieldEditText"
+                        style="@style/TextFieldSelect"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 

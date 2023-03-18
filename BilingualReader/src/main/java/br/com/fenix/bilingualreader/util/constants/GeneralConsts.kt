@@ -160,6 +160,9 @@ class GeneralConsts private constructor() {
             const val PAGE_LINK = "PAGE_LINK"
             const val LIBRARY = "LIBRARY"
             const val BOOK = "BOOK_OBJECT"
+            const val DOCUMENT = "DOCUMENT_OBJECT"
+            const val BOOK_ANNOTATION = "BOOK_ANNOTATION_OBJECT"
+            const val BOOK_SEARCH = "BOOK_SEARCH_OBJECT"
         }
 
         object COLOR_FILTER {
@@ -270,6 +273,8 @@ class GeneralConsts private constructor() {
         const val SELECT_MANGA = 601
         const val MANGA_DETAIL = 602
         const val BOOK_DETAIL = 603
+        const val BOOK_SEARCH = 603
+        const val BOOK_ANNOTATION = 604
     }
 
 }

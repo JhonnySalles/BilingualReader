@@ -6,36 +6,50 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.*
+import android.view.inputmethod.EditorInfo
+import android.widget.LinearLayout
 import android.widget.ListView
+import android.widget.PopupMenu
+import android.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.BookMark
 import br.com.fenix.bilingualreader.model.entity.BookSearch
-import br.com.fenix.bilingualreader.model.entity.Vocabulary
-import br.com.fenix.bilingualreader.model.enums.Order
+import br.com.fenix.bilingualreader.service.listener.BookSearchHistoryListener
 import br.com.fenix.bilingualreader.service.listener.BookSearchListener
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.view.adapter.book.BookSearchHistoryAdapter
 import br.com.fenix.bilingualreader.view.adapter.book.BookSearchLineAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaListCardAdapter
-import br.com.fenix.bilingualreader.view.components.InitializeVocabulary
-import br.com.fenix.bilingualreader.view.components.PopupOrderListener
+import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import org.ebookdroid.core.codec.CodecDocument
 import org.slf4j.LoggerFactory
 
 
-class BookSearchFragment : Fragment(), PopupOrderListener, InitializeVocabulary<Vocabulary> {
+class BookSearchFragment : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(BookSearchFragment::class.java)
 
+    private val mViewModel: BookSearchViewModel by activityViewModels()
+    private val mAnnotations: BookAnnotationViewModel by activityViewModels()
+
+    private lateinit var miSearch: MenuItem
+    private lateinit var searchView: SearchView
+
     private lateinit var mScrollUp: FloatingActionButton
     private lateinit var mScrollDown: FloatingActionButton
-    private lateinit var mHistoryContent: ListView
+    private lateinit var mHistoryContent: LinearLayout
     private lateinit var mHistoryListView: ListView
     private lateinit var mRecyclerView: RecyclerView
 
-    private lateinit var mListener: BookSearchListener
+    private lateinit var mCodecDocument: CodecDocument
+
+    private var mHistoryList = ArrayList<BookSearch>()
+    private lateinit var mHistoryListener: BookSearchHistoryListener
+    private lateinit var mSearchListener: BookSearchListener
 
     private var mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
@@ -44,19 +58,33 @@ class BookSearchFragment : Fragment(), PopupOrderListener, InitializeVocabulary<
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
+        arguments?.let {
+            mCodecDocument = it.getSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY) as CodecDocument
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_book_mark, menu)
+        inflater.inflate(R.menu.menu_book_search, menu)
         super.onCreateOptionsMenu(menu, inflater)
 
-    }
+        miSearch = menu.findItem(R.id.menu_book_search)
+        searchView = miSearch.actionView as SearchView
+        searchView.imeOptions = EditorInfo.IME_ACTION_DONE
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (query != null)
+                    mViewModel.book?.let {
+                        mViewModel.save(BookSearch(it.id!!, query))
+                    }
 
-    override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
-        when (menuItem.itemId) {
-            R.id.menu_history_manga_library -> {}
-        }
-        return super.onOptionsItemSelected(menuItem)
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return false
+            }
+        })
     }
 
     override fun onCreateView(
@@ -68,7 +96,7 @@ class BookSearchFragment : Fragment(), PopupOrderListener, InitializeVocabulary<
 
         mRecyclerView = root.findViewById(R.id.book_search_recycler_view)
         mHistoryContent = root.findViewById(R.id.book_search_history_content)
-        mHistoryListView = root.findViewById(R.id.book_search_history)
+        mHistoryListView = root.findViewById(R.id.book_search_history_list)
 
         mScrollUp = root.findViewById(R.id.book_search_scroll_up)
         mScrollDown = root.findViewById(R.id.book_search_scroll_down)
@@ -132,21 +160,67 @@ class BookSearchFragment : Fragment(), PopupOrderListener, InitializeVocabulary<
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mListener = object : BookSearchListener {
+        mHistoryListener = object : BookSearchHistoryListener {
             override fun onClick(search: BookSearch) {
                 TODO("Not yet implemented")
             }
 
-            override fun onClickLong(search: BookSearch, view: View, position: Int) {
+            override fun onDelete(search: BookSearch, view: View, position: Int) {
                 TODO("Not yet implemented")
             }
 
         }
 
+        mHistoryListView.adapter = BookSearchHistoryAdapter(
+            requireContext(),
+            R.layout.line_card_book_search_history,
+            mHistoryList,
+            mHistoryListener
+        )
+
+        mSearchListener = object : BookSearchListener {
+            override fun onClick(search: BookSearch) {
+                val bundle = Bundle()
+                bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH, search)
+                (requireActivity() as MenuActivity).onBack(bundle)
+            }
+
+            override fun onClickLong(search: BookSearch, view: View, position: Int) {
+                val wrapper = ContextThemeWrapper(requireContext(), R.style.PopupMenu)
+                val popup = PopupMenu(wrapper, view, 0, R.attr.popupMenuStyle, R.style.PopupMenu)
+                popup.menuInflater.inflate(R.menu.menu_item_book_search, popup.menu)
+
+                popup.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.menu_item_book_search_add_annotation -> {
+                            mAnnotations.save(search.toAnnotation(mCodecDocument.pageCount))
+                        }
+                    }
+                    true
+                }
+
+                popup.show()
+            }
+
+        }
+
         val adapter = BookSearchLineAdapter()
-        adapter.attachListener(mListener)
+        adapter.attachListener(mSearchListener)
         mRecyclerView.adapter = adapter
         mRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        observer()
+    }
+
+    private fun observer() {
+        mViewModel.search.observe(viewLifecycleOwner) {
+            (mRecyclerView.adapter as BookSearchLineAdapter).updateList(it)
+        }
+
+        mViewModel.history.observe(viewLifecycleOwner) {
+            mHistoryList.clear()
+            mHistoryList.addAll(it)
+        }
     }
 
     override fun onDestroy() {
@@ -165,31 +239,5 @@ class BookSearchFragment : Fragment(), PopupOrderListener, InitializeVocabulary<
         super.onDestroy()
     }
 
-    var mInitialVocabulary = ""
-    override fun setVocabulary(vocabulary: String) {
-        mInitialVocabulary = vocabulary
-    }
-
-    override fun setObject(obj: Vocabulary) {
-        TODO("Not yet implemented")
-    }
-
-    override fun popupOrderOnChange() {}
-
-    override fun popupSorted(order: Order) {
-        TODO("Not yet implemented")
-    }
-
-    override fun popupSorted(order: Order, isDesc: Boolean) {
-        TODO("Not yet implemented")
-    }
-
-    override fun popupGetOrder(): Pair<Order, Boolean>? {
-        TODO("Not yet implemented")
-    }
-
-    override fun popupGetObserver(): LiveData<Pair<Order, Boolean>> {
-        TODO("Not yet implemented")
-    }
 
 }

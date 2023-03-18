@@ -2,6 +2,8 @@
 <resources>
     <string name="app_name">Bilingual Reader</string>
 
+    <string name="action_confirm">Confirm</string>
+    <string name="action_cancel">Cancel</string>
     <string name="action_positive">Yes</string>
     <string name="action_negative">No</string>
     <string name="action_delete">Delete</string>
@@ -181,21 +183,44 @@
     <string name="popup_reading_layout_alignment_right">Right</string>
     <string name="popup_reading_layout_alignment_left">Left</string>
 
-    <!-- BOOK MARK -->
-    <string name="book_mark_menu_search">Search</string>
-    <string name="book_mark_filters">Filters</string>
+    <!-- BOOK ANNOTATION -->
+    <string name="book_annotation_menu_search">Search</string>
+    <string name="book_annotation_filters">Filters</string>
 
-    <string name="book_mark_list_title_detach">Page %f • Detach</string>
-    <string name="book_mark_list_title_mark">Page %f • Marker</string>
-    <string name="book_mark_list_add_note">Add note</string>
-    <string name="book_mark_list_favorite">Favorite</string>
-    <string name="book_mark_list_options">Options</string>
+    <string name="book_annotation_type_annotation">Annotation</string>
+    <string name="book_annotation_type_book_mark">Book Mark</string>
 
-    <!-- BOOK MARK POPUP LAYOUT -->
-    <string name="book_mark_popup_filter_open">Open</string>
-    <string name="book_mark_popup_filter_close">Close</string>
-    <string name="book_mark_tab_item_filter">Filter</string>
-    <string name="book_mark_tab_item_chapters">Chapters</string>
+    <string name="book_annotation_delete">Delete</string>
+    <string name="book_annotation_delete_description">Do you really want to delete this %s?</string>
+
+    <string name="book_annotation_note">Note</string>
+
+    <string name="book_annotation_list_title_detach">Page %f • Detach</string>
+    <string name="book_annotation_list_title_mark">Page %f • Marker</string>
+    <string name="book_annotation_list_add_note">Add note</string>
+    <string name="book_annotation_list_favorite">Favorite</string>
+    <string name="book_annotation_list_options">Options</string>
+
+    <string name="book_annotation_menu_item_favorite_add">Add favorite</string>
+    <string name="book_annotation_menu_item_favorite_remove">Remove favorite</string>
+    <string name="book_annotation_menu_item_delete">Delete</string>
+    <string name="book_annotation_menu_item_change_detach">Change color detach</string>
+
+    <!-- BOOK ANNOTATION POPUP LAYOUT -->
+    <string name="book_annotation_popup_filter_open">Open</string>
+    <string name="book_annotation_popup_filter_close">Close</string>
+    <string name="book_annotation_tab_item_filter">Filter</string>
+    <string name="book_annotation_tab_item_chapters">Chapters</string>
+
+    <!-- BOOK ANNOTATION DETACH -->
+    <string name="book_annotation_change_detach_title">Detach</string>
+    <string name="book_annotation_change_detach_description">Select detach color:</string>
+
+    <string name="book_annotation_color_none">None</string>
+    <string name="book_annotation_color_blue">Blue</string>
+    <string name="book_annotation_color_green">Green</string>
+    <string name="book_annotation_color_red">Red</string>
+    <string name="book_annotation_color_yellow">Yellow</string>
 
     <!-- BOOK SEARCH -->
     <string name="book_search_menu">Search</string>
@@ -203,6 +228,8 @@
     <string name="book_search_history_clear">Clear history</string>
     <string name="book_search_history_delete">Delete</string>
     <string name="book_search_page">Page %i</string>
+
+    <string name="book_search_menu_item_add_annotation">Add book mark</string>
 
 
     <!-- READER - Manga / Comic -->

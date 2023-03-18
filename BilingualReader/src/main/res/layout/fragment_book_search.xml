@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/frame_book_search_root"
+    android:id="@+id/frame_book_search"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -62,7 +62,7 @@
                 </LinearLayout>
 
                 <ListView
-                    android:id="@+id/book_search_history"
+                    android:id="@+id/book_search_history_list"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_centerHorizontal="true"

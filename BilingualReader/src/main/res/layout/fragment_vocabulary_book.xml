@@ -51,7 +51,7 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/vocabulary_book_text"
-                    style="@style/TextInputEditText"
+                    style="@style/TextInputSelect"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:hint="@string/vocabulary_book"
@@ -60,7 +60,7 @@
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/vocabulary_book_edittext"
-                        style="@style/TextFieldEditText"
+                        style="@style/TextFieldSelect"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 

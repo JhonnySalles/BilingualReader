@@ -29,6 +29,6 @@
         android:layout_marginStart="5dp"
         app:iconSize="20dp"
         app:iconTint="?attr/colorPrimary"
-        app:icon="@drawable/ic_close"/>
+        app:icon="@drawable/ico_animated_delete_history"/>
 
 </LinearLayout>

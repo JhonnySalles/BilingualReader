@@ -384,6 +384,10 @@ class Util {
                 ""
         }
 
+        fun getColors(context: Context): Map<String, Color> {
+            return Color.getColors().associateBy { context.getString(it.getDescription()) }
+        }
+
 
         private var mapFilter: HashMap<String, Filter>? = null
         fun getFilters(context: Context): HashMap<String, Filter> {

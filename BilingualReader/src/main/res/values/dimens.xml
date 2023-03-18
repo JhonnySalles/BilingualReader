@@ -150,22 +150,22 @@
     <dimen name="book_detail_information_related_synopsis_size">12sp</dimen>
     <dimen name="book_detail_information_related_texts_size">10sp</dimen>
 
-    <dimen name="book_mark_icon_size">25dp</dimen>
-    <dimen name="book_mark_button_size">20dp</dimen>
-    <dimen name="book_mark_note_icon_size">20dp</dimen>
-    <dimen name="book_mark_note_text_size">11sp</dimen>
-    <dimen name="book_mark_padding_divider_title">20sp</dimen>
-    <dimen name="book_mark_padding">80dp</dimen>
-    <dimen name="book_mark_margin">10dp</dimen>
-    <dimen name="book_mark_scrolling_button_margin">10dp</dimen>
-    <dimen name="book_mark_up_border">2dp</dimen>
-    <dimen name="book_mark_up_width">40dp</dimen>
-    <dimen name="book_mark_up_image_width">30dp</dimen>
-    <dimen name="book_mark_down_border">2dp</dimen>
-    <dimen name="book_mark_down_width">40dp</dimen>
-    <dimen name="book_mark_down_image_width">30dp</dimen>
-    <dimen name="book_mark_button_margin">5dp</dimen>
-    <dimen name="book_mark_list_padding">10dp</dimen>
+    <dimen name="book_annotation_icon_size">25dp</dimen>
+    <dimen name="book_annotation_button_size">20dp</dimen>
+    <dimen name="book_annotation_note_icon_size">20dp</dimen>
+    <dimen name="book_annotation_note_text_size">11sp</dimen>
+    <dimen name="book_annotation_padding_divider_title">20sp</dimen>
+    <dimen name="book_annotation_padding">80dp</dimen>
+    <dimen name="book_annotation_margin">10dp</dimen>
+    <dimen name="book_annotation_scrolling_button_margin">10dp</dimen>
+    <dimen name="book_annotation_up_border">2dp</dimen>
+    <dimen name="book_annotation_up_width">40dp</dimen>
+    <dimen name="book_annotation_up_image_width">30dp</dimen>
+    <dimen name="book_annotation_down_border">2dp</dimen>
+    <dimen name="book_annotation_down_width">40dp</dimen>
+    <dimen name="book_annotation_down_image_width">30dp</dimen>
+    <dimen name="book_annotation_button_margin">5dp</dimen>
+    <dimen name="book_annotation_list_padding">10dp</dimen>
 
     <dimen name="book_search_divider_title">16sp</dimen>
 

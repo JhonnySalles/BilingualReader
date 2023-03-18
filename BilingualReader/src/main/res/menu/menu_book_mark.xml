@@ -5,14 +5,14 @@
         android:id="@+id/menu_book_mark_search"
         android:icon="@drawable/ic_search"
         android:orderInCategory="100"
-        android:title="@string/book_mark_menu_search"
+        android:title="@string/book_annotation_menu_search"
         android:visible="true"
         app:actionViewClass="android.widget.SearchView"
         app:showAsAction="always" />
 
     <item android:id="@+id/menu_book_mark_filters"
-        android:title="@string/book_mark_filters"
-        android:icon="@drawable/ico_animated_sort_to_desc_name"
+        android:title="@string/book_annotation_filters"
+        android:icon="@drawable/ico_animated_book_mark_filter"
         android:orderInCategory="101"
         app:showAsAction="always"/>
 

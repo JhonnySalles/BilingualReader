@@ -5,7 +5,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.BookSearch
-import br.com.fenix.bilingualreader.service.listener.BookMarkListener
 import br.com.fenix.bilingualreader.service.listener.BookSearchListener
 
 class BookSearchHeaderViewHolder(itemView: View, private val listener: BookSearchListener) :

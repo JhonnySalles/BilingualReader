@@ -148,7 +148,7 @@
         <item name="android:textColorHint">?attr/colorSecondary</item>
     </style>
 
-    <style name="TextInputEditText" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+    <style name="TextInputSelect" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="android:textColorHint">?attr/colorPrimary</item>
         <item name="boxBackgroundColor">?attr/colorOnSurface</item>
         <item name="boxStrokeColor">?attr/colorSurface</item>
@@ -159,9 +159,24 @@
         <item name="errorEnabled">false</item>
     </style>
 
-    <style name="TextFieldEditText" >
+    <style name="TextFieldSelect" >
         <item name="android:inputType">text</item>
         <item name="android:textColor">?attr/colorPrimary</item>
+    </style>
+
+    <style name="TextInputEditText" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="android:textColorHint">?attr/colorPrimary</item>
+        <item name="boxStrokeColor">?attr/colorSecondary</item>
+        <item name="startIconTint">?attr/colorSecondary</item>
+        <item name="placeholderTextColor">?attr/colorPrimary</item>
+        <item name="hintTextColor">?attr/colorSecondary</item>
+        <item name="endIconMode">clear_text</item>
+    </style>
+
+    <style name="TextFieldEditText"  parent="Base.Widget.AppCompat.EditText" >
+        <item name="android:inputType">text</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="colorControlActivated">?attr/colorSecondary</item>
     </style>
 
     <style name="SwitchMaterial" parent="Theme.MangaReader">
@@ -588,11 +603,11 @@
         <item name="android:textSize">12sp</item>
     </style>
 
-    <style name="TextNormal.BookMark" parent="TextNormal">
+    <style name="TextNormal.BookAnnotation" parent="TextNormal">
         <item name="tint">?attr/colorPrimary</item>
     </style>
 
-    <style name="TextTitle.BookMark" parent="TextTitle">
+    <style name="TextTitle.BookAnnotation" parent="TextTitle">
         <item name="tint">?attr/colorSecondary</item>
     </style>
 

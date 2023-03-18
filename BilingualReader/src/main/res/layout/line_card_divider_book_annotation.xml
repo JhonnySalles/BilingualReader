@@ -30,7 +30,7 @@
             android:layout_weight="1"
             android:layout_margin="5dp"
             android:textAppearance="?attr/textAppearanceTitleMedium"
-            android:textSize="@dimen/book_mark_padding_divider_title" />
+            android:textSize="@dimen/book_annotation_padding_divider_title" />
 
         <TextView
             android:id="@+id/book_mark_divider_count"
@@ -39,6 +39,6 @@
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:textAppearance="?attr/textAppearanceTitleMedium"
-            android:textSize="@dimen/book_mark_padding_divider_title" />
+            android:textSize="@dimen/book_annotation_padding_divider_title" />
     </LinearLayout>
 </LinearLayout>
