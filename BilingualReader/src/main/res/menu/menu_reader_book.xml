@@ -10,7 +10,7 @@
 
     <item
         android:id="@+id/menu_item_reader_book_search"
-        android:icon="@drawable/ic_search"
+        android:icon="@drawable/ico_animated_search"
         android:orderInCategory="101"
         android:title="@string/menu_search"
         android:visible="true"
@@ -18,7 +18,7 @@
 
     <item
         android:id="@+id/menu_item_reader_book_annotation"
-        android:icon="@drawable/ic_book_page"
+        android:icon="@drawable/ico_animated_book_notes"
         android:orderInCategory="102"
         android:title="@string/menu_book_reading_annotation"
         app:showAsAction="always"/>

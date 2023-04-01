@@ -271,13 +271,16 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         when (menuItem.itemId) {
             R.id.menu_item_reader_book_chapter -> (miChapter.icon as AnimatedVectorDrawable).start()
             R.id.menu_item_reader_book_font_style -> (miFontStyle.icon as AnimatedVectorDrawable).start()
-            R.id.menu_item_reader_book_mark_page -> (miMarkPage.icon as AnimatedVectorDrawable).start()
+            R.id.menu_item_reader_book_mark_page -> {
+                markCurrentPage()
+                (miMarkPage.icon as AnimatedVectorDrawable).start()
+            }
             R.id.menu_item_reader_book_annotation -> {
-                //(miAnnotation.icon as AnimatedVectorDrawable).start()
+                (miAnnotation.icon as AnimatedVectorDrawable).start()
                 openBookAnnotation()
             }
             R.id.menu_item_reader_book_search -> {
-                //(miSearch.icon as AnimatedVectorDrawable).start()
+                (miSearch.icon as AnimatedVectorDrawable).start()
                 openBookSearch()
             }
         }
@@ -528,6 +531,14 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         intent.putExtras(bundle)
         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
         startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_SEARCH, null)
+    }
+
+    private fun markCurrentPage() {
+
+    }
+
+    private fun setPageMark(marked: Boolean) {
+
     }
 
     inner class MyTouchListener : GestureDetector.SimpleOnGestureListener() {
