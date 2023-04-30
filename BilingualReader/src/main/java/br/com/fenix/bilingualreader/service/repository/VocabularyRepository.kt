@@ -240,10 +240,10 @@ class VocabularyRepository(context: Context) {
                 .filter { it.language == Languages.JAPANESE && it.vocabulary.isNotEmpty() }
                 .toList())
 
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(newSingleThreadContext("VocabularyThread")).launch {
             async {
                 try {
-                    val list = mutableSetOf<Vocabulary>()
+                    val list = mutableSetOf<Vocabulary?>()
                     val pages = mutableListOf<Vocabulary>()
 
                     chaptersList.parallelStream()

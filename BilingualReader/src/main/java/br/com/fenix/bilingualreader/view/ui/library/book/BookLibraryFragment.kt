@@ -138,7 +138,7 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                     notifyDataSet(indexes)
             }
 
-        if (ScannerBook.getInstance(requireContext()).isRunning())
+        if (ScannerBook.getInstance(requireContext()).isRunning(mViewModel.getLibrary()))
             setIsRefreshing(true)
         else
             setIsRefreshing(false)
@@ -641,7 +641,7 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
         mViewModel.updateList { change, _ -> if (change) sortList() }
 
-        if (!ScannerBook.getInstance(requireContext()).isRunning()) {
+        if (!ScannerBook.getInstance(requireContext()).isRunning(mViewModel.getLibrary())) {
             setIsRefreshing(true)
             ScannerBook.getInstance(requireContext()).scanLibrary(mViewModel.getLibrary())
         }

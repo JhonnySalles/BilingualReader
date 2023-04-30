@@ -257,7 +257,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                     notifyDataSet(indexes)
             }
 
-        if (ScannerManga.getInstance(requireContext()).isRunning())
+        if (ScannerManga.getInstance(requireContext()).isRunning(mViewModel.getLibrary()))
             setIsRefreshing(true)
         else
             setIsRefreshing(false)
@@ -870,7 +870,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
         mViewModel.updateList { change, _ -> if (change) sortList() }
 
-        if (!ScannerManga.getInstance(requireContext()).isRunning()) {
+        if (!ScannerManga.getInstance(requireContext()).isRunning(mViewModel.getLibrary())) {
             setIsRefreshing(true)
             ScannerManga.getInstance(requireContext()).scanLibrary(mViewModel.getLibrary())
         }
