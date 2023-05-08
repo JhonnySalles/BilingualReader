@@ -149,10 +149,10 @@ class Storage(context: Context) {
 
 
     // --------------------------------------------------------- Book ---------------------------------------------------------
-    fun listBook(library: Library): List<Book>? =
+    fun listBook(library: Library): List<Book> =
         mBookRepository.list(library)
 
-    fun listBookDeleted(library: Library): List<Book>? =
+    fun listBookDeleted(library: Library): List<Book> =
         mBookRepository.listDeleted(library)
 
     fun save(book: Book): Long {

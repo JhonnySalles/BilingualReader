@@ -22,7 +22,6 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import br.com.ebook.foobnix.android.utils.Dips
 import br.com.ebook.foobnix.ext.CacheZipUtils
-import br.com.ebook.foobnix.pdf.info.AppSharedPreferences
 import br.com.ebook.foobnix.pdf.info.ExtUtils
 import br.com.ebook.foobnix.pdf.info.IMG
 import br.com.ebook.foobnix.pdf.info.TintUtil
@@ -49,11 +48,6 @@ import java.io.File
 
 
 class BookReaderActivity : AppCompatActivity() {
-
-    init {
-        System.loadLibrary("mypdf")
-        System.loadLibrary("mobi")
-    }
 
     private val mLOGGER = LoggerFactory.getLogger(BookReaderActivity::class.java)
 
@@ -103,18 +97,6 @@ class BookReaderActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_reader)
-
-        // Dependencias dos projetos do livro
-        Dips.init(this)
-        AppState.get().load(this)
-        AppSharedPreferences.get().init(this)
-        CacheZipUtils.init(this)
-        ExtUtils.init(this)
-        IMG.init(this)
-        TintUtil.init()
-        SettingsManager.init(this)
-        CacheManager.init(this)
-        // -------
 
         mRepository = BookRepository(applicationContext)
 
@@ -291,7 +273,7 @@ class BookReaderActivity : AppCompatActivity() {
 
     private fun dialogPageIndex() {
         val currentFragment = supportFragmentManager.findFragmentById(R.id.root_frame_book_reader) ?: return
-        val codec = (currentFragment as BookReaderFragment).mCodecDocument ?: return
+        val codec = (currentFragment as BookReaderFragment).mParse ?: return
 
         if (codec.outline.isEmpty()) {
             MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)

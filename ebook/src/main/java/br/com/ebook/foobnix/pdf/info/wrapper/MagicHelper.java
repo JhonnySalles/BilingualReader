@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import br.com.ebook.application.eBookApplication;
 import br.com.ebook.foobnix.android.utils.Dips;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
@@ -141,6 +140,8 @@ public class MagicHelper {
 
     public static void applyBookEffectWithLogo(Bitmap dest) {
         Canvas canvas = new Canvas(dest);
+        IMG.bookCover.setBounds(0, 0, dest.getWidth(), dest.getHeight());
+        IMG.bookCover.draw(canvas);
         IMG.bookBGWithMark.setBounds(0, 0, dest.getWidth(), dest.getHeight());
         IMG.bookBGWithMark.draw(canvas);
     }
@@ -253,7 +254,7 @@ public class MagicHelper {
         if (name.startsWith("/")) {
             return BitmapFactory.decodeFile(name, opt);
         }
-        try {
+        /*try {
             InputStream oldBook = eBookApplication.context.getAssets().open(name);
             Bitmap decodeStream = BitmapFactory.decodeStream(oldBook);
             Bitmap res = decodeStream.copy(Config.RGB_565, false);
@@ -262,7 +263,8 @@ public class MagicHelper {
         } catch (Exception e) {
             LOG.e(e);
             return null;
-        }
+        }*/
+        return null;
     }
 
     public static Bitmap updateWithBackground(Bitmap bitmap) {

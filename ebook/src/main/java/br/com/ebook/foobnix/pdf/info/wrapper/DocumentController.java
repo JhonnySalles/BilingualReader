@@ -30,7 +30,6 @@ import br.com.ebook.foobnix.pdf.info.model.OutlineLinkWrapper;
 import br.com.ebook.foobnix.pdf.info.view.AlertDialogs;
 import br.com.ebook.foobnix.sys.ImageExtractor;
 import br.com.ebook.foobnix.tts.TTSEngine;
-import br.com.ebook.foobnix.ui2.AppDB;
 
 import org.ebookdroid.core.codec.Annotation;
 import org.ebookdroid.core.codec.PageLink;
@@ -183,7 +182,7 @@ public abstract class DocumentController {
     }
 
     public FileMeta getBookFileMeta() {
-        return AppDB.get().getOrCreate(getCurrentBook().getPath());
+        return new FileMeta(getCurrentBook().getPath());
     }
 
     public String getBookFileMetaName() {
@@ -249,7 +248,7 @@ public abstract class DocumentController {
     }
 
     public void addRecent(final Uri uri) {
-        AppDB.get().addRecent(uri.getPath());
+        //AppDB.get().addRecent(uri.getPath());
         // AppSharedPreferences.get().addRecent(uri);
     }
 

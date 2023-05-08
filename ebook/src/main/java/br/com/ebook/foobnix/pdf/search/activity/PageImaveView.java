@@ -27,7 +27,6 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
-import br.com.ebook.application.eBookApplication;
 import br.com.ebook.foobnix.android.utils.Apps;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
@@ -286,7 +285,7 @@ public class PageImaveView extends View {
             isIgronerClick = true;
             Vibro.vibrate();
             if (!AppState.get().longTapEnable || AppState.get().isCut || AppState.get().isCrop) {
-                Toast.makeText(eBookApplication.context, R.string.the_page_is_clipped_the_text_selection_does_not_work, Toast.LENGTH_LONG).show();
+                //Toast.makeText(eBookApplication.context, R.string.the_page_is_clipped_the_text_selection_does_not_work, Toast.LENGTH_LONG).show();
                 return;
             }
             isLognPress = true;

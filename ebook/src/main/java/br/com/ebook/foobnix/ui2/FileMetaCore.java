@@ -44,15 +44,13 @@ public class FileMetaCore {
 
             LOG.d("checkOrCreateMetaInfo", path);
             if (new File(path).isFile()) {
-                FileMeta fileMeta = AppDB.get().getOrCreate(path);
+                FileMeta fileMeta = new FileMeta(path);
                 if (TxtUtils.isEmpty(fileMeta.getTitle())) {
 
                     EbookMeta ebookMeta = FileMetaCore.get().getEbookMeta(path, CacheDir.ZipApp, false);
 
                     FileMetaCore.get().upadteBasicMeta(fileMeta, new File(path));
                     FileMetaCore.get().udpateFullMeta(fileMeta, ebookMeta);
-
-                    AppDB.get().update(fileMeta);
                     LOG.d("checkOrCreateMetaInfo", "UPDATE", path);
                 } else {
                     LOG.d("checkOrCreateMetaInfo", "LOAD", path);

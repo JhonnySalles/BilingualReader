@@ -49,39 +49,39 @@ class BookRepository(context: Context) {
             mDataBase.delete(obj)
     }
 
-    fun list(library: Library): List<Book>? {
+    fun list(library: Library): List<Book> {
         return try {
             mDataBase.list(library.id)
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book: " + e.message, e)
-            null
+            listOf()
         }
     }
 
-    fun listRecentChange(library: Library): List<Book>? {
+    fun listRecentChange(library: Library): List<Book> {
         return try {
             mDataBase.listRecentChange(library.id)
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book: " + e.message, e)
-            null
+            listOf()
         }
     }
 
-    fun listRecentDeleted(library: Library): List<Book>? {
+    fun listRecentDeleted(library: Library): List<Book> {
         return try {
             mDataBase.listRecentDeleted(library.id)
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book: " + e.message, e)
-            null
+            listOf()
         }
     }
 
-    fun listDeleted(library: Library): List<Book>? {
+    fun listDeleted(library: Library): List<Book> {
         return try {
             mDataBase.listDeleted(library.id)
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book: " + e.message, e)
-            null
+            listOf()
         }
     }
 

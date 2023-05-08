@@ -7,7 +7,6 @@ import android.text.InputType;
 import android.view.Gravity;
 import android.widget.EditText;
 
-import br.com.ebook.foobnix.pdf.info.AppSharedPreferences;
 import br.com.ebook.foobnix.pdf.info.PageUrl;
 import br.com.ebook.foobnix.pdf.info.presentation.BookmarksAdapter;
 import br.com.ebook.R;
@@ -45,7 +44,6 @@ public class ListBoxHelper {
                     final String text = editText.getText().toString();
                     if (text != null && !text.trim().equals("")) {
                         final AppBookmark bookmark = new AppBookmark(controller.getCurrentBook().getPath(), text, curentPageFirst1, controller.getTitle());
-                        AppSharedPreferences.get().addBookMark(bookmark);
                         if (objects != null) {
                             objects.add(0, bookmark);
                         }
@@ -78,7 +76,6 @@ public class ListBoxHelper {
 
     public static void addBookmark(DocumentController controller, String text) {
         final AppBookmark bookmark = new AppBookmark(controller.getCurrentBook().getPath(), text, controller.getCurentPage(), controller.getTitle());
-        AppSharedPreferences.get().addBookMark(bookmark);
     }
 
     public static void showEditDeleteDialog(final AppBookmark bookmark, DocumentController controller, final BookmarksAdapter bookmarksAdapter, final List<AppBookmark> objects) {
@@ -102,9 +99,6 @@ public class ListBoxHelper {
                     final String text = editText.getText().toString();
                     if (text != null && !text.trim().equals("")) {
                         bookmark.setText(text);
-                        AppSharedPreferences.get().removeBookmark(bookmark);
-                        AppSharedPreferences.get().addBookMark(bookmark);
-
                         bookmarksAdapter.notifyDataSetChanged();
                         //   Keyboards.close(editText);
                     }
@@ -125,7 +119,6 @@ public class ListBoxHelper {
             @Override
             public void onClick(final DialogInterface dialog, final int id) {
                 //   Keyboards.close(editText);
-                AppSharedPreferences.get().removeBookmark(bookmark);
                 objects.remove(bookmark);
                 bookmarksAdapter.notifyDataSetChanged();
 

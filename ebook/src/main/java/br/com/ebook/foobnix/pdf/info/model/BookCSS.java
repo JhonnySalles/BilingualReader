@@ -14,7 +14,6 @@ import br.com.ebook.foobnix.pdf.info.FontExtractor;
 import br.com.ebook.foobnix.pdf.info.Urls;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
-import br.com.ebook.foobnix.ui2.AppDB;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -565,7 +564,7 @@ public class BookCSS {
     }
 
     public void detectLang(String bookPath) {
-        FileMeta meta = AppDB.get().load(bookPath);
+        FileMeta meta = null;
         if (meta != null) {
             BookCSS.get().hypenLang = meta.getLang();
         }

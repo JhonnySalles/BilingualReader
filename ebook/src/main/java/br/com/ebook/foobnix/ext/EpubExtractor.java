@@ -63,7 +63,7 @@ public class EpubExtractor extends BaseExtractor {
             ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(new File(output)));
             zos.setLevel(0);
 
-            while ((nextEntry = entries.nextElement()) != null) {
+            while (entries.hasMoreElements() && (nextEntry = entries.nextElement()) != null) {
                 if (TempHolder.get().loadingCancelled) {
                     break;
                 }
@@ -229,7 +229,7 @@ public class EpubExtractor extends BaseExtractor {
             String coverName = null;
             String coverResource = null;
 
-            while (coverName == null && (nextEntry = entries.nextElement()) != null) {
+            while (coverName == null && entries.hasMoreElements() && (nextEntry = entries.nextElement()) != null) {
                 String name = nextEntry.getName().toLowerCase();
                 if (name.endsWith(".opf")) {
                     XmlPullParser xpp = XmlParser.buildPullParser();

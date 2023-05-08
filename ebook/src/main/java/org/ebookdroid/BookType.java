@@ -53,13 +53,13 @@ public enum BookType {
     private final static Map<String, BookType> mimeTypesToActivity;
 
     static {
-        extensionToActivity = new HashMap<String, BookType>();
+        extensionToActivity = new HashMap<>();
         for (final BookType a : values()) {
             for (final String ext : a.extensions) {
                 extensionToActivity.put(ext.toLowerCase(Locale.US), a);
             }
         }
-        mimeTypesToActivity = new HashMap<String, BookType>();
+        mimeTypesToActivity = new HashMap<>();
         for (final BookType a : values()) {
             for (final String type : a.mimeTypes) {
                 mimeTypesToActivity.put(type.toLowerCase(Locale.US), a);

@@ -199,6 +199,7 @@ class Book(
 
     fun update(book: Book) {
         this.bookMark = book.bookMark
+        this.pages = book.pages
         this.favorite = book.favorite
         this.lastAccess = book.lastAccess
     }

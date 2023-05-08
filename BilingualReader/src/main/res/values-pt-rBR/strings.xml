@@ -161,6 +161,7 @@
 
     <string name="reading_book_page_index">Índice</string>
     <string name="reading_book_page_empty">Arquivo não contem capítulos</string>
+    <string name="reading_book_open_exception">Não foi possível abrir o livro selecionado</string>
 
     <!-- READER POPUP TITLES -->
     <string name="popup_reading_book_open">Abrir</string>

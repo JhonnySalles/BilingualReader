@@ -6,7 +6,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 
 import br.com.ebook.foobnix.dao2.FileMeta;
-import br.com.ebook.foobnix.pdf.info.AppSharedPreferences;
 import br.com.ebook.foobnix.android.utils.Dips;
 import br.com.ebook.foobnix.pdf.info.TintUtil;
 
@@ -28,7 +27,7 @@ public class StarsWrapper {
 
             @Override
             public void onClick(View v) {
-                boolean changeIsStar = AppSharedPreferences.get().changeIsStar(info.getPath());
+                boolean changeIsStar = false;// AppSharedPreferences.get().changeIsStar(info.getPath());
                 info.setIsStar(changeIsStar);
                 TintUtil.drawStar(starIcon, changeIsStar);
                 if (onClick != null) {

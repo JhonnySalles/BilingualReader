@@ -469,6 +469,12 @@
         <item name="tint">?attr/colorSecondary</item>
     </style>
 
+    <style name="TextTitle.Card" parent="TextTitle">
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">5</item>
+        <item name="android:textAppearance">?attr/textAppearanceSubtitle2</item>
+    </style>
+
     <style name="TextNormal.Card" parent="TextNormal">
         <item name="android:ellipsize">end</item>
         <item name="android:maxLines">5</item>
@@ -478,10 +484,6 @@
 
     <style name="TextNormal.Card.Title" parent="TextNormal.Card">
         <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
-    </style>
-
-    <style name="TextNormal.Card.Inverse" parent="TextNormal.Card">
-        <item name="android:textColor">?attr/colorOnPrimaryContainer</item>
     </style>
 
     <style name="TextNormal.Card.PageLink" parent="TextNormal">
@@ -507,7 +509,7 @@
         <item name="android:textAppearance">?attr/textAppearanceSubtitle2</item>
     </style>
 
-    <style name="TextNormal.Line.Title" parent="TextTitle">
+    <style name="TextTitle.Line.Title" parent="TextTitle">
         <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
     </style>
 

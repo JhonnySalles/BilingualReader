@@ -16,7 +16,6 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 
-import br.com.ebook.application.eBookApplication;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.ext.CacheZipUtils;
 import br.com.ebook.foobnix.pdf.info.wrapper.DocumentController;
@@ -59,7 +58,7 @@ public class TTSEngine {
         public void onInit(int status) {
             LOG.d(TAG, "onInit", "SUCCESS", status == TextToSpeech.SUCCESS);
             if (status == TextToSpeech.ERROR) {
-                Toast.makeText(eBookApplication.context, R.string.msg_unexpected_error, Toast.LENGTH_LONG).show();
+                //Toast.makeText(eBookApplication.context, R.string.msg_unexpected_error, Toast.LENGTH_LONG).show();
             }
 
         }
@@ -77,7 +76,7 @@ public class TTSEngine {
             onLisnter = listener;
         }
 
-        ttsEngine = new TextToSpeech(eBookApplication.context, onLisnter);
+        // ttsEngine = new TextToSpeech(eBookApplication.context, onLisnter);
 
         return ttsEngine;
 
@@ -99,8 +98,8 @@ public class TTSEngine {
 
     public TextToSpeech setTTSWithEngine(String engine) {
         shutdown();
-        ttsEngine = new TextToSpeech(eBookApplication.context, listener, engine);
-        return ttsEngine;
+        //ttsEngine = new TextToSpeech(eBookApplication.context, listener, engine);
+        return null; //ttsEngine;
     }
 
     private String text = "";

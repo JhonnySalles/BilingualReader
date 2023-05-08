@@ -24,7 +24,6 @@ import br.com.ebook.foobnix.dao2.FileMeta;
 import br.com.ebook.foobnix.pdf.info.TintUtil;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.pdf.info.wrapper.PopupHelper;
-import br.com.ebook.foobnix.ui2.AppDB;
 import br.com.ebook.foobnix.ui2.AppRecycleAdapter;
 import br.com.ebook.foobnix.ui2.fast.FastScroller;
 import br.com.ebook.universalimageloader.core.listener.SimpleImageLoadingListener;
@@ -262,7 +261,7 @@ public class FileMetaAdapter extends AppRecycleAdapter<FileMeta, RecyclerView.Vi
                 @Override
                 public void onLoadingComplete(String arg0, View arg1, Bitmap arg2) {
                     if (position <= items.size() - 1) {
-                        items.set(position, AppDB.get().getOrCreate(fileMeta.getPath()));
+                        items.set(position, new FileMeta(fileMeta.getPath()));
                         bindFileMetaView(holder, position);
                     }
                 }
@@ -282,9 +281,9 @@ public class FileMetaAdapter extends AppRecycleAdapter<FileMeta, RecyclerView.Vi
                 holder.parent.setBackgroundColor(Color.TRANSPARENT);
             }
 
-            if (AppDB.get().isStarFolder(fileMeta.getPath())) {
+            /*if (AppDB.get().isStarFolder(fileMeta.getPath())) {
                 holder.starIcon.setImageResource(R.drawable.star_1);
-            } else {
+            } else*/ {
                 holder.starIcon.setImageResource(R.drawable.star_2);
             }
             TintUtil.setTintImageWithAlpha(holder.starIcon, TintUtil.color);
@@ -327,14 +326,14 @@ public class FileMetaAdapter extends AppRecycleAdapter<FileMeta, RecyclerView.Vi
             holder.recyclerView.setAdapter(adapter);
 
             adapter.getItemsList().clear();
-            List<FileMeta> allStars = AppDB.get().getStarsFiles();
-            adapter.getItemsList().addAll(allStars);
+            /*List<FileMeta> allStars = AppDB.get().getStarsFiles();
+            adapter.getItemsList().addAll(allStars);*/
             adapter.notifyDataSetChanged();
 
             TintUtil.setBackgroundFillColor(holder.panelRecent, TintUtil.color);
             TintUtil.setBackgroundFillColor(holder.panelStars, TintUtil.color);
 
-            holder.starredName.setText(holder.starredName.getContext().getString(R.string.starred) + " (" + allStars.size() + ")");
+            //holder.starredName.setText(holder.starredName.getContext().getString(R.string.starred) + " (" + allStars.size() + ")");
             holder.recentName.setText(holder.starredName.getContext().getString(R.string.recent) + " (" + (getItemCount() - 1) + ")");
 
         }

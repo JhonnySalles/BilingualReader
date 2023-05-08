@@ -14,7 +14,6 @@ import org.ebookdroid.common.touch.TouchManager;
 import org.ebookdroid.core.AbstractViewController;
 import org.ebookdroid.core.codec.Annotation;
 
-import br.com.ebook.application.eBookApplication;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
@@ -288,7 +287,7 @@ public class AdvGuestureDetector extends SimpleOnGestureListener implements IMul
     public void onLongPress(final MotionEvent e) {
         Vibro.vibrate();
         if (!AppState.get().longTapEnable || AppState.get().isCut || AppState.get().isCrop) {
-            Toast.makeText(eBookApplication.context, R.string.the_page_is_clipped_the_text_selection_does_not_work, Toast.LENGTH_LONG).show();
+            //Toast.makeText(eBookApplication.context, R.string.the_page_is_clipped_the_text_selection_does_not_work, Toast.LENGTH_LONG).show();
             return;
         }
 

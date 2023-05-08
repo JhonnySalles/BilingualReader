@@ -12,6 +12,7 @@ import android.os.*
 import android.util.Base64
 import android.view.*
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
@@ -30,7 +31,10 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.model.exceptions.BookLoadException
+import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.WebInterface
+import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
@@ -57,6 +61,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
     private val mViewModel: BookReaderViewModel by activityViewModels()
 
     private lateinit var mRoot: CoordinatorLayout
+    private lateinit var mCover: ImageView
     private lateinit var mToolbarTop: AppBarLayout
     private lateinit var mToolbarBottom: LinearLayout
     private lateinit var miChapter: MenuItem
@@ -77,14 +82,27 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
     private var mBook: Book? = null
     private lateinit var mStorage: Storage
 
-    private var mIsLeftToRight = false
-    private val mWidth: Int = Resources.getSystem().displayMetrics.widthPixels
-    private val mHeight: Int = Resources.getSystem().displayMetrics.heightPixels
+    private var mIsLeftToRight = true
 
-    var mCodecDocument: CodecDocument? = null
+    var mParse: DocumentParse? = null
+
+    private var mHandler = Handler(Looper.getMainLooper())
+    private val mCoverDelay = Runnable {
+        if (mParse == null)
+            mCover.setImageDrawable(null)
+        else {
+            mCover.animate().alpha(0.0f)
+                .setDuration(400L).setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        super.onAnimationEnd(animation)
+                        mCover.visibility = View.GONE
+                    }
+                })
+        }
+    }
 
     companion object {
-        var mCurrentPage = 0
+        var mCurrentPage = 1
         fun create(): BookReaderFragment {
             val fragment = BookReaderFragment()
             val args = Bundle()
@@ -115,7 +133,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mCurrentPage = 0
+        mCurrentPage = 1
         mStorage = Storage(requireContext())
         mLibrary = LibraryUtil.getDefault(requireContext(), Type.MANGA)
 
@@ -137,21 +155,16 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                 if (mBook == null)
                     mBook = mStorage.findBookByName(file.name)
 
-                val metrics = Resources.getSystem().displayMetrics
-                mCodecDocument = ImageExtractor.getNewCodecContext(
-                    file.path,
-                    "",
-                    metrics.widthPixels,
-                    metrics.heightPixels,
-                    FontUtil.pixelToDips(requireContext(), mViewModel.fontSize.value!!)
-                )
+                mParse = try {
+                    DocumentParse(requireContext(), file.path, "", mViewModel.fontSize.value!!)
+                } catch (e: BookLoadException) {
+                    null
+                }
 
-                if (mBook != null && mCodecDocument != null) {
+                if (mParse != null && mBook != null) {
                     mFileName = file.name
                     mCurrentPage = mBook!!.bookMark
-                    mBook!!.pages = mCodecDocument!!.getPageCount(
-                        mWidth,
-                        mHeight,
+                    mBook!!.pages = mParse!!.getPageCount(
                         FontUtil.pixelToDips(requireContext(), mViewModel.fontSize.value!!)
                     )
                     mStorage.updateLastAccess(mBook!!)
@@ -184,12 +197,19 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         mViewPager = view.findViewById<View>(R.id.fragment_book_reader) as WebViewPager
         mPageSlider = requireActivity().findViewById(R.id.reader_book_bottom_progress)
 
+        mCover = view.findViewById(R.id.reader_book_cover)
+
         mToolbarTop = requireActivity().findViewById(R.id.reader_book_toolbar_top)
         mToolbarBottom = requireActivity().findViewById(R.id.reader_book_toolbar_bottom)
 
-        mPageSlider.valueTo = mCodecDocument?.getPageCount(
-            mWidth,
-            mHeight,
+        if (mBook != null)
+            BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCover)
+
+        mCover.visibility = View.VISIBLE
+        mCover.alpha = 1f
+        mHandler.postDelayed(mCoverDelay, 2000)
+
+        mPageSlider.valueTo = mParse?.getPageCount(
             FontUtil.pixelToDips(requireContext(), mViewModel.fontSize.value!!)
         )?.toFloat() ?: 2f
         mPageSlider.valueFrom = 1F
@@ -198,7 +218,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                 if (mIsLeftToRight) setCurrentPage(value.roundToInt())
                 else
                     setCurrentPage((mPageSlider.valueTo - value).roundToInt())
-
         }
 
         mPagerAdapter = BookPagerAdapter()
@@ -230,6 +249,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
 
         requireActivity().title = mFileName
 
+        if (mBook != null)
+            setCurrentPage(mCurrentPage)
+
         observer()
         return view
     }
@@ -253,6 +275,16 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         super.onPause()
     }
 
+    override fun onDestroy() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (mHandler.hasCallbacks(mCoverDelay))
+                mHandler.removeCallbacks(mCoverDelay)
+        } else {
+            mHandler.removeCallbacks(mCoverDelay)
+        }
+
+        super.onDestroy()
+    }
 
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         v.performClick()
@@ -472,22 +504,19 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     fun setCurrentPage(page: Int) {
-        if (mIsLeftToRight) {
+
+        if (mIsLeftToRight)
             mViewPager.currentItem = page - 1
-            mPageSlider.value = if (page <= 0) 1F else (page - 1).toFloat()
-        } else {
+        else
             mViewPager.currentItem = mViewPager.adapter!!.count - page
-            mPageSlider.value =
-                if (page > mPageSlider.valueTo) mPageSlider.valueTo else (mViewPager.adapter!!.count - page).toFloat()
-        }
 
         mCurrentPage = mViewPager.currentItem
 
         if (mCurrentPage < 0)
             mCurrentPage = 0
 
-        if (mCodecDocument != null && mCodecDocument?.outline != null && mCodecDocument?.outline!!.isNotEmpty())
-            for (link in mCodecDocument?.outline!!) {
+        if (mParse != null && mParse?.outline != null && mParse?.outline!!.isNotEmpty())
+            for (link in mParse?.outline!!) {
                 val number = link.link.replace(Regex("[^\\d+]"), "")
                 if (number.isNotEmpty() && mCurrentPage <= number.toInt()) {
                     mBook!!.chapter = number.toInt()
@@ -495,6 +524,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                     break
                 }
             }
+
+        mCurrentPage += 1
+        mPageSlider.value = mCurrentPage.toFloat()
 
         (requireActivity() as BookReaderActivity).changePage(
             mBook!!.chapter,
@@ -527,7 +559,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         val intent = Intent(requireContext(), MenuActivity::class.java)
         val bundle = Bundle()
         bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_book_search)
-        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.DOCUMENT, mCodecDocument)
+        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.DOCUMENT, mParse)
         intent.putExtras(bundle)
         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
         startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_SEARCH, null)
@@ -591,9 +623,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         }
 
         override fun getCount(): Int {
-            return mCodecDocument?.getPageCount(
-                mWidth,
-                mHeight,
+            return mParse?.getPageCount(
                 FontUtil.pixelToDips(requireContext(), mViewModel.fontSize.value!!)
             ) ?: 1
         }
@@ -612,9 +642,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                 layout.findViewById<View>(R.id.page_web_view) as WebViewPage
 
             var html =
-                "<!DOCTYPE html><html>" + mViewModel.getDefaultCSS() + "<body>" + mCodecDocument?.getPage(
+                "<!DOCTYPE html><html>" + mViewModel.getDefaultCSS() + "<body>" + mParse?.getPage(
                     position
-                )?.pageHTMLWithImages + "</body></html>"
+                )?.pageHTMLWithImages.orEmpty() + "</body></html>"
 
             if (html.contains("<image-begin>image"))
                 html = html.replace("<image-begin>", "<img src=\"data:")

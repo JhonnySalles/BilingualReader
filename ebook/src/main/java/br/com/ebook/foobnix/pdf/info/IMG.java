@@ -42,6 +42,7 @@ public class IMG {
     public static boolean RESET_VIEW_BEFORE_LOADING = true;
     public static Drawable bookBGWithMark;
     public static Drawable bookBGNoMark;
+    public static Drawable bookCover;
     public static Context context;
 
     public static void init(Context context) {
@@ -50,6 +51,7 @@ public class IMG {
 
         bookBGWithMark = context.getResources().getDrawable(R.drawable.bookeffect2);
         bookBGNoMark = context.getResources().getDrawable(R.drawable.bookeffect1);
+        bookCover = context.getResources().getDrawable(R.drawable.bookcovereffect);
 
         final DisplayImageOptions.Builder builder = new DisplayImageOptions.Builder();
         builder.cacheInMemory(true);

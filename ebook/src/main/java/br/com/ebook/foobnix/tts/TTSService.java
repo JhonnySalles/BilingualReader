@@ -24,7 +24,6 @@ import org.ebookdroid.core.codec.CodecDocument;
 import org.ebookdroid.core.codec.CodecPage;
 import org.greenrobot.eventbus.EventBus;
 
-import br.com.ebook.application.eBookApplication;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.R;
 import br.com.ebook.foobnix.android.utils.LOG;
@@ -135,17 +134,17 @@ public class TTSService extends Service {
 
         Intent intent = playBookIntent(page, path, anchor);
 
-        eBookApplication.context.startService(intent);
+        //eBookApplication.context.startService(intent);
 
     }
 
     private static Intent playBookIntent(int page, String path, String anchor) {
-        Intent intent = new Intent(eBookApplication.context, TTSService.class);
+        /*Intent intent = new Intent(eBookApplication.context, TTSService.class);
         intent.setAction(TTSService.ACTION_PLAY_CURRENT_PAGE);
         intent.putExtra(EXTRA_INT, page);
         intent.putExtra(EXTRA_PATH, path);
-        intent.putExtra(EXTRA_ANCHOR, anchor);
-        return intent;
+        intent.putExtra(EXTRA_ANCHOR, anchor);*/
+        return null; //intent;
     }
 
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
@@ -257,7 +256,7 @@ public class TTSService extends Service {
                 } catch (InterruptedException e) {
                 }
                 TTSEngine.get().getTTS().setOnUtteranceCompletedListener(null);
-                TTSEngine.get().speek(eBookApplication.context.getString(R.string.the_book_is_over));
+                //TTSEngine.get().speek(eBookApplication.context.getString(R.string.the_book_is_over));
 
                 EventBus.getDefault().post(new TtsStatus());
                 return;

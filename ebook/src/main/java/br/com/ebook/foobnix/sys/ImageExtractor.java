@@ -49,13 +49,16 @@ import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
 import br.com.ebook.foobnix.pdf.search.activity.PageImageState;
-import br.com.ebook.foobnix.ui2.AppDB;
 import br.com.ebook.foobnix.ui2.FileMetaCore;
 import br.com.ebook.universalimageloader.core.download.BaseImageDownloader;
 import br.com.ebook.universalimageloader.core.download.ImageDownloader;
 import br.com.ebook.foobnix.pdf.info.IMG;
 
 public class ImageExtractor implements ImageDownloader {
+
+    static {
+        System.loadLibrary("mypdf");
+    }
 
     public static final int COVER_PAGE_WITH_EFFECT = -3;
     public static final int COVER_PAGE_NO_EFFECT = -2;
@@ -369,17 +372,17 @@ public class ImageExtractor implements ImageDownloader {
         try {
 
             if (ExtUtils.isImageFile(file)) {
-                FileMeta fileMeta = AppDB.get().getOrCreate(path);
+                FileMeta fileMeta = new FileMeta(path);
                 FileMetaCore.get().upadteBasicMeta(fileMeta, new File(path));
-                AppDB.get().update(fileMeta);
+                //AppDB.get().update(fileMeta);
 
                 return BaseExtractor.decodeImage(path, IMG.getImageSize());
             }
 
             if (path.endsWith("json")) {
-                FileMeta fileMeta = AppDB.get().getOrCreate(path);
+                FileMeta fileMeta = new FileMeta(path);
                 FileMetaCore.get().upadteBasicMeta(fileMeta, new File(path));
-                AppDB.get().update(fileMeta);
+                //AppDB.get().update(fileMeta);
                 return messageFile("#json", "");
             }
 

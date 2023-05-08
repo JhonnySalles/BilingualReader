@@ -161,6 +161,7 @@
 
     <string name="reading_book_page_index">Page index</string>
     <string name="reading_book_page_empty">File has no folders</string>
+    <string name="reading_book_open_exception">Could not open selected book</string>
 
     <!-- READER POPUP TITLES -->
     <string name="popup_reading_book_open">Open</string>

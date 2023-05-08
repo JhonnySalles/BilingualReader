@@ -34,7 +34,7 @@
     <LinearLayout
         android:id="@+id/book_line_detail"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingLeft="5dp"
         android:paddingTop="1dp"
@@ -50,10 +50,9 @@
 
         <TextView
             android:id="@+id/book_line_title"
-            style="@style/TextNormal.Line.Title"
+            style="@style/TextTitle.Line.Title"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:textSize="@dimen/book_line_title_size"
             android:transitionName="transition_book_title"/>
@@ -83,22 +82,12 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/book_line_last_access"
-                        style="@style/TextNormal.Line"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="2dp"
-                        android:textSize="@dimen/book_line_content_size" />
-
-                    <TextView
                         android:id="@+id/book_line_file_type"
                         style="@style/TextNormal.Line"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginEnd="2dp"
-                        android:gravity="center"
                         android:textSize="@dimen/book_line_content_size" />
 
                     <TextView
@@ -108,7 +97,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginEnd="2dp"
-                        android:gravity="end"
+                        android:gravity="center"
                         android:textSize="@dimen/book_line_content_size" />
 
                     <TextView
@@ -116,11 +105,19 @@
                         style="@style/TextNormal.Line"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:layout_weight="2"
                         android:gravity="end"
                         android:textSize="@dimen/book_line_content_size" />
 
                 </LinearLayout>
+
+                <TextView
+                    android:id="@+id/book_line_last_access"
+                    style="@style/TextNormal.Line"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="2dp"
+                    android:textSize="@dimen/book_line_content_size" />
 
                 <ProgressBar
                     android:id="@+id/book_line_progress"

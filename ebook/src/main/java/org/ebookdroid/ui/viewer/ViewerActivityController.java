@@ -43,6 +43,7 @@ import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.ResultResponse;
 import br.com.ebook.foobnix.android.utils.Safe;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
+import br.com.ebook.foobnix.dao2.FileMeta;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
 import br.com.ebook.foobnix.pdf.info.model.OutlineLinkWrapper;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
@@ -52,7 +53,6 @@ import br.com.ebook.foobnix.sys.TempHolder;
 import br.com.ebook.foobnix.sys.VerticalModeController;
 import br.com.ebook.foobnix.tts.TTSEngine;
 import br.com.ebook.foobnix.tts.TTSNotification;
-import br.com.ebook.foobnix.ui2.AppDB;
 
 public class ViewerActivityController extends ActionController<VerticalViewActivity> implements IActivityController, DecodingProgressListener, CurrentPageListener, IBookSettingsChangeListener {
 
@@ -142,7 +142,7 @@ public class ViewerActivityController extends ActionController<VerticalViewActiv
                 if (BookType.isSupportedExtByPath(bookTitle)) {
                     codecType = BookType.getByUri(bookTitle);
                     file = new File(bookTitle);
-                    bookTitle = AppDB.get().getOrCreate(bookTitle).getTitle();
+                    bookTitle = new FileMeta(bookTitle).getTitle();
                     LOG.d("codecType 0", codecType);
                 }
                 if (codecType == null) {
@@ -155,7 +155,7 @@ public class ViewerActivityController extends ActionController<VerticalViewActiv
             if (codecType == null) {
                 bookTitle = LengthUtils.safeString(data.getLastPathSegment(), E_MAIL_ATTACHMENT);
                 if (ExtUtils.isTextFomat(data.getLastPathSegment())) {
-                    bookTitle = AppDB.get().getOrCreate(data.getPath()).getTitle();
+                    bookTitle = new FileMeta(data.getPath()).getTitle();
                 }
                 codecType = BookType.getByUri(data.toString());
                 if (codecType == null) {

@@ -14,7 +14,6 @@ import br.com.ebook.foobnix.android.utils.ResultResponse;
 import br.com.ebook.foobnix.dao2.FileMeta;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
-import br.com.ebook.foobnix.ui2.AppDB;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -77,9 +76,9 @@ public class ExportSettingsManager {
             root.put(PREFIX_BOOKMARKS_PREFERENCES, exportToJSon(PREFIX_BOOKMARKS_PREFERENCES, viewerSP, null));
             root.put(PREFIX_BOOK_CSS, exportToJSon(PREFIX_BOOK_CSS, bookCSS, null));
 
-            root.put(PREFIX_RECENT, fileMetaToJSON(AppDB.get().getRecent()));
+            /*root.put(PREFIX_RECENT, fileMetaToJSON(AppDB.get().getRecent()));
             root.put(PREFIX_STARS_Books, fileMetaToJSON(AppDB.get().getStarsFiles()));
-            root.put(PREFIX_STARS_Folders, fileMetaToJSON(AppDB.get().getStarsFolder()));
+            root.put(PREFIX_STARS_Folders, fileMetaToJSON(AppDB.get().getStarsFolder()));*/
 
             String name = getSampleJsonConfigName(c, "export_all.json");
             File fileConfig = toFile;
@@ -139,7 +138,7 @@ public class ExportSettingsManager {
 
                 @Override
                 public boolean onResultRecive(String result) {
-                    AppDB.get().addRecent(result);
+                    //AppDB.get().addRecent(result);
                     return false;
                 }
             });
@@ -148,7 +147,7 @@ public class ExportSettingsManager {
 
                 @Override
                 public boolean onResultRecive(String result) {
-                    AppDB.get().addStarFile(result);
+                    //AppDB.get().addStarFile(result);
                     return false;
                 }
             });
@@ -157,7 +156,7 @@ public class ExportSettingsManager {
 
                 @Override
                 public boolean onResultRecive(String result) {
-                    AppDB.get().addStarFolder(result);
+                    //AppDB.get().addStarFolder(result);
                     return false;
                 }
             });

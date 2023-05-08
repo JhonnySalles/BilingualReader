@@ -4,6 +4,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
+import android.graphics.Paint;
+import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.text.Layout.Alignment;
 import android.text.StaticLayout;
@@ -63,7 +66,14 @@ public abstract class BaseExtractor {
         Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(bitmap);
         c.save();
-        c.drawColor(TintUtil.randomColor((title + author).hashCode()));
+
+        int[] colors = new int[]{Color.BLACK, TintUtil.randomColor((title + author).hashCode()), Color.BLACK};
+        float[] positions = new float[]{0.1f,0.5f, 0.9f};
+        LinearGradient gradient = new LinearGradient(0f, h, w, 0f, colors, positions, Shader.TileMode.CLAMP);
+        Paint p = new Paint();
+        p.setDither(true);
+        p.setShader(gradient);
+        c.drawPaint(p);
 
         int margin = Dips.dpToPx(10);
         StaticLayout mTextLayout = new StaticLayout(title, pBold, c.getWidth() - margin * 2, Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);

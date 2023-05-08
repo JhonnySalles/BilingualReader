@@ -15,8 +15,6 @@ import org.emdev.utils.LengthUtils;
 
 import java.util.Queue;
 
-import br.com.ebook.R;
-import br.com.ebook.application.eBookApplication;
 import br.com.ebook.foobnix.android.utils.Dips;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
@@ -183,7 +181,7 @@ public class EventDraw implements IEvent {
         textPaint.setTextSize(Dips.spToPx(16));
         textPaint.setColor(MagicHelper.getTextColor());
 
-        final String text = eBookApplication.context.getString(R.string.text_page) + " " + (page.index.viewIndex + 1);
+        final String text = "";// eBookApplication.context.getString(R.string.text_page) + " " + (page.index.viewIndex + 1);
         canvas.drawText(text, fixedPageBounds.centerX(), fixedPageBounds.centerY(), textPaint);
 
     }

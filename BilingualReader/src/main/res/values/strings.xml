@@ -163,6 +163,7 @@
 
     <string name="reading_book_page_index">Page index</string>
     <string name="reading_book_page_empty">File has no folders</string>
+    <string name="reading_book_open_exception">Could not open selected book</string>
 
     <!-- READER POPUP TITLES -->
     <string name="popup_reading_book_open">Open</string>
@@ -680,6 +681,7 @@
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
     <string name="progress" translatable="false">%d / %d</string>
     <string name="book_chapter" translatable="false">%s • %d / %d</string>
+    <string name="book_page_read" translatable="false">%d / %d (%s)</string>
 
     <!-- COMMON -->
     <string name="text_author">Author</string>

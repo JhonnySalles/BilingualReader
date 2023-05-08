@@ -13,7 +13,6 @@ import br.com.ebook.foobnix.android.utils.MemoryUtils;
 import br.com.ebook.foobnix.pdf.info.ExportSettingsManager;
 import br.com.ebook.foobnix.pdf.info.Urls;
 import br.com.ebook.foobnix.pdf.info.view.DragingPopup;
-import br.com.ebook.foobnix.ui2.AppDB;
 import br.com.ebook.foobnix.android.utils.Dips;
 import br.com.ebook.foobnix.android.utils.Objects;
 import br.com.ebook.foobnix.android.utils.Objects.IgnoreHashCode;
@@ -242,7 +241,7 @@ public class AppState {
     public boolean isOpenLastBook = false;
 
     public boolean isSortAsc = true;
-    public int sortBy = AppDB.SORT_BY.PATH.ordinal();
+    //public int sortBy = AppDB.SORT_BY.PATH.ordinal();
     public int sortByBrowse = BR_SORT_BY_PATH;
     public boolean sortByReverse = false;
 

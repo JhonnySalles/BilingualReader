@@ -172,10 +172,10 @@ class ScannerBook(private val context: Context) {
                 val storageDeletes: MutableMap<String, Book> = HashMap()
 
                 // create list of files available in storage
-                for (c in storage.listBook(library)!!)
+                for (c in storage.listBook(library))
                     storageFiles[c.path] = c
 
-                for (c in storage.listBookDeleted(library)!!)
+                for (c in storage.listBookDeleted(library))
                     storageDeletes[c.name] = c
 
                 var walked = false

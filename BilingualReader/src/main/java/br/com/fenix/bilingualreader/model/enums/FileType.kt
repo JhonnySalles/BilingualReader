@@ -20,7 +20,7 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
             "application/vnd.amazon.mobi8-ebook"
         )
     ),
-    //DJVU(1, arrayOf("djvu"), arrayOf("image/vnd.djvu", "image/djvu", "image/x-djvu")),
+    DJVU(1, arrayOf("djvu"), arrayOf("image/vnd.djvu", "image/djvu", "image/x-djvu")),
     FB2(
         1,
         arrayOf("fb2"),
@@ -40,10 +40,10 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
     AZW3(1, arrayOf("azw3"), arrayOf("application/azw3", "application/x-azw3")),
     HTML(1, arrayOf("html", "htm", "xhtml", "xhtm", "xml"), arrayOf("text/html", "text/xml")),
     DOC(1, arrayOf("doc"), arrayOf("application/msword")),
-    DOCX(1, arrayOf("docx"), arrayOf("application/vnd.openxmlformats-officedocument.wordprocessingml.document")),
+    //DOCX(1, arrayOf("docx"), arrayOf("application/vnd.openxmlformats-officedocument.wordprocessingml.document")),
     OPDS(1, arrayOf("opds"), arrayOf("application/opds", "application/x-opds")),
     TIFF(1, arrayOf("tiff", "tif"), arrayOf("image/tiff")),
-    ODT(1, arrayOf("odt"), arrayOf("application/vnd.oasis.opendocument.text")),
+    //ODT(1, arrayOf("odt"), arrayOf("application/vnd.oasis.opendocument.text")),
     MD(1, arrayOf("md"), arrayOf("text/markdown", "text/x-markdown")),
     MHT(1, arrayOf("mht", "mhtml", "shtml"), arrayOf("message/rfc822")),
 

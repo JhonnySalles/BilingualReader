@@ -63,7 +63,7 @@
             <!-- Title, secondary and supporting text -->
             <TextView
                 android:id="@+id/manga_line_text_title"
-                style="@style/TextNormal.Line.Title"
+                style="@style/TextTitle.Line.Title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/manga_line_title_size"

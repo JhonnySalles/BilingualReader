@@ -92,7 +92,6 @@ import br.com.ebook.foobnix.android.utils.Views;
 import br.com.ebook.foobnix.dao2.FileMeta;
 import br.com.ebook.foobnix.ext.EpubExtractor;
 import br.com.ebook.foobnix.hypen.HyphenPattern;
-import br.com.ebook.foobnix.pdf.info.AppSharedPreferences;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
 import br.com.ebook.foobnix.pdf.info.PageUrl;
 import br.com.ebook.foobnix.pdf.info.TintUtil;
@@ -119,7 +118,6 @@ import br.com.ebook.foobnix.sys.TempHolder;
 import br.com.ebook.foobnix.tts.TTSEngine;
 import br.com.ebook.foobnix.tts.TTSNotification;
 import br.com.ebook.foobnix.tts.TTSService;
-import br.com.ebook.foobnix.ui2.AppDB;
 import br.com.ebook.universalimageloader.core.ImageLoader;
 import br.com.ebook.R;
 import br.com.ebook.foobnix.android.utils.IntegerResponse;
@@ -1594,7 +1592,7 @@ public class DragingDialogs {
 
     public static void addBookmarksLong(final FrameLayout anchor, final DocumentController controller) {
         Vibro.vibrate();
-        List<AppBookmark> objects = AppSharedPreferences.get().getBookmarksByBook(controller.getCurrentBook());
+        /*List<AppBookmark> objects = AppSharedPreferences.get().getBookmarksByBook(controller.getCurrentBook());
         int page = PageUrl.fakeToReal(controller.getCurentPageFirst1());
 
         for (AppBookmark all : objects) {
@@ -1605,10 +1603,9 @@ public class DragingDialogs {
         }
 
         final AppBookmark bookmark = new AppBookmark(controller.getCurrentBook().getPath(), controller.getString(R.string.fast_bookmark), page, controller.getTitle());
-        AppSharedPreferences.get().addBookMark(bookmark);
 
         String TEXT = controller.getString(R.string.fast_bookmark) + " " + TxtUtils.LONG_DASH + " " + controller.getString(R.string.page) + " " + page + "";
-        Toast.makeText(controller.getActivity(), TEXT, Toast.LENGTH_SHORT).show();
+        Toast.makeText(controller.getActivity(), TEXT, Toast.LENGTH_SHORT).show();*/
 
     }
 
@@ -1682,10 +1679,10 @@ public class DragingDialogs {
                         }
 
                         final AppBookmark bookmark = new AppBookmark(controller.getCurrentBook().getPath(), controller.getString(R.string.fast_bookmark), page, controller.getTitle());
-                        AppSharedPreferences.get().addBookMark(bookmark);
+                        //AppSharedPreferences.get().addBookMark(bookmark);
 
                         objects.clear();
-                        objects.addAll(AppSharedPreferences.get().getBookmarksByBook(controller.getCurrentBook()));
+                        //objects.addAll(AppSharedPreferences.get().getBookmarksByBook(controller.getCurrentBook()));
                         bookmarksAdapter.notifyDataSetChanged();
 
                         closeDialog();
@@ -1698,7 +1695,7 @@ public class DragingDialogs {
                 a.findViewById(R.id.addPageBookmark).setOnClickListener(onAddPAge);
 
                 objects.clear();
-                objects.addAll(AppSharedPreferences.get().getBookmarksByBook(controller.getCurrentBook()));
+                //objects.addAll(AppSharedPreferences.get().getBookmarksByBook(controller.getCurrentBook()));
                 bookmarksAdapter.notifyDataSetChanged();
 
                 return a;
@@ -3074,11 +3071,10 @@ public class DragingDialogs {
                                     BookCSS.get().hypenLang = lang;
                                     hypenLang.setText(titleLang);
                                     TxtUtils.underlineTextView(hypenLang);
-                                    FileMeta load = AppDB.get().load(controller.getCurrentBook().getPath());
+                                    /*FileMeta load = AppDB.get().load(controller.getCurrentBook().getPath());
                                     if (load != null) {
                                         load.setLang(lang);
-                                        AppDB.get().update(load);
-                                    }
+                                    }*/
                                     return false;
                                 }
                             });

@@ -937,7 +937,7 @@ public class ExtUtils {
             return;
         }
 
-        final List<AppBookmark> bookmarksByBook = AppSharedPreferences.get().getBookmarksByBook(file);
+        /*final List<AppBookmark> bookmarksByBook = AppSharedPreferences.get().getBookmarksByBook(file);
 
         final Intent intent = new Intent(Intent.ACTION_SEND);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -953,7 +953,7 @@ public class ExtUtils {
             intent.putExtra(Intent.EXTRA_TEXT, result.toString());
         }
 
-        a.startActivity(Intent.createChooser(intent, a.getString(R.string.export_bookmarks)));
+        a.startActivity(Intent.createChooser(intent, a.getString(R.string.export_bookmarks)));*/
     }
 
     public static String determineEncoding(InputStream fis) {

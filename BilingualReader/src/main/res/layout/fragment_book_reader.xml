@@ -11,4 +11,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <ImageView
+        android:id="@+id/reader_book_cover"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:transitionName="transition_manga_cover"
+        android:layout_margin="5dp"
+        android:background="@drawable/book_cover_rounded_background"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:clipToOutline="true"
+        android:src="@mipmap/book_cover_effect"/>
+
 </FrameLayout>

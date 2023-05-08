@@ -68,9 +68,11 @@ class BookLineViewHolder(itemView: View, private val listener: BookCardListener)
         bookFileName.text = book.fileName
         bookFileSize.text = FileUtil.formatSize(book.fileSize)
         bookType.text = book.type.toString()
-        val percent: Float =
-            if (book.bookMark > 0) ((book.bookMark.toFloat() / book.pages) * 100) else 0f
-        bookPagesRead.text = Util.formatDecimal(percent)
+        val percent: Float =if (book.bookMark > 0) ((book.bookMark.toFloat() / book.pages) * 100) else 0f
+        bookPagesRead.text = if (book.bookMark > 0)
+           itemView.context.getString(R.string.book_page_read, book.bookMark, book.pages, Util.formatDecimal(percent))
+        else
+            Util.formatDecimal(percent)
 
         bookLastAccess.text = if (book.lastAccess == null) "" else GeneralConsts.formatterDateTime(
             itemView.context,

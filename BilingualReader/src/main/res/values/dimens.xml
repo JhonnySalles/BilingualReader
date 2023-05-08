@@ -71,8 +71,8 @@
 
     <dimen name="book_line_card_layout_height">100dp</dimen>
     <dimen name="book_line_card_image">70dp</dimen>
-    <dimen name="book_line_title_size">20sp</dimen>
-    <dimen name="book_line_sub_title_size">16sp</dimen>
+    <dimen name="book_line_title_size">16sp</dimen>
+    <dimen name="book_line_sub_title_size">13sp</dimen>
     <dimen name="book_line_content_size">12sp</dimen>
     <dimen name="book_line_favorite">10dp</dimen>
 

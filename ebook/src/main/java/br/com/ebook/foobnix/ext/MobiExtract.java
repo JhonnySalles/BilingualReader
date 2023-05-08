@@ -2,7 +2,7 @@ package br.com.ebook.foobnix.ext;
 
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
-import br.com.ebook.foobnix.libmobi.LibMobi;
+import com.foobnix.libmobi.LibMobi;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.mobi.parser.MobiParser;
 
@@ -31,7 +31,7 @@ public class MobiExtract {
 
     public static FooterNote extract(String inputPath, final String outputDir, String hashCode) throws IOException {
         try {
-            LibMobi.convertToEpub(inputPath, new File(outputDir, hashCode + "").getPath());
+            int sucess = LibMobi.convertToEpub(inputPath, new File(outputDir, hashCode + "").getPath());
             File result = new File(outputDir, hashCode + hashCode + ".epub");
             return new FooterNote(result.getPath(), null);
         } catch (Exception e) {

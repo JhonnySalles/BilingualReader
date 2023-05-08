@@ -20,7 +20,6 @@ import br.com.ebook.R;
 import br.com.ebook.foobnix.pdf.search.activity.HorizontalViewActivity;
 import br.com.ebook.foobnix.sys.ImageExtractor;
 import br.com.ebook.foobnix.tts.TTSActivity;
-import br.com.ebook.foobnix.ui2.AppDB;
 
 import org.ebookdroid.ui.viewer.VerticalViewActivity;
 
@@ -39,7 +38,7 @@ public class RecentUpates {
 
         if (Build.VERSION.SDK_INT >= 25) {
             try {
-                FileMeta recentLast = AppDB.get().getRecentLast();
+                FileMeta recentLast = null;
                 if (recentLast != null) {
                     ShortcutManager shortcutManager = c.getSystemService(ShortcutManager.class);
                     String url = IMG.toUrl(recentLast.getPath(), ImageExtractor.COVER_PAGE, IMG.getImageSize());

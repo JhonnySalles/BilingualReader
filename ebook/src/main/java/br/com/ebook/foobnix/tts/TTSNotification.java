@@ -14,7 +14,6 @@ import org.ebookdroid.ui.viewer.VerticalViewActivity;
 
 import java.io.File;
 
-import br.com.ebook.application.eBookApplication;
 import br.com.ebook.universalimageloader.core.ImageLoader;
 import br.com.ebook.R;
 import br.com.ebook.foobnix.android.utils.LOG;
@@ -23,7 +22,6 @@ import br.com.ebook.foobnix.pdf.info.IMG;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.pdf.search.activity.HorizontalViewActivity;
 import br.com.ebook.foobnix.sys.ImageExtractor;
-import br.com.ebook.foobnix.ui2.AppDB;
 
 public class TTSNotification {
 
@@ -39,7 +37,7 @@ public class TTSNotification {
     static int page1;
 
     public static void show(String bookPath, int page) {
-        Context c = eBookApplication.context;
+        /*Context c = eBookApplication.context;
         bookPath1 = bookPath;
         page1 = page;
         try {
@@ -47,7 +45,7 @@ public class TTSNotification {
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(c);
 
-            FileMeta fileMeta = AppDB.get().getOrCreate(bookPath);
+            FileMeta fileMeta = new FileMeta(bookPath);
 
             Intent intent = new Intent(c, HorizontalViewActivity.class.getSimpleName().equals(AppState.get().lastMode) ? HorizontalViewActivity.class : VerticalViewActivity.class);
             intent.setAction(ACTION_TTS);
@@ -79,12 +77,12 @@ public class TTSNotification {
         } catch (Exception e) {
             LOG.e(e);
             return;
-        }
+        }*/
     }
 
     public static void hideNotification() {
-        NotificationManager nm = (NotificationManager) eBookApplication.context.getSystemService(Context.NOTIFICATION_SERVICE);
-        nm.cancel(NOT_ID);
+        //NotificationManager nm = (NotificationManager) eBookApplication.context.getSystemService(Context.NOTIFICATION_SERVICE);
+        //nm.cancel(NOT_ID);
     }
 
     public static void showLast() {

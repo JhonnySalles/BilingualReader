@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import br.com.ebook.application.eBookApplication;
 import br.com.ebook.foobnix.android.utils.BaseItemLayoutAdapter;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.android.utils.Views;
@@ -127,12 +126,12 @@ public class DialogTranslateFromTo {
     }
 
     public static String getLanuageByCode(String code) {
-        if (eBookApplication.context == null) {
+        /*if (eBookApplication.context == null) {
             return "";
         }
         if (AppState.MY_SYSTEM_LANG.equals(code)) {
             return eBookApplication.context.getString(R.string.system_language);
-        }
+        }*/
         try {
             Locale l = new Locale(code);
             return TxtUtils.firstUppercase(l.getDisplayLanguage(l));

@@ -14,7 +14,6 @@ import android.widget.TextView;
 import androidx.core.view.ViewCompat;
 
 import br.com.ebook.foobnix.android.utils.TxtUtils;
-import br.com.ebook.foobnix.pdf.info.AppSharedPreferences;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppBookmark;
 import br.com.ebook.R;
@@ -65,7 +64,7 @@ public class BookmarksAdapter extends BaseAdapter {
 
             @Override
             public void onClick(View v) {
-                AppSharedPreferences.get().removeBookmark(bookmark);
+                //AppSharedPreferences.get().removeBookmark(bookmark);
                 objects.remove(bookmark);
                 notifyDataSetChanged();
             }

@@ -10,6 +10,7 @@ import br.com.ebook.foobnix.android.utils.Dips;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.ResultResponse;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
+import br.com.ebook.foobnix.dao2.FileMeta;
 import br.com.ebook.foobnix.pdf.CopyAsyncTask;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
 import br.com.ebook.foobnix.pdf.info.PageUrl;
@@ -21,7 +22,6 @@ import br.com.ebook.foobnix.pdf.search.activity.msg.InvalidateMessage;
 import br.com.ebook.foobnix.pdf.search.activity.msg.MessageAutoFit;
 import br.com.ebook.foobnix.pdf.search.activity.msg.MessageCenterHorizontally;
 import br.com.ebook.foobnix.sys.TempHolder;
-import br.com.ebook.foobnix.ui2.AppDB;
 import br.com.ebook.foobnix.ui2.FileMetaCore;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 import br.com.ebook.foobnix.sys.ImageExtractor;
@@ -209,7 +209,7 @@ public abstract class HorizontalModeController extends DocumentController {
         // }
         // LOG.d("total-chars", charsCount);
 
-        AppDB.get().addRecent(bookPath);
+        //AppDB.get().addRecent(bookPath);
         getPageFromUri();
 
         loadOutline(null);
@@ -687,7 +687,7 @@ public abstract class HorizontalModeController extends DocumentController {
 
     public static String getTitle(String path) {
         if (ExtUtils.isTextFomat(path)) {
-            return AppDB.get().getOrCreate(path).getTitle();
+            return new FileMeta(path).getTitle();
         }
         return new File(path).getName();
     }
