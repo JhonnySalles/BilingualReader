@@ -122,6 +122,8 @@
     <string name="config_title_book">Book</string>
     <string name="config_book_library_order">Library order</string>
     <string name="config_book_library_folder">Library folder</string>
+    <string name="config_book_font_normal">Font normal</string>
+    <string name="config_book_font_japanese">Font japanese</string>
 
     <!-- CONFIG LIBRARIES -->
     <string name="menu_libraries_delete_library">Delete Library</string>
@@ -183,10 +185,15 @@
     <string name="popup_reading_font_style_babel_stone_erjian_2" translatable="false">Babel Stone Erjian 2</string>
     <string name="popup_reading_font_style_babel_stone_han" translatable="false">Babel Stone Han</string>
     <string name="popup_reading_font_style_blackadder" translatable="false">Balckadder</string>
+    <string name="popup_reading_font_style_comfortaa" translatable="false">Comfortaa</string>
     <string name="popup_reading_font_style_comic_sans" translatable="false">Comic Sans</string>
+    <string name="popup_reading_font_style_droid_sans" translatable="false">Droid Sans</string>
+    <string name="popup_reading_font_style_droid_serif" translatable="false">Droid Serif</string>
     <string name="popup_reading_font_style_french_script" translatable="false">French script</string>
+    <string name="popup_reading_font_style_open_sans" translatable="false">Open Sans</string>
     <string name="popup_reading_font_style_robots_reborn" translatable="false">Robots reborn</string>
     <string name="popup_reading_font_style_times_new_roman" translatable="false">Times new Roman</string>
+
 
     <!-- READER POPUP LAYOUT -->
     <string name="popup_reading_layout_scrolling_type">Scrolling type</string>

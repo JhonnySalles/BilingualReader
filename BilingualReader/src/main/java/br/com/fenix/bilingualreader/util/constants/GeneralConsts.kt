@@ -124,7 +124,8 @@ class GeneralConsts private constructor() {
             const val BOOK_PAGE_MARGIN = "BOOK_PAGE_MARGIN"
             const val BOOK_PAGE_SPACING = "BOOK_PAGE_SPACING"
             const val BOOK_PAGE_SCROLLING_MODE = "BOOK_PAGE_SCROLLING_MODE"
-            const val BOOK_PAGE_FONT_TYPE = "BOOK_PAGE_FONT_TYPE"
+            const val BOOK_PAGE_FONT_TYPE_NORMAL = "BOOK_PAGE_FONT_TYPE_NORMAL"
+            const val BOOK_PAGE_FONT_TYPE_JAPANESE = "BOOK_PAGE_FONT_TYPE_JAPANESE"
             const val BOOK_PAGE_FONT_SIZE = "BOOK_PAGE_FONT_SIZE"
             const val BOOK_PAGE_FONT_SIZE_DEFAULT = 5f
         }

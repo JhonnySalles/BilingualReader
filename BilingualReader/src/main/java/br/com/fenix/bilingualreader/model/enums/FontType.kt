@@ -13,7 +13,10 @@ enum class FontType(private val font: Int, private val nameFile: String, private
     Blackadder(R.font.blackadder, "blackadder.ttf", R.string.popup_reading_font_style_blackadder,false),
     ComicSans(R.font.comic_sans, "comic_sans.ttf", R.string.popup_reading_font_style_comic_sans,false),
     FrenchScript(R.font.french_script, "french_script.ttf", R.string.popup_reading_font_style_french_script, false),
-    RobotsReborn(R.font.robots_reborn, "robots_reborn.ttf", R.string.popup_reading_font_style_robots_reborn,false);
+    Comfortaa(R.font.comfortaa, "comforta.ttf", R.string.popup_reading_font_style_comfortaa,false),
+    DroidSans(R.font.droid_sans, "droid_sans.ttf", R.string.popup_reading_font_style_droid_sans,false),
+    DroidSerif(R.font.droid_serif, "droid_serif.ttf", R.string.popup_reading_font_style_droid_serif,false),
+    OpenSans(R.font.open_sans, "open_sans.ttf", R.string.popup_reading_font_style_open_sans,false);
 
     open fun getFont() : Int = this.font
     open fun getName() : String = this.nameFile

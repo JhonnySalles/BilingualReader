@@ -120,6 +120,8 @@
     <string name="config_title_book">Book</string>
     <string name="config_book_library_order">Library order</string>
     <string name="config_book_library_folder">Library folder</string>
+    <string name="config_book_font_normal">Font normal</string>
+    <string name="config_book_font_japanese">Font japanese</string>
 
     <!-- CONFIG LIBRARIES -->
     <string name="menu_libraries_delete_library">Delete Library</string>

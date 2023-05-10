@@ -119,7 +119,8 @@
     <string name="config_title_book">Livro</string>
     <string name="config_book_library_order">Ordenação da biblioteca</string>
     <string name="config_book_library_folder">Caminho da biblioteca</string>
-
+    <string name="config_book_font_normal">Fonte normal</string>
+    <string name="config_book_font_japanese">Fonte japonesa</string>
 
     <!-- CONFIG LIBRARIES -->
     <string name="menu_libraries_delete_library">Apagar Biblioteca</string>

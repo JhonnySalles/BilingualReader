@@ -112,11 +112,11 @@ class ConfigFragment : Fragment() {
     private lateinit var mBookLibraryOrder: TextInputLayout
     private lateinit var mBookLibraryOrderAutoComplete: AutoCompleteTextView
 
-    private lateinit var mBookFontType: TwoWayView
+    private lateinit var mBookFontTypeNormal: TwoWayView
+    private lateinit var mBookFontTypeJapanese: TwoWayView
     private lateinit var mBookFontSize: Slider
 
     private var mBookOrderSelect: Order = Order.Name
-    private var mBookFontSelect: FontType = FontType.TimesNewRoman
 
     private lateinit var mBookMapOrder: HashMap<String, Order>
 
@@ -139,7 +139,8 @@ class ConfigFragment : Fragment() {
         mBookLibraryOrderAutoComplete =
             view.findViewById(R.id.config_book_menu_autocomplete_library_order)
 
-        mBookFontType = view.findViewById(R.id.config_book_list_fonts)
+        mBookFontTypeNormal = view.findViewById(R.id.config_book_list_fonts_normal)
+        mBookFontTypeJapanese = view.findViewById(R.id.config_book_list_fonts_japanese)
         mBookFontSize = view.findViewById(R.id.config_book_font_size)
 
         mConfigSystemThemeMode = view.findViewById(R.id.config_system_theme_mode)
@@ -615,11 +616,6 @@ class ConfigFragment : Fragment() {
                 mMangaUseMagnifierType.isChecked
             )
 
-            this.putString(
-                GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE,
-                mBookFontSelect.toString()
-            )
-
             this.putFloat(
                 GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE,
                 mBookFontSize.value
@@ -818,12 +814,6 @@ class ConfigFragment : Fragment() {
                 Themes.ORIGINAL.toString()
             )!!
         )
-        mBookFontSelect = FontType.valueOf(
-            sharedPreferences.getString(
-                GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE,
-                FontType.TimesNewRoman.toString()
-            )!!
-        )
 
         mConfigSystemThemeModeAutoComplete.setText(
             mMangaMapThemeMode.filterValues { it == mConfigSystemThemeModeSelect }.keys.first(),
@@ -929,36 +919,61 @@ class ConfigFragment : Fragment() {
     }
 
     private fun prepareFonts() {
-        val listener = object : FontsListener {
+        val listenerNormal = object : FontsListener {
             override fun onClick(font: Pair<FontType, Boolean>) {
-                mBookFontSelect = font.first
-                saveFont()
-
-                mViewModel.setEnableFont(font.first)
+                saveFont(font.first, false)
+                mViewModel.setEnableFont(font.first, false)
             }
         }
 
-        val font = FontType.valueOf(
+        val fontNormal = FontType.valueOf(
             GeneralConsts.getSharedPreferences(requireContext())
-                .getString(GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE, FontType.TimesNewRoman.toString())!!
+                .getString(GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE_NORMAL, FontType.TimesNewRoman.toString())!!
         )
 
-        mViewModel.loadFonts(font)
-        val lineAdapter = FontsCardAdapter(requireContext(), mViewModel.fonts.value!!, listener)
-        mBookFontType.adapter = lineAdapter
-        mBookFontType.scrollBy(mViewModel.getSelectedFontTypeIndex())
+        mViewModel.loadFontsNormal(fontNormal)
+        val lineAdapterNormal = FontsCardAdapter(requireContext(), mViewModel.fontsNormal.value!!, listenerNormal)
+        mBookFontTypeNormal.adapter = lineAdapterNormal
+        mBookFontTypeNormal.scrollBy(mViewModel.getSelectedFontTypeIndex(false))
 
-        mViewModel.fonts.observe(viewLifecycleOwner) {
-            lineAdapter.updateList(it)
+        mViewModel.fontsNormal.observe(viewLifecycleOwner) {
+            lineAdapterNormal.updateList(it)
+        }
+
+        val listenerJapanese = object : FontsListener {
+            override fun onClick(font: Pair<FontType, Boolean>) {
+                saveFont(font.first, true)
+                mViewModel.setEnableFont(font.first, true)
+            }
+        }
+
+        val fontJapanese = FontType.valueOf(
+            GeneralConsts.getSharedPreferences(requireContext())
+                .getString(GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE_JAPANESE, FontType.BabelStoneErjian1.toString())!!
+        )
+
+        mViewModel.loadFontsJapanese(fontJapanese)
+        val lineAdapterJapanese = FontsCardAdapter(requireContext(), mViewModel.fontsJapanese.value!!, listenerJapanese)
+        mBookFontTypeJapanese.adapter = lineAdapterJapanese
+        mBookFontTypeJapanese.scrollBy(mViewModel.getSelectedFontTypeIndex(true))
+
+        mViewModel.fontsJapanese.observe(viewLifecycleOwner) {
+            lineAdapterJapanese.updateList(it)
         }
     }
 
-    private fun saveFont() {
+    private fun saveFont(font: FontType, isJapanese : Boolean) {
         with(GeneralConsts.getSharedPreferences(requireContext()).edit()) {
-            this.putString(
-                GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE,
-                mBookFontSelect.toString()
-            )
+            if (isJapanese)
+                this.putString(
+                    GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE_JAPANESE,
+                    font.toString()
+                )
+            else
+                this.putString(
+                    GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE_NORMAL,
+                    font.toString()
+                )
 
             this.commit()
         }

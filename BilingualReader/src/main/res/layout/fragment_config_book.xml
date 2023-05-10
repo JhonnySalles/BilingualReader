@@ -95,8 +95,41 @@
             android:layout_marginRight="@dimen/margin"
             android:layout_marginBottom="@dimen/margin_small" />
 
+        <TextView
+            style="@style/TextTitle.Config"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_book_font_normal" />
+
         <org.lucasr.twowayview.TwoWayView
-            android:id="@+id/config_book_list_fonts"
+            android:id="@+id/config_book_list_fonts_normal"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/config_book_font_type_height"
+            android:layout_margin="@dimen/margin_small"
+            android:clipToPadding="false"
+            android:drawSelectorOnTop="false"
+            android:orientation="horizontal"
+            android:scrollbarStyle="outsideOverlay"
+            android:scrollbars="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0" />
+
+        <TextView
+            style="@style/TextTitle.Config"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_book_font_japanese" />
+
+        <org.lucasr.twowayview.TwoWayView
+            android:id="@+id/config_book_list_fonts_japanese"
             android:layout_width="match_parent"
             android:layout_height="@dimen/config_book_font_type_height"
             android:layout_margin="@dimen/margin_small"

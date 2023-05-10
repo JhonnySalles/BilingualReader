@@ -56,7 +56,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     var mWebFontSize = FontUtil.pixelToDips(app.applicationContext, fontSize.value!!)
 
     init {
-        loadPreferences()
+        loadPreferences(false)
     }
 
     fun getDefaultCSS() : String {
@@ -109,7 +109,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         return "<head>$style</head>"
     }
 
-    private fun loadPreferences() {
+    private fun loadPreferences(isJapanese: Boolean) {
         mAlignmentType.value = AlignmentLayoutType.valueOf(
             mPreferences.getString(
                 GeneralConsts.KEYS.READER.BOOK_PAGE_ALIGNMENT,
@@ -138,10 +138,12 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             )!!
         )
 
+        val typeKey = if (isJapanese) GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE_JAPANESE else GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE_NORMAL
+        val typeDefalt = if (isJapanese) FontType.BabelStoneErjian1.toString() else FontType.TimesNewRoman.toString()
         mFontType.value = FontType.valueOf(
             mPreferences.getString(
-                GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE,
-                FontType.TimesNewRoman.toString()
+                typeKey,
+                typeDefalt
             )!!
         )
 
@@ -153,13 +155,13 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         mDefaultCss = generateCSS()
     }
 
-    fun loadDefaultConfiguration() {
-        loadPreferences()
+    fun loadDefaultConfiguration(isJapanese: Boolean) {
+        loadPreferences(isJapanese)
     }
 
-    fun loadBookConfiguration(configuration: BookConfiguration?) {
+    fun loadBookConfiguration(isJapanese: Boolean, configuration: BookConfiguration?) {
         if (configuration == null)
-            loadPreferences()
+            loadPreferences(isJapanese)
         else {
             mAlignmentType.value = configuration.alignment
             mMarginType.value = configuration.margin

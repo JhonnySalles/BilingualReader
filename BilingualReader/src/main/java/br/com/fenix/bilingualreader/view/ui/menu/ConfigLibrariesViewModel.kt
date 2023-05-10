@@ -21,8 +21,11 @@ class ConfigLibrariesViewModel(application: Application) : AndroidViewModel(appl
     private var mListThemes: MutableLiveData<MutableList<Pair<Themes, Boolean>>> = MutableLiveData(arrayListOf())
     val themes: LiveData<MutableList<Pair<Themes, Boolean>>> = mListThemes
 
-    private var mListFonts: MutableLiveData<MutableList<Pair<FontType, Boolean>>> = MutableLiveData(arrayListOf())
-    val fonts: LiveData<MutableList<Pair<FontType, Boolean>>> = mListFonts
+    private var mListFontsNormal: MutableLiveData<MutableList<Pair<FontType, Boolean>>> = MutableLiveData(arrayListOf())
+    val fontsNormal: LiveData<MutableList<Pair<FontType, Boolean>>> = mListFontsNormal
+
+    private var mListFontsJapanese: MutableLiveData<MutableList<Pair<FontType, Boolean>>> = MutableLiveData(arrayListOf())
+    val fontsJapanese: LiveData<MutableList<Pair<FontType, Boolean>>> = mListFontsJapanese
 
 
     fun newLibrary(library: Library) {
@@ -84,12 +87,16 @@ class ConfigLibrariesViewModel(application: Application) : AndroidViewModel(appl
         return if (index == -1) 0 else index
     }
 
-    fun loadFonts(initial: FontType = FontType.TimesNewRoman) {
-        mListFonts.value = FontType.values().map { Pair(it, it == initial) }.toMutableList()
+    fun loadFontsNormal(initial: FontType = FontType.TimesNewRoman) {
+        mListFontsNormal.value = FontType.values().filter { !it.isJapanese() }.map { Pair(it, it == initial) }.toMutableList()
     }
 
-    fun getSelectedFontTypeIndex(): Int  {
-        val index = mListFonts.value?.indexOfFirst { it.second } ?: 0
+    fun loadFontsJapanese(initial: FontType = FontType.BabelStoneHan) {
+        mListFontsJapanese.value = FontType.values().filter { it.isJapanese() }.map { Pair(it, it == initial) }.toMutableList()
+    }
+
+    fun getSelectedFontTypeIndex(isJapanese: Boolean): Int  {
+        val index = if (isJapanese) mListFontsJapanese.value?.indexOfFirst { it.second } ?: 0 else mListFontsNormal.value?.indexOfFirst { it.second } ?: 0
         return if (index == -1) 0 else index
     }
 
@@ -113,9 +120,14 @@ class ConfigLibrariesViewModel(application: Application) : AndroidViewModel(appl
             mListThemes.value = mListThemes.value!!.map { Pair(it.first, it.first == theme) }.toMutableList()
     }
 
-    fun setEnableFont(font: FontType) {
-        if (mListFonts.value != null)
-            mListFonts.value = mListFonts.value!!.map { Pair(it.first, it.first == font) }.toMutableList()
+    fun setEnableFont(font: FontType, isJapanese : Boolean) {
+        if (isJapanese) {
+            if (mListFontsJapanese.value != null)
+                mListFontsJapanese.value = mListFontsJapanese.value!!.map { Pair(it.first, it.first == font) }.toMutableList()
+        } else {
+            if (mListFontsNormal.value != null)
+                mListFontsNormal.value = mListFontsNormal.value!!.map { Pair(it.first, it.first == font) }.toMutableList()
+        }
     }
 
     fun getDefault(type: Type) : String {
