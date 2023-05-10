@@ -5,8 +5,7 @@ import android.graphics.Color;
 
 import androidx.collection.LruCache;
 
-import org.ebookdroid.common.settings.AppSettings;
-import org.emdev.utils.LengthUtils;
+import org.ebookdroid.common.LengthUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -37,7 +36,7 @@ public class BitmapManager {
 
     private static AtomicLong generation = new AtomicLong();
 
-    static int partSize = 1 << AppSettings.getInstance().bitmapSize;
+    static int partSize = 1 << 10;// 6-64,7-128,8-256,9-512,10-1024
 
     public static BitmapRef getBitmap(final String name, final int width, final int height, final Bitmap.Config config) {
         final Iterator<BitmapRef> it = pool.iterator();

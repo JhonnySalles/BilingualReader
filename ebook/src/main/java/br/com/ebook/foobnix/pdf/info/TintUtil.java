@@ -270,14 +270,4 @@ public class TintUtil {
     public static int starColorEmpty = Color.parseColor("#eeFFFFFF");
     public static int starColorFull = Color.parseColor("#eeFFFF00");
 
-    public static void drawStar(final ImageView imageView, boolean isStar) {
-        if (isStar) {
-            imageView.setImageResource(R.drawable.star_1);
-            TintUtil.setTintImageWithAlpha(imageView, TintUtil.color);
-        } else {
-            imageView.setImageResource(R.drawable.star_2);
-            TintUtil.setTintImageWithAlpha(imageView, TintUtil.color);
-        }
-    }
-
 }

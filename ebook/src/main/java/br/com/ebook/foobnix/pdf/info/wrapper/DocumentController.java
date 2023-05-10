@@ -8,7 +8,6 @@ import android.graphics.PointF;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ListView;
@@ -20,18 +19,16 @@ import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.ResultResponse;
 import br.com.ebook.foobnix.android.utils.Safe;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
-import br.com.ebook.foobnix.dao2.FileMeta;
+import br.com.ebook.foobnix.entity.FileMeta;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
 import br.com.ebook.foobnix.pdf.info.IMG;
 import br.com.ebook.foobnix.pdf.info.OutlineHelper;
 import br.com.ebook.foobnix.pdf.info.PageUrl;
 import br.com.ebook.foobnix.pdf.info.model.AnnotationType;
 import br.com.ebook.foobnix.pdf.info.model.OutlineLinkWrapper;
-import br.com.ebook.foobnix.pdf.info.view.AlertDialogs;
 import br.com.ebook.foobnix.sys.ImageExtractor;
 import br.com.ebook.foobnix.tts.TTSEngine;
 
-import org.ebookdroid.core.codec.Annotation;
 import org.ebookdroid.core.codec.PageLink;
 
 import java.io.File;
@@ -51,20 +48,8 @@ public abstract class DocumentController {
             ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT//
     );
 
-    public final static List<Integer> orientationTexts = Arrays.asList(//
-            R.string.automatic, //
-            R.string.landscape, //
-            R.string.portrait, //
-            R.string.landscape_180, //
-            R.string.portrait_180////
-    );
-
-    public static int getRotationText() {
-        return orientationTexts.get(orientationIds.indexOf(AppState.get().orientation));
-    }
 
     protected final Activity activity;
-    private DocumentWrapperUI ui;
     public Handler handler;
 
     public long readTimeStart;
@@ -158,13 +143,13 @@ public abstract class DocumentController {
     public void checkReadingTimer() {
         long timeout = System.currentTimeMillis() - readTimeStart;
         if (AppState.get().remindRestTime != -1 && timeout >= TimeUnit.MINUTES.toMillis(AppState.get().remindRestTime)) {
-            AlertDialogs.showOkDialog(activity, getString(R.string.remind_msg), new Runnable() {
+            /*AlertDialogs.showOkDialog(activity, getString(R.string.remind_msg), new Runnable() {
 
                 @Override
                 public void run() {
                     readTimeStart = System.currentTimeMillis();
                 }
-            });
+            });*/
         }
     }
 
@@ -301,15 +286,6 @@ public abstract class DocumentController {
         }
     }
 
-    private static void applyTheme(final Activity a) {
-        if (AppState.get().isWhiteTheme) {
-            a.setTheme(R.style.StyledIndicatorsWhite);
-        } else {
-            a.setTheme(R.style.StyledIndicatorsBlack);
-        }
-    }
-
-
     public void restartActivity() {
 
         IMG.clearMemoryCache();
@@ -331,104 +307,9 @@ public abstract class DocumentController {
         AppState.get().save(activity);
     }
 
-    public static void doRotation(final Activity a) {
-        try {
-            a.setRequestedOrientation(AppState.get().orientation);
-        } catch (Exception e) {
-            LOG.e(e);
-        }
-    }
-
-    public void onLeftPress() {
-        if (AppState.get().tapZoneLeft == AppState.TAP_DO_NOTHING) {
-            return;
-        }
-        if (AppState.get().tapZoneLeft == AppState.TAP_PREV_PAGE) {
-            ui.prevChose(false);
-        } else {
-            ui.nextChose(false);
-        }
-    }
-
-    public void onTopPress() {
-        if (AppState.get().tapZoneTop == AppState.TAP_DO_NOTHING) {
-            return;
-        }
-        if (AppState.get().tapZoneTop == AppState.TAP_PREV_PAGE) {
-            ui.prevChose(false);
-        } else {
-            ui.nextChose(false);
-        }
-    }
-
-    public void onBottomPress() {
-        if (AppState.get().tapZoneBottom == AppState.TAP_DO_NOTHING) {
-            return;
-        }
-        if (AppState.get().tapZoneBottom == AppState.TAP_NEXT_PAGE) {
-            ui.nextChose(false);
-        } else {
-            ui.prevChose(false);
-        }
-    }
-
-    public void onRightPress() {
-        if (AppState.get().tapZoneRight == AppState.TAP_DO_NOTHING) {
-            return;
-        }
-        if (AppState.get().tapZoneRight == AppState.TAP_NEXT_PAGE) {
-            ui.nextChose(false);
-        } else {
-            ui.prevChose(false);
-        }
-    }
-
-    public void onLeftPressAnimate() {
-        ui.prevChose(true);
-    }
-
-    public void onRightPressAnimate() {
-        ui.nextChose(true);
-    }
-
-    public void showAnnotation(Annotation annotation) {
-        Toast.makeText(activity, "" + annotation.text, Toast.LENGTH_SHORT).show();
-    }
-
-    public void onSingleTap() {
-        ui.onSingleTap();
-    }
-
-    public void onDoubleTap(int x, int y) {
-        ui.doDoubleTap(x, y);
-    }
-
     public abstract String getTextForPage(int page);
 
     public abstract List<PageLink> getLinksForPage(int page);
-
-    public void onAnnotationTap(long pageHander, int page, int index) {
-        deleteAnnotation(pageHander, page, index);
-        showEditDialogIfNeed();
-        saveAnnotationsToFile();
-    }
-
-    public void showEditDialogIfNeed() {
-        ui.showEditDialogIfNeed();
-    }
-
-    public void onLongPress(MotionEvent ev) {
-        ui.onLongPress(ev);
-    }
-
-    public boolean closeFooterNotesDialog() {
-        if (ui != null && ui.showFootNotes != null && ui.showFootNotes.isVisible()) {
-            ui.showFootNotes.closeDialog();
-            return true;
-        }
-        return false;
-    }
-
     public abstract void doSearch(String text, ResultResponse<Integer> result);
 
     public Activity getActivity() {
@@ -437,14 +318,6 @@ public abstract class DocumentController {
 
     public void toast(final String text) {
         Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
-    }
-
-    public DocumentWrapperUI getUi() {
-        return ui;
-    }
-
-    public void setUi(final DocumentWrapperUI ui) {
-        this.ui = ui;
     }
 
     public boolean showContent(final ListView contentList) {

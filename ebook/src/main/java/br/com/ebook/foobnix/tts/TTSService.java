@@ -18,14 +18,11 @@ import android.view.KeyEvent;
 
 import androidx.media.session.MediaButtonReceiver;
 
-import org.ebookdroid.common.settings.SettingsManager;
-import org.ebookdroid.common.settings.books.BookSettings;
 import org.ebookdroid.core.codec.CodecDocument;
 import org.ebookdroid.core.codec.CodecPage;
 import org.greenrobot.eventbus.EventBus;
 
 import br.com.ebook.foobnix.android.utils.TxtUtils;
-import br.com.ebook.R;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.Vibro;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
@@ -319,8 +316,6 @@ public class TTSService extends Service {
                         }
 
                         playPage(secondPart, AppState.get().lastBookPage + 1, null);
-                        SettingsManager.updateTempPage(AppState.get().lastBookPath, AppState.get().lastBookPage + 1);
-
                     }
                 });
             } else {
@@ -335,8 +330,6 @@ public class TTSService extends Service {
                             return;
                         }
                         playPage(secondPart, AppState.get().lastBookPage + 1, null);
-                        SettingsManager.updateTempPage(AppState.get().lastBookPath, AppState.get().lastBookPage + 1);
-
                     }
 
                 });
@@ -352,16 +345,6 @@ public class TTSService extends Service {
     }
 
     public void savePage() {
-        AppState.get().save(getApplicationContext());
-
-        try {
-            BookSettings bs = SettingsManager.getBookSettings(AppState.get().lastBookPath);
-            bs.currentPageChanged(AppState.get().lastBookPage);
-            bs.save();
-            LOG.d(TAG, "currentPageChanged ", AppState.get().lastBookPage, AppState.get().lastBookPath);
-        } catch (Exception e) {
-            LOG.e(e);
-        }
 
     }
 

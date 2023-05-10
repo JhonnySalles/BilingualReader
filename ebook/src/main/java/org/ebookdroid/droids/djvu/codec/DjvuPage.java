@@ -6,13 +6,12 @@ import java.util.List;
 
 import org.ebookdroid.common.bitmaps.BitmapManager;
 import org.ebookdroid.common.bitmaps.BitmapRef;
-import org.ebookdroid.common.settings.AppSettings;
 import org.ebookdroid.core.codec.AbstractCodecPage;
 import org.ebookdroid.core.codec.Annotation;
 import org.ebookdroid.core.codec.PageLink;
 import org.ebookdroid.core.codec.PageTextBox;
 import org.ebookdroid.droids.mupdf.codec.TextWord;
-import org.emdev.utils.LengthUtils;
+import org.ebookdroid.common.LengthUtils;
 
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.pdf.info.model.AnnotationType;
@@ -78,7 +77,7 @@ public class DjvuPage extends AbstractCodecPage {
     @Override
     public BitmapRef renderBitmap(final int width, final int height, final RectF pageSliceBounds) {
         LOG.d("Render DJVU Page", width, height, pageSliceBounds);
-        final int renderMode = AppSettings.getInstance().djvuRenderingMode;
+        final int renderMode = 0;// 0-color,1-black,2 color only, 3 mask, 4 backgroud, 5 foreground
         BitmapRef bmp = null;
         if (width > 0 && height > 0) {
             bmp = BitmapManager.getBitmap("Djvu page", width, height, Bitmap.Config.RGB_565);
@@ -201,7 +200,6 @@ public class DjvuPage extends AbstractCodecPage {
             final float height = getHeight();
             for (final PageTextBox ptb : list) {
                 normalizeTextBox(ptb, width, height);
-                // System.out.println("" + ptb);
             }
         }
         return list;

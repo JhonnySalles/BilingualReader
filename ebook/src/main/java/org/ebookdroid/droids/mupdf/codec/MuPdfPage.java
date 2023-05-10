@@ -22,8 +22,8 @@ import org.ebookdroid.core.codec.AbstractCodecPage;
 import org.ebookdroid.core.codec.Annotation;
 import org.ebookdroid.core.codec.PageLink;
 import org.ebookdroid.core.codec.PageTextBox;
-import org.emdev.utils.LengthUtils;
-import org.emdev.utils.MatrixUtils;
+import org.ebookdroid.common.LengthUtils;
+import org.ebookdroid.common.MatrixUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;

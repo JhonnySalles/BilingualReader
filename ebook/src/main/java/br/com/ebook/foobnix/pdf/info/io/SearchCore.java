@@ -1,11 +1,10 @@
 package br.com.ebook.foobnix.pdf.info.io;
 
 import br.com.ebook.foobnix.android.utils.LOG;
-import br.com.ebook.foobnix.dao2.FileMeta;
+import br.com.ebook.foobnix.entity.FileMeta;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
-import br.com.ebook.foobnix.ui2.FileMetaCore;
-import br.com.ebook.foobnix.ui2.adapter.FileMetaAdapter;
+import br.com.ebook.foobnix.entity.FileMetaCore;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -109,7 +108,7 @@ public class SearchCore {
             FileMeta meta = new FileMeta(it.getPath());
             FileMetaCore.get().upadteBasicMeta(meta, it);
             if (it.isDirectory()) {
-                meta.setCusType(FileMetaAdapter.DISPLAY_TYPE_DIRECTORY);
+                meta.setCusType(3); //FileMetaAdapter.DISPLAY_TYPE_DIRECTORY);
             }
             files.add(meta);
         }

@@ -136,7 +136,7 @@ public class TTSEngine {
             dirFolder.mkdirs();
         }
         if (!dirFolder.exists()) {
-            info.onResultRecive(controller.getActivity().getString(R.string.file_not_found) + " " + dirFolder.getPath());
+            //info.onResultRecive(controller.getActivity().getString(R.string.file_not_found) + " " + dirFolder.getPath());
             return;
         }
         CacheZipUtils.removeFiles(dirFolder.listFiles(new FileFilter() {
@@ -155,7 +155,7 @@ public class TTSEngine {
 
         if (page >= controller.getPageCount() || !TempHolder.isRecordTTS) {
             LOG.d("speakToFile finish", page, controller.getPageCount());
-            info.onResultRecive((controller.getActivity().getString(R.string.success)));
+            //info.onResultRecive((controller.getActivity().getString(R.string.success)));
             return;
         }
 

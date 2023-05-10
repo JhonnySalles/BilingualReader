@@ -74,20 +74,11 @@ public class CacheZipUtils {
     public static File ATTACHMENTS_CACHE_DIR;
     public static final Lock cacheLock = new ReentrantLock();
 
-    public static void init(Context c) {
-        File externalCacheDir = c.getExternalCacheDir();
-        if (externalCacheDir == null) {
-            externalCacheDir = c.getCacheDir();
-        }
-        if (externalCacheDir == null) {
-            externalCacheDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        }
-        CacheDir.parent = externalCacheDir;
-
-        CACHE_BOOK_DIR = new File(externalCacheDir, "Book");
-        CACHE_UN_ZIP_DIR = new File(externalCacheDir, "UnZip");
-        ATTACHMENTS_CACHE_DIR = new File(externalCacheDir, "Attachments");
-        CACHE_WEB = new File(externalCacheDir, "WEB");
+    public static void init(Context c, File dir) {
+        CACHE_BOOK_DIR = new File(dir, "Book");
+        CACHE_UN_ZIP_DIR = new File(dir, "UnZip");
+        ATTACHMENTS_CACHE_DIR = new File(dir, "Attachments");
+        CACHE_WEB = new File(dir, "Web");
 
         CacheZipUtils.createAllCacheDirs();
         CacheDir.createCacheDirs();

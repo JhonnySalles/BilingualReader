@@ -1,12 +1,10 @@
 package org.ebookdroid.core.codec;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.ebookdroid.droids.mupdf.codec.exceptions.MuPdfPasswordException;
 import org.ebookdroid.droids.mupdf.codec.exceptions.MuPdfPasswordRequiredException;
-import org.ebookdroid.ui.viewer.VerticalViewActivity;
 
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.ext.CacheZipUtils;
@@ -170,17 +168,5 @@ public abstract class AbstractCodecContext implements CodecContext {
     @Override
     public Bitmap.Config getBitmapConfig() {
         return Bitmap.Config.RGB_565;
-    }
-
-    private static int getDensityDPI() {
-        if (densityDPI == null) {
-            try {
-                final Field f = VerticalViewActivity.DM.getClass().getDeclaredField("densityDpi");
-                densityDPI = ((Integer) f.get(VerticalViewActivity.DM));
-            } catch (final Throwable ex) {
-                densityDPI = Integer.valueOf(120);
-            }
-        }
-        return densityDPI.intValue();
     }
 }

@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.ResultResponse;
-import br.com.ebook.foobnix.dao2.FileMeta;
+import br.com.ebook.foobnix.entity.FileMeta;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 

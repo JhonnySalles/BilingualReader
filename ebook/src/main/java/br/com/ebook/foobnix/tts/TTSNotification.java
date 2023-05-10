@@ -1,26 +1,9 @@
 package br.com.ebook.foobnix.tts;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
-
-import androidx.core.app.NotificationCompat;
-
-import org.ebookdroid.ui.viewer.VerticalViewActivity;
-
-import java.io.File;
 
 import br.com.ebook.universalimageloader.core.ImageLoader;
-import br.com.ebook.R;
-import br.com.ebook.foobnix.android.utils.LOG;
-import br.com.ebook.foobnix.dao2.FileMeta;
 import br.com.ebook.foobnix.pdf.info.IMG;
-import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
-import br.com.ebook.foobnix.pdf.search.activity.HorizontalViewActivity;
 import br.com.ebook.foobnix.sys.ImageExtractor;
 
 public class TTSNotification {

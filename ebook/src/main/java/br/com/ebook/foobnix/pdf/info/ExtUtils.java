@@ -27,7 +27,6 @@ import androidx.core.content.FileProvider;
 
 import org.ebookdroid.BookType;
 import org.ebookdroid.common.cache.CacheManager;
-import org.ebookdroid.ui.viewer.VerticalViewActivity;
 import org.mozilla.universalchardet.UniversalDetector;
 
 import java.io.File;
@@ -48,7 +47,6 @@ import java.util.concurrent.Executors;
 
 import br.com.ebook.foobnix.android.utils.Safe;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
-import br.com.ebook.foobnix.android.utils.Views;
 import br.com.ebook.foobnix.ext.CacheZipUtils;
 import br.com.ebook.universalimageloader.core.ImageLoader;
 import br.com.ebook.R;
@@ -56,9 +54,7 @@ import br.com.ebook.foobnix.android.utils.Apps;
 import br.com.ebook.foobnix.android.utils.Dips;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;
-import br.com.ebook.foobnix.pdf.info.wrapper.AppBookmark;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
-import br.com.ebook.foobnix.pdf.search.activity.HorizontalViewActivity;
 
 public class ExtUtils {
 
@@ -434,7 +430,7 @@ public class ExtUtils {
             return true;
         }
         if (c != null) {
-            Toast.makeText(c, c.getString(R.string.file_not_found) + " " + file.getPath(), Toast.LENGTH_LONG).show();
+            Toast.makeText(c, "Arquivo não encontrado" + " " + file.getPath(), Toast.LENGTH_LONG).show();
         }
         return false;
 
@@ -530,7 +526,7 @@ public class ExtUtils {
             return true;
         }
 
-        View view = LayoutInflater.from(c).inflate(R.layout.choose_mode_dialog, null, false);
+        /*View view = LayoutInflater.from(c).inflate(R.layout.choose_mode_dialog, null, false);
 
         final TextView vertical = (TextView) view.findViewById(R.id.vertical);
         final TextView horizontal = (TextView) view.findViewById(R.id.horizontal);
@@ -681,7 +677,7 @@ public class ExtUtils {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 AppState.get().isRememberMode = isChecked;
             }
-        });
+        });*/
 
         return true;
 
@@ -713,7 +709,7 @@ public class ExtUtils {
 
     public static void showDocumentInner(final Context c, final Uri uri, final int page) {
         if (!isValidFile(uri)) {
-            Toast.makeText(c, R.string.file_not_found, Toast.LENGTH_LONG).show();
+            Toast.makeText(c, "Arquivo não encontrado", Toast.LENGTH_LONG).show();
             return;
         }
         LOG.d("showDocument", uri.getPath());
@@ -723,38 +719,17 @@ public class ExtUtils {
             return;
         }
 
-        final Intent intent = new Intent(c, VerticalViewActivity.class);
-        intent.setData(uri);
-
-        if (page > 0) {
-            intent.putExtra("page", page);
-        }
-
-        c.startActivity(intent);
-        // FileMetaDB.get().addRecent(uri.getPath());
     }
 
     private static void openHorizontalView(final Context c, final File file, final int page) {
         if (file == null) {
-            Toast.makeText(c, R.string.file_not_found, Toast.LENGTH_LONG).show();
+            Toast.makeText(c, "Arquivo não encontrado", Toast.LENGTH_LONG).show();
             return;
         }
         if (!isValidFile(file.getPath())) {
-            Toast.makeText(c, R.string.file_not_found, Toast.LENGTH_LONG).show();
+            Toast.makeText(c, "Arquivo não encontrado", Toast.LENGTH_LONG).show();
             return;
         }
-
-        final Intent intent = new Intent(c, HorizontalViewActivity.class);
-        intent.setData(Uri.fromFile(file));
-
-        if (page > 0) {
-            intent.putExtra("page", page);
-        }
-        c.startActivity(intent);
-
-        // FileMetaDB.get().addRecent(file.getPath());
-
-        return;
 
     }
 
@@ -815,7 +790,7 @@ public class ExtUtils {
             targetedOpenIntents.add(targetedOpenIntent);
         }
         Intent remove = targetedOpenIntents.remove(targetedOpenIntents.size() - 1);
-        Intent createChooser = Intent.createChooser(remove, context.getString(R.string.select));
+        Intent createChooser = Intent.createChooser(remove, "Selecione");
         Intent chooserIntent = createChooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetedOpenIntents.toArray(new Parcelable[]{}));
 
         return chooserIntent;
@@ -849,29 +824,6 @@ public class ExtUtils {
         return uriForFile;
     }
 
-    public static void sendFileTo(final Activity a, final File file) {
-        if (!isValidFile(file)) {
-            Toast.makeText(a, R.string.file_not_found, Toast.LENGTH_LONG).show();
-            return;
-        }
-        try {
-            final Intent intent = new Intent(Intent.ACTION_SEND);
-
-            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{""});
-            intent.setType(getMimeType(file));
-            intent.putExtra(Intent.EXTRA_STREAM, getUriProvider(a, file));
-            intent.putExtra(Intent.EXTRA_SUBJECT, "");
-            intent.putExtra(Intent.EXTRA_TEXT, "");
-
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            a.startActivity(Intent.createChooser(intent, a.getString(R.string.send_file_to)));
-        } catch (Exception e) {
-            LOG.e(e);
-            Toast.makeText(a, "" + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-    }
-
     public static String getMimeType(File file) {
         String mime = "";
         try {
@@ -890,70 +842,6 @@ public class ExtUtils {
         }
         LOG.d("getMimeType", mime);
         return mime;
-    }
-
-    public static void sharePage(final Activity a, final File file, int page, String pageUrl) {
-        try {
-            if (AppState.get().fileToDelete != null) {
-                new File(AppState.get().fileToDelete).delete();
-            }
-
-            if (TxtUtils.isEmpty(pageUrl)) {
-                pageUrl = IMG.toUrlWithContext(file.getPath(), page, (int) (Dips.screenWidth() * 1.5));
-            }
-
-            Bitmap imageBitmap = ImageLoader.getInstance().loadImageSync(pageUrl, IMG.ExportOptions);
-
-            String title = file.getName() + "." + (page + 1) + ".jpg";
-
-            File oFile = new File(CacheZipUtils.CACHE_UN_ZIP_DIR, title);
-            oFile.getParentFile().mkdirs();
-            String pathofBmp = oFile.getPath();
-
-            FileOutputStream out = new FileOutputStream(oFile);
-            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            out.close();
-
-            AppState.get().fileToDelete = pathofBmp;
-            AppState.get().save(a);
-
-            Intent shareIntent = new Intent();
-            shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            shareIntent.putExtra(Intent.EXTRA_STREAM, getUriProvider(a, oFile));
-            shareIntent.setType("image/jpeg");
-            a.startActivity(Intent.createChooser(shareIntent, a.getString(R.string.send_snapshot_of_the_page)));
-
-        } catch (Exception e) {
-            Toast.makeText(a, R.string.msg_unexpected_error, Toast.LENGTH_LONG).show();
-            LOG.e(e);
-        }
-    }
-
-    public static void sendBookmarksTo(final Activity a, final File file) {
-        if (!isValidFile(file)) {
-            Toast.makeText(a, R.string.file_not_found, Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        /*final List<AppBookmark> bookmarksByBook = AppSharedPreferences.get().getBookmarksByBook(file);
-
-        final Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setType("text/plain");
-
-        if (bookmarksByBook != null && !bookmarksByBook.isEmpty()) {
-            final StringBuilder result = new StringBuilder();
-            result.append(a.getString(R.string.bookmarks) + "\n\n");
-            result.append(file.getName() + "\n");
-            for (final AppBookmark book : bookmarksByBook) {
-                result.append(String.format("%s. %s \n", book.getPage(), book.getText()));
-            }
-            intent.putExtra(Intent.EXTRA_TEXT, result.toString());
-        }
-
-        a.startActivity(Intent.createChooser(intent, a.getString(R.string.export_bookmarks)));*/
     }
 
     public static String determineEncoding(InputStream fis) {

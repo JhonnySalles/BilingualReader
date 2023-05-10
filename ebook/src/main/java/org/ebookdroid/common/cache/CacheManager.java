@@ -2,12 +2,10 @@ package org.ebookdroid.common.cache;
 
 import android.app.Activity;
 import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
-import android.provider.OpenableColumns;
 
 import org.ebookdroid.BookType;
-import org.emdev.utils.StringUtils;
+import org.ebookdroid.common.StringUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;

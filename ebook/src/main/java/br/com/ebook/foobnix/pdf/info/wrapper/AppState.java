@@ -12,7 +12,6 @@ import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.MemoryUtils;
 import br.com.ebook.foobnix.pdf.info.ExportSettingsManager;
 import br.com.ebook.foobnix.pdf.info.Urls;
-import br.com.ebook.foobnix.pdf.info.view.DragingPopup;
 import br.com.ebook.foobnix.android.utils.Dips;
 import br.com.ebook.foobnix.android.utils.Objects;
 import br.com.ebook.foobnix.android.utils.Objects.IgnoreHashCode;
@@ -546,8 +545,6 @@ public class AppState {
     private boolean isLoaded = false;
 
     public void defaults(Context c) {
-        musicText = c.getString(R.string.musician);
-
         if (Dips.isEInk(c)) {
             AppState.get().isInkMode = true;
             AppState.get().isDayNotInvert = true;
@@ -566,13 +563,10 @@ public class AppState {
                 AppState.get().isInkMode = Dips.isEInk(a);
                 AppState.get().bolderTextOnImage = Dips.isEInk(a);
                 AppState.get().isEnableBC = Dips.isEInk(a);
-                nameVerticalMode = a.getString(R.string.mode_vertical);
-                nameHorizontalMode = a.getString(R.string.mode_horizontally);
-                nameMusicianMode = a.getString(R.string.mode_musician);
                 defaults(a);
                 loadIn(a);
                 BookCSS.get().load(a);
-                DragingPopup.loadCache(a);
+                //DragingPopup.loadCache(a);
                 PasswordState.get().load(a);
                 LOG.d("AppState Load lasta", lastClosedActivity);
             } else {
@@ -619,7 +613,7 @@ public class AppState {
         try {
             saveIn(a);
             BookCSS.get().save(a);
-            DragingPopup.saveCache(a);
+            //DragingPopup.saveCache(a);
             PasswordState.get().save(a);
         } catch (Exception e) {
             LOG.e(e);

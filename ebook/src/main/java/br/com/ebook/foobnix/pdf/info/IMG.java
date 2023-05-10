@@ -158,9 +158,6 @@ public class IMG {
             .build();//
 
     public static DisplayImageOptions displayOPDSOptions = new DisplayImageOptions.Builder() //
-            .showImageOnFail(R.drawable.web)//
-            .showImageForEmptyUri(R.drawable.web)//
-            .showImageOnFail(R.drawable.web)//
             .cacheInMemory(true)//
             .cacheOnDisk(true)//
             .considerExifParams(false)//

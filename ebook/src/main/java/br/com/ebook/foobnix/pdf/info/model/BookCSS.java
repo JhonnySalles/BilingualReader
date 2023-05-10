@@ -7,7 +7,7 @@ import android.graphics.Typeface;
 
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
-import br.com.ebook.foobnix.dao2.FileMeta;
+import br.com.ebook.foobnix.entity.FileMeta;
 import br.com.ebook.foobnix.pdf.info.ExportSettingsManager;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
 import br.com.ebook.foobnix.pdf.info.FontExtractor;

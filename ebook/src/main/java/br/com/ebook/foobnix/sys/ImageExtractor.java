@@ -20,7 +20,6 @@ import org.ebookdroid.core.codec.CodecDocument;
 import org.ebookdroid.core.codec.CodecPage;
 import org.ebookdroid.core.codec.CodecPageInfo;
 import org.ebookdroid.core.crop.PageCropper;
-import org.ebookdroid.droids.mupdf.codec.TextWord;
 import org.ebookdroid.droids.mupdf.codec.exceptions.MuPdfPasswordException;
 
 import java.io.ByteArrayInputStream;
@@ -35,7 +34,7 @@ import br.com.ebook.foobnix.android.utils.Dips;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.Safe;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
-import br.com.ebook.foobnix.dao2.FileMeta;
+import br.com.ebook.foobnix.entity.FileMeta;
 import br.com.ebook.foobnix.ext.CacheZipUtils;
 import br.com.ebook.foobnix.ext.CbzCbrExtractor;
 import br.com.ebook.foobnix.ext.EbookMeta;
@@ -45,11 +44,9 @@ import br.com.ebook.foobnix.ext.MobiExtract;
 import br.com.ebook.foobnix.ext.RtfExtract;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
 import br.com.ebook.foobnix.pdf.info.PageUrl;
-import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
-import br.com.ebook.foobnix.pdf.search.activity.PageImageState;
-import br.com.ebook.foobnix.ui2.FileMetaCore;
+import br.com.ebook.foobnix.entity.FileMetaCore;
 import br.com.ebook.universalimageloader.core.download.BaseImageDownloader;
 import br.com.ebook.universalimageloader.core.download.ImageDownloader;
 import br.com.ebook.foobnix.pdf.info.IMG;
@@ -70,13 +67,9 @@ public class ImageExtractor implements ImageDownloader {
     public static SharedPreferences sp;
 
     public static synchronized ImageExtractor getInstance(final Context c) {
-        if (instance == null) {
+        if (instance == null)
             instance = new ImageExtractor(c);
-            ExtUtils.init(c);
-            IMG.init(c);
-            CacheZipUtils.init(c);
-            BookCSS.get().load(c);
-        }
+
         sp = c.getSharedPreferences("Errors", Context.MODE_PRIVATE);
         return instance;
     }
@@ -276,11 +269,6 @@ public class ImageExtractor implements ImageDownloader {
             final Bitmap bitmap1 = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
             bitmap.recycle();
             bitmap = bitmap1;
-        }
-
-        if (pageUrl.isDoText() && !pageCodec.isRecycled()) {
-            PageImageState.get().pagesText.put(pageUrl.getPage(), pageCodec.getText());
-            PageImageState.get().pagesLinks.put(pageUrl.getPage(), pageCodec.getPageLinks());
         }
 
         if (!pageCodec.isRecycled()) {

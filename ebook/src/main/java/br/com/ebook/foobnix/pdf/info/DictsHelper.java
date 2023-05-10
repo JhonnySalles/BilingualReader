@@ -146,12 +146,12 @@ public class DictsHelper {
                         return;
                     }
                 }
-                Toast.makeText(c, R.string.msg_unexpected_error, Toast.LENGTH_SHORT).show();
+                Toast.makeText(c, "Ocorreu um erro inesperado", Toast.LENGTH_SHORT).show();
 
             }
         } catch (Exception e) {
             LOG.e(e);
-            Toast.makeText(c, R.string.msg_unexpected_error, Toast.LENGTH_SHORT).show();
+            Toast.makeText(c, "Ocorreu um erro inesperado", Toast.LENGTH_SHORT).show();
         }
 
     }

@@ -6,7 +6,7 @@ import org.ebookdroid.core.codec.AbstractCodecDocument;
 import org.ebookdroid.core.codec.CodecPageInfo;
 import org.ebookdroid.core.codec.OutlineLink;
 import org.ebookdroid.core.codec.PageTextBox;
-import org.emdev.utils.LengthUtils;
+import org.ebookdroid.common.LengthUtils;
 
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.sys.TempHolder;
