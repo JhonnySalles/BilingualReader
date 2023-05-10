@@ -23,7 +23,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -109,7 +109,6 @@ dependencies {
 
     / ** BOOK **/
     implementation project(':ebook')
-    implementation project(':mupdf')
 
     / ** TEST **/
     testImplementation 'junit:junit:4.13.2'
@@ -121,6 +120,5 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
     androidTestImplementation "androidx.test.espresso:espresso-contrib:3.5.1"
     androidTestImplementation "androidx.test.espresso:espresso-intents:3.5.1"
-
 
 }

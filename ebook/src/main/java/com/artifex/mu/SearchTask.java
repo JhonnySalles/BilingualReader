@@ -59,7 +59,7 @@ public abstract class SearchTask {
 
 		final ProgressDialogX progressDialog = new ProgressDialogX(mContext);
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-		progressDialog.setTitle(mContext.getString(R.string.searching_));
+		progressDialog.setTitle("Procurando...");
 		progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
 			public void onCancel(DialogInterface dialog) {
 				stop();
@@ -90,9 +90,9 @@ public abstract class SearchTask {
 				if (result != null) {
 				    onTextFound(result);
 				} else {
-					mAlertBuilder.setTitle(SearchTaskResult.get() == null ? R.string.text_not_found : R.string.no_further_occurrences_found);
+					mAlertBuilder.setTitle("Texto não encontrado");
 					AlertDialog alert = mAlertBuilder.create();
-					alert.setButton(AlertDialog.BUTTON_POSITIVE, mContext.getString(R.string.dismiss),
+					alert.setButton(AlertDialog.BUTTON_POSITIVE, "Fechar",
 							(DialogInterface.OnClickListener)null);
 					alert.show();
 				}
