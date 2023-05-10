@@ -14,8 +14,10 @@ import android.view.*
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
@@ -61,7 +63,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
     private val mViewModel: BookReaderViewModel by activityViewModels()
 
     private lateinit var mRoot: CoordinatorLayout
-    private lateinit var mCover: ImageView
     private lateinit var mToolbarTop: AppBarLayout
     private lateinit var mToolbarBottom: LinearLayout
     private lateinit var miChapter: MenuItem
@@ -71,6 +72,12 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var miSearch: MenuItem
     private lateinit var mViewPager: WebViewPager
     private lateinit var mPagerAdapter: BookPagerAdapter
+
+    private lateinit var mCoverContent: ConstraintLayout
+    private lateinit var mCoverImage: ImageView
+    private lateinit var mCoverMessage: TextView
+
+    private lateinit var mConfiguration: FrameLayout
 
     private lateinit var mPageSlider: Slider
     private lateinit var mGestureDetector: GestureDetector
@@ -88,14 +95,15 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
 
     private var mHandler = Handler(Looper.getMainLooper())
     private val mCoverDelay = Runnable {
-        if (mParse == null)
-            mCover.setImageDrawable(null)
-        else {
-            mCover.animate().alpha(0.0f)
+        if (mParse == null) {
+            mCoverImage.setImageResource(R.mipmap.book_cover_not_found)
+            mCoverMessage.text = getString(R.string.reading_book_open_exception)
+        } else {
+            mCoverContent.animate().alpha(0.0f)
                 .setDuration(400L).setListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: Animator) {
                         super.onAnimationEnd(animation)
-                        mCover.visibility = View.GONE
+                        mCoverContent.visibility = View.GONE
                     }
                 })
         }
@@ -196,17 +204,21 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         mRoot = requireActivity().findViewById(R.id.root_activity_book_reader)
         mViewPager = view.findViewById<View>(R.id.fragment_book_reader) as WebViewPager
         mPageSlider = requireActivity().findViewById(R.id.reader_book_bottom_progress)
+        mConfiguration = requireActivity().findViewById(R.id.popup_book_configuration)
 
-        mCover = view.findViewById(R.id.reader_book_cover)
+        mCoverContent = view.findViewById(R.id.reader_book_cover_content)
+        mCoverImage = view.findViewById(R.id.reader_book_cover)
+        mCoverMessage = view.findViewById(R.id.reader_book_cover_message)
 
         mToolbarTop = requireActivity().findViewById(R.id.reader_book_toolbar_top)
         mToolbarBottom = requireActivity().findViewById(R.id.reader_book_toolbar_bottom)
 
         if (mBook != null)
-            BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCover)
+            BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, false)
 
-        mCover.visibility = View.VISIBLE
-        mCover.alpha = 1f
+        mCoverContent.visibility = View.VISIBLE
+        mCoverContent.alpha = 1f
+        mCoverMessage.text = ""
         mHandler.postDelayed(mCoverDelay, 2000)
 
         mPageSlider.valueTo = mParse?.getPageCount(
@@ -247,7 +259,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
             }
         })
 
-        requireActivity().title = mFileName
+        requireActivity().title = "" // Title beside to the icons
 
         if (mBook != null)
             setCurrentPage(mCurrentPage)
@@ -438,6 +450,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                 }, 300)
             }
 
+            mConfiguration.visibility = View.GONE
             mRoot.fitsSystemWindows = false
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

@@ -39,7 +39,7 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
     AZW(1, arrayOf("azw"), arrayOf("application/azw", "application/x-azw")),
     AZW3(1, arrayOf("azw3"), arrayOf("application/azw3", "application/x-azw3")),
     HTML(1, arrayOf("html", "htm", "xhtml", "xhtm", "xml"), arrayOf("text/html", "text/xml")),
-    DOC(1, arrayOf("doc"), arrayOf("application/msword")),
+    //DOC(1, arrayOf("doc"), arrayOf("application/msword")),
     //DOCX(1, arrayOf("docx"), arrayOf("application/vnd.openxmlformats-officedocument.wordprocessingml.document")),
     OPDS(1, arrayOf("opds"), arrayOf("application/opds", "application/x-opds")),
     TIFF(1, arrayOf("tiff", "tif"), arrayOf("image/tiff")),

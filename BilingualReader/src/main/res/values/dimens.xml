@@ -390,4 +390,6 @@
     <dimen name="theme_layout_width">130dp</dimen>
     <dimen name="theme_layout_height">180dp</dimen>
 
+    <dimen name="book_reader_message_size">24sp</dimen>
+
 </resources>

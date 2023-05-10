@@ -39,6 +39,8 @@
                 android:id="@+id/toolbar_book_reader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                android:paddingBottom="0dp"
                 app:popupTheme="@style/MainToolbarStyle"
                 android:theme="@style/MainToolbarTheme"/>
 
@@ -47,8 +49,9 @@
                 style="@style/ReaderToolbarTheme"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="0dp"
                 android:gravity="center"
-                android:textSize="@dimen/title_size"/>
+                android:textSize="@dimen/title_medium_size"/>
 
             <TextView
                 android:id="@+id/reader_book_toolbar_chapter"
@@ -56,7 +59,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:textSize="@dimen/title_medium_size"/>
+                android:layout_margin="0dp"
+                android:textSize="@dimen/title_small_size"/>
         </com.google.android.material.appbar.AppBarLayout>
 
         <LinearLayout
@@ -65,55 +69,40 @@
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
             android:layout_alignParentBottom="true"
+            android:paddingTop="0dp"
             android:paddingBottom="5dp"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
             android:background="@drawable/main_toolbar_background_inverse"
             android:gravity="center"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/reader_book_bottom_progress_title"
+                style="@style/ReaderBookToolbarTheme"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp"
-                android:orientation="vertical"
-                android:minHeight="40dp">
+                android:textSize="@dimen/title_medium_size"/>
 
-                <TextView
-                    android:id="@+id/reader_book_bottom_progress_title"
-                    style="@style/ReaderBookToolbarTheme"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/title_size"/>
-
-                <com.google.android.material.slider.Slider
-                    android:id="@+id/reader_book_bottom_progress"
-                    style="@style/Slider"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:valueFrom="1F"
-                    android:valueTo="100F"
-                    android:value="1"
-                    android:stepSize="1"
-                    android:maxHeight="2dp"
-                    android:minHeight="2dp"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <com.google.android.material.slider.Slider
+                android:id="@+id/reader_book_bottom_progress"
+                style="@style/Slider"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
+                android:valueFrom="1F"
+                android:valueTo="100F"
+                android:value="1"
+                android:stepSize="1"
+                android:maxHeight="2dp"
+                android:minHeight="2dp"/>
 
-                <TextView
-                    android:id="@+id/reader_book_toolbar_bottom_author"
-                    style="@style/ReaderToolbarTheme"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/title_size"
-                    android:layout_marginEnd="5dp"/>
-            </LinearLayout>
+            <TextView
+                android:id="@+id/reader_book_toolbar_bottom_author"
+                style="@style/ReaderToolbarTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/title_medium_size"
+                android:layout_marginEnd="5dp"/>
         </LinearLayout>
     </RelativeLayout>
 </layout>
