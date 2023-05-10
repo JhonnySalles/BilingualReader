@@ -194,6 +194,7 @@ class TestUtils {
                 1,
                 Util.getNameFromPath(bookPath),
                 "Author",
+                "",
                 "Annotation",
                 getRandomLocalDateTime().format(
                     DateTimeFormatter.ofPattern("yyyy-MM-dd")
@@ -249,6 +250,7 @@ class TestUtils {
                 1,
                 Util.getNameFromPath(BOOK_TEST_FILE_PATH),
                 "Author",
+                "",
                 "Annotation",
                 getRandomLocalDateTime().format(
                     DateTimeFormatter.ofPattern("yyyy-MM-dd")
@@ -293,6 +295,7 @@ class TestUtils {
                         1,
                         Util.getNameFromPath(BOOK_TEST_FILE_PATH),
                         "Author",
+                        "",
                         "Annotation",
                         getRandomLocalDateTime().format(
                             DateTimeFormatter.ofPattern("yyyy-MM-dd")

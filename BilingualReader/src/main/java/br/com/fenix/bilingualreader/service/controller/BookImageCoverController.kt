@@ -5,11 +5,9 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.LruCache
 import android.widget.ImageView
-import br.com.ebook.foobnix.pdf.info.PageUrl
-import br.com.ebook.foobnix.sys.ImageExtractor
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.service.parses.book.ImageParse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import kotlinx.coroutines.*
@@ -114,35 +112,12 @@ class BookImageCoverController private constructor() {
         val cover: Bitmap?
 
         if (isCoverSize) {
-            val pageHtml = PageUrl(
-                file.path,
-                0,
-                ReaderConsts.COVER.BOOK_COVER_THUMBNAIL_WIDTH,
-                0,
-                false,
-                true,
-                0
-            )
-
-            val extractor = ImageExtractor.getInstance(context)
-            cover = extractor.proccessCoverPage(pageHtml)
+            cover = ImageParse(context).getCoverPage(file.path)
 
             if (cover != null)
                 saveBitmapToCache(context, hash, cover)
-        } else {
-            val pageHtml = PageUrl(
-                file.path,
-                0,
-                ReaderConsts.READER.MAX_PAGE_WIDTH,
-                0,
-                false,
-                true,
-                0
-            )
-
-            val extractor = ImageExtractor.getInstance(context)
-            cover = extractor.proccessCoverPage(pageHtml)
-        }
+        } else
+            cover = ImageParse(context).getCoverPage(file.path)
 
         return cover
     }

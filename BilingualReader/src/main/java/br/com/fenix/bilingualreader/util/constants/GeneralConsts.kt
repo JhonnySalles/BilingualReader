@@ -227,6 +227,7 @@ class GeneralConsts private constructor() {
         const val RAR = "RarTemp"
         const val MANGA_COVERS = "MangaCovers"
         const val BOOK_COVERS = "BookCovers"
+        const val BOOKS = "Books"
         const val LINKED = "Linked"
         const val IMAGE = "Image"
         const val THREAD = "thread"

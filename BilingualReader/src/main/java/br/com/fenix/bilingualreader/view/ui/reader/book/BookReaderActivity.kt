@@ -4,7 +4,6 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.content.*
-import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.*
 import android.util.TypedValue
 import android.view.MenuItem
@@ -20,12 +19,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
-import br.com.ebook.foobnix.android.utils.Dips
-import br.com.ebook.foobnix.ext.CacheZipUtils
-import br.com.ebook.foobnix.pdf.info.ExtUtils
-import br.com.ebook.foobnix.pdf.info.IMG
-import br.com.ebook.foobnix.pdf.info.TintUtil
-import br.com.ebook.foobnix.pdf.info.wrapper.AppState
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -41,8 +34,6 @@ import br.com.fenix.bilingualreader.util.helpers.Util
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.google.android.material.tabs.TabLayout
-import org.ebookdroid.common.cache.CacheManager
-import org.ebookdroid.common.settings.SettingsManager
 import org.slf4j.LoggerFactory
 import java.io.File
 

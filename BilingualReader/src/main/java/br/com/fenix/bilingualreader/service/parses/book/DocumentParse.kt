@@ -11,17 +11,18 @@ import br.com.ebook.foobnix.pdf.info.IMG
 import br.com.ebook.foobnix.pdf.info.TintUtil
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState
 import br.com.ebook.foobnix.sys.ImageExtractor
+import br.com.ebook.foobnix.sys.TempHolder
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.exceptions.BookLoadException
-import br.com.fenix.bilingualreader.service.repository.MangaRepository
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FontUtil
 import org.ebookdroid.common.cache.CacheManager
-import org.ebookdroid.common.settings.SettingsManager
 import org.ebookdroid.core.codec.CodecDocument
 import org.ebookdroid.core.codec.CodecPage
 import org.ebookdroid.core.codec.CodecPageInfo
 import org.ebookdroid.core.codec.OutlineLink
 import org.slf4j.LoggerFactory
+import java.io.File
 
 class DocumentParse(var context: Context, var path: String, var password: String = "", var fontSize: Float) : CodecDocument {
 
@@ -30,23 +31,24 @@ class DocumentParse(var context: Context, var path: String, var password: String
     init {
         System.loadLibrary("mypdf")
         System.loadLibrary("mobi")
-        //init(context)
+        init(context)
 
         open(path, password, fontSize)
 
         if (!isLoaded())
-            throw BookLoadException(context.getString(R.string.reading_book_open_exception))
+            throw BookLoadException(context.getString(R.string.reading_book_open_exception) + ": " + path)
     }
 
     companion object {
         fun init(context: Context) {
+            val cacheDir = File(GeneralConsts.getCacheDir(context), GeneralConsts.CACHE_FOLDER.BOOKS + '/')
+
             Dips.init(context)
             AppState.get().load(context)
-            CacheZipUtils.init(context)
+            CacheZipUtils.init(context, cacheDir)
             ExtUtils.init(context)
             IMG.init(context)
             TintUtil.init()
-            SettingsManager.init(context)
             CacheManager.init(context)
         }
     }
@@ -55,6 +57,8 @@ class DocumentParse(var context: Context, var path: String, var password: String
     private val mWidth: Int = Resources.getSystem().displayMetrics.widthPixels
     private val mHeight: Int = Resources.getSystem().displayMetrics.heightPixels
 
+    private var isLoading = false
+    private var isLoaded = false
     private var mCodecDocument: CodecDocument? = null
 
 
@@ -75,21 +79,31 @@ class DocumentParse(var context: Context, var path: String, var password: String
                 metrics.heightPixels,
                 FontUtil.pixelToDips(context, fontSize)
             )
+            isLoaded = mCodecDocument != null
             return this
         } catch (e : Exception) {
             mLOGGER.error(e.message, e)
-            throw BookLoadException(context.getString(R.string.reading_book_open_exception))
+            throw BookLoadException(context.getString(R.string.reading_book_open_exception) + ": " + path)
         }
     }
 
     fun clear() {
+        isLoaded = false
         if (mCodecDocument != null) {
             mCodecDocument!!.recycle()
             mCodecDocument = null
         }
     }
 
-    fun isLoaded() : Boolean = mCodecDocument != null
+    fun isLoaded() : Boolean = isLoaded
+
+    fun isLoading() : Boolean = isLoading
+    fun isSearching() : Boolean = TempHolder.isSeaching
+    fun isConverting() : Boolean = TempHolder.isConverting
+
+    fun cancelOpen() {
+        TempHolder.get().loadingCancelled
+    }
 
     override fun getDocumentHandle(): Long {
         return mCodecDocument!!.documentHandle

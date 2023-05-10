@@ -156,7 +156,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                     mBook = mStorage.findBookByName(file.name)
 
                 mParse = try {
-                    DocumentParse(requireContext(), file.path, "", mViewModel.fontSize.value!!)
+                    DocumentParse(requireContext(), file.path, mBook?.password ?: "", mViewModel.fontSize.value!!)
                 } catch (e: BookLoadException) {
                     null
                 }

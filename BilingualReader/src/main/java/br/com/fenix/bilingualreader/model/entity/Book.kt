@@ -20,6 +20,7 @@ class Book(
     id: Long?,
     title: String,
     author: String,
+    password: String,
     annotation: String,
     year: String,
     genre: String,
@@ -53,7 +54,7 @@ class Book(
         path: String, folder: String, name: String, fileSize: Long,
         pages: Int
     ) : this(
-        null, title, author, annotation, year, genre, publisher, isbn, pages, 0, "", 0,
+        null, title, author, "", annotation, year, genre, publisher, isbn, pages, 0, "", 0,
         Languages.ENGLISH, path, folder, name, FileType.UNKNOWN, fileSize, false, fkLibrary, false,
         LocalDateTime.now(), null, LocalDateTime.now(), 0, null, null
     ) {
@@ -63,7 +64,7 @@ class Book(
 
     @Ignore
     constructor(fkLibrary: Long?, id: Long?, file: File, meta: EbookMeta) : this(
-        id, meta.title, meta.author ?: "", meta.annotation ?: "", "", meta.genre ?: "", "", "", 1, 0,
+        id, meta.title, meta.author ?: "", "", meta.annotation ?: "", "", meta.genre ?: "", "", "", 1, 0,
         "", 0, Languages.ENGLISH, file.path, file.parent, file.nameWithoutExtension, FileType.UNKNOWN, file.length(), false, fkLibrary,
         false, LocalDateTime.now(), null, LocalDateTime.now(), 0, null, null
     ) {
@@ -85,6 +86,9 @@ class Book(
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.AUTHOR)
     var author: String = author
+
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.PASSWORD)
+    var password: String = password
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.ANNOTATION)
     var annotation: String = annotation
