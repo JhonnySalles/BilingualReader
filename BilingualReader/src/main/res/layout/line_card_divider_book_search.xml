@@ -9,13 +9,6 @@
     android:focusable="true"
     android:orientation="vertical">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginBottom="5dp"
-        android:background="?attr/colorPrimary"/>
-
     <TextView
         android:id="@+id/book_search_title"
         style="@style/TextTitle"
@@ -24,12 +17,5 @@
         android:layout_margin="5dp"
         android:textAppearance="?attr/textAppearanceTitleMedium"
         android:textSize="@dimen/book_search_divider_title"/>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginBottom="5dp"
-        android:background="?attr/colorPrimary"/>
 
 </LinearLayout>

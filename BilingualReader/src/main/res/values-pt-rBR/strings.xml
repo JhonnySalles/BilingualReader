@@ -17,8 +17,11 @@
     <string name="alert_permission_files_access_denied_title">Acesso negado</string>
     <string name="alert_permission_files_access_denied">Não foi possível obter a permissão de acesso a pasta informada, por favor libere o acesso na configuração do android.</string>
 
-    <string name="date_format_unknown">desconhecido</string>
     <string name="api_error">Error connecting to API</string>
+
+    <string name="date_format_unknown">desconhecido</string>
+    <string name="date_format_today">Hoje</string>
+    <string name="date_format_day_ago">%s dias atrás.</string>
 
     <!-- MENU -->
     <string name="menu_search">Procurar</string>
@@ -229,7 +232,7 @@
     <string name="book_search_history_title">Pesquisas recentes</string>
     <string name="book_search_history_clear">Limpar histórico</string>
     <string name="book_search_history_delete">Apagar</string>
-    <string name="book_search_page">Página %i</string>
+    <string name="book_search_page">Página %d</string>
 
     <string name="book_search_menu_item_add_annotation">Adicionar marcador</string>
 
@@ -480,8 +483,6 @@
 
     <!-- HISTORY -->
     <string name="history_last_access">Último acesso</string>
-    <string name="history_today">Hoje</string>
-    <string name="history_day_ago">%s dias atrás.</string>
     <string name="history_delete_description">Deseja realmente excluir o histórico?</string>
     <string name="menu_manga_history_library">Biblioteca</string>
     <string name="history_menu_choice_library_all">Todos</string>

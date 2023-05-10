@@ -19,6 +19,14 @@
         android:layout_marginStart="5dp"
         android:textAppearance="?attr/textAppearanceLabelSmall"/>
 
+    <TextView
+        android:id="@+id/book_search_date"
+        style="@style/TextNormal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:textAppearance="?attr/textAppearanceLabelSmall"/>
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/book_search_history_delete"
         style="@style/Button.IconOnly"

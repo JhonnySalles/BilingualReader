@@ -17,6 +17,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 class GeneralConsts private constructor() {
@@ -74,6 +75,23 @@ class GeneralConsts private constructor() {
             val preferences = getSharedPreferences(context)
             val pattern = preferences.getString(KEYS.SYSTEM.FORMAT_DATA, DATE_PATTERN) + " " + TIME_PATTERN
             return dateTime.format(DateTimeFormatter.ofPattern(pattern))
+        }
+
+        fun formatCountDays(context: Context, dateTime: LocalDateTime?): String {
+            return if (dateTime == null)
+                ""
+            else if (dateTime.isAfter(LocalDateTime.now().minusDays(1)))
+                context.getString(R.string.date_format_today)
+            else if (dateTime.isAfter(LocalDateTime.now().minusDays(7)))
+                context.getString(
+                    R.string.date_format_day_ago,
+                    ChronoUnit.DAYS.between(dateTime, LocalDateTime.now()).toString()
+                )
+            else
+                formatterDate(
+                    context,
+                    dateTime
+                )
         }
     }
 
@@ -161,7 +179,9 @@ class GeneralConsts private constructor() {
             const val PAGE_LINK = "PAGE_LINK"
             const val LIBRARY = "LIBRARY"
             const val BOOK = "BOOK_OBJECT"
-            const val DOCUMENT = "DOCUMENT_OBJECT"
+            const val DOCUMENT_PATH = "DOCUMENT_PATH"
+            const val DOCUMENT_FONT_SIZE = "DOCUMENT_FONT_SIZE"
+            const val DOCUMENT_PASSWORD = "DOCUMENT_PASSWORD"
             const val BOOK_ANNOTATION = "BOOK_ANNOTATION_OBJECT"
             const val BOOK_SEARCH = "BOOK_SEARCH_OBJECT"
         }

@@ -1004,3 +1004,58 @@ class FontUtil {
 
     }
 }
+
+class TextUtil {
+    companion object TextUtils {
+
+        private val mPartsDivs = listOf(".", "!", ";", "?", ":")
+        fun getParts(text: String): Array<String> {
+            var max = -1
+            for (ch in mPartsDivs) {
+                val last = text.lastIndexOf(ch)
+                if (last > max) {
+                    max = last
+                }
+            }
+            if (max == -1) {
+                max = text.lastIndexOf(",")
+            }
+            val firstPart = if (max > 0) text.substring(0, max + 1) else text
+            val secondPart = if (max > 0) text.substring(max + 1) else ""
+            return arrayOf(firstPart, secondPart)
+        }
+
+        fun clearHtml(html : String) : String {
+            return html.replace(Regex("<[^>]*>"), "")
+        }
+
+        fun formatHtml(html : String, endLine: String = "<br>") : String {
+            return html.replace("<p>", "").replace("</p>", "").replace("<end-line>", endLine)
+        }
+
+        fun replaceEndLine(pageHTML: String, character: String = ""): String {
+            var pageHTML = pageHTML
+            pageHTML = pageHTML.replace("-<end-line>", character)
+            pageHTML = pageHTML.replace("- <end-line>", character)
+            pageHTML = pageHTML.replace("<end-line>", " $character")
+            return pageHTML
+        }
+
+        fun replaceHTMLforTTS(pageHTML: String?): String {
+            var pageHTML = pageHTML ?: return ""
+            pageHTML = pageHTML.replace("<b>", "").replace("</b>", "").replace("<i>", "")
+                .replace("</i>", "").replace("<tt>", "").replace("</tt>", "")
+            pageHTML = pageHTML.replace("<br/>", " ")
+            pageHTML = replaceEndLine(pageHTML, "")
+            pageHTML = pageHTML.replace("<p>", "").replace("</p>", " ")
+            pageHTML = pageHTML.replace("&nbsp;", " ").replace("&lt;", " ").replace("&gt;", "")
+                .replace("&amp;", " ").replace("&quot;", " ")
+            pageHTML = pageHTML.replace("'", "")
+            pageHTML = pageHTML.replace("*", "")
+            pageHTML = pageHTML.replace("  ", " ").replace("  ", " ")
+            pageHTML = pageHTML.replace(".", ". ").replace(" .", ".").replace(" .", ".")
+            pageHTML = pageHTML.replace("(?u)(\\w+)(-\\s)".toRegex(), "$1")
+            return pageHTML
+        }
+    }
+}

@@ -29,10 +29,26 @@ data class BookSearch(
     @Ignore
     val parent: BookSearch? = null,
 ) : Serializable {
+
     @Ignore
-    constructor(
-        id_book: Long, search: String
-    ) : this(null, id_book, search, LocalDateTime.now(), 0, 0F, true, null)
+    constructor( // History search
+        id_book: Long, search: String,
+    ) : this(null, id_book, search, LocalDateTime.now(), 0, 0f, true, null)
+
+    @Ignore
+    constructor( // Search title
+        id_book: Long, search: String, chapter: Float,
+    ) : this(null, id_book, search, LocalDateTime.now(), 0, chapter, true, null)
+
+    @Ignore
+    constructor( // Search content
+        id_book: Long, search: String, page: Int, parent: BookSearch
+    ) : this(null, id_book, search, LocalDateTime.now(), page, parent.chapter, false, parent)
+
+    @Ignore
+    constructor( // Search content
+        id_book: Long, search: String, page: Int, chapter: Float, parent: BookSearch? = null
+    ) : this(null, id_book, search, LocalDateTime.now(), page, chapter, false, parent)
 
     constructor(
         id: Long?, id_book: Long, search: String, date: LocalDateTime,

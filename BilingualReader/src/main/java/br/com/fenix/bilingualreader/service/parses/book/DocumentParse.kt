@@ -12,10 +12,9 @@ import br.com.ebook.foobnix.pdf.info.TintUtil
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState
 import br.com.ebook.foobnix.sys.ImageExtractor
 import br.com.ebook.foobnix.sys.TempHolder
-import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.exceptions.BookLoadException
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.util.helpers.FontUtil
+import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderFragment
 import org.ebookdroid.common.cache.CacheManager
 import org.ebookdroid.core.codec.CodecDocument
 import org.ebookdroid.core.codec.CodecPage
@@ -23,20 +22,20 @@ import org.ebookdroid.core.codec.CodecPageInfo
 import org.ebookdroid.core.codec.OutlineLink
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.io.Serializable
 
-class DocumentParse(var context: Context, var path: String, var password: String = "", var fontSize: Float) : CodecDocument {
+class DocumentParse(var path: String, var password: String = "", var fontSizeDips: Int) : CodecDocument, Serializable {
 
     private val mLOGGER = LoggerFactory.getLogger(DocumentParse::class.java)
 
     init {
         System.loadLibrary("mypdf")
         System.loadLibrary("mobi")
-        init(context)
 
-        open(path, password, fontSize)
+        openBook(path, password, fontSizeDips)
 
         if (!isLoaded())
-            throw BookLoadException(context.getString(R.string.reading_book_open_exception) + ": " + path)
+            throw BookLoadException("Could not open selected book: " + path)
     }
 
     companion object {
@@ -68,7 +67,7 @@ class DocumentParse(var context: Context, var path: String, var password: String
         fontSize
     ) ?: 1
 
-    fun open(path: String, password: String = "", fontSize: Float) : DocumentParse {
+    fun openBook(path: String, password: String = "", fontSizeDips: Int) : DocumentParse {
         try {
             clear()
             val metrics = Resources.getSystem().displayMetrics
@@ -77,13 +76,13 @@ class DocumentParse(var context: Context, var path: String, var password: String
                 password,
                 metrics.widthPixels,
                 metrics.heightPixels,
-                FontUtil.pixelToDips(context, fontSize)
+                fontSizeDips
             )
             isLoaded = mCodecDocument != null
             return this
         } catch (e : Exception) {
             mLOGGER.error(e.message, e)
-            throw BookLoadException(context.getString(R.string.reading_book_open_exception) + ": " + path)
+            throw BookLoadException("Could not open selected book: " + path)
         }
     }
 
@@ -103,6 +102,33 @@ class DocumentParse(var context: Context, var path: String, var password: String
 
     fun cancelOpen() {
         TempHolder.get().loadingCancelled
+    }
+
+    fun getChapter(page: Int) : Pair<Int, String>? {
+        var chapter : Pair<Int, String>? = null
+        if (mCodecDocument != null && mCodecDocument?.outline != null && mCodecDocument?.outline!!.isNotEmpty())
+            for (link in mCodecDocument!!.outline!!) {
+                val number = link.link.replace(Regex("[^\\d+]"), "")
+                if (number.isNotEmpty() && page <= number.toInt()) {
+                    chapter = Pair(number.toInt(), link.title)
+                    break
+                }
+            }
+
+        return chapter
+    }
+
+    fun getChapters() : List<Pair<Int, String>> {
+        var chapter : MutableList<Pair<Int, String>> = mutableListOf()
+        if (mCodecDocument != null && mCodecDocument?.outline != null && mCodecDocument?.outline!!.isNotEmpty())
+            for (link in mCodecDocument!!.outline!!) {
+                val number = link.link.replace(Regex("[^\\d+]"), "")
+                if (number.isNotEmpty()) {
+                    chapter.add(Pair(number.toInt(), link.title))
+                }
+            }
+
+        return chapter.toList()
     }
 
     override fun getDocumentHandle(): Long {
@@ -134,7 +160,7 @@ class DocumentParse(var context: Context, var path: String, var password: String
     }
 
     override fun searchText(pageNuber: Int, pattern: String?): MutableList<out RectF> {
-        return mCodecDocument!!.searchText(pageNuber, pattern)
+        return mutableListOf()
     }
 
     override fun getOutline(): MutableList<OutlineLink> {

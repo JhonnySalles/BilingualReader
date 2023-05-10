@@ -17,8 +17,11 @@
     <string name="alert_permission_files_access_denied_title">Access denied</string>
     <string name="alert_permission_files_access_denied">It not possible to obtain the access permissions to the informed folder, please obtain access in android settings.</string>
 
-    <string name="date_format_unknown">unknown</string>
     <string name="api_error">Error connecting to API</string>
+
+    <string name="date_format_unknown">unknown</string>
+    <string name="date_format_today">Today</string>
+    <string name="date_format_day_ago">%s days ago.</string>
 
     <!-- MENU -->
     <string name="menu_search">Search</string>
@@ -230,7 +233,7 @@
     <string name="book_search_history_title">Recent search</string>
     <string name="book_search_history_clear">Clear history</string>
     <string name="book_search_history_delete">Delete</string>
-    <string name="book_search_page">Page %i</string>
+    <string name="book_search_page">Page %d</string>
 
     <string name="book_search_menu_item_add_annotation">Add book mark</string>
 
@@ -480,8 +483,6 @@
 
     <!-- HISTORY -->
     <string name="history_last_access">Last access</string>
-    <string name="history_today">Today</string>
-    <string name="history_day_ago">%s days ago.</string>
     <string name="history_delete_description">Do you really want to delete the history?</string>
     <string name="menu_manga_history_library">Library</string>
     <string name="history_menu_choice_library_all">All</string>

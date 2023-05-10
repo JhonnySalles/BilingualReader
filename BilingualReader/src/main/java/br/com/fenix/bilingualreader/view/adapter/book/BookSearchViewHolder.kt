@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.view.adapter.book
 
+import android.text.Html
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -18,7 +19,7 @@ class BookSearchViewHolder(itemView: View, private val listener: BookSearchListe
 
         root.setOnClickListener { listener.onClick(search) }
 
-        text.text = search.search
+        text.text = Html.fromHtml(search.search)
         page.text = itemView.context.getString(R.string.book_search_page, search.page)
     }
 

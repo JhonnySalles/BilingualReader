@@ -42,6 +42,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.FontUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
+import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import br.com.fenix.bilingualreader.view.components.book.WebViewPage
 import br.com.fenix.bilingualreader.view.components.book.WebViewPager
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
@@ -164,7 +165,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                     mBook = mStorage.findBookByName(file.name)
 
                 mParse = try {
-                    DocumentParse(requireContext(), file.path, mBook?.password ?: "", mViewModel.fontSize.value!!)
+                    DocumentParse(file.path, mBook?.password ?: "", FontUtil.pixelToDips(requireContext(), mViewModel.fontSize.value!!))
                 } catch (e: BookLoadException) {
                     null
                 }
@@ -528,14 +529,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         if (mCurrentPage < 0)
             mCurrentPage = 0
 
-        if (mParse != null && mParse?.outline != null && mParse?.outline!!.isNotEmpty())
-            for (link in mParse?.outline!!) {
-                val number = link.link.replace(Regex("[^\\d+]"), "")
-                if (number.isNotEmpty() && mCurrentPage <= number.toInt()) {
-                    mBook!!.chapter = number.toInt()
-                    mBook!!.chapterDescription = link.title
-                    break
-                }
+        if (mParse != null)
+            mParse!!.getChapter(mCurrentPage)?.let {
+                mBook!!.chapter = it.first
+                mBook!!.chapterDescription = it.second
             }
 
         mCurrentPage += 1
@@ -569,10 +566,17 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_ANNOTATION, null)
     }
     private fun openBookSearch() {
+        if (mParse == null)
+            return
+
         val intent = Intent(requireContext(), MenuActivity::class.java)
         val bundle = Bundle()
         bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_book_search)
-        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.DOCUMENT, mParse)
+        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, mBook)
+        bundle.putString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PATH, mParse!!.path)
+        bundle.putString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PASSWORD, mParse!!.password)
+        bundle.putInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE, mParse!!.fontSizeDips)
+
         intent.putExtras(bundle)
         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
         startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_SEARCH, null)
@@ -663,7 +667,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                 html = html.replace("<image-begin>", "<img src=\"data:")
                     .replace("<image-end>", "\" />")
 
-            html = html.replace("<p>", "").replace("</p>", "").replace("<end-line>", "<br>")
+            html = TextUtil.formatHtml(html)
 
             webViewPage.loadDataWithBaseURL("file:///android_res/", html, "text/html", "UTF-8", null)
             webViewPage.setOnTouchListener(this@BookReaderFragment)

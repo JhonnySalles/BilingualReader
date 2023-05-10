@@ -22,7 +22,6 @@
             android:layout_height="match_parent"
             android:transitionName="transition_manga_cover"
             android:layout_margin="5dp"
-            android:src="@mipmap/book_cover_not_found"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
             android:clipToOutline="true"

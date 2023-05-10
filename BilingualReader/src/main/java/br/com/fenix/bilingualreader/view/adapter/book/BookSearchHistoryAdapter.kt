@@ -10,6 +10,7 @@ import android.widget.TextView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.BookSearch
 import br.com.fenix.bilingualreader.service.listener.BookSearchHistoryListener
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import com.google.android.material.button.MaterialButton
 
 
@@ -26,6 +27,7 @@ class BookSearchHistoryAdapter(
     private class ViewHolder {
         var root: LinearLayout? = null
         var historyTitle: TextView? = null
+        var historyDate: TextView? = null
         var historyDelete: MaterialButton? = null
     }
 
@@ -49,6 +51,7 @@ class BookSearchHistoryAdapter(
                 convertView.findViewById<View>(R.id.book_search_history) as LinearLayout
             viewHolder.historyTitle =
                 convertView.findViewById<View>(R.id.book_search_history_title) as TextView
+            viewHolder.historyDate = convertView.findViewById<View>(R.id.book_search_date) as TextView
             viewHolder.historyDelete =
                 convertView.findViewById<View>(R.id.book_search_history_delete) as MaterialButton
             convertView.tag = viewHolder
@@ -57,6 +60,7 @@ class BookSearchHistoryAdapter(
 
         lastPosition = position
         viewHolder.historyTitle!!.text = dataModel!!.search
+        viewHolder.historyDate!!.text = GeneralConsts.formatCountDays(context, dataModel.date)
         viewHolder.root!!.setOnClickListener { listener.onClick(dataModel) }
         viewHolder.historyDelete!!.setOnClickListener {
             listener.onDelete(

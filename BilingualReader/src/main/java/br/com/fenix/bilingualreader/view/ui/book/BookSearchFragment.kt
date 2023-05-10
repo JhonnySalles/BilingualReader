@@ -7,23 +7,23 @@ import android.os.Handler
 import android.os.Looper
 import android.view.*
 import android.view.inputmethod.EditorInfo
-import android.widget.LinearLayout
-import android.widget.ListView
-import android.widget.PopupMenu
-import android.widget.SearchView
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookSearch
 import br.com.fenix.bilingualreader.service.listener.BookSearchHistoryListener
 import br.com.fenix.bilingualreader.service.listener.BookSearchListener
+import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.view.adapter.book.BookSearchHistoryAdapter
 import br.com.fenix.bilingualreader.view.adapter.book.BookSearchLineAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaListCardAdapter
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.ebookdroid.core.codec.CodecDocument
 import org.slf4j.LoggerFactory
@@ -36,16 +36,17 @@ class BookSearchFragment : Fragment() {
     private val mViewModel: BookSearchViewModel by activityViewModels()
     private val mAnnotations: BookAnnotationViewModel by activityViewModels()
 
+    private lateinit var mToolbar: androidx.appcompat.widget.Toolbar
     private lateinit var miSearch: MenuItem
     private lateinit var searchView: SearchView
 
+    private lateinit var mProgressInSearch: ProgressBar
+    private lateinit var mClearHistory: MaterialButton
     private lateinit var mScrollUp: FloatingActionButton
     private lateinit var mScrollDown: FloatingActionButton
     private lateinit var mHistoryContent: LinearLayout
     private lateinit var mHistoryListView: ListView
     private lateinit var mRecyclerView: RecyclerView
-
-    private lateinit var mCodecDocument: CodecDocument
 
     private var mHistoryList = ArrayList<BookSearch>()
     private lateinit var mHistoryListener: BookSearchHistoryListener
@@ -60,7 +61,11 @@ class BookSearchFragment : Fragment() {
         setHasOptionsMenu(true)
 
         arguments?.let {
-            mCodecDocument = it.getSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY) as CodecDocument
+            val book = it.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK) as Book
+            val path = it.getString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PATH)
+            val password = it.getString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PASSWORD)
+            val fontSize = it.getInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE)
+            mViewModel.initialize(book, DocumentParse(path!!, password!!, fontSize))
         }
     }
 
@@ -74,9 +79,9 @@ class BookSearchFragment : Fragment() {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null)
-                    mViewModel.book?.let {
-                        mViewModel.save(BookSearch(it.id!!, query))
-                    }
+                    mViewModel.search(query)
+                else
+                    mViewModel.clearSearch()
 
                 return false
             }
@@ -85,6 +90,11 @@ class BookSearchFragment : Fragment() {
                 return false
             }
         })
+
+        searchView.setOnCloseListener {
+            mViewModel.clearSearch()
+            false
+        }
     }
 
     override fun onCreateView(
@@ -98,12 +108,22 @@ class BookSearchFragment : Fragment() {
         mHistoryContent = root.findViewById(R.id.book_search_history_content)
         mHistoryListView = root.findViewById(R.id.book_search_history_list)
 
+        mClearHistory = root.findViewById(R.id.book_search_history_clear)
+
+        mProgressInSearch = root.findViewById(R.id.book_search_in_progress)
         mScrollUp = root.findViewById(R.id.book_search_scroll_up)
         mScrollDown = root.findViewById(R.id.book_search_scroll_down)
 
+        mToolbar = root.findViewById(R.id.toolbar_book_search)
 
         mScrollUp.visibility = View.GONE
         mScrollDown.visibility = View.GONE
+
+        (requireActivity() as MenuActivity).setActionBar(mToolbar)
+
+        mClearHistory.setOnClickListener {
+            mViewModel.deleteAll()
+        }
 
         mScrollUp.setOnClickListener {
             (mScrollUp.drawable as AnimatedVectorDrawable).start()
@@ -162,13 +182,13 @@ class BookSearchFragment : Fragment() {
 
         mHistoryListener = object : BookSearchHistoryListener {
             override fun onClick(search: BookSearch) {
-                TODO("Not yet implemented")
+                searchView.isIconified = false
+                searchView.setQuery(search.search, true)
             }
 
             override fun onDelete(search: BookSearch, view: View, position: Int) {
-                TODO("Not yet implemented")
+                mViewModel.delete(search)
             }
-
         }
 
         mHistoryListView.adapter = BookSearchHistoryAdapter(
@@ -193,7 +213,7 @@ class BookSearchFragment : Fragment() {
                 popup.setOnMenuItemClickListener { item ->
                     when (item.itemId) {
                         R.id.menu_item_book_search_add_annotation -> {
-                            mAnnotations.save(search.toAnnotation(mCodecDocument.pageCount))
+                            mAnnotations.save(search.toAnnotation(mViewModel.getPageCount()))
                         }
                     }
                     true
@@ -213,13 +233,19 @@ class BookSearchFragment : Fragment() {
     }
 
     private fun observer() {
+        mViewModel.inSearching.observe(viewLifecycleOwner) {
+            mProgressInSearch.visibility = if (it) View.VISIBLE else View.GONE
+        }
+
         mViewModel.search.observe(viewLifecycleOwner) {
+            mRecyclerView.visibility = if (it.isNotEmpty()) View.VISIBLE else View.GONE
             (mRecyclerView.adapter as BookSearchLineAdapter).updateList(it)
         }
 
         mViewModel.history.observe(viewLifecycleOwner) {
             mHistoryList.clear()
             mHistoryList.addAll(it)
+            (mHistoryListView.adapter as BookSearchHistoryAdapter).notifyDataSetChanged()
         }
     }
 
@@ -238,6 +264,5 @@ class BookSearchFragment : Fragment() {
 
         super.onDestroy()
     }
-
 
 }

@@ -18,6 +18,12 @@ class BookSearchRepository(context: Context) {
         mDataBase.update(obj)
     }
 
+    fun delete(idBook: Long) {
+        val list = mDataBase.findAll(idBook)
+        for (obj in list)
+            mDataBase.delete(obj)
+    }
+
     fun delete(obj: BookSearch) {
         if (obj.id != null)
             mDataBase.delete(obj)
