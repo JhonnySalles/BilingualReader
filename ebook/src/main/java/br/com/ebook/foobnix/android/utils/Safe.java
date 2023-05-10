@@ -3,11 +3,11 @@ package br.com.ebook.foobnix.android.utils;
 import android.graphics.Bitmap;
 import android.view.View;
 
+import java.util.Random;
+
+import br.com.ebook.foobnix.pdf.info.IMG;
 import br.com.ebook.universalimageloader.core.ImageLoader;
 import br.com.ebook.universalimageloader.core.listener.SimpleImageLoadingListener;
-import br.com.ebook.foobnix.pdf.info.IMG;
-
-import java.util.Random;
 
 public class Safe {
 

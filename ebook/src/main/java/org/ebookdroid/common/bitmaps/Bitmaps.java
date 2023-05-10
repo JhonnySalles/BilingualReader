@@ -9,11 +9,11 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region.Op;
 
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import org.ebookdroid.core.PagePaint;
 import org.ebookdroid.common.LengthUtils;
 import org.ebookdroid.common.MathUtils;
+import org.ebookdroid.core.PagePaint;
+
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Bitmaps {
 

@@ -15,10 +15,10 @@
  *******************************************************************************/
 package br.com.ebook.universalimageloader.cache.disc.impl;
 
+import java.io.File;
+
 import br.com.ebook.universalimageloader.cache.disc.DiskCache;
 import br.com.ebook.universalimageloader.cache.disc.naming.FileNameGenerator;
-
-import java.io.File;
 
 /**
  * Default implementation of {@linkplain DiskCache disk cache}.

@@ -35,6 +35,7 @@ import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.Safe;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.entity.FileMeta;
+import br.com.ebook.foobnix.entity.FileMetaCore;
 import br.com.ebook.foobnix.ext.CacheZipUtils;
 import br.com.ebook.foobnix.ext.CbzCbrExtractor;
 import br.com.ebook.foobnix.ext.EbookMeta;
@@ -43,13 +44,12 @@ import br.com.ebook.foobnix.ext.Fb2Extractor;
 import br.com.ebook.foobnix.ext.MobiExtract;
 import br.com.ebook.foobnix.ext.RtfExtract;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
+import br.com.ebook.foobnix.pdf.info.IMG;
 import br.com.ebook.foobnix.pdf.info.PageUrl;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
-import br.com.ebook.foobnix.entity.FileMetaCore;
 import br.com.ebook.universalimageloader.core.download.BaseImageDownloader;
 import br.com.ebook.universalimageloader.core.download.ImageDownloader;
-import br.com.ebook.foobnix.pdf.info.IMG;
 
 public class ImageExtractor implements ImageDownloader {
 

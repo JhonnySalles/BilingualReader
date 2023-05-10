@@ -21,11 +21,11 @@ import android.graphics.BitmapFactory.Options;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 
-import br.com.ebook.universalimageloader.core.download.ImageDownloader;
-import br.com.ebook.universalimageloader.core.imageaware.ImageAware;
 import br.com.ebook.universalimageloader.core.assist.ImageScaleType;
 import br.com.ebook.universalimageloader.core.display.BitmapDisplayer;
 import br.com.ebook.universalimageloader.core.display.SimpleBitmapDisplayer;
+import br.com.ebook.universalimageloader.core.download.ImageDownloader;
+import br.com.ebook.universalimageloader.core.imageaware.ImageAware;
 import br.com.ebook.universalimageloader.core.listener.ImageLoadingListener;
 import br.com.ebook.universalimageloader.core.process.BitmapProcessor;
 

@@ -10,14 +10,13 @@ import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.widget.Toast;
 
-import br.com.ebook.foobnix.android.utils.LOG;
-import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
-import br.com.ebook.R;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 
 public class DictsHelper {
 

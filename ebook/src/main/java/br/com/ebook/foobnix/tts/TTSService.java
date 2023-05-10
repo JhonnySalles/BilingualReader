@@ -22,8 +22,8 @@ import org.ebookdroid.core.codec.CodecDocument;
 import org.ebookdroid.core.codec.CodecPage;
 import org.greenrobot.eventbus.EventBus;
 
-import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.android.utils.Vibro;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.sys.ImageExtractor;

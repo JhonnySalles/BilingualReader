@@ -4,6 +4,15 @@ import android.app.Activity;
 
 import androidx.core.util.Pair;
 
+import org.ebookdroid.BookType;
+import org.ebookdroid.common.cache.CacheManager;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Locale;
+
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.ext.CacheZipUtils;
@@ -16,15 +25,6 @@ import br.com.ebook.foobnix.ext.Fb2Extractor;
 import br.com.ebook.foobnix.ext.MobiExtract;
 import br.com.ebook.foobnix.ext.PdfExtract;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
-
-import org.ebookdroid.BookType;
-import org.ebookdroid.common.cache.CacheManager;
-import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Locale;
 
 public class FileMetaCore {
     private static FileMetaCore in = new FileMetaCore();

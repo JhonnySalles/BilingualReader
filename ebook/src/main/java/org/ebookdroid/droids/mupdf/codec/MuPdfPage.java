@@ -7,6 +7,22 @@ import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
+
+import org.ebookdroid.common.LengthUtils;
+import org.ebookdroid.common.MatrixUtils;
+import org.ebookdroid.common.bitmaps.BitmapManager;
+import org.ebookdroid.common.bitmaps.BitmapRef;
+import org.ebookdroid.core.codec.AbstractCodecPage;
+import org.ebookdroid.core.codec.Annotation;
+import org.ebookdroid.core.codec.PageLink;
+import org.ebookdroid.core.codec.PageTextBox;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 import br.com.ebook.fitz.StructuredText;
 import br.com.ebook.fitz.StructuredText.TextBlock;
 import br.com.ebook.fitz.StructuredText.TextLine;
@@ -15,21 +31,6 @@ import br.com.ebook.foobnix.pdf.info.model.AnnotationType;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
 import br.com.ebook.foobnix.sys.TempHolder;
-
-import org.ebookdroid.common.bitmaps.BitmapManager;
-import org.ebookdroid.common.bitmaps.BitmapRef;
-import org.ebookdroid.core.codec.AbstractCodecPage;
-import org.ebookdroid.core.codec.Annotation;
-import org.ebookdroid.core.codec.PageLink;
-import org.ebookdroid.core.codec.PageTextBox;
-import org.ebookdroid.common.LengthUtils;
-import org.ebookdroid.common.MatrixUtils;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
 public class MuPdfPage extends AbstractCodecPage {
 

@@ -1,10 +1,10 @@
 package br.com.ebook.foobnix.sys;
 
-import br.com.ebook.foobnix.pdf.info.ExtUtils;
-
 import org.ebookdroid.BookType;
 
 import java.util.concurrent.locks.ReentrantLock;
+
+import br.com.ebook.foobnix.pdf.info.ExtUtils;
 
 public class TempHolder {
     public static final ReentrantLock lock = new ReentrantLock();

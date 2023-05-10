@@ -1,9 +1,10 @@
 package org.ebookdroid.droids.djvu.codec;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import android.graphics.Bitmap;
+import android.graphics.PointF;
+import android.graphics.RectF;
 
+import org.ebookdroid.common.LengthUtils;
 import org.ebookdroid.common.bitmaps.BitmapManager;
 import org.ebookdroid.common.bitmaps.BitmapRef;
 import org.ebookdroid.core.codec.AbstractCodecPage;
@@ -11,16 +12,15 @@ import org.ebookdroid.core.codec.Annotation;
 import org.ebookdroid.core.codec.PageLink;
 import org.ebookdroid.core.codec.PageTextBox;
 import org.ebookdroid.droids.mupdf.codec.TextWord;
-import org.ebookdroid.common.LengthUtils;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.pdf.info.model.AnnotationType;
 import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
 import br.com.ebook.foobnix.sys.TempHolder;
-
-import android.graphics.Bitmap;
-import android.graphics.PointF;
-import android.graphics.RectF;
 
 public class DjvuPage extends AbstractCodecPage {
 

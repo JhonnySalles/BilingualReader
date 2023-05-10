@@ -1,15 +1,15 @@
 package org.ebookdroid.core.codec;
 
-import java.util.List;
+import android.graphics.Bitmap;
+import android.graphics.PointF;
+import android.graphics.RectF;
 
 import org.ebookdroid.common.bitmaps.BitmapRef;
 import org.ebookdroid.droids.mupdf.codec.TextWord;
 
-import br.com.ebook.foobnix.pdf.info.model.AnnotationType;
+import java.util.List;
 
-import android.graphics.Bitmap;
-import android.graphics.PointF;
-import android.graphics.RectF;
+import br.com.ebook.foobnix.pdf.info.model.AnnotationType;
 
 public interface CodecPage {
 

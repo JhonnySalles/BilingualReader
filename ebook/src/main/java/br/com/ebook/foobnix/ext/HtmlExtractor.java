@@ -1,10 +1,5 @@
 package br.com.ebook.foobnix.ext;
 
-import br.com.ebook.foobnix.android.utils.LOG;
-import br.com.ebook.foobnix.hypen.HypenUtils;
-import br.com.ebook.foobnix.pdf.info.ExtUtils;
-import br.com.ebook.foobnix.pdf.info.model.BookCSS;
-
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 
@@ -15,6 +10,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Locale;
+
+import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.foobnix.hypen.HypenUtils;
+import br.com.ebook.foobnix.pdf.info.ExtUtils;
+import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 
 public class HtmlExtractor {
 

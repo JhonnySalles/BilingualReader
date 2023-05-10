@@ -2,13 +2,13 @@ package br.com.ebook.foobnix.pdf.info;
 
 import android.content.Context;
 
-import br.com.ebook.foobnix.android.utils.LOG;
-import br.com.ebook.foobnix.ext.EpubExtractor;
-import br.com.ebook.foobnix.pdf.info.model.BookCSS;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+
+import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.foobnix.ext.EpubExtractor;
+import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 
 public class FontExtractor {
 

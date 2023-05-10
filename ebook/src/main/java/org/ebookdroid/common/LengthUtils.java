@@ -1,9 +1,9 @@
 package org.ebookdroid.common;
 
+import org.json.JSONArray;
+
 import java.util.Collection;
 import java.util.Map;
-
-import org.json.JSONArray;
 
 public final class LengthUtils {
 

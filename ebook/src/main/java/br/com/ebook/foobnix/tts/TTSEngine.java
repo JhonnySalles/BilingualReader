@@ -6,7 +6,6 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.EngineInfo;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.speech.tts.TextToSpeech.OnUtteranceCompletedListener;
-import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -16,13 +15,12 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 
-import br.com.ebook.foobnix.android.utils.TxtUtils;
-import br.com.ebook.foobnix.ext.CacheZipUtils;
-import br.com.ebook.foobnix.pdf.info.wrapper.DocumentController;
-import br.com.ebook.R;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.ResultResponse;
+import br.com.ebook.foobnix.android.utils.TxtUtils;
+import br.com.ebook.foobnix.ext.CacheZipUtils;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
+import br.com.ebook.foobnix.pdf.info.wrapper.DocumentController;
 import br.com.ebook.foobnix.sys.TempHolder;
 
 public class TTSEngine {

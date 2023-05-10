@@ -19,26 +19,26 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.util.DisplayMetrics;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.concurrent.Executor;
+
 import br.com.ebook.universalimageloader.cache.disc.DiskCache;
 import br.com.ebook.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
 import br.com.ebook.universalimageloader.cache.disc.impl.ext.LruDiskCache;
+import br.com.ebook.universalimageloader.cache.disc.naming.FileNameGenerator;
 import br.com.ebook.universalimageloader.cache.memory.MemoryCache;
 import br.com.ebook.universalimageloader.cache.memory.impl.FuzzyKeyMemoryCache;
 import br.com.ebook.universalimageloader.cache.memory.impl.LruMemoryCache;
+import br.com.ebook.universalimageloader.core.assist.FlushedInputStream;
 import br.com.ebook.universalimageloader.core.assist.ImageSize;
 import br.com.ebook.universalimageloader.core.assist.QueueProcessingType;
 import br.com.ebook.universalimageloader.core.decode.ImageDecoder;
 import br.com.ebook.universalimageloader.core.download.ImageDownloader;
 import br.com.ebook.universalimageloader.core.process.BitmapProcessor;
-import br.com.ebook.universalimageloader.utils.StorageUtils;
-import br.com.ebook.universalimageloader.cache.disc.naming.FileNameGenerator;
-import br.com.ebook.universalimageloader.core.assist.FlushedInputStream;
 import br.com.ebook.universalimageloader.utils.L;
 import br.com.ebook.universalimageloader.utils.MemoryCacheUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.concurrent.Executor;
+import br.com.ebook.universalimageloader.utils.StorageUtils;
 
 /**
  * Presents configuration for {@link ImageLoader}

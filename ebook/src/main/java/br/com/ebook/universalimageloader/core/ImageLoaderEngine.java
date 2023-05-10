@@ -17,11 +17,6 @@ package br.com.ebook.universalimageloader.core;
 
 import android.view.View;
 
-import br.com.ebook.universalimageloader.core.assist.FailReason;
-import br.com.ebook.universalimageloader.core.assist.FlushedInputStream;
-import br.com.ebook.universalimageloader.core.imageaware.ImageAware;
-import br.com.ebook.universalimageloader.core.listener.ImageLoadingListener;
-
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,6 +26,11 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
+
+import br.com.ebook.universalimageloader.core.assist.FailReason;
+import br.com.ebook.universalimageloader.core.assist.FlushedInputStream;
+import br.com.ebook.universalimageloader.core.imageaware.ImageAware;
+import br.com.ebook.universalimageloader.core.listener.ImageLoadingListener;
 
 /**
  * {@link ImageLoader} engine which responsible for {@linkplain LoadAndDisplayImageTask display task} execution.

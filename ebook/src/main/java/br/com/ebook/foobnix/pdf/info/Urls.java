@@ -7,11 +7,11 @@ import android.net.Uri;
 import androidx.core.text.TextUtilsCompat;
 import androidx.core.view.ViewCompat;
 
-import br.com.ebook.foobnix.android.utils.LOG;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Locale;
+
+import br.com.ebook.foobnix.android.utils.LOG;
 
 public class Urls {
 

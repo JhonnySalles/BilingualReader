@@ -1,10 +1,6 @@
 package br.com.ebook.foobnix.android.utils;
 
 import android.annotation.TargetApi;
-import android.content.Context;
-import android.os.Build;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
 
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 

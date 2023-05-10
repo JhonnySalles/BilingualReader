@@ -2,19 +2,19 @@ package br.com.ebook.foobnix.ext;
 
 import android.text.TextUtils;
 
-import br.com.ebook.foobnix.android.utils.LOG;
-import br.com.ebook.foobnix.android.utils.TxtUtils;
-import br.com.ebook.foobnix.hypen.HypenUtils;
-import br.com.ebook.foobnix.pdf.info.ExtUtils;
-import br.com.ebook.foobnix.pdf.info.model.BookCSS;
-import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+
+import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.foobnix.android.utils.TxtUtils;
+import br.com.ebook.foobnix.hypen.HypenUtils;
+import br.com.ebook.foobnix.pdf.info.ExtUtils;
+import br.com.ebook.foobnix.pdf.info.model.BookCSS;
+import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 
 public class TxtExtract {
 

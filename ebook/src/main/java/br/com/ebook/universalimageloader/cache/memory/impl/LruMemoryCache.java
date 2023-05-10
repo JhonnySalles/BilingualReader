@@ -2,12 +2,12 @@ package br.com.ebook.universalimageloader.cache.memory.impl;
 
 import android.graphics.Bitmap;
 
-import br.com.ebook.universalimageloader.cache.memory.MemoryCache;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import br.com.ebook.universalimageloader.cache.memory.MemoryCache;
 
 /**
  * A cache that holds strong references to a limited number of Bitmaps. Each time a Bitmap is accessed, it is moved to

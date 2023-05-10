@@ -2,8 +2,8 @@ package br.com.ebook.foobnix.pdf.info.model;
 
 import android.graphics.RectF;
 
-import br.com.ebook.foobnix.pdf.info.PageUrl;
 import br.com.ebook.foobnix.ext.Fb2Extractor;
+import br.com.ebook.foobnix.pdf.info.PageUrl;
 
 public class OutlineLinkWrapper implements CharSequence {
 

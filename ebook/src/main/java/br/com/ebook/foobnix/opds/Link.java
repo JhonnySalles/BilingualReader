@@ -1,9 +1,9 @@
 package br.com.ebook.foobnix.opds;
 
-import br.com.ebook.foobnix.pdf.info.ExtUtils;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import br.com.ebook.foobnix.pdf.info.ExtUtils;
 
 public class Link {
 

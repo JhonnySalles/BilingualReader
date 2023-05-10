@@ -13,8 +13,14 @@ import android.view.WindowManager;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import br.com.ebook.universalimageloader.core.ImageLoader;
-import br.com.ebook.R;
+import org.ebookdroid.core.codec.PageLink;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.ResultResponse;
 import br.com.ebook.foobnix.android.utils.Safe;
@@ -28,14 +34,7 @@ import br.com.ebook.foobnix.pdf.info.model.AnnotationType;
 import br.com.ebook.foobnix.pdf.info.model.OutlineLinkWrapper;
 import br.com.ebook.foobnix.sys.ImageExtractor;
 import br.com.ebook.foobnix.tts.TTSEngine;
-
-import org.ebookdroid.core.codec.PageLink;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import br.com.ebook.universalimageloader.core.ImageLoader;
 
 @SuppressLint("NewApi")
 public abstract class DocumentController {

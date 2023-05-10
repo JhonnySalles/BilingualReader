@@ -27,10 +27,6 @@ import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.webkit.MimeTypeMap;
 
-import br.com.ebook.universalimageloader.core.DisplayImageOptions;
-import br.com.ebook.universalimageloader.core.assist.ContentLengthInputStream;
-import br.com.ebook.universalimageloader.utils.IoUtils;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -42,6 +38,10 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+
+import br.com.ebook.universalimageloader.core.DisplayImageOptions;
+import br.com.ebook.universalimageloader.core.assist.ContentLengthInputStream;
+import br.com.ebook.universalimageloader.utils.IoUtils;
 
 /**
  * Provides retrieving of {@link InputStream} of image by URI from network or file system or app resources.<br />

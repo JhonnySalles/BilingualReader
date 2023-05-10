@@ -17,12 +17,12 @@ package br.com.ebook.universalimageloader.cache.memory;
 
 import android.graphics.Bitmap;
 
-import br.com.ebook.universalimageloader.utils.L;
-
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import br.com.ebook.universalimageloader.utils.L;
 
 /**
  * Limited cache. Provides object storing. Size of all stored bitmaps will not to exceed size limit (

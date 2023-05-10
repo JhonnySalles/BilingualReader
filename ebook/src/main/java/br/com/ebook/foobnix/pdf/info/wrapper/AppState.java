@@ -8,16 +8,6 @@ import android.net.Uri;
 import android.os.Environment;
 import android.view.KeyEvent;
 
-import br.com.ebook.foobnix.android.utils.LOG;
-import br.com.ebook.foobnix.android.utils.MemoryUtils;
-import br.com.ebook.foobnix.pdf.info.ExportSettingsManager;
-import br.com.ebook.foobnix.pdf.info.Urls;
-import br.com.ebook.foobnix.android.utils.Dips;
-import br.com.ebook.foobnix.android.utils.Objects;
-import br.com.ebook.foobnix.android.utils.Objects.IgnoreHashCode;
-import br.com.ebook.foobnix.pdf.info.model.BookCSS;
-import br.com.ebook.R;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +18,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import br.com.ebook.foobnix.android.utils.Dips;
+import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.foobnix.android.utils.MemoryUtils;
+import br.com.ebook.foobnix.android.utils.Objects;
+import br.com.ebook.foobnix.android.utils.Objects.IgnoreHashCode;
+import br.com.ebook.foobnix.pdf.info.ExportSettingsManager;
+import br.com.ebook.foobnix.pdf.info.Urls;
+import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 
 public class AppState {
 

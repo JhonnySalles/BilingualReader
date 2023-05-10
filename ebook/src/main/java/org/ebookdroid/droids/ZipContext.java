@@ -2,12 +2,12 @@ package org.ebookdroid.droids;
 
 import androidx.core.util.Pair;
 
-import java.io.File;
-
 import org.ebookdroid.BookType;
 import org.ebookdroid.core.codec.CodecContext;
 import org.ebookdroid.core.codec.CodecDocument;
 import org.ebookdroid.droids.mupdf.codec.PdfContext;
+
+import java.io.File;
 
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.ext.CacheZipUtils;

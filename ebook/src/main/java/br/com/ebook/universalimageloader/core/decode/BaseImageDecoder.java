@@ -21,18 +21,18 @@ import android.graphics.BitmapFactory.Options;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.foobnix.sys.InputStreamBitmap;
 import br.com.ebook.universalimageloader.core.ImageLoaderConfiguration;
+import br.com.ebook.universalimageloader.core.assist.ImageScaleType;
 import br.com.ebook.universalimageloader.core.assist.ImageSize;
 import br.com.ebook.universalimageloader.core.download.ImageDownloader;
 import br.com.ebook.universalimageloader.utils.ImageSizeUtils;
-import br.com.ebook.foobnix.android.utils.LOG;
-import br.com.ebook.foobnix.sys.InputStreamBitmap;
-import br.com.ebook.universalimageloader.core.assist.ImageScaleType;
 import br.com.ebook.universalimageloader.utils.IoUtils;
 import br.com.ebook.universalimageloader.utils.L;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Decodes images to {@link Bitmap}, scales them to needed size

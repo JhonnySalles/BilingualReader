@@ -15,11 +15,11 @@
  *******************************************************************************/
 package br.com.ebook.universalimageloader.cache.disc.naming;
 
-import br.com.ebook.universalimageloader.utils.L;
-
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import br.com.ebook.universalimageloader.utils.L;
 
 /**
  * Names image file as MD5 hash of image URI

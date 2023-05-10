@@ -1,9 +1,9 @@
 package br.com.ebook.foobnix.opds;
 
-import br.com.ebook.foobnix.android.utils.TxtUtils;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import br.com.ebook.foobnix.android.utils.TxtUtils;
 
 public class Entry {
 

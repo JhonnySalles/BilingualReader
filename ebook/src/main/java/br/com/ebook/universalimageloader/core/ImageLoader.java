@@ -23,19 +23,19 @@ import android.view.View;
 import android.widget.ImageView;
 
 import br.com.ebook.universalimageloader.cache.disc.DiskCache;
-import br.com.ebook.universalimageloader.core.assist.ImageSize;
-import br.com.ebook.universalimageloader.core.assist.ViewScaleType;
-import br.com.ebook.universalimageloader.core.listener.ImageLoadingProgressListener;
-import br.com.ebook.universalimageloader.core.listener.SimpleImageLoadingListener;
-import br.com.ebook.universalimageloader.utils.ImageSizeUtils;
 import br.com.ebook.universalimageloader.cache.memory.MemoryCache;
 import br.com.ebook.universalimageloader.core.assist.FailReason;
 import br.com.ebook.universalimageloader.core.assist.FlushedInputStream;
+import br.com.ebook.universalimageloader.core.assist.ImageSize;
 import br.com.ebook.universalimageloader.core.assist.LoadedFrom;
+import br.com.ebook.universalimageloader.core.assist.ViewScaleType;
 import br.com.ebook.universalimageloader.core.imageaware.ImageAware;
 import br.com.ebook.universalimageloader.core.imageaware.ImageViewAware;
 import br.com.ebook.universalimageloader.core.imageaware.NonViewAware;
 import br.com.ebook.universalimageloader.core.listener.ImageLoadingListener;
+import br.com.ebook.universalimageloader.core.listener.ImageLoadingProgressListener;
+import br.com.ebook.universalimageloader.core.listener.SimpleImageLoadingListener;
+import br.com.ebook.universalimageloader.utils.ImageSizeUtils;
 import br.com.ebook.universalimageloader.utils.L;
 import br.com.ebook.universalimageloader.utils.MemoryCacheUtils;
 

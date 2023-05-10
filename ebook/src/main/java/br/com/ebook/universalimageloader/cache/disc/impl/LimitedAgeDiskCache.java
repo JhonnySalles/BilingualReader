@@ -17,16 +17,16 @@ package br.com.ebook.universalimageloader.cache.disc.impl;
 
 import android.graphics.Bitmap;
 
-import br.com.ebook.universalimageloader.cache.disc.naming.FileNameGenerator;
-import br.com.ebook.universalimageloader.core.DefaultConfigurationFactory;
-import br.com.ebook.universalimageloader.utils.IoUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import br.com.ebook.universalimageloader.cache.disc.naming.FileNameGenerator;
+import br.com.ebook.universalimageloader.core.DefaultConfigurationFactory;
+import br.com.ebook.universalimageloader.utils.IoUtils;
 
 /**
  * Cache which deletes files which were loaded more than defined time. Cache size is unlimited.

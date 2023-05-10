@@ -1,10 +1,10 @@
 package org.ebookdroid.droids;
 
-import java.io.File;
-
 import org.ebookdroid.core.codec.CodecDocument;
 import org.ebookdroid.droids.mupdf.codec.MuPdfDocument;
 import org.ebookdroid.droids.mupdf.codec.PdfContext;
+
+import java.io.File;
 
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.ext.CacheZipUtils;

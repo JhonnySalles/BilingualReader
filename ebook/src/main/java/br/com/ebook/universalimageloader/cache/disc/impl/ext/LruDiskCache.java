@@ -17,16 +17,16 @@ package br.com.ebook.universalimageloader.cache.disc.impl.ext;
 
 import android.graphics.Bitmap;
 
-import br.com.ebook.universalimageloader.cache.disc.DiskCache;
-import br.com.ebook.universalimageloader.cache.disc.naming.FileNameGenerator;
-import br.com.ebook.universalimageloader.utils.IoUtils;
-import br.com.ebook.universalimageloader.utils.L;
-
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import br.com.ebook.universalimageloader.cache.disc.DiskCache;
+import br.com.ebook.universalimageloader.cache.disc.naming.FileNameGenerator;
+import br.com.ebook.universalimageloader.utils.IoUtils;
+import br.com.ebook.universalimageloader.utils.L;
 
 /**
  * Disk cache based on "Least-Recently Used" principle. Adapter pattern, adapts

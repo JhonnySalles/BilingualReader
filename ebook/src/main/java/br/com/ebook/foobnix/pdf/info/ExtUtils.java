@@ -1,26 +1,16 @@
 package br.com.ebook.foobnix.pdf.info;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Parcelable;
 import android.text.format.DateFormat;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.webkit.MimeTypeMap;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.content.FileProvider;
@@ -31,7 +21,6 @@ import org.mozilla.universalchardet.UniversalDetector;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -45,16 +34,14 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import br.com.ebook.foobnix.android.utils.Apps;
+import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.Safe;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.ext.CacheZipUtils;
-import br.com.ebook.universalimageloader.core.ImageLoader;
-import br.com.ebook.R;
-import br.com.ebook.foobnix.android.utils.Apps;
-import br.com.ebook.foobnix.android.utils.Dips;
-import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
+import br.com.ebook.universalimageloader.core.ImageLoader;
 
 public class ExtUtils {
 

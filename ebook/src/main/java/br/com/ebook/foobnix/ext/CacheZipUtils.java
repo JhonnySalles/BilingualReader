@@ -1,7 +1,6 @@
 package br.com.ebook.foobnix.ext;
 
 import android.content.Context;
-import android.os.Environment;
 
 import androidx.core.util.Pair;
 
@@ -10,7 +9,6 @@ import org.ebookdroid.BookType;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

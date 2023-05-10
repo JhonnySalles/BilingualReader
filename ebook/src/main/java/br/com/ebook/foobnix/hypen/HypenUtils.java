@@ -1,10 +1,10 @@
 package br.com.ebook.foobnix.hypen;
 
-import br.com.ebook.foobnix.pdf.info.model.BookCSS;
-
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
+
+import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 
 public class HypenUtils {
 

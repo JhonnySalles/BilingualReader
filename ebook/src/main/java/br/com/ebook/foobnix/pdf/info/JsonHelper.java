@@ -1,7 +1,5 @@
 package br.com.ebook.foobnix.pdf.info;
 
-import br.com.ebook.foobnix.android.utils.LOG;
-
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -13,6 +11,8 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import br.com.ebook.foobnix.android.utils.LOG;
 
 public class JsonHelper {
 

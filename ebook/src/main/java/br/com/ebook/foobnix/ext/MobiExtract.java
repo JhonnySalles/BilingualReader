@@ -1,16 +1,17 @@
 package br.com.ebook.foobnix.ext;
 
-import br.com.ebook.foobnix.android.utils.LOG;
-import br.com.ebook.foobnix.android.utils.TxtUtils;
 import com.foobnix.libmobi.LibMobi;
-import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
-import br.com.ebook.foobnix.mobi.parser.MobiParser;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.foobnix.android.utils.TxtUtils;
+import br.com.ebook.foobnix.mobi.parser.MobiParser;
+import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 
 public class MobiExtract {
 

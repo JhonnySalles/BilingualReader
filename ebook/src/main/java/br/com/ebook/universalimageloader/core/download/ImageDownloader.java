@@ -15,11 +15,11 @@
  *******************************************************************************/
 package br.com.ebook.universalimageloader.core.download;
 
-import br.com.ebook.universalimageloader.core.DisplayImageOptions;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
+
+import br.com.ebook.universalimageloader.core.DisplayImageOptions;
 
 /**
  * Provides retrieving of {@link InputStream} of image by URI.<br />

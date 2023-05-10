@@ -1,12 +1,14 @@
 package org.ebookdroid.droids.mupdf.codec;
 
-import java.util.List;
-import java.util.Map;
+import android.graphics.RectF;
 
 import org.ebookdroid.core.codec.AbstractCodecDocument;
 import org.ebookdroid.core.codec.CodecPage;
 import org.ebookdroid.core.codec.CodecPageInfo;
 import org.ebookdroid.core.codec.OutlineLink;
+
+import java.util.List;
+import java.util.Map;
 
 import br.com.ebook.foobnix.android.utils.Dips;
 import br.com.ebook.foobnix.android.utils.LOG;
@@ -14,8 +16,6 @@ import br.com.ebook.foobnix.pdf.info.ExtUtils;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.sys.TempHolder;
-
-import android.graphics.RectF;
 
 public class MuPdfDocument extends AbstractCodecDocument {
 

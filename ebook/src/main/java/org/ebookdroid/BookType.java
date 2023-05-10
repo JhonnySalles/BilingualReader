@@ -1,11 +1,6 @@
 package org.ebookdroid;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import android.content.Intent;
 
 import org.ebookdroid.core.codec.CodecContext;
 import org.ebookdroid.droids.CbrContext;
@@ -19,9 +14,14 @@ import org.ebookdroid.droids.ZipContext;
 import org.ebookdroid.droids.djvu.codec.DjvuContext;
 import org.ebookdroid.droids.mupdf.codec.PdfContext;
 
-import br.com.ebook.foobnix.android.utils.LOG;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
-import android.content.Intent;
+import br.com.ebook.foobnix.android.utils.LOG;
 
 public enum BookType {
 

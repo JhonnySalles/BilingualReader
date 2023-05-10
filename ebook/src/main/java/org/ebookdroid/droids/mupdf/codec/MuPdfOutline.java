@@ -1,9 +1,9 @@
 package org.ebookdroid.droids.mupdf.codec;
 
+import org.ebookdroid.core.codec.OutlineLink;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.ebookdroid.core.codec.OutlineLink;
 
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.ext.Fb2Extractor;

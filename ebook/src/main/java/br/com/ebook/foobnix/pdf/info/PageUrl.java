@@ -1,10 +1,10 @@
 package br.com.ebook.foobnix.pdf.info;
 
+import org.json.JSONObject;
+
 import br.com.ebook.foobnix.android.utils.Dips;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
-
-import org.json.JSONObject;
 
 public class PageUrl {
 

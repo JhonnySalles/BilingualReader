@@ -1,11 +1,11 @@
 package org.ebookdroid.core.codec;
 
+import android.graphics.Bitmap;
+import android.graphics.RectF;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-
-import android.graphics.Bitmap;
-import android.graphics.RectF;
 
 public interface CodecDocument extends Serializable {
 

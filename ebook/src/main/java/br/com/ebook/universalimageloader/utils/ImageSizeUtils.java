@@ -18,11 +18,11 @@ package br.com.ebook.universalimageloader.utils;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES10;
 
+import javax.microedition.khronos.opengles.GL10;
+
 import br.com.ebook.universalimageloader.core.assist.ImageSize;
 import br.com.ebook.universalimageloader.core.assist.ViewScaleType;
 import br.com.ebook.universalimageloader.core.imageaware.ImageAware;
-
-import javax.microedition.khronos.opengles.GL10;
 
 /**
  * Provides calculations with image sizes, scales

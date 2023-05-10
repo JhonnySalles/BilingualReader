@@ -20,11 +20,11 @@ import android.graphics.BitmapFactory.Options;
 import android.os.Build;
 
 import br.com.ebook.universalimageloader.core.DisplayImageOptions;
+import br.com.ebook.universalimageloader.core.assist.ImageScaleType;
 import br.com.ebook.universalimageloader.core.assist.ImageSize;
 import br.com.ebook.universalimageloader.core.assist.ViewScaleType;
 import br.com.ebook.universalimageloader.core.download.ImageDownloader;
 import br.com.ebook.universalimageloader.utils.MemoryCacheUtils;
-import br.com.ebook.universalimageloader.core.assist.ImageScaleType;
 
 /**
  * Contains needed information for decoding image to Bitmap

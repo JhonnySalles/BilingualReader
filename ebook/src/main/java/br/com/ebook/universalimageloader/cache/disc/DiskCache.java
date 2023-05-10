@@ -17,12 +17,12 @@ package br.com.ebook.universalimageloader.cache.disc;
 
 import android.graphics.Bitmap;
 
-import br.com.ebook.universalimageloader.core.listener.ImageLoadingProgressListener;
-import br.com.ebook.universalimageloader.utils.IoUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+
+import br.com.ebook.universalimageloader.core.listener.ImageLoadingProgressListener;
+import br.com.ebook.universalimageloader.utils.IoUtils;
 
 /**
  * Interface for disk cache

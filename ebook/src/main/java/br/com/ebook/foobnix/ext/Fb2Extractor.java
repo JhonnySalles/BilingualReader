@@ -30,10 +30,10 @@ import br.com.ebook.foobnix.android.utils.StreamUtils;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.hypen.HypenUtils;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
+import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 import br.com.ebook.foobnix.pdf.info.model.OutlineLinkWrapper;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.sys.TempHolder;
-import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 
 public class Fb2Extractor extends BaseExtractor {
     public static final String FOOTER_NOTES_SIGN = "***";

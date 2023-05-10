@@ -15,14 +15,14 @@
  *******************************************************************************/
 package br.com.ebook.universalimageloader.utils;
 
+import static android.os.Environment.MEDIA_MOUNTED;
+
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Environment;
 
 import java.io.File;
 import java.io.IOException;
-
-import static android.os.Environment.MEDIA_MOUNTED;
 
 /**
  * Provides application storage paths

@@ -15,13 +15,13 @@
  *******************************************************************************/
 package br.com.ebook.universalimageloader.core;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 import br.com.ebook.universalimageloader.core.assist.ImageSize;
 import br.com.ebook.universalimageloader.core.imageaware.ImageAware;
-import br.com.ebook.universalimageloader.core.listener.ImageLoadingProgressListener;
 import br.com.ebook.universalimageloader.core.listener.ImageLoadingListener;
+import br.com.ebook.universalimageloader.core.listener.ImageLoadingProgressListener;
 import br.com.ebook.universalimageloader.utils.MemoryCacheUtils;
-
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Information for load'n'display image task

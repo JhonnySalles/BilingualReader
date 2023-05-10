@@ -1,17 +1,17 @@
 package org.ebookdroid.droids.djvu.codec;
 
-import java.util.List;
+import android.graphics.RectF;
 
+import org.ebookdroid.common.LengthUtils;
 import org.ebookdroid.core.codec.AbstractCodecDocument;
 import org.ebookdroid.core.codec.CodecPageInfo;
 import org.ebookdroid.core.codec.OutlineLink;
 import org.ebookdroid.core.codec.PageTextBox;
-import org.ebookdroid.common.LengthUtils;
+
+import java.util.List;
 
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.sys.TempHolder;
-
-import android.graphics.RectF;
 
 public class DjvuDocument extends AbstractCodecDocument {
 

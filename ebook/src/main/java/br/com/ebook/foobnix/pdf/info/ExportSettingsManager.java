@@ -9,12 +9,6 @@ import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.widget.Toast;
 
-import br.com.ebook.foobnix.android.utils.LOG;
-import br.com.ebook.foobnix.android.utils.ResultResponse;
-import br.com.ebook.foobnix.entity.FileMeta;
-import br.com.ebook.foobnix.pdf.info.model.BookCSS;
-import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,6 +20,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+
+import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.foobnix.android.utils.ResultResponse;
+import br.com.ebook.foobnix.entity.FileMeta;
+import br.com.ebook.foobnix.pdf.info.model.BookCSS;
+import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 
 public class ExportSettingsManager {
     public static final String PREFIX_BOOKMARKS_PREFERENCES = "ViewerPreferences";// DO

@@ -2,9 +2,9 @@ package br.com.ebook.foobnix.tts;
 
 import android.graphics.Bitmap;
 
-import br.com.ebook.universalimageloader.core.ImageLoader;
 import br.com.ebook.foobnix.pdf.info.IMG;
 import br.com.ebook.foobnix.sys.ImageExtractor;
+import br.com.ebook.universalimageloader.core.ImageLoader;
 
 public class TTSNotification {
 

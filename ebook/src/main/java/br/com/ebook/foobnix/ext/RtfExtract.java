@@ -2,9 +2,6 @@ package br.com.ebook.foobnix.ext;
 
 import android.text.TextUtils;
 
-import br.com.ebook.foobnix.android.utils.LOG;
-import br.com.ebook.foobnix.hypen.HypenUtils;
-import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 import com.rtfparserkit.converter.text.StringTextConverter;
 import com.rtfparserkit.parser.IRtfParser;
 import com.rtfparserkit.parser.IRtfSource;
@@ -20,6 +17,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+
+import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.foobnix.hypen.HypenUtils;
+import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 
 public class RtfExtract {
 

@@ -1,16 +1,16 @@
 package br.com.ebook.foobnix.ext;
 
-import br.com.ebook.BaseExtractor;
-import br.com.ebook.foobnix.android.utils.LOG;
-import br.com.ebook.foobnix.android.utils.TxtUtils;
-import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
-
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import org.xmlpull.v1.XmlPullParser;
 
 import java.io.File;
 import java.io.FileInputStream;
+
+import br.com.ebook.BaseExtractor;
+import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.foobnix.android.utils.TxtUtils;
+import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 
 public class CalirbeExtractor {
 

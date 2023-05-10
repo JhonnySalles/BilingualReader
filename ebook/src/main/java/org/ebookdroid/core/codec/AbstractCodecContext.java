@@ -1,10 +1,12 @@
 package org.ebookdroid.core.codec;
 
-import java.io.File;
-import java.util.concurrent.atomic.AtomicLong;
+import android.graphics.Bitmap;
 
 import org.ebookdroid.droids.mupdf.codec.exceptions.MuPdfPasswordException;
 import org.ebookdroid.droids.mupdf.codec.exceptions.MuPdfPasswordRequiredException;
+
+import java.io.File;
+import java.util.concurrent.atomic.AtomicLong;
 
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.ext.CacheZipUtils;
@@ -12,8 +14,6 @@ import br.com.ebook.foobnix.ext.CacheZipUtils.CacheDir;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 import br.com.ebook.foobnix.sys.TempHolder;
-
-import android.graphics.Bitmap;
 
 public abstract class AbstractCodecContext implements CodecContext {
 

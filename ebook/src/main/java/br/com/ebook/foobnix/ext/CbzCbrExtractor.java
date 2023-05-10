@@ -1,8 +1,5 @@
 package br.com.ebook.foobnix.ext;
 
-import br.com.ebook.foobnix.android.utils.LOG;
-import br.com.ebook.foobnix.pdf.info.ExtUtils;
-
 import org.ebookdroid.BookType;
 
 import java.io.ByteArrayOutputStream;
@@ -16,6 +13,8 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.foobnix.pdf.info.ExtUtils;
 import junrar.Archive;
 import junrar.rarfile.FileHeader;
 

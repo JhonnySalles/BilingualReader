@@ -1,12 +1,5 @@
 package br.com.ebook.foobnix.ext;
 
-import br.com.ebook.BaseExtractor;
-import br.com.ebook.foobnix.android.utils.LOG;
-import br.com.ebook.foobnix.android.utils.TxtUtils;
-import br.com.ebook.foobnix.pdf.info.ExtUtils;
-import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
-import br.com.ebook.foobnix.sys.TempHolder;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -37,6 +30,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
+import br.com.ebook.BaseExtractor;
+import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.foobnix.android.utils.TxtUtils;
+import br.com.ebook.foobnix.pdf.info.ExtUtils;
+import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
+import br.com.ebook.foobnix.sys.TempHolder;
 
 public class EpubExtractor extends BaseExtractor {
 

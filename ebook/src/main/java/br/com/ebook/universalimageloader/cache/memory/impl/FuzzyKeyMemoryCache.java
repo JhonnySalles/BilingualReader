@@ -17,10 +17,10 @@ package br.com.ebook.universalimageloader.cache.memory.impl;
 
 import android.graphics.Bitmap;
 
-import br.com.ebook.universalimageloader.cache.memory.MemoryCache;
-
 import java.util.Collection;
 import java.util.Comparator;
+
+import br.com.ebook.universalimageloader.cache.memory.MemoryCache;
 
 /**
  * Decorator for {@link MemoryCache}. Provides special feature for cache: some different keys are considered as

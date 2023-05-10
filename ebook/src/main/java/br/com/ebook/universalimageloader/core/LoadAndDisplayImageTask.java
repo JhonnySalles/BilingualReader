@@ -18,27 +18,27 @@ package br.com.ebook.universalimageloader.core;
 import android.graphics.Bitmap;
 import android.os.Handler;
 
-import br.com.ebook.universalimageloader.core.assist.ImageSize;
-import br.com.ebook.universalimageloader.core.decode.ImageDecoder;
-import br.com.ebook.universalimageloader.core.download.ImageDownloader;
-import br.com.ebook.universalimageloader.core.listener.ImageLoadingProgressListener;
-import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
-import br.com.ebook.universalimageloader.core.assist.FailReason;
-import br.com.ebook.universalimageloader.core.assist.FailReason.FailType;
-import br.com.ebook.universalimageloader.core.assist.ImageScaleType;
-import br.com.ebook.universalimageloader.core.assist.LoadedFrom;
-import br.com.ebook.universalimageloader.core.assist.ViewScaleType;
-import br.com.ebook.universalimageloader.core.decode.ImageDecodingInfo;
-import br.com.ebook.universalimageloader.core.imageaware.ImageAware;
-import br.com.ebook.universalimageloader.core.listener.ImageLoadingListener;
-import br.com.ebook.universalimageloader.utils.IoUtils;
-import br.com.ebook.universalimageloader.utils.L;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
+
+import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
+import br.com.ebook.universalimageloader.core.assist.FailReason;
+import br.com.ebook.universalimageloader.core.assist.FailReason.FailType;
+import br.com.ebook.universalimageloader.core.assist.ImageScaleType;
+import br.com.ebook.universalimageloader.core.assist.ImageSize;
+import br.com.ebook.universalimageloader.core.assist.LoadedFrom;
+import br.com.ebook.universalimageloader.core.assist.ViewScaleType;
+import br.com.ebook.universalimageloader.core.decode.ImageDecoder;
+import br.com.ebook.universalimageloader.core.decode.ImageDecodingInfo;
+import br.com.ebook.universalimageloader.core.download.ImageDownloader;
+import br.com.ebook.universalimageloader.core.imageaware.ImageAware;
+import br.com.ebook.universalimageloader.core.listener.ImageLoadingListener;
+import br.com.ebook.universalimageloader.core.listener.ImageLoadingProgressListener;
+import br.com.ebook.universalimageloader.utils.IoUtils;
+import br.com.ebook.universalimageloader.utils.L;
 
 /**
  * Presents load'n'display image task. Used to load image from Internet or file

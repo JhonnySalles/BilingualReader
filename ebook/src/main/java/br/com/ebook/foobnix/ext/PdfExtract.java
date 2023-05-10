@@ -1,9 +1,9 @@
 package br.com.ebook.foobnix.ext;
 
-import br.com.ebook.foobnix.android.utils.LOG;
-
 import org.ebookdroid.core.codec.CodecDocument;
 import org.ebookdroid.droids.mupdf.codec.PdfContext;
+
+import br.com.ebook.foobnix.android.utils.LOG;
 
 public class PdfExtract {
 

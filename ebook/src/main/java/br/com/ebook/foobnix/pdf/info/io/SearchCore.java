@@ -1,11 +1,5 @@
 package br.com.ebook.foobnix.pdf.info.io;
 
-import br.com.ebook.foobnix.android.utils.LOG;
-import br.com.ebook.foobnix.entity.FileMeta;
-import br.com.ebook.foobnix.pdf.info.ExtUtils;
-import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
-import br.com.ebook.foobnix.entity.FileMetaCore;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
@@ -14,6 +8,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+
+import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.foobnix.entity.FileMeta;
+import br.com.ebook.foobnix.entity.FileMetaCore;
+import br.com.ebook.foobnix.pdf.info.ExtUtils;
+import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 
 public class SearchCore {
     public static boolean endWith(String name, List<String> exts) {

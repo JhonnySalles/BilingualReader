@@ -17,13 +17,13 @@ package br.com.ebook.universalimageloader.utils;
 
 import android.graphics.Bitmap;
 
-import br.com.ebook.universalimageloader.cache.memory.MemoryCache;
-import br.com.ebook.universalimageloader.core.ImageLoaderConfiguration;
-import br.com.ebook.universalimageloader.core.assist.ImageSize;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
+import br.com.ebook.universalimageloader.cache.memory.MemoryCache;
+import br.com.ebook.universalimageloader.core.ImageLoaderConfiguration;
+import br.com.ebook.universalimageloader.core.assist.ImageSize;
 
 /**
  * Utility for generating of keys for memory cache, key comparing and other work with memory cache

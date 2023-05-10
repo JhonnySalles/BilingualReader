@@ -1,13 +1,13 @@
 package org.ebookdroid.core.crop;
 
-import br.com.ebook.foobnix.android.utils.Dips;
-import br.com.ebook.foobnix.android.utils.LOG;
-import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
-
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.RectF;
+
+import br.com.ebook.foobnix.android.utils.Dips;
+import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
 
 public class PageCropper {
     public static final int BMP_SIZE = 800;

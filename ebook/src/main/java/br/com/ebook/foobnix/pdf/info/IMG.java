@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import java.io.File;
 import java.util.regex.Pattern;
 
+import br.com.ebook.R;
 import br.com.ebook.foobnix.android.utils.Dips;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;
@@ -28,7 +29,6 @@ import br.com.ebook.universalimageloader.core.ImageLoader;
 import br.com.ebook.universalimageloader.core.ImageLoaderConfiguration;
 import br.com.ebook.universalimageloader.core.assist.ImageScaleType;
 import br.com.ebook.universalimageloader.core.listener.ImageLoadingListener;
-import br.com.ebook.R;
 
 public class IMG {
 

@@ -21,24 +21,6 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.os.Build;
 
-import br.com.ebook.universalimageloader.cache.disc.DiskCache;
-import br.com.ebook.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
-import br.com.ebook.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
-import br.com.ebook.universalimageloader.core.assist.QueueProcessingType;
-import br.com.ebook.universalimageloader.core.assist.deque.LIFOLinkedBlockingDeque;
-import br.com.ebook.universalimageloader.core.decode.BaseImageDecoder;
-import br.com.ebook.universalimageloader.core.decode.ImageDecoder;
-import br.com.ebook.universalimageloader.core.display.BitmapDisplayer;
-import br.com.ebook.universalimageloader.core.display.SimpleBitmapDisplayer;
-import br.com.ebook.universalimageloader.core.download.ImageDownloader;
-import br.com.ebook.universalimageloader.utils.StorageUtils;
-import br.com.ebook.universalimageloader.cache.disc.impl.ext.LruDiskCache;
-import br.com.ebook.universalimageloader.cache.disc.naming.FileNameGenerator;
-import br.com.ebook.universalimageloader.cache.memory.MemoryCache;
-import br.com.ebook.universalimageloader.cache.memory.impl.LruMemoryCache;
-import br.com.ebook.universalimageloader.core.download.BaseImageDownloader;
-import br.com.ebook.universalimageloader.utils.L;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
@@ -49,6 +31,24 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import br.com.ebook.universalimageloader.cache.disc.DiskCache;
+import br.com.ebook.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
+import br.com.ebook.universalimageloader.cache.disc.impl.ext.LruDiskCache;
+import br.com.ebook.universalimageloader.cache.disc.naming.FileNameGenerator;
+import br.com.ebook.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
+import br.com.ebook.universalimageloader.cache.memory.MemoryCache;
+import br.com.ebook.universalimageloader.cache.memory.impl.LruMemoryCache;
+import br.com.ebook.universalimageloader.core.assist.QueueProcessingType;
+import br.com.ebook.universalimageloader.core.assist.deque.LIFOLinkedBlockingDeque;
+import br.com.ebook.universalimageloader.core.decode.BaseImageDecoder;
+import br.com.ebook.universalimageloader.core.decode.ImageDecoder;
+import br.com.ebook.universalimageloader.core.display.BitmapDisplayer;
+import br.com.ebook.universalimageloader.core.display.SimpleBitmapDisplayer;
+import br.com.ebook.universalimageloader.core.download.BaseImageDownloader;
+import br.com.ebook.universalimageloader.core.download.ImageDownloader;
+import br.com.ebook.universalimageloader.utils.L;
+import br.com.ebook.universalimageloader.utils.StorageUtils;
 
 /**
  * Factory for providing of default options for {@linkplain ImageLoaderConfiguration configuration}

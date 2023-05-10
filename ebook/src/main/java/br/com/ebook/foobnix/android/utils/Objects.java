@@ -3,14 +3,14 @@ package br.com.ebook.foobnix.android.utils;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
-import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
+
+import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 
 public class Objects {
     static String TAG = "Objects";
