@@ -40,6 +40,15 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/popup_book_infinity_scroll"
+            style="@style/SwitchMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/config_book_infinity_scroll"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_scrolling_type"/>
 
         <com.google.android.material.divider.MaterialDivider
             android:id="@+id/popup_book_layout_margin_divider"
@@ -51,7 +60,7 @@
             android:layout_marginRight="@dimen/margin"
             android:layout_marginBottom="@dimen/margin_small"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_scrolling_type"/>
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_infinity_scroll"/>
 
         <TextView
             android:id="@+id/popup_book_layout_margin_description"

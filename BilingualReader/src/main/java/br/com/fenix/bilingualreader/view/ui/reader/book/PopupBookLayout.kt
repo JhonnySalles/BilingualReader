@@ -14,6 +14,7 @@ import br.com.fenix.bilingualreader.model.enums.BookLayoutType
 import br.com.fenix.bilingualreader.model.enums.MarginLayoutType
 import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputLayout
 import org.slf4j.LoggerFactory
 
@@ -37,6 +38,7 @@ class PopupBookLayout : Fragment() {
     private lateinit var mAlignmentLeft: MaterialButton
     private lateinit var mAlignmentCenter: MaterialButton
     private lateinit var mAlignmentRight: MaterialButton
+    private lateinit var mInfinityScrolling: SwitchMaterial
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -59,6 +61,7 @@ class PopupBookLayout : Fragment() {
         mAlignmentCenter = root.findViewById(R.id.popup_book_layout_alignment_center)
         mAlignmentLeft = root.findViewById(R.id.popup_book_layout_alignment_left)
         mAlignmentRight = root.findViewById(R.id.popup_book_layout_alignment_right)
+        mInfinityScrolling = root.findViewById(R.id.popup_book_infinity_scroll)
 
 
         mMarginSmall.setOnClickListener {

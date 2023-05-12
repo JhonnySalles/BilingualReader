@@ -26,7 +26,7 @@
 
         <FrameLayout
             android:id="@+id/popup_book_configuration"
-            style="@style/AppBackground.Popup"
+            style="@style/AppBackground.Accent"
             android:layout_width="match_parent"
             android:layout_height="500dp"
             android:layout_alignParentBottom="true"

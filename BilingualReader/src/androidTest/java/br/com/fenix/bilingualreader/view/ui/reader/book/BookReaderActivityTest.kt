@@ -3,21 +3,15 @@ package br.com.fenix.bilingualreader.view.ui.reader.book
 import android.content.Intent
 import android.os.Bundle
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.custom.CustomTypes
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
-import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Libraries
+import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.utils.TestUtils
-import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivityTest
-import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderFragment
+import br.com.fenix.bilingualreader.utils.BookTestUtil
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import org.junit.FixMethodOrder
@@ -34,18 +28,32 @@ import java.util.concurrent.TimeUnit
 class BookReaderActivityTest {
 
     // Inform a file test here
-    private val filePath = "/storage/1D01-1E06/Livros/Trilogia da Fundação - Isaac Asimov.epub" // "storage/emulated/0/Manga/Manga of test.cbr"
-    private val book: Book = TestUtils.getBook(ApplicationProvider.getApplicationContext(), filePath)
+    private val filePath = "/storage/1D01-1E06/Livros/Russian-Roulette-epub.epub"
+    private val book: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), filePath)
     private var intent: Intent? = null
 
     init {
-        assertFalse("Not informed book file, please declare 'filePath' in " + BookReaderActivityTest::class.java.name, filePath.isEmpty())
-        assertTrue("Book file informed not found, please verify declared 'filePath' in " + BookReaderActivityTest::class.java.name, book.file.exists())
+        DocumentParse.init(ApplicationProvider.getApplicationContext())
+
+        //Clear cache
+        BookTestUtil.clearCache(ApplicationProvider.getApplicationContext())
+
+        assertFalse(
+            "Not informed book file, please declare 'filePath' in " + BookReaderActivityTest::class.java.name,
+            filePath.isEmpty()
+        )
+        assertTrue(
+            "Book file informed not found, please verify declared 'filePath' in " + BookReaderActivityTest::class.java.name,
+            book.file.exists()
+        )
 
         intent = Intent(ApplicationProvider.getApplicationContext(), BookReaderActivity::class.java)
 
         val bundle = Bundle()
-        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK, Libraries.DEFAULT.name, ""))
+        bundle.putSerializable(
+            GeneralConsts.KEYS.OBJECT.LIBRARY,
+            Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK, Libraries.DEFAULT.name, "")
+        )
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
         bundle.putString(GeneralConsts.KEYS.BOOK.NAME, book.title)
         bundle.putInt(GeneralConsts.KEYS.BOOK.PAGE_NUMBER, 0)

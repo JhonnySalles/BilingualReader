@@ -116,6 +116,10 @@ class ConfigFragment : Fragment() {
     private lateinit var mBookFontTypeJapanese: TwoWayView
     private lateinit var mBookFontSize: Slider
 
+    private lateinit var mBookInfinityScroll: SwitchMaterial
+    private lateinit var mBookProcessVocabulary: SwitchMaterial
+    private lateinit var mBookReadingJapaneseMode: SwitchMaterial
+
     private var mBookOrderSelect: Order = Order.Name
 
     private lateinit var mBookMapOrder: HashMap<String, Order>
@@ -142,6 +146,13 @@ class ConfigFragment : Fragment() {
         mBookFontTypeNormal = view.findViewById(R.id.config_book_list_fonts_normal)
         mBookFontTypeJapanese = view.findViewById(R.id.config_book_list_fonts_japanese)
         mBookFontSize = view.findViewById(R.id.config_book_font_size)
+
+        mBookInfinityScroll =
+            view.findViewById(R.id.config_book_infinity_scroll)
+        mBookProcessVocabulary =
+            view.findViewById(R.id.config_book_process_vocabulary)
+        mBookReadingJapaneseMode =
+            view.findViewById(R.id.config_book_reading_japanese_mode)
 
         mConfigSystemThemeMode = view.findViewById(R.id.config_system_theme_mode)
         mConfigSystemThemeModeAutoComplete =
@@ -582,11 +593,6 @@ class ConfigFragment : Fragment() {
             )
 
             this.putString(
-                GeneralConsts.KEYS.LIBRARY.BOOK_ORDER,
-                mBookOrderSelect.toString()
-            )
-
-            this.putString(
                 GeneralConsts.KEYS.SUBTITLE.LANGUAGE,
                 mMangaDefaultSubtitleLanguageSelect.toString()
             )
@@ -616,6 +622,36 @@ class ConfigFragment : Fragment() {
                 mMangaUseMagnifierType.isChecked
             )
 
+            this.putBoolean(
+                GeneralConsts.KEYS.PAGE_LINK.USE_DUAL_PAGE_CALCULATE,
+                mMangaUseDualPageCalculate.isChecked
+            )
+
+            this.putBoolean(
+                GeneralConsts.KEYS.PAGE_LINK.USE_PAGE_PATH_FOR_LINKED,
+                mMangaUsePathNameForLinked.isChecked
+            )
+
+            this.putString(
+                GeneralConsts.KEYS.LIBRARY.BOOK_ORDER,
+                mBookOrderSelect.toString()
+            )
+
+            this.putBoolean(
+                GeneralConsts.KEYS.READER.BOOK_READING_JAPANESE_MODE,
+                mBookReadingJapaneseMode.isChecked
+            )
+
+            this.putBoolean(
+                GeneralConsts.KEYS.READER.BOOK_PROCESS_VOCABULARY,
+                mBookProcessVocabulary.isChecked
+            )
+
+            this.putBoolean(
+                GeneralConsts.KEYS.READER.BOOK_INFINITY_SCROLL,
+                mBookInfinityScroll.isChecked
+            )
+
             this.putFloat(
                 GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE,
                 mBookFontSize.value
@@ -629,16 +665,6 @@ class ConfigFragment : Fragment() {
             this.putString(
                 GeneralConsts.KEYS.SYSTEM.FORMAT_DATA_SMALL,
                 mConfigSystemDateSmall
-            )
-
-            this.putBoolean(
-                GeneralConsts.KEYS.PAGE_LINK.USE_DUAL_PAGE_CALCULATE,
-                mMangaUseDualPageCalculate.isChecked
-            )
-
-            this.putBoolean(
-                GeneralConsts.KEYS.PAGE_LINK.USE_PAGE_PATH_FOR_LINKED,
-                mMangaUsePathNameForLinked.isChecked
             )
 
             this.putBoolean(
@@ -734,10 +760,6 @@ class ConfigFragment : Fragment() {
             GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE,
             false
         )
-        mBookFontSize.value = sharedPreferences.getFloat(
-            GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE,
-            GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT
-        )
         mMangaUseDualPageCalculate.isChecked = sharedPreferences.getBoolean(
             GeneralConsts.KEYS.PAGE_LINK.USE_DUAL_PAGE_CALCULATE,
             false
@@ -747,10 +769,26 @@ class ConfigFragment : Fragment() {
             false
         )
 
+        mBookFontSize.value = sharedPreferences.getFloat(
+            GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE,
+            GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT
+        )
         mBookLibraryPath.editText?.setText(mViewModel.getDefault(Type.BOOK))
 
         mBookLibraryOrderAutoComplete.setText(
             mBookMapOrder.filterValues { it == mBookOrderSelect }.keys.first(),
+            false
+        )
+        mBookReadingJapaneseMode.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.READER.BOOK_READING_JAPANESE_MODE,
+            true
+        )
+        mBookProcessVocabulary.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.READER.BOOK_PROCESS_VOCABULARY,
+            true
+        )
+        mBookInfinityScroll.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.READER.BOOK_INFINITY_SCROLL,
             false
         )
 
@@ -814,7 +852,6 @@ class ConfigFragment : Fragment() {
                 Themes.ORIGINAL.toString()
             )!!
         )
-
         mConfigSystemThemeModeAutoComplete.setText(
             mMangaMapThemeMode.filterValues { it == mConfigSystemThemeModeSelect }.keys.first(),
             false

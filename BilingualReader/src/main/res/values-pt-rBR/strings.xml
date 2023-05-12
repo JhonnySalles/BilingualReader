@@ -122,8 +122,12 @@
     <string name="config_title_book">Livro</string>
     <string name="config_book_library_order">Ordenação da biblioteca</string>
     <string name="config_book_library_folder">Caminho da biblioteca</string>
-    <string name="config_book_font_normal">Fonte normal</string>
-    <string name="config_book_font_japanese">Fonte japonesa</string>
+    <string name="config_book_infinity_scroll">Rolagem infinita da página</string>
+    <string name="config_book_process_vocabulary">Processar vocabulário</string>
+    <string name="config_book_type_normal">Book type normal</string>
+    <string name="config_book_type_japanese">Tipo livro japonês</string>
+    <string name="config_book_font_size">Tamanho da fonte</string>
+    <string name="config_book_japanese_reading_mode">Modo de leitura japonesa (rotação horizontal)</string>
 
     <!-- CONFIG LIBRARIES -->
     <string name="menu_libraries_delete_library">Apagar Biblioteca</string>
@@ -251,7 +255,8 @@
     <string name="menu_manga_reading_mode_left_to_right">Comic</string>
     <string name="menu_manga_reading_mode_right_to_left">Manga</string>
 
-    <string name="menu_manga_reading_save_share_image">Imagem</string>
+    <string name="menu_manga_reading_chapters_menu">Lista de capítulos</string>
+    <string name="menu_manga_reading_save_share_image">Salvar/Compartilhar</string>
     <string name="menu_manga_reading_favorite">Favorito</string>
     <string name="menu_manga_reading_order">Ordem da lista</string>
     <string name="menu_manga_reading_order_change">Ordernado:</string>

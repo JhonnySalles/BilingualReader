@@ -32,6 +32,11 @@ android {
         sourceCompatibility JavaVersion.VERSION_18
         targetCompatibility JavaVersion.VERSION_18
     }
+
+    kotlinOptions {
+        jvmTarget = "18"
+    }
+
     lint {
         abortOnError false
     }

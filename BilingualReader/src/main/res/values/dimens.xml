@@ -123,6 +123,8 @@
     <dimen name="manga_page_link_layout_height">250dp</dimen>
     <dimen name="manga_page_link_number_size">12sp</dimen>
 
+    <dimen name="manga_chapters_list_padding">20dp</dimen>
+
     <dimen name="book_detail_card_layout_width">150dp</dimen>
     <dimen name="book_detail_card_layout_height">200dp</dimen>
     <dimen name="book_detail_card_layout_width_tablet">200dp</dimen>
@@ -180,6 +182,12 @@
     <dimen name="book_search_down_width">40dp</dimen>
     <dimen name="book_search_down_image_width">30dp</dimen>
     <dimen name="book_search_list_padding">20dp</dimen>
+
+    <dimen name="book_chapters_list_padding">20dp</dimen>
+
+    <dimen name="chapters_divider_title">16sp</dimen>
+    <dimen name="chapters_grid_card_layout_width">100dp</dimen>
+    <dimen name="chapters_grid_card_layout_height">150dp</dimen>
 
     <dimen name="title_size">18sp</dimen>
     <dimen name="title_medium_size">15sp</dimen>

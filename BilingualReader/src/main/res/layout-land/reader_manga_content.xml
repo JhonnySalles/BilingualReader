@@ -36,7 +36,7 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:visibility="gone"
-            layout="@layout/list_reader_chapters"/>
+            layout="@layout/list_manga_reader_chapters"/>
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/reader_manga_toolbar_reader_top"

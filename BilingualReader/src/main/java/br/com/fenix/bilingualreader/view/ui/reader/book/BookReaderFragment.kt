@@ -27,7 +27,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
-import br.com.ebook.foobnix.sys.ImageExtractor
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -37,6 +36,7 @@ import br.com.fenix.bilingualreader.model.exceptions.BookLoadException
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.WebInterface
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
+import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
@@ -49,7 +49,6 @@ import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
-import org.ebookdroid.core.codec.CodecDocument
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -151,13 +150,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
             mLibrary = bundle.getSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY) as Library
 
             mBook = bundle.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK) as Book?
-            val file: File? = if (mBook != null) {
+            val file: File? = if (mBook != null)
                 mBook?.file
-                if (mBook?.file != null)
-                    mBook?.file
-                else
-                    File(mBook?.path!!)
-            } else
+            else
                 bundle.getSerializable(GeneralConsts.KEYS.OBJECT.FILE) as File?
 
             if (file != null && file.exists()) {
@@ -289,6 +284,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     override fun onDestroy() {
+        SharedData.setDocumentParse(null)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (mHandler.hasCallbacks(mCoverDelay))
                 mHandler.removeCallbacks(mCoverDelay)
@@ -493,8 +490,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         val finalTranslation = if (isFullScreen) -50f else 0f
 
         if (!isFullScreen) {
-            mToolbarBottom.visibility = visibility
-            mToolbarTop.visibility = visibility
+            mToolbarBottom.visibility = View.VISIBLE
+            mToolbarTop.visibility = View.VISIBLE
             mToolbarBottom.alpha = initialAlpha
             mToolbarTop.alpha = initialAlpha
             mToolbarTop.translationY = initialTranslation
@@ -538,7 +535,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         mCurrentPage += 1
         mPageSlider.value = mCurrentPage.toFloat()
 
-        (requireActivity() as BookReaderActivity).changePage(
+        (requireActivity() as BookReaderActivity).changePageDescription(
             mBook!!.chapter,
             mBook!!.chapterDescription,
             mCurrentPage,
@@ -569,7 +566,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         if (mParse == null)
             return
 
+        SharedData.setDocumentParse(mParse)
+
         val intent = Intent(requireContext(), MenuActivity::class.java)
+
         val bundle = Bundle()
         bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_book_search)
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, mBook)
@@ -652,30 +652,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         }
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
-            val inflater =
-                requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            val inflater = requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             val layout: View = inflater.inflate(R.layout.fragment_book_page, container, false)
-            val webViewPage: WebViewPage =
-                layout.findViewById<View>(R.id.page_web_view) as WebViewPage
+            val webViewPage: WebViewPage = layout.findViewById<View>(R.id.page_web_view) as WebViewPage
 
-            var html =
-                "<!DOCTYPE html><html>" + mViewModel.getDefaultCSS() + "<body>" + mParse?.getPage(
-                    position
-                )?.pageHTMLWithImages.orEmpty() + "</body></html>"
-
-            if (html.contains("<image-begin>image"))
-                html = html.replace("<image-begin>", "<img src=\"data:")
-                    .replace("<image-end>", "\" />")
-
-            html = TextUtil.formatHtml(html)
-
-            webViewPage.loadDataWithBaseURL("file:///android_res/", html, "text/html", "UTF-8", null)
-            webViewPage.setOnTouchListener(this@BookReaderFragment)
-            webViewPage.settings.javaScriptEnabled = true
-            webViewPage.settings.defaultFontSize = mViewModel.mWebFontSize
-            webViewPage.setBackgroundColor(Color.TRANSPARENT)
-            // Use variable android in javascript to call functions java
-            webViewPage.addJavascriptInterface(mInterface, "android")
+            mViewModel.prepareHtml(mParse, position, webViewPage, this@BookReaderFragment, mInterface)
             container.addView(layout)
 
             return layout

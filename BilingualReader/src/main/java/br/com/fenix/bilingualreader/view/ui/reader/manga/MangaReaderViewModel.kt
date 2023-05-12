@@ -8,12 +8,15 @@ import android.graphics.Color
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import br.com.fenix.bilingualreader.model.entity.BookSearch
+import br.com.fenix.bilingualreader.model.entity.Chapters
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.Pages
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
+import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
@@ -30,14 +33,11 @@ import java.io.File
 class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
     private var mPreferences: SharedPreferences = GeneralConsts.getSharedPreferences(app.applicationContext)
-
     private val mLOGGER = LoggerFactory.getLogger(MangaReaderViewModel::class.java)
 
+    // --------------------------------------------------------- Fonts / Layout ---------------------------------------------------------
     private var mFilters: MutableLiveData<MutableList<Transformation>> = MutableLiveData(arrayListOf())
     val filters: LiveData<MutableList<Transformation>> = mFilters
-
-    private var mChapters: MutableLiveData<MutableList<Pages>> = MutableLiveData(arrayListOf())
-    val chapters: LiveData<MutableList<Pages>> = mChapters
 
     private var mCustomFilter: MutableLiveData<Boolean> = MutableLiveData(false)
     val customFilter: LiveData<Boolean> = mCustomFilter
@@ -255,18 +255,7 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
         mFilters.value = filters
     }
 
-    fun clearChapter() {
-        mChapters.value = arrayListOf()
-    }
-
-    fun selectPage(page: Int) {
-        if (mChapters.value == null || mChapters.value!!.isEmpty())
-            return
-
-        mChapters.value?.forEach { it.isSelected = it.page == page }
-        mChapters.value = mChapters.value
-    }
-
+    // --------------------------------------------------------- Chapters ---------------------------------------------------------
     private fun loadImage(parse: Parse, page: Int) : Bitmap? {
         try {
             var stream = parse.getPage(page)
@@ -294,45 +283,53 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
         return null
     }
 
-    fun loadChapter(manga: Manga?, number: Int, refresh: (Int) -> (Unit)): Boolean {
+    fun loadChapter(manga: Manga?, number: Int): Boolean {
         if (manga == null) {
-            clearChapter()
+            SharedData.clearChapters()
             return false
         }
 
-        var loaded = false
-        if (mChapters.value == null || mChapters.value!!.isEmpty()) {
-            val parse = ParseFactory.create(manga.file) ?: return loaded
-            loaded = true
-            val list = arrayListOf<Pages>()
+        if (SharedData.isProcessed(manga)) {
+            val parse = ParseFactory.create(manga.file) ?: return false
+
             if (parse is RarParse) {
                 val cacheDir = File(GeneralConsts.getCacheDir(app.applicationContext), GeneralConsts.CACHE_FOLDER.IMAGE)
                 (parse as RarParse?)!!.setCacheDirectory(cacheDir)
             }
 
-            for (i in 0 until parse.numPages())
-                list.add(Pages(Util.getNameFromPath(parse.getPagePath(i) ?: ""), i, i+1))
+            val list = arrayListOf<Chapters>()
+            val chapters = parse.getPagePaths()
+            var title = Chapters("", 0, 0, 0f, true)
 
-            mChapters.value = list
+            for (i in 0 until parse.numPages()) {
+                val chapter = chapters.entries.filter { it.value <= i }.sortedByDescending{ it.value }.first()
+                if (title.chapter != chapter.value.toFloat()) {
+                    title = Chapters(chapter.key, i, i + 1, chapter.value.toFloat(), true)
+                    list.add(title)
+                }
 
+                list.add(Chapters(Util.getNameFromPath(parse.getPagePath(i) ?: ""), i, i+1, 0f, false, isSelected = number == i+1))
+            }
+
+            SharedData.setChapters(manga, list)
             CoroutineScope(Dispatchers.IO).launch {
                 val deferred = async {
                     if (number > 5) {
                         for (i in number - 5 until list.size){
                             val page = list[i]
                             page.image = loadImage(parse, page.number)
-                            withContext(Dispatchers.Main) { refresh(page.number) }
+                            withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
                         }
 
                         for (i in number - 5 downTo 0){
                             val page = list[i]
                             page.image = loadImage(parse, page.number)
-                            withContext(Dispatchers.Main) { refresh(page.number) }
+                            withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
                         }
                     } else
                         for (page in list) {
                             page.image = loadImage(parse, page.number)
-                            withContext(Dispatchers.Main) { refresh(page.number) }
+                            withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
                         }
 
                     Util.destroyParse(parse)
@@ -340,12 +337,12 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
                 deferred.await()
                 withContext(Dispatchers.Main) {
-                    mChapters.value = list
+                    SharedData.setChapters(manga, list.toList())
                 }
             }
         }
 
-        return loaded
+        return true
     }
 
 }

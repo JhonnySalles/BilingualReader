@@ -8,9 +8,9 @@ import android.os.*
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
+import android.webkit.WebView
 import android.widget.*
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -21,16 +21,19 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.Chapters
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.*
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
+import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.google.android.material.tabs.TabLayout
@@ -139,6 +142,7 @@ class BookReaderActivity : AppCompatActivity() {
         mConfigurationView.adapter = viewPagerAdapter
 
         if (savedInstanceState == null) {
+            SharedData.clearChapters()
             if (Intent.ACTION_VIEW == intent.action) {
                 if (intent.extras != null && intent.extras!!.containsKey(GeneralConsts.KEYS.BOOK.ID)) {
                     val book =
@@ -186,7 +190,7 @@ class BookReaderActivity : AppCompatActivity() {
 
     private fun initialize(file: File?, page: Int, pages: Int) {
         val fragment: BookReaderFragment = if (file != null) {
-            changePage(0, "", page, pages)
+            changePageDescription(0, "", page, pages)
             BookReaderFragment.create(mLibrary, file)
         } else
             BookReaderFragment.create()
@@ -194,7 +198,7 @@ class BookReaderActivity : AppCompatActivity() {
         setFragment(fragment)
     }
 
-    private fun switchBook(isNext: Boolean = true) {
+    /*private fun switchBook(isNext: Boolean = true) {
         if (mBook == null) return
 
         val changeBook = if (isNext)
@@ -232,15 +236,14 @@ class BookReaderActivity : AppCompatActivity() {
                 ) { _, _ -> }
                 .create()
         dialog.show()
-    }
+    }*/
 
     fun changeBook(book: Book) {
         setBook(book)
-
-        //****setFragment(Fragment.create(mLibrary, book))
+        setFragment(BookReaderFragment.create(mLibrary, book))
     }
 
-    fun changePage(chapter: Int, description: String, page: Int, pages: Int) {
+    fun changePageDescription(chapter: Int, description: String, page: Int, pages: Int) {
         mToolBarBottomProgressTitle.text =
             if (page > 0) getString(R.string.reading_book_title_position, page, pages, Util.formatDecimal(page.toFloat() / pages * 100)) else ""
         mToolBarChapter.text =
@@ -251,10 +254,13 @@ class BookReaderActivity : AppCompatActivity() {
             getString(R.string.book_chapter, description, page, pages)
         else
             getString(R.string.progress, page, pages)
+
+        SharedData.selectPage(page)
     }
 
     private fun setBook(book: Book) {
-        changePage(book.chapter, book.chapterDescription, book.bookMark, book.pages)
+        SharedData.clearChapters()
+        changePageDescription(book.chapter, book.chapterDescription, book.bookMark, book.pages)
         mBook = book
         mRepository.updateLastAccess(book)
 
@@ -333,7 +339,7 @@ class BookReaderActivity : AppCompatActivity() {
         val book = (savedInstanceState.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK) as Book?)
         if (book != null) {
             mBook = book
-            changePage(book.chapter, book.chapterDescription, book.bookMark, book.pages)
+            changePageDescription(book.chapter, book.chapterDescription, book.bookMark, book.pages)
         }
     }
 
@@ -403,47 +409,13 @@ class BookReaderActivity : AppCompatActivity() {
     }
 
     fun touchPosition(position: Position): Boolean {
-        /*if (position != Position.BOTTOM && mChapterContent.visibility == View.VISIBLE) {
-            chapterVisibility(false)
-            return true
-        }*/
-
         return when (position) {
-            Position.CORNER_TOP_RIGHT -> {
-                //mFragment?.changeAspect(mToolBar, ReaderMode.FIT_WIDTH)
-                true
-            }
-            Position.CORNER_TOP_LEFT -> {
-                //mFragment?.changeAspect(mToolBar, ReaderMode.ASPECT_FIT)
-                true
-            }
             Position.CORNER_BOTTOM_RIGHT -> {
                 mFragment?.hitEnding()
                 true
             }
             Position.CORNER_BOTTOM_LEFT -> {
                 mFragment?.hitBeginning()
-                true
-            }
-            Position.BOTTOM -> {
-                /*val initial = mFragment?.getCurrentPage() ?: 0
-                val loaded = mViewModel.loadChapter(
-                    mBook,
-                    initial
-                ) { page ->
-                    if (!mChapterList.isComputingLayout) mChapterList.adapter?.notifyItemChanged(
-                        page
-                    )
-                }
-                chapterVisibility(true)
-                mFragment?.let {
-                    if (loaded)
-                        mChapterList.scrollToPosition(it.getCurrentPage() - 1)
-                    else
-                        mChapterList.smoothScrollToPosition(it.getCurrentPage() - 1)
-
-                    mViewModel.selectPage(it.getCurrentPage())
-                }*/
                 true
             }
             else -> false

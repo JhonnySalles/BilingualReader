@@ -10,7 +10,7 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FontUtil
-import br.com.fenix.bilingualreader.utils.TestUtils
+import br.com.fenix.bilingualreader.utils.BookTestUtil
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import junit.framework.TestCase
 import org.junit.FixMethodOrder
@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(AndroidJUnit4::class)
 class BookSearchFragmentTest {
 
-    private val book: Book = TestUtils.getBook(
+    private val book: Book = BookTestUtil.getBook(
         ApplicationProvider.getApplicationContext(),
         "/storage/1D01-1E06/Livros/" + "Russian-Roulette-epub.epub"
     )
@@ -35,19 +35,13 @@ class BookSearchFragmentTest {
     init {
         DocumentParse.init(ApplicationProvider.getApplicationContext())
 
+        //Clear cache
+        BookTestUtil.clearCache(ApplicationProvider.getApplicationContext())
+
         TestCase.assertTrue(
             "Book informed not found, please verify book in " + BookSearchFragmentTest::class.java.name,
             book.file.exists()
         )
-
-        //Clear cache
-        val cache = File(
-            GeneralConsts.getCacheDir(ApplicationProvider.getApplicationContext()),
-            GeneralConsts.CACHE_FOLDER.BOOKS + '/'
-        )
-        if (cache.exists() && cache.listFiles() != null)
-            for (file in cache.listFiles())
-                file.deleteRecursively()
     }
 
 

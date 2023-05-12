@@ -13,8 +13,9 @@ import br.com.fenix.bilingualreader.custom.CustomTypes
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Libraries
+import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.utils.TestUtils
+import br.com.fenix.bilingualreader.utils.MangaTestUtil
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import org.junit.FixMethodOrder
@@ -31,13 +32,20 @@ import java.util.concurrent.TimeUnit
 class MangaReaderActivityTest {
 
     // Inform a file test here
-    private val filePath = "/storage/emulated/0/Manga/jp/Aho Girl - Volume 01 (Jap).cbr" // "storage/emulated/0/Manga/Manga of test.cbr"
-    private val manga: Manga = TestUtils.getManga(ApplicationProvider.getApplicationContext(), filePath)
+    private val filePath = "/storage/1D01-1E06/Mangas/Aho Girl - Volume 08 (Jap) Sem capa.cbr" // "storage/emulated/0/Manga/Manga of test.cbr"
+    private val manga: Manga = MangaTestUtil.getManga(ApplicationProvider.getApplicationContext(), filePath)
     private var intent: Intent? = null
 
     init {
         assertFalse("Not informed comic file, please declare 'filePath' in " + MangaReaderActivityTest::class.java.name, filePath.isEmpty())
         assertTrue("Comic file informed not found, please verify declared 'filePath' in " + MangaReaderActivityTest::class.java.name, manga.file.exists())
+
+        val dataBase = DataBase.getDataBase(ApplicationProvider.getApplicationContext()).getMangaDao()
+
+        for (obj in dataBase.list(manga.fkLibrary))
+            dataBase.delete(obj)
+
+        dataBase.save(manga)
 
         intent = Intent(ApplicationProvider.getApplicationContext(), MangaReaderActivity::class.java)
 
@@ -65,7 +73,7 @@ class MangaReaderActivityTest {
             val fragment = it.supportFragmentManager.findFragmentById(R.id.root_frame_manga_reader)
             assertTrue(fragment is MangaReaderFragment)
         }
-
+        
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
         onView(withId(R.id.root_frame_manga_reader)).perform(click())
 

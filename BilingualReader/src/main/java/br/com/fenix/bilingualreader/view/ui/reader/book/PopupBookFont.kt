@@ -12,6 +12,7 @@ import br.com.fenix.bilingualreader.model.enums.FontType
 import br.com.fenix.bilingualreader.service.listener.FontsListener
 import br.com.fenix.bilingualreader.view.adapter.fonts.FontsCardAdapter
 import com.google.android.material.slider.Slider
+import com.google.android.material.switchmaterial.SwitchMaterial
 import org.lucasr.twowayview.TwoWayView
 import org.slf4j.LoggerFactory
 
@@ -23,6 +24,7 @@ class PopupBookFont : Fragment() {
 
     private lateinit var mFontType: TwoWayView
     private lateinit var mFontSize: Slider
+    private lateinit var mReadingJapaneseMode: SwitchMaterial
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,6 +35,7 @@ class PopupBookFont : Fragment() {
 
         mFontType = root.findViewById(R.id.popup_book_font_type)
         mFontSize = root.findViewById(R.id.popup_book_font_size)
+        mReadingJapaneseMode = root.findViewById(R.id.popup_book_reading_japanese_mode)
 
         mFontSize.value = mViewModel.fontSize.value!!
         mFontSize.addOnChangeListener { _, value, fromUser ->

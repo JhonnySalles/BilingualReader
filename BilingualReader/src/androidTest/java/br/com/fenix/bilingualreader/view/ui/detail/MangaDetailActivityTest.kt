@@ -14,7 +14,7 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.utils.TestUtils
+import br.com.fenix.bilingualreader.utils.MangaTestUtil
 import br.com.fenix.bilingualreader.view.ui.detail.manga.MangaDetailFragment
 import junit.framework.TestCase.assertTrue
 import org.hamcrest.Matchers.not
@@ -35,7 +35,7 @@ class MangaDetailActivityTest {
     init {
         intent = Intent(ApplicationProvider.getApplicationContext(), DetailActivity::class.java)
         val bundle = Bundle()
-        manga = TestUtils.getManga(ApplicationProvider.getApplicationContext())
+        manga = MangaTestUtil.getManga(ApplicationProvider.getApplicationContext())
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, Library(-1, Libraries.DEFAULT.name, ""))
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
         intent?.putExtras(bundle)

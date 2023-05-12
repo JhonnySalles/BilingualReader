@@ -16,7 +16,7 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.utils.TestUtils
+import br.com.fenix.bilingualreader.utils.MangaTestUtil
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
@@ -36,7 +36,7 @@ class SubTitleLinkedPageLinkTypeActivityTest {
     // Inform a file test here
     private val filePath = "" // "storage/emulated/0/Manga/Manga of test.cbr"
     private val filePathLink = filePath
-    private val manga: Manga = TestUtils.getManga(ApplicationProvider.getApplicationContext(), filePath)
+    private val manga: Manga = MangaTestUtil.getManga(ApplicationProvider.getApplicationContext(), filePath)
     private var intent: Intent? = null
 
     init {

@@ -225,6 +225,8 @@ class DataBaseConsts private constructor() {
             const val SCROLLING = "scrolling"
             const val FONT_TYPE = "font_type"
             const val FONT_SIZE = "font_size"
+            const val INFINITY_SCROLLING = "infinity_scrolling"
+            const val JAPANESE_READING_MODE = "japanese_reading_mode"
         }
     }
 

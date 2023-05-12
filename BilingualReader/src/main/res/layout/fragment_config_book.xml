@@ -86,6 +86,20 @@
             android:text="@string/config_title_libraries"
             app:icon="@drawable/ic_library_small" />
 
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/config_book_infinity_scroll"
+            style="@style/SwitchMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/config_book_infinity_scroll" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/config_book_process_vocabulary"
+            style="@style/SwitchMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/config_book_process_vocabulary" />
+
         <com.google.android.material.divider.MaterialDivider
             style="@style/MaterialDivider"
             android:layout_width="match_parent"
@@ -97,11 +111,12 @@
 
         <TextView
             style="@style/TextTitle.Config"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
             android:layout_marginBottom="@dimen/margin_small"
-            android:text="@string/config_book_font_normal" />
+            android:gravity="center"
+            android:text="@string/config_book_type_normal" />
 
         <org.lucasr.twowayview.TwoWayView
             android:id="@+id/config_book_list_fonts_normal"
@@ -122,11 +137,12 @@
 
         <TextView
             style="@style/TextTitle.Config"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
             android:layout_marginBottom="@dimen/margin_small"
-            android:text="@string/config_book_font_japanese" />
+            android:gravity="center"
+            android:text="@string/config_book_type_japanese" />
 
         <org.lucasr.twowayview.TwoWayView
             android:id="@+id/config_book_list_fonts_japanese"
@@ -145,6 +161,13 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0" />
 
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/config_book_reading_japanese_mode"
+            style="@style/SwitchMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/config_book_japanese_reading_mode" />
+
         <com.google.android.material.divider.MaterialDivider
             style="@style/MaterialDivider"
             android:layout_width="match_parent"
@@ -153,6 +176,14 @@
             android:layout_marginTop="@dimen/margin_small"
             android:layout_marginRight="@dimen/margin"
             android:layout_marginBottom="@dimen/margin_small" />
+
+        <TextView
+            style="@style/TextTitle.Config"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_book_font_size" />
 
         <LinearLayout
             android:layout_width="match_parent"

@@ -35,22 +35,20 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.Chapters
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.model.entity.Pages
 import br.com.fenix.bilingualreader.model.enums.*
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.kanji.Formatter
 import br.com.fenix.bilingualreader.service.listener.ChapterCardListener
+import br.com.fenix.bilingualreader.service.listener.ChapterLoadListener
 import br.com.fenix.bilingualreader.service.ocr.GoogleVision
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
-import br.com.fenix.bilingualreader.service.repository.LibraryRepository
-import br.com.fenix.bilingualreader.service.repository.MangaRepository
-import br.com.fenix.bilingualreader.service.repository.Storage
-import br.com.fenix.bilingualreader.service.repository.SubTitleRepository
+import br.com.fenix.bilingualreader.service.repository.*
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
@@ -60,6 +58,7 @@ import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.reader.MangaChaptersCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
+import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkActivity
 import br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkViewModel
 import br.com.fenix.bilingualreader.view.ui.window.FloatingButtons
@@ -73,7 +72,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 
 
-class MangaReaderActivity : AppCompatActivity(), OcrProcess {
+class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener {
 
     private val mLOGGER = LoggerFactory.getLogger(MangaReaderActivity::class.java)
 
@@ -379,7 +378,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         }
 
         mChapterContent = findViewById(R.id.reader_manga_container_chapters_list)
-        mChapterList = findViewById(R.id.chapters_list_covers)
+        mChapterList = findViewById(R.id.manga_chapters_list_covers)
         mChapterContent.visibility = View.GONE
         prepareChapters()
 
@@ -395,7 +394,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
             changePage("", "", 0)
 
         if (savedInstanceState == null) {
-            mViewModel.clearChapter()
+            SharedData.clearChapters()
             if (Intent.ACTION_VIEW == intent.action) {
                 if (intent.extras != null && intent.extras!!.containsKey(GeneralConsts.KEYS.MANGA.ID)) {
                     val manga =
@@ -526,12 +525,12 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         ) else ""
         mToolBarTitle.text = title
         mToolBarSubTitle.text = text
-        mViewModel.selectPage(page)
+        SharedData.selectPage(page)
     }
 
     private fun setManga(manga: Manga, isRestore: Boolean = false) {
         if (!isRestore) {
-            mViewModel.clearChapter()
+            SharedData.clearChapters()
             mManga = manga
             mRepository.updateLastAccess(manga)
             setShortCutManga()
@@ -832,6 +831,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
                 item.isChecked = !item.isChecked
                 changeShowBatteryClock(item.isChecked)
             }
+            R.id.menu_item_reader_manga_chapters_menu -> openChapters()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -927,13 +927,15 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         mChapterList.layoutManager = layout
 
         val listener = object : ChapterCardListener {
-            override fun onClick(page: Pages) {
+            override fun onClick(page: Chapters) {
                 mFragment?.setCurrentPage(page.page)
             }
         }
 
         lineAdapter.attachListener(listener)
-        mViewModel.chapters.observe(this) { lineAdapter.updateList(it) }
+        SharedData.chapters.observe(this) {
+            lineAdapter.updateList(it.filter { p -> !p.isTitle })
+        }
     }
 
     fun openFileLink() {
@@ -1041,14 +1043,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
             }
             Position.BOTTOM -> {
                 val initial = mFragment?.getCurrentPage() ?: 0
-                val loaded = mViewModel.loadChapter(
-                    mManga,
-                    initial
-                ) { page ->
-                    if (!mChapterList.isComputingLayout) mChapterList.adapter?.notifyItemChanged(
-                        page
-                    )
-                }
+                val loaded = mViewModel.loadChapter(mManga, initial)
                 chapterVisibility(true)
                 mFragment?.let {
                     if (loaded)
@@ -1056,7 +1051,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
                     else
                         mChapterList.smoothScrollToPosition(it.getCurrentPage() - 1)
 
-                    mViewModel.selectPage(it.getCurrentPage())
+                    SharedData.selectPage(it.getCurrentPage())
                 }
                 true
             }
@@ -1081,7 +1076,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         val initialAlpha = if (isVisible) 0.0f else 1.0f
 
         if (isVisible) {
-            mChapterContent.visibility = visibility
+            mChapterContent.visibility = View.VISIBLE
             mChapterContent.alpha = initialAlpha
         }
 
@@ -1092,7 +1087,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
                     mChapterContent.visibility = visibility
                 }
             })
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -1130,6 +1124,13 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
                         Toast.LENGTH_SHORT
                     ).show()
             }
+            GeneralConsts.REQUEST.MANGA_CHAPTERS -> {
+                if (data?.extras != null && data.extras!!.containsKey(GeneralConsts.KEYS.CHAPTERS.PAGE)) {
+                    val page = data.extras!!.getInt(GeneralConsts.KEYS.CHAPTERS.PAGE)
+                    mFragment?.setCurrentPage(page)
+                }
+                mFragment?.setFullscreen(true)
+            }
         }
     }
 
@@ -1140,6 +1141,26 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         ).let {
             startActivityForResult(it, requestCode)
         }
+    }
+
+    private fun openChapters() {
+        val initial = mFragment?.getCurrentPage() ?: 0
+        mViewModel.loadChapter(mManga, initial)
+
+        val intent = Intent(this, MenuActivity::class.java)
+        val bundle = Bundle()
+        bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_manga_chapters)
+
+        mFragment?.let {
+            bundle.putInt(GeneralConsts.KEYS.MANGA.PAGE_NUMBER, it.getCurrentPage() - 1)
+        }
+
+        intent.putExtras(bundle)
+        overridePendingTransition(
+            R.anim.fade_in_fragment_add_enter,
+            R.anim.fade_out_fragment_remove_exit
+        )
+        startActivityForResult(intent, GeneralConsts.REQUEST.MANGA_CHAPTERS, null)
     }
 
     inner class ViewPagerAdapter(fm: FragmentManager, behavior: Int) :
@@ -1262,6 +1283,11 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess {
         } finally {
             mHandler.postDelayed(mMonitoringBattery, 60000)
         }
+    }
+
+    override fun onLoading(page: Int) {
+        if (!mChapterList.isComputingLayout)
+            mChapterList.adapter?.notifyItemChanged(page)
     }
 
 }

@@ -7,6 +7,7 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
@@ -17,14 +18,10 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-class TestUtils {
 
+class TestUtil {
     companion object TestUtils {
-
-        private val MANGA_TEST_FILE_PATH = "storage/emulated/0/Manga/Manga of test.cbr"
-        private val BOOK_TEST_FILE_PATH = "storage/emulated/0/Book/Book of test.cbr"
-
-        private fun getCoverMipmap(index: Int = 0): Int {
+        fun getCoverMipmap(index: Int = 0): Int {
             return if (index > 5 || index < 0)
                 getCoverMipmap((0..5).random())
             else when (index) {
@@ -37,11 +34,11 @@ class TestUtils {
             }
         }
 
-        private fun getRandomLocalDate(): LocalDate {
+        fun getRandomLocalDate(): LocalDate {
             return LocalDate.of((1990..2022).random(), (1..12).random(), (1..28).random())
         }
 
-        private fun getRandomLocalDateTime(): LocalDateTime {
+        fun getRandomLocalDateTime(): LocalDateTime {
             return LocalDateTime.of(
                 (1990..2022).random(),
                 (1..12).random(),
@@ -51,6 +48,13 @@ class TestUtils {
                 (0..59).random()
             )
         }
+    }
+}
+
+class MangaTestUtil {
+    companion object MangaTestUtils {
+
+        private val MANGA_TEST_FILE_PATH = "storage/emulated/0/Manga/Manga of test.cbr"
 
         fun generateCovers(context: Context, mangas: ArrayList<Manga>) {
             for ((index, manga) in mangas.withIndex())
@@ -58,7 +62,7 @@ class TestUtils {
         }
 
         fun generateCovers(context: Context, manga: Manga, index: Int = 0) {
-            val minMap = getCoverMipmap(index)
+            val minMap = TestUtil.getCoverMipmap(index)
             val cover = BitmapFactory.decodeResource(context.resources, minMap)
             MangaImageCoverController.instance.saveCoverToCache(context, manga, cover)
         }
@@ -66,7 +70,7 @@ class TestUtils {
         fun getManga(context: Context, filePath: String = ""): Manga {
             val mangaPath = filePath.ifEmpty { MANGA_TEST_FILE_PATH }
             val manga = Manga(
-                1,
+                null,
                 Util.getNameFromPath(mangaPath),
                 mangaPath,
                 Util.getFolderFromPath(mangaPath),
@@ -82,10 +86,10 @@ class TestUtils {
                 "Séries",
                 "Publisher",
                 (1..15).random().toString(),
-                getRandomLocalDate(),
+                TestUtil.getRandomLocalDate(),
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA,
                 (1..5).random() > 2,
-                getRandomLocalDateTime(),
+                TestUtil.getRandomLocalDateTime(),
                 LocalDateTime.now(),
                 LocalDateTime.now(),
                 0,
@@ -132,10 +136,10 @@ class TestUtils {
                 "Séries",
                 "Publisher",
                 (1..15).random().toString(),
-                getRandomLocalDate(),
+                TestUtil.getRandomLocalDate(),
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA,
                 (1..5).random() > 2,
-                getRandomLocalDateTime(),
+                TestUtil.getRandomLocalDateTime(),
                 LocalDateTime.now(),
                 LocalDateTime.now(),
                 0,
@@ -172,10 +176,10 @@ class TestUtils {
                         "Séries",
                         "Publisher",
                         (1..15).random().toString(),
-                        getRandomLocalDate(),
+                        TestUtil.getRandomLocalDate(),
                         GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA,
                         i in 4..6,
-                        getRandomLocalDateTime(),
+                        TestUtil.getRandomLocalDateTime(),
                         LocalDateTime.now(),
                         LocalDateTime.now(),
                         0,
@@ -187,6 +191,33 @@ class TestUtils {
             return array
         }
 
+    }
+}
+
+class BookTestUtil {
+    companion object BookTestUtils {
+        private val BOOK_TEST_FILE_PATH = "storage/emulated/0/Book/Book of test.cbr"
+        fun clearCache(context: Context) {
+            val cache = File(
+                GeneralConsts.getCacheDir(context),
+                GeneralConsts.CACHE_FOLDER.BOOKS + '/'
+            )
+
+            if (cache.exists() && cache.listFiles() != null)
+                for (file in cache.listFiles())
+                    file.deleteRecursively()
+        }
+
+        fun generateCovers(context: Context, books: ArrayList<Book>) {
+            for ((index, book) in books.withIndex())
+                generateCovers(context, book, index)
+        }
+
+        fun generateCovers(context: Context, book: Book, index: Int = 0) {
+            val minMap = TestUtil.getCoverMipmap(index)
+            val cover = BitmapFactory.decodeResource(context.resources, minMap)
+            BookImageCoverController.instance.saveCoverToCache(context, book, cover)
+        }
 
         fun getBook(context: Context, filePath: String = ""): Book {
             val bookPath = filePath.ifEmpty { BOOK_TEST_FILE_PATH }
@@ -196,7 +227,7 @@ class TestUtils {
                 "Author",
                 "",
                 "Annotation",
-                getRandomLocalDateTime().format(
+                TestUtil.getRandomLocalDateTime().format(
                     DateTimeFormatter.ofPattern("yyyy-MM-dd")
                 ),
                 "Genre",
@@ -215,7 +246,7 @@ class TestUtils {
                 (1..2).random() > 1,
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK,
                 (1..5).random() > 4,
-                getRandomLocalDateTime(),
+                TestUtil.getRandomLocalDateTime(),
                 LocalDateTime.now(),
                 LocalDateTime.now(),
                 0,
@@ -252,7 +283,7 @@ class TestUtils {
                 "Author",
                 "",
                 "Annotation",
-                getRandomLocalDateTime().format(
+                TestUtil.getRandomLocalDateTime().format(
                     DateTimeFormatter.ofPattern("yyyy-MM-dd")
                 ),
                 "Genre",
@@ -271,7 +302,7 @@ class TestUtils {
                 (1..2).random() > 1,
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK,
                 (1..5).random() > 4,
-                getRandomLocalDateTime(),
+                TestUtil.getRandomLocalDateTime(),
                 LocalDateTime.now(),
                 LocalDateTime.now(),
                 0,
@@ -280,10 +311,10 @@ class TestUtils {
             )
         }
 
-        fun getArrayBooks(context: Context): ArrayList<Manga> {
-            val mangas = getArrayMangas()
-            generateCovers(context, mangas)
-            return mangas
+        fun getArrayBooks(context: Context): ArrayList<Book> {
+            val books = getArrayBooks()
+            generateCovers(context, books)
+            return books
         }
 
         fun getArrayBooks(): ArrayList<Book> {
@@ -297,7 +328,7 @@ class TestUtils {
                         "Author",
                         "",
                         "Annotation",
-                        getRandomLocalDateTime().format(
+                        TestUtil.getRandomLocalDateTime().format(
                             DateTimeFormatter.ofPattern("yyyy-MM-dd")
                         ),
                         "Genre",
@@ -316,7 +347,7 @@ class TestUtils {
                         (1..2).random() > 1,
                         GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK,
                         (1..5).random() > 4,
-                        getRandomLocalDateTime(),
+                        TestUtil.getRandomLocalDateTime(),
                         LocalDateTime.now(),
                         LocalDateTime.now(),
                         0,
@@ -327,6 +358,6 @@ class TestUtils {
 
             return array
         }
-
     }
 }
+

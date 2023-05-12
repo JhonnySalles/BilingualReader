@@ -1,19 +1,35 @@
 package br.com.fenix.bilingualreader.view.ui.reader.book
 
+import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.text.Html
+import android.text.Spanned
+import android.view.View
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.widget.TextView
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.BookConfiguration
-import br.com.fenix.bilingualreader.model.entity.BookAnnotation
-import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.entity.*
 import br.com.fenix.bilingualreader.model.enums.*
+import br.com.fenix.bilingualreader.service.controller.WebInterface
+import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.BookRepository
+import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FontUtil
+import br.com.fenix.bilingualreader.util.helpers.TextUtil
+import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.atomic.AtomicBoolean
 
 class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
@@ -23,11 +39,11 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
     private val mLOGGER = LoggerFactory.getLogger(BookReaderViewModel::class.java)
 
+    // --------------------------------------------------------- Fonts / Layout ---------------------------------------------------------
     private var mListFonts: MutableLiveData<MutableList<Pair<FontType, Boolean>>> = MutableLiveData(arrayListOf())
     val fonts: LiveData<MutableList<Pair<FontType, Boolean>>> = mListFonts
 
-    private var mAlignmentType: MutableLiveData<AlignmentLayoutType> =
-        MutableLiveData(AlignmentLayoutType.Justify)
+    private var mAlignmentType: MutableLiveData<AlignmentLayoutType> = MutableLiveData(AlignmentLayoutType.Justify)
     val alignmentType: LiveData<AlignmentLayoutType> = mAlignmentType
 
     private var mMarginType: MutableLiveData<MarginLayoutType> = MutableLiveData(MarginLayoutType.Small)
@@ -183,7 +199,15 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             SpacingLayoutType.Small,
             ScrollingType.Pagination,
             FontType.TimesNewRoman,
-            GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT
+            GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT,
+            mPreferences.getBoolean(
+                GeneralConsts.KEYS.READER.BOOK_INFINITY_SCROLL,
+                false
+            ),
+            mPreferences.getBoolean(
+                GeneralConsts.KEYS.READER.BOOK_READING_JAPANESE_MODE,
+                true
+            )
         )
         saveBookConfiguration(config)
     }
@@ -236,6 +260,32 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     fun setSelectMargin(margin: MarginLayoutType) {
         mMarginType.value = margin
         mDefaultCss = generateCSS()
+    }
+
+    @SuppressLint("JavascriptInterface")
+    fun prepareHtml(parse: DocumentParse?, page: Int, web: WebView, listener : View.OnTouchListener? = null, javascript: WebInterface? = null) {
+        var html =
+            "<!DOCTYPE html><html>" + getDefaultCSS() + "<body>" + parse?.getPage(
+                page
+            )?.pageHTMLWithImages.orEmpty() + "</body></html>"
+
+        if (html.contains("<image-begin>image"))
+            html = html.replace("<image-begin>", "<img src=\"data:")
+                .replace("<image-end>", "\" />")
+
+        html = TextUtil.formatHtml(html)
+
+        web.loadDataWithBaseURL("file:///android_res/", html, "text/html", "UTF-8", null)
+
+        if (listener != null)
+            web.setOnTouchListener(listener)
+
+        web.settings.javaScriptEnabled = true
+        web.settings.defaultFontSize = mWebFontSize
+        web.setBackgroundColor(Color.TRANSPARENT)
+        // Use variable android in javascript to call functions java
+        if (javascript != null)
+            web.addJavascriptInterface(javascript, "android")
     }
 
 }

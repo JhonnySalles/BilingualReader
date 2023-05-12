@@ -18,6 +18,7 @@ import br.com.fenix.bilingualreader.model.entity.BookSearch
 import br.com.fenix.bilingualreader.service.listener.BookSearchHistoryListener
 import br.com.fenix.bilingualreader.service.listener.BookSearchListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
+import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.view.adapter.book.BookSearchHistoryAdapter
 import br.com.fenix.bilingualreader.view.adapter.book.BookSearchLineAdapter
@@ -65,7 +66,7 @@ class BookSearchFragment : Fragment() {
             val path = it.getString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PATH)
             val password = it.getString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PASSWORD)
             val fontSize = it.getInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE)
-            mViewModel.initialize(book, DocumentParse(path!!, password!!, fontSize))
+            mViewModel.initialize(book, SharedData.getDocumentParse() ?: DocumentParse(path!!, password!!, fontSize))
         }
     }
 

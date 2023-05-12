@@ -146,6 +146,9 @@ class GeneralConsts private constructor() {
             const val BOOK_PAGE_FONT_TYPE_JAPANESE = "BOOK_PAGE_FONT_TYPE_JAPANESE"
             const val BOOK_PAGE_FONT_SIZE = "BOOK_PAGE_FONT_SIZE"
             const val BOOK_PAGE_FONT_SIZE_DEFAULT = 5f
+            const val BOOK_READING_JAPANESE_MODE = "BOOK_READING_JAPANESE_MODE"
+            const val BOOK_PROCESS_VOCABULARY = "BOOK_PROCESS_VOCABULARY"
+            const val BOOK_INFINITY_SCROLL = "BOOK_INFINITY_SCROLL"
         }
 
         object SYSTEM {
@@ -171,6 +174,12 @@ class GeneralConsts private constructor() {
         object VOCABULARY {
             const val TEXT = "VOCABULARY_TEXT"
             const val TYPE = "VOCABULARY_TYPE"
+        }
+
+        object CHAPTERS {
+            const val TITLE = "CHAPTERS_TITLE"
+            const val NUMBER = "CHAPTERS_NUMBER"
+            const val PAGE = "CHAPTERS_PAGE"
         }
 
         object OBJECT {
@@ -294,9 +303,11 @@ class GeneralConsts private constructor() {
         const val CONFIG_LIBRARIES = 600
         const val SELECT_MANGA = 601
         const val MANGA_DETAIL = 602
-        const val BOOK_DETAIL = 603
-        const val BOOK_SEARCH = 603
-        const val BOOK_ANNOTATION = 604
+        const val MANGA_CHAPTERS = 603
+        const val BOOK_DETAIL = 604
+        const val BOOK_SEARCH = 605
+        const val BOOK_ANNOTATION = 606
+        const val BOOK_CHAPTERS = 607
     }
 
 }

@@ -28,6 +28,13 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0" />
 
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/popup_book_reading_japanese_mode"
+        style="@style/SwitchMaterial"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/config_book_japanese_reading_mode" />
+
     <com.google.android.material.divider.MaterialDivider
         style="@style/MaterialDivider"
         android:layout_width="match_parent"
@@ -36,6 +43,14 @@
         android:layout_marginTop="@dimen/margin_big"
         android:layout_marginRight="@dimen/margin"
         android:layout_marginBottom="@dimen/margin_small"/>
+
+    <TextView
+        style="@style/TextTitle.Config"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin"
+        android:layout_marginBottom="@dimen/margin_small"
+        android:text="@string/config_book_font_size" />
 
     <LinearLayout
         android:layout_width="match_parent"

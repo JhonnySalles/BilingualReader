@@ -14,6 +14,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/reader_book_cover_content"
+        style="@style/AppBackground.Reader"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <ImageView
@@ -21,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:transitionName="transition_manga_cover"
-            android:layout_margin="5dp"
+            android:layout_margin="50dp"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
             android:clipToOutline="true"

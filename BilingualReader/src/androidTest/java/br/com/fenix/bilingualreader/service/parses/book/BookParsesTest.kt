@@ -5,7 +5,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FontUtil
-import br.com.fenix.bilingualreader.utils.TestUtils
+import br.com.fenix.bilingualreader.utils.BookTestUtil
 import junit.framework.TestCase
 import org.junit.FixMethodOrder
 import org.junit.Test
@@ -21,20 +21,20 @@ class BookParsesTest {
 
     // Inform a file test here
     private val filePath = "/storage/1D01-1E06/Livros/"
-    private val bookEPUB: Book = TestUtils.getBook(ApplicationProvider.getApplicationContext(), filePath + "Russian-Roulette-epub.epub")
-    private val bookMOBI: Book = TestUtils.getBook(ApplicationProvider.getApplicationContext(), filePath + "Fundacao_-_Isaac_Asimov.pdf")
-    private val bookTXT: Book = TestUtils.getBook(ApplicationProvider.getApplicationContext(), filePath + "Parecido.txt")
-    private val bookFB2: Book = TestUtils.getBook(ApplicationProvider.getApplicationContext(), filePath + "Russian-Roulette-fb2.fb2")
-    private val bookPDF: Book = TestUtils.getBook(ApplicationProvider.getApplicationContext(), filePath + "Fundacao_-_Isaac_Asimov.pdf")
-    private val bookRTF: Book = TestUtils.getBook(ApplicationProvider.getApplicationContext(), filePath + "Russian-Roulette-rtf.rtf")
+    private val bookEPUB: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), filePath + "Russian-Roulette-epub.epub")
+    private val bookMOBI: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), filePath + "Fundacao_-_Isaac_Asimov.pdf")
+    private val bookTXT: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), filePath + "Parecido.txt")
+    private val bookFB2: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), filePath + "Russian-Roulette-fb2.fb2")
+    private val bookPDF: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), filePath + "Fundacao_-_Isaac_Asimov.pdf")
+    private val bookRTF: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), filePath + "Russian-Roulette-rtf.rtf")
 
-    private val bookAZW3: Book = TestUtils.getBook(ApplicationProvider.getApplicationContext(), filePath + "Russian-Roulette-azw3.azw3")
-    private val bookDJVU: Book = TestUtils.getBook(ApplicationProvider.getApplicationContext(), filePath + "Download.djvu")
+    private val bookAZW3: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), filePath + "Russian-Roulette-azw3.azw3")
+    private val bookDJVU: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), filePath + "Download.djvu")
 
-    private val bookPDB: Book = TestUtils.getBook(ApplicationProvider.getApplicationContext(), filePath + "Russian-Roulette-pdb.pdb")
-    private val bookDOC: Book = TestUtils.getBook(ApplicationProvider.getApplicationContext(), filePath + "9780008117498.doc")
-    private val bookDOCX: Book = TestUtils.getBook(ApplicationProvider.getApplicationContext(), filePath + "Teste.docx")
-    private val bookODT: Book = TestUtils.getBook(ApplicationProvider.getApplicationContext(), filePath + "9780008117498.odt")
+    private val bookPDB: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), filePath + "Russian-Roulette-pdb.pdb")
+    private val bookDOC: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), filePath + "9780008117498.doc")
+    private val bookDOCX: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), filePath + "Teste.docx")
+    private val bookODT: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), filePath + "9780008117498.odt")
 
     private val books = arrayListOf(bookEPUB, bookMOBI, bookTXT, bookFB2, bookPDF, bookRTF)
 

@@ -129,9 +129,16 @@
         app:showAsAction="never"/>
 
     <item
+        android:id="@+id/menu_item_reader_manga_chapters_menu"
+        android:icon="@drawable/ic_item_chapters_menu"
+        android:orderInCategory="106"
+        android:title="@string/menu_manga_reading_chapters_menu"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/menu_item_reader_manga_save_share_image"
         android:icon="@drawable/ic_save_share_image"
-        android:orderInCategory="106"
+        android:orderInCategory="107"
         android:title="@string/menu_manga_reading_save_share_image"
         app:showAsAction="never"/>
 

@@ -5,7 +5,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.Pages
+import br.com.fenix.bilingualreader.model.entity.Chapters
 import br.com.fenix.bilingualreader.service.listener.ChapterCardListener
 import com.google.android.material.card.MaterialCardView
 
@@ -21,8 +21,8 @@ class MangaChaptersViewHolder(itemView: View, private val listener: ChapterCardL
         mPageSelectStroke = itemView.resources.getDimension(R.dimen.manga_chapter_selected_stroke).toInt()
     }
 
-    fun bind(page: Pages) {
-        val card = itemView.findViewById<MaterialCardView>(R.id.chapter_card)
+    fun bind(page: Chapters) {
+        val card = itemView.findViewById<MaterialCardView>(R.id.manga_chapter_card)
         val image = itemView.findViewById<ImageView>(R.id.manga_chapter_image)
         val number = itemView.findViewById<TextView>(R.id.manga_chapter_number)
 

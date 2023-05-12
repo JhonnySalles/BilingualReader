@@ -41,6 +41,7 @@ abstract class MangaDAO : DataBaseDAO<Manga> {
     @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY + " = :library AND " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 1 AND " + DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION + " >= datetime('now','-1 day')")
     abstract fun listRecentDeleted(library: Long?): List<Manga>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
         "SELECT * FROM ( " +
                 " SELECT ${DataBaseConsts.MANGA.COLUMNS.ID}, ${DataBaseConsts.MANGA.COLUMNS.TITLE}, ${DataBaseConsts.MANGA.COLUMNS.FILE_PATH}, " +
@@ -567,6 +568,7 @@ abstract class BookAnnotationDAO : DataBaseDAO<BookAnnotation> {
     @Query("SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook")
     abstract fun findAll(idBook: Long): List<BookAnnotation>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
         "SELECT * FROM ( " +
                 " SELECT ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ID}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGE}, " +

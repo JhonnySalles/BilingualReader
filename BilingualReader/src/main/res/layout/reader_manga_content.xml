@@ -31,7 +31,7 @@
 
         <include
             android:id="@+id/reader_manga_container_chapters_list"
-            layout="@layout/list_reader_chapters"
+            layout="@layout/list_manga_reader_chapters"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
