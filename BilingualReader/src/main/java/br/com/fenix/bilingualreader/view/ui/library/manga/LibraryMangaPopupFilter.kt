@@ -11,9 +11,9 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Filter
 import org.slf4j.LoggerFactory
 
-class PopupFilter : Fragment() {
+class LibraryMangaPopupFilter : Fragment() {
 
-    private val mLOGGER = LoggerFactory.getLogger(PopupFilter::class.java)
+    private val mLOGGER = LoggerFactory.getLogger(LibraryMangaPopupFilter::class.java)
 
     private lateinit var mViewModel: MangaLibraryViewModel
 

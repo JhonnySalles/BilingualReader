@@ -77,7 +77,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     private lateinit var mMenuPopupFilterOrder: FrameLayout
     private lateinit var mPopupFilterOrderView: ViewPager
     private lateinit var mPopupFilterOrderTab: TabLayout
-    private lateinit var mPopupFilterFragment: PopupFilter
+    private lateinit var mPopupFilterFragment: LibraryMangaPopupFilter
     private lateinit var mPopupOrderFragment: LibraryMangaPopupOrder
     private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
 
@@ -524,7 +524,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
         mPopupFilterOrderTab.setupWithViewPager(mPopupFilterOrderView)
 
-        mPopupFilterFragment = PopupFilter()
+        mPopupFilterFragment = LibraryMangaPopupFilter()
         mPopupOrderFragment = LibraryMangaPopupOrder(this)
 
         BottomSheetBehavior.from(mMenuPopupFilterOrder).apply {

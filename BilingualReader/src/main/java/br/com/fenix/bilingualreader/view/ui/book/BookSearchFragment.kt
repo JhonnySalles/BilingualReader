@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.view.ui.book
 
+import android.content.res.Configuration
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Build
 import android.os.Bundle
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookSearch
+import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.listener.BookSearchHistoryListener
 import br.com.fenix.bilingualreader.service.listener.BookSearchListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
@@ -66,7 +68,9 @@ class BookSearchFragment : Fragment() {
             val path = it.getString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PATH)
             val password = it.getString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PASSWORD)
             val fontSize = it.getInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE)
-            mViewModel.initialize(book, SharedData.getDocumentParse() ?: DocumentParse(path!!, password!!, fontSize))
+            val isJapanese = book.language == Languages.JAPANESE
+            val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+            mViewModel.initialize(book, SharedData.getDocumentParse() ?: DocumentParse(path!!, password!!, fontSize, isLandscape, isJapanese))
         }
     }
 

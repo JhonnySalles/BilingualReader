@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.service.parses.book
 
 import android.content.Context
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.RectF
@@ -24,7 +25,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.Serializable
 
-class DocumentParse(var path: String, var password: String = "", var fontSizeDips: Int) : CodecDocument, Serializable {
+class DocumentParse(var path: String, var password: String = "", var fontSizeDips: Int, var isLandscape: Boolean, var isJapanese: Boolean = false) : CodecDocument {
 
     private val mLOGGER = LoggerFactory.getLogger(DocumentParse::class.java)
 
@@ -32,7 +33,7 @@ class DocumentParse(var path: String, var password: String = "", var fontSizeDip
         System.loadLibrary("mypdf")
         System.loadLibrary("mobi")
 
-        openBook(path, password, fontSizeDips)
+        openBook(path, password, fontSizeDips, isLandscape, isJapanese)
 
         if (!isLoaded())
             throw BookLoadException("Could not open selected book: " + path)
@@ -53,8 +54,8 @@ class DocumentParse(var path: String, var password: String = "", var fontSizeDip
     }
 
 
-    private val mWidth: Int = Resources.getSystem().displayMetrics.widthPixels
-    private val mHeight: Int = Resources.getSystem().displayMetrics.heightPixels
+    private var mWidth: Int = Resources.getSystem().displayMetrics.widthPixels
+    private var mHeight: Int = Resources.getSystem().displayMetrics.heightPixels
 
     private var isLoading = false
     private var isLoaded = false
@@ -67,22 +68,31 @@ class DocumentParse(var path: String, var password: String = "", var fontSizeDip
         fontSize
     ) ?: 1
 
-    fun openBook(path: String, password: String = "", fontSizeDips: Int) : DocumentParse {
+    fun openBook(path: String, password: String = "", fontSizeDips: Int, isLandscape: Boolean, isJapanese: Boolean) : DocumentParse {
         try {
             clear()
             val metrics = Resources.getSystem().displayMetrics
+
+            if (isLandscape) {
+                mWidth = if (isJapanese) metrics.heightPixels else metrics.widthPixels
+                mHeight = (if (isJapanese) metrics.widthPixels else metrics.heightPixels) - 6
+            } else {
+                mWidth = (if (isJapanese) metrics.heightPixels else metrics.widthPixels) - 2
+                mHeight = if (isJapanese) metrics.widthPixels else metrics.heightPixels
+            }
+
             mCodecDocument = ImageExtractor.getNewCodecContext(
                 path,
                 password,
-                metrics.widthPixels,
-                metrics.heightPixels,
+                mWidth,
+                mHeight,
                 fontSizeDips
             )
             isLoaded = mCodecDocument != null
             return this
         } catch (e : Exception) {
             mLOGGER.error(e.message, e)
-            throw BookLoadException("Could not open selected book: " + path)
+            throw BookLoadException("Could not open selected book: $path")
         }
     }
 

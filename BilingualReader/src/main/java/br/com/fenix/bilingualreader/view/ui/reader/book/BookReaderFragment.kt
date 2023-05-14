@@ -30,6 +30,7 @@ import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
+import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.exceptions.BookLoadException
@@ -159,8 +160,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                 if (mBook == null)
                     mBook = mStorage.findBookByName(file.name)
 
+                mViewModel.loadConfiguration(mBook)
+
                 mParse = try {
-                    DocumentParse(file.path, mBook?.password ?: "", FontUtil.pixelToDips(requireContext(), mViewModel.fontSize.value!!))
+                    DocumentParse(file.path, mBook?.password ?: "", FontUtil.pixelToDips(requireContext(), mViewModel.fontSize.value!!), resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE, mViewModel.isJapanese)
                 } catch (e: BookLoadException) {
                     null
                 }
@@ -515,6 +518,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     fun setCurrentPage(page: Int) {
+        System.out.println(page)
 
         if (mIsLeftToRight)
             mViewPager.currentItem = page - 1

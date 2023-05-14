@@ -423,6 +423,20 @@
     <string name="popup_library_manga_filter_favorite">Favoritos</string>
     <string name="popup_library_manga_filter_reading">Lendo</string>
 
+    <!-- POPUP LIBRARY - Book -->
+    <string name="popup_library_book_tab_item_ordering">Ordenação</string>
+    <string name="popup_library_book_tab_item_filter">Filtro</string>
+
+    <string name="popup_library_book_order_name">Por nome</string>
+    <string name="popup_library_book_order_date">Por data</string>
+    <string name="popup_library_book_order_access">Último acesso</string>
+    <string name="popup_library_book_order_favorite">Favoritos primeiro</string>
+    <string name="popup_library_book_order_genre">Por gênero</string>
+    <string name="popup_library_book_order_author">Por autor</string>
+
+    <string name="popup_library_book_filter_favorite">Favoritos</string>
+    <string name="popup_library_book_filter_reading">Lendo</string>
+
     <!-- MANGA DETAIL -->
     <string name="manga_detail_favorite">Favorito</string>
     <string name="manga_detail_clear_history">Limpar histórico</string>

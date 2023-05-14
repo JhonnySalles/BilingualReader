@@ -2,17 +2,10 @@ package br.com.fenix.bilingualreader.view.ui.reader.book
 
 import android.annotation.SuppressLint
 import android.app.Application
-import android.content.Context
 import android.content.SharedPreferences
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Color
-import android.text.Html
-import android.text.Spanned
 import android.view.View
 import android.webkit.WebView
-import android.webkit.WebViewClient
-import android.widget.TextView
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -22,14 +15,11 @@ import br.com.fenix.bilingualreader.model.enums.*
 import br.com.fenix.bilingualreader.service.controller.WebInterface
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.BookRepository
-import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FontUtil
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.atomic.AtomicBoolean
 
 class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
@@ -71,6 +61,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private var mDefaultCss : String = ""
     var mWebFontSize = FontUtil.pixelToDips(app.applicationContext, fontSize.value!!)
 
+    var isJapanese = true
+
     init {
         loadPreferences(false)
     }
@@ -85,7 +77,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         val fontColor = if(app.resources.getBoolean(R.bool.isNight)) "#ffffff" else "#000000"
 
         val fontType = fontType.value?.name ?: FontType.TimesNewRoman.name
-        val fontSize =  FontUtil.pixelToDips(app.applicationContext, fontSize.value!!).toString() + "px"
+        val fontSize = FontUtil.pixelToDips(app.applicationContext, fontSize.value!!).toString() + "px"
 
         val margin = when (marginType.value) {
             MarginLayoutType.Small -> "10px"
@@ -109,6 +101,12 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             else -> "justify"
         }
 
+        val img = "img {" +
+                "  max-width: 100%;" +
+                "  max-height: 100%;" +
+                "}"
+
+        val meta = "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=2, user-scalable=yes\" >"
         val style = "<style type=\"text/css\"> " +
                 mFontsLocation +
                 "body { " +
@@ -117,12 +115,19 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 "  color: $fontColor; " +
                 "  line-height: $spacing; " +
                 "  text-align: $alignment; " +
-                "  margin: $margin $margin 50px $margin; " +
-                "  margin-bottom: 50px; " +
+                "  margin: $margin $margin $margin $margin; " +
+                (if (isJapanese) " -webkit-text-orientation: upright; -webkit-writing-mode: vertical-rl;" else "") +
                 "} " +
+                img +
                 "</style>"
         mFontCss.value = style
-        return "<head>$style</head>"
+        return "<head>$meta$style</head>"
+    }
+
+    fun loadConfiguration(book: Book?) {
+        isJapanese = book?.language == Languages.JAPANESE
+        val config : BookConfiguration? = if (book?.id != null) mRepository.findConfiguration(book.id!!) else null
+        loadConfiguration(config)
     }
 
     private fun loadPreferences(isJapanese: Boolean) {
@@ -155,11 +160,11 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         )
 
         val typeKey = if (isJapanese) GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE_JAPANESE else GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE_NORMAL
-        val typeDefalt = if (isJapanese) FontType.BabelStoneErjian1.toString() else FontType.TimesNewRoman.toString()
+        val typeDefault = if (isJapanese) FontType.BabelStoneErjian1.toString() else FontType.TimesNewRoman.toString()
         mFontType.value = FontType.valueOf(
             mPreferences.getString(
                 typeKey,
-                typeDefalt
+                typeDefault
             )!!
         )
 
@@ -171,11 +176,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         mDefaultCss = generateCSS()
     }
 
-    fun loadDefaultConfiguration(isJapanese: Boolean) {
-        loadPreferences(isJapanese)
-    }
-
-    fun loadBookConfiguration(isJapanese: Boolean, configuration: BookConfiguration?) {
+    fun loadConfiguration(configuration: BookConfiguration?) {
         if (configuration == null)
             loadPreferences(isJapanese)
         else {
@@ -282,6 +283,12 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
         web.settings.javaScriptEnabled = true
         web.settings.defaultFontSize = mWebFontSize
+        web.setLayerType(WebView.LAYER_TYPE_NONE, null)
+
+        web.settings.setSupportZoom(true)
+        web.settings.builtInZoomControls = true
+        web.settings.displayZoomControls = false
+
         web.setBackgroundColor(Color.TRANSPARENT)
         // Use variable android in javascript to call functions java
         if (javascript != null)

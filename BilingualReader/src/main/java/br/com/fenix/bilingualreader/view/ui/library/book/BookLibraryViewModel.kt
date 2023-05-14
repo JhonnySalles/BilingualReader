@@ -240,25 +240,51 @@ class BookLibraryViewModel(application: Application) : AndroidViewModel(applicat
     fun isEmpty(): Boolean =
         mListBook.value == null || mListBook.value!!.isEmpty()
 
-    fun sorted(order: Order) {
-        when (order) {
-            Order.Date -> {
-                mListBookFull.value!!.sortBy { it.dateCreate }
-                mListBook.value!!.sortBy { it.dateCreate }
+    fun sorted() {
+        sorted(mOrder.value?.first ?: Order.Name)
+    }
+
+    fun sorted(order: Order, isDesc: Boolean = false) {
+        mOrder.value = Pair(order, isDesc)
+
+        if (isDesc)
+            when (order) {
+                Order.Date -> {
+                    mListBookFull.value!!.sortByDescending { it.dateCreate }
+                    mListBook.value!!.sortByDescending { it.dateCreate }
+                }
+                Order.LastAccess -> {
+                    mListBookFull.value!!.sortWith(compareByDescending<Book> { it.lastAccess }.thenByDescending { it.name })
+                    mListBook.value!!.sortWith(compareByDescending<Book> { it.lastAccess }.thenByDescending { it.name })
+                }
+                Order.Favorite -> {
+                    mListBookFull.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenByDescending { it.name })
+                    mListBook.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenByDescending { it.name })
+                }
+                else -> {
+                    mListBookFull.value!!.sortByDescending { it.name }
+                    mListBook.value!!.sortByDescending { it.name }
+                }
             }
-            Order.LastAccess -> {
-                mListBookFull.value!!.sortWith(compareByDescending<Book> { it.lastAccess }.thenBy { it.name })
-                mListBook.value!!.sortWith(compareByDescending<Book> { it.lastAccess }.thenBy { it.name })
+        else
+            when (order) {
+                Order.Date -> {
+                    mListBookFull.value!!.sortBy { it.dateCreate }
+                    mListBook.value!!.sortBy { it.dateCreate }
+                }
+                Order.LastAccess -> {
+                    mListBookFull.value!!.sortWith(compareByDescending<Book> { it.lastAccess }.thenBy { it.name })
+                    mListBook.value!!.sortWith(compareByDescending<Book> { it.lastAccess }.thenBy { it.name })
+                }
+                Order.Favorite -> {
+                    mListBookFull.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenBy { it.name })
+                    mListBook.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenBy { it.name })
+                }
+                else -> {
+                    mListBookFull.value!!.sortBy { it.name }
+                    mListBook.value!!.sortBy { it.name }
+                }
             }
-            Order.Favorite -> {
-                mListBookFull.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenBy { it.name })
-                mListBook.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenBy { it.name })
-            }
-            else -> {
-                mListBookFull.value!!.sortBy { it.name }
-                mListBook.value!!.sortBy { it.name }
-            }
-        }
     }
 
     fun clearFilter() {

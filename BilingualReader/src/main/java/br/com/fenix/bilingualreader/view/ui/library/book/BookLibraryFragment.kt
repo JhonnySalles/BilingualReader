@@ -4,7 +4,9 @@ import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.content.res.Resources
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.*
 import android.util.Pair
 import android.view.*
@@ -14,12 +16,16 @@ import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.enums.*
@@ -28,20 +34,24 @@ import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.service.scanner.ScannerBook
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.view.adapter.library.BookGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookLineCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
+import br.com.fenix.bilingualreader.view.components.PopupOrderListener
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryFragment
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
 import java.util.*
 import kotlin.math.max
 
 
-class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
+class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener {
 
     private val mLOGGER = LoggerFactory.getLogger(BookLibraryFragment::class.java)
 
@@ -49,8 +59,6 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
     private lateinit var mViewModel: BookLibraryViewModel
     private lateinit var mainFunctions: MainListener
-
-    private var mOrderBy: Order = Order.Name
 
     private lateinit var mMapOrder: HashMap<Order, String>
     private lateinit var mRoot: FrameLayout
@@ -63,6 +71,12 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     private lateinit var mListener: BookCardListener
     private lateinit var mScrollUp: FloatingActionButton
     private lateinit var mScrollDown: FloatingActionButton
+    private lateinit var mMenuPopupFilterOrder: FrameLayout
+    private lateinit var mPopupFilterOrderView: ViewPager
+    private lateinit var mPopupFilterOrderTab: TabLayout
+    private lateinit var mPopupFilterFragment: LibraryBookPopupFilter
+    private lateinit var mPopupOrderFragment: LibraryBookPopupOrder
+    private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
 
     private var mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
@@ -70,6 +84,8 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
     companion object {
         var mGridType: LibraryBookType = LibraryBookType.GRID
+        var mSortType: Order = Order.Name
+        var mSortDesc: Boolean = false
     }
 
     private val mUpdateHandler: Handler = UpdateHandler()
@@ -111,7 +127,44 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         })
 
         enableSearchView(searchView, !mRefreshLayout.isRefreshing)
-        onChangeIconLayout()
+
+        MenuUtil.longClick(requireActivity(), R.id.menu_book_library_list_order) {
+            if (!mRefreshLayout.isRefreshing)
+                onOpenMenuSort()
+        }
+
+        val iconGrid: Int = when (mGridType) {
+            LibraryBookType.GRID -> R.drawable.ic_type_grid_big
+            else -> R.drawable.ic_type_list
+        }
+
+        miGridType.setIcon(iconGrid)
+
+        val iconSort: Int = when (mSortType) {
+            Order.LastAccess -> R.drawable.ico_animated_sort_to_desc_last_access
+            Order.Favorite -> R.drawable.ico_animated_sort_to_desc_favorited
+            Order.Date -> R.drawable.ico_animated_sort_to_desc_date_created
+            else -> R.drawable.ico_animated_sort_to_desc_name
+        }
+        miGridOrder.setIcon(iconSort)
+
+        MenuUtil.longClick(requireActivity(), R.id.menu_manga_library_list_order) {
+            if (!mRefreshLayout.isRefreshing)
+                onOpenMenuSort()
+        }
+
+        miGridOrder.setOnMenuItemClickListener {
+            onChangeSort()
+            true
+        }
+
+        mViewModel.order.observe(viewLifecycleOwner) {
+            if (it.first == mSortType && it.second == mSortDesc)
+                return@observe
+
+            val isDesc = if (mSortType == it.first) it.second else null
+            onChangeIconSort(it.first, isDesc)
+        }
     }
 
     private fun filter(text: String?) {
@@ -219,11 +272,20 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         return super.onOptionsItemSelected(menuItem)
     }
 
+    private fun onOpenMenuSort() {
+        mMenuPopupFilterOrder.visibility = View.VISIBLE
+        mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
+        mMenuPopupFilterOrder.translationY = 100F
+        mMenuPopupFilterOrder.animate()
+            .setDuration(200)
+            .translationY(0f)
+    }
+
     private fun onChangeSort() {
         if (mRefreshLayout.isRefreshing)
             return
 
-        mOrderBy = when (mOrderBy) {
+        val orderBy = when (mViewModel.order.value?.first) {
             Order.Name -> Order.Date
             Order.Date -> Order.Favorite
             Order.Favorite -> Order.LastAccess
@@ -233,23 +295,74 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
         Toast.makeText(
             requireContext(),
-            getString(R.string.menu_reading_book_order_change, mMapOrder[mOrderBy]),
+            getString(R.string.menu_reading_book_order_change, mMapOrder[orderBy]),
             Toast.LENGTH_SHORT
         ).show()
 
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         with(sharedPreferences.edit()) {
-            this!!.putString(GeneralConsts.KEYS.LIBRARY.MANGA_ORDER, mOrderBy.toString())
+            this!!.putString(GeneralConsts.KEYS.LIBRARY.MANGA_ORDER, orderBy.toString())
             this.commit()
         }
 
-        if (mViewModel.listBook.value != null)
-            sortList()
+        if (mViewModel.listBook.value != null) {
+            mViewModel.sorted(orderBy)
+            val range = (mViewModel.listBook.value?.size ?: 1)
+            notifyDataSet(0, range)
+        }
+    }
 
+    private fun onChangeIconSort(order: Order, isDesc: Boolean?) {
+        if (isDesc != null) {
+            val icon: Int? = when (order) {
+                Order.Name -> if (isDesc) R.drawable.ico_animated_sort_to_desc_name else R.drawable.ico_animated_sort_to_asc_name
+                Order.Favorite -> if (isDesc) R.drawable.ico_animated_sort_to_desc_favorited else R.drawable.ico_animated_sort_to_asc_favorited
+                Order.LastAccess -> if (isDesc) R.drawable.ico_animated_sort_to_desc_last_access else R.drawable.ico_animated_sort_to_asc_last_access
+                Order.Date -> if (isDesc) R.drawable.ico_animated_sort_to_desc_date_created else R.drawable.ico_animated_sort_to_asc_date_created
+                Order.Author -> if (isDesc) R.drawable.ico_animated_sort_to_desc_author else R.drawable.ico_animated_sort_to_asc_author
+                else -> null
+            }
+            mSortDesc = isDesc
+            if (icon != null)
+                MenuUtil.animatedSequenceDrawable(miGridOrder, icon)
+        } else {
+            val initial: Int? = if (mSortDesc)
+                when (mSortType) {
+                    Order.Name -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_name
+                    Order.Favorite -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_favorited
+                    Order.LastAccess -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_last_access
+                    Order.Date -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_date_created
+                    Order.Author -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_author
+                    else -> null
+                } else
+                when (mSortType) {
+                    Order.Name -> R.drawable.ico_animated_sort_asc_ico_exit_name
+                    Order.Favorite -> R.drawable.ico_animated_sort_asc_ico_exit_favorited
+                    Order.LastAccess -> R.drawable.ico_animated_sort_asc_ico_exit_last_access
+                    Order.Date -> R.drawable.ico_animated_sort_asc_ico_exit_date_created
+                    Order.Author -> R.drawable.ico_animated_sort_asc_ico_exit_author
+                    else -> null
+                }
+
+            val final: Int? = when (order) {
+                Order.Name -> R.drawable.ico_animated_sort_asc_ico_enter_name
+                Order.Favorite -> R.drawable.ico_animated_sort_asc_ico_enter_favorited
+                Order.LastAccess -> R.drawable.ico_animated_sort_asc_ico_enter_last_access
+                Order.Date -> R.drawable.ico_animated_sort_asc_ico_enter_date_created
+                Order.Author -> R.drawable.ico_animated_sort_asc_ico_enter_author
+                else -> null
+            }
+
+            if (initial != null && final != null)
+                MenuUtil.animatedSequenceDrawable(miGridOrder, initial, final)
+
+            mSortDesc = false
+        }
+        mSortType = order
     }
 
     private fun sortList() {
-        mViewModel.sorted(mOrderBy)
+        mViewModel.sorted()
         val range = (mViewModel.listBook.value?.size ?: 1)
         notifyDataSet(0, range)
     }
@@ -273,10 +386,11 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
     private fun onChangeIconLayout() {
         val icon: Int = when (mGridType) {
-            LibraryBookType.GRID -> R.drawable.ic_type_grid_big
-            else -> R.drawable.ic_type_list
+            LibraryBookType.GRID -> R.drawable.ico_animated_type_grid_list_to_gridbig
+            else -> R.drawable.ico_animated_type_grid_gridbig_to_list
         }
         miGridType.setIcon(icon)
+        (miGridType.icon as AnimatedVectorDrawable).start()
     }
 
     override fun onCreateView(
@@ -306,6 +420,15 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         mScrollUp = root.findViewById(R.id.book_library_scroll_up)
         mScrollDown = root.findViewById(R.id.book_library_scroll_down)
 
+        mMenuPopupFilterOrder = root.findViewById(R.id.book_library_popup_menu_order_filter)
+        mPopupFilterOrderTab = root.findViewById(R.id.book_library_popup_order_filter_tab)
+        mPopupFilterOrderView = root.findViewById(R.id.book_library_popup_order_filter_view_pager)
+
+        root.findViewById<ImageView>(R.id.book_library_popup_menu_order_filter_close)
+            .setOnClickListener {
+                mMenuPopupFilterOrder.visibility = View.GONE
+            }
+
         ComponentsUtil.setThemeColor(requireContext(), mRefreshLayout)
         mRefreshLayout.setOnRefreshListener(this)
         mRefreshLayout.isEnabled = true
@@ -326,6 +449,39 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
             setAnimationRecycler(false)
             mRecyclerView.smoothScrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount)
         }
+
+        mPopupFilterOrderTab.setupWithViewPager(mPopupFilterOrderView)
+
+        mPopupFilterFragment = LibraryBookPopupFilter()
+        mPopupOrderFragment = LibraryBookPopupOrder(this)
+
+        BottomSheetBehavior.from(mMenuPopupFilterOrder).apply {
+            peekHeight = 195
+            this.state = BottomSheetBehavior.STATE_COLLAPSED
+            mBottomSheet = this
+        }
+        mBottomSheet.isDraggable = true
+
+        root.findViewById<ImageView>(R.id.book_library_popup_menu_order_filter_touch)
+            .setOnClickListener {
+                if (mBottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED)
+                    mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
+                else
+                    mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+
+        val viewFilterOrderPagerAdapter =
+            ViewPagerAdapter(requireActivity().supportFragmentManager, 0)
+        viewFilterOrderPagerAdapter.addFragment(
+            mPopupFilterFragment,
+            resources.getString(R.string.popup_library_book_tab_item_filter)
+        )
+        viewFilterOrderPagerAdapter.addFragment(
+            mPopupOrderFragment,
+            resources.getString(R.string.popup_library_book_tab_item_ordering)
+        )
+
+        mPopupFilterOrderView.adapter = viewFilterOrderPagerAdapter
 
         mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -530,12 +686,22 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
     private fun loadConfig() {
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
-        mOrderBy = Order.valueOf(
+        mSortType = Order.valueOf(
             sharedPreferences.getString(
                 GeneralConsts.KEYS.LIBRARY.BOOK_ORDER,
                 Order.Name.toString()
             ).toString()
         )
+
+        mGridType = LibraryBookType.valueOf(
+            sharedPreferences.getString(
+                GeneralConsts.KEYS.LIBRARY.BOOK_LIBRARY_TYPE,
+                LibraryBookType.LINE.toString()
+            )
+                .toString()
+        )
+
+        mViewModel.sorted(mSortType)
     }
 
     override fun onRequestPermissionsResult(
@@ -646,6 +812,26 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
             ScannerBook.getInstance(requireContext()).scanLibrary(mViewModel.getLibrary())
         }
     }
+    override fun popupOrderOnChange() {
+        val range = (mViewModel.listBook.value?.size ?: 1)
+        notifyDataSet(0, range)
+    }
+
+    override fun popupSorted(order: Order) {
+        mViewModel.sorted(order)
+    }
+
+    override fun popupSorted(order: Order, isDesc: Boolean) {
+        mViewModel.sorted(order, isDesc)
+    }
+
+    override fun popupGetOrder(): kotlin.Pair<Order, Boolean>? {
+        return mViewModel.order.value
+    }
+
+    override fun popupGetObserver(): LiveData<kotlin.Pair<Order, Boolean>> {
+        return mViewModel.order
+    }
 
     private var itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
         override fun onMove(
@@ -714,4 +900,24 @@ class BookLibraryFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         }
     }
 
+    inner class ViewPagerAdapter(fm: FragmentManager, behavior: Int) : FragmentPagerAdapter(fm, behavior) {
+        private val fragments: MutableList<Fragment> = ArrayList()
+        private val fragmentTitle: MutableList<String> = ArrayList()
+        fun addFragment(fragment: Fragment, title: String) {
+            fragments.add(fragment)
+            fragmentTitle.add(title)
+        }
+
+        override fun getItem(position: Int): Fragment {
+            return fragments[position]
+        }
+
+        override fun getCount(): Int {
+            return fragments.size
+        }
+
+        override fun getPageTitle(position: Int): CharSequence {
+            return fragmentTitle[position]
+        }
+    }
 }

@@ -86,6 +86,8 @@
     <dimen name="book_library_down_image_width">30dp</dimen>
     <dimen name="book_library_button_margin">5dp</dimen>
 
+    <dimen name="book_list_padding">80dp</dimen>
+
     <dimen name="manga_chapter_layout_width">100dp</dimen>
     <dimen name="manga_chapter_layout_height">150dp</dimen>
     <dimen name="manga_chapter_number_size">12sp</dimen>
@@ -401,5 +403,6 @@
     <dimen name="theme_layout_height">180dp</dimen>
 
     <dimen name="book_reader_message_size">24sp</dimen>
+    <dimen name="book_reader_progress_size">10sp</dimen>
 
 </resources>

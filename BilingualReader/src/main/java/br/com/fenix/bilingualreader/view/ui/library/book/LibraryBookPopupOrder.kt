@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.ui.library.manga
+package br.com.fenix.bilingualreader.view.ui.library.book
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,26 +12,30 @@ import br.com.fenix.bilingualreader.view.components.PopupOrderListener
 import br.com.fenix.bilingualreader.view.components.TriStateCheckBox
 import org.slf4j.LoggerFactory
 
-class LibraryMangaPopupOrder(var listener: PopupOrderListener) : Fragment() {
+class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
 
-    private val mLOGGER = LoggerFactory.getLogger(LibraryMangaPopupOrder::class.java)
+    private val mLOGGER = LoggerFactory.getLogger(LibraryBookPopupOrder::class.java)
 
     private lateinit var mOrderName: TriStateCheckBox
     private lateinit var mOrderDate: TriStateCheckBox
     private lateinit var mOrderAccess: TriStateCheckBox
     private lateinit var mOrderFavorite: TriStateCheckBox
+    private lateinit var mOrderGenre: TriStateCheckBox
+    private lateinit var mOrderAuthor: TriStateCheckBox
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val root = inflater.inflate(R.layout.popup_library_order_manga, container, false)
+        val root = inflater.inflate(R.layout.popup_library_order_book, container, false)
 
-        mOrderName = root.findViewById(R.id.popup_library_order_manga_name)
-        mOrderDate = root.findViewById(R.id.popup_library_order_manga_date)
-        mOrderAccess = root.findViewById(R.id.popup_library_order_manga_access)
-        mOrderFavorite = root.findViewById(R.id.popup_library_order_manga_favorite)
+        mOrderName = root.findViewById(R.id.popup_library_order_book_name)
+        mOrderDate = root.findViewById(R.id.popup_library_order_book_date)
+        mOrderAccess = root.findViewById(R.id.popup_library_order_book_access)
+        mOrderFavorite = root.findViewById(R.id.popup_library_order_book_favorite)
+        mOrderGenre = root.findViewById(R.id.popup_library_order_book_genre)
+        mOrderAuthor = root.findViewById(R.id.popup_library_order_book_author)
 
         setChecked(
             getCheckList(),
@@ -56,6 +60,10 @@ class LibraryMangaPopupOrder(var listener: PopupOrderListener) : Fragment() {
                 if (isDesc) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
             Order.Favorite -> mOrderFavorite.state =
                 if (isDesc) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
+            Order.Genre -> mOrderGenre.state =
+                if (isDesc) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
+            Order.Author -> mOrderAuthor.state =
+                if (isDesc) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
             else -> {}
         }
     }
@@ -69,7 +77,7 @@ class LibraryMangaPopupOrder(var listener: PopupOrderListener) : Fragment() {
         }
     }
 
-    private fun getCheckList() = arrayListOf(mOrderName, mOrderDate, mOrderAccess, mOrderFavorite)
+    private fun getCheckList() = arrayListOf(mOrderName, mOrderDate, mOrderAccess, mOrderFavorite, mOrderGenre, mOrderAuthor)
 
     private fun addListener() {
         val listCheck = getCheckList()
@@ -161,6 +169,50 @@ class LibraryMangaPopupOrder(var listener: PopupOrderListener) : Fragment() {
             listener.popupOrderOnChange()
             addListener()
         }
+
+        mOrderGenre.setOnCheckedChangeListener { _, _ ->
+            removeListener(listCheck)
+
+            for (check in listCheck)
+                if (check != mOrderGenre)
+                    check.state = TriStateCheckBox.STATE_UNCHECKED
+
+            mOrderGenre.state = getNextState(mOrderGenre)
+            when (mOrderGenre.state) {
+                TriStateCheckBox.STATE_INDETERMINATE -> listener.popupSorted(Order.Genre, true)
+                TriStateCheckBox.STATE_CHECKED -> listener.popupSorted(Order.Genre)
+                TriStateCheckBox.STATE_UNCHECKED -> {
+                    mOrderName.state = TriStateCheckBox.STATE_CHECKED
+                    listener.popupSorted(Order.Name)
+                }
+                else -> {}
+            }
+
+            listener.popupOrderOnChange()
+            addListener()
+        }
+
+        mOrderAuthor.setOnCheckedChangeListener { _, _ ->
+            removeListener(listCheck)
+
+            for (check in listCheck)
+                if (check != mOrderAuthor)
+                    check.state = TriStateCheckBox.STATE_UNCHECKED
+
+            mOrderAuthor.state = getNextState(mOrderAuthor)
+            when (mOrderAuthor.state) {
+                TriStateCheckBox.STATE_INDETERMINATE -> listener.popupSorted(Order.Author, true)
+                TriStateCheckBox.STATE_CHECKED -> listener.popupSorted(Order.Author)
+                TriStateCheckBox.STATE_UNCHECKED -> {
+                    mOrderName.state = TriStateCheckBox.STATE_CHECKED
+                    listener.popupSorted(Order.Name)
+                }
+                else -> {}
+            }
+
+            listener.popupOrderOnChange()
+            addListener()
+        }
     }
 
     private fun removeListener(checkboxes: ArrayList<TriStateCheckBox>) {
@@ -181,7 +233,7 @@ class LibraryMangaPopupOrder(var listener: PopupOrderListener) : Fragment() {
     private fun save(order: Order) {
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         with(sharedPreferences.edit()) {
-            this!!.putString(GeneralConsts.KEYS.LIBRARY.MANGA_ORDER, order.toString())
+            this!!.putString(GeneralConsts.KEYS.LIBRARY.BOOK_ORDER, order.toString())
             this.commit()
         }
     }

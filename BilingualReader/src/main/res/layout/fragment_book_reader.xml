@@ -10,7 +10,7 @@
     <br.com.fenix.bilingualreader.view.components.book.WebViewPager
         android:id="@+id/fragment_book_reader"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/reader_book_cover_content"
