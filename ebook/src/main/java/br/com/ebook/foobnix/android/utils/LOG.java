@@ -2,6 +2,9 @@ package br.com.ebook.foobnix.android.utils;
 
 import android.util.Log;
 
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
+
 public class LOG {
     public static boolean isEnable = true;
     public static String TAG = "DEBUG";
@@ -9,13 +12,15 @@ public class LOG {
 
     public static void printlog(String statement) {
         if (isEnable) {
-            Log.d(TAG, statement);
+            if (Config.SHOW_LOG)
+                Log.d(TAG, statement);
         }
     }
 
     public static void d(Object... statement) {
         if (isEnable) {
-            Log.d(TAG, asString(statement));
+            if (Config.SHOW_LOG)
+                Log.d(TAG, asString(statement));
         }
     }
 

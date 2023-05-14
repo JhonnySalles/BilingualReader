@@ -3,6 +3,8 @@ package br.com.ebook.foobnix.ext;
 import org.ebookdroid.core.codec.CodecDocument;
 import org.ebookdroid.droids.mupdf.codec.PdfContext;
 
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.LOG;
 
 public class PdfExtract {
@@ -17,7 +19,8 @@ public class PdfExtract {
             return EbookMeta.Empty();
         }
         EbookMeta meta = new EbookMeta(openDocument.getBookTitle(), openDocument.getBookAuthor());
-        LOG.d("PdfExtract", meta.getAuthor(), meta.getTitle(), unZipPath);
+        if (Config.SHOW_LOG)
+            LOG.d("PdfExtract", meta.getAuthor(), meta.getTitle(), unZipPath);
         openDocument.recycle();
         openDocument = null;
         return meta;

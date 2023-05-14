@@ -2,6 +2,8 @@ package br.com.ebook.foobnix.ext;
 
 import java.util.Map;
 
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.LOG;
 
 public class FooterNote {
@@ -15,13 +17,16 @@ public class FooterNote {
     }
 
     public void debugPrint() {
-        LOG.d("debugPrint", path);
+        if (Config.SHOW_LOG)
+            LOG.d("debugPrint", path);
         if (notes == null) {
-            LOG.d("Notes is null");
+            if (Config.SHOW_LOG)
+                LOG.d("Notes is null");
             return;
         }
         for (String key : notes.keySet()) {
-            LOG.d(key, " = ", notes.get(key));
+            if (Config.SHOW_LOG)
+                LOG.d(key, " = ", notes.get(key));
         }
     }
 

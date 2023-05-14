@@ -25,6 +25,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import br.com.ebook.BaseExtractor;
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.StreamUtils;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
@@ -301,13 +303,15 @@ public class Fb2Extractor extends BaseExtractor {
                     }
                     if (isLink) {
                         key = key + " " + xpp.getText();
-                        LOG.d("key", key);
+                        if (Config.SHOW_LOG)
+                            LOG.d("key", key);
                     }
                 } else if (eventType == XmlPullParser.END_TAG) {
                     if (sectionId != null && xpp.getName().equals("section")) {
                         String keyEnd = StreamUtils.getKeyByValue(map, sectionId);
                         map.put(keyEnd, text.toString());
-                        LOG.d("getFooterNotes section", sectionId, keyEnd, ">", text.toString());
+                        if (Config.SHOW_LOG)
+                            LOG.d("getFooterNotes section", sectionId, keyEnd, ">", text.toString());
                         sectionId = null;
                         text = null;
                     } else if (xpp.getName().equals("a")) {
@@ -319,7 +323,8 @@ public class Fb2Extractor extends BaseExtractor {
                             }
                             link = link.replace("#", "");
                             map.put(key, link);
-                            LOG.d("getFooterNotes", key, ">", link);
+                            if (Config.SHOW_LOG)
+                                LOG.d("getFooterNotes", key, ">", link);
 
                             isLink = false;
                             key = "";
@@ -369,14 +374,16 @@ public class Fb2Extractor extends BaseExtractor {
 
             ByteArrayOutputStream generateFb2File = generateFb2File(inputFile, encoding, false);
             writeToZip(zos, "OEBPS/fb2.fb2", new ByteArrayInputStream(generateFb2File.toByteArray()));
-            LOG.d("Fb2Context convert true");
+            if (Config.SHOW_LOG)
+                LOG.d("Fb2Context convert true");
             zos.close();
             return true;
         } catch (Exception e) {
             LOG.d("Fb2Context convert false error");
             LOG.e(e);
         }
-        LOG.d("Fb2Context convert false");
+        if (Config.SHOW_LOG)
+            LOG.d("Fb2Context convert false");
         return false;
     }
 
@@ -402,14 +409,16 @@ public class Fb2Extractor extends BaseExtractor {
                 writeToZip(zos, "OEBPS/" + file.getName(), new FileInputStream(file));
             }
 
-            LOG.d("Fb2Context convert true");
+            if (Config.SHOW_LOG)
+                LOG.d("Fb2Context convert true");
             zos.close();
             return true;
         } catch (Exception e) {
             LOG.d("Fb2Context convert false error");
             LOG.e(e);
         }
-        LOG.d("Fb2Context convert false");
+        if (Config.SHOW_LOG)
+            LOG.d("Fb2Context convert false");
         return false;
     }
 

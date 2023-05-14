@@ -9,6 +9,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.entity.FileMeta;
 import br.com.ebook.foobnix.entity.FileMetaCore;
@@ -61,7 +63,8 @@ public class SearchCore {
         for (File file : listFiles) {
             if (file.isDirectory()) {
                 if (!findOnce && file.getPath().endsWith("/Android/data")) {
-                    LOG.d("Skip path", file.getPath());
+                    if (Config.SHOW_LOG)
+                        LOG.d("Skip path", file.getPath());
                     findOnce = true;
                     continue;
                 }

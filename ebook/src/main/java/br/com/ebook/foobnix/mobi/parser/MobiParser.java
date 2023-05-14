@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.LOG;
 
 public class MobiParser {
@@ -151,7 +153,8 @@ public class MobiParser {
         commpression = asInt(raw, mobiOffset, 2);
 
         int encryption = asInt(raw, mobiOffset + 12, 2);
-        LOG.d("MobiParser", "encryption", encryption);
+        if (Config.SHOW_LOG)
+            LOG.d("MobiParser", "encryption", encryption);
 
         mobiType = asInt(raw, mobiOffset + 24, 4);
         encoding = asInt(raw, mobiOffset + 28, 4) == 1252 ? "cp1251" : "UTF-8";

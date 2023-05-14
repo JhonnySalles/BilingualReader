@@ -32,6 +32,8 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import br.com.ebook.BaseExtractor;
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
@@ -52,8 +54,8 @@ public class EpubExtractor extends BaseExtractor {
 
     public static void proccessHypens(String input, String output) {
         try {
-
-            LOG.d("proccessHypens", input, output);
+            if (Config.SHOW_LOG)
+                LOG.d("proccessHypens", input, output);
 
             File file = new File(input);
             ZipFile zipFile = new ZipFile(file, StandardCharsets.UTF_8);
@@ -71,11 +73,13 @@ public class EpubExtractor extends BaseExtractor {
                 String nameLow = name.toLowerCase();
 
                 if (!name.endsWith("container.xml") && (nameLow.endsWith("html") || nameLow.endsWith("htm") || nameLow.endsWith("xml"))) {
-                    LOG.d("nextEntry HTML cancell", TempHolder.get().loadingCancelled, name);
+                    if (Config.SHOW_LOG)
+                        LOG.d("nextEntry HTML cancell", TempHolder.get().loadingCancelled, name);
                     ByteArrayOutputStream hStream = Fb2Extractor.generateHyphenFile(new InputStreamReader(zipFile.getInputStream(nextEntry)));
                     Fb2Extractor.writeToZipNoClose(zos, name, new ByteArrayInputStream(hStream.toByteArray()));
                 } else {
-                    LOG.d("nextEntry cancell", TempHolder.get().loadingCancelled, name);
+                    if (Config.SHOW_LOG)
+                        LOG.d("nextEntry cancell", TempHolder.get().loadingCancelled, name);
                     Fb2Extractor.writeToZipNoClose(zos, name, zipFile.getInputStream(nextEntry));
                 }
 
@@ -313,7 +317,8 @@ public class EpubExtractor extends BaseExtractor {
     }
 
     public static File extractAttachment(File bookPath, String attachmentName) {
-        LOG.d("Begin extractAttachment", bookPath.getPath(), attachmentName);
+        if (Config.SHOW_LOG)
+            LOG.d("Begin extractAttachment", bookPath.getPath(), attachmentName);
         try {
 
             InputStream in = new FileInputStream(bookPath);
@@ -330,7 +335,8 @@ public class EpubExtractor extends BaseExtractor {
                     }
                     File extractMedia = new File(CacheZipUtils.ATTACHMENTS_CACHE_DIR, attachmentName);
 
-                    LOG.d("Begin extractAttachment extract", extractMedia.getPath());
+                    if (Config.SHOW_LOG)
+                        LOG.d("Begin extractAttachment extract", extractMedia.getPath());
 
                     FileOutputStream fileOutputStream = new FileOutputStream(extractMedia);
                     OutputStream out = new BufferedOutputStream(fileOutputStream);
@@ -368,7 +374,8 @@ public class EpubExtractor extends BaseExtractor {
                     break;
                 }
                 String name = nextEntry.getName();
-                LOG.d("getAttachments", name);
+                if (Config.SHOW_LOG)
+                    LOG.d("getAttachments", name);
                 if (ExtUtils.isMediaContent(name)) {
                     if (nextEntry.getSize() > 0) {
                         name = name + "," + nextEntry.getSize();
@@ -424,7 +431,8 @@ public class EpubExtractor extends BaseExtractor {
                                     attr = name + attr;
                                 }
                                 if (!TxtUtils.isFooterNote(text)) {
-                                    LOG.d("Skip text", text);
+                                    if (Config.SHOW_LOG)
+                                        LOG.d("Skip text", text);
                                     continue;
                                 }
 

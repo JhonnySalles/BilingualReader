@@ -109,7 +109,8 @@ public abstract class BaseExtractor {
             options.inSampleSize = imageWidth / width;
             // options.inSampleSize = 1;
             options.inJustDecodeBounds = false;
-            LOG.d("inSampleSize", options.inSampleSize);
+            if (Config.SHOW_LOG)
+                LOG.d("inSampleSize", options.inSampleSize);
             return BitmapFactory.decodeByteArray(array, 0, array.length, options);
 
         } catch (Exception e) {
@@ -126,7 +127,8 @@ public abstract class BaseExtractor {
             options.inSampleSize = imageWidth / width;
             // options.inSampleSize = 1;
             options.inJustDecodeBounds = false;
-            LOG.d("inSampleSize", options.inSampleSize);
+            if (Config.SHOW_LOG)
+                LOG.d("inSampleSize", options.inSampleSize);
             Bitmap decodeFile = BitmapFactory.decodeFile(path, options);
 
             ByteArrayOutputStream stream = new ByteArrayOutputStream();

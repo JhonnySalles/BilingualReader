@@ -22,6 +22,8 @@ import org.ebookdroid.core.codec.CodecDocument;
 import org.ebookdroid.core.codec.CodecPage;
 import org.greenrobot.eventbus.EventBus;
 
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.android.utils.Vibro;
@@ -41,7 +43,8 @@ public class TTSService extends Service {
     private WakeLock wakeLock;
 
     public TTSService() {
-        LOG.d(TAG, "Create constructor");
+        if (Config.SHOW_LOG)
+            LOG.d(TAG, "Create constructor");
     }
 
     int width;
@@ -53,7 +56,8 @@ public class TTSService extends Service {
 
     @Override
     public void onCreate() {
-        LOG.d(TAG, "Create");
+        if (Config.SHOW_LOG)
+            LOG.d(TAG, "Create");
 
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TTSService");
@@ -67,11 +71,13 @@ public class TTSService extends Service {
         mMediaSessionCompat.setCallback(new MediaSessionCompat.Callback() {
             @Override
             public boolean onMediaButtonEvent(Intent intent) {
-                LOG.d(TAG, "onMediaButtonEvent", isActivated, intent);
+                if (Config.SHOW_LOG)
+                    LOG.d(TAG, "onMediaButtonEvent", isActivated, intent);
                 if (isActivated) {
                     KeyEvent event = (KeyEvent) intent.getExtras().get(Intent.EXTRA_KEY_EVENT);
                     if (KeyEvent.ACTION_UP == event.getAction() && KeyEvent.KEYCODE_HEADSETHOOK == event.getKeyCode()) {
-                        LOG.d(TAG, "onStartStop", "KEYCODE_HEADSETHOOK");
+                        if (Config.SHOW_LOG)
+                            LOG.d(TAG, "onStartStop", "KEYCODE_HEADSETHOOK");
                         boolean isPlaying = TTSEngine.get().isPlaying();
                         if (isPlaying) {
                             TTSEngine.get().stop();
@@ -99,10 +105,12 @@ public class TTSService extends Service {
 
         @Override
         public void onAudioFocusChange(int focusChange) {
-            LOG.d("onAudioFocusChange", focusChange);
+            if (Config.SHOW_LOG)
+                LOG.d("onAudioFocusChange", focusChange);
             if (focusChange < 0) {
                 isPlaying = TTSEngine.get().isPlaying();
-                LOG.d("onAudioFocusChange", "Is playing", isPlaying);
+                if (Config.SHOW_LOG)
+                    LOG.d("onAudioFocusChange", "Is playing", isPlaying);
                 TTSEngine.get().stop();
             } else {
                 if (isPlaying) {
@@ -122,7 +130,8 @@ public class TTSService extends Service {
     }
 
     public static void playBookPage(int page, String path, String anchor, int width, int height, int fontSize) {
-        LOG.d(TAG, "playBookPage", page, path, width, height);
+        if (Config.SHOW_LOG)
+            LOG.d(TAG, "playBookPage", page, path, width, height);
         TTSEngine.get().stop();
 
         AppState.get().lastBookWidth = width;
@@ -148,15 +157,19 @@ public class TTSService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         MediaButtonReceiver.handleIntent(mMediaSessionCompat, intent);
-        LOG.d(TAG, "onStartCommand", intent);
+        if (Config.SHOW_LOG)
+            LOG.d(TAG, "onStartCommand", intent);
         if (intent == null) {
             return START_STICKY;
         }
-        LOG.d(TAG, "onStartCommand", intent.getAction());
+        if (Config.SHOW_LOG)
+            LOG.d(TAG, "onStartCommand", intent.getAction());
         if (intent.getExtras() != null) {
-            LOG.d(TAG, "onStartCommand", intent.getAction(), intent.getExtras());
-            for (String key : intent.getExtras().keySet())
-                LOG.d(TAG, key, "=>", intent.getExtras().get(key));
+            if (Config.SHOW_LOG) {
+                LOG.d(TAG, "onStartCommand", intent.getAction(), intent.getExtras());
+                for (String key : intent.getExtras().keySet())
+                    LOG.d(TAG, key, "=>", intent.getExtras().get(key));
+            }
         }
 
         if (TTSNotification.TTS_STOP.equals(intent.getAction())) {

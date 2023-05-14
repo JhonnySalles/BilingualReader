@@ -34,6 +34,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.Apps;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.Safe;
@@ -308,7 +310,8 @@ public class ExtUtils {
     }
 
     public static String getFileExtension(String name) {
-        LOG.d("getFileExtension 1", name);
+        if (Config.SHOW_LOG)
+            LOG.d("getFileExtension 1", name);
         if (name == null) {
             return "";
         }
@@ -429,7 +432,8 @@ public class ExtUtils {
 
     public static boolean isTextFomat(Intent intent) {
         if (intent == null || intent.getData() == null || intent.getData().getPath() == null) {
-            LOG.d("isTextFomat", "intent or data or path is null");
+            if (Config.SHOW_LOG)
+                LOG.d("isTextFomat", "intent or data or path is null");
             return false;
         }
         return isTextFomat(intent.getData().getPath());
@@ -699,7 +703,8 @@ public class ExtUtils {
             Toast.makeText(c, "Arquivo não encontrado", Toast.LENGTH_LONG).show();
             return;
         }
-        LOG.d("showDocument", uri.getPath());
+        if (Config.SHOW_LOG)
+            LOG.d("showDocument", uri.getPath());
 
         if (AppState.get().isAlwaysOpenAsMagazine) {
             openHorizontalView(c, new File(uri.getPath()), page - 1);
@@ -807,7 +812,8 @@ public class ExtUtils {
         } else {
             uriForFile = Uri.fromFile(file);
         }
-        LOG.d("getUriProvider", uriForFile);
+        if (Config.SHOW_LOG)
+            LOG.d("getUriProvider", uriForFile);
         return uriForFile;
     }
 
@@ -827,7 +833,8 @@ public class ExtUtils {
         } catch (Exception e) {
             mime = "application/" + ExtUtils.getFileExtension(file);
         }
-        LOG.d("getMimeType", mime);
+        if (Config.SHOW_LOG)
+            LOG.d("getMimeType", mime);
         return mime;
     }
 
@@ -847,7 +854,8 @@ public class ExtUtils {
             detector.reset();
             fis.close();
 
-            LOG.d("File Encoding", encoding);
+            if (Config.SHOW_LOG)
+                LOG.d("File Encoding", encoding);
 
         } catch (Exception e) {
             LOG.e(e);

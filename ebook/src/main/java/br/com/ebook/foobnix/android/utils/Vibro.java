@@ -2,6 +2,8 @@ package br.com.ebook.foobnix.android.utils;
 
 import android.annotation.TargetApi;
 
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 
 public class Vibro {
@@ -19,7 +21,8 @@ public class Vibro {
                 ((Vibrator) eBookApplication.context.getSystemService(Context.VIBRATOR_SERVICE)).vibrate(time);
             }*/
         }
-        LOG.d("Vibro", "vibrate", time);
+        if (Config.SHOW_LOG)
+            LOG.d("Vibro", "vibrate", time);
     }
 
 }

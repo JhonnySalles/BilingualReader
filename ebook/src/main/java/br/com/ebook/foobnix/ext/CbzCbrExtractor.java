@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
 import junrar.Archive;
@@ -49,7 +51,8 @@ public class CbzCbrExtractor {
                 List<String> names = new ArrayList<String>();
                 while ((nextEntry = entries.nextElement()) != null) {
                     String name = nextEntry.getName();
-                    LOG.d("Name", name);
+                    if (Config.SHOW_LOG)
+                        LOG.d("Name", name);
                     if (ExtUtils.isImagePath(name)) {
                         names.add(name);
                     }
@@ -77,7 +80,8 @@ public class CbzCbrExtractor {
                     fileHeader = archive.getFileHeaders().get(1);
 
                 }
-                LOG.d("EXtract CBR", fileHeader.getFileNameString());
+                if (Config.SHOW_LOG)
+                    LOG.d("EXtract CBR", fileHeader.getFileNameString());
                 archive.extractFile(fileHeader, out);
                 archive.close();
                 is.close();

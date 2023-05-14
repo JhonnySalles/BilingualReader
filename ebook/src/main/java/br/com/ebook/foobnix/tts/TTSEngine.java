@@ -15,6 +15,8 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.ResultResponse;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
@@ -43,7 +45,8 @@ public class TTSEngine {
     }
 
     public void shutdown() {
-        LOG.d(TAG, "shutdown");
+        if (Config.SHOW_LOG)
+            LOG.d(TAG, "shutdown");
         if (ttsEngine != null) {
             ttsEngine.shutdown();
         }
@@ -54,7 +57,8 @@ public class TTSEngine {
 
         @Override
         public void onInit(int status) {
-            LOG.d(TAG, "onInit", "SUCCESS", status == TextToSpeech.SUCCESS);
+            if (Config.SHOW_LOG)
+                LOG.d(TAG, "onInit", "SUCCESS", status == TextToSpeech.SUCCESS);
             if (status == TextToSpeech.ERROR) {
                 //Toast.makeText(eBookApplication.context, R.string.msg_unexpected_error, Toast.LENGTH_LONG).show();
             }
@@ -82,7 +86,8 @@ public class TTSEngine {
 
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
     public void stop() {
-        LOG.d(TAG, "stop");
+        if (Config.SHOW_LOG)
+            LOG.d(TAG, "stop");
         if (ttsEngine != null) {
             if (Build.VERSION.SDK_INT >= 15) {
                 ttsEngine.setOnUtteranceProgressListener(null);
@@ -105,7 +110,8 @@ public class TTSEngine {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void speek(final String text) {
         this.text = text;
-        LOG.d(TAG, "speek", text);
+        if (Config.SHOW_LOG)
+            LOG.d(TAG, "speek", text);
         if (TxtUtils.isEmpty(text)) {
             return;
         }
@@ -124,7 +130,8 @@ public class TTSEngine {
             AppState.get().ttsSpeed = 0.01f;
         }
         ttsEngine.setSpeechRate(AppState.get().ttsSpeed);
-        LOG.d(TAG, "Speek speed", AppState.get().ttsSpeed);
+        if (Config.SHOW_LOG)
+            LOG.d(TAG, "Speek speed", AppState.get().ttsSpeed);
         ttsEngine.speak(text, TextToSpeech.QUEUE_FLUSH, map);
     }
 
@@ -149,10 +156,12 @@ public class TTSEngine {
     }
 
     public void speakToFile(final DocumentController controller, final int page, final String folder, final ResultResponse<String> info) {
-        LOG.d("speakToFile", page, controller.getPageCount());
+        if (Config.SHOW_LOG)
+            LOG.d("speakToFile", page, controller.getPageCount());
 
         if (page >= controller.getPageCount() || !TempHolder.isRecordTTS) {
-            LOG.d("speakToFile finish", page, controller.getPageCount());
+            if (Config.SHOW_LOG)
+                LOG.d("speakToFile finish", page, controller.getPageCount());
             //info.onResultRecive((controller.getActivity().getString(R.string.success)));
             return;
         }
@@ -170,7 +179,8 @@ public class TTSEngine {
 
             @Override
             public void onUtteranceCompleted(String utteranceId) {
-                LOG.d("speakToFile onUtteranceCompleted", page, controller.getPageCount());
+                if (Config.SHOW_LOG)
+                    LOG.d("speakToFile onUtteranceCompleted", page, controller.getPageCount());
                 speakToFile(controller, page + 1, folder, info);
             }
 

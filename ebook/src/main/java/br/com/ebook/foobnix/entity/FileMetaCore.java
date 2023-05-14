@@ -13,6 +13,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.ext.CacheZipUtils;
@@ -41,7 +43,8 @@ public class FileMetaCore {
                 path = a.getIntent().getData().getPath();
             }
 
-            LOG.d("checkOrCreateMetaInfo", path);
+            if (Config.SHOW_LOG)
+                LOG.d("checkOrCreateMetaInfo", path);
             if (new File(path).isFile()) {
                 FileMeta fileMeta = new FileMeta(path);
                 if (TxtUtils.isEmpty(fileMeta.getTitle())) {
@@ -50,9 +53,11 @@ public class FileMetaCore {
 
                     FileMetaCore.get().upadteBasicMeta(fileMeta, new File(path));
                     FileMetaCore.get().udpateFullMeta(fileMeta, ebookMeta);
-                    LOG.d("checkOrCreateMetaInfo", "UPDATE", path);
+                    if (Config.SHOW_LOG)
+                        LOG.d("checkOrCreateMetaInfo", "UPDATE", path);
                 } else {
-                    LOG.d("checkOrCreateMetaInfo", "LOAD", path);
+                    if (Config.SHOW_LOG)
+                        LOG.d("checkOrCreateMetaInfo", "LOAD", path);
                 }
             }
         } catch (Exception e) {
@@ -99,7 +104,8 @@ public class FileMetaCore {
 
         if (CalirbeExtractor.isCalibre(unZipPath)) {
             ebookMeta = CalirbeExtractor.getBookMetaInformation(unZipPath);
-            LOG.d("isCalibre find", unZipPath);
+            if (Config.SHOW_LOG)
+                LOG.d("isCalibre find", unZipPath);
         } else if (BookType.EPUB.is(unZipPath)) {
             ebookMeta = EpubExtractor.get().getBookMetaInformation(unZipPath);
         } else if (BookType.FB2.is(unZipPath)) {

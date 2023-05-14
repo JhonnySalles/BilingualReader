@@ -30,6 +30,8 @@ import java.io.InputStream;
 import java.util.Locale;
 
 import br.com.ebook.BaseExtractor;
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.Dips;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.Safe;
@@ -129,7 +131,8 @@ public class ImageExtractor implements ImageDownloader {
             pageUrl.tempWithWatermakr = true;
         }
 
-        LOG.d("udpateFullMeta ImageExtractor", fileMeta.getAuthor());
+        if (Config.SHOW_LOG)
+            LOG.d("udpateFullMeta ImageExtractor", fileMeta.getAuthor());
         //AppDB.get().update(fileMeta);
 
         return cover;
@@ -137,7 +140,8 @@ public class ImageExtractor implements ImageDownloader {
 
     public InputStream generalCoverWithEffect(PageUrl pageUrl, Bitmap cover) {
         try {
-            LOG.d("generalCoverWithEffect", pageUrl.getWidth(), cover.getWidth(), " --- ", pageUrl.getHeight(), cover.getHeight());
+            if (Config.SHOW_LOG)
+                LOG.d("generalCoverWithEffect", pageUrl.getWidth(), cover.getWidth(), " --- ", pageUrl.getHeight(), cover.getHeight());
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             Bitmap res;
             if (AppState.get().isBookCoverEffect || pageUrl.getPage() == COVER_PAGE_WITH_EFFECT) {
@@ -168,7 +172,8 @@ public class ImageExtractor implements ImageDownloader {
         String path = pageUrl.getPath();
 
         boolean isNeedDisableMagicInPDFDjvu = false;
-        LOG.d("Page Number", pageUrl.getPage());
+        if (Config.SHOW_LOG)
+            LOG.d("Page Number", pageUrl.getPage());
         if (pageUrl.getPage() == COVER_PAGE || pageUrl.getPage() == COVER_PAGE_NO_EFFECT || pageUrl.getPage() == COVER_PAGE_WITH_EFFECT) {
             isNeedDisableMagicInPDFDjvu = true;
         }
@@ -191,14 +196,16 @@ public class ImageExtractor implements ImageDownloader {
                 if (TxtUtils.isNotEmpty(bookTitle)) {
                     meta.setTitle(bookTitle);
                 }
-                LOG.d("PDF getBookAuthor", bookAuthor, bookTitle);
+                if (Config.SHOW_LOG)
+                    LOG.d("PDF getBookAuthor", bookAuthor, bookTitle);
             }
         } else {
             codeCache = getNewCodecContext(path, "", pageUrl.getWidth(), pageUrl.getHeight(), AppState.get().fontSizeSp);
         }
 
         if (codeCache == null) {
-            LOG.d("TEST", "codecDocument == null" + path);
+            if (Config.SHOW_LOG)
+                LOG.d("TEST", "codecDocument == null" + path);
             return null;
         }
 
@@ -211,8 +218,10 @@ public class ImageExtractor implements ImageDownloader {
         int width = pageUrl.getWidth();
         int height = (int) (width * k);
 
-        LOG.d("Bitmap", width, height);
-        LOG.d("Bitmap pageInfo.height", pageInfo.width, pageInfo.height);
+        if (Config.SHOW_LOG) {
+            LOG.d("Bitmap", width, height);
+            LOG.d("Bitmap pageInfo.height", pageInfo.width, pageInfo.height);
+        }
 
         BitmapRef bitmapRef = null;
         CodecPage pageCodec = codeCache.getPage(page);

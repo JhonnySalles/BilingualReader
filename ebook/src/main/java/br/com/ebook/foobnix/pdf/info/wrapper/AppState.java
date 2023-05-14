@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.Dips;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.MemoryUtils;
@@ -567,9 +569,11 @@ public class AppState {
                 BookCSS.get().load(a);
                 //DragingPopup.loadCache(a);
                 PasswordState.get().load(a);
-                LOG.d("AppState Load lasta", lastClosedActivity);
+                if (Config.SHOW_LOG)
+                    LOG.d("AppState Load lasta", lastClosedActivity);
             } else {
-                LOG.d("AppState is Loaded", lastClosedActivity);
+                if (Config.SHOW_LOG)
+                    LOG.d("AppState is Loaded", lastClosedActivity);
             }
             isLoaded = true;
         } catch (Exception e) {
@@ -625,7 +629,8 @@ public class AppState {
         }
         int currentHash = Objects.hashCode(AppState.get(), false);
         if (currentHash == hashCode) {
-            LOG.d("Objects", "Ignore save hashCode the same");
+            if (Config.SHOW_LOG)
+                LOG.d("Objects", "Ignore save hashCode the same");
             return;
         }
         sp = a.getSharedPreferences(ExportSettingsManager.PREFIX_PDF, Context.MODE_PRIVATE);

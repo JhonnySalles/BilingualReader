@@ -11,6 +11,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Locale;
 
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.LOG;
 
 public class Urls {
@@ -28,7 +30,8 @@ public class Urls {
         if (a == null || url == null) {
             return;
         }
-        LOG.d(">>> open", url);
+        if (Config.SHOW_LOG)
+            LOG.d(">>> open", url);
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         a.startActivity(browserIntent);

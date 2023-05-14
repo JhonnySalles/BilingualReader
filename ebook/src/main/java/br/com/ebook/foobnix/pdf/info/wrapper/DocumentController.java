@@ -21,6 +21,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.ResultResponse;
 import br.com.ebook.foobnix.android.utils.Safe;
@@ -209,7 +211,8 @@ public abstract class DocumentController {
     public boolean isTextFormat() {
         try {
             boolean textFomat = ExtUtils.isTextFomat(getCurrentBook().getPath());
-            LOG.d("isTextFormat", getCurrentBook().getPath(), textFomat);
+            if (Config.SHOW_LOG)
+                LOG.d("isTextFormat", getCurrentBook().getPath(), textFomat);
             return textFomat;
         } catch (Exception e) {
             LOG.e(e);
@@ -248,7 +251,8 @@ public abstract class DocumentController {
         if (!getLinkHistory().isEmpty()) {
             final int last = getLinkHistory().removeLast();
             onScrollY(last);
-            LOG.d("onLinkHistory", last);
+            if (Config.SHOW_LOG)
+                LOG.d("onLinkHistory", last);
 
         }
     }

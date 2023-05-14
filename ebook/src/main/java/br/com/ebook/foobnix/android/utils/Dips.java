@@ -14,6 +14,9 @@ import android.view.WindowManager;
 
 import java.util.Locale;
 
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
+
 public class Dips {
 
     public final static int DP_5 = Dips.dpToPx(5);
@@ -58,7 +61,8 @@ public class Dips {
         final WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         final Display display = wm.getDefaultDisplay();
         float refreshRate = display.getRefreshRate();
-        LOG.d("RefreshRate", refreshRate);
+        if (Config.SHOW_LOG)
+            LOG.d("RefreshRate", refreshRate);
         return refreshRate;
     }
 

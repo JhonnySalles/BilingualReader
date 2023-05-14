@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Locale;
 
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.hypen.HypenUtils;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
@@ -28,7 +30,8 @@ public class HtmlExtractor {
 
             String encoding = ExtUtils.determineEncoding(new FileInputStream(inputPath));
 
-            LOG.d("HtmlExtractor encoding: ", encoding);
+            if (Config.SHOW_LOG)
+                LOG.d("HtmlExtractor encoding: ", encoding);
             BufferedReader input = new BufferedReader(new InputStreamReader(new FileInputStream(inputPath), encoding));
 
             StringBuilder html = new StringBuilder();
@@ -41,7 +44,8 @@ public class HtmlExtractor {
             boolean isBody = false;
             while ((line = input.readLine()) != null) {
 
-                LOG.d(line);
+                if (Config.SHOW_LOG)
+                    LOG.d(line);
 
                 if (line.toLowerCase(Locale.US).contains("<body")) {
                     isBody = true;

@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.ResultResponse;
 import br.com.ebook.foobnix.entity.FileMeta;
@@ -64,7 +66,8 @@ public class ExportSettingsManager {
         if (toFile == null) {
             return false;
         }
-        LOG.d("TEST", "Export all to" + toFile.getPath());
+        if (Config.SHOW_LOG)
+            LOG.d("TEST", "Export all to" + toFile.getPath());
 
         try {
             AppState.get().save(c);
@@ -86,10 +89,12 @@ public class ExportSettingsManager {
             if (toFile.isDirectory()) {
                 fileConfig = new File(toFile, name);
             }
-            LOG.d("TEXT", "exoprt to " + name);
+            if (Config.SHOW_LOG)
+                LOG.d("TEXT", "exoprt to " + name);
 
             FileWriter file = new FileWriter(fileConfig);
-            LOG.d("TEXT", "exoprt to " + fileConfig.getPath());
+            if (Config.SHOW_LOG)
+                LOG.d("TEXT", "exoprt to " + fileConfig.getPath());
             String string = root.toString(5);
             file.write(string);
             file.flush();
@@ -123,7 +128,8 @@ public class ExportSettingsManager {
         if (file == null) {
             return false;
         }
-        LOG.d("TEST", "Import all from " + file.getPath());
+        if (Config.SHOW_LOG)
+            LOG.d("TEST", "Import all from " + file.getPath());
         try {
             String json = new Scanner(file).useDelimiter("\\A").next();
             LOG.d("[IMPORT]", json);
@@ -206,24 +212,28 @@ public class ExportSettingsManager {
             }
             Object value = all.get(key);
             jsonObject.put(key, value);
-            LOG.d("export", key, value);
+            if (Config.SHOW_LOG)
+                LOG.d("export", key, value);
         }
         return jsonObject;
     }
 
     public static void importFromJSon(JSONObject jsonObject, SharedPreferences sp) throws JSONException {
         if (jsonObject == null) {
-            LOG.d("TEST", "import null");
+            if (Config.SHOW_LOG)
+                LOG.d("TEST", "import null");
             return;
         }
-        LOG.d("importFromJSon", jsonObject);
+        if (Config.SHOW_LOG)
+            LOG.d("importFromJSon", jsonObject);
 
         Iterator<String> keys = jsonObject.keys();
         Editor edit = sp.edit();
         while (keys.hasNext()) {
             String name = keys.next();
             Object res = jsonObject.get(name);
-            LOG.d("import", "name", name, "type");
+            if (Config.SHOW_LOG)
+                LOG.d("import", "name", name, "type");
             if (res instanceof String) {
                 edit.putString(name, (String) res);
             } else if (res instanceof Float) {

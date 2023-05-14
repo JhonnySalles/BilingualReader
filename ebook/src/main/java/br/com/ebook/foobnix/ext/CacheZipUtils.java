@@ -21,6 +21,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+import br.com.ebook.BuildConfig;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.LOG;
 
 public class CacheZipUtils {
@@ -192,7 +194,8 @@ public class CacheZipUtils {
                     File out = new File(folder.getDir(), nextEntry.getName());
                     BufferedOutputStream fileOutputStream = new BufferedOutputStream(new FileOutputStream(out));
                     writeToStream(zipFile.getInputStream(nextEntry), fileOutputStream);
-                    LOG.d("Unpack archive", file.getPath());
+                    if (Config.SHOW_LOG)
+                        LOG.d("Unpack archive", file.getPath());
 
                     zipFile.close();
                     return new UnZipRes(path, file.getPath(), nextEntry.getName());
