@@ -11,6 +11,7 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
@@ -367,7 +368,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                         for (word in it) {
                             if (word.contains(Regex("@[\\S]+:(\\S++ |\\S++)"))) {
                                 filterPattern = filterPattern.replace(word, "", true)
-                                val type = Util.stringToFilter(app.applicationContext, word.substringBefore(":").replace("@", ""))
+                                val type = Util.stringToFilter(app.applicationContext, Type.MANGA, word.substringBefore(":").replace("@", ""))
                                 if (type != br.com.fenix.bilingualreader.model.enums.Filter.None) {
                                     val condition = word.substringAfter(":")
                                     if (condition.isNotEmpty())

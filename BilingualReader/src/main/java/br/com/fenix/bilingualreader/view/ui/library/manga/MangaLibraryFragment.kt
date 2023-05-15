@@ -127,7 +127,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
         val from = arrayOf(SearchManager.SUGGEST_COLUMN_TEXT_1)
         val to = intArrayOf(R.id.list_item_suggestion)
-        val suggestions = Util.getFilters(requireContext()).keys.toList()
+        val suggestions = Util.getMangaFilters(requireContext()).keys.toList()
         val cursorAdapter = SimpleCursorAdapter(requireContext(), R.layout.list_item_suggestion, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER)
 
         searchView.suggestionsAdapter = cursorAdapter
@@ -175,7 +175,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                             }
                             return false
                         } else if (!substring.contains(' ')) {
-                            if (substring.contains(Util.filterToString(requireContext(), br.com.fenix.bilingualreader.model.enums.Filter.Type) , true)) {
+                            if (substring.contains(Util.filterToString(requireContext(), Type.MANGA, br.com.fenix.bilingualreader.model.enums.Filter.Type) , true)) {
                                 substring = substring.substringBefore(":")
                                 FileType.getManga().forEachIndexed { index, type ->
                                     cursor.addRow(arrayOf(index, "@$substring:$type "))

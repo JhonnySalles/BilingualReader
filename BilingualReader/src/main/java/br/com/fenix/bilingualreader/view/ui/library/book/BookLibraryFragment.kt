@@ -1,13 +1,16 @@
 package br.com.fenix.bilingualreader.view.ui.library.book
 
 import android.app.ActivityOptions
+import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.content.res.Resources
+import android.database.Cursor
+import android.database.MatrixCursor
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.*
+import android.provider.BaseColumns
 import android.util.Pair
 import android.view.*
 import android.view.animation.AnimationUtils
@@ -35,12 +38,12 @@ import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.service.scanner.ScannerBook
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.library.BookGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookLineCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.PopupOrderListener
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
-import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryFragment
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -120,6 +123,83 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
+                mRefreshLayout.isEnabled = newText == null || newText.isEmpty()
+                filter(newText)
+                return false
+            }
+        })
+
+        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text",
+            "id", "android")) as AutoCompleteTextView
+        searchSrcTextView.threshold = 1
+        searchSrcTextView.setDropDownBackgroundResource(R.drawable.list_item_suggestion_background)
+
+        val from = arrayOf(SearchManager.SUGGEST_COLUMN_TEXT_1)
+        val to = intArrayOf(R.id.list_item_suggestion)
+        val suggestions = Util.getBookFilters(requireContext()).keys.toList()
+        val cursorAdapter = SimpleCursorAdapter(requireContext(), R.layout.list_item_suggestion, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER)
+
+        searchView.suggestionsAdapter = cursorAdapter
+        searchView.setOnSuggestionListener(object: SearchView.OnSuggestionListener {
+            override fun onSuggestionSelect(position: Int): Boolean {
+                return false
+            }
+
+            override fun onSuggestionClick(position: Int): Boolean {
+                val cursor = searchView.suggestionsAdapter.getItem(position) as Cursor?
+                if( cursor != null) {
+                    val colum = cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1)
+                    val selection = cursor.getString(colum)
+                    val query =  searchView.query.toString().substringBeforeLast('@', "") + " " + selection
+                    searchView.setQuery(query.trim(), false)
+                }
+                return true
+            }
+        })
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                val cursor = MatrixCursor(
+                    arrayOf(
+                        BaseColumns._ID,
+                        SearchManager.SUGGEST_COLUMN_TEXT_1
+                    )
+                )
+                cursorAdapter.changeCursor(cursor)
+
+                if (newText != null) {
+                    var substring = newText.substringAfterLast('@', "")
+                    if (substring.isNotEmpty()) {
+                        if (!substring.contains(':')) {
+                            substring = substring.replace("@", "")
+                            suggestions.forEachIndexed { index, suggestion ->
+                                if (substring.isEmpty())
+                                    cursor.addRow(arrayOf(index, "@$suggestion:"))
+                                else if (suggestion.contains(substring, true))
+                                    cursor.addRow(arrayOf(index, "@$suggestion:"))
+                            }
+                            return false
+                        } else if (!substring.contains(' ')) {
+                            if (substring.contains(Util.filterToString(requireContext(), Type.BOOK, br.com.fenix.bilingualreader.model.enums.Filter.Type) , true)) {
+                                substring = substring.substringBefore(":")
+                                FileType.getBook().forEachIndexed { index, type ->
+                                    cursor.addRow(arrayOf(index, "@$substring:$type "))
+                                }
+                            }
+                            return false
+                        }
+                    } else if (newText.endsWith("@", true)) {
+                        suggestions.forEachIndexed { index, suggestion ->
+                            cursor.addRow(arrayOf(index, "@$suggestion:"))
+                        }
+                        return false
+                    }
+                }
+
                 mRefreshLayout.isEnabled = newText == null || newText.isEmpty()
                 filter(newText)
                 return false
@@ -662,7 +742,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         else
             R.id.book_line_progress
 
-        val idCover = if (MangaLibraryFragment.mGridType != LibraryMangaType.LINE)
+        val idCover = if (mGridType != LibraryBookType.LINE)
             R.id.book_grid_image_cover
         else
             R.id.book_line_image_cover

@@ -438,6 +438,12 @@
     <string name="book_library_menu_delete">Delete</string>
     <string name="book_library_menu_delete_description">Do you really want to delete the file?</string>
 
+    <string-array name="book_filters">
+        <item>Author</item>
+        <item>Publisher</item>
+        <item>Type</item>
+    </string-array>
+
     <!-- POPUP LIBRARY - Manga / Comic -->
     <string name="popup_library_manga_tab_item_ordering">Order</string>
     <string name="popup_library_manga_tab_item_filter">Filter</string>

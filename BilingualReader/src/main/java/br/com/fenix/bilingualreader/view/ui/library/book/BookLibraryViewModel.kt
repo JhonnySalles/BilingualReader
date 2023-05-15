@@ -9,19 +9,22 @@ import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
+import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.Util
 import java.util.*
 import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 
-class BookLibraryViewModel(application: Application) : AndroidViewModel(application), Filterable {
+class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filterable {
 
     private var mStackLibrary = mutableMapOf<String, Triple<Int, Library, MutableList<Book>>>()
     private var mLibrary: Library = Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK)
-    private val mBookRepository: BookRepository = BookRepository(application.applicationContext)
-    private val mPreferences = GeneralConsts.getSharedPreferences(application.applicationContext)
+    private val mBookRepository: BookRepository = BookRepository(app.applicationContext)
+    private val mPreferences = GeneralConsts.getSharedPreferences(app.applicationContext)
 
     private var mWordFilter = ""
 
@@ -297,8 +300,49 @@ class BookLibraryViewModel(application: Application) : AndroidViewModel(applicat
         return mBookFilter
     }
 
+    private fun filtered(book: Book?, filterPattern: String, filterConditions :ArrayList<Pair<br.com.fenix.bilingualreader.model.enums.Filter, String>>): Boolean {
+        if (book == null)
+            return false
+
+        if (mTypeFilter.value != FilterType.None) {
+            if (mTypeFilter.value == FilterType.Reading && book.lastAccess == null)
+                return false
+
+            if (mTypeFilter.value == FilterType.Favorite && !book.favorite)
+                return false
+        }
+
+        if (filterConditions.isNotEmpty()) {
+            var condition = false
+            filterConditions.forEach {
+                when (it.first) {
+                    br.com.fenix.bilingualreader.model.enums.Filter.Type -> {
+                        if (book.type.name.contains(it.second, true))
+                            condition = true
+                    }
+                    br.com.fenix.bilingualreader.model.enums.Filter.Publisher -> {
+                        if (book.publisher.contains(it.second, true))
+                            condition = true
+                    }
+                    br.com.fenix.bilingualreader.model.enums.Filter.Author -> {
+                        if (book.author.contains(it.second, true))
+                            condition = true
+                    }
+                    else -> {}
+                }
+            }
+
+            if (!condition)
+                return false
+        }
+
+        return filterPattern.isEmpty() || book.name.lowercase(Locale.getDefault())
+            .contains(filterPattern) || book.type.compareExtension(filterPattern)
+    }
+
     private val mBookFilter = object : Filter() {
         override fun performFiltering(constraint: CharSequence?): FilterResults {
+            mWordFilter = constraint.toString()
             val filteredList: MutableList<Book> = mutableListOf()
 
             if (constraint == null || constraint.isEmpty()) {
@@ -309,6 +353,34 @@ class BookLibraryViewModel(application: Application) : AndroidViewModel(applicat
                 filteredList.addAll(mListBookFull.value!!.filter(Objects::nonNull).filter {
                     it.name.lowercase(Locale.getDefault()).contains(filterPattern) ||
                             it.extension.lowercase(Locale.getDefault()).contains(filterPattern)
+                })
+            }
+
+            if ((constraint == null || constraint.isEmpty()) && mTypeFilter.value == FilterType.None) {
+                filteredList.addAll(mListBookFull.value!!.filter(Objects::nonNull))
+            } else {
+                var filterPattern = constraint.toString()
+                val filterCondition = arrayListOf<Pair<br.com.fenix.bilingualreader.model.enums.Filter, String>>()
+                constraint?.contains('@').run {
+                    constraint?.split(" ")?.let {
+                        for (word in it) {
+                            if (word.contains(Regex("@[\\S]+:(\\S++ |\\S++)"))) {
+                                filterPattern = filterPattern.replace(word, "", true)
+                                val type = Util.stringToFilter(app.applicationContext, Type.BOOK, word.substringBefore(":").replace("@", ""))
+                                if (type != br.com.fenix.bilingualreader.model.enums.Filter.None) {
+                                    val condition = word.substringAfter(":")
+                                    if (condition.isNotEmpty())
+                                        filterCondition.add(Pair(type, condition))
+                                }
+                            }
+                        }
+                    }
+                }
+
+                filterPattern = filterPattern.lowercase(Locale.getDefault()).trim()
+
+                filteredList.addAll(mListBookFull.value!!.filter {
+                    filtered(it, filterPattern, filterCondition)
                 })
             }
 

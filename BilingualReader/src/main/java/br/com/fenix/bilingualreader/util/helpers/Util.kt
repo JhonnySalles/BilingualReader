@@ -39,6 +39,7 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.*
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.repository.DataBase
+import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -389,26 +390,44 @@ class Util {
         }
 
 
-        private var mapFilter: HashMap<String, Filter>? = null
-        fun getFilters(context: Context): HashMap<String, Filter> {
-            return if (mapFilter != null)
-                mapFilter!!
+        private var mapMangaFilter: HashMap<String, Filter>? = null
+        private var mapBookFilter: HashMap<String, Filter>? = null
+        fun getMangaFilters(context: Context): HashMap<String, Filter> {
+            return if (mapMangaFilter != null)
+                mapMangaFilter!!
             else {
                 val types = context.resources.getStringArray(R.array.manga_filters)
-                mapFilter = hashMapOf(
+                mapMangaFilter = hashMapOf(
                     types[0] to Filter.Author,
                     types[1] to Filter.Publisher,
                     types[2] to Filter.Series,
                     types[3] to Filter.Type,
                     types[4] to Filter.Volume
                 )
-                mapFilter!!
+                mapMangaFilter!!
             }
         }
 
-        fun stringToFilter(context: Context, text: String): Filter {
+        fun getBookFilters(context: Context): HashMap<String, Filter> {
+            return if (mapBookFilter != null)
+                mapBookFilter!!
+            else {
+                val types = context.resources.getStringArray(R.array.book_filters)
+                mapBookFilter = hashMapOf(
+                    types[0] to Filter.Author,
+                    types[1] to Filter.Publisher,
+                    types[2] to Filter.Type
+                )
+                mapBookFilter!!
+            }
+        }
+
+        fun stringToFilter(context: Context, type: Type, text: String): Filter {
             var filter = Filter.None
-            val mapFilters = getFilters(context)
+            val mapFilters = when(type) {
+                Type.MANGA -> getMangaFilters(context)
+                Type.BOOK -> getBookFilters(context)
+            }
             for (item in mapFilters)
                 if (item.key.equals(text, true)) {
                     filter = item.value
@@ -417,8 +436,11 @@ class Util {
             return filter
         }
 
-        fun filterToString(context: Context, filter: Filter): String {
-            val mapFilters = getFilters(context)
+        fun filterToString(context: Context, type: Type, filter: Filter): String {
+            val mapFilters = when(type) {
+                Type.MANGA -> getMangaFilters(context)
+                Type.BOOK -> getBookFilters(context)
+            }
             return if (mapFilters.containsValue(filter))
                 mapFilters.filter { filter == it.value }.keys.first()
             else

@@ -411,6 +411,12 @@
     <string name="book_library_menu_delete">Deletar</string>
     <string name="book_library_menu_delete_description">Deseja excluir o arquivo?</string>
 
+    <string-array name="book_filters">
+        <item>Autor</item>
+        <item>Editora</item>
+        <item>Tipo</item>
+    </string-array>
+
     <!-- POPUP LIBRARY - Manga / Comic -->
     <string name="popup_library_manga_tab_item_ordering">Ordenação</string>
     <string name="popup_library_manga_tab_item_filter">Filtro</string>
