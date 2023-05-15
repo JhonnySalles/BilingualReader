@@ -6,7 +6,10 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.*
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Order
+import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.FontUtil
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.book.VocabularyBookViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.manga.VocabularyMangaViewModel
@@ -23,7 +26,8 @@ class VocabularyRepository(context: Context) {
     private var mDataBaseDAO = mBase.getVocabularyDao()
     private val mMsgImport = context.getString(R.string.vocabulary_imported)
     private val mVocabImported = Toast.makeText(context, mMsgImport, Toast.LENGTH_SHORT)
-    private var mLastImport: Long? = null
+    private var mLastMangaImport: Long? = null
+    private var mLastBookImport: Long? = null
 
     private fun getOrderDesc(order: Order) : String {
         return when(order) {
@@ -227,7 +231,7 @@ class VocabularyRepository(context: Context) {
     }
 
     fun processVocabulary(idManga: Long?, subTitleChapters: List<SubTitleChapter>) {
-        if (subTitleChapters.isEmpty() || idManga == null || idManga == mLastImport)
+        if (subTitleChapters.isEmpty() || idManga == null || idManga == mLastMangaImport)
             return
 
         val manga = mBase.getMangaDao().get(idManga)
@@ -268,14 +272,59 @@ class VocabularyRepository(context: Context) {
                         }
                     }
 
-                    mLastImport = manga.id
+                    mLastMangaImport = manga.id
                     manga.lastVocabImport = LocalDateTime.now()
-                    mBase.getMangaDao().save(manga)
+                    withContext(Dispatchers.Main) { mBase.getMangaDao().save(manga) }
 
                     mVocabImported.setText("$mMsgImport\n${manga.title}")
                     mVocabImported.show()
                 } catch (e: Exception) {
-                    mLOGGER.error("Error process vocabulary. ", e)
+                    mLOGGER.error("Error process manga vocabulary. ", e)
+                }
+            }
+        }
+    }
+
+    fun processVocabulary(context: Context, idBook: Long?) {
+        val prefs = GeneralConsts.getSharedPreferences(context)
+        val isProcess = prefs.getBoolean(
+            GeneralConsts.KEYS.READER.BOOK_PROCESS_VOCABULARY,
+            true
+        )
+
+        if (!isProcess || idBook == null || idBook == mLastBookImport)
+            return
+
+        val book = mBase.getBookDao().get(idBook)
+        if (book.language != Languages.JAPANESE || (book.lastVocabImport != null && book.file.lastModified() == book.fileAlteration))
+            return
+
+        CoroutineScope(newSingleThreadContext("VocabularyThread")).launch {
+            async {
+                try {
+                    val document = DocumentParse(book.path, book.password, FontUtil.pixelToDips(context, GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT), false)
+                    val list = mutableSetOf<Vocabulary?>()
+                    val pages = mutableListOf<Vocabulary>()
+
+                    // Fazer ******
+
+
+                    for (i in 0 until document.pageCount) {
+                        val page = document.getPage(i)
+
+                        withContext(Dispatchers.Main) {
+                            //insert(book.id!!, idVocabulary: Long, appears: Int, false)
+                        }
+                    }
+
+                    mLastBookImport = book.id
+                    book.lastVocabImport = LocalDateTime.now()
+                    withContext(Dispatchers.Main) { mBase.getBookDao().save(book) }
+
+                    mVocabImported.setText("$mMsgImport\n${book.title}")
+                    mVocabImported.show()
+                } catch (e: Exception) {
+                    mLOGGER.error("Error process book vocabulary. ", e)
                 }
             }
         }

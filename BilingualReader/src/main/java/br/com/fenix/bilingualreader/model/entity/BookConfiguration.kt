@@ -24,14 +24,10 @@ data class BookConfiguration (
     var margin: MarginLayoutType,
     @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.SPACING)
     var spacing: SpacingLayoutType,
-    @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.SCROLLING)
-    var scrolling: ScrollingType,
     @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FONT_TYPE)
     var fontType: FontType,
     @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FONT_SIZE)
     var fontSize: Float,
-    @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.INFINITY_SCROLLING)
-    var isInfinityScrolling: Boolean,
-    @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.JAPANESE_READING_MODE)
-    var isJapaneseReadingMode: Boolean
+    @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.SCROLLING)
+    var scrolling: ScrollingType
 ) : Serializable

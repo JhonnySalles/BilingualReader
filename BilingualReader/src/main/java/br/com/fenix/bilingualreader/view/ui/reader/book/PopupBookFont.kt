@@ -24,7 +24,6 @@ class PopupBookFont : Fragment() {
 
     private lateinit var mFontType: TwoWayView
     private lateinit var mFontSize: Slider
-    private lateinit var mReadingJapaneseMode: SwitchMaterial
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,7 +34,6 @@ class PopupBookFont : Fragment() {
 
         mFontType = root.findViewById(R.id.popup_book_font_type)
         mFontSize = root.findViewById(R.id.popup_book_font_size)
-        mReadingJapaneseMode = root.findViewById(R.id.popup_book_reading_japanese_mode)
 
         mFontSize.value = mViewModel.fontSize.value!!
         mFontSize.addOnChangeListener { _, value, fromUser ->

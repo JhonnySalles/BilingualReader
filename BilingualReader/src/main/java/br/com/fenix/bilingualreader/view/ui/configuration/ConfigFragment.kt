@@ -116,9 +116,7 @@ class ConfigFragment : Fragment() {
     private lateinit var mBookFontTypeJapanese: TwoWayView
     private lateinit var mBookFontSize: Slider
 
-    private lateinit var mBookInfinityScroll: SwitchMaterial
     private lateinit var mBookProcessVocabulary: SwitchMaterial
-    private lateinit var mBookReadingJapaneseMode: SwitchMaterial
 
     private var mBookOrderSelect: Order = Order.Name
 
@@ -147,12 +145,7 @@ class ConfigFragment : Fragment() {
         mBookFontTypeJapanese = view.findViewById(R.id.config_book_list_fonts_japanese)
         mBookFontSize = view.findViewById(R.id.config_book_font_size)
 
-        mBookInfinityScroll =
-            view.findViewById(R.id.config_book_infinity_scroll)
-        mBookProcessVocabulary =
-            view.findViewById(R.id.config_book_process_vocabulary)
-        mBookReadingJapaneseMode =
-            view.findViewById(R.id.config_book_reading_japanese_mode)
+        mBookProcessVocabulary = view.findViewById(R.id.config_book_process_vocabulary)
 
         mConfigSystemThemeMode = view.findViewById(R.id.config_system_theme_mode)
         mConfigSystemThemeModeAutoComplete =
@@ -638,18 +631,8 @@ class ConfigFragment : Fragment() {
             )
 
             this.putBoolean(
-                GeneralConsts.KEYS.READER.BOOK_READING_JAPANESE_MODE,
-                mBookReadingJapaneseMode.isChecked
-            )
-
-            this.putBoolean(
                 GeneralConsts.KEYS.READER.BOOK_PROCESS_VOCABULARY,
                 mBookProcessVocabulary.isChecked
-            )
-
-            this.putBoolean(
-                GeneralConsts.KEYS.READER.BOOK_INFINITY_SCROLL,
-                mBookInfinityScroll.isChecked
             )
 
             this.putFloat(
@@ -779,17 +762,9 @@ class ConfigFragment : Fragment() {
             mBookMapOrder.filterValues { it == mBookOrderSelect }.keys.first(),
             false
         )
-        mBookReadingJapaneseMode.isChecked = sharedPreferences.getBoolean(
-            GeneralConsts.KEYS.READER.BOOK_READING_JAPANESE_MODE,
-            true
-        )
         mBookProcessVocabulary.isChecked = sharedPreferences.getBoolean(
             GeneralConsts.KEYS.READER.BOOK_PROCESS_VOCABULARY,
             true
-        )
-        mBookInfinityScroll.isChecked = sharedPreferences.getBoolean(
-            GeneralConsts.KEYS.READER.BOOK_INFINITY_SCROLL,
-            false
         )
 
         mConfigSystemDateSelect = sharedPreferences.getString(

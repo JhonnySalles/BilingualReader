@@ -42,8 +42,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private var mSpacingType: MutableLiveData<SpacingLayoutType> = MutableLiveData(SpacingLayoutType.Small)
     val spacingType: LiveData<SpacingLayoutType> = mSpacingType
 
-    private var mScrollingType: MutableLiveData<ScrollingType> =
-        MutableLiveData(ScrollingType.Pagination)
+    private var mScrollingType: MutableLiveData<ScrollingType> = MutableLiveData(ScrollingType.Pagination)
     val scrollingType: LiveData<ScrollingType> = mScrollingType
 
     private var mFontType: MutableLiveData<FontType> = MutableLiveData(FontType.TimesNewRoman)
@@ -128,6 +127,9 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         isJapanese = book?.language == Languages.JAPANESE
         val config : BookConfiguration? = if (book?.id != null) mRepository.findConfiguration(book.id!!) else null
         loadConfiguration(config)
+
+        if (config == null && book?.id != null)
+            saveBookConfiguration(book.id!!)
     }
 
     private fun loadPreferences(isJapanese: Boolean) {
@@ -149,13 +151,6 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             mPreferences.getString(
                 GeneralConsts.KEYS.READER.BOOK_PAGE_SPACING,
                 SpacingLayoutType.Small.toString()
-            )!!
-        )
-
-        mScrollingType.value = ScrollingType.valueOf(
-            mPreferences.getString(
-                GeneralConsts.KEYS.READER.BOOK_PAGE_SCROLLING_MODE,
-                ScrollingType.Pagination.toString()
             )!!
         )
 
@@ -198,17 +193,9 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             AlignmentLayoutType.Justify,
             MarginLayoutType.Small,
             SpacingLayoutType.Small,
-            ScrollingType.Pagination,
             FontType.TimesNewRoman,
             GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT,
-            mPreferences.getBoolean(
-                GeneralConsts.KEYS.READER.BOOK_INFINITY_SCROLL,
-                false
-            ),
-            mPreferences.getBoolean(
-                GeneralConsts.KEYS.READER.BOOK_READING_JAPANESE_MODE,
-                true
-            )
+            ScrollingType.Pagination
         )
         saveBookConfiguration(config)
     }

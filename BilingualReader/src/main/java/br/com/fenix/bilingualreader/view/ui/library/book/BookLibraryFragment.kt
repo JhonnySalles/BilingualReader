@@ -381,7 +381,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         with(sharedPreferences.edit()) {
-            this!!.putString(GeneralConsts.KEYS.LIBRARY.MANGA_ORDER, orderBy.toString())
+            this!!.putString(GeneralConsts.KEYS.LIBRARY.BOOK_ORDER, orderBy.toString())
             this.commit()
         }
 

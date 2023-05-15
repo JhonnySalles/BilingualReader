@@ -146,9 +146,7 @@ class GeneralConsts private constructor() {
             const val BOOK_PAGE_FONT_TYPE_JAPANESE = "BOOK_PAGE_FONT_TYPE_JAPANESE"
             const val BOOK_PAGE_FONT_SIZE = "BOOK_PAGE_FONT_SIZE"
             const val BOOK_PAGE_FONT_SIZE_DEFAULT = 5f
-            const val BOOK_READING_JAPANESE_MODE = "BOOK_READING_JAPANESE_MODE"
             const val BOOK_PROCESS_VOCABULARY = "BOOK_PROCESS_VOCABULARY"
-            const val BOOK_INFINITY_SCROLL = "BOOK_INFINITY_SCROLL"
         }
 
         object SYSTEM {
