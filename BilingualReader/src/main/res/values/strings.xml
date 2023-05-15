@@ -401,11 +401,18 @@
     <string name="action_neutral">Ok</string>
     <string name="switch_action_positive">Yes</string>
     <string name="switch_action_negative">No</string>
+
     <string name="switch_next_comic">Would you like to switch to the next comic?</string>
     <string name="switch_prev_comic">Would you like to switch to the previous comic?</string>
     <string name="switch_next_comic_not_found">Next file not found</string>
     <string name="switch_prev_comic_first_comic">This is the first file.</string>
     <string name="switch_next_comic_last_comic">This is the last file.</string>
+
+    <string name="switch_next_book">Would you like to switch to the next book?</string>
+    <string name="switch_prev_book">Would you like to switch to the previous book?</string>
+    <string name="switch_next_book_not_found">Next file not found</string>
+    <string name="switch_prev_book_first_comic">This is the first file.</string>
+    <string name="switch_next_book_last_comic">This is the last file.</string>
 
     <!-- LIBRARY - Manga / Comic -->
     <string name="manga_library_last_access">Last_access</string>

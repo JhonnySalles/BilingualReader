@@ -266,15 +266,17 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     @SuppressLint("JavascriptInterface")
     fun prepareHtml(parse: DocumentParse?, page: Int, web: WebView, listener : View.OnTouchListener? = null, javascript: WebInterface? = null) {
         var html =
-            "<!DOCTYPE html><html>" + getDefaultCSS() + "<body>" + parse?.getPage(
-                page
-            )?.pageHTMLWithImages.orEmpty() + "</body></html>"
+            "<!DOCTYPE html><html>" + getDefaultCSS() + "<body>" +
+                    parse?.getPage(page)?.pageHTMLWithImages.orEmpty() +
+                    "</body></html>"
 
         if (html.contains("<image-begin>image"))
             html = html.replace("<image-begin>", "<img src=\"data:")
                 .replace("<image-end>", "\" />")
 
         html = TextUtil.formatHtml(html)
+
+        parse?.getPage(page)?.recycle()
 
         web.loadDataWithBaseURL("file:///android_res/", html, "text/html", "UTF-8", null)
 

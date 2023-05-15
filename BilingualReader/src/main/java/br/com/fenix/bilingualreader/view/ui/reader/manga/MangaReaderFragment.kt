@@ -340,7 +340,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         })
 
         mViewPager.adapter = mPagerAdapter
-        mViewPager.offscreenPageLimit = ReaderConsts.READER.OFF_SCREEN_PAGE_LIMIT
+        mViewPager.offscreenPageLimit = ReaderConsts.READER.MANGA_OFF_SCREEN_PAGE_LIMIT
         mViewPager.setOnTouchListener(this)
         mViewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
             override fun onPageSelected(position: Int) {
@@ -941,7 +941,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         val dialog: AlertDialog =
             MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(titleRes)
-                .setMessage(newManga.file.name)
+                .setMessage(newManga.fileName)
                 .setPositiveButton(
                     R.string.switch_action_positive
                 ) { _, _ ->
