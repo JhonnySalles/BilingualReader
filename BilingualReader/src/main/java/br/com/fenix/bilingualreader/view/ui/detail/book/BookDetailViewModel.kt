@@ -9,6 +9,7 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.LinkedFile
 import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.model.entity.Library
+import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.FileLinkRepository
 import org.slf4j.LoggerFactory
@@ -80,6 +81,11 @@ class BookDetailViewModel(application: Application) : AndroidViewModel(applicati
         mBook.value ?: return
         mBookRepository.clearHistory(mBook.value)
         mBook.value = mBook.value
+    }
+
+    fun changeLanguage(languages: Languages) {
+        mBook.value?.language = languages
+        save(mBook.value)
     }
 
 }

@@ -758,6 +758,13 @@ class ConfigFragment : Fragment() {
         )
         mBookLibraryPath.editText?.setText(mViewModel.getDefault(Type.BOOK))
 
+        mBookOrderSelect = Order.valueOf(
+            sharedPreferences.getString(
+                GeneralConsts.KEYS.LIBRARY.BOOK_ORDER,
+                Order.Name.toString()
+            )!!
+        )
+
         mBookLibraryOrderAutoComplete.setText(
             mBookMapOrder.filterValues { it == mBookOrderSelect }.keys.first(),
             false

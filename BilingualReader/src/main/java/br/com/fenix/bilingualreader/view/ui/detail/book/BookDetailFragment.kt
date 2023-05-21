@@ -13,6 +13,8 @@ import androidx.fragment.app.viewModels
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
+import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.listener.InformationCardListener
@@ -25,6 +27,7 @@ import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputLayout
 import org.slf4j.LoggerFactory
 
 
@@ -65,11 +68,15 @@ class BookDetailFragment : Fragment() {
     private lateinit var mInformationGenres: TextView
     private lateinit var mInformationFile: TextView
 
+    private lateinit var mBookLanguage: TextInputLayout
+    private lateinit var mBookLanguageAutoComplete: AutoCompleteTextView
+
     private lateinit var mListener: InformationCardListener
 
     private var mSubtitles: MutableList<String> = mutableListOf()
     private var mChapters: MutableList<String> = mutableListOf()
     private var mFileLinks: MutableList<String> = mutableListOf()
+    private var mMapLanguage: HashMap<String, Languages> = hashMapOf()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -80,6 +87,9 @@ class BookDetailFragment : Fragment() {
 
         mBackgroundImage = root.findViewById(R.id.book_detail_background_image)
         mImage = root.findViewById(R.id.book_detail_book_image)
+
+        mBookLanguage = root.findViewById(R.id.book_detail_information_language)
+        mBookLanguageAutoComplete = root.findViewById(R.id.book_detail_information_menu_autocomplete_language)
 
         mTitle = root.findViewById(R.id.book_detail_title)
         mAuthor = root.findViewById(R.id.book_detail_author)
@@ -112,6 +122,26 @@ class BookDetailFragment : Fragment() {
         mInformationIsbn = root.findViewById(R.id.book_detail_information_isbn)
         mInformationGenres = root.findViewById(R.id.book_detail_information_genres)
         mInformationFile = root.findViewById(R.id.book_detail_information_file)
+
+        val languages = resources.getStringArray(R.array.languages)
+        mMapLanguage = hashMapOf(
+            languages[1] to Languages.ENGLISH,
+            languages[2] to Languages.JAPANESE,
+            languages[0] to Languages.PORTUGUESE
+        )
+
+        mBookLanguageAutoComplete.setAdapter(ArrayAdapter(requireContext(), R.layout.list_item, mMapLanguage.keys.toTypedArray()))
+        mBookLanguageAutoComplete.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                val lang = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                        mMapLanguage.containsKey(parent.getItemAtPosition(position).toString())
+                    )
+                        mMapLanguage[parent.getItemAtPosition(position).toString()]!!
+                    else
+                    mViewModel.book.value?.language ?: Languages.JAPANESE
+
+                mViewModel.changeLanguage(lang)
+            }
 
         mFavoriteButton.setOnClickListener { favorite() }
         mMakReadButton.setOnClickListener {
@@ -196,6 +226,12 @@ class BookDetailFragment : Fragment() {
                     arrayListOf(mBackgroundImage, mImage),
                     false
                 )
+
+                mBookLanguageAutoComplete.setText(
+                    mMapLanguage.filterValues { lan -> lan == it.language }.keys.first(),
+                    false
+                )
+
                 mTitle.text = it.title
                 mFolder.text = it.path
                 mFileType.text = it.type.toString()
@@ -227,6 +263,8 @@ class BookDetailFragment : Fragment() {
             } else {
                 mBackgroundImage.setImageBitmap(null)
                 mImage.setImageBitmap(null)
+
+                mBookLanguageAutoComplete.setText("", false)
 
                 mTitle.text = ""
                 mFolder.text = ""

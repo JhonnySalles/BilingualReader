@@ -531,6 +531,7 @@
     <string name="book_detail_related">Related</string>
     <string name="book_detail_tags">Tags</string>
 
+    <string name="book_detail_information_language">Book language</string>
     <string name="book_detail_information_file"><b>File:</b> %s</string>
     <string name="book_detail_information_isbn"><b>ISBN:</b> %s</string>
     <string name="book_detail_information_year"><b>Year:</b> %s</string>

@@ -504,6 +504,7 @@
     <string name="book_detail_related">Relacionados</string>
     <string name="book_detail_tags">Tags</string>
 
+    <string name="book_detail_information_language">Linguagem do livro</string>
     <string name="book_detail_information_file"><b>Arquivo:</b> %s</string>
     <string name="book_detail_information_isbn"><b>ISBN:</b> %s</string>
     <string name="book_detail_information_year"><b>Ano:</b> %s</string>

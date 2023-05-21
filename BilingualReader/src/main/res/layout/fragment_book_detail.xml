@@ -137,17 +137,15 @@
                                 android:layout_marginEnd="2dp"
                                 android:gravity="center"
                                 android:textSize="@dimen/book_detail_file_type" />
-
-                            <TextView
-                                android:id="@+id/book_detail_last_access"
-                                style="@style/TextNormal.BookDetail"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1.2"
-                                android:gravity="end"
-                                android:textSize="@dimen/book_detail_last_access" />
-
                         </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/book_detail_last_access"
+                            style="@style/TextNormal.BookDetail"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="2dp"
+                            android:textSize="@dimen/book_detail_last_access" />
 
                         <TextView
                             android:id="@+id/book_detail_folder"
@@ -298,6 +296,23 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:orientation="vertical">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/book_detail_information_language"
+                        style="@style/TextInputDropMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/margin_small"
+                        android:hint="@string/book_detail_information_language"
+                        app:startIconDrawable="@drawable/ic_language">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/book_detail_information_menu_autocomplete_language"
+                            style="@style/AutoCompleteDropMenu"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.divider.MaterialDivider
                         style="@style/MaterialDivider"

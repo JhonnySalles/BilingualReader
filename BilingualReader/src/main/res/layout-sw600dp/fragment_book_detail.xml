@@ -286,6 +286,23 @@
                     android:layout_marginTop="5dp"
                     android:orientation="vertical">
 
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/book_detail_information_language"
+                        style="@style/TextInputDropMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/margin_small"
+                        android:hint="@string/book_detail_information_language"
+                        app:startIconDrawable="@drawable/ic_language">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/book_detail_information_menu_autocomplete_language"
+                            style="@style/AutoCompleteDropMenu"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
                     <com.google.android.material.divider.MaterialDivider
                         style="@style/MaterialDivider"
                         android:layout_width="match_parent"
