@@ -22,7 +22,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.SubTitlePage
 import br.com.fenix.bilingualreader.model.entity.SubTitleText
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
-import br.com.fenix.bilingualreader.service.kanji.Formatter
+import br.com.fenix.bilingualreader.service.kanji.FormatterKanji
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import com.pedromassango.doubleclick.DoubleClick
@@ -523,7 +523,7 @@ class FloatingSubtitleReader constructor(
                         "$mLabelPage ${mSubTitleController.subTitlePageSelected.value!!.number} - " +
                         "$mLabelText $index/${mSubTitleController.subTitlePageSelected.value?.subTitleTexts?.size}"
 
-            Formatter.generateFurigana(
+            FormatterKanji.generateFurigana(
                 subTitleText.text,
                 furigana = { mSubtitleText.text = it },
                 vocabularyClick = { findVocabulary(it) })
@@ -562,7 +562,7 @@ class FloatingSubtitleReader constructor(
     fun updateTextOcr(text: String?) {
         if (text != null) {
             changeLayout(false)
-            Formatter.generateKanjiColor(text,
+            FormatterKanji.generateKanjiColor(text,
                 { kanji -> mOcrText.text = kanji },
                 { kanji, detail -> setKanjiDetail(kanji, detail) })
             mOcrScrollContent.smoothScrollTo(0, 0)

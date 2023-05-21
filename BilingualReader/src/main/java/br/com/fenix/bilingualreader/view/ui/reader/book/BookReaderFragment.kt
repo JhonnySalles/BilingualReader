@@ -140,8 +140,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         }
     }
 
-    private var mCurrentFragment: FrameLayout? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mCurrentPage = 1
@@ -165,7 +163,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                 mViewModel.loadConfiguration(mBook)
 
                 mParse = try {
-                    DocumentParse(file.path, mBook?.password ?: "", FontUtil.pixelToDips(requireContext(), mViewModel.fontSize.value!!), resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE, mViewModel.isJapanese)
+                    DocumentParse(file.path, mBook?.password ?: "", FontUtil.pixelToDips(requireContext(), mViewModel.fontSize.value!!), resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
                 } catch (e: BookLoadException) {
                     null
                 }
@@ -695,44 +693,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
             }
 
             return true
-        }
-    }
-
-    inner class BookPagerAdapter : PagerAdapter() {
-        private val mInterface = WebInterface(requireContext())
-
-        override fun isViewFromObject(view: View, o: Any): Boolean {
-            return view === o
-        }
-
-        override fun getCount(): Int {
-            return mParse?.getPageCount(
-                FontUtil.pixelToDips(requireContext(), mViewModel.fontSize.value!!)
-            ) ?: 1
-        }
-
-        override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
-            if (mCurrentFragment !== `object`)
-                mCurrentFragment = `object` as FrameLayout
-            super.setPrimaryItem(container, position, `object`)
-        }
-
-        override fun instantiateItem(container: ViewGroup, position: Int): Any {
-            val inflater = requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            val layout: View = inflater.inflate(R.layout.fragment_book_page, container, false)
-            val webViewPage: WebViewPage = layout.findViewById<View>(R.id.page_web_view) as WebViewPage
-
-            mViewModel.prepareHtml(mParse, position, webViewPage, this@BookReaderFragment, mInterface)
-            container.addView(layout)
-
-            return layout
-        }
-
-        override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
-            val layout = `object` as View
-            container.removeView(layout)
-            val iv = layout.findViewById<View>(R.id.page_web_view) as WebViewPage
-            iv.destroy()
         }
     }
 

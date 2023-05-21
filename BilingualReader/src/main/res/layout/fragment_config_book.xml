@@ -87,6 +87,13 @@
             app:icon="@drawable/ic_library_small" />
 
         <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/config_book_text_with_furigana"
+            style="@style/SwitchMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/config_book_text_with_furigana" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/config_book_process_vocabulary"
             style="@style/SwitchMaterial"
             android:layout_width="match_parent"

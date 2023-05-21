@@ -15,6 +15,7 @@ import br.com.fenix.bilingualreader.model.enums.*
 import br.com.fenix.bilingualreader.service.controller.WebInterface
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.BookRepository
+import br.com.fenix.bilingualreader.service.vocabulary.FormatterVocabulary
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FontUtil
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
@@ -59,8 +60,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private var mFontsLocation: String = FontType.getCssFont()
     private var mDefaultCss : String = ""
     var mWebFontSize = FontUtil.pixelToDips(app.applicationContext, fontSize.value!!)
-
     var isJapanese = true
+    private var isFurigana = mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT, true)
 
     init {
         loadPreferences(false)
@@ -105,7 +106,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 "  max-height: 100%;" +
                 "}"
 
-        val meta = "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=2, user-scalable=yes\" >"
+        val meta = "<meta name=\"viewport\" content=\"height=device-height, width=device-width, initial-scale=1, maximum-scale=2, user-scalable=yes\" >"
         val style = "<style type=\"text/css\"> " +
                 mFontsLocation +
                 "body { " +
@@ -115,9 +116,10 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 "  line-height: $spacing; " +
                 "  text-align: $alignment; " +
                 "  margin: $margin $margin $margin $margin; " +
-                (if (isJapanese) " -webkit-text-orientation: upright; -webkit-writing-mode: vertical-rl;" else "") +
+               // (if (isJapanese) " -webkit-text-orientation: upright; -webkit-writing-mode: vertical-rl;" else "") + // Not working
                 "} " +
                 img +
+                FormatterVocabulary.getCss() +
                 "</style>"
         mFontCss.value = style
         return "<head>$meta$style</head>"
@@ -161,6 +163,11 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 typeKey,
                 typeDefault
             )!!
+        )
+
+        isFurigana = mPreferences.getBoolean(
+            GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT,
+            true
         )
 
         mFontSize.value = mPreferences.getFloat(
@@ -253,8 +260,10 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     @SuppressLint("JavascriptInterface")
     fun prepareHtml(parse: DocumentParse?, page: Int, web: WebView, listener : View.OnTouchListener? = null, javascript: WebInterface? = null) {
         var html =
-            "<!DOCTYPE html><html>" + getDefaultCSS() + "<body>" +
+            "<!DOCTYPE html><html>" + getDefaultCSS() + "<body><div id=\"text\">" +
                     parse?.getPage(page)?.pageHTMLWithImages.orEmpty() +
+                    "</div>" +
+                    (if (isJapanese) FormatterVocabulary.getScript(isFurigana) else "") +
                     "</body></html>"
 
         if (html.contains("<image-begin>image"))
@@ -277,11 +286,13 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         web.settings.setSupportZoom(true)
         web.settings.builtInZoomControls = true
         web.settings.displayZoomControls = false
+        web.settings.loadWithOverviewMode = true
+        web.settings.useWideViewPort = true
 
         web.setBackgroundColor(Color.TRANSPARENT)
         // Use variable android in javascript to call functions java
         if (javascript != null)
-            web.addJavascriptInterface(javascript, "android")
+            web.addJavascriptInterface(javascript, "bilingualapp")
     }
 
 }

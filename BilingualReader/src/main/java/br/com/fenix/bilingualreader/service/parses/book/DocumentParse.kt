@@ -1,7 +1,6 @@
 package br.com.fenix.bilingualreader.service.parses.book
 
 import android.content.Context
-import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.RectF
@@ -15,7 +14,6 @@ import br.com.ebook.foobnix.sys.ImageExtractor
 import br.com.ebook.foobnix.sys.TempHolder
 import br.com.fenix.bilingualreader.model.exceptions.BookLoadException
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderFragment
 import org.ebookdroid.common.cache.CacheManager
 import org.ebookdroid.core.codec.CodecDocument
 import org.ebookdroid.core.codec.CodecPage
@@ -23,9 +21,8 @@ import org.ebookdroid.core.codec.CodecPageInfo
 import org.ebookdroid.core.codec.OutlineLink
 import org.slf4j.LoggerFactory
 import java.io.File
-import java.io.Serializable
 
-class DocumentParse(var path: String, var password: String = "", var fontSizeDips: Int, var isLandscape: Boolean, var isJapanese: Boolean = false) : CodecDocument {
+class DocumentParse(var path: String, var password: String = "", var fontSizeDips: Int, var isLandscape: Boolean) : CodecDocument {
 
     private val mLOGGER = LoggerFactory.getLogger(DocumentParse::class.java)
 
@@ -33,7 +30,7 @@ class DocumentParse(var path: String, var password: String = "", var fontSizeDip
         System.loadLibrary("mypdf")
         System.loadLibrary("mobi")
 
-        openBook(path, password, fontSizeDips, isLandscape, isJapanese)
+        openBook(path, password, fontSizeDips, isLandscape)
 
         if (!isLoaded())
             throw BookLoadException("Could not open selected book: " + path)
@@ -68,17 +65,17 @@ class DocumentParse(var path: String, var password: String = "", var fontSizeDip
         fontSize
     ) ?: 1
 
-    fun openBook(path: String, password: String = "", fontSizeDips: Int, isLandscape: Boolean, isJapanese: Boolean) : DocumentParse {
+    fun openBook(path: String, password: String = "", fontSizeDips: Int, isLandscape: Boolean) : DocumentParse {
         try {
             clear()
             val metrics = Resources.getSystem().displayMetrics
 
             if (isLandscape) {
-                mWidth = if (isJapanese) metrics.heightPixels else metrics.widthPixels
-                mHeight = (if (isJapanese) metrics.widthPixels else metrics.heightPixels) - 6
+                mWidth = metrics.widthPixels
+                mHeight = metrics.heightPixels - 6
             } else {
-                mWidth = (if (isJapanese) metrics.heightPixels else metrics.widthPixels) - 2
-                mHeight = if (isJapanese) metrics.widthPixels else metrics.heightPixels
+                mWidth = metrics.widthPixels - 2
+                mHeight = metrics.heightPixels
             }
 
             mCodecDocument = ImageExtractor.getNewCodecContext(

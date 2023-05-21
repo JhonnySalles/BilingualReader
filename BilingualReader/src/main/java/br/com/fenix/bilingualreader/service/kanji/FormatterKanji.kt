@@ -20,18 +20,17 @@ import br.com.fenix.bilingualreader.util.helpers.JapaneseCharacter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 
 
-class Formatter {
+class FormatterKanji {
     companion object KANJI {
-        private val mLOGGER = LoggerFactory.getLogger(Formatter::class.java)
+        private val mLOGGER = LoggerFactory.getLogger(FormatterKanji::class.java)
         private var mKanjaxRepository: KanjaxRepository? = null
         private var mVocabularyRepository: VocabularyRepository? = null
         private val mPatternKanji = Regex(".*[\u4E00-\u9FFF].*")
-                                                        // Hiragana | katakana | kanji
-        private val mPatternJapanese = Regex(".*[\u3040-\u309F|\u30A0-\u30FF|\u4E00-\u9FFF].*")
 
         @TargetApi(26)
         var mSudachiTokenizer: com.worksap.nlp.sudachi.Tokenizer? = null
@@ -47,7 +46,7 @@ class Formatter {
 
         fun initializeAsync(context: Context) =
             runBlocking { // this: CoroutineScope
-                GlobalScope.async { // launch a new coroutine and continue
+                launch { // launch a new coroutine and continue
                     try {
                         mKanjaxRepository = KanjaxRepository(context)
                         mVocabularyRepository = VocabularyRepository(context)
@@ -225,29 +224,6 @@ class Formatter {
             return textBuilder
         }
 
-        private fun kuromojiTokenizerHtml(text: String): String {
-            var textBuilder = ""
-            if (mKuromojiTokenizer != null) {
-                for (t in mKuromojiTokenizer!!.tokenize(text)) {
-                    if (t.surface.isNotEmpty() && t.surface.matches(mPatternKanji)) {
-                        var furigana = ""
-                        for (c in t.reading)
-                            furigana += JapaneseCharacter.toHiragana(c)
-
-                        var kanji = ""
-                        for (c in text.substring(t.position, t.position + t.surface.length))
-                            kanji += "<span class=\"n${JLPT?.get(c.toString()) ?: 0}\">$c</span>"
-
-                        val jlpt = mVocabularyRepository!!.findJlpt(t.reading)
-                        textBuilder += "<span class=\"vocn$jlpt\"><ruby>$kanji<rt>$furigana</rt></ruby></span>"
-                    } else
-                        textBuilder += text.substring(t.position, t.position + t.surface.length)
-                }
-            }
-
-            return textBuilder
-        }
-
         @TargetApi(26)
         private fun sudachiTokenizer(text: String, vocabularyClick: (String) -> (Unit)): SpannableStringBuilder {
             val textBuilder = SpannableStringBuilder()
@@ -275,30 +251,6 @@ class Formatter {
                             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                         )
                     }
-                }
-            }
-
-            return textBuilder
-        }
-
-        @TargetApi(26)
-        private fun sudachiTokenizerHtml(text: String): String {
-            var textBuilder = ""
-            if (mSudachiTokenizer != null) {
-                for (t in mSudachiTokenizer!!.tokenize(com.worksap.nlp.sudachi.Tokenizer.SplitMode.C, text)) {
-                    if (t.readingForm().isNotEmpty() && t.surface().matches(mPatternKanji)) {
-                        var furigana = ""
-                        for (c in t.readingForm())
-                            furigana += JapaneseCharacter.toHiragana(c)
-
-                        var kanji = ""
-                        for (c in text.substring(t.begin(), t.end()))
-                            kanji += "<span class=\"n${JLPT?.get(c.toString()) ?: 0}\">$c</span>"
-
-                        val jlpt = mVocabularyRepository!!.findJlpt(t.readingForm())
-                        textBuilder += "<span class=\"vocn$jlpt\"><ruby>$kanji<rt>$furigana</rt></ruby></span>"
-                    } else
-                        textBuilder += text.substring(t.begin(), t.end())
                 }
             }
 
@@ -408,17 +360,5 @@ class Formatter {
 
             function(ss)
         }
-
-        fun generateHtmlText(text: String) : String {
-            if (text.isEmpty() || !text.contains(mPatternJapanese))
-                return text
-
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                sudachiTokenizerHtml(text)
-            else
-                kuromojiTokenizerHtml(text)
-        }
-
-        fun showPopupKanji(context: Context, kanji: String) = getPopupKanji(context, kanji)
     }
 }

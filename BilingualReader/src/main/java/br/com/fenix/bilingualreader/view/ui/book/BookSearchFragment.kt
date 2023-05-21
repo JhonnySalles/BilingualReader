@@ -68,9 +68,8 @@ class BookSearchFragment : Fragment() {
             val path = it.getString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PATH)
             val password = it.getString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PASSWORD)
             val fontSize = it.getInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE)
-            val isJapanese = book.language == Languages.JAPANESE
             val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-            mViewModel.initialize(book, SharedData.getDocumentParse() ?: DocumentParse(path!!, password!!, fontSize, isLandscape, isJapanese))
+            mViewModel.initialize(book, SharedData.getDocumentParse() ?: DocumentParse(path!!, password!!, fontSize, isLandscape))
         }
     }
 

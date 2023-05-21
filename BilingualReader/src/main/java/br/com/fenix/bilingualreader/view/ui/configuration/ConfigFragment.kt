@@ -116,6 +116,7 @@ class ConfigFragment : Fragment() {
     private lateinit var mBookFontTypeJapanese: TwoWayView
     private lateinit var mBookFontSize: Slider
 
+    private lateinit var mBookTextWithFurigana: SwitchMaterial
     private lateinit var mBookProcessVocabulary: SwitchMaterial
 
     private var mBookOrderSelect: Order = Order.Name
@@ -145,6 +146,7 @@ class ConfigFragment : Fragment() {
         mBookFontTypeJapanese = view.findViewById(R.id.config_book_list_fonts_japanese)
         mBookFontSize = view.findViewById(R.id.config_book_font_size)
 
+        mBookTextWithFurigana = view.findViewById(R.id.config_book_text_with_furigana)
         mBookProcessVocabulary = view.findViewById(R.id.config_book_process_vocabulary)
 
         mConfigSystemThemeMode = view.findViewById(R.id.config_system_theme_mode)
@@ -631,6 +633,11 @@ class ConfigFragment : Fragment() {
             )
 
             this.putBoolean(
+                GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT,
+                mBookTextWithFurigana.isChecked
+            )
+
+            this.putBoolean(
                 GeneralConsts.KEYS.READER.BOOK_PROCESS_VOCABULARY,
                 mBookProcessVocabulary.isChecked
             )
@@ -769,6 +776,12 @@ class ConfigFragment : Fragment() {
             mBookMapOrder.filterValues { it == mBookOrderSelect }.keys.first(),
             false
         )
+
+        mBookTextWithFurigana.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT,
+            true
+        )
+
         mBookProcessVocabulary.isChecked = sharedPreferences.getBoolean(
             GeneralConsts.KEYS.READER.BOOK_PROCESS_VOCABULARY,
             true

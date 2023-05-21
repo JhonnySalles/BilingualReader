@@ -24,10 +24,12 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Chapters
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.*
+import br.com.fenix.bilingualreader.service.kanji.FormatterKanji
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
 import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.service.repository.Storage
+import br.com.fenix.bilingualreader.service.vocabulary.FormatterVocabulary
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
@@ -91,6 +93,8 @@ class BookReaderActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_reader)
+
+        FormatterVocabulary.initializeAsync(applicationContext)
 
         mRepository = BookRepository(applicationContext)
 

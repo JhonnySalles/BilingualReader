@@ -123,6 +123,7 @@
     <string name="config_title_book">Book</string>
     <string name="config_book_library_order">Library order</string>
     <string name="config_book_library_folder">Library folder</string>
+    <string name="config_book_text_with_furigana">Generate furigana in japanese text</string>
     <string name="config_book_process_vocabulary">Process vocabulary</string>
     <string name="config_book_type_normal">Book type normal</string>
     <string name="config_book_type_japanese">Book type japanese</string>

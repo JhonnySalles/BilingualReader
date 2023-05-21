@@ -13,7 +13,7 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
-import br.com.fenix.bilingualreader.service.kanji.Formatter
+import br.com.fenix.bilingualreader.service.kanji.FormatterKanji
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
 
@@ -148,7 +148,7 @@ class PopupMangaSubtitleReader : Fragment() {
                 title =
                     "$mLabelChapter ${mSubTitleController.subTitleChapterSelected.value?.chapter.toString()} - $mLabelText $index/${mSubTitleController.subTitlePageSelected.value?.subTitleTexts?.size}"
 
-                Formatter.generateKanjiColor(requireContext(), it.text) { kanji ->
+                FormatterKanji.generateKanjiColor(requireContext(), it.text) { kanji ->
                     mSubtitleContent.text = kanji
                 }
             } else if (mSubTitleController.subTitleChapterSelected.value != null && mSubTitleController.subTitlePageSelected.value != null)

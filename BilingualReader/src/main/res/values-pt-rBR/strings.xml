@@ -122,6 +122,7 @@
     <string name="config_title_book">Livro</string>
     <string name="config_book_library_order">Ordenação da biblioteca</string>
     <string name="config_book_library_folder">Caminho da biblioteca</string>
+    <string name="config_book_text_with_furigana">Gerar furigana em texto japonês</string>
     <string name="config_book_process_vocabulary">Processar vocabulário</string>
     <string name="config_book_type_normal">Book type normal</string>
     <string name="config_book_type_japanese">Tipo livro japonês</string>
