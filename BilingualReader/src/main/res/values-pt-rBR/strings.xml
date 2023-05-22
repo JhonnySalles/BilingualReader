@@ -122,11 +122,17 @@
     <string name="config_title_book">Livro</string>
     <string name="config_book_library_order">Ordenação da biblioteca</string>
     <string name="config_book_library_folder">Caminho da biblioteca</string>
-    <string name="config_book_text_with_furigana">Gerar furigana em texto japonês</string>
-    <string name="config_book_process_vocabulary">Processar vocabulário</string>
     <string name="config_book_type_normal">Book type normal</string>
     <string name="config_book_type_japanese">Tipo livro japonês</string>
     <string name="config_book_font_size">Tamanho da fonte</string>
+
+    <string name="config_book_reading">Leitura</string>
+    <string name="config_book_process_japanese_text">Processar texto em livro japonês</string>
+    <string name="config_book_text_with_furigana">Gerar furigana em texto japonês</string>
+    <string name="config_book_process_vocabulary">Processar vocabulário do livro</string>
+    <string name="config_book_scrolling_mode">Modo de rolagem</string>
+    <string name="config_book_scrolling_Pagination">Pagination</string>
+    <string name="config_book_scrolling_Infinity_Scrolling">Infinity Scrolling</string>
 
     <!-- CONFIG LIBRARIES -->
     <string name="menu_libraries_delete_library">Apagar Biblioteca</string>

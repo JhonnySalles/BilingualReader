@@ -13,9 +13,9 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.*
 import br.com.fenix.bilingualreader.model.enums.*
 import br.com.fenix.bilingualreader.service.controller.WebInterface
+import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.BookRepository
-import br.com.fenix.bilingualreader.service.vocabulary.FormatterVocabulary
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FontUtil
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
@@ -61,6 +61,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private var mDefaultCss : String = ""
     var mWebFontSize = FontUtil.pixelToDips(app.applicationContext, fontSize.value!!)
     var isJapanese = true
+    private var isProcessJapaneseText = mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT, true)
     private var isFurigana = mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT, true)
 
     init {
@@ -119,7 +120,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                // (if (isJapanese) " -webkit-text-orientation: upright; -webkit-writing-mode: vertical-rl;" else "") + // Not working
                 "} " +
                 img +
-                FormatterVocabulary.getCss() +
+                Formatter.getCss() +
                 "</style>"
         mFontCss.value = style
         return "<head>$meta$style</head>"
@@ -167,6 +168,11 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
         isFurigana = mPreferences.getBoolean(
             GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT,
+            true
+        )
+
+        isProcessJapaneseText = mPreferences.getBoolean(
+            GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT,
             true
         )
 
@@ -259,18 +265,22 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
     @SuppressLint("JavascriptInterface")
     fun prepareHtml(parse: DocumentParse?, page: Int, web: WebView, listener : View.OnTouchListener? = null, javascript: WebInterface? = null) {
-        var html =
-            "<!DOCTYPE html><html>" + getDefaultCSS() + "<body><div id=\"text\">" +
-                    parse?.getPage(page)?.pageHTMLWithImages.orEmpty() +
-                    "</div>" +
-                    (if (isJapanese) FormatterVocabulary.getScript(isFurigana) else "") +
-                    "</body></html>"
+        var text = parse?.getPage(page)?.pageHTMLWithImages.orEmpty()
 
-        if (html.contains("<image-begin>image"))
-            html = html.replace("<image-begin>", "<img src=\"data:")
+        if (text.contains("<image-begin>image"))
+            text = text.replace("<image-begin>", "<img src=\"data:")
                 .replace("<image-end>", "\" />")
 
-        html = TextUtil.formatHtml(html)
+        text = TextUtil.formatHtml(text)
+
+        if (isProcessJapaneseText && isJapanese)
+            text = Formatter.generateHtmlText(text, isFurigana)
+
+        val html =
+            "<!DOCTYPE html><html>" + getDefaultCSS() + "<body><div id=\"text\">" +
+                    text +
+                    "</div>" +
+                    "</body></html>"
 
         parse?.getPage(page)?.recycle()
 

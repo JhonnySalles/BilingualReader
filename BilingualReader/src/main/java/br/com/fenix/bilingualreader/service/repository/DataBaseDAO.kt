@@ -318,9 +318,6 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
     @Query("SELECT * FROM " + DataBaseConsts.VOCABULARY.TABLE_NAME + " WHERE " + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " = :vocabulary OR " + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + " = :vocabulary")
     abstract fun findAll(vocabulary: String): List<Vocabulary>
 
-    @Query("SELECT " + DataBaseConsts.VOCABULARY.COLUMNS.JLPT + " FROM " + DataBaseConsts.VOCABULARY.TABLE_NAME + " WHERE " + DataBaseConsts.VOCABULARY.COLUMNS.JLPT + " != 0 AND " + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " = :vocabulary OR " + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + " = :vocabulary LIMIT 1")
-    abstract fun findJlpt(vocabulary: String): Int?
-
     @Query(
         "SELECT * FROM " + DataBaseConsts.VOCABULARY.TABLE_NAME + " WHERE " + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " = :vocabulary " +
                 " AND CASE WHEN LENGTH(:basicForm) = 0 THEN " + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + " IS NULL ELSE " + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + " = :basicForm END LIMIT 1"

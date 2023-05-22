@@ -125,11 +125,17 @@
     <string name="config_title_book">Book</string>
     <string name="config_book_library_order">Library order</string>
     <string name="config_book_library_folder">Library folder</string>
-    <string name="config_book_text_with_furigana">Generate furigana in japanese text</string>
-    <string name="config_book_process_vocabulary">Process vocabulary</string>
     <string name="config_book_type_normal">Book type normal</string>
     <string name="config_book_type_japanese">Book type japanese</string>
     <string name="config_book_font_size">Font size</string>
+
+    <string name="config_book_reading">Reading</string>
+    <string name="config_book_process_japanese_text">Process text in japanese book</string>
+    <string name="config_book_text_with_furigana">Generate furigana in japanese text</string>
+    <string name="config_book_process_vocabulary">Process book vocabulary</string>
+    <string name="config_book_scrolling_mode">Scrolling mode</string>
+    <string name="config_book_scrolling_Pagination">Pagination</string>
+    <string name="config_book_scrolling_Infinity_Scrolling">Infinity Scrolling</string>
 
     <!-- CONFIG LIBRARIES -->
     <string name="menu_libraries_delete_library">Delete Library</string>

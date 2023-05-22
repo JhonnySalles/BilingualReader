@@ -8,7 +8,6 @@ import android.os.*
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
-import android.webkit.WebView
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -21,21 +20,18 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
-import br.com.fenix.bilingualreader.model.entity.Chapters
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.*
-import br.com.fenix.bilingualreader.service.kanji.FormatterKanji
+import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
 import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.service.repository.Storage
-import br.com.fenix.bilingualreader.service.vocabulary.FormatterVocabulary
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
-import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.google.android.material.tabs.TabLayout
@@ -94,7 +90,7 @@ class BookReaderActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_reader)
 
-        FormatterVocabulary.initializeAsync(applicationContext)
+        Formatter.initializeAsync(applicationContext)
 
         mRepository = BookRepository(applicationContext)
 
@@ -176,8 +172,7 @@ class BookReaderActivity : AppCompatActivity() {
                 initialize(book)
             }
         } else
-            mFragment =
-                supportFragmentManager.findFragmentById(R.id.root_frame_book_reader) as BookReaderFragment?
+            mFragment = supportFragmentManager.findFragmentById(R.id.root_frame_book_reader) as BookReaderFragment?
 
         getBatteryPercent()
     }

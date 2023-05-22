@@ -41,7 +41,7 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.*
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
-import br.com.fenix.bilingualreader.service.kanji.FormatterKanji
+import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.listener.ChapterCardListener
 import br.com.fenix.bilingualreader.service.listener.ChapterLoadListener
 import br.com.fenix.bilingualreader.service.ocr.GoogleVision
@@ -142,7 +142,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        FormatterKanji.initializeAsync(applicationContext)
+        Formatter.initializeAsync(applicationContext)
 
         mSubtitleController = SubTitleController.getInstance(applicationContext)
 

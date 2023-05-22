@@ -81,15 +81,6 @@ class VocabularyRepository(context: Context) {
         }
     }
 
-    fun findJlpt(vocabulary: String): Int {
-        return try {
-            mDataBaseDAO.findJlpt(vocabulary) ?: 0
-        } catch (e: Exception) {
-            mLOGGER.error("Error when get Library: " + e.message, e)
-            0
-        }
-    }
-
     fun list(
         query: VocabularyViewModel.Query,
         padding: Int,

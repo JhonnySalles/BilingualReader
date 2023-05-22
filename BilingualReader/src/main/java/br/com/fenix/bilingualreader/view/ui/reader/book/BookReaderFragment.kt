@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.view.ui.reader.book
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Resources
@@ -10,6 +9,7 @@ import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.*
 import android.util.Base64
 import android.view.*
+import android.webkit.WebView
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -25,17 +25,15 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager2.widget.ViewPager2
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
-import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Position
+import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.exceptions.BookLoadException
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
-import br.com.fenix.bilingualreader.service.controller.WebInterface
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.service.repository.Storage
@@ -46,7 +44,6 @@ import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.view.components.book.WebViewPage
 import br.com.fenix.bilingualreader.view.components.book.WebViewPager
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
-import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
@@ -223,10 +220,12 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         mPageSlider.valueTo = mParse?.getPageCount(
             FontUtil.pixelToDips(requireContext(), mViewModel.fontSize.value!!)
         )?.toFloat() ?: 2f
+
         mPageSlider.valueFrom = 1F
         mPageSlider.addOnChangeListener { _, value, fromUser ->
             if (fromUser)
-                if (mIsLeftToRight) setCurrentPage(value.roundToInt())
+                if (mIsLeftToRight)
+                    setCurrentPage(value.roundToInt())
                 else
                     setCurrentPage((mPageSlider.valueTo - value).roundToInt())
         }
@@ -234,7 +233,15 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         mPagerAdapter = WebViewPager(requireContext(), mViewModel, mParse, this@BookReaderFragment)
         mGestureDetector = GestureDetector(requireActivity(), MyTouchListener())
 
-        mViewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+        val preferences = GeneralConsts.getSharedPreferences(requireContext())
+        val scrolling = ScrollingType.valueOf(
+            preferences.getString(
+                GeneralConsts.KEYS.READER.BOOK_PAGE_SCROLLING_MODE,
+                ScrollingType.Pagination.toString()
+            )!!
+        )
+
+        mViewPager.orientation = if (scrolling == ScrollingType.Scrolling) ViewPager2.ORIENTATION_VERTICAL else ViewPager2.ORIENTATION_HORIZONTAL
 
         mViewPager.isSaveEnabled = false
         mViewPager.isSaveFromParentEnabled = false
@@ -244,16 +251,14 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 if (mIsLeftToRight)
-                    setCurrentPage(position + 1)
+                    setCurrentPage(position + 1,false)
                 else
-                    setCurrentPage(mViewPager.adapter!!.itemCount - position)
+                    setCurrentPage(mViewPager.adapter!!.itemCount - position,false)
             }
         })
 
         var startX = 0f
-
-        mViewPager.setOnTouchListener { viewItem, motionEvent ->
-            viewItem.performClick()
+        mViewPager.setOnTouchListener { _, motionEvent ->
             if (motionEvent.action == MotionEvent.ACTION_DOWN)
                 startX = motionEvent.x
             else if (motionEvent.action == MotionEvent.ACTION_UP) {
@@ -270,7 +275,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         requireActivity().title = "" // Title beside to the icons
 
         if (mBook != null)
-            setCurrentPage(mCurrentPage)
+            setCurrentPage(mCurrentPage, isAnimated = false)
 
         if (savedInstanceState != null) {
             val fullscreen = savedInstanceState.getBoolean(ReaderConsts.STATES.STATE_FULLSCREEN)
@@ -367,8 +372,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
 
 
     private fun getPosition(e: MotionEvent): Position {
-        val isLandscape =
-            resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
         val horizontalSize =
             resources.getDimensionPixelSize(R.dimen.reader_touch_demonstration_initial_horizontal)
@@ -550,11 +554,14 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
             })
     }
 
-    fun setCurrentPage(page: Int) {
-        if (mIsLeftToRight)
-            mViewPager.currentItem = page - 1
-        else
-            mViewPager.currentItem = mViewPager.adapter!!.itemCount - page
+    fun setCurrentPage(page: Int, isChangePage: Boolean = true, isAnimated: Boolean = true) {
+        if (isChangePage) {
+            // Use animated to load because wrong page is set started
+            if (mIsLeftToRight)
+                mViewPager.setCurrentItem(page - 1, isAnimated)
+            else
+                mViewPager.setCurrentItem(mViewPager.adapter!!.itemCount - page, isAnimated)
+        }
 
         mCurrentPage = mViewPager.currentItem
 
@@ -567,7 +574,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                 mBook!!.chapterDescription = it.second
             }
 
-        mCurrentPage += 1
+        mCurrentPage = mViewPager.currentItem + 1
         mPageSlider.value = mCurrentPage.toFloat()
 
         (requireActivity() as BookReaderActivity).changePageDescription(
@@ -676,14 +683,12 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                     if (mIsLeftToRight) {
                         if (getCurrentPage() == 1) hitBeginning() else setCurrentPage(getCurrentPage() - 1)
                     } else {
-                        if (getCurrentPage() == mViewPager.adapter!!.itemCount
-                        ) hitEnding() else setCurrentPage(getCurrentPage() + 1)
+                        if (getCurrentPage() == mViewPager.adapter!!.itemCount) hitEnding() else setCurrentPage(getCurrentPage() + 1)
                     }
                 }
                 Position.RIGHT -> {
                     if (mIsLeftToRight) {
-                        if (getCurrentPage() == mViewPager.adapter!!.itemCount
-                        ) hitEnding() else setCurrentPage(getCurrentPage() + 1)
+                        if (getCurrentPage() == mViewPager.adapter!!.itemCount) hitEnding() else setCurrentPage(getCurrentPage() + 1)
                     } else {
                         if (getCurrentPage() == 1) hitBeginning() else setCurrentPage(getCurrentPage() - 1)
                     }

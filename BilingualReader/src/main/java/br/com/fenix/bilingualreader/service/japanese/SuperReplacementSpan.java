@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package br.com.fenix.bilingualreader.service.kanji;
+package br.com.fenix.bilingualreader.service.japanese;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;

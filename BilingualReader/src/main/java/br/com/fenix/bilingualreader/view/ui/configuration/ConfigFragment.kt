@@ -111,17 +111,22 @@ class ConfigFragment : Fragment() {
     private lateinit var mBookLibraryPathAutoComplete: AutoCompleteTextView
     private lateinit var mBookLibraryOrder: TextInputLayout
     private lateinit var mBookLibraryOrderAutoComplete: AutoCompleteTextView
+    private lateinit var mBookScrollingMode: TextInputLayout
+    private lateinit var mBookScrollingModeAutoComplete: AutoCompleteTextView
 
     private lateinit var mBookFontTypeNormal: TwoWayView
     private lateinit var mBookFontTypeJapanese: TwoWayView
     private lateinit var mBookFontSize: Slider
 
+    private lateinit var mBookProcessJapaneseText: SwitchMaterial
     private lateinit var mBookTextWithFurigana: SwitchMaterial
     private lateinit var mBookProcessVocabulary: SwitchMaterial
 
     private var mBookOrderSelect: Order = Order.Name
+    private var mBookScrollingModeSelect: ScrollingType = ScrollingType.Pagination
 
     private lateinit var mBookMapOrder: HashMap<String, Order>
+    private lateinit var mBookMapScrollingMode: HashMap<String, ScrollingType>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -141,11 +146,15 @@ class ConfigFragment : Fragment() {
         mBookLibraryOrder = view.findViewById(R.id.config_book_library_order)
         mBookLibraryOrderAutoComplete =
             view.findViewById(R.id.config_book_menu_autocomplete_library_order)
+        mBookScrollingMode = view.findViewById(R.id.config_book_scrolling_mode)
+        mBookScrollingModeAutoComplete =
+            view.findViewById(R.id.config_book_menu_autocomplete_scrolling_mode)
 
         mBookFontTypeNormal = view.findViewById(R.id.config_book_list_fonts_normal)
         mBookFontTypeJapanese = view.findViewById(R.id.config_book_list_fonts_japanese)
         mBookFontSize = view.findViewById(R.id.config_book_font_size)
 
+        mBookProcessJapaneseText = view.findViewById(R.id.config_book_process_japanese_text)
         mBookTextWithFurigana = view.findViewById(R.id.config_book_text_with_furigana)
         mBookProcessVocabulary = view.findViewById(R.id.config_book_process_vocabulary)
 
@@ -233,6 +242,11 @@ class ConfigFragment : Fragment() {
             getString(R.string.menu_manga_view_mode_fit_width) to ReaderMode.FIT_WIDTH
         )
 
+        mBookMapScrollingMode = hashMapOf(
+            getString(R.string.config_book_scrolling_Infinity_Scrolling) to ScrollingType.Scrolling,
+            getString(R.string.config_book_scrolling_Pagination) to ScrollingType.Pagination
+        )
+
         val themeMode = requireContext().resources.getStringArray(R.array.theme_mode)
         mMangaMapThemeMode = hashMapOf(
             themeMode[0] to ThemeMode.SYSTEM,
@@ -242,8 +256,7 @@ class ConfigFragment : Fragment() {
 
         mMangaMapThemes = ThemeUtil.getThemes(requireContext())
 
-        val adapterOrder =
-            ArrayAdapter(requireContext(), R.layout.list_item, mMangaMapOrder.keys.toTypedArray())
+        val adapterOrder = ArrayAdapter(requireContext(), R.layout.list_item, mMangaMapOrder.keys.toTypedArray())
         mMangaLibraryOrderAutoComplete.setAdapter(adapterOrder)
         mMangaLibraryOrderAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
@@ -256,8 +269,7 @@ class ConfigFragment : Fragment() {
                         Order.Name
             }
 
-        val adapterOrderBook =
-            ArrayAdapter(requireContext(), R.layout.list_item, mBookMapOrder.keys.toTypedArray())
+        val adapterOrderBook = ArrayAdapter(requireContext(), R.layout.list_item, mBookMapOrder.keys.toTypedArray())
         mBookLibraryOrderAutoComplete.setAdapter(adapterOrderBook)
         mBookLibraryOrderAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
@@ -269,12 +281,7 @@ class ConfigFragment : Fragment() {
                     Order.Name
             }
 
-        val adapterLanguage =
-            ArrayAdapter(
-                requireContext(),
-                R.layout.list_item,
-                mMangaMapLanguage.keys.toTypedArray()
-            )
+        val adapterLanguage = ArrayAdapter(requireContext(), R.layout.list_item, mMangaMapLanguage.keys.toTypedArray())
         mMangaDefaultSubtitleLanguageAutoComplete.setAdapter(adapterLanguage)
         mMangaDefaultSubtitleLanguageAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
@@ -299,12 +306,7 @@ class ConfigFragment : Fragment() {
                         Languages.PORTUGUESE
             }
 
-        val adapterReaderMode =
-            ArrayAdapter(
-                requireContext(),
-                R.layout.list_item,
-                mMangaMapReaderMode.keys.toTypedArray()
-            )
+        val adapterReaderMode = ArrayAdapter(requireContext(), R.layout.list_item, mMangaMapReaderMode.keys.toTypedArray())
         mMangaReaderComicModeAutoComplete.setAdapter(adapterReaderMode)
         mMangaReaderComicModeAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
@@ -319,12 +321,7 @@ class ConfigFragment : Fragment() {
                         ReaderMode.FIT_WIDTH
             }
 
-        val adapterPageMode =
-            ArrayAdapter(
-                requireContext(),
-                R.layout.list_item,
-                mMangaMapPageMode.keys.toTypedArray()
-            )
+        val adapterPageMode = ArrayAdapter(requireContext(), R.layout.list_item, mMangaMapPageMode.keys.toTypedArray())
         mMangaPageModeAutoComplete.setAdapter(adapterPageMode)
         mMangaPageModeAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
@@ -337,12 +334,19 @@ class ConfigFragment : Fragment() {
                         PageMode.Comics
             }
 
-        val themesMode =
-            ArrayAdapter(
-                requireContext(),
-                R.layout.list_item,
-                mMangaMapThemeMode.keys.toTypedArray()
-            )
+        val adapterBookScrollingMode = ArrayAdapter(requireContext(), R.layout.list_item, mBookMapScrollingMode.keys.toTypedArray())
+        mBookScrollingModeAutoComplete.setAdapter(adapterBookScrollingMode)
+        mBookScrollingModeAutoComplete.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                mBookScrollingModeSelect = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                    mBookMapScrollingMode.containsKey(parent.getItemAtPosition(position).toString())
+                )
+                    mBookMapScrollingMode[parent.getItemAtPosition(position).toString()]!!
+                else
+                    ScrollingType.Pagination
+            }
+
+        val themesMode = ArrayAdapter(requireContext(), R.layout.list_item, mMangaMapThemeMode.keys.toTypedArray())
         mConfigSystemThemeModeAutoComplete.setAdapter(themesMode)
         mConfigSystemThemeModeAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
@@ -632,6 +636,16 @@ class ConfigFragment : Fragment() {
                 mBookOrderSelect.toString()
             )
 
+            this.putString(
+                GeneralConsts.KEYS.READER.BOOK_PAGE_SCROLLING_MODE,
+                mBookScrollingModeSelect.toString()
+            )
+
+            this.putBoolean(
+                GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT,
+                mBookProcessJapaneseText.isChecked
+            )
+
             this.putBoolean(
                 GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT,
                 mBookTextWithFurigana.isChecked
@@ -772,9 +786,26 @@ class ConfigFragment : Fragment() {
             )!!
         )
 
+        mBookScrollingModeSelect = ScrollingType.valueOf(
+            sharedPreferences.getString(
+                GeneralConsts.KEYS.READER.BOOK_PAGE_SCROLLING_MODE,
+                ScrollingType.Pagination.toString()
+            )!!
+        )
+
         mBookLibraryOrderAutoComplete.setText(
             mBookMapOrder.filterValues { it == mBookOrderSelect }.keys.first(),
             false
+        )
+
+        mBookScrollingModeAutoComplete.setText(
+            mBookMapScrollingMode.filterValues { it == mBookScrollingModeSelect }.keys.first(),
+            false
+        )
+
+        mBookProcessJapaneseText.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT,
+            true
         )
 
         mBookTextWithFurigana.isChecked = sharedPreferences.getBoolean(
