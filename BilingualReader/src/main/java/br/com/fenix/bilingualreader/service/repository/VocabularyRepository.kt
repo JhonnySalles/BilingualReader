@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.streams.toList
+import br.com.fenix.bilingualreader.service.japanese.Formatter
 
 class VocabularyRepository(context: Context) {
 
@@ -26,8 +27,6 @@ class VocabularyRepository(context: Context) {
     private var mDataBaseDAO = mBase.getVocabularyDao()
     private val mMsgImport = context.getString(R.string.vocabulary_imported)
     private val mVocabImported = Toast.makeText(context, mMsgImport, Toast.LENGTH_SHORT)
-    private var mLastMangaImport: Long? = null
-    private var mLastBookImport: Long? = null
 
     private fun getOrderDesc(order: Order) : String {
         return when(order) {
@@ -222,11 +221,11 @@ class VocabularyRepository(context: Context) {
     }
 
     fun processVocabulary(idManga: Long?, subTitleChapters: List<SubTitleChapter>) {
-        if (subTitleChapters.isEmpty() || idManga == null || idManga == mLastMangaImport)
+        if (subTitleChapters.isEmpty() || idManga == null)
             return
 
         val manga = mBase.getMangaDao().get(idManga)
-        if (manga.lastVocabImport != null && manga.file.lastModified() == manga.fileAlteration)
+        if (manga.lastVocabImport != null && !Date(manga.file.lastModified()).after(manga.fileAlteration))
             return
 
         val chaptersList = Collections
@@ -263,9 +262,9 @@ class VocabularyRepository(context: Context) {
                         }
                     }
 
-                    mLastMangaImport = manga.id
                     manga.lastVocabImport = LocalDateTime.now()
-                    withContext(Dispatchers.Main) { mBase.getMangaDao().save(manga) }
+                    manga.fileAlteration = Date(manga.file.lastModified())
+                    withContext(Dispatchers.Main) { mBase.getMangaDao().update(manga) }
 
                     mVocabImported.setText("$mMsgImport\n${manga.title}")
                     mVocabImported.show()
@@ -278,39 +277,42 @@ class VocabularyRepository(context: Context) {
 
     fun processVocabulary(context: Context, idBook: Long?) {
         val prefs = GeneralConsts.getSharedPreferences(context)
-        val isProcess = prefs.getBoolean(
-            GeneralConsts.KEYS.READER.BOOK_PROCESS_VOCABULARY,
-            true
-        )
+        val isProcess = prefs.getBoolean(GeneralConsts.KEYS.READER.BOOK_PROCESS_VOCABULARY, true)
 
-        if (!isProcess || idBook == null || idBook == mLastBookImport)
+        if (!isProcess || idBook == null)
             return
 
         val book = mBase.getBookDao().get(idBook)
-        if (book.language != Languages.JAPANESE || (book.lastVocabImport != null && book.file.lastModified() == book.fileAlteration))
+        if (book.language != Languages.JAPANESE || (book.lastVocabImport != null && !Date(book.file.lastModified()).after(book.fileAlteration)))
             return
 
         CoroutineScope(newSingleThreadContext("VocabularyThread")).launch {
             async {
                 try {
+                    Formatter.initializeAsync(context)
+
                     val document = DocumentParse(book.path, book.password, FontUtil.pixelToDips(context, GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT), false)
-                    val list = mutableSetOf<Vocabulary?>()
-                    val pages = mutableListOf<Vocabulary>()
-
-                    // Fazer ******
-
+                    val list = mutableListOf<Vocabulary>()
 
                     for (i in 0 until document.pageCount) {
-                        val page = document.getPage(i)
+                        val page = document.getPage(i).pageHTML
+                        if (page != null && page.isNotEmpty())
+                            list.addAll(Formatter.generateVocabulary(page))
+                    }
+
+                    val vocabulary = list.stream().distinct()
+                    for (vocab in vocabulary) {
+                        var appears = 0
+                        list.parallelStream().forEach { v -> if (v == vocab) appears++ }
 
                         withContext(Dispatchers.Main) {
-                            //insert(book.id!!, idVocabulary: Long, appears: Int, false)
+                            vocab.id?.let { insert(book.id!!, it, appears, isManga = false) }
                         }
                     }
 
-                    mLastBookImport = book.id
                     book.lastVocabImport = LocalDateTime.now()
-                    withContext(Dispatchers.Main) { mBase.getBookDao().save(book) }
+                    book.fileAlteration = Date(book.file.lastModified())
+                    withContext(Dispatchers.Main) { mBase.getBookDao().update(book) }
 
                     mVocabImported.setText("$mMsgImport\n${book.title}")
                     mVocabImported.show()

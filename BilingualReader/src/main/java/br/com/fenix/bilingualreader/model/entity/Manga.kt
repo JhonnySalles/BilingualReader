@@ -10,6 +10,7 @@ import java.io.File
 import java.io.Serializable
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.*
 
 @Entity(
     tableName = DataBaseConsts.MANGA.TABLE_NAME,
@@ -38,7 +39,7 @@ class Manga(
     dateCreate: LocalDateTime?,
     lastAccess: LocalDateTime?,
     lastAlteration: LocalDateTime?,
-    fileAlteration: Long,
+    fileAlteration: Date,
     lastVocabImport: LocalDateTime?,
     lastVerify: LocalDate?
 ) : Serializable {
@@ -47,7 +48,7 @@ class Manga(
         path: String, folder: String, name: String, size: Long, type: FileType,
         pages: Int, chapters: IntArray, bookMark: Int, favorite: Boolean, hasSubtitle: Boolean,
         author: String , series: String, publisher: String, volume: String, idLibrary: Long?,
-        excluded: Boolean, dateCreate: LocalDateTime?, fileAlteration: Long, lastVocabularyImport: LocalDateTime?,
+        excluded: Boolean, dateCreate: LocalDateTime?, fileAlteration: Date, lastVocabularyImport: LocalDateTime?,
         lastVerify: LocalDate?, release: LocalDate?, lastAlteration: LocalDateTime?,
         lastAccess: LocalDateTime?, sort: LocalDateTime? = null
     ) : this( id, title, path, folder, name, size, type, pages, chapters, bookMark, favorite,
@@ -61,7 +62,7 @@ class Manga(
     constructor(fkLibrary: Long?, id: Long?, file: File, parse: Parse) : this(
         id, file.nameWithoutExtension, file.path, file.parent, file.name, file.length(), FileType.UNKNOWN,
         parse.numPages(), parse.getChapters(), 0, false, parse.hasSubtitles(), "", "", "",
-        "", null, fkLibrary, false, LocalDateTime.now(),null, null, file.lastModified(),
+        "", null, fkLibrary, false, LocalDateTime.now(), null, null, Date(file.lastModified()),
         null, null
     ) {
         this.type = FileUtil.getFileType(file.name)
@@ -164,7 +165,7 @@ class Manga(
     var lastAlteration: LocalDateTime? = lastAlteration
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FILE_ALTERATION)
-    var fileAlteration: Long = fileAlteration
+    var fileAlteration: Date = fileAlteration
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.LAST_VOCABULARY_IMPORT)
     var lastVocabImport: LocalDateTime? = lastVocabImport
@@ -216,5 +217,7 @@ class Manga(
         this.favorite = manga.favorite
         this.lastAccess = manga.lastAccess
         this.hasSubtitle = manga.hasSubtitle
+        this.lastAlteration = manga.lastAlteration
+        this.lastVocabImport = manga.lastVocabImport
     }
 }

@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import androidx.room.TypeConverter
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.*
 
 class Converters {
 
@@ -60,6 +61,20 @@ class Converters {
             return ""
 
         return array.joinToString(",")
+    }
+
+    @TypeConverter
+    fun dateToLong(date: Date?): Long? {
+        if (date == null)
+            return null
+        return date.time
+    }
+
+    @TypeConverter
+    fun fromDate(date: Long?): Date? {
+        if (date == null)
+            return null
+        return Date(date)
     }
 
 

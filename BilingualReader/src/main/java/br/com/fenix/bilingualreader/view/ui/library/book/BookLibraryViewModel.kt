@@ -84,8 +84,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     fun addStackLibrary(id: String, library: Library) =
         mStackLibrary.put(id, Triple(mStackLibrary.size + 1, library, mListBookFull.value!!))
 
-    fun removeStackLibrary(id: String) =
-        mStackLibrary.remove(id)
+    fun removeStackLibrary(id: String) = mStackLibrary.remove(id)
 
     fun save(obj: Book): Book {
         if (obj.id == 0L)

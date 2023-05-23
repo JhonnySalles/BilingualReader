@@ -16,6 +16,7 @@ import br.com.fenix.bilingualreader.service.controller.WebInterface
 import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.BookRepository
+import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FontUtil
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
@@ -24,9 +25,9 @@ import org.slf4j.LoggerFactory
 
 class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
-    private var mPreferences: SharedPreferences =
-        GeneralConsts.getSharedPreferences(app.applicationContext)
+    private var mPreferences: SharedPreferences = GeneralConsts.getSharedPreferences(app.applicationContext)
     private val mRepository: BookRepository = BookRepository(app.applicationContext)
+    private val mVocabularyRepository = VocabularyRepository(app.applicationContext)
 
     private val mLOGGER = LoggerFactory.getLogger(BookReaderViewModel::class.java)
 
@@ -49,9 +50,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private var mFontType: MutableLiveData<FontType> = MutableLiveData(FontType.TimesNewRoman)
     val fontType: LiveData<FontType> = mFontType
 
-    private var mFontSize: MutableLiveData<Float> = MutableLiveData(
-        GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT
-    )
+    private var mFontSize: MutableLiveData<Float> = MutableLiveData(GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT)
     val fontSize: LiveData<Float> = mFontSize
 
     private var mFontCss: MutableLiveData<String> = MutableLiveData("")
@@ -131,8 +130,11 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         val config : BookConfiguration? = if (book?.id != null) mRepository.findConfiguration(book.id!!) else null
         loadConfiguration(config)
 
-        if (config == null && book?.id != null)
-            saveBookConfiguration(book.id!!)
+        if (book?.id != null) {
+            if (config == null)
+                saveBookConfiguration(book.id!!)
+            mVocabularyRepository.processVocabulary(app.applicationContext, book.id!!)
+        }
     }
 
     private fun loadPreferences(isJapanese: Boolean) {

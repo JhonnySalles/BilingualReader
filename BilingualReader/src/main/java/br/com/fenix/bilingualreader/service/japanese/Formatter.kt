@@ -13,6 +13,8 @@ import android.widget.TextView
 import androidx.core.text.HtmlCompat
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Kanjax
+import br.com.fenix.bilingualreader.model.entity.Vocabulary
+import br.com.fenix.bilingualreader.model.exceptions.TokenizerLoadException
 import br.com.fenix.bilingualreader.service.repository.KanjaxRepository
 import br.com.fenix.bilingualreader.service.repository.KanjiRepository
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
@@ -381,7 +383,7 @@ class Formatter {
             function(ss)
         }
 
-        // --------------------------------------------------------- Vocabulary ---------------------------------------------------------
+        // --------------------------------------------------------- Html Book ---------------------------------------------------------
 
         fun getCss(): String {
             val colors = ".n0 {color: $HTML_ANOTHER } " +
@@ -499,6 +501,43 @@ class Formatter {
                 sudachiTokenizerHtml(text, withFurigana)
             else
                 kuromojiTokenizerHtml(text, withFurigana)
+        }
+
+        // --------------------------------------------------------- Vocabulary ---------------------------------------------------------
+        private fun kuromojiTokenizer(list: MutableList<Vocabulary>, text: String) {
+            for (t in mKuromojiTokenizer!!.tokenize(text)) {
+                if (t.surface.isNotEmpty() && t.surface.matches(mPatternKanji)) {
+                    val vocab = mVocabularyRepository!!.find(t.baseForm)
+                    if (vocab != null)
+                        list.add(vocab)
+                }
+            }
+        }
+
+        @TargetApi(26)
+        private fun sudachiTokenizer(list: MutableList<Vocabulary>, text: String) {
+            for (t in mSudachiTokenizer!!.tokenize(com.worksap.nlp.sudachi.Tokenizer.SplitMode.C, text)) {
+                if (t.readingForm().isNotEmpty() && t.surface().matches(mPatternKanji)) {
+                    val vocab = mVocabularyRepository!!.find(t.dictionaryForm())
+                    if (vocab != null)
+                        list.add(vocab)
+                }
+            }
+        }
+        fun generateVocabulary(text: String) : MutableList<Vocabulary> {
+            val list = mutableListOf<Vocabulary>()
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (mSudachiTokenizer == null)
+                    throw TokenizerLoadException("Sudachi not loaded")
+                sudachiTokenizer(list, text)
+            } else {
+                if (mKuromojiTokenizer == null)
+                    throw TokenizerLoadException("Kuromoji not loaded")
+                kuromojiTokenizer(list, text)
+            }
+
+            return list
         }
     }
 }

@@ -11,6 +11,7 @@ import java.io.File
 import java.io.Serializable
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.*
 
 @Entity(
     tableName = DataBaseConsts.BOOK.TABLE_NAME,
@@ -42,7 +43,7 @@ class Book(
     dateCreate: LocalDateTime?,
     lastAccess: LocalDateTime?,
     lastAlteration: LocalDateTime?,
-    fileAlteration: Long,
+    fileAlteration: Date,
     lastVocabImport: LocalDateTime?,
     lastVerify: LocalDate?
 ) : Serializable {
@@ -56,17 +57,17 @@ class Book(
     ) : this(
         null, title, author, "", annotation, year, genre, publisher, isbn, pages, 0, "", 0,
         Languages.ENGLISH, path, folder, name, FileType.UNKNOWN, fileSize, false, fkLibrary, false,
-        LocalDateTime.now(), null, LocalDateTime.now(), 0, null, null
+        LocalDateTime.now(), null, LocalDateTime.now(), Date(), null, null
     ) {
         this.type = FileUtil.getFileType(this.fileName)
-        this.fileAlteration = this.file.lastModified()
+        this.fileAlteration = Date(this.file.lastModified())
     }
 
     @Ignore
     constructor(fkLibrary: Long?, id: Long?, file: File, meta: EbookMeta) : this(
         id, meta.title, meta.author ?: "", "", meta.annotation ?: "", "", meta.genre ?: "", "", "", 1, 0,
         "", 0, Languages.ENGLISH, file.path, file.parent, file.nameWithoutExtension, FileType.UNKNOWN, file.length(), false, fkLibrary,
-        false, LocalDateTime.now(), null, LocalDateTime.now(), 0, null, null
+        false, LocalDateTime.now(), null, LocalDateTime.now(), Date(), null, null
     ) {
         this.language = when (meta.lang) {
             "ja", "jp" -> Languages.JAPANESE
@@ -74,7 +75,7 @@ class Book(
             else -> Languages.PORTUGUESE
         }
         this.type = FileUtil.getFileType(file.name)
-        this.fileAlteration = this.file.lastModified()
+        this.fileAlteration = Date(this.file.lastModified())
     }
 
     @PrimaryKey(autoGenerate = true)
@@ -163,7 +164,7 @@ class Book(
     var lastAlteration: LocalDateTime? = lastAlteration
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FILE_ALTERATION)
-    var fileAlteration: Long = fileAlteration
+    var fileAlteration: Date = fileAlteration
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.LAST_VOCABULARY_IMPORT)
     var lastVocabImport: LocalDateTime? = lastVocabImport
@@ -207,6 +208,8 @@ class Book(
         this.language = book.language
         this.favorite = book.favorite
         this.lastAccess = book.lastAccess
+        this.lastAlteration = book.lastAlteration
+        this.lastVocabImport = book.lastVocabImport
     }
 
 }

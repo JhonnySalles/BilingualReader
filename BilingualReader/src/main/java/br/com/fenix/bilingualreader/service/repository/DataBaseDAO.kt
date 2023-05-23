@@ -500,25 +500,27 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
     ) {
         val database = dbHelper.readableDatabase
 
-        if (isManga)
-            database.execSQL(
-                "INSERT OR REPLACE INTO " + DataBaseConsts.MANGA_VOCABULARY.TABLE_NAME +
-                        " (" + DataBaseConsts.MANGA_VOCABULARY.COLUMNS.ID_MANGA + ',' + DataBaseConsts.MANGA_VOCABULARY.COLUMNS.ID_VOCABULARY + ',' + DataBaseConsts.MANGA_VOCABULARY.COLUMNS.APPEARS +
-                        ") VALUES ($idMangaOrBook, $idVocabulary, $appears)"
-            )
+        val sql = if (isManga)
+            "INSERT OR REPLACE INTO " + DataBaseConsts.MANGA_VOCABULARY.TABLE_NAME +
+                    " (" + DataBaseConsts.MANGA_VOCABULARY.COLUMNS.ID + ',' + DataBaseConsts.MANGA_VOCABULARY.COLUMNS.ID_MANGA + ',' + DataBaseConsts.MANGA_VOCABULARY.COLUMNS.ID_VOCABULARY + ',' + DataBaseConsts.MANGA_VOCABULARY.COLUMNS.APPEARS +
+                    ") VALUES ((SELECT ID FROM " + DataBaseConsts.MANGA_VOCABULARY.TABLE_NAME +
+                " WHERE " + DataBaseConsts.MANGA_VOCABULARY.COLUMNS.ID_MANGA + " = $idMangaOrBook" +
+                " AND " + DataBaseConsts.MANGA_VOCABULARY.COLUMNS.ID_VOCABULARY + " = $idVocabulary), $idMangaOrBook, $idVocabulary, $appears)"
         else
-            database.execSQL(
-                "INSERT OR REPLACE INTO " + DataBaseConsts.BOOK_VOCABULARY.TABLE_NAME +
-                        " (" + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID_BOOK + ',' + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID_VOCABULARY + ',' + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.APPEARS +
-                        ") VALUES ($idMangaOrBook, $idVocabulary, $appears)"
-            )
+            "INSERT OR REPLACE INTO " + DataBaseConsts.BOOK_VOCABULARY.TABLE_NAME +
+                    " (" + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID + ',' + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID_BOOK + ',' + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID_VOCABULARY + ',' + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.APPEARS +
+                    ") VALUES ((SELECT ID FROM " + DataBaseConsts.BOOK_VOCABULARY.TABLE_NAME +
+                    " WHERE " + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID_BOOK + " = $idMangaOrBook" +
+                    " AND " + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID_VOCABULARY + " = $idVocabulary), $idMangaOrBook, $idVocabulary, $appears)"
+
+        database.execSQL(sql)
 
         database.execSQL(
             "UPDATE " + DataBaseConsts.VOCABULARY.TABLE_NAME + " SET " + DataBaseConsts.VOCABULARY.COLUMNS.APPEARS + " = (" +
-                    "    (SELECT SUM(" + DataBaseConsts.MANGA_VOCABULARY.COLUMNS.APPEARS + ") FROM " + DataBaseConsts.MANGA_VOCABULARY.TABLE_NAME +
-                    "    WHERE " + DataBaseConsts.MANGA_VOCABULARY.COLUMNS.ID_VOCABULARY + " = $idVocabulary) +" +
-                    "    (SELECT SUM(" + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.APPEARS + ") FROM " + DataBaseConsts.BOOK_VOCABULARY.TABLE_NAME +
-                    "    WHERE " + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID_VOCABULARY + " = $idVocabulary) " +
+                    "    IFNULL((SELECT SUM(" + DataBaseConsts.MANGA_VOCABULARY.COLUMNS.APPEARS + ") FROM " + DataBaseConsts.MANGA_VOCABULARY.TABLE_NAME +
+                    "    WHERE " + DataBaseConsts.MANGA_VOCABULARY.COLUMNS.ID_VOCABULARY + " = $idVocabulary), 0) +" +
+                    "    IFNULL((SELECT SUM(" + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.APPEARS + ") FROM " + DataBaseConsts.BOOK_VOCABULARY.TABLE_NAME +
+                    "    WHERE " + DataBaseConsts.BOOK_VOCABULARY.COLUMNS.ID_VOCABULARY + " = $idVocabulary), 0) " +
                     ") WHERE " + DataBaseConsts.VOCABULARY.COLUMNS.ID + " = $idVocabulary"
         )
     }

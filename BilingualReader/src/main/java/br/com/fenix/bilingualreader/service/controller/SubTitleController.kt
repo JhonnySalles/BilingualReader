@@ -78,10 +78,8 @@ class SubTitleController private constructor(private val context: Context) {
 
     private lateinit var mSubtitleLang: Languages
     private lateinit var mTranslateLang: Languages
-    private var labelChapter: String =
-        context.resources.getString(R.string.popup_reading_manga_subtitle_chapter)
-    private var labelExtra: String =
-        context.resources.getString(R.string.popup_reading_manga_subtitle_extra)
+    private var labelChapter: String = context.resources.getString(R.string.popup_reading_manga_subtitle_chapter)
+    private var labelExtra: String = context.resources.getString(R.string.popup_reading_manga_subtitle_extra)
 
     private var mUseFileLink: Boolean = false
     private var mLinkedFile: LinkedFile? = null
