@@ -4,6 +4,7 @@ import androidx.room.*
 import br.com.ebook.foobnix.ext.EbookMeta
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
@@ -64,7 +65,7 @@ class Book(
     }
 
     @Ignore
-    constructor(fkLibrary: Long?, id: Long?, file: File, meta: EbookMeta) : this(
+    constructor(fkLibrary: Long?, id: Long?, file: File, meta: EbookMeta, language: Libraries) : this(
         id, meta.title, meta.author ?: "", "", meta.annotation ?: "", "", meta.genre ?: "", "", "", 1, 0,
         "", 0, Languages.ENGLISH, file.path, file.parent, file.nameWithoutExtension, FileType.UNKNOWN, file.length(), false, fkLibrary,
         false, LocalDateTime.now(), null, LocalDateTime.now(), Date(), null, null
@@ -72,7 +73,13 @@ class Book(
         this.language = when (meta.lang) {
             "ja", "jp" -> Languages.JAPANESE
             "en" -> Languages.ENGLISH
-            else -> Languages.PORTUGUESE
+            "pt" -> Languages.PORTUGUESE
+            else -> when(language) {
+                Libraries.ENGLISH -> Languages.ENGLISH
+                Libraries.JAPANESE -> Languages.JAPANESE
+                Libraries.PORTUGUESE -> Languages.PORTUGUESE
+                else -> this.language
+            }
         }
         this.type = FileUtil.getFileType(file.name)
         this.fileAlteration = Date(this.file.lastModified())

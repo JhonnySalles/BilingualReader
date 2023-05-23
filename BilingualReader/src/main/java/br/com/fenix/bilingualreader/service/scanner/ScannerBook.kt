@@ -199,7 +199,7 @@ class ScannerBook(private val context: Context) {
                                         val ebookMeta = FileMetaCore.get()
                                             .getEbookMeta(it.path, CacheZipUtils.CacheDir.ZipApp, false)
                                         FileMetaCore.get().udpateFullMeta(FileMeta(it.path), ebookMeta)
-                                        Book(library.id,null,  it,  ebookMeta)
+                                        Book(library.id,null,  it,  ebookMeta, library.language)
                                     }
 
                                     book.path = it.path

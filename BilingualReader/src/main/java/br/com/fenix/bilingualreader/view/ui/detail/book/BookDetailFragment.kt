@@ -376,8 +376,8 @@ class BookDetailFragment : Fragment() {
         mViewModel.book.value?.let {
             val intent = Intent(requireContext(), VocabularyActivity::class.java)
             val bundle = Bundle()
-            bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, it)
-            bundle.putSerializable(GeneralConsts.KEYS.VOCABULARY.TYPE, Type.MANGA)
+            bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, it)
+            bundle.putSerializable(GeneralConsts.KEYS.VOCABULARY.TYPE, Type.BOOK)
             intent.putExtras(bundle)
             requireActivity().overridePendingTransition(
                 R.anim.fade_in_fragment_add_enter,
