@@ -393,11 +393,17 @@
     <dimen name="vocabulary_book_down_width">40dp</dimen>
     <dimen name="vocabulary_book_down_image_width">30dp</dimen>
 
-    <dimen name="kanji_title_size">40sp</dimen>
-    <dimen name="kanji_sub_title_size">20sp</dimen>
-    <dimen name="kanji_content_text_big_size">16sp</dimen>
-    <dimen name="kanji_content_text_normal_size">14sp</dimen>
-    <dimen name="kanji_content_text_small_size">12sp</dimen>
+    <dimen name="popup_kanji_title_size">40sp</dimen>
+    <dimen name="popup_kanji_sub_title_size">20sp</dimen>
+    <dimen name="popup_kanji_content_text_big_size">16sp</dimen>
+    <dimen name="popup_kanji_content_text_normal_size">14sp</dimen>
+    <dimen name="popup_kanji_content_text_small_size">12sp</dimen>
+
+    <dimen name="popup_vocabulary_title_size">40sp</dimen>
+    <dimen name="popup_vocabulary_sub_title_size">16sp</dimen>
+    <dimen name="popup_vocabulary_reading_size">20sp</dimen>
+    <dimen name="popup_vocabulary_list_height">175dp</dimen>
+    <dimen name="popup_vocabulary_list_padding">20dp</dimen>
 
     <dimen name="theme_layout_width">130dp</dimen>
     <dimen name="theme_layout_height">180dp</dimen>

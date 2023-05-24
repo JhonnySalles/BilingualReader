@@ -19,7 +19,7 @@ class VocabularyCardAdapter(var listener: VocabularyCardListener) :
         )
 
     override fun onBindViewHolder(holder: VocabularyViewHolder, position: Int) {
-        getItem(position)?.let { holder.bind(it) }
+        getItem(position)?.let { holder.bind(it, position) }
     }
 
     companion object {

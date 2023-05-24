@@ -411,6 +411,10 @@
         <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
     </style>
 
+    <style name="TextNormal.Inverse.Vocabulary" parent="TextNormal.Inverse">
+        <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
+    </style>
+
     <style name="TextTitle.SubtitleReader" parent="TextTitle">
         <item name="android:fontFamily">monospace</item>
         <item name="android:textAlignment">center</item>

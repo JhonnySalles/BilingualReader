@@ -7,10 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.*
 import android.view.inputmethod.EditorInfo
-import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.SearchView
-import android.widget.Toast
+import android.widget.*
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -24,9 +21,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
+import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.VocabularyCardListener
-import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyLoadState
@@ -272,6 +269,8 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
 
         mListener = object : VocabularyCardListener {
             override fun onClick(vocabulary: Vocabulary) {
+                if (mMenuPopupFilterOrder.visibility != View.GONE)
+                    mMenuPopupFilterOrder.visibility = View.GONE
             }
 
             override fun onClickLong(vocabulary: Vocabulary, view: View, position: Int) {
@@ -359,12 +358,6 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
             getString(R.string.menu_manga_reading_order_change) + " ${mMapOrder[orderBy]}",
             Toast.LENGTH_SHORT
         ).show()
-
-        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
-        with(sharedPreferences.edit()) {
-            this!!.putString(GeneralConsts.KEYS.LIBRARY.MANGA_ORDER, orderBy.toString())
-            this.commit()
-        }
 
         mViewModel.sorted(orderBy)
     }

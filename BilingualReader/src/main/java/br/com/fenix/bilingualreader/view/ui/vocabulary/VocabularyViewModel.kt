@@ -82,15 +82,14 @@ class VocabularyViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun setQuery(vocabulary: String, favorite: Boolean) {
-        setQuery(Query(vocabulary, favorite))
+        setQuery(Query(vocabulary, favorite, currentQuery.value.order))
     }
 
     fun clearQuery() {
         setQuery(Query())
     }
 
-    fun getFavorite(): Boolean =
-        currentQuery.value.favorite
+    fun getFavorite(): Boolean = currentQuery.value.favorite
 
     fun getOrder(): Pair<Order, Boolean> = currentQuery.value.order
 

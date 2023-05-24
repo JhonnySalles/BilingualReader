@@ -1,19 +1,22 @@
 package br.com.fenix.bilingualreader.service.controller
 
+import android.app.Activity
 import android.content.Context
 import android.webkit.JavascriptInterface
 import br.com.fenix.bilingualreader.service.japanese.Formatter
 
-class WebInterface(var context: Context) {
+class WebInterface(val activity: Activity, val context: Context) {
     @JavascriptInterface
     fun showPopupVocabulary(id: Long) {
-        System.out.println("Vocabulary click " + id)
-        return
+        activity.runOnUiThread{
+            Formatter.getPopupVocabulary(context, id)
+        }
     }
 
     @JavascriptInterface
     fun showPopupKanji(kanji: String) {
-        Formatter.getPopupKanji(context, kanji)
-        return
+        activity.runOnUiThread {
+            Formatter.getPopupKanji(context, kanji)
+        }
     }
 }

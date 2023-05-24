@@ -34,7 +34,7 @@ class VocabularyMangaViewHolder(itemView: View, private val listener: Vocabulary
     val adapter: VocabularyMangaListCardAdapter = createAdapter()
 
     fun bind(vocabulary: Vocabulary) {
-        val content = itemView.findViewById<LinearLayout>(R.id.vocabulary_manga_content)
+        val content = itemView.findViewById<LinearLayout>(R.id.popup_vocabulary_manga_content)
         val title = itemView.findViewById<TextView>(R.id.vocabulary_manga_title)
         val reading = itemView.findViewById<TextView>(R.id.vocabulary_manga_reading)
         val meaning = itemView.findViewById<TextView>(R.id.vocabulary_manga_meaning)

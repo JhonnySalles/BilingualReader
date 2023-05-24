@@ -230,7 +230,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                     setCurrentPage((mPageSlider.valueTo - value).roundToInt())
         }
 
-        mPagerAdapter = WebViewPager(requireContext(), mViewModel, mParse, this@BookReaderFragment)
+        mPagerAdapter = WebViewPager(requireActivity(), requireContext(), mViewModel, mParse, this@BookReaderFragment)
         mGestureDetector = GestureDetector(requireActivity(), MyTouchListener())
 
         val preferences = GeneralConsts.getSharedPreferences(requireContext())

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/frame_vocabulary_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/popup_vocabulary_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/popup_vocabulary_title_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/popup_vocabulary_title"
+                    style="@style/TextNormal.Inverse.Vocabulary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:textSize="@dimen/popup_vocabulary_title_size"/>
+
+                <TextView
+                    android:id="@+id/popup_vocabulary_reading"
+                    style="@style/TextNormal.Inverse.Vocabulary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:textSize="@dimen/popup_vocabulary_reading_size"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_margin="5dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/popup_vocabulary_meaning_portuguese"
+                        style="@style/TextNormal.Vocabulary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/popup_vocabulary_sub_title_size"/>
+
+                    <TextView
+                        android:id="@+id/popup_vocabulary_meaning_english"
+                        style="@style/TextNormal.Vocabulary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/popup_vocabulary_sub_title_size"/>
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <ListView
+                android:id="@+id/popup_vocabulary_kanji_list"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/popup_vocabulary_list_height"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="5dp"
+                android:paddingBottom="@dimen/popup_vocabulary_list_padding"
+                android:minHeight="150dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>

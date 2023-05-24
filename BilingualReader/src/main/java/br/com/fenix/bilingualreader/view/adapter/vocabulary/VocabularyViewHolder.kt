@@ -36,7 +36,7 @@ class VocabularyViewHolder(itemView: View, private val listener: VocabularyCardL
         }
     }
 
-    fun bind(vocabulary: Vocabulary) {
+    fun bind(vocabulary: Vocabulary, postition: Int) {
         val content = itemView.findViewById<LinearLayout>(R.id.vocabulary_content)
         val title = itemView.findViewById<TextView>(R.id.vocabulary_title)
         val reading = itemView.findViewById<TextView>(R.id.vocabulary_reading)
@@ -48,7 +48,10 @@ class VocabularyViewHolder(itemView: View, private val listener: VocabularyCardL
         val book = itemView.findViewById<MaterialButton>(R.id.vocabulary_book_button)
         val tatoeba = itemView.findViewById<MaterialButton>(R.id.vocabulary_tatoeba_button)
 
+        content.setOnClickListener { listener.onClick(vocabulary) }
+
         content.setOnLongClickListener {
+            listener.onClickLong(vocabulary, itemView, postition)
             val clipboard =
                 itemView.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip =

@@ -184,7 +184,7 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener,
         mRecyclerView = root.findViewById(R.id.vocabulary_manga_recycler)
         mRefreshLayout = root.findViewById(R.id.vocabulary_manga_refresh)
 
-        mMangaContent = root.findViewById(R.id.vocabulary_manga_content)
+        mMangaContent = root.findViewById(R.id.popup_vocabulary_manga_content)
         mMangaName = root.findViewById(R.id.vocabulary_manga_text)
         mMangaNameEditText = root.findViewById(R.id.vocabulary_manga_edittext)
 

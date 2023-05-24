@@ -30,7 +30,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/vocabulary_manga_content">
+                app:layout_constraintTop_toBottomOf="@+id/popup_vocabulary_manga_content">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/vocabulary_manga_recycler"
@@ -42,7 +42,7 @@
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
             <LinearLayout
-                android:id="@+id/vocabulary_manga_content"
+                android:id="@+id/popup_vocabulary_manga_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
