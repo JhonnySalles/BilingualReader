@@ -10,10 +10,12 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.entity.Tags
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.BookRepository
+import br.com.fenix.bilingualreader.service.repository.TagsRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
 import java.util.*
@@ -24,6 +26,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     private var mStackLibrary = mutableMapOf<String, Triple<Int, Library, MutableList<Book>>>()
     private var mLibrary: Library = Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK)
     private val mBookRepository: BookRepository = BookRepository(app.applicationContext)
+    private val mTagsRepository: TagsRepository = TagsRepository(app.applicationContext)
     private val mPreferences = GeneralConsts.getSharedPreferences(app.applicationContext)
 
     private var mWordFilter = ""
@@ -36,6 +39,8 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     private var mListBookFull = MutableLiveData<MutableList<Book>>(mutableListOf())
     private var mListBook = MutableLiveData<MutableList<Book>>(mutableListOf())
     val listBook: LiveData<MutableList<Book>> = mListBook
+
+    private var mTags = mutableListOf<Tags>()
 
     fun setDefaultLibrary(library: Library) {
         if (mLibrary.id == library.id)
@@ -61,11 +66,9 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         ).apply()
     }
 
-    fun getLibrary() =
-        mLibrary
+    fun getLibrary() = mLibrary
 
-    fun existStack(id: String): Boolean =
-        mStackLibrary.contains(id)
+    fun existStack(id: String): Boolean = mStackLibrary.contains(id)
 
     fun restoreLastStackLibrary(id: String) {
         if (mStackLibrary.contains(id)) {
@@ -239,8 +242,13 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         mBookRepository.clearHistory(book)
     }
 
-    fun isEmpty(): Boolean =
-        mListBook.value == null || mListBook.value!!.isEmpty()
+    fun loadTags(): MutableList<Tags> {
+        mTags = mTagsRepository.list()
+        return mTags
+    }
+    fun getTags() = mTags
+
+    fun isEmpty(): Boolean = mListBook.value == null || mListBook.value!!.isEmpty()
 
     fun sorted() {
         sorted(mOrder.value?.first ?: Order.Name)
@@ -327,6 +335,16 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                         if (book.author.contains(it.second, true))
                             condition = true
                     }
+                    br.com.fenix.bilingualreader.model.enums.Filter.Tag -> {
+                        if (it.second.isEmpty() && book.tags.isEmpty())
+                            return false
+                        else if (it.second.isNotEmpty()) {
+                            mTags.find { t -> t.name.equals(it.second.replace("'", ""), true) }?.let { t ->
+                                if (book.tags.contains(t.id))
+                                    condition = true
+                            }
+                        }
+                    }
                     else -> {}
                 }
             }
@@ -361,7 +379,8 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                 var filterPattern = constraint.toString()
                 val filterCondition = arrayListOf<Pair<br.com.fenix.bilingualreader.model.enums.Filter, String>>()
                 constraint?.contains('@').run {
-                    constraint?.split(" ")?.let {
+                    //This regex split only space and ignore space inside quotes
+                    constraint?.split(" (?=(?:[^\"\']*(\"|\')[^\"\']*(\"|\'))*[^\"\']*\$)".toRegex())?.let {
                         for (word in it) {
                             if (word.contains(Regex("@[\\S]+:(\\S++ |\\S++)"))) {
                                 filterPattern = filterPattern.replace(word, "", true)

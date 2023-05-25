@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.service.japanese
+package br.com.fenix.bilingualreader.view.adapter.popup
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -36,11 +36,11 @@ class VocabularyKanjiAdapter(context: Context, layout: Int, dataSet: List<Kanjax
         if (convertView == null) {
             viewHolder = ViewHolder()
             val inflater = LayoutInflater.from(context)
-            convertView = inflater.inflate(R.layout.line_card_kanji, parent, false)
-            viewHolder.root = convertView.findViewById(R.id.kanji_line_container)
-            viewHolder.title = convertView.findViewById(R.id.kanji_line_title)
-            viewHolder.portuguese = convertView.findViewById(R.id.kanji_line_portuguese)
-            viewHolder.english = convertView.findViewById(R.id.kanji_line_english)
+            convertView = inflater.inflate(R.layout.list_line_kanji, parent, false)
+            viewHolder.root = convertView.findViewById(R.id.list_line_kanji_container)
+            viewHolder.title = convertView.findViewById(R.id.list_line_kanji_title)
+            viewHolder.portuguese = convertView.findViewById(R.id.list_line_kanji_portuguese)
+            viewHolder.english = convertView.findViewById(R.id.list_line_kanji_english)
             convertView.tag = viewHolder
         } else
             viewHolder = convertView.tag as ViewHolder

@@ -13,6 +13,7 @@ import java.io.Serializable
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.collections.ArrayList
 
 @Entity(
     tableName = DataBaseConsts.BOOK.TABLE_NAME,
@@ -40,6 +41,7 @@ class Book(
     fileSize: Long,
     favorite: Boolean,
     fkLibrary: Long?,
+    tags: MutableList<Long>,
     excluded: Boolean,
     dateCreate: LocalDateTime?,
     lastAccess: LocalDateTime?,
@@ -57,7 +59,7 @@ class Book(
         pages: Int
     ) : this(
         null, title, author, "", annotation, year, genre, publisher, isbn, pages, 0, "", 0,
-        Languages.ENGLISH, path, folder, name, FileType.UNKNOWN, fileSize, false, fkLibrary, false,
+        Languages.ENGLISH, path, folder, name, FileType.UNKNOWN, fileSize, false, fkLibrary, mutableListOf(), false,
         LocalDateTime.now(), null, LocalDateTime.now(), Date(), null, null
     ) {
         this.type = FileUtil.getFileType(this.fileName)
@@ -67,8 +69,8 @@ class Book(
     @Ignore
     constructor(fkLibrary: Long?, id: Long?, file: File, meta: EbookMeta, language: Libraries) : this(
         id, meta.title, meta.author ?: "", "", meta.annotation ?: "", "", meta.genre ?: "", "", "", 1, 0,
-        "", 0, Languages.ENGLISH, file.path, file.parent, file.nameWithoutExtension, FileType.UNKNOWN, file.length(), false, fkLibrary,
-        false, LocalDateTime.now(), null, LocalDateTime.now(), Date(), null, null
+        "", 0, Languages.ENGLISH, file.path, file.parent, file.nameWithoutExtension, FileType.UNKNOWN, file.length(), false,
+        fkLibrary, mutableListOf(), false, LocalDateTime.now(), null, LocalDateTime.now(), Date(), null, null
     ) {
         this.language = when (meta.lang) {
             "ja", "jp" -> Languages.JAPANESE
@@ -161,6 +163,9 @@ class Book(
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY)
     var fkLibrary: Long? = fkLibrary
 
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.TAGS)
+    var tags: MutableList<Long> = tags
+
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.DATE_CREATE)
     var dateCreate: LocalDateTime? = dateCreate
 
@@ -212,6 +217,7 @@ class Book(
     fun update(book: Book) {
         this.bookMark = book.bookMark
         this.pages = book.pages
+        this.tags = book.tags
         this.language = book.language
         this.favorite = book.favorite
         this.lastAccess = book.lastAccess

@@ -44,6 +44,7 @@ import br.com.fenix.bilingualreader.view.adapter.library.BookLineCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.PopupOrderListener
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
+import br.com.fenix.bilingualreader.view.ui.popup.PopupTags
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -81,6 +82,8 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     private lateinit var mPopupOrderFragment: LibraryBookPopupOrder
     private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
 
+    private lateinit var mPopupTag: PopupTags
+
     private var mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
@@ -115,6 +118,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         miGridType = menu.findItem(R.id.menu_book_library_grid_type)
         miGridOrder = menu.findItem(R.id.menu_book_library_list_order)
         miSearch = menu.findItem(R.id.menu_book_library_search)
+
         searchView = miSearch.actionView as SearchView
         searchView.imeOptions = EditorInfo.IME_ACTION_DONE
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -138,6 +142,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         val to = intArrayOf(R.id.list_item_suggestion)
         val suggestions = Util.getBookFilters(requireContext()).keys.toList()
         val cursorAdapter = SimpleCursorAdapter(requireContext(), R.layout.list_item_suggestion, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER)
+        mViewModel.loadTags()
 
         searchView.suggestionsAdapter = cursorAdapter
         searchView.setOnSuggestionListener(object: SearchView.OnSuggestionListener {
@@ -188,6 +193,14 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                                 substring = substring.substringBefore(":")
                                 FileType.getBook().forEachIndexed { index, type ->
                                     cursor.addRow(arrayOf(index, "@$substring:$type "))
+                                }
+                            } else if (substring.contains(Util.filterToString(requireContext(), Type.BOOK, br.com.fenix.bilingualreader.model.enums.Filter.Tag) , true)) {
+                                substring = substring.substringBefore(":")
+                                mViewModel.getTags().forEachIndexed { index, tags ->
+                                    if (tags.name.contains(" "))
+                                        cursor.addRow(arrayOf(index, "@$substring:'${tags.name}' "))
+                                    else
+                                        cursor.addRow(arrayOf(index, "@$substring:${tags.name} "))
                                 }
                             }
                             return false
@@ -518,6 +531,8 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             10
         )
 
+        mPopupTag = PopupTags(requireContext())
+
         mScrollUp.visibility = View.GONE
         mScrollDown.visibility = View.GONE
 
@@ -660,7 +675,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                         }
                         R.id.menu_book_config_delete -> deleteBook(book, position)
                         R.id.menu_book_config_detail -> goBookDetail(book, root, position)
-                        R.id.menu_book_config_tag ->  {}
+                        R.id.menu_book_config_tag -> { mPopupTag.getPopupTags(book) { mViewModel.loadTags() } }
                     }
                     true
                 }
@@ -777,8 +792,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             sharedPreferences.getString(
                 GeneralConsts.KEYS.LIBRARY.BOOK_LIBRARY_TYPE,
                 LibraryBookType.LINE.toString()
-            )
-                .toString()
+            ).toString()
         )
 
         mViewModel.sorted(mSortType)

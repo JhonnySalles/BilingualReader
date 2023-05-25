@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.service.japanese
 
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.Context
 import android.os.Build
@@ -8,27 +9,21 @@ import android.text.style.ClickableSpan
 import android.text.style.RelativeSizeSpan
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import androidx.core.text.HtmlCompat
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.BookSearch
 import br.com.fenix.bilingualreader.model.entity.Kanjax
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.model.exceptions.TokenizerLoadException
-import br.com.fenix.bilingualreader.service.listener.BookSearchHistoryListener
 import br.com.fenix.bilingualreader.service.repository.KanjaxRepository
 import br.com.fenix.bilingualreader.service.repository.KanjiRepository
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
-import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.JapaneseCharacter
-import br.com.fenix.bilingualreader.view.adapter.book.BookSearchHistoryAdapter
-import com.google.android.material.button.MaterialButton
+import br.com.fenix.bilingualreader.view.adapter.popup.VocabularyKanjiAdapter
+import br.com.fenix.bilingualreader.view.ui.popup.PopupKanji
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
@@ -45,18 +40,18 @@ class Formatter {
         private val mPatternJapanese = Regex(".*[\u3040-\u309F|\u30A0-\u30FF|\u4E00-\u9FFF].*")
 
         @TargetApi(26)
-        var mSudachiTokenizer: com.worksap.nlp.sudachi.Tokenizer? = null
-        var mKuromojiTokenizer: com.atilika.kuromoji.ipadic.Tokenizer? = null
+        private var mSudachiTokenizer: com.worksap.nlp.sudachi.Tokenizer? = null
+        private var mKuromojiTokenizer: com.atilika.kuromoji.ipadic.Tokenizer? = null
 
         // Kanji
         private var JLPT: Map<String, Int>? = null
-        private var COLOR_ANOTHER: Int = 0
-        private var COLOR_N1: Int = 0
-        private var COLOR_N2: Int = 0
-        private var COLOR_N3: Int = 0
-        private var COLOR_N4: Int = 0
-        private var COLOR_N5: Int = 0
-        private var COLOR_VOCABULARY: Int = 0
+        var COLOR_ANOTHER: Int = 0
+        var COLOR_N1: Int = 0
+        var COLOR_N2: Int = 0
+        var COLOR_N3: Int = 0
+        var COLOR_N4: Int = 0
+        var COLOR_N5: Int = 0
+        var COLOR_VOCABULARY: Int = 0
 
         // Vocabulary
         private var HTML_ANOTHER: String = ""
@@ -74,8 +69,9 @@ class Formatter {
                         mVocabularyRepository = VocabularyRepository(context)
 
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                            mSudachiTokenizer = br.com.fenix.bilingualreader.service.tokenizers.SudachiTokenizer(context).tokenizer
-                        else
+                            if (mSudachiTokenizer == null)
+                                mSudachiTokenizer = br.com.fenix.bilingualreader.service.tokenizers.SudachiTokenizer(context).tokenizer
+                        else if (mKuromojiTokenizer == null)
                             mKuromojiTokenizer = com.atilika.kuromoji.ipadic.Tokenizer()
 
                         val repository = KanjiRepository(context)
@@ -101,9 +97,12 @@ class Formatter {
                 }
             }
 
+        fun getVocabulary(id: Long) = mVocabularyRepository?.get(id)
+        fun getKanjax(word: String) = mKanjaxRepository?.get(word)
+
         // --------------------------------------------------------- Kanji ---------------------------------------------------------
         private fun getPopupKanjiAlert(kanji: String, setContentAlert: (SpannableString, SpannableString) -> (Unit)) {
-            val kanjax = mKanjaxRepository?.get(kanji)
+            val kanjax = getKanjax(kanji)
             val title = SpannableString(kanji)
             title.setSpan(RelativeSizeSpan(3f), 0, kanji.length, 0)
 
@@ -129,74 +128,6 @@ class Formatter {
                 )
             }
             setContentAlert(title, description)
-        }
-
-        fun getPopupKanji(context: Context, kanji: String) {
-            val kanjax = mKanjaxRepository?.get(kanji)
-            val popup = createKanjiPopup(context, LayoutInflater.from(context), kanjax)
-            MaterialAlertDialogBuilder(context, R.style.AppCompatMaterialAlertDialog)
-                .setView(popup)
-                .setCancelable(true)
-                .setPositiveButton(R.string.action_neutral) { _, _ -> }
-                .create()
-                .show()
-        }
-
-        private fun createKanjiPopup(
-            context: Context,
-            inflater: LayoutInflater,
-            kanjax: Kanjax?
-        ): View? {
-            val root = inflater.inflate(R.layout.popup_kanji, null, false)
-
-            kanjax?.let {
-                when (it.jlpt) {
-                    1 -> {
-                        root.findViewById<TextView>(R.id.popup_kanji_jlpt).setTextColor(COLOR_N1)
-                        root.findViewById<LinearLayout>(R.id.popup_kanji_title_content).setBackgroundColor(COLOR_N1)
-                    }
-                    2 -> {
-                        root.findViewById<TextView>(R.id.popup_kanji_jlpt).setTextColor(COLOR_N2)
-                        root.findViewById<LinearLayout>(R.id.popup_kanji_title_content).setBackgroundColor(COLOR_N2)
-                    }
-                    3 -> {
-                        root.findViewById<TextView>(R.id.popup_kanji_jlpt).setTextColor(COLOR_N3)
-                        root.findViewById<LinearLayout>(R.id.popup_kanji_title_content).setBackgroundColor(COLOR_N3)
-                    }
-                    4 -> {
-                        root.findViewById<TextView>(R.id.popup_kanji_jlpt).setTextColor(COLOR_N4)
-                        root.findViewById<LinearLayout>(R.id.popup_kanji_title_content).setBackgroundColor(COLOR_N4)
-                    }
-                    5 -> {
-                        root.findViewById<TextView>(R.id.popup_kanji_jlpt).setTextColor(COLOR_N5)
-                        root.findViewById<LinearLayout>(R.id.popup_kanji_title_content).setBackgroundColor(COLOR_N5)
-                    }
-                    else -> {
-                        root.findViewById<TextView>(R.id.popup_kanji_jlpt).setTextColor(COLOR_ANOTHER)
-                        root.findViewById<LinearLayout>(R.id.popup_kanji_title_content).setBackgroundColor(COLOR_ANOTHER)
-                    }
-                }
-
-                root.findViewById<TextView>(R.id.popup_kanji_title).text = it.kanji
-                root.findViewById<TextView>(R.id.popup_kanji_meaning_portuguese).text = it.meaningPt
-                root.findViewById<TextView>(R.id.popup_kanji_meaning_english).text = it.meaning
-                root.findViewById<TextView>(R.id.popup_kanji_jlpt).text = context.getString(R.string.kanji_jlpt, it.jlpt)
-
-                root.findViewById<TextView>(R.id.popup_kanji_grade).text = context.getString(R.string.kanji_grade, it.grade)
-                root.findViewById<TextView>(R.id.popup_kanji_strokes).text = context.getString(R.string.kanji_strokes, it.strokes)
-                root.findViewById<TextView>(R.id.popup_kanji_frequence).text = context.getString(R.string.kanji_frequency, it.frequence)
-                root.findViewById<TextView>(R.id.popup_kanji_variant).text = context.getString(R.string.kanji_variants, it.variants)
-                root.findViewById<TextView>(R.id.popup_kanji_parts).text = context.getString(R.string.kanji_parts, it.parts)
-                root.findViewById<TextView>(R.id.popup_kanji_radical).text = context.getString(R.string.kanji_radical, it.radical)
-                root.findViewById<TextView>(R.id.popup_kanji_memory_phrase_one).text = Html.fromHtml(it.koohii, HtmlCompat.FROM_HTML_MODE_LEGACY)
-                root.findViewById<TextView>(R.id.popup_kanji_memory_phrase_two).text = Html.fromHtml(it.koohii2, HtmlCompat.FROM_HTML_MODE_LEGACY)
-                root.findViewById<TextView>(R.id.popup_kanji_on_yomi_title).text = context.getString(R.string.kanji_onYomi, it.kunYomi)
-                root.findViewById<TextView>(R.id.popup_kanji_on_yomi_list).text = Html.fromHtml(it.kunWords, HtmlCompat.FROM_HTML_MODE_LEGACY)
-                root.findViewById<TextView>(R.id.popup_kanji_kun_yomi_title).text = context.getString(R.string.kanji_kunYomi, it.onYomi)
-                root.findViewById<TextView>(R.id.popup_kanji_kun_yomi_list).text = Html.fromHtml(it.onWords, HtmlCompat.FROM_HTML_MODE_LEGACY)
-            }
-
-            return root
         }
 
         private fun generateFurigana(furigana: String): SpannableStringBuilder {
@@ -375,7 +306,7 @@ class Formatter {
 
                     val cs = object : ClickableSpan() {
                         override fun onClick(p0: View) {
-                            getPopupKanji(context, kanji)
+                            PopupKanji(context, false).getPopupKanji(kanji)
                         }
 
                         override fun updateDrawState(ds: TextPaint) {
@@ -545,42 +476,6 @@ class Formatter {
             }
 
             return list
-        }
-
-        fun getPopupVocabulary(context: Context, id: Long) {
-            val vocabulary = mVocabularyRepository?.get(id)
-            val popup = createVocabularyPopup(context, LayoutInflater.from(context), vocabulary)
-            MaterialAlertDialogBuilder(context, R.style.AppCompatMaterialAlertDialog)
-                .setView(popup)
-                .setCancelable(true)
-                .setPositiveButton(R.string.action_neutral) { _, _ -> }
-                .create()
-                .show()
-        }
-
-        private fun createVocabularyPopup(
-            context: Context,
-            inflater: LayoutInflater,
-            vocabulary: Vocabulary?
-        ): View? {
-            val root = inflater.inflate(R.layout.popup_vocabulary, null, false)
-
-            vocabulary?.let {
-                root.findViewById<TextView>(R.id.popup_vocabulary_title).text = it.word.map { w -> w }.joinToString(separator = "\n")
-                root.findViewById<TextView>(R.id.popup_vocabulary_reading).text = it.reading?.map { w -> w }?.joinToString(separator = "\n") ?: ""
-
-                root.findViewById<TextView>(R.id.popup_vocabulary_meaning_portuguese).text = it.portuguese
-                root.findViewById<TextView>(R.id.popup_vocabulary_meaning_english).text = it.english
-
-                val array = mutableListOf<Kanjax>()
-                for (word in it.word)
-                    mKanjaxRepository?.get(word.toString())?.let { k -> array.add(k) }
-
-                val list = root.findViewById<ListView>(R.id.popup_vocabulary_kanji_list)
-                list.adapter = VocabularyKanjiAdapter(context, R.layout.line_card_book_search_history, array)
-            }
-
-            return root
         }
     }
 }

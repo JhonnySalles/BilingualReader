@@ -163,6 +163,7 @@ class DataBaseConsts private constructor() {
             const val CHAPTER_DESCRIPTION = "chapter_description"
             const val BOOK_MARK = "book_mark"
             const val LANGUAGE = "language"
+
             const val FILE_PATH = "path"
             const val FILE_NAME = "name"
             const val FILE_TYPE = "type"
@@ -173,6 +174,8 @@ class DataBaseConsts private constructor() {
             const val DATE_CREATE = "date_create"
             const val LAST_ACCESS = "last_access"
             const val FK_ID_LIBRARY = "id_library"
+
+            const val TAGS = "tags"
             const val EXCLUDED = "excluded"
             const val LAST_ALTERATION = "last_alteration"
             const val FILE_ALTERATION = "file_alteration"
@@ -225,8 +228,16 @@ class DataBaseConsts private constructor() {
             const val SCROLLING = "scrolling"
             const val FONT_TYPE = "font_type"
             const val FONT_SIZE = "font_size"
-            const val INFINITY_SCROLLING = "infinity_scrolling"
-            const val JAPANESE_READING_MODE = "japanese_reading_mode"
+        }
+    }
+
+    object TAGS {
+        const val TABLE_NAME = "tags"
+
+        object COLUMNS {
+            const val ID = "id"
+            const val NAME = "name"
+            const val EXCLUDED = "excluded"
         }
     }
 

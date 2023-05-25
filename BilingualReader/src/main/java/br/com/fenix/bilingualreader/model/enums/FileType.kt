@@ -105,11 +105,9 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
             return false
         }
 
-        fun getManga() =
-            values().filter { it.type == 0 }
+        fun getManga() = values().filter { it.type == 0 }
 
-        fun getBook() =
-            values().filter { it.type == 1 }
+        fun getBook() = values().filter { it.type == 1 }
 
         fun getMimeManga(): ArrayList<String> {
             val array = arrayListOf<String>()

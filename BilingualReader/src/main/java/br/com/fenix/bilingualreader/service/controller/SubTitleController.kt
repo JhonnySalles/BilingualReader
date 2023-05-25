@@ -654,7 +654,7 @@ class SubTitleController private constructor(private val context: Context) {
     }
 
     private fun drawPageLinked(path: Uri) {
-        val view: ImageViewPage = mReaderFragment!!.getCurrencyImageView() ?: return
+        val view: ImageViewPage = mReaderFragment?.getCurrencyImageView() ?: return
         if (mImageBackup.containsKey(MangaReaderFragment.mCurrentPage)) {
             val percentScroll = view.getScrollPercent()
             view.setImageBitmap(mImageBackup.remove(MangaReaderFragment.mCurrentPage))

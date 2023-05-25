@@ -405,6 +405,8 @@
     <dimen name="popup_vocabulary_list_height">175dp</dimen>
     <dimen name="popup_vocabulary_list_padding">20dp</dimen>
 
+    <dimen name="popup_tags_list_padding">20dp</dimen>
+
     <dimen name="theme_layout_width">130dp</dimen>
     <dimen name="theme_layout_height">180dp</dimen>
 

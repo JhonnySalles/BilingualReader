@@ -27,7 +27,7 @@ import java.io.File
     version = 1, exportSchema = true,
     entities = [Manga::class, Library::class, SubTitle::class, KanjiJLPT::class, Kanjax::class,
         LinkedFile::class, LinkedPage::class, Vocabulary::class, VocabularyManga::class, VocabularyBook::class,
-        Book::class, BookAnnotation::class, BookConfiguration::class, BookSearch::class]
+        Book::class, BookAnnotation::class, BookConfiguration::class, BookSearch::class, Tags::class]
 )
 @TypeConverters(Converters::class)
 abstract class DataBase : RoomDatabase() {
@@ -44,6 +44,7 @@ abstract class DataBase : RoomDatabase() {
     abstract fun getPageLinkDao(): PageLinkDAO
     abstract fun getVocabularyDao(): VocabularyDAO
     abstract fun getLibrariesDao(): LibrariesDAO
+    abstract fun getTagsDao(): TagsDAO
 
     // Singleton - One database initialize only
     companion object {
@@ -91,12 +92,10 @@ abstract class DataBase : RoomDatabase() {
                 val kanji = mAssets.open("kanji.sql").bufferedReader().use(BufferedReader::readText)
                 database.execSQL(Migrations.SQLINITIAL.KANJI + kanji)
 
-                val kanjax =
-                    mAssets.open("kanjax.sql").bufferedReader().use(BufferedReader::readText)
+                val kanjax = mAssets.open("kanjax.sql").bufferedReader().use(BufferedReader::readText)
                 database.execSQL(Migrations.SQLINITIAL.KANJAX + kanjax)
 
-                val vocabulary =
-                    mAssets.open("vocabulary.sql").bufferedReader().use(BufferedReader::readText)
+                val vocabulary = mAssets.open("vocabulary.sql").bufferedReader().use(BufferedReader::readText)
                 database.execSQL(Migrations.SQLINITIAL.VOCABULARY + vocabulary)
 
                 mLOGGER.info("Completed initial database data.")

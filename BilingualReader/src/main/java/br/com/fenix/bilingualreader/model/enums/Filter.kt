@@ -7,6 +7,7 @@ enum class Filter {
 
     Manga,
     Author,
+    Tag,
     Type,
     Publisher,
     Series,

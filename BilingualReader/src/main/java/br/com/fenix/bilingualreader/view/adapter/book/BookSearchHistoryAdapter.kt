@@ -21,7 +21,6 @@ class BookSearchHistoryAdapter(
     private val listener: BookSearchHistoryListener
 ) :
     ArrayAdapter<BookSearch>(context, layout, dataSet) {
-    var mContext: Context
 
     // View lookup cache
     private class ViewHolder {
@@ -33,10 +32,6 @@ class BookSearchHistoryAdapter(
 
     private var lastPosition = -1
 
-    init {
-        mContext = context
-    }
-
     override fun getView(position: Int, view: View?, parent: ViewGroup): View {
         // Get the data item for this position
         var convertView = view
@@ -47,13 +42,10 @@ class BookSearchHistoryAdapter(
             viewHolder = ViewHolder()
             val inflater = LayoutInflater.from(context)
             convertView = inflater.inflate(R.layout.line_card_book_search_history, parent, false)
-            viewHolder.root =
-                convertView.findViewById<View>(R.id.book_search_history) as LinearLayout
-            viewHolder.historyTitle =
-                convertView.findViewById<View>(R.id.book_search_history_title) as TextView
+            viewHolder.root = convertView.findViewById<View>(R.id.book_search_history) as LinearLayout
+            viewHolder.historyTitle = convertView.findViewById<View>(R.id.book_search_history_title) as TextView
             viewHolder.historyDate = convertView.findViewById<View>(R.id.book_search_date) as TextView
-            viewHolder.historyDelete =
-                convertView.findViewById<View>(R.id.book_search_history_delete) as MaterialButton
+            viewHolder.historyDelete = convertView.findViewById<View>(R.id.book_search_history_delete) as MaterialButton
             convertView.tag = viewHolder
         } else
             viewHolder = convertView.tag as ViewHolder
@@ -63,11 +55,7 @@ class BookSearchHistoryAdapter(
         viewHolder.historyDate!!.text = GeneralConsts.formatCountDays(context, dataModel.date)
         viewHolder.root!!.setOnClickListener { listener.onClick(dataModel) }
         viewHolder.historyDelete!!.setOnClickListener {
-            listener.onDelete(
-                dataModel,
-                convertView!!,
-                position
-            )
+            listener.onDelete(dataModel, convertView!!, position)
         }
         return convertView!!
     }

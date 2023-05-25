@@ -611,3 +611,18 @@ abstract class BookSearchDAO : DataBaseDAO<BookSearch> {
 
 }
 
+@Dao
+abstract class TagsDAO : DataBaseDAO<Tags> {
+    @Query("SELECT * FROM " + DataBaseConsts.TAGS.TABLE_NAME + " WHERE " + DataBaseConsts.TAGS.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.TAGS.COLUMNS.ID + " = :id")
+    abstract fun get(id: Long): Tags?
+
+    @Query("SELECT * FROM " + DataBaseConsts.TAGS.TABLE_NAME + " WHERE " + DataBaseConsts.TAGS.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.TAGS.COLUMNS.NAME + " = :name")
+    abstract fun get(name: String): Tags?
+
+    @Query("SELECT * FROM " + DataBaseConsts.TAGS.TABLE_NAME + " WHERE " + DataBaseConsts.TAGS.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.TAGS.COLUMNS.NAME + " LIKE :name")
+    abstract fun valid(name: String): Tags?
+
+    @Query("SELECT * FROM " + DataBaseConsts.TAGS.TABLE_NAME + " WHERE " + DataBaseConsts.TAGS.COLUMNS.EXCLUDED + " = 0 ORDER BY " + DataBaseConsts.TAGS.COLUMNS.NAME)
+    abstract fun list(): MutableList<Tags>?
+}
+

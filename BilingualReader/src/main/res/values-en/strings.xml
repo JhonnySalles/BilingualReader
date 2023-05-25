@@ -4,6 +4,7 @@
 
     <string name="action_confirm">Confirm</string>
     <string name="action_cancel">Cancel</string>
+    <string name="action_return">Return</string>
     <string name="action_positive">Yes</string>
     <string name="action_negative">No</string>
     <string name="action_delete">Delete</string>
@@ -246,11 +247,22 @@
 
     <string name="book_search_menu_item_add_annotation">Add book mark</string>
 
+    <!-- BOOK - TAGS -->
+    <string name="book_tags_title">Tag</string>
+    <string name="book_tags_new">New tag</string>
+    <string name="book_tags_delete">Delete</string>
+    <string name="book_tags_add">Add tag</string>
+    <string name="book_tags_return">Return</string>
 
-    <!-- READER - Manga / Comic -->
+    <string name="book_tag_valid_empty">Name is necessary</string>
+    <string name="book_tag_valid_used">Name already used</string>
+
+
+    <!-- READER - MANGA / COMIC -->
     <string name="reader_reload">Reload</string>
     <string name="reader_not_found">Not found</string>
     <string name="file_not_found">File not found</string>
+
     <string name="menu_manga_view_mode">View Mode</string>
     <string name="menu_manga_view_mode_aspect_fill">Aspect Fill</string>
     <string name="menu_manga_view_mode_aspect_fit">Aspect Fit</string>
@@ -426,6 +438,7 @@
     <string-array name="book_filters">
         <item>Author</item>
         <item>Publisher</item>
+        <item>Tag</item>
         <item>Type</item>
     </string-array>
 

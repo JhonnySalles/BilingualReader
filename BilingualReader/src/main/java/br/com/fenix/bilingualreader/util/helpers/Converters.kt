@@ -64,6 +64,22 @@ class Converters {
     }
 
     @TypeConverter
+    fun fromLongMutableList(array: String): MutableList<Long> {
+        if (array.isEmpty())
+            return mutableListOf()
+
+        return array.split(",").map { it.toLong() }.toMutableList()
+    }
+
+    @TypeConverter
+    fun longMutableListToString(array: MutableList<Long>): String {
+        if (array.isEmpty())
+            return ""
+
+        return array.joinToString(",")
+    }
+
+    @TypeConverter
     fun dateToLong(date: Date?): Long? {
         if (date == null)
             return null
