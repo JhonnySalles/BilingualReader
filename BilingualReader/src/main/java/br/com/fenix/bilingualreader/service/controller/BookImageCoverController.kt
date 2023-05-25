@@ -112,12 +112,12 @@ class BookImageCoverController private constructor() {
         val cover: Bitmap?
 
         if (isCoverSize) {
-            cover = ImageParse(context).getCoverPage(file.path)
+            cover = ImageParse(context).getCoverPage(file.path, true)
 
             if (cover != null)
                 saveBitmapToCache(context, hash, cover)
         } else
-            cover = ImageParse(context).getCoverPage(file.path)
+            cover = ImageParse(context).getCoverPage(file.path, false)
 
         return cover
     }

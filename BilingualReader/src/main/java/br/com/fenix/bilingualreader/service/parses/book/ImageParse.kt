@@ -40,11 +40,12 @@ class ImageParse(var context: Context) {
     }
 
 
-    fun getCoverPage(path: String): Bitmap? {
+    fun getCoverPage(path: String, isCoverSize: Boolean): Bitmap? {
+        val size = if (isCoverSize) ReaderConsts.COVER.BOOK_COVER_THUMBNAIL_WIDTH else ReaderConsts.COVER.BOOK_COVER_READER_WIDTH
         val pageHtml = PageUrl(
             path,
             0,
-            ReaderConsts.COVER.BOOK_COVER_THUMBNAIL_WIDTH,
+            size,
             0,
             false,
             true,
