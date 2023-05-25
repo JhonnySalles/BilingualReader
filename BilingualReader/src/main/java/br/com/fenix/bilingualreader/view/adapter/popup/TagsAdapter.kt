@@ -7,9 +7,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import android.widget.LinearLayout
-import android.widget.TextView
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.Kanjax
 import br.com.fenix.bilingualreader.model.entity.Tags
 import br.com.fenix.bilingualreader.service.listener.TagsListener
 import com.google.android.material.button.MaterialButton

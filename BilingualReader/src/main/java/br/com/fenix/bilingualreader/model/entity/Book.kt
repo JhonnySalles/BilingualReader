@@ -13,7 +13,6 @@ import java.io.Serializable
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.collections.ArrayList
 
 @Entity(
     tableName = DataBaseConsts.BOOK.TABLE_NAME,

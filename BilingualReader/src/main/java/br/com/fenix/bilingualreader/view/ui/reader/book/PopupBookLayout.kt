@@ -9,9 +9,11 @@ import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.enums.*
+import br.com.fenix.bilingualreader.model.enums.AlignmentLayoutType
+import br.com.fenix.bilingualreader.model.enums.BookLayoutType
+import br.com.fenix.bilingualreader.model.enums.MarginLayoutType
+import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputLayout
 import org.slf4j.LoggerFactory
 

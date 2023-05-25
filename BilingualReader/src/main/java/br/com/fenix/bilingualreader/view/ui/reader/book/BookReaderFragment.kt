@@ -9,7 +9,6 @@ import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.*
 import android.util.Base64
 import android.view.*
-import android.webkit.WebView
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout

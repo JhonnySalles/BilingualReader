@@ -10,8 +10,6 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.service.controller.MangaImageController
 import br.com.fenix.bilingualreader.service.listener.InformationCardListener
-import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.util.helpers.Util
 
 class InformationRelatedViewHolder(itemView: View, private val listener: InformationCardListener) : RecyclerView.ViewHolder(itemView) {
 

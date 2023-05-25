@@ -2,8 +2,8 @@ package br.com.fenix.bilingualreader.service.repository
 
 import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.LinkedFile
-import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.LinkedPage
+import br.com.fenix.bilingualreader.model.entity.Manga
 import java.time.LocalDateTime
 
 class FileLinkRepository(context: Context) {

@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.service.repository
 
 import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.Book
-import br.com.fenix.bilingualreader.model.entity.Kanjax
 import br.com.fenix.bilingualreader.model.entity.Tags
 import org.slf4j.LoggerFactory
 

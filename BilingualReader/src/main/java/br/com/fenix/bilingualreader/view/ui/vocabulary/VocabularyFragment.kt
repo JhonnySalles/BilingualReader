@@ -7,7 +7,10 @@ import android.os.Handler
 import android.os.Looper
 import android.view.*
 import android.view.inputmethod.EditorInfo
-import android.widget.*
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.SearchView
+import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -21,7 +24,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
-import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.VocabularyCardListener
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil

@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookSearch
-import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.listener.BookSearchHistoryListener
 import br.com.fenix.bilingualreader.service.listener.BookSearchListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
@@ -28,7 +27,6 @@ import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaListC
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import org.ebookdroid.core.codec.CodecDocument
 import org.slf4j.LoggerFactory
 
 

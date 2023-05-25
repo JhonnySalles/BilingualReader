@@ -7,20 +7,17 @@ import android.os.Process
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.FileType
-import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 import java.lang.ref.WeakReference
-import java.time.LocalDate
 
 class ScannerManga(private val context: Context) {
 

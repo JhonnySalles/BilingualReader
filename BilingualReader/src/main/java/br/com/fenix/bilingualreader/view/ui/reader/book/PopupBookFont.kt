@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import br.com.fenix.bilingualreader.R
@@ -12,7 +11,6 @@ import br.com.fenix.bilingualreader.model.enums.FontType
 import br.com.fenix.bilingualreader.service.listener.FontsListener
 import br.com.fenix.bilingualreader.view.adapter.fonts.FontsCardAdapter
 import com.google.android.material.slider.Slider
-import com.google.android.material.switchmaterial.SwitchMaterial
 import org.lucasr.twowayview.TwoWayView
 import org.slf4j.LoggerFactory
 

@@ -1,7 +1,6 @@
 package br.com.fenix.bilingualreader.view.adapter.fonts
 
 import android.content.Context
-import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

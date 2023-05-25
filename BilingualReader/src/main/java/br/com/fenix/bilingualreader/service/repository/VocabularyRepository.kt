@@ -6,6 +6,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.*
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Order
+import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -18,7 +19,6 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.streams.toList
-import br.com.fenix.bilingualreader.service.japanese.Formatter
 
 class VocabularyRepository(context: Context) {
 

@@ -4,9 +4,9 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import br.com.fenix.bilingualreader.model.entity.LinkedFile
 import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.model.entity.Library
+import br.com.fenix.bilingualreader.model.entity.LinkedFile
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.service.listener.ApiListener
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
