@@ -230,6 +230,8 @@ class ScannerBook(private val context: Context) {
                         if (!isSilent)
                             notifyMediaUpdatedRemove(missing)
                     }
+            } catch (e: Exception) {
+                mLOGGER.error("Error to scanner manga.", e)
             } finally {
                 val run = mRunning.remove(library)!!
                 run.mIsStopped = false
