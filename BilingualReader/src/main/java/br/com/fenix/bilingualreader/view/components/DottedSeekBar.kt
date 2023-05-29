@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader.view.components
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.util.AttributeSet
 import androidx.core.graphics.drawable.toBitmap
 import br.com.fenix.bilingualreader.R
@@ -12,6 +13,10 @@ import br.com.fenix.bilingualreader.R
  * Seek bar with dots on it on specific time / percent
  */
 class DottedSeekBar : androidx.appcompat.widget.AppCompatSeekBar {
+
+    //Used only android < Oreo
+    private val MIN : Int = 0
+
     /** Int values which corresponds to dots  */
     private var mDotsPositions: IntArray = intArrayOf()
 
@@ -80,11 +85,20 @@ class DottedSeekBar : androidx.appcompat.widget.AppCompatSeekBar {
 
             val top = paddingTop + (measuredHeight - paddingTop - paddingBottom) /2 - (h / 2f)
             val padding = paddingLeft - (thumb.intrinsicWidth / 4f)
-            val range = (max - min).toFloat()
+
+            val range = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                    (max - min).toFloat()
+            else
+                    (max - MIN).toFloat()
+
             val available = (measuredWidth - paddingLeft - paddingRight)
             val image = mDotMark!!.toBitmap()
             for (position in mDotsPositions) {
-                val scale : Float = if (range > 0) (position - min) / range else 0f
+                val scale : Float = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                    if (range > 0) (position - min) / range else 0f
+                else
+                    if (range > 0) (position - MIN) / range else 0f
+
                 val step = (available * scale + 0.5f)
                 canvas.drawBitmap(image, padding + step, top, null)
             }

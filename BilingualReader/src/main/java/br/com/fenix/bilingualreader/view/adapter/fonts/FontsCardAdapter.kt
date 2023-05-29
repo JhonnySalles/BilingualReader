@@ -1,12 +1,14 @@
 package br.com.fenix.bilingualreader.view.adapter.fonts
 
 import android.content.Context
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.FontType
 import br.com.fenix.bilingualreader.service.listener.FontsListener
@@ -56,7 +58,10 @@ class FontsCardAdapter(
 
         val example = newView.findViewById<TextView>(R.id.font_example)
         example.setTextColor(if (font.second) mFontSelect else mFontNormal)
-        example.typeface = context.resources.getFont(font.first.getFont())
+        example.typeface = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            context.resources.getFont(font.first.getFont())
+        else
+            ResourcesCompat.getFont(context, font.first.getFont())
 
         example.text = if(font.first.isJapanese())
             context.getString(R.string.popup_reading_font_style_example_japanese)

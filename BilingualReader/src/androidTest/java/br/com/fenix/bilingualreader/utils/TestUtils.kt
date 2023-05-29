@@ -90,10 +90,10 @@ class MangaTestUtil {
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA,
                 (1..5).random() > 2,
                 TestUtil.getRandomLocalDateTime(),
-                LocalDateTime.now(),
-                LocalDateTime.now(),
+                Date(),
+                Date(),
                 0,
-                if ((1..2).random() > 1) LocalDateTime.now() else null,
+                if ((1..2).random() > 1) Date() else null,
                 if ((1..2).random() > 1) LocalDate.now() else null
             )
 
@@ -140,10 +140,10 @@ class MangaTestUtil {
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA,
                 (1..5).random() > 2,
                 TestUtil.getRandomLocalDateTime(),
-                LocalDateTime.now(),
-                LocalDateTime.now(),
+                Date(),
+                Date(),
                 0,
-                if ((1..5).random() > 2) LocalDateTime.now() else null,
+                if ((1..5).random() > 2) Date() else null,
                 if ((1..2).random() > 1) LocalDate.now() else null
             )
         }
@@ -180,10 +180,10 @@ class MangaTestUtil {
                         GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA,
                         i in 4..6,
                         TestUtil.getRandomLocalDateTime(),
-                        LocalDateTime.now(),
-                        LocalDateTime.now(),
+                        Date(),
+                        Date(),
                         0,
-                        if (i in 4..6) LocalDateTime.now() else null,
+                        if (i in 4..6) Date() else null,
                         if ((1..2).random() > 1) LocalDate.now() else null
                     )
                 )
@@ -247,10 +247,10 @@ class BookTestUtil {
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK,
                 (1..5).random() > 4,
                 TestUtil.getRandomLocalDateTime(),
-                LocalDateTime.now(),
-                LocalDateTime.now(),
+                Date(),
+                Date(),
                 0,
-                if ((1..2).random() > 1) LocalDateTime.now() else null,
+                if ((1..2).random() > 1) Date() else null,
                 if ((1..2).random() > 1) LocalDate.now() else null
             )
 
@@ -303,10 +303,10 @@ class BookTestUtil {
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK,
                 (1..5).random() > 4,
                 TestUtil.getRandomLocalDateTime(),
-                LocalDateTime.now(),
-                LocalDateTime.now(),
+                Date(),
+                Date(),
                 0,
-                if ((1..2).random() > 1) LocalDateTime.now() else null,
+                if ((1..2).random() > 1) Date() else null,
                 if ((1..2).random() > 1) LocalDate.now() else null
             )
         }
@@ -348,10 +348,10 @@ class BookTestUtil {
                         GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK,
                         (1..5).random() > 4,
                         TestUtil.getRandomLocalDateTime(),
-                        LocalDateTime.now(),
-                        LocalDateTime.now(),
+                        Date(),
+                        Date(),
                         0,
-                        if ((1..2).random() > 1) LocalDateTime.now() else null,
+                        if ((1..2).random() > 1) Date() else null,
                         if ((1..2).random() > 1) LocalDate.now() else null
                     )
                 )
