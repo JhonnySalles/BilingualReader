@@ -30,8 +30,8 @@ class Formatter {
                                                         // Hiragana | katakana | kanji
         private val mPatternJapanese = Regex(".*[\u3040-\u309F|\u30A0-\u30FF|\u4E00-\u9FFF].*")
 
-        @TargetApi(26)
-        private var mSudachiTokenizer: com.worksap.nlp.sudachi.Tokenizer? = null
+        //@TargetApi(26)
+        //private var mSudachiTokenizer: com.worksap.nlp.sudachi.Tokenizer? = null
         private var mKuromojiTokenizer: com.atilika.kuromoji.ipadic.Tokenizer? = null
 
         // Kanji
@@ -59,10 +59,10 @@ class Formatter {
                         mKanjaxRepository = KanjaxRepository(context)
                         mVocabularyRepository = VocabularyRepository(context)
 
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                             if (mSudachiTokenizer == null)
                                 mSudachiTokenizer = br.com.fenix.bilingualreader.service.tokenizers.SudachiTokenizer(context).tokenizer
-                        else if (mKuromojiTokenizer == null)
+                        else*/ if (mKuromojiTokenizer == null)
                             mKuromojiTokenizer = com.atilika.kuromoji.ipadic.Tokenizer()
 
                         val repository = KanjiRepository(context)
@@ -180,7 +180,7 @@ class Formatter {
         private fun sudachiTokenizer(text: String, vocabularyClick: (String) -> (Unit)): SpannableStringBuilder {
             val textBuilder = SpannableStringBuilder()
             textBuilder.append(text)
-            if (mSudachiTokenizer != null) {
+            /*if (mSudachiTokenizer != null) {
                 for (t in mSudachiTokenizer!!.tokenize(com.worksap.nlp.sudachi.Tokenizer.SplitMode.C, text)) {
                     if (t.readingForm().isNotEmpty() && t.surface().matches(mPatternKanji)) {
                         var furigana = ""
@@ -204,7 +204,7 @@ class Formatter {
                         )
                     }
                 }
-            }
+            }*/
 
             return textBuilder
         }
@@ -374,7 +374,7 @@ class Formatter {
 
         @TargetApi(26)
         private fun sudachiTokenizerHtml(text: String, withFurigana: Boolean): String {
-            if (mSudachiTokenizer != null) {
+            /*if (mSudachiTokenizer != null) {
                 var textBuilder = ""
                 for (t in mSudachiTokenizer!!.tokenize(
                     com.worksap.nlp.sudachi.Tokenizer.SplitMode.C,
@@ -418,7 +418,7 @@ class Formatter {
                         textBuilder += text.substring(t.begin(), t.end())
                 }
                 return textBuilder
-            } else
+            } else*/
                 return text
         }
 
@@ -445,26 +445,26 @@ class Formatter {
 
         @TargetApi(26)
         private fun sudachiTokenizer(list: MutableList<Vocabulary>, text: String) {
-            for (t in mSudachiTokenizer!!.tokenize(com.worksap.nlp.sudachi.Tokenizer.SplitMode.C, text)) {
+            /*for (t in mSudachiTokenizer!!.tokenize(com.worksap.nlp.sudachi.Tokenizer.SplitMode.C, text)) {
                 if (t.readingForm().isNotEmpty() && t.surface().matches(mPatternKanji)) {
                     val vocab = mVocabularyRepository!!.find(t.dictionaryForm())
                     if (vocab != null)
                         list.add(vocab)
                 }
-            }
+            }*/
         }
         fun generateVocabulary(text: String) : MutableList<Vocabulary> {
             val list = mutableListOf<Vocabulary>()
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (mSudachiTokenizer == null)
                     throw TokenizerLoadException("Sudachi not loaded")
                 sudachiTokenizer(list, text)
-            } else {
+            } else {*/
                 if (mKuromojiTokenizer == null)
                     throw TokenizerLoadException("Kuromoji not loaded")
                 kuromojiTokenizer(list, text)
-            }
+            //}
 
             return list
         }

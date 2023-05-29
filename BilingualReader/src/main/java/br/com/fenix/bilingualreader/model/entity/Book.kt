@@ -10,8 +10,6 @@ import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import java.io.File
 import java.io.Serializable
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 @Entity(
@@ -42,12 +40,12 @@ class Book(
     fkLibrary: Long?,
     tags: MutableList<Long>,
     excluded: Boolean,
-    dateCreate: LocalDateTime?,
-    lastAccess: LocalDateTime?,
-    lastAlteration: LocalDateTime?,
+    dateCreate: Date?,
+    lastAccess: Date?,
+    lastAlteration: Date?,
     fileAlteration: Date,
-    lastVocabImport: LocalDateTime?,
-    lastVerify: LocalDate?
+    lastVocabImport: Date?,
+    lastVerify: Date?
 ) : Serializable {
 
     @Ignore
@@ -59,7 +57,7 @@ class Book(
     ) : this(
         null, title, author, "", annotation, year, genre, publisher, isbn, pages, 0, "", 0,
         Languages.ENGLISH, path, folder, name, FileType.UNKNOWN, fileSize, false, fkLibrary, mutableListOf(), false,
-        LocalDateTime.now(), null, LocalDateTime.now(), Date(), null, null
+        Date(), null, Date(), Date(), null, null
     ) {
         this.type = FileUtil.getFileType(this.fileName)
         this.fileAlteration = Date(this.file.lastModified())
@@ -69,7 +67,7 @@ class Book(
     constructor(fkLibrary: Long?, id: Long?, file: File, meta: EbookMeta, language: Libraries) : this(
         id, meta.title, meta.author ?: "", "", meta.annotation ?: "", "", meta.genre ?: "", "", "", 1, 0,
         "", 0, Languages.ENGLISH, file.path, file.parent, file.nameWithoutExtension, FileType.UNKNOWN, file.length(), false,
-        fkLibrary, mutableListOf(), false, LocalDateTime.now(), null, LocalDateTime.now(), Date(), null, null
+        fkLibrary, mutableListOf(), false, Date(), null, Date(), Date(), null, null
     ) {
         this.language = when (meta.lang) {
             "ja", "jp" -> Languages.JAPANESE
@@ -166,22 +164,22 @@ class Book(
     var tags: MutableList<Long> = tags
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.DATE_CREATE)
-    var dateCreate: LocalDateTime? = dateCreate
+    var dateCreate: Date? = dateCreate
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS)
-    var lastAccess: LocalDateTime? = lastAccess
+    var lastAccess: Date? = lastAccess
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION)
-    var lastAlteration: LocalDateTime? = lastAlteration
+    var lastAlteration: Date? = lastAlteration
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FILE_ALTERATION)
     var fileAlteration: Date = fileAlteration
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.LAST_VOCABULARY_IMPORT)
-    var lastVocabImport: LocalDateTime? = lastVocabImport
+    var lastVocabImport: Date? = lastVocabImport
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.LAST_VERIFY)
-    var lastVerify: LocalDate? = lastVerify
+    var lastVerify: Date? = lastVerify
 
     override fun toString(): String {
         return "Book(id=$id, title='$title', author='$author', language=$language, path='$path', fileName='$fileName', extension='$extension', fileSize=$fileSize, name='$name', favorite=$favorite, excluded=$excluded)"

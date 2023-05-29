@@ -5,7 +5,7 @@ import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.Serializable
-import java.time.LocalDateTime
+import java.util.*
 
 @Entity(
     tableName = DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME,
@@ -36,9 +36,9 @@ data class BookAnnotation(
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COLOR)
     var color: Color,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION)
-    var alteration: LocalDateTime,
+    var alteration: Date,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CREATED)
-    var created: LocalDateTime,
+    var created: Date,
 ) : Serializable {
     @Ignore
     constructor(
@@ -46,12 +46,12 @@ data class BookAnnotation(
         annotation: String, favorite: Boolean = false, color: Color = Color.None,
     ) : this(
         null, id_book, page, pages, type, chapterNumber, chapter, text, annotation, favorite,
-        color, LocalDateTime.now(), LocalDateTime.now()
+        color, Date(), Date()
     )
 
     constructor(
         id: Long?, id_book: Long, page: Int, pages: Int, type: MarkType, chapterNumber: Float, chapter: String, text: String,
-        annotation: String, favorite: Boolean, color: Color, alteration: LocalDateTime, created: LocalDateTime, count: Int
+        annotation: String, favorite: Boolean, color: Color, alteration: Date, created: Date, count: Int
     ) : this(
         id, id_book, page, pages, type, chapterNumber, chapter, text, annotation, favorite,
         color, alteration, created

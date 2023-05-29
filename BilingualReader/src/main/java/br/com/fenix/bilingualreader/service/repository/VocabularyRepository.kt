@@ -262,7 +262,7 @@ class VocabularyRepository(context: Context) {
                         }
                     }
 
-                    manga.lastVocabImport = LocalDateTime.now()
+                    manga.lastVocabImport = Date()
                     manga.fileAlteration = Date(manga.file.lastModified())
                     withContext(Dispatchers.Main) { mBase.getMangaDao().update(manga) }
 
@@ -310,7 +310,7 @@ class VocabularyRepository(context: Context) {
                         }
                     }
 
-                    book.lastVocabImport = LocalDateTime.now()
+                    book.lastVocabImport = Date()
                     book.fileAlteration = Date(book.file.lastModified())
                     withContext(Dispatchers.Main) { mBase.getBookDao().update(book) }
 

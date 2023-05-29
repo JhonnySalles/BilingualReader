@@ -6,6 +6,7 @@ import br.com.fenix.bilingualreader.model.entity.BookConfiguration
 import br.com.fenix.bilingualreader.model.entity.Library
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
+import java.util.*
 
 class BookRepository(context: Context) {
 
@@ -15,36 +16,36 @@ class BookRepository(context: Context) {
 
     // --------------------------------------------------------- BOOK ---------------------------------------------------------
     fun save(obj: Book): Long {
-        obj.lastAlteration = LocalDateTime.now()
+        obj.lastAlteration = Date()
         return mDataBase.save(obj)
     }
 
     fun update(obj: Book) {
-        obj.lastAlteration = LocalDateTime.now()
+        obj.lastAlteration = Date()
         mDataBase.update(obj)
     }
 
     fun updateBookMark(obj: Book) {
-        obj.lastAlteration = LocalDateTime.now()
+        obj.lastAlteration = Date()
         if (obj.id != null)
             mDataBase.updateBookMark(obj.id!!, obj.bookMark)
     }
 
     fun updateLastAccess(obj: Book) {
-        obj.lastAlteration = LocalDateTime.now()
-        obj.lastAccess = LocalDateTime.now()
+        obj.lastAlteration = Date()
+        obj.lastAccess = Date()
         if (obj.id != null)
             mDataBase.update(obj)
     }
 
     fun delete(obj: Book) {
-        obj.lastAlteration = LocalDateTime.now()
+        obj.lastAlteration = Date()
         if (obj.id != null)
             mDataBase.delete(obj.id!!)
     }
 
     fun deletePermanent(obj: Book) {
-        obj.lastAlteration = LocalDateTime.now()
+        obj.lastAlteration = Date()
         if (obj.id != null)
             mDataBase.delete(obj)
     }
@@ -88,8 +89,8 @@ class BookRepository(context: Context) {
     fun markRead(obj: Book?) {
         try {
             if (obj != null) {
-                obj.lastAlteration = LocalDateTime.now()
-                obj.lastAccess = LocalDateTime.now()
+                obj.lastAlteration = Date()
+                obj.lastAccess = Date()
                 obj.bookMark = obj.pages
                 if (obj.id != null)
                     mDataBase.update(obj)
@@ -102,7 +103,7 @@ class BookRepository(context: Context) {
     fun clearHistory(obj: Book?) {
         try {
             if (obj != null) {
-                obj.lastAlteration = LocalDateTime.now()
+                obj.lastAlteration = Date()
                 obj.lastAccess = null
                 obj.bookMark = 0
                 obj.favorite = false

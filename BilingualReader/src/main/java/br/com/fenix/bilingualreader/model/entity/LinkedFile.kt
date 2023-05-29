@@ -6,7 +6,7 @@ import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.File
 import java.io.Serializable
-import java.time.LocalDateTime
+import java.util.*
 
 @Entity(
     tableName = DataBaseConsts.FILELINK.TABLE_NAME,
@@ -14,13 +14,13 @@ import java.time.LocalDateTime
 )
 class LinkedFile(
     id: Long?, idManga: Long, pages: Int, path: String, name: String, type: String, folder: String,
-    language: Languages, dateCreate: LocalDateTime?, lastAccess: LocalDateTime?, lastAlteration: LocalDateTime?
+    language: Languages, dateCreate: Date?, lastAccess: Date?, lastAlteration: Date?
 ) : Serializable {
 
     @Ignore
     constructor(
         id: Long?, idManga: Long, pages: Int, path: String, name: String, type: String, folder: String, language: Languages
-    ) : this(id, idManga, pages, path, name, type, folder, language, LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now())
+    ) : this(id, idManga, pages, path, name, type, folder, language, Date(), Date(), Date())
 
     @Ignore
     constructor(
@@ -34,9 +34,9 @@ class LinkedFile(
         type,
         folder,
         Languages.PORTUGUESE,
-        LocalDateTime.now(),
-        LocalDateTime.now(),
-        LocalDateTime.now()
+        Date(),
+        Date(),
+        Date()
     ) {
         this.manga = manga
         this.parseManga = parseManga
@@ -45,7 +45,7 @@ class LinkedFile(
     @Ignore
     constructor(manga: Manga, parseManga: Parse?) : this(
         null, manga.id!!, 0, "", "", "", "", Languages.PORTUGUESE,
-        LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now()
+        Date(), Date(), Date()
     ) {
         this.manga = manga
         this.parseManga = parseManga
@@ -54,7 +54,7 @@ class LinkedFile(
     @Ignore
     constructor(manga: Manga) : this(
         null, manga.id!!, 0, "", "", "", "", Languages.PORTUGUESE,
-        LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now()
+        Date(), Date(), Date()
     ) {
         this.manga = manga
     }
@@ -83,13 +83,13 @@ class LinkedFile(
     var folder: String = folder
 
     @ColumnInfo(name = DataBaseConsts.FILELINK.COLUMNS.DATE_CREATE)
-    var dateCreate: LocalDateTime? = dateCreate
+    var dateCreate: Date? = dateCreate
 
     @ColumnInfo(name = DataBaseConsts.FILELINK.COLUMNS.LAST_ACCESS)
-    var lastAccess: LocalDateTime? = lastAccess
+    var lastAccess: Date? = lastAccess
 
     @ColumnInfo(name = DataBaseConsts.FILELINK.COLUMNS.LAST_ALTERATION)
-    var lastAlteration: LocalDateTime? = lastAlteration
+    var lastAlteration: Date? = lastAlteration
 
     @ColumnInfo(name = DataBaseConsts.FILELINK.COLUMNS.LANGUAGE)
     var language: Languages = language
@@ -146,7 +146,7 @@ class LinkedFile(
 
     fun addManga(manga: Manga) {
         idManga = manga.id ?: 0
-        lastAccess = LocalDateTime.now()
+        lastAccess = Date()
         this.manga = manga
     }
 
@@ -157,8 +157,8 @@ class LinkedFile(
         this.name = ""
         this.type = ""
         this.folder = ""
-        this.dateCreate = LocalDateTime.now()
-        this.lastAccess = LocalDateTime.now()
+        this.dateCreate = Date()
+        this.lastAccess = Date()
         this.language = Languages.PORTUGUESE
         this.file = File("")
         this.pagesLink = null

@@ -24,7 +24,10 @@ import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.view.adapter.history.HistoryCardAdapter
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.time.Instant
 import java.time.LocalDateTime
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class HistoryFragment : Fragment() {
@@ -101,7 +104,7 @@ class HistoryFragment : Fragment() {
                 if (!manga.excluded && manga.file.exists()) {
                     val intent = Intent(context, MangaReaderActivity::class.java)
                     val bundle = Bundle()
-                    manga.lastAccess = LocalDateTime.now()
+                    manga.lastAccess = Date()
                     bundle.putSerializable(
                         GeneralConsts.KEYS.OBJECT.LIBRARY,
                         LibraryUtil.getDefault(requireContext(), Type.MANGA)
@@ -152,7 +155,7 @@ class HistoryFragment : Fragment() {
                             mRecyclerView.adapter?.notifyItemChanged(position)
                         }
                         R.id.menu_item_manga_file_clear -> {
-                            manga.lastAccess = LocalDateTime.MIN
+                            manga.lastAccess = Date(Long.MIN_VALUE)
                             manga.bookMark = 0
                             mViewModel.clear(manga)
                             mRecyclerView.adapter?.notifyItemChanged(position)

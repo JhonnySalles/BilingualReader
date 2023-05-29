@@ -8,8 +8,7 @@ import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import java.io.File
 import java.io.Serializable
-import java.time.LocalDate
-import java.time.LocalDateTime
+import java.text.SimpleDateFormat
 import java.util.*
 
 @Entity(
@@ -33,24 +32,24 @@ class Manga(
     series: String,
     publisher: String,
     volume: String,
-    release: LocalDate?,
+    release: Date?,
     fkLibrary: Long?,
     excluded: Boolean,
-    dateCreate: LocalDateTime?,
-    lastAccess: LocalDateTime?,
-    lastAlteration: LocalDateTime?,
+    dateCreate: Date?,
+    lastAccess: Date?,
+    lastAlteration: Date?,
     fileAlteration: Date,
-    lastVocabImport: LocalDateTime?,
-    lastVerify: LocalDate?
+    lastVocabImport: Date?,
+    lastVerify: Date?
 ) : Serializable {
 
     constructor( id: Long?, title: String,
         path: String, folder: String, name: String, size: Long, type: FileType,
         pages: Int, chapters: IntArray, bookMark: Int, favorite: Boolean, hasSubtitle: Boolean,
         author: String , series: String, publisher: String, volume: String, idLibrary: Long?,
-        excluded: Boolean, dateCreate: LocalDateTime?, fileAlteration: Date, lastVocabularyImport: LocalDateTime?,
-        lastVerify: LocalDate?, release: LocalDate?, lastAlteration: LocalDateTime?,
-        lastAccess: LocalDateTime?, sort: LocalDateTime? = null
+        excluded: Boolean, dateCreate: Date?, fileAlteration: Date, lastVocabularyImport: Date?,
+        lastVerify: Date?, release: Date?, lastAlteration: Date?,
+        lastAccess: Date?, sort: Date? = null
     ) : this( id, title, path, folder, name, size, type, pages, chapters, bookMark, favorite,
         hasSubtitle, author, series, publisher, volume, release, idLibrary, excluded,
         dateCreate, lastAccess, lastAlteration, fileAlteration, lastVocabularyImport, lastVerify
@@ -62,7 +61,7 @@ class Manga(
     constructor(fkLibrary: Long?, id: Long?, file: File, parse: Parse) : this(
         id, file.nameWithoutExtension, file.path, file.parent, file.name, file.length(), FileType.UNKNOWN,
         parse.numPages(), parse.getChapters(), 0, false, parse.hasSubtitles(), "", "", "",
-        "", null, fkLibrary, false, LocalDateTime.now(), null, null, Date(file.lastModified()),
+        "", null, fkLibrary, false, Date(), null, null, Date(file.lastModified()),
         null, null
     ) {
         this.type = FileUtil.getFileType(file.name)
@@ -84,7 +83,7 @@ class Manga(
             this.series = it.series.toString()
             this.publisher = it.publisher.toString()
             this.volume = it.volume.toString()
-            this.release = if (it.year != null) LocalDate.of(it.year!!, it.month?:1, it.day?:1) else null
+            this.release = if (it.year != null) SimpleDateFormat("yyyy/MM/dd").parse("${it.year!!}/${it.month?:1}/${it.day?:1}") else null
         }
     }
 
@@ -147,7 +146,7 @@ class Manga(
     var volume: String = volume
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.RELEASE)
-    var release: LocalDate? = release
+    var release: Date? = release
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.EXCLUDED)
     var excluded: Boolean = excluded
@@ -156,22 +155,22 @@ class Manga(
     var fkLibrary: Long? = fkLibrary
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.DATE_CREATE)
-    var dateCreate: LocalDateTime? = dateCreate
+    var dateCreate: Date? = dateCreate
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS)
-    var lastAccess: LocalDateTime? = lastAccess
+    var lastAccess: Date? = lastAccess
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION)
-    var lastAlteration: LocalDateTime? = lastAlteration
+    var lastAlteration: Date? = lastAlteration
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FILE_ALTERATION)
     var fileAlteration: Date = fileAlteration
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.LAST_VOCABULARY_IMPORT)
-    var lastVocabImport: LocalDateTime? = lastVocabImport
+    var lastVocabImport: Date? = lastVocabImport
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.LAST_VERIFY)
-    var lastVerify: LocalDate? = lastVerify
+    var lastVerify: Date? = lastVerify
 
     @Ignore
     var library: Library = Library(null)
@@ -184,7 +183,7 @@ class Manga(
 
     @Ignore
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.SORT)
-    var sort: LocalDateTime? = null
+    var sort: Date? = null
 
     override fun toString(): String {
         return "Book(id=$id, title='$title', pages=$pages, bookMark=$bookMark, type='$type', update=$update)"
@@ -246,7 +245,7 @@ class Manga(
             this.series = it.series.toString()
             this.publisher = it.publisher.toString()
             this.volume = it.volume.toString()
-            this.release = if (it.year != null) LocalDate.of(it.year!!, it.month?:1, it.day?:1) else null
+            this.release = if (it.year != null) SimpleDateFormat("yyyy/MM/dd").parse("${it.year!!}/${it.month?:1}/${it.day?:1}") else null
         }
     }
 

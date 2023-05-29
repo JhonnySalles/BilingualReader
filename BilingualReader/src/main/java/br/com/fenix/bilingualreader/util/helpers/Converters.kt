@@ -18,7 +18,7 @@ class Converters {
         return ImageUtil.encodeImageBase64(image)
     }
 
-    @TypeConverter
+    /*@TypeConverter
     fun fromLocalDateTime(dateTime: String?): LocalDateTime? {
         if (dateTime == null)
             return null
@@ -45,7 +45,7 @@ class Converters {
         if (date == null)
             return null
         return date.toString()
-    }
+    }*/
 
     @TypeConverter
     fun fromIntArray(array: String): IntArray {

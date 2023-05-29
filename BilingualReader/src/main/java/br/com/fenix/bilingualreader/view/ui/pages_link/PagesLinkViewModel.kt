@@ -30,7 +30,8 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.InputStream
 import java.io.InterruptedIOException
-import java.time.LocalDateTime
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.max
 
 
@@ -210,7 +211,7 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun save(obj: LinkedFile): LinkedFile {
-        obj.lastAccess = LocalDateTime.now()
+        obj.lastAccess = Date()
         if (obj.id == 0L)
             obj.id = mFileLinkRepository.save(obj)
         else
@@ -221,7 +222,7 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun save() {
         val obj = this.get()
-        obj.lastAccess = LocalDateTime.now()
+        obj.lastAccess = Date()
         if (obj.id == null || obj.id == 0L)
             mLinkedFile.value!!.id = mFileLinkRepository.save(obj)
         else

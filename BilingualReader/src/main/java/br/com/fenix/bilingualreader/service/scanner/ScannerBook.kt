@@ -7,7 +7,6 @@ import android.os.Process
 import br.com.ebook.foobnix.entity.FileMeta
 import br.com.ebook.foobnix.entity.FileMetaCore
 import br.com.ebook.foobnix.ext.CacheZipUtils
-import br.com.ebook.foobnix.sys.ImageExtractor
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.FileType
@@ -18,7 +17,9 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 import java.lang.ref.WeakReference
-import java.time.LocalDate
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 class ScannerBook(private val context: Context) {
 
@@ -209,7 +210,7 @@ class ScannerBook(private val context: Context) {
                                         generateCover(book)
 
                                     book.id = storage.save(book)
-                                    book.lastVerify = LocalDate.now()
+                                    book.lastVerify = Date()
                                     if (!isSilent)
                                         notifyMediaUpdatedAdd(book)
                                 } catch (e: Exception) {

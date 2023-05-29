@@ -4,7 +4,7 @@ import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.LinkedFile
 import br.com.fenix.bilingualreader.model.entity.LinkedPage
 import br.com.fenix.bilingualreader.model.entity.Manga
-import java.time.LocalDateTime
+import java.util.*
 
 class FileLinkRepository(context: Context) {
 
@@ -13,7 +13,7 @@ class FileLinkRepository(context: Context) {
 
     fun save(obj: LinkedFile): Long {
         delete(obj.manga!!)
-        obj.lastAlteration = LocalDateTime.now()
+        obj.lastAlteration = Date()
         val id = mDataBase.save(obj)
         if (obj.pagesLink != null) {
             mDataBasePage.deleteAll(id)
@@ -32,7 +32,7 @@ class FileLinkRepository(context: Context) {
     }
 
     fun update(obj: LinkedFile) {
-        obj.lastAlteration = LocalDateTime.now()
+        obj.lastAlteration = Date()
         mDataBase.update(obj)
         if (obj.pagesLink != null) {
             mDataBasePage.deleteAll(obj.id!!)
@@ -82,7 +82,6 @@ class FileLinkRepository(context: Context) {
         return mDataBasePage.getPageNotLink(idFileLink)
     }
 
-    fun findAllByManga(idManga: Long): List<LinkedFile>? =
-        mDataBase.get(idManga)
+    fun findAllByManga(idManga: Long): List<LinkedFile>? = mDataBase.get(idManga)
 
 }

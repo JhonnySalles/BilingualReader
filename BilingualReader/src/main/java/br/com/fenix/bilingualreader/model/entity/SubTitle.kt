@@ -4,7 +4,7 @@ import androidx.room.*
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.File
-import java.time.LocalDateTime
+import java.util.*
 
 @Entity(
     tableName = DataBaseConsts.SUBTITLES.TABLE_NAME,
@@ -34,10 +34,10 @@ data class SubTitle(
     var path: String = "",
 
     @ColumnInfo(name = DataBaseConsts.SUBTITLES.COLUMNS.DATE_CREATE)
-    var dateCreate: LocalDateTime? = LocalDateTime.now(),
+    var dateCreate: Date? = Date(),
 
     @ColumnInfo(name = DataBaseConsts.SUBTITLES.COLUMNS.LAST_ALTERATION)
-    var lastAlteration: LocalDateTime? = LocalDateTime.now(),
+    var lastAlteration: Date? = Date(),
 
     @Ignore
     var file: File = File(path),
@@ -57,8 +57,8 @@ data class SubTitle(
         pageKey: String = "",
         pageCount: Int = 0,
         path: String = "",
-        dateCreate: LocalDateTime? = LocalDateTime.now(),
-        lastAlteration: LocalDateTime? = LocalDateTime.now(),
+        dateCreate: Date? = Date(),
+        lastAlteration: Date? = Date(),
     ) : this( id, id_manga, language, chapterKey, pageKey, pageCount, path, dateCreate, lastAlteration, File(path) )
 
     constructor(
@@ -70,7 +70,7 @@ data class SubTitle(
         path: String = "",
         subTitleChapter: SubTitleChapter?
     ) : this(
-        null, id_manga, language, chapterKey, pageKey, pageCount, path, LocalDateTime.now(), LocalDateTime.now(), File(path)
+        null, id_manga, language, chapterKey, pageKey, pageCount, path, Date(), Date(), File(path)
     ) {
         this.subTitleChapter = subTitleChapter
     }
