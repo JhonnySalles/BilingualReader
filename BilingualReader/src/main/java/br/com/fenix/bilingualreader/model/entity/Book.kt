@@ -224,4 +224,27 @@ class Book(
         this.lastVocabImport = book.lastVocabImport
     }
 
+    fun update(meta: EbookMeta, language: Libraries) {
+        this.title = meta.title
+        this.author = meta.author ?: ""
+        this.annotation = meta.annotation ?: ""
+        this.genre = meta.genre ?: ""
+        this.fileSize = file.length()
+
+        this.language = when (meta.lang) {
+            "ja", "jp" -> Languages.JAPANESE
+            "en" -> Languages.ENGLISH
+            "pt" -> Languages.PORTUGUESE
+            else -> when(language) {
+                Libraries.ENGLISH -> Languages.ENGLISH
+                Libraries.JAPANESE -> Languages.JAPANESE
+                Libraries.PORTUGUESE -> Languages.PORTUGUESE
+                else -> this.language
+            }
+        }
+        this.type = FileUtil.getFileType(file.name)
+        this.fileAlteration = Date(this.file.lastModified())
+        this.lastVocabImport = null
+    }
+
 }

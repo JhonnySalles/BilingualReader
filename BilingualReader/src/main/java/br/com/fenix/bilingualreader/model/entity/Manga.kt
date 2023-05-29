@@ -220,4 +220,34 @@ class Manga(
         this.lastAlteration = manga.lastAlteration
         this.lastVocabImport = manga.lastVocabImport
     }
+
+    fun update(parse: Parse) {
+        this.hasSubtitle = parse.hasSubtitles()
+        this.chapters = parse.getChapters()
+        this.fileSize = file.length()
+        this.fileAlteration = Date(file.lastModified())
+        this.lastVocabImport = null
+        this.type = FileUtil.getFileType(file.name)
+        this.volume = title.substringAfterLast("Volume", "").trim().replace(Regex("[^\\d.][\\s\\S]+"), "")
+
+        parse.getComicInfo()?.let {
+            this.author = ""
+
+            if (it.writer != null && it.writer!!.isNotEmpty())
+                author += it.writer + ", "
+            if (it.penciller != null && it.penciller!!.isNotEmpty() && !author.contains(it.penciller!!, true))
+                author += it.penciller + ", "
+            if (it.inker != null && it.inker!!.isNotEmpty() && !author.contains(it.inker!!, true))
+                author += it.inker + ", "
+
+            if (author.contains(","))
+                author = author.substringBeforeLast(", ") + "."
+
+            this.series = it.series.toString()
+            this.publisher = it.publisher.toString()
+            this.volume = it.volume.toString()
+            this.release = if (it.year != null) LocalDate.of(it.year!!, it.month?:1, it.day?:1) else null
+        }
+    }
+
 }

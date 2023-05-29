@@ -24,7 +24,6 @@ class ScannerBook(private val context: Context) {
 
     private val mLOGGER = LoggerFactory.getLogger(ScannerBook::class.java)
 
-    private val mImgExtractor = ImageExtractor.getInstance(context)
     private var mUpdateHandler: MutableList<Handler> = ArrayList()
     private var mRunning = mutableMapOf<Library, ThreadRunning>()
 
@@ -147,8 +146,7 @@ class ScannerBook(private val context: Context) {
         }
     }
 
-    private fun generateCover(book: Book) =
-        BookImageCoverController.instance.getCoverFromFile(context, book.file)
+    private fun generateCover(book: Book) = BookImageCoverController.instance.getCoverFromFile(context, book.file)
 
     private inner class ThreadRunning(thread: Thread) {
         val mThread = thread
@@ -190,18 +188,18 @@ class ScannerBook(private val context: Context) {
                                 mLOGGER.info("Processing book: " + it.name + ".")
                                 isProcess = true
                                 try {
+                                    val ebookMeta = FileMetaCore.get().getEbookMeta(it.path, CacheZipUtils.CacheDir.ZipApp, false)
+                                    FileMetaCore.get().udpateFullMeta(FileMeta(it.path), ebookMeta)
 
                                     val book = if (storageDeletes.containsKey(it.nameWithoutExtension)) {
                                         storageFiles.remove(it.nameWithoutExtension)
-                                        storageDeletes.getValue(it.nameWithoutExtension)
+                                        val deleted = storageDeletes.getValue(it.nameWithoutExtension)
+                                        deleted.update(ebookMeta, library.language)
+                                        deleted
                                     } else if (storage.findBookByPath(it.path) != null)
                                         return
-                                    else {
-                                        val ebookMeta = FileMetaCore.get()
-                                            .getEbookMeta(it.path, CacheZipUtils.CacheDir.ZipApp, false)
-                                        FileMetaCore.get().udpateFullMeta(FileMeta(it.path), ebookMeta)
+                                    else
                                         Book(library.id,null,  it,  ebookMeta, library.language)
-                                    }
 
                                     book.path = it.path
                                     book.folder = it.parent

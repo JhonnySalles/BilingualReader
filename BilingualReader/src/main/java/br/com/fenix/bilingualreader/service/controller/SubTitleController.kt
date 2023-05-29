@@ -86,8 +86,7 @@ class SubTitleController private constructor(private val context: Context) {
 
     var isSelected = false
     var isNotEmpty = false
-    private fun getSubtitle(): HashMap<String, SubTitleChapter> =
-        if (isSelected) mComboListSelected else mComboListInternal
+    private fun getSubtitle(): HashMap<String, SubTitleChapter> = if (isSelected) mComboListSelected else mComboListInternal
 
     init {
         val sharedPreferences = GeneralConsts.getSharedPreferences(context)

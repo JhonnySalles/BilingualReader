@@ -196,7 +196,9 @@ class ScannerManga(private val context: Context) {
                                             if (parse.numPages() > 0) {
                                                 val manga = if (storageDeletes.containsKey(it.nameWithoutExtension)) {
                                                     storageFiles.remove(it.nameWithoutExtension)
-                                                    storageDeletes.getValue(it.nameWithoutExtension)
+                                                    val deleted = storageDeletes.getValue(it.nameWithoutExtension)
+                                                    deleted.update(parse)
+                                                    deleted
                                                 } else if (storage.findMangaByPath(it.path) != null)
                                                     return
                                                 else
