@@ -126,10 +126,6 @@ class ZipParse : Parse {
         return mZipFile!!.getInputStream(mEntries[num])
     }
 
-    override fun getType(): String {
-        return "zip"
-    }
-
     override fun destroy(isClearCache: Boolean) {
         mZipFile?.close()
     }

@@ -116,7 +116,7 @@ class BookGridViewHolder(itemView: View, private val listener: BookCardListener)
         bookSubTitle.text = book.author
         bookSubTitle.visibility = if (book.author.isEmpty()) View.GONE else View.VISIBLE
 
-        bookType.text = book.type.toString()
+        bookType.text = Util.getExtensionFromPath(book.path).uppercase()
         val percent: Float =
             if (book.bookMark > 0) ((book.bookMark.toFloat() / book.pages) * 100) else 0f
         bookPagesRead.text = Util.formatDecimal(percent)

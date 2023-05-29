@@ -20,20 +20,22 @@ class TarParse : Parse {
     override fun parse(file: File?) {
         mEntries.clear()
         val fis = BufferedInputStream(FileInputStream(file))
-        val `is` = TarArchiveInputStream(fis)
-        var entry = `is`.nextTarEntry
+        val tar = TarArchiveInputStream(fis)
+        var entry = tar.nextTarEntry
         while (entry != null) {
-            if (entry.isDirectory)
+            if (entry.isDirectory) {
+                entry = tar.nextTarEntry
                 continue
+            }
 
             if (FileUtil.isImage(entry.name))
-                mEntries.add(TarEntry(entry, Util.toByteArray(`is`)!!))
+                mEntries.add(TarEntry(entry, Util.toByteArray(tar)!!))
             else if (FileUtil.isJson(entry.name))
-                mSubtitles.add(TarEntry(entry, Util.toByteArray(`is`)!!))
+                mSubtitles.add(TarEntry(entry, Util.toByteArray(tar)!!))
             else if (FileUtil.isXml(entry.name) && entry.name.contains("comicinfo", true))
-                mComicInfo = TarEntry(entry, Util.toByteArray(`is`)!!)
+                mComicInfo = TarEntry(entry, Util.toByteArray(tar)!!)
 
-            entry = `is`.nextTarEntry
+            entry = tar.nextTarEntry
         }
 
         mEntries.sortWith(compareBy<TarEntry> { Util.getFolderFromPath(it.entry.name) }.thenComparing { a, b ->
@@ -123,10 +125,6 @@ class TarParse : Parse {
 
     override fun getPage(num: Int): InputStream {
         return ByteArrayInputStream(mEntries[num].bytes)
-    }
-
-    override fun getType(): String {
-        return "tar"
     }
 
     override fun destroy(isClearCache: Boolean) {

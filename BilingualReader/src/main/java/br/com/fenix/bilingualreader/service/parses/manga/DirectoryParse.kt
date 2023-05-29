@@ -119,10 +119,6 @@ class DirectoryParse : Parse {
         return FileInputStream(mFiles[num])
     }
 
-    override fun getType(): String {
-        return "dir"
-    }
-
     override fun destroy(isClearCache: Boolean) {
     }
 }

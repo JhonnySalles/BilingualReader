@@ -184,6 +184,7 @@ class ScannerManga(private val context: Context) {
                             else {
                                 isProcess = true
                                 try {
+                                    mLOGGER.info("Precessing manga " + it.name + ".")
                                     val parse: Parse? = ParseFactory.create(it)
                                     try {
                                         if (parse is RarParse) {

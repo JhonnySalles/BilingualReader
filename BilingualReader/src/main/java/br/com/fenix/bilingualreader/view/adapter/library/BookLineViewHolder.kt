@@ -67,7 +67,7 @@ class BookLineViewHolder(itemView: View, private val listener: BookCardListener)
         bookSubTitle.text = book.author
         bookFileName.text = book.fileName
         bookFileSize.text = FileUtil.formatSize(book.fileSize)
-        bookType.text = book.type.toString()
+        bookType.text = Util.getExtensionFromPath(book.path).uppercase()
         val percent: Float =if (book.bookMark > 0) ((book.bookMark.toFloat() / book.pages) * 100) else 0f
         bookPagesRead.text = if (book.bookMark > 0)
            itemView.context.getString(R.string.book_page_read, book.bookMark, book.pages, Util.formatDecimal(percent))

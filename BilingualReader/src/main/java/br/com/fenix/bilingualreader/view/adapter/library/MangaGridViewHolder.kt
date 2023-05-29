@@ -115,7 +115,7 @@ class MangaGridViewHolder(itemView: View, private val listener: MangaCardListene
         val isSmall = manga.lastAccess != null && manga.bookMark > 0 && MangaLibraryFragment.mGridType != LibraryMangaType.GRID_BIG
 
         mangaTitle.text = manga.title
-        mangaFileType.text = manga.type.toString()
+        mangaFileType.text = Util.getExtensionFromPath(manga.path).uppercase()
         mangaLastAccess.text = if (manga.lastAccess != null) GeneralConsts.formatterDate(itemView.context, manga.lastAccess!!, isSmall) else ""
         mangaPagesRead.text = if (isSmall) {
             val percent: Float = (manga.bookMark.toFloat() / manga.pages) * 100

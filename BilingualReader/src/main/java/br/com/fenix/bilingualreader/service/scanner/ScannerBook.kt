@@ -187,6 +187,7 @@ class ScannerBook(private val context: Context) {
                             if (storageFiles.containsKey(it.path))
                                 storageFiles.remove(it.path)
                             else {
+                                mLOGGER.info("Processing book: " + it.name + ".")
                                 isProcess = true
                                 try {
 

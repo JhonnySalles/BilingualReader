@@ -181,10 +181,6 @@ class RarParse : Parse {
         mArchive = null
     }
 
-    override fun getType(): String {
-        return "rar"
-    }
-
     fun setCacheDirectory(cacheDirectory: File?) {
         mCacheDir = cacheDirectory
         mCacheDir?.let {

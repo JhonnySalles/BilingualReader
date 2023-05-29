@@ -25,7 +25,7 @@
 		<appender-ref ref="FILE" />
 	</appender>
 
-    <root level="warn">
+    <root level="WARN">
         <appender-ref ref="CONSOLE" />
 		<appender-ref ref="ASYNC"/>
     </root>
