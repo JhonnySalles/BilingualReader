@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.view.ui.menu
 
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -20,7 +21,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Libraries
-import br.com.fenix.bilingualreader.model.enums.LibraryType
+import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
@@ -56,7 +57,7 @@ class SelectMangaFragment : Fragment() {
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
 
     companion object {
-        var mGridType: LibraryType = LibraryType.GRID_BIG
+        var mGridType: LibraryMangaType = LibraryMangaType.GRID_BIG
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,13 +66,13 @@ class SelectMangaFragment : Fragment() {
 
         if (savedInstanceState == null) {
             mViewModel.clearMangaSelected()
-            arguments?.let {
-                if (it.containsKey(GeneralConsts.KEYS.MANGA.ID))
-                    mViewModel.id = it.getLong(GeneralConsts.KEYS.MANGA.ID)
 
-                if (it.containsKey(GeneralConsts.KEYS.MANGA.NAME))
-                    mViewModel.manga = it.getString(GeneralConsts.KEYS.MANGA.NAME)!!
-            }
+            if (requireArguments().containsKey(GeneralConsts.KEYS.MANGA.ID))
+                mViewModel.id = requireArguments().getLong(GeneralConsts.KEYS.MANGA.ID)
+
+            if (requireArguments().containsKey(GeneralConsts.KEYS.MANGA.NAME))
+                mViewModel.manga = requireArguments().getString(GeneralConsts.KEYS.MANGA.NAME)!!
+
             mViewModel.setDefaultLibrary(Libraries.PORTUGUESE)
         }
     }
@@ -102,9 +103,9 @@ class SelectMangaFragment : Fragment() {
     ): View? {
         val root = inflater.inflate(R.layout.fragment_select_manga, container, false)
 
-        mGridType = LibraryType.valueOf(
+        mGridType = LibraryMangaType.valueOf(
             GeneralConsts.getSharedPreferences(requireContext())
-                .getString(GeneralConsts.KEYS.LIBRARY.LIBRARY_TYPE, LibraryType.LINE.toString())
+                .getString(GeneralConsts.KEYS.LIBRARY.MANGA_LIBRARY_TYPE, LibraryMangaType.LINE.toString())
                 .toString()
         )
 
@@ -123,8 +124,12 @@ class SelectMangaFragment : Fragment() {
         mScrollUp.visibility = View.GONE
         mScrollDown.visibility = View.GONE
 
-        mScrollUp.setOnClickListener { mRecycler.smoothScrollToPosition(0) }
+        mScrollUp.setOnClickListener {
+            (mScrollUp.drawable as AnimatedVectorDrawable).start()
+            mRecycler.smoothScrollToPosition(0)
+        }
         mScrollDown.setOnClickListener {
+            (mScrollDown.drawable as AnimatedVectorDrawable).start()
             mRecycler.smoothScrollToPosition((mRecycler.adapter as RecyclerView.Adapter).itemCount)
         }
 
@@ -190,19 +195,19 @@ class SelectMangaFragment : Fragment() {
     }
 
     private fun recyclerLayout() {
-        if (MangaLibraryFragment.mGridType != LibraryType.LINE) {
+        if (MangaLibraryFragment.mGridType != LibraryMangaType.LINE) {
             val gridAdapter = MangaGridCardAdapter()
             mRecycler.adapter = gridAdapter
 
             val isLandscape =
                 resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
             val columnWidth: Int = when (MangaLibraryFragment.mGridType) {
-                LibraryType.GRID_BIG -> resources.getDimension(R.dimen.manga_grid_card_layout_width)
+                LibraryMangaType.GRID_BIG -> resources.getDimension(R.dimen.manga_grid_card_layout_width)
                     .toInt()
-                LibraryType.GRID_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_landscape_medium)
+                LibraryMangaType.GRID_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_landscape_medium)
                     .toInt() else resources.getDimension(R.dimen.manga_grid_card_layout_width_medium)
                     .toInt()
-                LibraryType.GRID_SMALL -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_small)
+                LibraryMangaType.GRID_SMALL -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_small)
                     .toInt()
                 else resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
                 else -> resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
@@ -240,7 +245,7 @@ class SelectMangaFragment : Fragment() {
     }
 
     private fun titleLibrary() {
-        if (mViewModel.getLibrary().type == Libraries.DEFAULT)
+        if (mViewModel.getLibrary().language == Libraries.DEFAULT)
             mTitle.text = getString(R.string.app_name)
         else
             mTitle.text = mViewModel.getLibrary().title
@@ -248,7 +253,7 @@ class SelectMangaFragment : Fragment() {
 
     private fun observer() {
         mViewModel.listMangas.observe(viewLifecycleOwner) {
-            if (mGridType != LibraryType.LINE)
+            if (mGridType != LibraryMangaType.LINE)
                 (mRecycler.adapter as MangaGridCardAdapter).updateList(it)
             else
                 (mRecycler.adapter as MangaLineCardAdapter).updateList(it)

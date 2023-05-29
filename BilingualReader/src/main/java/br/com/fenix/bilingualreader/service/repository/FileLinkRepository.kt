@@ -1,9 +1,9 @@
 package br.com.fenix.bilingualreader.service.repository
 
 import android.content.Context
-import br.com.fenix.bilingualreader.model.entity.FileLink
+import br.com.fenix.bilingualreader.model.entity.LinkedFile
+import br.com.fenix.bilingualreader.model.entity.LinkedPage
 import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.model.entity.PageLink
 import java.time.LocalDateTime
 
 class FileLinkRepository(context: Context) {
@@ -11,7 +11,7 @@ class FileLinkRepository(context: Context) {
     private var mDataBase = DataBase.getDataBase(context).getFileLinkDao()
     private var mDataBasePage = DataBase.getDataBase(context).getPageLinkDao()
 
-    fun save(obj: FileLink): Long {
+    fun save(obj: LinkedFile): Long {
         delete(obj.manga!!)
         obj.lastAlteration = LocalDateTime.now()
         val id = mDataBase.save(obj)
@@ -24,14 +24,14 @@ class FileLinkRepository(context: Context) {
         return id
     }
 
-    private fun save(idFile: Long, pages: List<PageLink>) {
+    private fun save(idFile: Long, pages: List<LinkedPage>) {
         for (page in pages) {
             page.idFile = idFile
             page.id = mDataBasePage.save(page)
         }
     }
 
-    fun update(obj: FileLink) {
+    fun update(obj: LinkedFile) {
         obj.lastAlteration = LocalDateTime.now()
         mDataBase.update(obj)
         if (obj.pagesLink != null) {
@@ -41,7 +41,7 @@ class FileLinkRepository(context: Context) {
         }
     }
 
-    fun delete(obj: FileLink) {
+    fun delete(obj: LinkedFile) {
         if (obj.id != null) {
             mDataBasePage.deleteAll(obj.id!!)
             mDataBase.delete(obj)
@@ -55,7 +55,7 @@ class FileLinkRepository(context: Context) {
         }
     }
 
-    fun get(obj: Manga): FileLink? {
+    fun get(obj: Manga): LinkedFile? {
         val fileLink = if (obj.id != null && obj.id != 0L) mDataBase.getLastAccess(obj.id!!) else null
         if (fileLink != null) {
             fileLink.manga = obj
@@ -65,7 +65,7 @@ class FileLinkRepository(context: Context) {
         return fileLink
     }
 
-    fun findByFileName(idManga: Long, name: String, pages: Int): FileLink? {
+    fun findByFileName(idManga: Long, name: String, pages: Int): LinkedFile? {
         val fileLink = mDataBase.get(idManga, name, pages)
         if (fileLink != null) {
             fileLink.pagesLink = findPagesLink(fileLink.id!!)
@@ -74,15 +74,15 @@ class FileLinkRepository(context: Context) {
         return fileLink
     }
 
-    private fun findPagesLink(idFileLink: Long): List<PageLink> {
+    private fun findPagesLink(idFileLink: Long): List<LinkedPage> {
         return mDataBasePage.getPageLink(idFileLink)
     }
 
-    private fun findPagesNotLink(idFileLink: Long): List<PageLink> {
+    private fun findPagesNotLink(idFileLink: Long): List<LinkedPage> {
         return mDataBasePage.getPageNotLink(idFileLink)
     }
 
-    fun findAllByManga(idManga: Long): List<FileLink>? =
+    fun findAllByManga(idManga: Long): List<LinkedFile>? =
         mDataBase.get(idManga)
 
 }

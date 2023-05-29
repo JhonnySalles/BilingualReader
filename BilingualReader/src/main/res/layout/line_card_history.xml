@@ -18,6 +18,7 @@
         android:layout_width="@dimen/history_card_image"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        app:strokeWidth="0.0dp"
         app:rippleColor="?attr/colorTertiary">
 
         <ImageView
@@ -54,7 +55,7 @@
                     android:layout_height="@dimen/manga_grid_favorite"
                     android:background="@drawable/ic_favorite_mark_border"
                     android:padding="2dp"
-                    android:src="@drawable/ic_favorite_mark"
+                    android:src="@drawable/ico_favorite_mark"
                     android:visibility="gone" />
 
                 <ImageView
@@ -78,21 +79,62 @@
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/history_sub_title"
-            style="@style/TextNormal.History.Subtitle"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:textSize="@dimen/history_sub_title" />
+            android:orientation="vertical"
+            android:layout_gravity="bottom">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/history_library"
-            style="@style/TextNormal.History"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:textSize="@dimen/history_library" />
+                <TextView
+                    android:id="@+id/history_line_pages"
+                    style="@style/TextNormal.Line"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="2dp"
+                    android:textSize="@dimen/history_content_size" />
 
+                <TextView
+                    android:id="@+id/history_line_last_access"
+                    style="@style/TextNormal.Line"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="2dp"
+                    android:gravity="center"
+                    android:textSize="@dimen/history_content_size" />
+
+                <TextView
+                    android:id="@+id/history_line_file_type"
+                    style="@style/TextNormal.Line"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="2dp"
+                    android:gravity="end"
+                    android:textSize="@dimen/history_content_size" />
+
+                <TextView
+                    android:id="@+id/history_line_file_size"
+                    style="@style/TextNormal.Line"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:textSize="@dimen/history_content_size" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/history_library"
+                style="@style/TextNormal.History.Subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:textSize="@dimen/history_library" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

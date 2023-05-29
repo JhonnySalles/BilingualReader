@@ -7,20 +7,30 @@ class DataBaseConsts private constructor() {
         object COLUMNS {
             const val ID = "id"
             const val TITLE = "title"
-            const val SUB_TITLE = "subTitle"
             const val PAGES = "pages"
-            const val BOOK_MARK = "bookMark"
+            const val CHAPTERS = "chapters"
+            const val BOOK_MARK = "book_mark"
             const val FILE_PATH = "path"
             const val FILE_NAME = "name"
             const val FILE_TYPE = "type"
             const val FILE_FOLDER = "folder"
+            const val FILE_SIZE = "size"
             const val FAVORITE = "favorite"
-            const val HAS_SUBTITLE = "hasSubtitle"
-            const val DATE_CREATE = "dateCreate"
-            const val LAST_ACCESS = "lastAccess"
+            const val HAS_SUBTITLE = "has_subtitle"
+            const val AUTHOR = "author"
+            const val SERIES = "series"
+            const val PUBLISHER = "publisher"
+            const val RELEASE = "release"
+            const val VOLUME = "volume"
+            const val DATE_CREATE = "date_create"
+            const val LAST_ACCESS = "last_access"
             const val EXCLUDED = "excluded"
-            const val LAST_ALTERATION = "lastAlteration"
             const val FK_ID_LIBRARY = "id_library"
+            const val LAST_ALTERATION = "last_alteration"
+            const val FILE_ALTERATION = "file_alteration"
+            const val LAST_VOCABULARY_IMPORT = "last_vocabulary_import"
+            const val LAST_VERIFY = "last_verify"
+            const val SORT = "sort"
         }
     }
 
@@ -44,17 +54,17 @@ class DataBaseConsts private constructor() {
             const val ID = "id"
             const val FK_ID_MANGA = "id_manga"
             const val LANGUAGE = "language"
-            const val CHAPTER_KEY = "chapterKey"
-            const val PAGE_KEY = "pageKey"
+            const val CHAPTER_KEY = "chapter_key"
+            const val PAGE_KEY = "page_key"
             const val PAGE = "pageCount"
             const val FILE_PATH = "path"
-            const val DATE_CREATE = "dateCreate"
-            const val LAST_ALTERATION = "lastAlteration"
+            const val DATE_CREATE = "date_create"
+            const val LAST_ALTERATION = "last_alteration"
         }
     }
 
     object JLPT {
-        const val TABLE_NAME = "JLPT"
+        const val TABLE_NAME = "Jlpt"
 
         object COLUMNS {
             const val ID = "id"
@@ -64,7 +74,7 @@ class DataBaseConsts private constructor() {
     }
 
     object KANJAX {
-        const val TABLE_NAME = "KANJAX"
+        const val TABLE_NAME = "Kanjax"
 
         object COLUMNS {
             const val ID = "id"
@@ -103,9 +113,9 @@ class DataBaseConsts private constructor() {
             const val FILE_TYPE = "type"
             const val FILE_FOLDER = "folder"
             const val LANGUAGE = "language"
-            const val DATE_CREATE = "dateCreate"
-            const val LAST_ACCESS = "lastAccess"
-            const val LAST_ALTERATION = "lastAlteration"
+            const val DATE_CREATE = "date_create"
+            const val LAST_ACCESS = "last_access"
+            const val LAST_ALTERATION = "last_alteration"
         }
     }
 
@@ -142,24 +152,92 @@ class DataBaseConsts private constructor() {
             const val TITLE = "title"
             const val AUTHOR = "author"
 
+            const val PASSWORD = "password"
             const val ANNOTATION = "annotation"
             const val YEAR = "year"
             const val GENRE = "genre"
             const val PUBLISHER = "publisher"
             const val ISBN = "isbn"
             const val PAGES = "pages"
-            const val BOOK_MARK = "bookMark"
+            const val CHAPTER = "chapter"
+            const val CHAPTER_DESCRIPTION = "chapter_description"
+            const val BOOK_MARK = "book_mark"
             const val LANGUAGE = "language"
+
             const val FILE_PATH = "path"
             const val FILE_NAME = "name"
             const val FILE_TYPE = "type"
             const val FILE_FOLDER = "folder"
             const val FILE_SIZE = "size"
+
             const val FAVORITE = "favorite"
-            const val DATE_CREATE = "dateCreate"
-            const val LAST_ACCESS = "lastAccess"
+            const val DATE_CREATE = "date_create"
+            const val LAST_ACCESS = "last_access"
+            const val FK_ID_LIBRARY = "id_library"
+
+            const val TAGS = "tags"
             const val EXCLUDED = "excluded"
-            const val LAST_ALTERATION = "lastAlteration"
+            const val LAST_ALTERATION = "last_alteration"
+            const val FILE_ALTERATION = "file_alteration"
+            const val LAST_VOCABULARY_IMPORT = "last_vocabulary_import"
+            const val LAST_VERIFY = "last_verify"
+        }
+    }
+
+    object BOOK_ANNOTATION {
+        const val TABLE_NAME = "BookMark"
+
+        object COLUMNS {
+            const val ID = "id"
+            const val FK_ID_BOOK = "id_book"
+            const val CHAPTER_NUMBER = "chapter_number"
+            const val CHAPTER = "chapter"
+            const val PAGE = "page"
+            const val PAGES = "pages"
+            const val TYPE = "type"
+            const val TEXT = "text"
+            const val ANNOTATION = "annotation"
+            const val FAVORITE = "favorite"
+            const val COLOR = "color"
+            const val ALTERATION = "alteration"
+            const val CREATED = "created"
+            const val COUNT = "count"
+        }
+    }
+
+    object BOOK_SEARCH_HISTORY {
+        const val TABLE_NAME = "BookSearchHistory"
+
+        object COLUMNS {
+            const val ID = "id"
+            const val FK_ID_BOOK = "id_book"
+            const val SEARCH = "search"
+            const val DATE = "date"
+        }
+    }
+
+    object BOOK_CONFIGURATION {
+        const val TABLE_NAME = "BookConfiguration"
+
+        object COLUMNS {
+            const val ID = "id"
+            const val FK_ID_BOOK = "id_book"
+            const val ALIGNMENT = "alignment"
+            const val MARGIN = "margin"
+            const val SPACING = "spacing"
+            const val SCROLLING = "scrolling"
+            const val FONT_TYPE = "font_type"
+            const val FONT_SIZE = "font_size"
+        }
+    }
+
+    object TAGS {
+        const val TABLE_NAME = "tags"
+
+        object COLUMNS {
+            const val ID = "id"
+            const val NAME = "name"
+            const val EXCLUDED = "excluded"
         }
     }
 
@@ -174,6 +252,7 @@ class DataBaseConsts private constructor() {
             const val ENGLISH = "english"
             const val READING = "reading"
             const val REVISED = "revised"
+            const val JLPT = "jlpt"
             const val FAVORITE = "favorite"
             const val APPEARS = "appears"
         }
@@ -208,6 +287,7 @@ class DataBaseConsts private constructor() {
             const val ID = "id"
             const val TITLE = "title"
             const val PATH = "path"
+            const val LANGUAGE = "language"
             const val TYPE = "type"
             const val ENABLED = "enabled"
             const val EXCLUDED = "excluded"

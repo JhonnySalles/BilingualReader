@@ -3,8 +3,8 @@ package br.com.fenix.bilingualreader.service.ocr
 import android.content.Context
 import android.graphics.Bitmap
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import br.com.fenix.bilingualreader.R
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
@@ -75,7 +75,7 @@ class GoogleVision(private var context: Context) {
                 else
                     context.getString(R.string.ocr_google_vision_error)
 
-                AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle)
+                MaterialAlertDialogBuilder(context, R.style.AppCompatAlertDialogStyle)
                     .setTitle(context.getString(R.string.alert_title))
                     .setMessage(msg)
                     .setPositiveButton(

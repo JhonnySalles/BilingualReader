@@ -12,12 +12,12 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.PageLink
-import br.com.fenix.bilingualreader.model.enums.Pages
+import br.com.fenix.bilingualreader.model.entity.LinkedPage
+import br.com.fenix.bilingualreader.model.enums.PageLinkType
 import br.com.fenix.bilingualreader.service.listener.PageLinkCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.PageLinkConsts
-import br.com.fenix.bilingualreader.util.helpers.Util.Utils.getColorFromAttr
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import com.google.android.material.card.MaterialCardView
 import com.pedromassango.doubleclick.DoubleClick
 import com.pedromassango.doubleclick.DoubleClickListener
@@ -60,7 +60,7 @@ class PageLinkViewHolder(itemView: View, private val listener: PageLinkCardListe
         mUsePagePath = GeneralConsts.getSharedPreferences(itemView.context).getBoolean(GeneralConsts.KEYS.PAGE_LINK.USE_PAGE_PATH_FOR_LINKED, false)
     }
 
-    fun bind(page: PageLink, position: Int) {
+    fun bind(page: LinkedPage, position: Int) {
         val root = itemView.findViewById<ConstraintLayout>(R.id.page_link_card)
         val mangaRoot = itemView.findViewById<MaterialCardView>(R.id.manga_link_root)
         val mangaImage = itemView.findViewById<ImageView>(R.id.manga_link_image)
@@ -84,6 +84,10 @@ class PageLinkViewHolder(itemView: View, private val listener: PageLinkCardListe
         root.setBackgroundColor(itemView.context.getColorFromAttr(R.attr.colorSurface))
         mangaRoot.setOnClickListener(getDoubleClick(mangaRoot, page, true))
         pageRoot.setOnClickListener(getDoubleClick(pageRoot, page))
+
+        mangaName.background.alpha = 180
+        pageName.background.alpha = 180
+        dualPageName.background.alpha = 180
 
         mangaNumber.text = page.mangaPage.toString()
         mangaName.text = if (mUsePagePath && page.mangaPage != PageLinkConsts.VALUES.PAGE_EMPTY)
@@ -114,7 +118,7 @@ class PageLinkViewHolder(itemView: View, private val listener: PageLinkCardListe
             pageImage.setImageBitmap(page.imageLeftFileLinkPage)
             pageImage.visibility = View.VISIBLE
             pageProgress.visibility = View.GONE
-            pageRoot.setOnLongClickListener { listener.onClickLong(it, page, Pages.LINKED, position) }
+            pageRoot.setOnLongClickListener { listener.onClickLong(it, page, PageLinkType.LINKED, position) }
         } else {
             pageImage.visibility = View.GONE
             pageProgress.visibility = if (page.fileLinkLeftPage != PageLinkConsts.VALUES.PAGE_EMPTY) View.VISIBLE else View.GONE
@@ -137,7 +141,7 @@ class PageLinkViewHolder(itemView: View, private val listener: PageLinkCardListe
             pageRoot.layoutParams.width = mPageLinkCardWidthInDual
             dualPageRoot.visibility = View.VISIBLE
             dualPageImage.setImageBitmap(page.imageRightFileLinkPage)
-            dualPageRoot.setOnLongClickListener { listener.onClickLong(it, page, Pages.DUAL_PAGE, position) }
+            dualPageRoot.setOnLongClickListener { listener.onClickLong(it, page, PageLinkType.DUAL_PAGE, position) }
 
             if (page.imageRightFileLinkPage != null) {
                 dualPageImage.visibility = View.VISIBLE
@@ -179,8 +183,8 @@ class PageLinkViewHolder(itemView: View, private val listener: PageLinkCardListe
                 DragEvent.ACTION_DROP -> {
                     root.setBackgroundColor(itemView.context.getColorFromAttr(R.attr.colorOnSurfaceInverse))
                     listener.onDropItem(
-                        Pages.valueOf(dragEvent.clipData.getItemAt(PageLinkConsts.CLIPDATA.PAGE_TYPE).text.toString()),
-                        Pages.LINKED,
+                        PageLinkType.valueOf(dragEvent.clipData.getItemAt(PageLinkConsts.CLIPDATA.PAGE_TYPE).text.toString()),
+                        PageLinkType.LINKED,
                         dragEvent.clipData.getItemAt(PageLinkConsts.CLIPDATA.PAGE_LINK).text.toString(),
                         page
                     )
@@ -219,8 +223,8 @@ class PageLinkViewHolder(itemView: View, private val listener: PageLinkCardListe
 
                 DragEvent.ACTION_DROP -> {
                     listener.onDropItem(
-                        Pages.valueOf(dragEvent.clipData.getItemAt(PageLinkConsts.CLIPDATA.PAGE_TYPE).text.toString()),
-                        Pages.LINKED,
+                        PageLinkType.valueOf(dragEvent.clipData.getItemAt(PageLinkConsts.CLIPDATA.PAGE_TYPE).text.toString()),
+                        PageLinkType.LINKED,
                         dragEvent.clipData.getItemAt(PageLinkConsts.CLIPDATA.PAGE_LINK).text.toString(),
                         page
                     )
@@ -259,8 +263,8 @@ class PageLinkViewHolder(itemView: View, private val listener: PageLinkCardListe
 
                 DragEvent.ACTION_DROP -> {
                     listener.onDropItem(
-                        Pages.valueOf(dragEvent.clipData.getItemAt(PageLinkConsts.CLIPDATA.PAGE_TYPE).text.toString()),
-                        Pages.DUAL_PAGE,
+                        PageLinkType.valueOf(dragEvent.clipData.getItemAt(PageLinkConsts.CLIPDATA.PAGE_TYPE).text.toString()),
+                        PageLinkType.DUAL_PAGE,
                         dragEvent.clipData.getItemAt(PageLinkConsts.CLIPDATA.PAGE_LINK).text.toString(),
                         page
                     )
@@ -279,7 +283,7 @@ class PageLinkViewHolder(itemView: View, private val listener: PageLinkCardListe
         }
     }
 
-    private fun setSelectedPageLink(page: PageLink, pageRoot: MaterialCardView, dualPageRoot: MaterialCardView, itemPosition: Int = -1,
+    private fun setSelectedPageLink(page: LinkedPage, pageRoot: MaterialCardView, dualPageRoot: MaterialCardView, itemPosition: Int = -1,
                                     dragPosition : Int = 0, isClear: Boolean = false, isDualPageDrop: Boolean = false) {
         if(isClear || (itemPosition != -1 && itemPosition.compareTo(dragPosition) == 0 && !page.isDualImage && page.fileLinkLeftPage != PageLinkConsts.VALUES.PAGE_EMPTY)) {
             dualPageRoot.strokeWidth = 0
@@ -304,7 +308,7 @@ class PageLinkViewHolder(itemView: View, private val listener: PageLinkCardListe
         }
     }
 
-    private fun getDoubleClick(root: View, page: PageLink, isManga : Boolean = false, isRight: Boolean = false) : DoubleClick {
+    private fun getDoubleClick(root: View, page: LinkedPage, isManga : Boolean = false, isRight: Boolean = false) : DoubleClick {
         return DoubleClick(object : DoubleClickListener {
             override fun onSingleClick(view: View?) {
                 listener.onClick(root, page, isManga, isRight)

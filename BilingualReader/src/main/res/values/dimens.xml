@@ -17,10 +17,10 @@
     <dimen name="manga_grid_card_image">200dp</dimen>
     <dimen name="manga_grid_card_layout_width">150dp</dimen>
     <dimen name="manga_grid_card_layout_height">200dp</dimen>
-    <dimen name="manga_grid_title_size">12sp</dimen>
-    <dimen name="manga_grid_sub_title">10sp</dimen>
+    <dimen name="manga_grid_title_size">11sp</dimen>
     <dimen name="manga_grid_favorite">20dp</dimen>
     <dimen name="manga_grid_subtitle">20dp</dimen>
+    <dimen name="manga_grid_content_size">9sp</dimen>
 
     <dimen name="manga_grid_card_layout_width_medium">120dp</dimen>
     <dimen name="manga_grid_card_layout_width_landscape_medium">130dp</dimen>
@@ -30,10 +30,30 @@
 
     <dimen name="manga_line_card_image">50dp</dimen>
     <dimen name="manga_line_title_size">15sp</dimen>
-    <dimen name="manga_line_sub_title">10sp</dimen>
     <dimen name="manga_line_favorite">10dp</dimen>
+    <dimen name="manga_line_content_size">12sp</dimen>
 
     <dimen name="manga_list_padding">80dp</dimen>
+
+    <dimen name="manga_library_padding">80dp</dimen>
+    <dimen name="manga_library_scrolling_button_margin">10dp</dimen>
+    <dimen name="manga_library_up_border">2dp</dimen>
+    <dimen name="manga_library_up_width">40dp</dimen>
+    <dimen name="manga_library_up_image_width">30dp</dimen>
+    <dimen name="manga_library_down_border">2dp</dimen>
+    <dimen name="manga_library_down_width">40dp</dimen>
+    <dimen name="manga_library_down_image_width">30dp</dimen>
+    <dimen name="manga_library_button_margin">5dp</dimen>
+
+    <dimen name="manga_select_list_padding_top">10dp</dimen>
+    <dimen name="manga_select_scrolling_button_margin">10dp</dimen>
+    <dimen name="manga_select_up_border">2dp</dimen>
+    <dimen name="manga_select_up_width">40dp</dimen>
+    <dimen name="manga_select_up_image_width">30dp</dimen>
+    <dimen name="manga_select_down_border">2dp</dimen>
+    <dimen name="manga_select_down_width">40dp</dimen>
+    <dimen name="manga_select_down_image_width">30dp</dimen>
+    <dimen name="manga_select_button_margin">5dp</dimen>
 
     <dimen name="book_grid_card_image">200dp</dimen>
     <dimen name="book_grid_card_layout_width">150dp</dimen>
@@ -51,10 +71,22 @@
 
     <dimen name="book_line_card_layout_height">100dp</dimen>
     <dimen name="book_line_card_image">70dp</dimen>
-    <dimen name="book_line_title_size">20sp</dimen>
-    <dimen name="book_line_sub_title_size">16sp</dimen>
+    <dimen name="book_line_title_size">16sp</dimen>
+    <dimen name="book_line_sub_title_size">13sp</dimen>
     <dimen name="book_line_content_size">12sp</dimen>
     <dimen name="book_line_favorite">10dp</dimen>
+
+    <dimen name="book_library_padding">80dp</dimen>
+    <dimen name="book_library_scrolling_button_margin">10dp</dimen>
+    <dimen name="book_library_up_border">2dp</dimen>
+    <dimen name="book_library_up_width">40dp</dimen>
+    <dimen name="book_library_up_image_width">30dp</dimen>
+    <dimen name="book_library_down_border">2dp</dimen>
+    <dimen name="book_library_down_width">40dp</dimen>
+    <dimen name="book_library_down_image_width">30dp</dimen>
+    <dimen name="book_library_button_margin">5dp</dimen>
+
+    <dimen name="book_list_padding">80dp</dimen>
 
     <dimen name="manga_chapter_layout_width">100dp</dimen>
     <dimen name="manga_chapter_layout_height">150dp</dimen>
@@ -77,20 +109,90 @@
     <dimen name="manga_detail_icon_padding">10dp</dimen>
 
     <dimen name="manga_detail_information_title_size">14sp</dimen>
-    <dimen name="manga_detail_information_synopsis_size">12sp</dimen>
     <dimen name="manga_detail_information_texts_size">10sp</dimen>
-    <dimen name="manga_detail_information_origin_size">8sp</dimen>
-    <dimen name="manga_detail_information_related_image_max_size">200dp</dimen>
-    <dimen name="manga_detail_information_related_image_size">100dp</dimen>
-    <dimen name="manga_detail_information_related_title_size">14sp</dimen>
-    <dimen name="manga_detail_information_related_synopsis_size">12sp</dimen>
-    <dimen name="manga_detail_information_related_texts_size">10sp</dimen>
+    <dimen name="manga_detail_web_information_synopsis_size">12sp</dimen>
+    <dimen name="manga_detail_web_information_origin_size">8sp</dimen>
+    <dimen name="manga_detail_web_information_related_image_max_size">200dp</dimen>
+    <dimen name="manga_detail_web_information_related_image_size">100dp</dimen>
+    <dimen name="manga_detail_web_information_related_title_size">14sp</dimen>
+    <dimen name="manga_detail_web_information_related_synopsis_size">12sp</dimen>
+    <dimen name="manga_detail_web_information_related_texts_size">10sp</dimen>
+
+    <dimen name="manga_detail_local_information_comic_info_book_marks_size">12sp</dimen>
+    <dimen name="manga_detail_local_information_texts_size">10sp</dimen>
 
     <dimen name="manga_page_link_layout_width">200dp</dimen>
     <dimen name="manga_page_link_layout_height">250dp</dimen>
     <dimen name="manga_page_link_number_size">12sp</dimen>
 
+    <dimen name="manga_chapters_list_padding">20dp</dimen>
+
+    <dimen name="book_detail_card_layout_width">150dp</dimen>
+    <dimen name="book_detail_card_layout_height">200dp</dimen>
+    <dimen name="book_detail_card_layout_width_tablet">200dp</dimen>
+    <dimen name="book_detail_card_layout_height_tablet">250dp</dimen>
+    <dimen name="book_detail_title_size_tablet">30sp</dimen>
+    <dimen name="book_detail_title_size">28sp</dimen>
+    <dimen name="book_detail_author_size">16sp</dimen>
+    <dimen name="book_detail_chapter_size">14sp</dimen>
+    <dimen name="book_detail_folder_size">12sp</dimen>
+    <dimen name="book_detail_last_access">12sp</dimen>
+    <dimen name="book_detail_book_mark">12sp</dimen>
+    <dimen name="book_detail_file_type">12sp</dimen>
+    <dimen name="book_detail_deleted">10sp</dimen>
+    <dimen name="book_detail_icon_size">20dp</dimen>
+    <dimen name="book_detail_icon_rounded">10dp</dimen>
+    <dimen name="book_detail_icon_padding">10dp</dimen>
+
+    <dimen name="book_detail_information_title_size">14sp</dimen>
+    <dimen name="book_detail_information_synopsis_size">12sp</dimen>
+    <dimen name="book_detail_information_texts_size">10sp</dimen>
+    <dimen name="book_detail_information_origin_size">8sp</dimen>
+    <dimen name="book_detail_information_related_image_max_size">200dp</dimen>
+    <dimen name="book_detail_information_related_image_size">100dp</dimen>
+    <dimen name="book_detail_information_related_title_size">14sp</dimen>
+    <dimen name="book_detail_information_related_synopsis_size">12sp</dimen>
+    <dimen name="book_detail_information_related_texts_size">10sp</dimen>
+
+    <dimen name="book_annotation_icon_size">25dp</dimen>
+    <dimen name="book_annotation_button_size">20dp</dimen>
+    <dimen name="book_annotation_note_icon_size">20dp</dimen>
+    <dimen name="book_annotation_note_text_size">11sp</dimen>
+    <dimen name="book_annotation_padding_divider_title">20sp</dimen>
+    <dimen name="book_annotation_padding">80dp</dimen>
+    <dimen name="book_annotation_margin">10dp</dimen>
+    <dimen name="book_annotation_scrolling_button_margin">10dp</dimen>
+    <dimen name="book_annotation_up_border">2dp</dimen>
+    <dimen name="book_annotation_up_width">40dp</dimen>
+    <dimen name="book_annotation_up_image_width">30dp</dimen>
+    <dimen name="book_annotation_down_border">2dp</dimen>
+    <dimen name="book_annotation_down_width">40dp</dimen>
+    <dimen name="book_annotation_down_image_width">30dp</dimen>
+    <dimen name="book_annotation_button_margin">5dp</dimen>
+    <dimen name="book_annotation_list_padding">10dp</dimen>
+
+    <dimen name="book_search_divider_title">14sp</dimen>
+    <dimen name="book_search_text">12sp</dimen>
+    <dimen name="book_search_page">10sp</dimen>
+
+    <dimen name="book_search_padding_divider_title">20sp</dimen>
+    <dimen name="book_search_scrolling_button_margin">10dp</dimen>
+    <dimen name="book_search_up_border">2dp</dimen>
+    <dimen name="book_search_up_width">40dp</dimen>
+    <dimen name="book_search_up_image_width">30dp</dimen>
+    <dimen name="book_search_down_border">2dp</dimen>
+    <dimen name="book_search_down_width">40dp</dimen>
+    <dimen name="book_search_down_image_width">30dp</dimen>
+    <dimen name="book_search_list_padding">20dp</dimen>
+
+    <dimen name="book_chapters_list_padding">20dp</dimen>
+
+    <dimen name="chapters_divider_title">16sp</dimen>
+    <dimen name="chapters_grid_card_layout_width">100dp</dimen>
+    <dimen name="chapters_grid_card_layout_height">150dp</dimen>
+
     <dimen name="title_size">18sp</dimen>
+    <dimen name="title_medium_size">15sp</dimen>
     <dimen name="title_small_size">12sp</dimen>
     <dimen name="title_index_dialog_size">20sp</dimen>
     <dimen name="title_small_index_dialog_size">16sp</dimen>
@@ -116,6 +218,8 @@
 
     <dimen name="popup_reader_button_width">50dp</dimen>
     <dimen name="popup_reader_button_min_height">50dp</dimen>
+    <dimen name="popup_reader_button_border_width">0dp</dimen>
+    <dimen name="popup_reader_button_selected_border_width">2dp</dimen>
 
     <dimen name="popup_reader_color_filter_padding">16dp</dimen>
     <dimen name="popup_reader_blue_light_padding">10dp</dimen>
@@ -143,8 +247,8 @@
 
     <dimen name="history_card_image">70dp</dimen>
     <dimen name="history_title_size">18sp</dimen>
-    <dimen name="history_sub_title">15sp</dimen>
     <dimen name="history_library">10sp</dimen>
+    <dimen name="history_content_size">12sp</dimen>
 
     <dimen name="history_divider_title">20sp</dimen>
 
@@ -152,6 +256,7 @@
     <dimen name="config_tracker_margin">10dp</dimen>
     <dimen name="config_theme_height">200dp</dimen>
     <dimen name="config_theme_selected_stroke">3dp</dimen>
+    <dimen name="config_book_font_type_height">100dp</dimen>
 
     <dimen name="about_app_name">18sp</dimen>
     <dimen name="about_title_size">16sp</dimen>
@@ -238,22 +343,74 @@
     <dimen name="vocabulary_title_size">30sp</dimen>
     <dimen name="vocabulary_content_text_big_size">16sp</dimen>
     <dimen name="vocabulary_content_text_normal_size">14sp</dimen>
-    <dimen name="vocabulary_content_text_small_size">12sp</dimen>
-    <dimen name="vocabulary_favorites_button_size">55dp</dimen>
+    <dimen name="vocabulary_cover_size">100dp</dimen>
+    <dimen name="vocabulary_name_size">14sp</dimen>
+    <dimen name="vocabulary_appear_size">14sp</dimen>
+    <dimen name="vocabulary_content_favorite_button_size">45dp</dimen>
+    <dimen name="vocabulary_buttons_height">45dp</dimen>
+    <dimen name="vocabulary_margin_top">3dp</dimen>
+    <dimen name="vocabulary_scrolling_button_margin">10dp</dimen>
+    <dimen name="vocabulary_up_border">2dp</dimen>
+    <dimen name="vocabulary_up_width">40dp</dimen>
+    <dimen name="vocabulary_up_image_width">30dp</dimen>
+    <dimen name="vocabulary_down_border">2dp</dimen>
+    <dimen name="vocabulary_down_width">40dp</dimen>
+    <dimen name="vocabulary_down_image_width">30dp</dimen>
+
+    <dimen name="vocabulary_manga_title_size">30sp</dimen>
+    <dimen name="vocabulary_manga_content_text_big_size">16sp</dimen>
+    <dimen name="vocabulary_manga_content_text_normal_size">14sp</dimen>
     <dimen name="vocabulary_manga_cover_size">100dp</dimen>
     <dimen name="vocabulary_manga_name_size">14sp</dimen>
     <dimen name="vocabulary_manga_appear_size">14sp</dimen>
-    <dimen name="vocabulary_content_text_width">180dp</dimen>
-    <dimen name="vocabulary_content_text_width_tablet">200dp</dimen>
-    <dimen name="vocabulary_content_favorite_button_size">45dp</dimen>
+    <dimen name="vocabulary_manga_content_text_width">180dp</dimen>
+    <dimen name="vocabulary_manga_content_text_width_tablet">200dp</dimen>
+    <dimen name="vocabulary_manga_content_favorite_button_size">45dp</dimen>
+    <dimen name="vocabulary_manga_margin_top">3dp</dimen>
+    <dimen name="vocabulary_manga_scrolling_button_margin">10dp</dimen>
+    <dimen name="vocabulary_manga_up_border">2dp</dimen>
+    <dimen name="vocabulary_manga_up_width">40dp</dimen>
+    <dimen name="vocabulary_manga_up_image_width">30dp</dimen>
+    <dimen name="vocabulary_manga_down_border">2dp</dimen>
+    <dimen name="vocabulary_manga_down_width">40dp</dimen>
+    <dimen name="vocabulary_manga_down_image_width">30dp</dimen>
 
-    <dimen name="kanji_title_size">40sp</dimen>
-    <dimen name="kanji_sub_title_size">20sp</dimen>
-    <dimen name="kanji_content_text_big_size">16sp</dimen>
-    <dimen name="kanji_content_text_normal_size">14sp</dimen>
-    <dimen name="kanji_content_text_small_size">12sp</dimen>
+    <dimen name="vocabulary_book_title_size">30sp</dimen>
+    <dimen name="vocabulary_book_content_text_big_size">16sp</dimen>
+    <dimen name="vocabulary_book_content_text_normal_size">14sp</dimen>
+    <dimen name="vocabulary_book_cover_size">100dp</dimen>
+    <dimen name="vocabulary_book_name_size">14sp</dimen>
+    <dimen name="vocabulary_book_appear_size">14sp</dimen>
+    <dimen name="vocabulary_book_content_text_width">180dp</dimen>
+    <dimen name="vocabulary_book_content_text_width_tablet">200dp</dimen>
+    <dimen name="vocabulary_book_content_favorite_button_size">45dp</dimen>
+    <dimen name="vocabulary_book_margin_top">3dp</dimen>
+    <dimen name="vocabulary_book_scrolling_button_margin">10dp</dimen>
+    <dimen name="vocabulary_book_up_border">2dp</dimen>
+    <dimen name="vocabulary_book_up_width">40dp</dimen>
+    <dimen name="vocabulary_book_up_image_width">30dp</dimen>
+    <dimen name="vocabulary_book_down_border">2dp</dimen>
+    <dimen name="vocabulary_book_down_width">40dp</dimen>
+    <dimen name="vocabulary_book_down_image_width">30dp</dimen>
+
+    <dimen name="popup_kanji_title_size">40sp</dimen>
+    <dimen name="popup_kanji_sub_title_size">20sp</dimen>
+    <dimen name="popup_kanji_content_text_big_size">16sp</dimen>
+    <dimen name="popup_kanji_content_text_normal_size">14sp</dimen>
+    <dimen name="popup_kanji_content_text_small_size">12sp</dimen>
+
+    <dimen name="popup_vocabulary_title_size">40sp</dimen>
+    <dimen name="popup_vocabulary_sub_title_size">16sp</dimen>
+    <dimen name="popup_vocabulary_reading_size">20sp</dimen>
+    <dimen name="popup_vocabulary_list_height">175dp</dimen>
+    <dimen name="popup_vocabulary_list_padding">20dp</dimen>
+
+    <dimen name="popup_tags_list_padding">20dp</dimen>
 
     <dimen name="theme_layout_width">130dp</dimen>
     <dimen name="theme_layout_height">180dp</dimen>
+
+    <dimen name="book_reader_message_size">24sp</dimen>
+    <dimen name="book_reader_progress_size">10sp</dimen>
 
 </resources>

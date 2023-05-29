@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/AppBackground"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.ui.vocabulary.VocabularyPopupOrder">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/margin"
+        android:paddingBottom="@dimen/margin_bottom">
+        <br.com.fenix.bilingualreader.view.components.TriStateCheckBox
+            android:id="@+id/popup_vocabulary_order_description"
+            style="@style/OrderCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:button="@null"
+            android:text="@string/popup_vocabulary_order_description"/>
+
+        <br.com.fenix.bilingualreader.view.components.TriStateCheckBox
+            android:id="@+id/popup_vocabulary_order_favorite"
+            style="@style/OrderCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:button="@null"
+            android:text="@string/popup_vocabulary_order_favorite"/>
+
+        <br.com.fenix.bilingualreader.view.components.TriStateCheckBox
+            android:id="@+id/popup_vocabulary_order_frequency"
+            style="@style/OrderCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:button="@null"
+            android:text="@string/popup_vocabulary_order_frequency"/>
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>
+

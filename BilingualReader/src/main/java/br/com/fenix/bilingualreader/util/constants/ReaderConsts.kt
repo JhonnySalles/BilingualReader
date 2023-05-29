@@ -5,12 +5,14 @@ class ReaderConsts {
     object READER {
         const val MAX_PAGE_HEIGHT = 2400
         const val MAX_PAGE_WIDTH = 3000
-        const val OFF_SCREEN_PAGE_LIMIT = 6
+        const val MANGA_OFF_SCREEN_PAGE_LIMIT = 6
     }
 
     object COVER {
-        const val COVER_THUMBNAIL_HEIGHT = 300
-        const val COVER_THUMBNAIL_WIDTH = 200
+        const val MANGA_COVER_THUMBNAIL_HEIGHT = 300
+        const val MANGA_COVER_THUMBNAIL_WIDTH = 200
+        const val BOOK_COVER_THUMBNAIL_WIDTH = 300
+        const val BOOK_COVER_READER_WIDTH = 1080
     }
 
     object PAGE {
@@ -27,6 +29,8 @@ class ReaderConsts {
         const val STATE_FULLSCREEN = "STATE_FULLSCREEN"
         const val STATE_NEW_COMIC = "STATE_NEW_COMIC"
         const val STATE_NEW_COMIC_TITLE = "STATE_NEW_COMIC_TITLE"
+        const val STATE_NEW_BOOK = "STATE_NEW_BOOK"
+        const val STATE_NEW_BOOK_TITLE = "STATE_NEW_BOOK_TITLE"
     }
 
     object TOKENIZER {

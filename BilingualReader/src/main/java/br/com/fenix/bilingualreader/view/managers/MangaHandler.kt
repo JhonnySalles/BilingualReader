@@ -16,7 +16,7 @@ class MangaHandler(private var mParse: Parse?) : RequestHandler() {
 
     override fun load(request: Request, networkPolicy: Int): Result {
         val pageNum = request.uri.fragment!!.toInt()
-        return Result(BitmapFactory.decodeStream(mParse!!.getPage(pageNum)!!), Picasso.LoadedFrom.MEMORY)
+        return Result(BitmapFactory.decodeStream(mParse!!.getPage(pageNum)), Picasso.LoadedFrom.MEMORY)
     }
 
     fun getPageUri(pageNum: Int): Uri? {

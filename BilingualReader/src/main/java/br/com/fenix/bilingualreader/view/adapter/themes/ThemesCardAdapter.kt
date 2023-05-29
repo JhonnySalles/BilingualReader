@@ -12,7 +12,7 @@ import android.widget.TextView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.service.listener.ThemesListener
-import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import com.google.android.material.card.MaterialCardView
 
 class ThemesCardAdapter(var context: Context, list: MutableList<Pair<Themes, Boolean>>, listener: ThemesListener) : BaseAdapter() {
@@ -56,11 +56,10 @@ class ThemesCardAdapter(var context: Context, list: MutableList<Pair<Themes, Boo
                 .inflate(R.layout.grid_card_theme, parent, false)
 
         newView?.findViewById<MaterialCardView>(R.id.theme_card)?.strokeWidth = if (theme.second) mPageSelectStroke else 0
-        newView?.findViewById<TextView>(R.id.theme_name)?.text = Util.themeDescription(context, theme.first)
+        newView?.findViewById<TextView>(R.id.theme_name)?.text = ThemeUtil.themeDescription(context, theme.first)
 
         newView?.findViewById<LinearLayout>(R.id.theme_root)?.setOnClickListener {
             mListener.onClick(theme)
-            true
         }
 
         return newView

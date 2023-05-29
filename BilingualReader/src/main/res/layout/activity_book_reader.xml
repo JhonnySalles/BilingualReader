@@ -2,9 +2,10 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root_activity_book_reader">
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        style="@style/AppBackground"
+        style="@style/AppBackground.Reader"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
@@ -15,6 +16,7 @@
             style="@style/AppBackground.Reader"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginBottom="20dp"
             android:fitsSystemWindows="false" />
 
         <include
@@ -22,6 +24,70 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:toolbarReaderCenter="@{true}" />
+
+        <FrameLayout
+            android:id="@+id/popup_book_configuration"
+            style="@style/AppBackground.Accent"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            android:layout_alignParentBottom="true"
+            android:fitsSystemWindows="false"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingTop="1dp"
+            android:visibility="gone"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+            <ImageView
+                android:id="@+id/popup_book_configuration_center_button"
+                style="@style/TextTitle.Popup"
+                android:layout_width="70dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|top"
+                android:contentDescription="@string/popup_reading_book_open"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_line_popup"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:orientation="vertical">
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/popup_book_configuration_tab"
+                    style="@style/PopupTab"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:tabGravity="fill"
+                    app:tabMode="fixed"
+                    app:tabPaddingBottom="0dp"
+                    app:tabPaddingEnd="0dp"
+                    app:tabPaddingStart="0dp"
+                    app:tabPaddingTop="0dp">
+
+                    <com.google.android.material.tabs.TabItem
+                        android:id="@+id/popup_book_configuration_item_font"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/popup_reading_book_tab_item_font" />
+
+                    <com.google.android.material.tabs.TabItem
+                        android:id="@+id/popup_book_configuration_item_layout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/popup_reading_book_tab_item_layout" />
+
+                </com.google.android.material.tabs.TabLayout>
+
+                <androidx.viewpager.widget.ViewPager
+                    android:id="@+id/popup_book_configuration_view_pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingTop="2dp"
+                    app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+            </LinearLayout>
+        </FrameLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

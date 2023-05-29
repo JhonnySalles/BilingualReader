@@ -13,10 +13,13 @@ class VocabularyCardAdapter(var listener: VocabularyCardListener) :
     PagingDataAdapter<Vocabulary, VocabularyViewHolder>(DIFF_CALLBACK) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        VocabularyViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.line_card_vocabulary, parent, false), listener)
+        VocabularyViewHolder(
+            LayoutInflater.from(parent.context)
+                .inflate(R.layout.line_card_vocabulary, parent, false), listener
+        )
 
     override fun onBindViewHolder(holder: VocabularyViewHolder, position: Int) {
-        getItem(position)?.let { holder.bind(it) }
+        getItem(position)?.let { holder.bind(it, position) }
     }
 
     companion object {

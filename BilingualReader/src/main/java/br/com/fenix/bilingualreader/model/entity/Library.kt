@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.model.entity
 
 import androidx.room.*
 import br.com.fenix.bilingualreader.model.enums.Libraries
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.File
 import java.io.Serializable
@@ -21,8 +22,11 @@ data class Library(
     @ColumnInfo(name = DataBaseConsts.LIBRARIES.COLUMNS.PATH)
     var path: String = Libraries.DEFAULT.name,
 
+    @ColumnInfo(name = DataBaseConsts.LIBRARIES.COLUMNS.LANGUAGE)
+    var language: Libraries = Libraries.DEFAULT,
+
     @ColumnInfo(name = DataBaseConsts.LIBRARIES.COLUMNS.TYPE)
-    var type: Libraries = Libraries.DEFAULT,
+    var type: Type = Type.MANGA,
 
     @ColumnInfo(name = DataBaseConsts.LIBRARIES.COLUMNS.ENABLED)
     var enabled: Boolean = true,
@@ -30,6 +34,10 @@ data class Library(
     @ColumnInfo(name = DataBaseConsts.LIBRARIES.COLUMNS.EXCLUDED)
     var excluded: Boolean = false
 ) : Serializable {
+
+    @Ignore
+    var menuKey: Int = 0
+
     @Ignore
     var file: File = File(path)
     override fun equals(other: Any?): Boolean {
@@ -47,11 +55,14 @@ data class Library(
         return path.hashCode()
     }
 
-    fun merge(library: Library) {
+    fun merge(library: Library) : Long? {
         this.title = library.title
         this.path = library.path
+        this.language = library.language
         this.type = library.type
         this.enabled = library.enabled
+
+        return this.id
     }
 }
 

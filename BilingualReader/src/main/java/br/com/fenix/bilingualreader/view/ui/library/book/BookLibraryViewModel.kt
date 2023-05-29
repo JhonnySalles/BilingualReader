@@ -6,22 +6,87 @@ import android.widget.Filterable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
-import br.com.fenix.bilingualreader.model.enums.ListMod
+import br.com.fenix.bilingualreader.model.entity.Library
+import br.com.fenix.bilingualreader.model.entity.Tags
+import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.BookRepository
+import br.com.fenix.bilingualreader.service.repository.TagsRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.Util
 import java.util.*
+import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 
-class BookLibraryViewModel(application: Application) : AndroidViewModel(application), Filterable {
+class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filterable {
 
-    private val mBookRepository: BookRepository = BookRepository(application.applicationContext)
-    private val mPreferences = GeneralConsts.getSharedPreferences(application.applicationContext)
+    private var mStackLibrary = mutableMapOf<String, Triple<Int, Library, MutableList<Book>>>()
+    private var mLibrary: Library = Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK)
+    private val mBookRepository: BookRepository = BookRepository(app.applicationContext)
+    private val mTagsRepository: TagsRepository = TagsRepository(app.applicationContext)
+    private val mPreferences = GeneralConsts.getSharedPreferences(app.applicationContext)
+
+    private var mWordFilter = ""
+
+    private var mOrder = MutableLiveData(Pair(Order.Name, false))
+    val order: LiveData<Pair<Order, Boolean>> = mOrder
+    private var mTypeFilter = MutableLiveData(FilterType.None)
+    val typeFilter: LiveData<br.com.fenix.bilingualreader.model.enums.Filter> = mTypeFilter
 
     private var mListBookFull = MutableLiveData<MutableList<Book>>(mutableListOf())
     private var mListBook = MutableLiveData<MutableList<Book>>(mutableListOf())
     val listBook: LiveData<MutableList<Book>> = mListBook
-    
+
+    private var mTags = mutableListOf<Tags>()
+
+    fun setDefaultLibrary(library: Library) {
+        if (mLibrary.id == library.id)
+            mLibrary = library
+    }
+
+    fun setLibrary(library: Library) {
+        if (mLibrary.id != library.id) {
+            mListBookFull.value = mutableListOf()
+            mListBook.value = mutableListOf()
+        }
+        mLibrary = library
+    }
+
+    fun saveLastLibrary() {
+        val key = if (mLibrary.id == GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK)
+            R.id.menu_book_library_default
+        else
+            mLibrary.menuKey
+        mPreferences.edit().putLong(
+            GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY,
+            key.toLong()
+        ).apply()
+    }
+
+    fun getLibrary() = mLibrary
+
+    fun existStack(id: String): Boolean = mStackLibrary.contains(id)
+
+    fun restoreLastStackLibrary(id: String) {
+        if (mStackLibrary.contains(id)) {
+            mStackLibrary.remove(id)
+            for (item in mStackLibrary) {
+                if (item.value.first == mStackLibrary.size) {
+                    mLibrary = item.value.second
+                    mListBookFull.value = item.value.third.toMutableList()
+                    mListBook.value = item.value.third.toMutableList()
+                    break
+                }
+            }
+        }
+    }
+
+    fun addStackLibrary(id: String, library: Library) =
+        mStackLibrary.put(id, Triple(mStackLibrary.size + 1, library, mListBookFull.value!!))
+
+    fun removeStackLibrary(id: String) = mStackLibrary.remove(id)
 
     fun save(obj: Book): Book {
         if (obj.id == 0L)
@@ -106,11 +171,11 @@ class BookLibraryViewModel(application: Application) : AndroidViewModel(applicat
         return index
     }
 
-    fun updateList(refreshComplete: (Boolean, indexes: MutableList<Pair<ListMod, Int>>) -> (Unit)) {
+    fun updateList(refreshComplete: (Boolean, indexes: MutableList<Pair<ListMode, Int>>) -> (Unit)) {
         var change = false
-        val indexes = mutableListOf<Pair<ListMod, Int>>()
+        val indexes = mutableListOf<Pair<ListMode, Int>>()
         if (mListBookFull.value != null && mListBookFull.value!!.isNotEmpty()) {
-            val list = mBookRepository.listRecentChange()
+            val list = mBookRepository.listRecentChange(mLibrary)
             if (list != null && list.isNotEmpty()) {
                 change = true
                 for (Book in list) {
@@ -118,15 +183,15 @@ class BookLibraryViewModel(application: Application) : AndroidViewModel(applicat
                         mListBookFull.value!![mListBookFull.value!!.indexOf(Book)].update(Book)
                         val index = mListBook.value!!.indexOf(Book)
                         if (index > -1)
-                            indexes.add(Pair(ListMod.MOD, index))
+                            indexes.add(Pair(ListMode.MOD, index))
                     } else {
                         mListBook.value!!.add(Book)
                         mListBookFull.value!!.add(Book)
-                        indexes.add(Pair(ListMod.ADD, mListBook.value!!.size))
+                        indexes.add(Pair(ListMode.ADD, mListBook.value!!.size))
                     }
                 }
             }
-            val listDel = mBookRepository.listRecentDeleted()
+            val listDel = mBookRepository.listRecentDeleted(mLibrary)
             if (listDel != null && listDel.isNotEmpty()) {
                 change = true
                 for (Book in listDel) {
@@ -134,20 +199,20 @@ class BookLibraryViewModel(application: Application) : AndroidViewModel(applicat
                         val index = mListBook.value!!.indexOf(Book)
                         mListBook.value!!.remove(Book)
                         mListBookFull.value!!.remove(Book)
-                        indexes.add(Pair(ListMod.REM, index))
+                        indexes.add(Pair(ListMode.REM, index))
                     }
                 }
             }
         } else {
-            val list = mBookRepository.list()
+            val list = mBookRepository.list(mLibrary)
             if (list != null) {
-                indexes.add(Pair(ListMod.FULL, list.size))
+                indexes.add(Pair(ListMode.FULL, list.size))
                 mListBook.value = list.toMutableList()
                 mListBookFull.value = list.toMutableList()
             } else {
                 mListBook.value = mutableListOf()
                 mListBookFull.value = mutableListOf()
-                indexes.add(Pair(ListMod.FULL, 0))
+                indexes.add(Pair(ListMode.FULL, 0))
             }
             //Receive value force refresh, not necessary notify
             change = false
@@ -157,7 +222,7 @@ class BookLibraryViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun list(refreshComplete: (Boolean) -> (Unit)) {
-        val list = mBookRepository.list()
+        val list = mBookRepository.list(mLibrary)
         if (list != null) {
             if (mListBookFull.value == null || mListBookFull.value!!.isEmpty()) {
                 mListBook.value = list.toMutableList()
@@ -172,28 +237,63 @@ class BookLibraryViewModel(application: Application) : AndroidViewModel(applicat
         refreshComplete(mListBook.value!!.isNotEmpty())
     }
 
-    fun isEmpty(): Boolean =
-        mListBook.value == null || mListBook.value!!.isEmpty()
+    fun clearHistory(book: Book) {
+        mBookRepository.clearHistory(book)
+    }
 
-    fun sorted(order: Order) {
-        when (order) {
-            Order.Date -> {
-                mListBookFull.value!!.sortBy { it.dateCreate }
-                mListBook.value!!.sortBy { it.dateCreate }
+    fun loadTags(): MutableList<Tags> {
+        mTags = mTagsRepository.list()
+        return mTags
+    }
+    fun getTags() = mTags
+
+    fun isEmpty(): Boolean = mListBook.value == null || mListBook.value!!.isEmpty()
+
+    fun sorted() {
+        sorted(mOrder.value?.first ?: Order.Name)
+    }
+
+    fun sorted(order: Order, isDesc: Boolean = false) {
+        mOrder.value = Pair(order, isDesc)
+
+        if (isDesc)
+            when (order) {
+                Order.Date -> {
+                    mListBookFull.value!!.sortByDescending { it.dateCreate }
+                    mListBook.value!!.sortByDescending { it.dateCreate }
+                }
+                Order.LastAccess -> {
+                    mListBookFull.value!!.sortWith(compareByDescending<Book> { it.lastAccess }.thenByDescending { it.name })
+                    mListBook.value!!.sortWith(compareByDescending<Book> { it.lastAccess }.thenByDescending { it.name })
+                }
+                Order.Favorite -> {
+                    mListBookFull.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenByDescending { it.name })
+                    mListBook.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenByDescending { it.name })
+                }
+                else -> {
+                    mListBookFull.value!!.sortByDescending { it.name }
+                    mListBook.value!!.sortByDescending { it.name }
+                }
             }
-            Order.LastAccess -> {
-                mListBookFull.value!!.sortWith(compareByDescending<Book> { it.lastAccess }.thenBy { it.name })
-                mListBook.value!!.sortWith(compareByDescending<Book> { it.lastAccess }.thenBy { it.name })
+        else
+            when (order) {
+                Order.Date -> {
+                    mListBookFull.value!!.sortBy { it.dateCreate }
+                    mListBook.value!!.sortBy { it.dateCreate }
+                }
+                Order.LastAccess -> {
+                    mListBookFull.value!!.sortWith(compareByDescending<Book> { it.lastAccess }.thenBy { it.name })
+                    mListBook.value!!.sortWith(compareByDescending<Book> { it.lastAccess }.thenBy { it.name })
+                }
+                Order.Favorite -> {
+                    mListBookFull.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenBy { it.name })
+                    mListBook.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenBy { it.name })
+                }
+                else -> {
+                    mListBookFull.value!!.sortBy { it.name }
+                    mListBook.value!!.sortBy { it.name }
+                }
             }
-            Order.Favorite -> {
-                mListBookFull.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenBy { it.name })
-                mListBook.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenBy { it.name })
-            }
-            else -> {
-                mListBookFull.value!!.sortBy { it.name }
-                mListBook.value!!.sortBy { it.name }
-            }
-        }
     }
 
     fun clearFilter() {
@@ -206,8 +306,59 @@ class BookLibraryViewModel(application: Application) : AndroidViewModel(applicat
         return mBookFilter
     }
 
+    private fun filtered(book: Book?, filterPattern: String, filterConditions :ArrayList<Pair<br.com.fenix.bilingualreader.model.enums.Filter, String>>): Boolean {
+        if (book == null)
+            return false
+
+        if (mTypeFilter.value != FilterType.None) {
+            if (mTypeFilter.value == FilterType.Reading && book.lastAccess == null)
+                return false
+
+            if (mTypeFilter.value == FilterType.Favorite && !book.favorite)
+                return false
+        }
+
+        if (filterConditions.isNotEmpty()) {
+            var condition = false
+            filterConditions.forEach {
+                when (it.first) {
+                    br.com.fenix.bilingualreader.model.enums.Filter.Type -> {
+                        if (book.type.name.contains(it.second, true))
+                            condition = true
+                    }
+                    br.com.fenix.bilingualreader.model.enums.Filter.Publisher -> {
+                        if (book.publisher.contains(it.second, true))
+                            condition = true
+                    }
+                    br.com.fenix.bilingualreader.model.enums.Filter.Author -> {
+                        if (book.author.contains(it.second, true))
+                            condition = true
+                    }
+                    br.com.fenix.bilingualreader.model.enums.Filter.Tag -> {
+                        if (it.second.isEmpty() && book.tags.isEmpty())
+                            return false
+                        else if (it.second.isNotEmpty()) {
+                            mTags.find { t -> t.name.equals(it.second.replace("'", ""), true) }?.let { t ->
+                                if (book.tags.contains(t.id))
+                                    condition = true
+                            }
+                        }
+                    }
+                    else -> {}
+                }
+            }
+
+            if (!condition)
+                return false
+        }
+
+        return filterPattern.isEmpty() || book.name.lowercase(Locale.getDefault())
+            .contains(filterPattern) || book.type.compareExtension(filterPattern)
+    }
+
     private val mBookFilter = object : Filter() {
         override fun performFiltering(constraint: CharSequence?): FilterResults {
+            mWordFilter = constraint.toString()
             val filteredList: MutableList<Book> = mutableListOf()
 
             if (constraint == null || constraint.isEmpty()) {
@@ -218,6 +369,35 @@ class BookLibraryViewModel(application: Application) : AndroidViewModel(applicat
                 filteredList.addAll(mListBookFull.value!!.filter(Objects::nonNull).filter {
                     it.name.lowercase(Locale.getDefault()).contains(filterPattern) ||
                             it.extension.lowercase(Locale.getDefault()).contains(filterPattern)
+                })
+            }
+
+            if ((constraint == null || constraint.isEmpty()) && mTypeFilter.value == FilterType.None) {
+                filteredList.addAll(mListBookFull.value!!.filter(Objects::nonNull))
+            } else {
+                var filterPattern = constraint.toString()
+                val filterCondition = arrayListOf<Pair<br.com.fenix.bilingualreader.model.enums.Filter, String>>()
+                constraint?.contains('@').run {
+                    //This regex split only space and ignore space inside quotes
+                    constraint?.split(" (?=(?:[^\"\']*(\"|\')[^\"\']*(\"|\'))*[^\"\']*\$)".toRegex())?.let {
+                        for (word in it) {
+                            if (word.contains(Regex("@[\\S]+:(\\S++ |\\S++)"))) {
+                                filterPattern = filterPattern.replace(word, "", true)
+                                val type = Util.stringToFilter(app.applicationContext, Type.BOOK, word.substringBefore(":").replace("@", ""))
+                                if (type != br.com.fenix.bilingualreader.model.enums.Filter.None) {
+                                    val condition = word.substringAfter(":")
+                                    if (condition.isNotEmpty())
+                                        filterCondition.add(Pair(type, condition))
+                                }
+                            }
+                        }
+                    }
+                }
+
+                filterPattern = filterPattern.lowercase(Locale.getDefault()).trim()
+
+                filteredList.addAll(mListBookFull.value!!.filter {
+                    filtered(it, filterPattern, filterCondition)
                 })
             }
 

@@ -9,9 +9,11 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.service.controller.ImageCoverController
+import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.Util
 
 class HistoryViewHolder(itemView: View, private val listener: MangaCardListener) :
     RecyclerView.ViewHolder(itemView) {
@@ -27,7 +29,10 @@ class HistoryViewHolder(itemView: View, private val listener: MangaCardListener)
     fun bind(manga: Manga) {
         val mangaImage = itemView.findViewById<ImageView>(R.id.history_image_cover)
         val mangaTitle = itemView.findViewById<TextView>(R.id.history_text_title)
-        val mangaSubTitle = itemView.findViewById<TextView>(R.id.history_sub_title)
+        val mangaLastAccess = itemView.findViewById<TextView>(R.id.history_line_last_access)
+        val mangaFileType = itemView.findViewById<TextView>(R.id.history_line_file_type)
+        val mangaFileSize = itemView.findViewById<TextView>(R.id.history_line_file_size)
+        val mangaPagesRead = itemView.findViewById<TextView>(R.id.history_line_pages)
         val mangaLibrary = itemView.findViewById<TextView>(R.id.history_library)
         val mangaFavorite = itemView.findViewById<ImageView>(R.id.history_favorite)
         val mangaSubtitle = itemView.findViewById<ImageView>(R.id.history_has_subtitle)
@@ -40,26 +45,17 @@ class HistoryViewHolder(itemView: View, private val listener: MangaCardListener)
         }
 
         mangaImage.setImageBitmap(mDefaultImageCover)
-        ImageCoverController.instance.setImageCoverAsync(itemView.context, manga, mangaImage)
+        MangaImageCoverController.instance.setImageCoverAsync(itemView.context, manga, mangaImage)
 
         mangaTitle.text = manga.title
 
-        if (manga.subTitle.isEmpty()) {
-            val title = if (manga.lastAccess != null)
-                "${manga.bookMark} / ${manga.pages}  -  ${itemView.resources.getString(R.string.manga_library_last_access)}: ${
-                    GeneralConsts.formatterDateTime(
-                        itemView.context,
-                        manga.lastAccess!!
-                    )
-                }"
-            else
-                "${manga.bookMark} / ${manga.pages}"
+        mangaLastAccess.text = if (manga.lastAccess != null) GeneralConsts.formatterDate(itemView.context, manga.lastAccess!!) else ""
+        mangaFileType.text = manga.type.toString()
+        mangaFileSize.text = FileUtil.formatSize(manga.fileSize)
+        val percent: Float = if (manga.bookMark > 0) ((manga.bookMark.toFloat() / manga.pages) * 100) else 0f
+        mangaPagesRead.text = "${manga.bookMark} / ${manga.pages}" + if (percent > 0) (" (" + Util.formatDecimal(percent) + ")") else ""
 
-            mangaSubTitle.text = title
-        } else
-            mangaSubTitle.text = manga.subTitle
-
-        mangaLibrary.text = if (manga.fkLibrary == GeneralConsts.KEYS.LIBRARY.DEFAULT)
+        mangaLibrary.text = if (manga.fkLibrary == GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
             itemView.context.getString(R.string.manga_library_default).uppercase()
         else
             manga.library.title.uppercase()

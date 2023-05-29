@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/book_search_history"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    android:background="@drawable/book_search_history_custom_ripple"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/book_search_history_title"
+        style="@style/TextNormal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="5dp"
+        android:textAppearance="?attr/textAppearanceLabelSmall"/>
+
+    <TextView
+        android:id="@+id/book_search_date"
+        style="@style/TextNormal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:textAppearance="?attr/textAppearanceLabelSmall"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/book_search_history_delete"
+        style="@style/Button.IconOnly"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:textColor="?attr/colorPrimary"
+        android:contentDescription="@string/book_search_history_delete"
+        android:layout_marginStart="5dp"
+        app:iconSize="20dp"
+        app:iconTint="?attr/colorPrimary"
+        app:icon="@drawable/ico_animated_delete_history"/>
+
+</LinearLayout>

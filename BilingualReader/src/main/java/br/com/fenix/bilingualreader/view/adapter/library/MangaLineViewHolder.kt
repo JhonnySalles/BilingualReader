@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.view.adapter.library
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.view.View
@@ -10,9 +11,11 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.service.controller.ImageCoverController
+import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.Util
 
 class MangaLineViewHolder(itemView: View, private val listener: MangaCardListener) :
     RecyclerView.ViewHolder(itemView) {
@@ -25,10 +28,14 @@ class MangaLineViewHolder(itemView: View, private val listener: MangaCardListene
         mDefaultImageCover = BitmapFactory.decodeResource(itemView.resources, R.mipmap.app_icon)
     }
 
+    @SuppressLint("SetTextI18n")
     fun bind(manga: Manga) {
         val mangaImage = itemView.findViewById<ImageView>(R.id.manga_line_image_cover)
         val mangaTitle = itemView.findViewById<TextView>(R.id.manga_line_text_title)
-        val mangaSubTitle = itemView.findViewById<TextView>(R.id.manga_line_sub_title)
+        val mangaLastAccess = itemView.findViewById<TextView>(R.id.manga_line_last_access)
+        val mangaFileType = itemView.findViewById<TextView>(R.id.manga_line_file_type)
+        val mangaFileSize = itemView.findViewById<TextView>(R.id.manga_line_file_size)
+        val mangaPagesRead = itemView.findViewById<TextView>(R.id.manga_line_pages)
         val mangaProgress = itemView.findViewById<ProgressBar>(R.id.manga_line_progress)
         val cardView = itemView.findViewById<LinearLayout>(R.id.manga_line_card)
         val favorite = itemView.findViewById<ImageView>(R.id.manga_line_favorite)
@@ -51,24 +58,14 @@ class MangaLineViewHolder(itemView: View, private val listener: MangaCardListene
         }
 
         mangaImage.setImageBitmap(mDefaultImageCover)
-        ImageCoverController.instance.setImageCoverAsync(itemView.context, manga, mangaImage)
+        MangaImageCoverController.instance.setImageCoverAsync(itemView.context, manga, mangaImage)
 
         mangaTitle.text = manga.title
-
-        if (manga.subTitle.isEmpty()) {
-            val title = if (manga.lastAccess != null)
-                "${manga.bookMark} / ${manga.pages}  -  ${itemView.resources.getString(R.string.manga_library_last_access)}: ${
-                    GeneralConsts.formatterDate(
-                        itemView.context,
-                        manga.lastAccess!!
-                    )
-                }"
-            else
-                "${manga.bookMark} / ${manga.pages}"
-
-            mangaSubTitle.text = title
-        } else
-            mangaSubTitle.text = manga.subTitle
+        mangaLastAccess.text = if (manga.lastAccess != null) GeneralConsts.formatterDate(itemView.context, manga.lastAccess!!) else ""
+        mangaFileType.text = Util.getExtensionFromPath(manga.path).uppercase()
+        mangaFileSize.text = FileUtil.formatSize(manga.fileSize)
+        val percent: Float = if (manga.bookMark > 0) ((manga.bookMark.toFloat() / manga.pages) * 100) else 0f
+        mangaPagesRead.text = "${manga.bookMark} / ${manga.pages}" + if (percent > 0) (" (" + Util.formatDecimal(percent) + ")") else ""
 
         mangaProgress.max = manga.pages
         mangaProgress.setProgress(manga.bookMark, false)

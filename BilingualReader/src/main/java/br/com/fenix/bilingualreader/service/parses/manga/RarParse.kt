@@ -1,11 +1,15 @@
 package br.com.fenix.bilingualreader.service.parses.manga
 
+import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import com.github.junrar.Archive
 import com.github.junrar.exception.RarException
 import com.github.junrar.rarfile.FileHeader
+import org.simpleframework.xml.Serializer
+import org.simpleframework.xml.core.Persister
 import java.io.*
+
 
 class RarParse : Parse {
 
@@ -14,6 +18,7 @@ class RarParse : Parse {
     private var mCacheDir: File? = null
     private var mSolidFileExtracted = false
     private var mSubtitles = ArrayList<FileHeader>()
+    private var mComicInfo: FileHeader? = null
 
     override fun parse(file: File?) {
         mArchive = Archive(file)
@@ -26,12 +31,15 @@ class RarParse : Parse {
                     mHeaders.add(header)
                 else if (FileUtil.isJson(name))
                     mSubtitles.add(header)
+                else if (FileUtil.isXml(name) && name.contains("comicinfo", true))
+                    mComicInfo = header
             }
             header = mArchive!!.nextFileHeader()
         }
 
         mHeaders.sortWith(compareBy<FileHeader> { Util.getFolderFromPath(it.fileName) }.thenComparing { a, b ->
-            Util.getNormalizedNameOrdering(a.fileName).compareTo(Util.getNormalizedNameOrdering(b.fileName))
+            Util.getNormalizedNameOrdering(a.fileName)
+                .compareTo(Util.getNormalizedNameOrdering(b.fileName))
         })
     }
 
@@ -95,6 +103,24 @@ class RarParse : Parse {
         return paths
     }
 
+    override fun getChapters(): IntArray {
+        return getPagePaths().filter { it.value != 0 }.map { it.value }.toIntArray()
+    }
+
+    override fun getComicInfo(): ComicInfo? {
+        return if (mComicInfo != null) {
+            val page = getPageStream(mComicInfo!!)
+            val serializer: Serializer = Persister()
+            try {
+                serializer.read(ComicInfo::class.java, page)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        } else
+            null
+    }
+
     override fun getPage(num: Int): InputStream {
         if (mArchive!!.mainHeader.isSolid) {
             synchronized(this) {
@@ -153,10 +179,6 @@ class RarParse : Parse {
         mHeaders.clear()
         mArchive?.close()
         mArchive = null
-    }
-
-    override fun getType(): String {
-        return "rar"
     }
 
     fun setCacheDirectory(cacheDirectory: File?) {

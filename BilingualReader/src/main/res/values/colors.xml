@@ -20,6 +20,7 @@
     <color name="main_header_background_top">#000000</color>
 
     <color name="reader_buttons">#FFFFFFFF</color>
+    <color name="reader_buttons_surface">#000000</color>
     <color name="reader_semi_transparent">#DD000000</color>
 
     <color name="button_close_ocr">#FFFFFF</color>
@@ -37,6 +38,17 @@
     <color name="manga_detail_title_background_bottom">#00000000</color>
 
     <color name="manga_detail_list_divider">#484848</color>
+
+    <color name="manga_card_title_background_start">#05000000</color>
+    <color name="manga_card_title_background_middle">#55000000</color>
+    <color name="manga_card_title_background_end">#DD000000</color>
+
+    <color name="book_detail_title_background">#212121</color>
+    <color name="book_detail_title_background_top">#000000</color>
+    <color name="book_detail_title_background_center">#DD000000</color>
+    <color name="book_detail_title_background_bottom">#00000000</color>
+
+    <color name="book_detail_list_divider">#484848</color>
 
     <color name="floating_background_semi_transparent">#BF000000</color>
     <color name="floating_button_color">#FFFFFF</color>
@@ -97,8 +109,8 @@
     <color name="manga_reader_theme_light_onSecondaryContainer">#275201</color>
     <color name="manga_reader_theme_light_tertiary">#47d147</color>
     <color name="manga_reader_theme_light_onTertiary">#FFFFFF</color>
-    <color name="manga_reader_theme_light_tertiaryContainer">#CE1d9902</color>
-    <color name="manga_reader_theme_light_onTertiaryContainer">#CE212121</color>
+    <color name="manga_reader_theme_light_tertiaryContainer">#1d9902</color>
+    <color name="manga_reader_theme_light_onTertiaryContainer">#212121</color>
     <color name="manga_reader_theme_light_error">#BA1A1A</color>
     <color name="manga_reader_theme_light_errorContainer">#FFDAD6</color>
     <color name="manga_reader_theme_light_onError">#FFFFFF</color>
@@ -127,8 +139,8 @@
     <color name="manga_reader_theme_dark_onSecondaryContainer">#275201</color>
     <color name="manga_reader_theme_dark_tertiary">#1d9902</color>
     <color name="manga_reader_theme_dark_onTertiary">#FFFFFF</color>
-    <color name="manga_reader_theme_dark_tertiaryContainer">#CE1d9902</color>
-    <color name="manga_reader_theme_dark_onTertiaryContainer">#CE212121</color>
+    <color name="manga_reader_theme_dark_tertiaryContainer">#1d9902</color>
+    <color name="manga_reader_theme_dark_onTertiaryContainer">#212121</color>
     <color name="manga_reader_theme_dark_error">#FFB4AB</color>
     <color name="manga_reader_theme_dark_errorContainer">#93000A</color>
     <color name="manga_reader_theme_dark_onError">#690005</color>

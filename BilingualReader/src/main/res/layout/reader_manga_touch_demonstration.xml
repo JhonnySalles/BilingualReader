@@ -13,6 +13,7 @@
         android:gravity="center"
         android:padding="16dp"
         android:textSize="@dimen/reader_touch_demonstration_text_size"
+        android:text="@string/reading_manga_touch_demonstration_share_image"
         android:theme="@style/TouchDemonstration.Horizontal"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

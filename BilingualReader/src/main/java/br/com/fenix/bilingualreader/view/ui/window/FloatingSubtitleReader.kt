@@ -19,10 +19,10 @@ import androidx.appcompat.widget.AppCompatImageButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.NestedScrollView
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.Page
-import br.com.fenix.bilingualreader.model.entity.Text
+import br.com.fenix.bilingualreader.model.entity.SubTitlePage
+import br.com.fenix.bilingualreader.model.entity.SubTitleText
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
-import br.com.fenix.bilingualreader.service.kanji.Formatter
+import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import com.pedromassango.doubleclick.DoubleClick
@@ -30,7 +30,10 @@ import com.pedromassango.doubleclick.DoubleClickListener
 import kotlin.math.abs
 
 
-class FloatingSubtitleReader constructor(private val context: Context, private val activity: AppCompatActivity) {
+class FloatingSubtitleReader constructor(
+    private val context: Context,
+    private val activity: AppCompatActivity
+) {
 
     private var windowManager: WindowManager? = null
         get() {
@@ -53,16 +56,20 @@ class FloatingSubtitleReader constructor(private val context: Context, private v
     private var touchConsumedByMove = false
 
     private val mOnFlingListener = object : GestureDetector.SimpleOnGestureListener() {
-        override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
-            if (e1 != null && e2 != null)
-                if (abs(e1.x - e2.x) > 150) {
-                    if (abs(e2.x) > abs(e1.x))
-                        moveWindow(false)
-                    else if (abs(e2.x) < abs(e1.x))
-                        moveWindow(true)
+        override fun onFling(
+            e1: MotionEvent,
+            e2: MotionEvent,
+            velocityX: Float,
+            velocityY: Float
+        ): Boolean {
+            if (abs(e1.x - e2.x) > 150) {
+                if (abs(e2.x) > abs(e1.x))
+                    moveWindow(false)
+                else if (abs(e2.x) < abs(e1.x))
+                    moveWindow(true)
 
-                    return false
-                }
+                return false
+            }
 
             return super.onFling(e1, e2, velocityX, velocityY)
         }
@@ -151,8 +158,8 @@ class FloatingSubtitleReader constructor(private val context: Context, private v
     private var mOcrListText: ListView
     private var mOcrScrollContent: NestedScrollView
 
-    private var mBtnChangeSubtitle : AppCompatImageButton
-    private var mBtnChangeOcr : AppCompatImageButton
+    private var mBtnChangeSubtitle: AppCompatImageButton
+    private var mBtnChangeOcr: AppCompatImageButton
     private var mBtnExpanded: AppCompatImageButton
     private var mIconExpanded: Drawable?
     private var mIconRetracted: Drawable?
@@ -186,15 +193,17 @@ class FloatingSubtitleReader constructor(private val context: Context, private v
             mBtnChangeSubtitle.setOnClickListener { changeLayout() }
             mBtnChangeOcr.setOnClickListener { changeLayout(false) }
 
-            this.findViewById<AppCompatImageButton>(R.id.floating_manga_subtitle_go_to_top).setOnClickListener {
-                mSubtitleScrollContent.smoothScrollTo(0, 0)
-            }
+            this.findViewById<AppCompatImageButton>(R.id.floating_manga_subtitle_go_to_top)
+                .setOnClickListener {
+                    mSubtitleScrollContent.smoothScrollTo(0, 0)
+                }
 
             mResizer = this.findViewById(R.id.floating_manga_subtitle_resizer)
             setResizer()
 
             mIconExpanded = AppCompatResources.getDrawable(context, R.drawable.ic_expanded)
-            mIconRetracted = AppCompatResources.getDrawable(context, R.drawable.ic_retracted)
+            mIconRetracted =
+                AppCompatResources.getDrawable(context, R.drawable.ico_floating_subtitle_retracted)
 
             mBtnExpanded = this.findViewById(R.id.floating_manga_subtitle_expanded)
             mBtnExpanded.setOnClickListener { expanded() }
@@ -202,15 +211,18 @@ class FloatingSubtitleReader constructor(private val context: Context, private v
             mSubtitleContent = this.findViewById(R.id.floating_manga_subtitle_subtitle_content)
             mSubtitleTitle = this.findViewById(R.id.floating_manga_subtitle_title)
             mSubtitleText = this.findViewById(R.id.floating_manga_subtitle_subtitle)
-            mListPageVocabulary = this.findViewById(R.id.floating_manga_subtitle_list_page_vocabulary)
-            mListPageVocabulary.adapter = ArrayAdapter(context, R.layout.floating_manga_subtitle_list_item, mVocabularyItem)
+            mListPageVocabulary =
+                this.findViewById(R.id.floating_manga_subtitle_list_page_vocabulary)
+            mListPageVocabulary.adapter =
+                ArrayAdapter(context, R.layout.floating_manga_subtitle_list_item, mVocabularyItem)
             mListPageVocabulary.choiceMode = ListView.CHOICE_MODE_SINGLE
             mListPageVocabulary.isLongClickable = true
-            mListPageVocabulary.onItemLongClickListener = OnItemLongClickListener { _, _, index, _ ->
-                if (index >= 0 && mVocabularyItem.size > index)
-                    makeCopyText(mVocabularyItem[index])
-                true
-            }
+            mListPageVocabulary.onItemLongClickListener =
+                OnItemLongClickListener { _, _, index, _ ->
+                    if (index >= 0 && mVocabularyItem.size > index)
+                        makeCopyText(mVocabularyItem[index])
+                    true
+                }
 
             mSubtitleText.setOnClickListener(
                 DoubleClick(object : DoubleClickListener {
@@ -222,7 +234,7 @@ class FloatingSubtitleReader constructor(private val context: Context, private v
             )
 
             mSubtitleText.setOnLongClickListener {
-                val text = mSubTitleController.textSelected.value?.text ?: ""
+                val text = mSubTitleController.subTitleTextSelected.value?.text ?: ""
                 makeCopyText(text)
                 true
             }
@@ -241,7 +253,8 @@ class FloatingSubtitleReader constructor(private val context: Context, private v
             }
 
             mOcrListText = this.findViewById(R.id.floating_manga_subtitle_ocr_list)
-            mOcrListText.adapter = ArrayAdapter(context, R.layout.floating_manga_subtitle_list_item, mOcrItem)
+            mOcrListText.adapter =
+                ArrayAdapter(context, R.layout.floating_manga_subtitle_list_item, mOcrItem)
             mOcrListText.choiceMode = ListView.CHOICE_MODE_SINGLE
             mOcrListText.isLongClickable = true
             mOcrListText.onItemClickListener = AdapterView.OnItemClickListener { _, _, index, _ ->
@@ -255,12 +268,13 @@ class FloatingSubtitleReader constructor(private val context: Context, private v
                 true
             }
 
-            this.findViewById<AppCompatImageButton>(R.id.floating_manga_subtitle_ocr_clear_list).setOnClickListener {
-                (activity as OcrProcess).clearList()
-                mOcrText.text = ""
-                mOcrKanjiDetail.text = ""
-                mOcrKanjiDetail.visibility = View.GONE
-            }
+            this.findViewById<AppCompatImageButton>(R.id.floating_manga_subtitle_ocr_clear_list)
+                .setOnClickListener {
+                    (activity as OcrProcess).clearList()
+                    mOcrText.text = ""
+                    mOcrKanjiDetail.text = ""
+                    mOcrKanjiDetail.visibility = View.GONE
+                }
 
             this.findViewById<AppCompatImageButton>(R.id.floating_manga_google_translate)
                 .setOnClickListener {
@@ -268,7 +282,8 @@ class FloatingSubtitleReader constructor(private val context: Context, private v
                         val list = mSubtitleText.text.split(" ").filter { it.isNotEmpty() }.toSet()
                         val text = list.joinToString("\n")
 
-                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        val clipboard =
+                            context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         val clip = ClipData.newPlainText("Copied Text", text)
                         clipboard.setPrimaryClip(clip)
 
@@ -290,7 +305,11 @@ class FloatingSubtitleReader constructor(private val context: Context, private v
             mGestureDetector.onTouchEvent(motionEvent)
             onMove(view, motionEvent)
         }
-        mListPageVocabulary.setOnTouchListener { _, motionEvent -> mGestureDetector.onTouchEvent(motionEvent) }
+        mListPageVocabulary.setOnTouchListener { _, motionEvent ->
+            mGestureDetector.onTouchEvent(
+                motionEvent
+            )
+        }
         mFloatingView.setOnTouchListener(onTouchListener)
 
         val layoutType = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O)
@@ -303,8 +322,10 @@ class FloatingSubtitleReader constructor(private val context: Context, private v
             flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
             type = layoutType
             gravity = Gravity.TOP or Gravity.LEFT
-            width = context.resources.getDimension(R.dimen.floating_manga_subtitle_reader_width).toInt()
-            height = context.resources.getDimension(R.dimen.floating_manga_subtitle_reader_height).toInt()
+            width =
+                context.resources.getDimension(R.dimen.floating_manga_subtitle_reader_width).toInt()
+            height = context.resources.getDimension(R.dimen.floating_manga_subtitle_reader_height)
+                .toInt()
             x = (mRealDisplaySize.x / 2) - (width / 2)
             y = context.resources.getDimension(R.dimen.floating_reader_initial_top_padding).toInt()
         }
@@ -313,14 +334,18 @@ class FloatingSubtitleReader constructor(private val context: Context, private v
     }
 
     inner class ChangeTextTouchListener : GestureDetector.SimpleOnGestureListener() {
-        override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
-            if (e2 != null && e1 != null) {
-                if (abs(e1.x - e2.x) > 200)
-                    if (abs(e2.x) > abs(e1.x))
-                        mSubTitleController.getBeforeText()
-                    else if (abs(e2.x) < abs(e1.x))
-                        mSubTitleController.getNextText()
-            }
+        override fun onFling(
+            e1: MotionEvent,
+            e2: MotionEvent,
+            velocityX: Float,
+            velocityY: Float
+        ): Boolean {
+            if (abs(e1.x - e2.x) > 200)
+                if (abs(e2.x) > abs(e1.x))
+                    mSubTitleController.getBeforeText()
+                else if (abs(e2.x) < abs(e1.x))
+                    mSubTitleController.getNextText()
+
 
             return super.onFling(e1, e2, velocityX, velocityY)
         }
@@ -412,13 +437,14 @@ class FloatingSubtitleReader constructor(private val context: Context, private v
         }
     }
 
-    fun updatePage(page: Page?) {
-        if (page != null) {
-            if (page.vocabulary != null && page.vocabulary.isNotEmpty()) {
-                mVocabulary = page.vocabulary.map { vocab -> vocab.word to vocab.word + " - " + vocab.portuguese + if (!vocab.revised) "¹" else "" }
-                    .toMap()
+    fun updatePage(subTitlePage: SubTitlePage?) {
+        if (subTitlePage != null) {
+            if (subTitlePage.vocabulary != null && subTitlePage.vocabulary.isNotEmpty()) {
+                mVocabulary =
+                    subTitlePage.vocabulary.map { vocab -> vocab.word to vocab.word + " - " + vocab.portuguese + if (!vocab.revised) "¹" else "" }
+                        .toMap()
                 mVocabularyItem.clear()
-                mVocabularyItem.addAll(page.vocabulary.map { vocab -> vocab.word + " - " + vocab.portuguese + if (!vocab.revised) "¹" else "" })
+                mVocabularyItem.addAll(subTitlePage.vocabulary.map { vocab -> vocab.word + " - " + vocab.portuguese + if (!vocab.revised) "¹" else "" })
                 mListPageVocabulary.visibility = View.VISIBLE
             } else {
                 mVocabularyItem.clear()
@@ -453,7 +479,8 @@ class FloatingSubtitleReader constructor(private val context: Context, private v
         }
     }
 
-    private var mMinimisedSize = context.resources.getDimension(R.dimen.floating_reader_button_close).toInt()
+    private var mMinimisedSize =
+        context.resources.getDimension(R.dimen.floating_reader_button_close).toInt()
     private var isExpanded = true
     fun expanded(expand: Boolean = false) {
         if (expand && isExpanded)
@@ -482,26 +509,29 @@ class FloatingSubtitleReader constructor(private val context: Context, private v
         }
     }
 
-    fun updateText(text: Text?) {
+    fun updateText(subTitleText: SubTitleText?) {
         var title = ""
         mSubtitleText.text = ""
         mSubtitleScrollContent.smoothScrollTo(0, 0)
-        if (text != null) {
+        if (subTitleText != null) {
             val index =
-                mSubTitleController.pageSelected.value?.texts?.indexOf(mSubTitleController.textSelected.value)
+                mSubTitleController.subTitlePageSelected.value?.subTitleTexts?.indexOf(mSubTitleController.subTitleTextSelected.value)
                     ?.plus(1)
 
             title =
-                "$mLabelChapter ${mSubTitleController.chapterSelected.value?.chapter.toString()} - " +
-                        "$mLabelPage ${mSubTitleController.pageSelected.value!!.number} - " +
-                        "$mLabelText $index/${mSubTitleController.pageSelected.value?.texts?.size}"
+                "$mLabelChapter ${mSubTitleController.subTitleChapterSelected.value?.chapter.toString()} - " +
+                        "$mLabelPage ${mSubTitleController.subTitlePageSelected.value!!.number} - " +
+                        "$mLabelText $index/${mSubTitleController.subTitlePageSelected.value?.subTitleTexts?.size}"
 
-            Formatter.generateFurigana(text.text, furigana = { mSubtitleText.text = it }, vocabularyClick = { findVocabulary(it) })
-        } else if (mSubTitleController.chapterSelected.value != null && mSubTitleController.pageSelected.value != null) {
+            Formatter.generateFurigana(
+                subTitleText.text,
+                furigana = { mSubtitleText.text = it },
+                vocabularyClick = { findVocabulary(it) })
+        } else if (mSubTitleController.subTitleChapterSelected.value != null && mSubTitleController.subTitlePageSelected.value != null) {
             title =
-                "$mLabelChapter ${mSubTitleController.chapterSelected.value?.chapter.toString()} - " +
-                        "$mLabelPage ${mSubTitleController.pageSelected.value!!.number} - "
-            "$mLabelText 0/${if (mSubTitleController.pageSelected.value?.texts == null) 0 else mSubTitleController.pageSelected.value?.texts?.size}"
+                "$mLabelChapter ${mSubTitleController.subTitleChapterSelected.value?.chapter.toString()} - " +
+                        "$mLabelPage ${mSubTitleController.subTitlePageSelected.value!!.number} - "
+            "$mLabelText 0/${if (mSubTitleController.subTitlePageSelected.value?.subTitleTexts == null) 0 else mSubTitleController.subTitlePageSelected.value?.subTitleTexts?.size}"
         }
 
         mSubtitleTitle.text = title

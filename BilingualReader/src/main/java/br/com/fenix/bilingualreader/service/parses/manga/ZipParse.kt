@@ -1,7 +1,10 @@
 package br.com.fenix.bilingualreader.service.parses.manga
 
+import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
+import org.simpleframework.xml.Serializer
+import org.simpleframework.xml.core.Persister
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStream
@@ -14,6 +17,7 @@ class ZipParse : Parse {
     private var mZipFile: ZipFile? = null
     private var mEntries = ArrayList<ZipEntry>()
     private var mSubtitles = ArrayList<ZipEntry>()
+    private var mComicInfo: ZipEntry? = null
 
     override fun parse(file: File?) {
         mZipFile = ZipFile(file?.absolutePath, StandardCharsets.UTF_8)
@@ -22,10 +26,16 @@ class ZipParse : Parse {
         val e = mZipFile!!.entries()
         while (e.hasMoreElements()) {
             val ze = e.nextElement()
-            if (!ze.isDirectory && FileUtil.isImage(ze.name))
+
+            if (ze.isDirectory)
+                continue
+
+            if (FileUtil.isImage(ze.name))
                 mEntries.add(ze)
-            else if (!ze.isDirectory && FileUtil.isJson(ze.name))
+            else if (FileUtil.isJson(ze.name))
                 mSubtitles.add(ze)
+            else if (FileUtil.isXml(ze.name) && ze.name.contains("comicinfo", true))
+                mComicInfo = ze
         }
 
         mEntries.sortWith(compareBy<ZipEntry> { Util.getFolderFromPath(it.name) }.thenComparing { a, b ->
@@ -94,12 +104,26 @@ class ZipParse : Parse {
         return paths
     }
 
-    override fun getPage(num: Int): InputStream {
-        return mZipFile!!.getInputStream(mEntries[num])
+    override fun getChapters(): IntArray {
+        return getPagePaths().filter { it.value != 0 }.map { it.value }.toIntArray()
     }
 
-    override fun getType(): String {
-        return "zip"
+    override fun getComicInfo(): ComicInfo? {
+        return if (mComicInfo != null) {
+            val page = mZipFile!!.getInputStream(mComicInfo!!)
+            val serializer: Serializer = Persister()
+            try {
+                serializer.read(ComicInfo::class.java, page)
+            } catch (e :Exception) {
+                e.printStackTrace()
+                null
+            }
+        } else
+            null
+    }
+
+    override fun getPage(num: Int): InputStream {
+        return mZipFile!!.getInputStream(mEntries[num])
     }
 
     override fun destroy(isClearCache: Boolean) {

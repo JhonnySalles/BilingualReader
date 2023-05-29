@@ -2,10 +2,8 @@ package br.com.fenix.bilingualreader.service.repository
 
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import org.slf4j.LoggerFactory
-import java.io.BufferedReader
 
 class Migrations {
     object SQLINITIAL {
@@ -28,7 +26,8 @@ class Migrations {
         const val VOCABULARY: String = "INSERT INTO " + DataBaseConsts.VOCABULARY.TABLE_NAME +
                 " (" + DataBaseConsts.VOCABULARY.COLUMNS.WORD + ", " + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + ", " +
                 DataBaseConsts.VOCABULARY.COLUMNS.READING + ", " + DataBaseConsts.VOCABULARY.COLUMNS.ENGLISH + ", " +
-                DataBaseConsts.VOCABULARY.COLUMNS.PORTUGUESE + ") VALUES "
+                DataBaseConsts.VOCABULARY.COLUMNS.PORTUGUESE + ", " + DataBaseConsts.VOCABULARY.COLUMNS.JLPT + ", " +
+                DataBaseConsts.VOCABULARY.COLUMNS.REVISED  + ") VALUES "
 
     }
 

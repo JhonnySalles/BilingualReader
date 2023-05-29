@@ -138,6 +138,15 @@ class MangaRepository(context: Context) {
         }
     }
 
+    fun findByFilePath(name: String): Manga? {
+        return try {
+            mDataBase.getByPath(name)
+        } catch (e: Exception) {
+            mLOGGER.error("Error when find Manga by file name: " + e.message, e)
+            null
+        }
+    }
+
     fun findByFileFolder(folder: String): List<Manga>? {
         return try {
             mDataBase.listByFolder(folder)

@@ -1,0 +1,259 @@
+{
+  "version": 1,
+  "layers": {
+    "vectorLayer": {
+      "id": "71",
+      "name": "vector",
+      "type": "vector",
+      "width": 48,
+      "height": 48,
+      "children": [
+        {
+          "id": "72",
+          "name": "base",
+          "type": "group",
+          "pivotX": 24,
+          "pivotY": 24,
+          "children": [
+            {
+              "id": "355",
+              "name": "bar_top",
+              "type": "path",
+              "pathData": "M 6 9 L 42 9",
+              "fillAlpha": 0,
+              "strokeColor": "#ffffff",
+              "strokeWidth": 4,
+              "strokeLinecap": "round",
+              "strokeLinejoin": "round"
+            },
+            {
+              "id": "380",
+              "name": "bar_bottom",
+              "type": "path",
+              "pathData": "M 6 39 L 42 39",
+              "fillAlpha": 0,
+              "strokeColor": "#ffffff",
+              "strokeWidth": 4,
+              "strokeLinecap": "round",
+              "strokeLinejoin": "round"
+            },
+            {
+              "id": "401",
+              "name": "bar_center_top_base",
+              "type": "group",
+              "children": [
+                {
+                  "id": "360",
+                  "name": "bar_center_top",
+                  "type": "path",
+                  "pathData": "M 18.507 18.507 L 30.393 18.507",
+                  "fillAlpha": 0,
+                  "strokeColor": "#ffffff",
+                  "strokeWidth": 3.01391,
+                  "strokeLinecap": "round",
+                  "strokeLinejoin": "round"
+                }
+              ]
+            },
+            {
+              "id": "402",
+              "name": "bar_center_bottom_base",
+              "type": "group",
+              "children": [
+                {
+                  "id": "365",
+                  "name": "bar_center_bottom",
+                  "type": "path",
+                  "pathData": "M 18.507 29.493 L 30.393 29.493",
+                  "fillAlpha": 0,
+                  "strokeColor": "#ffffff",
+                  "strokeWidth": 3.01391,
+                  "strokeLinecap": "round",
+                  "strokeLinejoin": "round"
+                }
+              ]
+            },
+            {
+              "id": "404",
+              "name": "bar_right_base",
+              "type": "group",
+              "children": [
+                {
+                  "id": "725",
+                  "name": "arrow_right",
+                  "type": "path",
+                  "pathData": "M 37.037 18.971 L 42.037 23.971 L 37.037 28.971",
+                  "fillAlpha": 0,
+                  "strokeColor": "#ffffff",
+                  "strokeWidth": 4,
+                  "strokeLinecap": "round",
+                  "strokeLinejoin": "round"
+                }
+              ]
+            },
+            {
+              "id": "403",
+              "name": "bar_left_base",
+              "type": "group",
+              "children": [
+                {
+                  "id": "695",
+                  "name": "arrow_left",
+                  "type": "path",
+                  "pathData": "M 11 19 L 6 24 L 11 29",
+                  "fillAlpha": 0,
+                  "strokeColor": "#ffffff",
+                  "strokeWidth": 4,
+                  "strokeLinecap": "round",
+                  "strokeLinejoin": "round"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "hiddenLayerIds": []
+  },
+  "timeline": {
+    "animation": {
+      "id": "74",
+      "name": "anim",
+      "duration": 1200,
+      "blocks": [
+        {
+          "id": "405",
+          "layerId": "402",
+          "propertyName": "translateY",
+          "startTime": 0,
+          "endTime": 457,
+          "interpolator": "ANTICIPATE_OVERSHOOT",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": -13
+        },
+        {
+          "id": "406",
+          "layerId": "401",
+          "propertyName": "translateY",
+          "startTime": 0,
+          "endTime": 457,
+          "interpolator": "ANTICIPATE_OVERSHOOT",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 13
+        },
+        {
+          "id": "407",
+          "layerId": "401",
+          "propertyName": "translateY",
+          "startTime": 694,
+          "endTime": 1199,
+          "interpolator": "ANTICIPATE_OVERSHOOT",
+          "type": "number",
+          "fromValue": 13,
+          "toValue": 0
+        },
+        {
+          "id": "408",
+          "layerId": "402",
+          "propertyName": "translateY",
+          "startTime": 695,
+          "endTime": 1200,
+          "interpolator": "ANTICIPATE_OVERSHOOT",
+          "type": "number",
+          "fromValue": -13,
+          "toValue": 0
+        },
+        {
+          "id": "409",
+          "layerId": "404",
+          "propertyName": "translateX",
+          "startTime": 0,
+          "endTime": 322,
+          "interpolator": "DECELERATE",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": -3
+        },
+        {
+          "id": "411",
+          "layerId": "403",
+          "propertyName": "translateX",
+          "startTime": 0,
+          "endTime": 322,
+          "interpolator": "DECELERATE",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 3
+        },
+        {
+          "id": "412",
+          "layerId": "404",
+          "propertyName": "translateX",
+          "startTime": 322,
+          "endTime": 644,
+          "interpolator": "DECELERATE",
+          "type": "number",
+          "fromValue": -3,
+          "toValue": 4
+        },
+        {
+          "id": "413",
+          "layerId": "403",
+          "propertyName": "translateX",
+          "startTime": 322,
+          "endTime": 644,
+          "interpolator": "DECELERATE",
+          "type": "number",
+          "fromValue": 3,
+          "toValue": -4
+        },
+        {
+          "id": "414",
+          "layerId": "403",
+          "propertyName": "translateX",
+          "startTime": 644,
+          "endTime": 966,
+          "interpolator": "DECELERATE",
+          "type": "number",
+          "fromValue": -4,
+          "toValue": 3
+        },
+        {
+          "id": "415",
+          "layerId": "404",
+          "propertyName": "translateX",
+          "startTime": 644,
+          "endTime": 966,
+          "interpolator": "DECELERATE",
+          "type": "number",
+          "fromValue": 4,
+          "toValue": -3
+        },
+        {
+          "id": "418",
+          "layerId": "404",
+          "propertyName": "translateX",
+          "startTime": 966,
+          "endTime": 1199,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": -3,
+          "toValue": 0
+        },
+        {
+          "id": "419",
+          "layerId": "403",
+          "propertyName": "translateX",
+          "startTime": 966,
+          "endTime": 1199,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 3,
+          "toValue": 0
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/list_line_tag_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="10dp">
+
+    <CheckBox
+        android:id="@+id/list_line_tag_checkbox"
+        style="@style/CheckBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text=" "/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/list_line_tag_delete"
+        style="@style/Button.IconOnly"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:textColor="?attr/colorPrimary"
+        android:contentDescription="@string/book_tags_delete"
+        android:layout_marginStart="5dp"
+        app:iconSize="20dp"
+        app:iconTint="?attr/colorPrimary"
+        app:icon="@drawable/ico_animated_delete_tags"/>
+</LinearLayout>

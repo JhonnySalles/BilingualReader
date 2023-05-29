@@ -1,0 +1,45 @@
+<animated-vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:name="vector"
+            android:width="24dp"
+            android:height="24dp"
+            android:viewportWidth="24"
+            android:viewportHeight="24">
+            <group
+                android:name="base"
+                android:pivotX="21"
+                android:pivotY="21">
+                <path
+                    android:name="search"
+                    android:pathData="M 10.1 17.6 C 11.81 17.6 13.387 17.027 14.65 16.063 L 19.393 20.807 C 19.582 20.989 19.834 21.09 20.096 21.088 C 20.359 21.085 20.609 20.98 20.795 20.795 C 20.98 20.609 21.085 20.359 21.088 20.096 C 21.09 19.834 20.989 19.582 20.807 19.393 L 16.063 14.649 C 17.239 13.107 17.773 11.168 17.551 9.242 C 17.329 7.316 16.369 5.549 14.873 4.315 C 13.378 3.081 11.461 2.474 9.528 2.622 C 7.594 2.77 5.792 3.662 4.502 5.109 C 3.212 6.556 2.531 8.449 2.606 10.386 C 2.68 12.324 3.502 14.159 4.899 15.504 C 6.296 16.848 8.161 17.6 10.1 17.6 Z M 15.6 10.1 C 15.6 11.558 15.02 12.958 13.989 13.989 C 12.958 15.02 11.558 15.6 10.1 15.6 C 8.642 15.6 7.242 15.02 6.211 13.989 C 5.18 12.958 4.6 11.558 4.6 10.1 C 4.6 8.642 5.18 7.242 6.211 6.211 C 7.242 5.18 8.642 4.6 10.1 4.6 C 11.558 4.6 12.958 5.18 13.989 6.211 C 15.02 7.242 15.6 8.642 15.6 10.1 Z"
+                    android:fillColor="?attr/colorSecondary"
+                    android:strokeWidth="1"
+                    android:fillType="evenOdd"/>
+            </group>
+        </vector>
+    </aapt:attr>
+    <target android:name="base">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:propertyName="rotation"
+                    android:duration="432"
+                    android:valueFrom="0"
+                    android:valueTo="12"
+                    android:valueType="floatType"
+                    android:interpolator="@android:anim/decelerate_interpolator"/>
+                <objectAnimator
+                    android:propertyName="rotation"
+                    android:startOffset="565"
+                    android:duration="235"
+                    android:valueFrom="12"
+                    android:valueTo="0"
+                    android:valueType="floatType"
+                    android:interpolator="@android:anim/overshoot_interpolator"/>
+            </set>
+        </aapt:attr>
+    </target>
+</animated-vector>

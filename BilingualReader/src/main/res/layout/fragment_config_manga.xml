@@ -39,7 +39,7 @@
             android:text="@string/config_title_library" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/txt_library_order"
+            android:id="@+id/config_manga_library_order"
             style="@style/TextInputDropMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
             app:startIconDrawable="@drawable/ic_order">
 
             <AutoCompleteTextView
-                android:id="@+id/menu_autocomplete_library_order"
+                android:id="@+id/config_manga_menu_autocomplete_library_order"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
@@ -56,7 +56,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/txt_library_path"
+            android:id="@+id/config_manga_library_path"
             style="@style/TextInputWithoutDropMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -66,7 +66,7 @@
             app:startIconDrawable="@drawable/ic_sd_storage">
 
             <AutoCompleteTextView
-                android:id="@+id/menu_autocomplete_library_path"
+                android:id="@+id/config_manga_menu_autocomplete_library_path"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -76,7 +76,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
-            android:id="@+id/btn_libraries"
+            android:id="@+id/config_manga_libraries"
             style="@style/Button.LabelStart"
             android:layout_width="match_parent"
             android:layout_height="60dp"
@@ -104,7 +104,7 @@
             android:text="@string/config_title_sub_title" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/txt_default_subtitle_language"
+            android:id="@+id/config_manga_default_subtitle_language"
             style="@style/TextInputDropMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -113,7 +113,7 @@
             app:startIconDrawable="@drawable/ic_language">
 
             <AutoCompleteTextView
-                android:id="@+id/menu_autocomplete_default_subtitle_language"
+                android:id="@+id/config_manga_menu_autocomplete_default_subtitle_language"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
@@ -122,7 +122,7 @@
 
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/txt_default_subtitle_translate"
+            android:id="@+id/config_manga_default_subtitle_translate"
             style="@style/TextInputDropMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -131,7 +131,7 @@
             app:startIconDrawable="@drawable/ic_translate">
 
             <AutoCompleteTextView
-                android:id="@+id/menu_autocomplete_default_subtitle_translate"
+                android:id="@+id/config_manga_menu_autocomplete_default_subtitle_translate"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
@@ -156,7 +156,7 @@
             android:text="@string/config_title_reader" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/txt_reader_comic_mode"
+            android:id="@+id/config_manga_reader_comic_mode"
             style="@style/TextInputDropMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -165,7 +165,7 @@
             app:startIconDrawable="@drawable/ic_book_open">
 
             <AutoCompleteTextView
-                android:id="@+id/menu_autocomplete_reader_comic_mode"
+                android:id="@+id/config_manga_menu_autocomplete_reader_comic_mode"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
@@ -174,7 +174,7 @@
 
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/txt_reader_page_mode"
+            android:id="@+id/config_manga_reader_page_mode"
             style="@style/TextInputDropMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -183,7 +183,7 @@
             app:startIconDrawable="@drawable/ic_reader_mode">
 
             <AutoCompleteTextView
-                android:id="@+id/menu_autocomplete_page_mode"
+                android:id="@+id/config_manga_menu_autocomplete_page_mode"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
@@ -191,14 +191,14 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switch_show_clock_and_battery"
+            android:id="@+id/config_manga_switch_show_clock_and_battery"
             style="@style/SwitchMaterial"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/config_manga_reading_show_clock_and_battery" />
 
         <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switch_use_magnifier_type"
+            android:id="@+id/config_manga_switch_use_magnifier_type"
             style="@style/SwitchMaterial"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -222,14 +222,14 @@
             android:text="@string/config_title_file_link" />
 
         <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switch_use_path_name_for_linked"
+            android:id="@+id/config_manga_switch_use_path_name_for_linked"
             style="@style/SwitchMaterial"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/config_manga_switch_use_path_name_for_linked" />
 
         <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switch_use_dual_page_calculate"
+            android:id="@+id/config_manga_switch_use_dual_page_calculate"
             style="@style/SwitchMaterial"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

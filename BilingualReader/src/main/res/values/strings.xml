@@ -1,21 +1,27 @@
 <resources>
     <string name="app_name">Bilingual Reader</string>
 
+    <string name="action_confirm">Confirm</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_return">Return</string>
     <string name="action_positive">Yes</string>
     <string name="action_negative">No</string>
     <string name="action_delete">Delete</string>
-    <string name="action_copy">Copied text: %s</string>
+    <string name="action_copy">Copied: %s</string>
     <string name="action_app_not_installed">Required App is not installed</string>
     <string name="action_scroll_up">Up</string>
     <string name="action_scroll_down">Down</string>
     <string name="action_disconnect">Disconnect</string>
-    <string name="action_copy_name">Copy name: %s</string>
+    <string name="action_copy_name">Copy: %s</string>
 
     <string name="alert_permission_files_access_denied_title">Access denied</string>
     <string name="alert_permission_files_access_denied">It not possible to obtain the access permissions to the informed folder, please obtain access in android settings.</string>
 
-    <string name="date_format_unknown">unknown</string>
     <string name="api_error">Error connecting to API</string>
+
+    <string name="date_format_unknown">unknown</string>
+    <string name="date_format_today">Today</string>
+    <string name="date_format_day_ago">%s days ago.</string>
 
     <!-- MENU -->
     <string name="menu_search">Search</string>
@@ -64,6 +70,10 @@
     <string name="config_option_book_order_favorite">Favorite first</string>
     <string name="config_option_book_order_author">Author</string>
     <string name="config_option_book_order_genre">Genre</string>
+
+    <string name="config_option_vocabulary_order_description">For description</string>
+    <string name="config_option_vocabulary_order_frequency">For frequency</string>
+    <string name="config_option_vocabulary_order_favorite">Favorite first</string>
 
     <string name="config_manga_reading_show_clock_and_battery">Show clock and battery percent?</string>
     <string name="config_manga_reading_use_magnifier_type">Use zoom in magnifying mode?</string>
@@ -116,8 +126,21 @@
     <string name="config_title_book">Book</string>
     <string name="config_book_library_order">Library order</string>
     <string name="config_book_library_folder">Library folder</string>
+    <string name="config_book_type_normal">Book type normal</string>
+    <string name="config_book_type_japanese">Book type japanese</string>
+    <string name="config_book_font_size">Font size</string>
+
+    <string name="config_book_reading">Reading</string>
+    <string name="config_book_process_japanese_text">Process text in japanese book</string>
+    <string name="config_book_text_with_furigana">Generate furigana in japanese text</string>
+    <string name="config_book_process_vocabulary">Process book vocabulary</string>
+    <string name="config_book_scrolling_mode">Scrolling mode</string>
+    <string name="config_book_scrolling_Pagination">Pagination</string>
+    <string name="config_book_scrolling_Infinity_Scrolling">Infinity Scrolling</string>
 
     <!-- CONFIG LIBRARIES -->
+    <string name="menu_libraries_delete_library">Delete Library</string>
+
     <string name="config_libraries_title_libraries">Libraries</string>
     <string name="config_libraries_add_library">Add Library</string>
     <string name="config_libraries_delete_library">Delete Library</string>
@@ -146,9 +169,120 @@
     <string name="menu_book_reading_order">List order</string>
     <string name="menu_reading_book_order_change">Sort: %s</string>
     <string name="menu_book_reading_chapter">Chapters</string>
-    <string name="menu_book_reading_page">Page type</string>
-    <string name="menu_book_reading_font">Fonts</string>
+    <string name="menu_book_reading_annotation">Annotation</string>
+    <string name="menu_book_reading_font_and_page">Font and page</string>
     <string name="menu_book_reading_book_mark">Book mark</string>
+
+    <string name="reading_book_title_position">Position %d of %d • %s%%</string>
+    <string name="reading_book_title_chapter">Chapter %d: %s</string>
+
+    <string name="reading_book_page_index">Page index</string>
+    <string name="reading_book_page_empty">File has no folders</string>
+    <string name="reading_book_open_exception">Could not open selected book</string>
+
+    <!-- READER POPUP TITLES -->
+    <string name="popup_reading_book_open">Open</string>
+    <string name="popup_reading_book_close">Close</string>
+    <string name="popup_reading_book_tab_item_font">Font</string>
+    <string name="popup_reading_book_tab_item_layout">Layout</string>
+
+    <!-- READER POPUP FONTS -->
+    <string name="popup_reading_font_size_description" translatable="false">A</string>
+    <string name="popup_reading_font_style_example" translatable="false">Aa</string>
+    <string name="popup_reading_font_style_example_japanese" translatable="false">あう－漢字</string>
+
+    <string name="popup_reading_font_style_algerian" translatable="false">Algerian</string>
+    <string name="popup_reading_font_style_arial" translatable="false">Arial</string>
+    <string name="popup_reading_font_style_autumn_flowers" translatable="false">Autumn FLowers</string>
+    <string name="popup_reading_font_style_babel_stone_erjian_1" translatable="false">Babel Stone Erjian</string>
+    <string name="popup_reading_font_style_babel_stone_erjian_2" translatable="false">Babel Stone Erjian 2</string>
+    <string name="popup_reading_font_style_babel_stone_han" translatable="false">Babel Stone Han</string>
+    <string name="popup_reading_font_style_blackadder" translatable="false">Balckadder</string>
+    <string name="popup_reading_font_style_comfortaa" translatable="false">Comfortaa</string>
+    <string name="popup_reading_font_style_comic_sans" translatable="false">Comic Sans</string>
+    <string name="popup_reading_font_style_droid_sans" translatable="false">Droid Sans</string>
+    <string name="popup_reading_font_style_droid_serif" translatable="false">Droid Serif</string>
+    <string name="popup_reading_font_style_french_script" translatable="false">French script</string>
+    <string name="popup_reading_font_style_open_sans" translatable="false">Open Sans</string>
+    <string name="popup_reading_font_style_robots_reborn" translatable="false">Robots reborn</string>
+    <string name="popup_reading_font_style_times_new_roman" translatable="false">Times new Roman</string>
+
+
+    <!-- READER POPUP LAYOUT -->
+    <string name="popup_reading_layout_scrolling_type">Scrolling type</string>
+    <string name="popup_reading_layout_margin">Margin</string>
+    <string name="popup_reading_layout_margin_small">Small</string>
+    <string name="popup_reading_layout_margin_medium">Medium</string>
+    <string name="popup_reading_layout_margin_big">Big</string>
+    <string name="popup_reading_layout_spacing">Spacing</string>
+    <string name="popup_reading_layout_spacing_small">Small</string>
+    <string name="popup_reading_layout_spacing_medium">Medium</string>
+    <string name="popup_reading_layout_spacing_big">Big</string>
+    <string name="popup_reading_layout_alignment">Alignment</string>
+    <string name="popup_reading_layout_alignment_complete">Complete</string>
+    <string name="popup_reading_layout_alignment_right">Right</string>
+    <string name="popup_reading_layout_alignment_left">Left</string>
+
+    <!-- BOOK ANNOTATION -->
+    <string name="book_annotation_menu_search">Search</string>
+    <string name="book_annotation_filters">Filters</string>
+
+    <string name="book_annotation_type_annotation">Annotation</string>
+    <string name="book_annotation_type_book_mark">Book Mark</string>
+
+    <string name="book_annotation_delete">Delete</string>
+    <string name="book_annotation_delete_description">Do you really want to delete this %s?</string>
+
+    <string name="book_annotation_note">Note</string>
+
+    <string name="book_annotation_list_divide_title" translatable="false">%f • %s</string>
+    <string name="book_annotation_list_divide_count" translatable="false">(%f)</string>
+    <string name="book_annotation_list_title_detach">Page %f • Detach</string>
+    <string name="book_annotation_list_title_mark">Page %f • Marker</string>
+    <string name="book_annotation_list_add_note">Add note</string>
+    <string name="book_annotation_list_favorite">Favorite</string>
+    <string name="book_annotation_list_options">Options</string>
+
+    <string name="book_annotation_menu_item_favorite_add">Add favorite</string>
+    <string name="book_annotation_menu_item_favorite_remove">Remove favorite</string>
+    <string name="book_annotation_menu_item_delete">Delete</string>
+    <string name="book_annotation_menu_item_change_detach">Change color detach</string>
+
+    <!-- BOOK ANNOTATION POPUP LAYOUT -->
+    <string name="book_annotation_popup_filter_open">Open</string>
+    <string name="book_annotation_popup_filter_close">Close</string>
+    <string name="book_annotation_tab_item_filter">Filter</string>
+    <string name="book_annotation_tab_item_chapters">Chapters</string>
+
+    <!-- BOOK ANNOTATION DETACH -->
+    <string name="book_annotation_change_detach_title">Detach</string>
+    <string name="book_annotation_change_detach_description">Select detach color:</string>
+
+    <string name="book_annotation_color_none">None</string>
+    <string name="book_annotation_color_blue">Blue</string>
+    <string name="book_annotation_color_green">Green</string>
+    <string name="book_annotation_color_red">Red</string>
+    <string name="book_annotation_color_yellow">Yellow</string>
+
+    <!-- BOOK SEARCH -->
+    <string name="book_search_menu">Search</string>
+    <string name="book_search_history_title">Recent search</string>
+    <string name="book_search_history_clear">Clear history</string>
+    <string name="book_search_history_delete">Delete</string>
+    <string name="book_search_page">Page %d</string>
+
+    <string name="book_search_menu_item_add_annotation">Add book mark</string>
+
+    <!-- BOOK - TAGS -->
+    <string name="book_tags_title">Tag</string>
+    <string name="book_tags_new">New tag</string>
+    <string name="book_tags_delete">Delete</string>
+    <string name="book_tags_add">Add tag</string>
+    <string name="book_tags_return">Return</string>
+
+    <string name="book_tag_valid_empty">Name is necessary</string>
+    <string name="book_tag_valid_used">Name already used</string>
+
 
     <!-- READER - MANGA / COMIC -->
     <string name="reader_reload">Reload</string>
@@ -164,6 +298,7 @@
     <string name="menu_manga_reading_mode_left_to_right">Comics</string>
     <string name="menu_manga_reading_mode_right_to_left">Manga</string>
 
+    <string name="menu_manga_reading_chapters_menu">Chapters list</string>
     <string name="menu_manga_reading_save_share_image">Save/Share image</string>
     <string name="menu_manga_reading_favorite">Favorite</string>
     <string name="menu_manga_reading_order">List order</string>
@@ -204,6 +339,7 @@
     <string name="reading_manga_touch_demonstration_previous_file">Previous file</string>
     <string name="reading_manga_touch_demonstration_next_page">Next page</string>
     <string name="reading_manga_touch_demonstration_previous_page">Previous page</string>
+    <string name="reading_manga_touch_demonstration_share_image">Share image</string>
 
     <string name="open_app_kaku_not_founded">App Kaku not found.</string>
 
@@ -281,11 +417,18 @@
     <string name="action_neutral">Ok</string>
     <string name="switch_action_positive">Yes</string>
     <string name="switch_action_negative">No</string>
+
     <string name="switch_next_comic">Would you like to switch to the next comic?</string>
     <string name="switch_prev_comic">Would you like to switch to the previous comic?</string>
     <string name="switch_next_comic_not_found">Next file not found</string>
     <string name="switch_prev_comic_first_comic">This is the first file.</string>
     <string name="switch_next_comic_last_comic">This is the last file.</string>
+
+    <string name="switch_next_book">Would you like to switch to the next book?</string>
+    <string name="switch_prev_book">Would you like to switch to the previous book?</string>
+    <string name="switch_next_book_not_found">Next file not found</string>
+    <string name="switch_prev_book_first_comic">This is the first file.</string>
+    <string name="switch_next_book_last_comic">This is the last file.</string>
 
     <!-- LIBRARY - Manga / Comic -->
     <string name="manga_library_last_access">Last_access</string>
@@ -295,11 +438,61 @@
     <string name="manga_library_menu_delete_description">Do you really want to delete the file?</string>
     <string name="manga_library_menu_clear">Clear history</string>
     <string name="manga_library_default">Default</string>
-    <string name="manga_library_menu_copy">Copy name</string>
+    <string name="manga_library_menu_copy">Copy</string>
 
-    <!-- LIBRARY - Manga / Comic -->
+    <string-array name="manga_filters">
+        <item>Author</item>
+        <item>Publisher</item>
+        <item>Series</item>
+        <item>Type</item>
+        <item>Volume</item>
+    </string-array>
+
+    <!-- LIBRARY - Book -->
+    <string name="menu_book_config_send">Send file</string>
+    <string name="menu_book_config_clear_progress">Clear progress</string>
+    <string name="menu_book_config_delete">Delete</string>
+    <string name="menu_book_config_detail">File detail</string>
+    <string name="menu_book_config_tag">Add tags</string>
+
+    <string name="book_library_share">Book share</string>
+
+    <string name="book_library_default">Default</string>
     <string name="book_library_menu_delete">Delete</string>
     <string name="book_library_menu_delete_description">Do you really want to delete the file?</string>
+
+    <string-array name="book_filters">
+        <item>Author</item>
+        <item>Publisher</item>
+        <item>Tag</item>
+        <item>Type</item>
+    </string-array>
+
+    <!-- POPUP LIBRARY - Manga / Comic -->
+    <string name="popup_library_manga_tab_item_ordering">Order</string>
+    <string name="popup_library_manga_tab_item_filter">Filter</string>
+
+    <string name="popup_library_manga_order_name">For name</string>
+    <string name="popup_library_manga_order_date">For date</string>
+    <string name="popup_library_manga_order_access">Last access</string>
+    <string name="popup_library_manga_order_favorite">Favorite first</string>
+
+    <string name="popup_library_manga_filter_favorite">Favorite</string>
+    <string name="popup_library_manga_filter_reading">Reading</string>
+
+    <!-- POPUP LIBRARY - Book -->
+    <string name="popup_library_book_tab_item_ordering">Order</string>
+    <string name="popup_library_book_tab_item_filter">Filter</string>
+
+    <string name="popup_library_book_order_name">For name</string>
+    <string name="popup_library_book_order_date">For date</string>
+    <string name="popup_library_book_order_access">Last access</string>
+    <string name="popup_library_book_order_favorite">Favorite first</string>
+    <string name="popup_library_book_order_genre">For genre</string>
+    <string name="popup_library_book_order_author">For author</string>
+
+    <string name="popup_library_book_filter_favorite">Favorite</string>
+    <string name="popup_library_book_filter_reading">Reading</string>
 
     <!-- MANGA DETAIL -->
     <string name="manga_detail_favorite">Favorite</string>
@@ -312,22 +505,61 @@
     <string name="manga_detail_manga_deleted">File deleted</string>
     <string name="manga_detail_vocabulary">Vocabulary</string>
 
-    <string name="manga_detail_information">Information</string>
+    <!-- Use CDATA for format string in html -->
+    <string name="manga_detail_local_information_title">Detail</string>
+    <string name="manga_detail_local_information_series"><![CDATA[<b>Series:</b> %s]]></string>
+    <string name="manga_detail_local_information_volume"><![CDATA[<b>Volume:</b> %s]]></string>
+    <string name="manga_detail_local_information_publisher"><![CDATA[<b>Published:</b> %s]]></string>
+    <string name="manga_detail_local_information_release"><![CDATA[<b>Release:</b> %s]]></string>
+    <string name="manga_detail_local_information_authors"><![CDATA[<b>Authors:</b> %s]]></string>
+
+    <string name="manga_detail_local_information_comic_info_title"><![CDATA[<b>Title:</b> %s]]></string>
+    <string name="manga_detail_local_information_comic_info_language"><![CDATA[<b>Language:</b> %s]]></string>
+    <string name="manga_detail_local_information_comic_info_story_arch"><![CDATA[<b>Story Arch:</b> %s]]></string>
+    <string name="manga_detail_local_information_comic_info_genre"><![CDATA[<b>Genre:</b> %s]]></string>
+    <string name="manga_detail_local_information_comic_info_characters"><![CDATA[<b>Characters:</b> %s]]></string>
+    <string name="manga_detail_local_information_comic_info_teams"><![CDATA[<b>Teams:</b> %s]]></string>
+    <string name="manga_detail_local_information_comic_info_locations"><![CDATA[<b>Locations:</b> %s]]></string>
+    <string name="manga_detail_local_information_comic_info_book_marks_title">Book Marks</string>
+
+    <string name="manga_detail_web_information">Web Information</string>
     <string name="manga_detail_related">Related</string>
 
-    <string name="manga_detail_information_alternative_titles">Alternative titles:</string>
-    <string name="manga_detail_information_status">Status:</string>
-    <string name="manga_detail_information_volumes">Volumes:</string>
-    <string name="manga_detail_information_chapters">Chapters:</string>
-    <string name="manga_detail_information_publish"><b>Published:</b> %s to %s</string>
-    <string name="manga_detail_information_publish_in_publication">in publication</string>
-    <string name="manga_detail_information_authors">Authors:</string>
-    <string name="manga_detail_information_genre">Genres:</string>
+    <string name="manga_detail_web_information_alternative_titles"><![CDATA[<b>Alternative titles:</b> %s]]></string>
+    <string name="manga_detail_web_information_status"><![CDATA[<b>Status:</b> %s]]></string>
+    <string name="manga_detail_web_information_volumes"><![CDATA[<b>Volumes:</b> %s]]></string>
+    <string name="manga_detail_web_information_chapters"><![CDATA[<b>Chapters:</b> %s]]></string>
+    <string name="manga_detail_web_information_publish"><![CDATA[<b>Published:</b> %s]]></string>
+    <string name="manga_detail_web_information_publish_from_to"><![CDATA[<b>Published:</b> %s to %s]]></string>
+    <string name="manga_detail_web_information_publish_in_publication">in publication</string>
+    <string name="manga_detail_web_information_authors"><![CDATA[<b>Authors:</b> %s]]></string>
+    <string name="manga_detail_web_information_genre"><![CDATA[<b>Genres:</b> %s]]></string>
+
+    <!-- BOOK DETAIL -->
+    <string name="book_detail_favorite">Favorite</string>
+    <string name="book_detail_clear_history">Clear history</string>
+    <string name="book_detail_mark_read">Mark as read</string>
+    <string name="book_detail_delete">Delete</string>
+    <string name="book_detail_chapters_title">Chapters</string>
+    <string name="book_detail_subtitles_title">Subtitles</string>
+    <string name="book_detail_file_links_title">Files links</string>
+    <string name="book_detail_manga_deleted">File deleted</string>
+    <string name="book_detail_vocabulary">Vocabulary</string>
+
+    <string name="book_detail_information">Information</string>
+    <string name="book_detail_related">Related</string>
+    <string name="book_detail_tags">Tags</string>
+
+    <string name="book_detail_information_language">Book language</string>
+    <string name="book_detail_information_file"><b>File:</b> %s</string>
+    <string name="book_detail_information_isbn"><b>ISBN:</b> %s</string>
+    <string name="book_detail_information_year"><b>Year:</b> %s</string>
+    <string name="book_detail_information_publisher"><b>Publisher:</b> %s</string>
+    <string name="book_detail_information_annotation"><b>Annotation:</b> %s</string>
+    <string name="book_detail_information_genres"><b>Genres:</b> %s</string>
 
     <!-- HISTORY - Manga / Comic -->
     <string name="history_last_access">Last access</string>
-    <string name="history_today">Today</string>
-    <string name="history_day_ago">%s days ago.</string>
     <string name="history_delete_description">Do you really want to delete the history?</string>
     <string name="menu_manga_history_library">Library</string>
     <string name="history_menu_choice_library_all">All</string>
@@ -380,15 +612,27 @@
 
     <!-- VOCABULARY -->
     <string name="vocabulary_manga">Manga</string>
+    <string name="vocabulary_book">Book</string>
     <string name="vocabulary_find">Vocabulary</string>
     <string name="vocabulary_favorites">Favorites</string>
-    <string name="vocabulary_favorite">Favorite</string>
     <string name="vocabulary_appear">Frequency: %d</string>
     <string name="vocabulary_imported">Completed vocabulary import.</string>
+    <string name="vocabulary_favorite">Favorite</string>
+    <string name="vocabulary_manga_favorite">Favorite</string>
+    <string name="vocabulary_book_favorite">Favorite</string>
+    <string name="vocabulary_manga_button">Manga</string>
+    <string name="vocabulary_book_button">Book</string>
+    <string name="vocabulary_tatoeba_button">Tatoeba</string>
 
     <string name="menu_vocabulary_search">Search</string>
     <string name="menu_vocabulary_order">Order</string>
     <string name="menu_vocabulary_favorite">Favorite</string>
+
+    <string name="popup_vocabulary_tab_item_ordering">Ordenação</string>
+
+    <string name="popup_vocabulary_order_description">For description</string>
+    <string name="popup_vocabulary_order_favorite">For favorite</string>
+    <string name="popup_vocabulary_order_frequency">For frequency</string>
 
     <!-- KANJI -->
     <string name="kanji_jlpt"><b><i>jlpt:</i></b> N%d</string>
@@ -493,4 +737,15 @@
     <string name="percent" translatable="false">%d%%</string>
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
+    <string name="progress" translatable="false">%d / %d</string>
+    <string name="book_chapter" translatable="false">%s • %d / %d</string>
+    <string name="book_page_read" translatable="false">%d / %d (%s)</string>
+
+    <!-- COMMON -->
+    <string name="text_author">Author</string>
+    <string name="text_writer">Writer</string>
+    <string name="text_penciller">Penciller</string>
+    <string name="text_inker">Inker</string>
+    <string name="text_cover_artist">Cover Artist</string>
+    <string name="text_colorist">Colorist</string>
 </resources>

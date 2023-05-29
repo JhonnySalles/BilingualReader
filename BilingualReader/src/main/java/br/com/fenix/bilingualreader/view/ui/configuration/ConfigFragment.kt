@@ -13,17 +13,24 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import br.com.fenix.bilingualreader.MainActivity
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.*
+import br.com.fenix.bilingualreader.service.listener.FontsListener
 import br.com.fenix.bilingualreader.service.listener.ThemesListener
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.*
+import br.com.fenix.bilingualreader.view.adapter.fonts.FontsCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.themes.ThemesCardAdapter
+import br.com.fenix.bilingualreader.view.ui.library.book.BookLibraryViewModel
+import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.menu.ConfigLibrariesViewModel
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.slider.Slider
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputLayout
 import org.lucasr.twowayview.TwoWayView
@@ -40,118 +47,158 @@ class ConfigFragment : Fragment() {
 
     private val mViewModel: ConfigLibrariesViewModel by viewModels()
 
+    // -------------------------------------------------------- System --------------------------------------------------------
+    private lateinit var mConfigSystemThemeMode: TextInputLayout
+    private lateinit var mConfigSystemThemeModeAutoComplete: AutoCompleteTextView
+    private lateinit var mConfigSystemThemes: TwoWayView
+
+    private lateinit var mConfigSystemFormatDate: TextInputLayout
+    private lateinit var mConfigSystemFormatDateAutoComplete: AutoCompleteTextView
+
+    private lateinit var mConfigSystemBackup: Button
+    private lateinit var mConfigSystemRestore: Button
+    private lateinit var mConfigSystemLastBackup: TextView
+
+    private lateinit var mConfigSystemMalMonitoring: LinearLayout
+    private lateinit var mConfigSystemMalMonitoringChecked: ImageView
+
+    private var mConfigSystemThemeModeSelect: ThemeMode = ThemeMode.SYSTEM
+    private var mConfigSystemThemeSelect: Themes = Themes.ORIGINAL
+    private var mConfigSystemDateSelect: String = GeneralConsts.CONFIG.DATA_FORMAT[0]
+    private var mConfigSystemDateSmall: String = GeneralConsts.CONFIG.DATA_FORMAT_SMALL[0]
+    private val mConfigSystemDatePattern = GeneralConsts.CONFIG.DATA_FORMAT
+    private val mConfigSystemDateSmallPattern = GeneralConsts.CONFIG.DATA_FORMAT
+
     // --------------------------------------------------------- Manga / Comic ---------------------------------------------------------
+    private lateinit var mMangaLibraryPath: TextInputLayout
+    private lateinit var mMangaLibraryPathAutoComplete: AutoCompleteTextView
+    private lateinit var mMangaLibraryOrder: TextInputLayout
+    private lateinit var mMangaLibraryOrderAutoComplete: AutoCompleteTextView
+    private lateinit var mMangaLibrariesButton: Button
 
-    private lateinit var mLibraryPath: TextInputLayout
-    private lateinit var mLibraryPathAutoComplete: AutoCompleteTextView
-    private lateinit var mLibraryOrder: TextInputLayout
-    private lateinit var mLibraryOrderAutoComplete: AutoCompleteTextView
-    private lateinit var mLibrariesButton: Button
+    private lateinit var mMangaDefaultSubtitleLanguage: TextInputLayout
+    private lateinit var mMangaDefaultSubtitleLanguageAutoComplete: AutoCompleteTextView
+    private lateinit var mMangaDefaultSubtitleTranslate: TextInputLayout
+    private lateinit var mMangaSubtitleTranslateAutoComplete: AutoCompleteTextView
 
-    private lateinit var mThemeMode: TextInputLayout
-    private lateinit var mThemeModeAutoComplete: AutoCompleteTextView
-    private lateinit var mThemes: TwoWayView
+    private lateinit var mMangaReaderComicMode: TextInputLayout
+    private lateinit var mMangaReaderComicModeAutoComplete: AutoCompleteTextView
+    private lateinit var mMangaReaderPageMode: TextInputLayout
+    private lateinit var mMangaPageModeAutoComplete: AutoCompleteTextView
+    private lateinit var mMangaShowClockAndBattery: SwitchMaterial
+    private lateinit var mMangaUseMagnifierType: SwitchMaterial
 
-    private lateinit var mDefaultSubtitleLanguage: TextInputLayout
-    private lateinit var mDefaultSubtitleLanguageAutoComplete: AutoCompleteTextView
-    private lateinit var mDefaultSubtitleTranslate: TextInputLayout
-    private lateinit var mSubtitleTranslateAutoComplete: AutoCompleteTextView
+    private lateinit var mMangaUseDualPageCalculate: SwitchMaterial
+    private lateinit var mMangaUsePathNameForLinked: SwitchMaterial
 
-    private lateinit var mReaderComicMode: TextInputLayout
-    private lateinit var mReaderComicModeAutoComplete: AutoCompleteTextView
-    private lateinit var mReaderPageMode: TextInputLayout
-    private lateinit var mPageModeAutoComplete: AutoCompleteTextView
-    private lateinit var mShowClockAndBattery: SwitchMaterial
-    private lateinit var mUseMagnifierType: SwitchMaterial
+    private var mMangaDefaultSubtitleLanguageSelect: Languages = Languages.JAPANESE
+    private var mMangaDefaultSubtitleTranslateSelect: Languages = Languages.PORTUGUESE
 
-    private lateinit var mSystemFormatDate: TextInputLayout
-    private lateinit var mSystemFormatDateAutoComplete: AutoCompleteTextView
+    private lateinit var mMangaMapOrder: HashMap<String, Order>
+    private lateinit var mMangaMapPageMode: HashMap<String, PageMode>
+    private lateinit var mMangaMapReaderMode: HashMap<String, ReaderMode>
+    private lateinit var mMangaMapLanguage: HashMap<String, Languages>
+    private lateinit var mMangaMapThemeMode: HashMap<String, ThemeMode>
+    private lateinit var mMangaMapThemes: HashMap<String, Themes>
 
-    private lateinit var mUseDualPageCalculate: SwitchMaterial
-    private lateinit var mUsePathNameForLinked: SwitchMaterial
-
-    private lateinit var mBackup: Button
-    private lateinit var mRestore: Button
-    private lateinit var mLastBackup: TextView
-
-    private lateinit var mMalMonitoring: LinearLayout
-    private lateinit var mMalMonitoringChecked: ImageView
-
-    private var mDateSelect: String = GeneralConsts.CONFIG.DATA_FORMAT[0]
-    private val mDatePattern = GeneralConsts.CONFIG.DATA_FORMAT
-    private var mPageModeSelect: PageMode = PageMode.Comics
-    private var mReaderModeSelect: ReaderMode = ReaderMode.FIT_WIDTH
-    private var mOrderSelect: Order = Order.Name
-
-    private var mThemeModeSelect: ThemeMode = ThemeMode.SYSTEM
-    private var mThemeSelect: Themes = Themes.ORIGINAL
-    private var mDefaultSubtitleLanguageSelect: Languages = Languages.JAPANESE
-    private var mDefaultSubtitleTranslateSelect: Languages = Languages.PORTUGUESE
-
-    private lateinit var mMapOrder: HashMap<String, Order>
-    private lateinit var mMapPageMode: HashMap<String, PageMode>
-    private lateinit var mMapReaderMode: HashMap<String, ReaderMode>
-    private lateinit var mMapLanguage: HashMap<String, Languages>
-    private lateinit var mMapThemeMode: HashMap<String, ThemeMode>
-    private lateinit var mMapThemes: HashMap<String, Themes>
+    private var mMangaPageModeSelectType: PageMode = PageMode.Comics
+    private var mMangaReaderModeSelectType: ReaderMode = ReaderMode.FIT_WIDTH
+    private var mMangaOrderSelect: Order = Order.Name
 
     // --------------------------------------------------------- Book ---------------------------------------------------------
-
+    private lateinit var mBookLibrariesButton: Button
     private lateinit var mBookLibraryPath: TextInputLayout
     private lateinit var mBookLibraryPathAutoComplete: AutoCompleteTextView
     private lateinit var mBookLibraryOrder: TextInputLayout
     private lateinit var mBookLibraryOrderAutoComplete: AutoCompleteTextView
+    private lateinit var mBookScrollingMode: TextInputLayout
+    private lateinit var mBookScrollingModeAutoComplete: AutoCompleteTextView
+
+    private lateinit var mBookFontTypeNormal: TwoWayView
+    private lateinit var mBookFontTypeJapanese: TwoWayView
+    private lateinit var mBookFontSize: Slider
+
+    private lateinit var mBookProcessJapaneseText: SwitchMaterial
+    private lateinit var mBookTextWithFurigana: SwitchMaterial
+    private lateinit var mBookProcessVocabulary: SwitchMaterial
 
     private var mBookOrderSelect: Order = Order.Name
+    private var mBookScrollingModeSelect: ScrollingType = ScrollingType.Pagination
 
     private lateinit var mBookMapOrder: HashMap<String, Order>
+    private lateinit var mBookMapScrollingMode: HashMap<String, ScrollingType>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mLibraryPath = view.findViewById(R.id.txt_library_path)
-        mLibraryPathAutoComplete = view.findViewById(R.id.menu_autocomplete_library_path)
-        mLibraryOrder = view.findViewById(R.id.txt_library_order)
-        mLibraryOrderAutoComplete = view.findViewById(R.id.menu_autocomplete_library_order)
-        mLibrariesButton = view.findViewById(R.id.btn_libraries)
+        mMangaLibraryPath = view.findViewById(R.id.config_manga_library_path)
+        mMangaLibraryPathAutoComplete =
+            view.findViewById(R.id.config_manga_menu_autocomplete_library_path)
+        mMangaLibraryOrder = view.findViewById(R.id.config_manga_library_order)
+        mMangaLibraryOrderAutoComplete =
+            view.findViewById(R.id.config_manga_menu_autocomplete_library_order)
+        mMangaLibrariesButton = view.findViewById(R.id.config_manga_libraries)
 
+        mBookLibrariesButton = view.findViewById(R.id.config_book_libraries)
         mBookLibraryPath = view.findViewById(R.id.config_book_library_path)
-        mBookLibraryPathAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_library_path)
+        mBookLibraryPathAutoComplete =
+            view.findViewById(R.id.config_book_menu_autocomplete_library_path)
         mBookLibraryOrder = view.findViewById(R.id.config_book_library_order)
-        mBookLibraryOrderAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_library_order)
+        mBookLibraryOrderAutoComplete =
+            view.findViewById(R.id.config_book_menu_autocomplete_library_order)
+        mBookScrollingMode = view.findViewById(R.id.config_book_scrolling_mode)
+        mBookScrollingModeAutoComplete =
+            view.findViewById(R.id.config_book_menu_autocomplete_scrolling_mode)
 
-        mThemeMode = view.findViewById(R.id.txt_theme_mode)
-        mThemeModeAutoComplete = view.findViewById(R.id.menu_autocomplete_theme_mode)
-        mThemes = view.findViewById(R.id.list_themes)
+        mBookFontTypeNormal = view.findViewById(R.id.config_book_list_fonts_normal)
+        mBookFontTypeJapanese = view.findViewById(R.id.config_book_list_fonts_japanese)
+        mBookFontSize = view.findViewById(R.id.config_book_font_size)
 
-        mDefaultSubtitleLanguage = view.findViewById(R.id.txt_default_subtitle_language)
-        mDefaultSubtitleLanguageAutoComplete =
-            view.findViewById(R.id.menu_autocomplete_default_subtitle_language)
-        mDefaultSubtitleTranslate = view.findViewById(R.id.txt_default_subtitle_translate)
-        mSubtitleTranslateAutoComplete =
-            view.findViewById(R.id.menu_autocomplete_default_subtitle_translate)
+        mBookProcessJapaneseText = view.findViewById(R.id.config_book_process_japanese_text)
+        mBookTextWithFurigana = view.findViewById(R.id.config_book_text_with_furigana)
+        mBookProcessVocabulary = view.findViewById(R.id.config_book_process_vocabulary)
 
-        mReaderComicMode = view.findViewById(R.id.txt_reader_comic_mode)
-        mReaderComicModeAutoComplete = view.findViewById(R.id.menu_autocomplete_reader_comic_mode)
-        mReaderPageMode = view.findViewById(R.id.txt_reader_page_mode)
-        mPageModeAutoComplete = view.findViewById(R.id.menu_autocomplete_page_mode)
-        mShowClockAndBattery = view.findViewById(R.id.switch_show_clock_and_battery)
-        mUseMagnifierType = view.findViewById(R.id.switch_use_magnifier_type)
+        mConfigSystemThemeMode = view.findViewById(R.id.config_system_theme_mode)
+        mConfigSystemThemeModeAutoComplete =
+            view.findViewById(R.id.config_system_menu_autocomplete_theme_mode)
+        mConfigSystemThemes = view.findViewById(R.id.config_system_list_themes)
 
-        mSystemFormatDate = view.findViewById(R.id.txt_system_format_date)
-        mSystemFormatDateAutoComplete = view.findViewById(R.id.menu_autocomplete_system_format_date)
+        mMangaDefaultSubtitleLanguage =
+            view.findViewById(R.id.config_manga_default_subtitle_language)
+        mMangaDefaultSubtitleLanguageAutoComplete =
+            view.findViewById(R.id.config_manga_menu_autocomplete_default_subtitle_language)
+        mMangaDefaultSubtitleTranslate =
+            view.findViewById(R.id.config_manga_default_subtitle_translate)
+        mMangaSubtitleTranslateAutoComplete =
+            view.findViewById(R.id.config_manga_menu_autocomplete_default_subtitle_translate)
 
-        mUseDualPageCalculate = view.findViewById(R.id.switch_use_dual_page_calculate)
-        mUsePathNameForLinked = view.findViewById(R.id.switch_use_path_name_for_linked)
+        mMangaReaderComicMode = view.findViewById(R.id.config_manga_reader_comic_mode)
+        mMangaReaderComicModeAutoComplete =
+            view.findViewById(R.id.config_manga_menu_autocomplete_reader_comic_mode)
+        mMangaReaderPageMode = view.findViewById(R.id.config_manga_reader_page_mode)
+        mMangaPageModeAutoComplete =
+            view.findViewById(R.id.config_manga_menu_autocomplete_page_mode)
+        mMangaShowClockAndBattery =
+            view.findViewById(R.id.config_manga_switch_show_clock_and_battery)
+        mMangaUseMagnifierType = view.findViewById(R.id.config_manga_switch_use_magnifier_type)
 
-        mBackup = view.findViewById(R.id.btn_backup)
-        mRestore = view.findViewById(R.id.btn_restore)
-        mLastBackup = view.findViewById(R.id.txt_last_backup)
+        mConfigSystemFormatDate = view.findViewById(R.id.config_system_format_date)
+        mConfigSystemFormatDateAutoComplete =
+            view.findViewById(R.id.config_system_menu_autocomplete_format_date)
 
-        mMalMonitoring = view.findViewById(R.id.tracker_my_anime_list)
-        mMalMonitoringChecked = view.findViewById(R.id.tracker_checked)
+        mMangaUseDualPageCalculate =
+            view.findViewById(R.id.config_manga_switch_use_dual_page_calculate)
+        mMangaUsePathNameForLinked =
+            view.findViewById(R.id.config_manga_switch_use_path_name_for_linked)
 
-        mLibraryPathAutoComplete.setOnClickListener {
+        mConfigSystemBackup = view.findViewById(R.id.config_system_backup)
+        mConfigSystemRestore = view.findViewById(R.id.config_system_restore)
+        mConfigSystemLastBackup = view.findViewById(R.id.config_system_last_backup)
+
+        mConfigSystemMalMonitoring = view.findViewById(R.id.config_system_tracker_my_anime_list)
+        mConfigSystemMalMonitoringChecked = view.findViewById(R.id.config_system_tracker_checked)
+
+        mMangaLibraryPathAutoComplete.setOnClickListener {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
             intent.addCategory(Intent.CATEGORY_DEFAULT)
             startActivityForResult(intent, GeneralConsts.REQUEST.OPEN_MANGA_FOLDER)
@@ -163,11 +210,12 @@ class ConfigFragment : Fragment() {
             startActivityForResult(intent, GeneralConsts.REQUEST.OPEN_BOOK_FOLDER)
         }
 
-        mLibrariesButton.setOnClickListener { openLibraries() }
+        mMangaLibrariesButton.setOnClickListener { openLibraries(Type.MANGA) }
+        mBookLibrariesButton.setOnClickListener { openLibraries(Type.BOOK) }
 
-        mMapLanguage = Util.getLanguages(requireContext())
+        mMangaMapLanguage = Util.getLanguages(requireContext())
 
-        mMapOrder = hashMapOf(
+        mMangaMapOrder = hashMapOf(
             getString(R.string.config_option_manga_order_name) to Order.Name,
             getString(R.string.config_option_manga_order_date) to Order.Date,
             getString(R.string.config_option_manga_order_access) to Order.LastAccess,
@@ -183,41 +231,45 @@ class ConfigFragment : Fragment() {
             getString(R.string.config_option_book_order_genre) to Order.Genre
         )
 
-        mMapPageMode = hashMapOf(
+        mMangaMapPageMode = hashMapOf(
             getString(R.string.menu_manga_reading_mode_left_to_right) to PageMode.Comics,
             getString(R.string.menu_manga_reading_mode_right_to_left) to PageMode.Manga
         )
 
-        mMapReaderMode = hashMapOf(
+        mMangaMapReaderMode = hashMapOf(
             getString(R.string.menu_manga_view_mode_aspect_fill) to ReaderMode.ASPECT_FILL,
             getString(R.string.menu_manga_view_mode_aspect_fit) to ReaderMode.ASPECT_FIT,
             getString(R.string.menu_manga_view_mode_fit_width) to ReaderMode.FIT_WIDTH
         )
 
+        mBookMapScrollingMode = hashMapOf(
+            getString(R.string.config_book_scrolling_Infinity_Scrolling) to ScrollingType.Scrolling,
+            getString(R.string.config_book_scrolling_Pagination) to ScrollingType.Pagination
+        )
+
         val themeMode = requireContext().resources.getStringArray(R.array.theme_mode)
-        mMapThemeMode = hashMapOf(
+        mMangaMapThemeMode = hashMapOf(
             themeMode[0] to ThemeMode.SYSTEM,
             themeMode[1] to ThemeMode.LIGHT,
             themeMode[2] to ThemeMode.DARK
         )
 
-        mMapThemes = Util.getThemes(requireContext())
+        mMangaMapThemes = ThemeUtil.getThemes(requireContext())
 
-        val adapterOrder =
-            ArrayAdapter(requireContext(), R.layout.list_item, mMapOrder.keys.toTypedArray())
-        mLibraryOrderAutoComplete.setAdapter(adapterOrder)
-        mLibraryOrderAutoComplete.onItemClickListener =
+        val adapterOrder = ArrayAdapter(requireContext(), R.layout.list_item, mMangaMapOrder.keys.toTypedArray())
+        mMangaLibraryOrderAutoComplete.setAdapter(adapterOrder)
+        mMangaLibraryOrderAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
-                mOrderSelect = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
-                    mMapOrder.containsKey(parent.getItemAtPosition(position).toString())
-                )
-                    mMapOrder[parent.getItemAtPosition(position).toString()]!!
-                else
-                    Order.Name
+                mMangaOrderSelect =
+                    if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                        mMangaMapOrder.containsKey(parent.getItemAtPosition(position).toString())
+                    )
+                        mMangaMapOrder[parent.getItemAtPosition(position).toString()]!!
+                    else
+                        Order.Name
             }
 
-        val adapterOrderBook =
-            ArrayAdapter(requireContext(), R.layout.list_item, mBookMapOrder.keys.toTypedArray())
+        val adapterOrderBook = ArrayAdapter(requireContext(), R.layout.list_item, mBookMapOrder.keys.toTypedArray())
         mBookLibraryOrderAutoComplete.setAdapter(adapterOrderBook)
         mBookLibraryOrderAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
@@ -229,83 +281,99 @@ class ConfigFragment : Fragment() {
                     Order.Name
             }
 
-        val adapterLanguage =
-            ArrayAdapter(requireContext(), R.layout.list_item, mMapLanguage.keys.toTypedArray())
-        mDefaultSubtitleLanguageAutoComplete.setAdapter(adapterLanguage)
-        mDefaultSubtitleLanguageAutoComplete.onItemClickListener =
+        val adapterLanguage = ArrayAdapter(requireContext(), R.layout.list_item, mMangaMapLanguage.keys.toTypedArray())
+        mMangaDefaultSubtitleLanguageAutoComplete.setAdapter(adapterLanguage)
+        mMangaDefaultSubtitleLanguageAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
-                mDefaultSubtitleLanguageSelect =
+                mMangaDefaultSubtitleLanguageSelect =
                     if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
-                        mMapLanguage.containsKey(parent.getItemAtPosition(position).toString())
+                        mMangaMapLanguage.containsKey(parent.getItemAtPosition(position).toString())
                     )
-                        mMapLanguage[parent.getItemAtPosition(position).toString()]!!
+                        mMangaMapLanguage[parent.getItemAtPosition(position).toString()]!!
                     else
                         Languages.JAPANESE
             }
 
-        mSubtitleTranslateAutoComplete.setAdapter(adapterLanguage)
-        mSubtitleTranslateAutoComplete.onItemClickListener =
+        mMangaSubtitleTranslateAutoComplete.setAdapter(adapterLanguage)
+        mMangaSubtitleTranslateAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
-                mDefaultSubtitleTranslateSelect =
+                mMangaDefaultSubtitleTranslateSelect =
                     if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
-                        mMapLanguage.containsKey(parent.getItemAtPosition(position).toString())
+                        mMangaMapLanguage.containsKey(parent.getItemAtPosition(position).toString())
                     )
-                        mMapLanguage[parent.getItemAtPosition(position).toString()]!!
+                        mMangaMapLanguage[parent.getItemAtPosition(position).toString()]!!
                     else
                         Languages.PORTUGUESE
             }
 
-        val adapterReaderMode =
-            ArrayAdapter(requireContext(), R.layout.list_item, mMapReaderMode.keys.toTypedArray())
-        mReaderComicModeAutoComplete.setAdapter(adapterReaderMode)
-        mReaderComicModeAutoComplete.onItemClickListener =
+        val adapterReaderMode = ArrayAdapter(requireContext(), R.layout.list_item, mMangaMapReaderMode.keys.toTypedArray())
+        mMangaReaderComicModeAutoComplete.setAdapter(adapterReaderMode)
+        mMangaReaderComicModeAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
-                mReaderModeSelect = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
-                    mMapReaderMode.containsKey(parent.getItemAtPosition(position).toString())
-                )
-                    mMapReaderMode[parent.getItemAtPosition(position).toString()]!!
-                else
-                    ReaderMode.FIT_WIDTH
-            }
-
-        val adapterPageMode =
-            ArrayAdapter(requireContext(), R.layout.list_item, mMapPageMode.keys.toTypedArray())
-        mPageModeAutoComplete.setAdapter(adapterPageMode)
-        mPageModeAutoComplete.onItemClickListener =
-            AdapterView.OnItemClickListener { parent, _, position, _ ->
-                mPageModeSelect = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
-                    mMapPageMode.containsKey(parent.getItemAtPosition(position).toString())
-                )
-                    mMapPageMode[parent.getItemAtPosition(position).toString()]!!
-                else
-                    PageMode.Comics
-            }
-
-        val themesMode = ArrayAdapter(requireContext(), R.layout.list_item, mMapThemeMode.keys.toTypedArray())
-        mThemeModeAutoComplete.setAdapter(themesMode)
-        mThemeModeAutoComplete.onItemClickListener =
-            AdapterView.OnItemClickListener { parent, _, position, _ ->
-                mThemeModeSelect =
+                mMangaReaderModeSelectType =
                     if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
-                        mMapThemeMode.containsKey(parent.getItemAtPosition(position).toString())
+                        mMangaMapReaderMode.containsKey(
+                            parent.getItemAtPosition(position).toString()
+                        )
                     )
-                        mMapThemeMode[parent.getItemAtPosition(position).toString()] ?: ThemeMode.SYSTEM
+                        mMangaMapReaderMode[parent.getItemAtPosition(position).toString()]!!
+                    else
+                        ReaderMode.FIT_WIDTH
+            }
+
+        val adapterPageMode = ArrayAdapter(requireContext(), R.layout.list_item, mMangaMapPageMode.keys.toTypedArray())
+        mMangaPageModeAutoComplete.setAdapter(adapterPageMode)
+        mMangaPageModeAutoComplete.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                mMangaPageModeSelectType =
+                    if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                        mMangaMapPageMode.containsKey(parent.getItemAtPosition(position).toString())
+                    )
+                        mMangaMapPageMode[parent.getItemAtPosition(position).toString()]!!
+                    else
+                        PageMode.Comics
+            }
+
+        val adapterBookScrollingMode = ArrayAdapter(requireContext(), R.layout.list_item, mBookMapScrollingMode.keys.toTypedArray())
+        mBookScrollingModeAutoComplete.setAdapter(adapterBookScrollingMode)
+        mBookScrollingModeAutoComplete.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                mBookScrollingModeSelect = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                    mBookMapScrollingMode.containsKey(parent.getItemAtPosition(position).toString())
+                )
+                    mBookMapScrollingMode[parent.getItemAtPosition(position).toString()]!!
+                else
+                    ScrollingType.Pagination
+            }
+
+        val themesMode = ArrayAdapter(requireContext(), R.layout.list_item, mMangaMapThemeMode.keys.toTypedArray())
+        mConfigSystemThemeModeAutoComplete.setAdapter(themesMode)
+        mConfigSystemThemeModeAutoComplete.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                mConfigSystemThemeModeSelect =
+                    if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                        mMangaMapThemeMode.containsKey(
+                            parent.getItemAtPosition(position).toString()
+                        )
+                    )
+                        mMangaMapThemeMode[parent.getItemAtPosition(position).toString()]
+                            ?: ThemeMode.SYSTEM
                     else
                         ThemeMode.SYSTEM
 
                 saveTheme()
 
-                when (mThemeModeSelect) {
+                when (mConfigSystemThemeModeSelect) {
                     ThemeMode.DARK -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                     ThemeMode.LIGHT -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                     else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
                 }
             }
 
-        val date0 = SimpleDateFormat(mDatePattern[0]).format(Date())
-        val date1 = SimpleDateFormat(mDatePattern[1]).format(Date())
-        val date2 = SimpleDateFormat(mDatePattern[2]).format(Date())
-        val date3 = SimpleDateFormat(mDatePattern[3]).format(Date())
+        val date0 = SimpleDateFormat(mConfigSystemDatePattern[0]).format(Date())
+        val date1 = SimpleDateFormat(mConfigSystemDatePattern[1]).format(Date())
+        val date2 = SimpleDateFormat(mConfigSystemDatePattern[2]).format(Date())
+        val date3 = SimpleDateFormat(mConfigSystemDatePattern[3]).format(Date())
 
         val dataFormat = listOf(
             getString(R.string.config_option_date_time_format_0).format(date0),
@@ -314,16 +382,23 @@ class ConfigFragment : Fragment() {
             getString(R.string.config_option_date_time_format_3).format(date3)
         )
         val adapterDataFormat = ArrayAdapter(requireContext(), R.layout.list_item, dataFormat)
-        mSystemFormatDateAutoComplete.setAdapter(adapterDataFormat)
-        mSystemFormatDateAutoComplete.onItemClickListener =
+        mConfigSystemFormatDateAutoComplete.setAdapter(adapterDataFormat)
+        mConfigSystemFormatDateAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ ->
-                mDateSelect = if (mDatePattern.size > position && position >= 0)
-                    mDatePattern[position]
-                else
-                    GeneralConsts.CONFIG.DATA_FORMAT[0]
+                mConfigSystemDateSelect =
+                    if (mConfigSystemDatePattern.size > position && position >= 0)
+                        mConfigSystemDatePattern[position]
+                    else
+                        GeneralConsts.CONFIG.DATA_FORMAT[0]
+
+                mConfigSystemDateSmall =
+                    if (mConfigSystemDateSmallPattern.size > position && position >= 0)
+                        mConfigSystemDateSmallPattern[position]
+                    else
+                        GeneralConsts.CONFIG.DATA_FORMAT_SMALL[0]
             }
 
-        mBackup.setOnClickListener {
+        mConfigSystemBackup.setOnClickListener {
             val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
                 type = "application/*"
@@ -344,7 +419,7 @@ class ConfigFragment : Fragment() {
             startActivityForResult(intent, GeneralConsts.REQUEST.GENERATE_BACKUP)
         }
 
-        mRestore.setOnClickListener {
+        mConfigSystemRestore.setOnClickListener {
             val i = Intent(Intent.ACTION_GET_CONTENT)
             i.type = "*/*"
             startActivityForResult(
@@ -353,18 +428,26 @@ class ConfigFragment : Fragment() {
             )
         }
 
-        mMalMonitoring.setOnClickListener { changeMonitoring() }
+        mConfigSystemMalMonitoring.setOnClickListener { changeMonitoring() }
 
         prepareThemes()
+        prepareFonts()
         loadConfig()
 
-        mViewModel.loadLibrary()
+        mViewModel.loadLibrary(null)
     }
 
     override fun onDestroyView() {
         saveConfig()
 
-        mViewModel.removeLibraryDefault(mLibraryPath.editText?.text.toString())
+        mViewModel.removeLibraryDefault(
+            mMangaLibraryPath.editText?.text.toString(),
+            mBookLibraryPath.editText?.text.toString()
+        )
+        ViewModelProvider(this)[MangaLibraryViewModel::class.java]
+            .setDefaultLibrary(LibraryUtil.getDefault(requireContext(), Type.MANGA))
+        ViewModelProvider(this)[BookLibraryViewModel::class.java]
+            .setDefaultLibrary(LibraryUtil.getDefault(requireContext(), Type.BOOK))
         (requireActivity() as MainActivity).setLibraries(mViewModel.getListLibrary())
 
         super.onDestroyView()
@@ -383,7 +466,8 @@ class ConfigFragment : Fragment() {
                         Storage.takePermission(requireContext(), requireActivity())
                 }
 
-                mLibraryPathAutoComplete.setText(folder)
+                mViewModel.saveDefault(Type.MANGA, folder)
+                mMangaLibraryPathAutoComplete.setText(folder)
             }
 
             GeneralConsts.REQUEST.OPEN_BOOK_FOLDER -> {
@@ -395,11 +479,12 @@ class ConfigFragment : Fragment() {
                         Storage.takePermission(requireContext(), requireActivity())
                 }
 
+                mViewModel.saveDefault(Type.BOOK, folder)
                 mBookLibraryPathAutoComplete.setText(folder)
             }
 
             GeneralConsts.REQUEST.CONFIG_LIBRARIES -> {
-                mViewModel.loadLibrary()
+                mViewModel.loadLibrary(null)
                 (requireActivity() as MainActivity).setLibraries(mViewModel.getListLibrary())
             }
 
@@ -407,7 +492,10 @@ class ConfigFragment : Fragment() {
                 val fileUri: Uri? = data?.data
                 try {
                     fileUri?.let {
-                        DataBase.backupDatabase(requireContext(), File(Util.normalizeFilePath(it.path.toString())))
+                        DataBase.backupDatabase(
+                            requireContext(),
+                            File(Util.normalizeFilePath(it.path.toString()))
+                        )
                     }
                 } catch (e: BackupError) {
                     MsgUtil.error(
@@ -476,7 +564,7 @@ class ConfigFragment : Fragment() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == GeneralConsts.REQUEST.PERMISSION_FILES_ACCESS && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-            AlertDialog.Builder(requireContext(), R.style.AppCompatAlertDialogStyle)
+            MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(requireContext().getString(R.string.alert_permission_files_access_denied_title))
                 .setMessage(requireContext().getString(R.string.alert_permission_files_access_denied))
                 .setPositiveButton(R.string.action_neutral) { _, _ -> }.create().show()
@@ -492,22 +580,55 @@ class ConfigFragment : Fragment() {
     }
 
     private fun saveConfig() {
+        mViewModel.saveDefault(Type.MANGA, mMangaLibraryPath.editText?.text.toString())
+        mViewModel.saveDefault(Type.BOOK, mBookLibraryPath.editText?.text.toString())
+
         val sharedPreferences =
             GeneralConsts.getSharedPreferences(requireContext())
         with(sharedPreferences.edit()) {
-            this!!.putString(
-                GeneralConsts.KEYS.LIBRARY.FOLDER,
-                mLibraryPath.editText?.text.toString()
+            this.putString(
+                GeneralConsts.KEYS.LIBRARY.MANGA_ORDER,
+                mMangaOrderSelect.toString()
             )
 
             this.putString(
-                GeneralConsts.KEYS.LIBRARY.ORDER,
-                mOrderSelect.toString()
+                GeneralConsts.KEYS.SUBTITLE.LANGUAGE,
+                mMangaDefaultSubtitleLanguageSelect.toString()
             )
 
             this.putString(
-                GeneralConsts.KEYS.LIBRARY.BOOK_FOLDER,
-                mBookLibraryPath.editText?.text.toString()
+                GeneralConsts.KEYS.SUBTITLE.TRANSLATE,
+                mMangaDefaultSubtitleTranslateSelect.toString()
+            )
+
+            this.putString(
+                GeneralConsts.KEYS.READER.MANGA_PAGE_MODE,
+                mMangaPageModeSelectType.toString()
+            )
+
+            this.putString(
+                GeneralConsts.KEYS.READER.MANGA_READER_MODE,
+                mMangaReaderModeSelectType.toString()
+            )
+
+            this.putBoolean(
+                GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY,
+                mMangaShowClockAndBattery.isChecked
+            )
+
+            this.putBoolean(
+                GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE,
+                mMangaUseMagnifierType.isChecked
+            )
+
+            this.putBoolean(
+                GeneralConsts.KEYS.PAGE_LINK.USE_DUAL_PAGE_CALCULATE,
+                mMangaUseDualPageCalculate.isChecked
+            )
+
+            this.putBoolean(
+                GeneralConsts.KEYS.PAGE_LINK.USE_PAGE_PATH_FOR_LINKED,
+                mMangaUsePathNameForLinked.isChecked
             )
 
             this.putString(
@@ -516,74 +637,64 @@ class ConfigFragment : Fragment() {
             )
 
             this.putString(
-                GeneralConsts.KEYS.SUBTITLE.LANGUAGE,
-                mDefaultSubtitleLanguageSelect.toString()
-            )
-
-            this.putString(
-                GeneralConsts.KEYS.SUBTITLE.TRANSLATE,
-                mDefaultSubtitleTranslateSelect.toString()
-            )
-
-            this.putString(
-                GeneralConsts.KEYS.READER.PAGE_MODE,
-                mPageModeSelect.toString()
-            )
-
-            this.putString(
-                GeneralConsts.KEYS.READER.READER_MODE,
-                mReaderModeSelect.toString()
+                GeneralConsts.KEYS.READER.BOOK_PAGE_SCROLLING_MODE,
+                mBookScrollingModeSelect.toString()
             )
 
             this.putBoolean(
-                GeneralConsts.KEYS.READER.SHOW_CLOCK_AND_BATTERY,
-                mShowClockAndBattery.isChecked
+                GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT,
+                mBookProcessJapaneseText.isChecked
             )
 
             this.putBoolean(
-                GeneralConsts.KEYS.READER.USE_MAGNIFIER_TYPE,
-                mUseMagnifierType.isChecked
+                GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT,
+                mBookTextWithFurigana.isChecked
+            )
+
+            this.putBoolean(
+                GeneralConsts.KEYS.READER.BOOK_PROCESS_VOCABULARY,
+                mBookProcessVocabulary.isChecked
+            )
+
+            this.putFloat(
+                GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE,
+                mBookFontSize.value
             )
 
             this.putString(
                 GeneralConsts.KEYS.SYSTEM.FORMAT_DATA,
-                mDateSelect
+                mConfigSystemDateSelect
             )
 
-            this.putBoolean(
-                GeneralConsts.KEYS.PAGE_LINK.USE_DUAL_PAGE_CALCULATE,
-                mUseDualPageCalculate.isChecked
-            )
-
-            this.putBoolean(
-                GeneralConsts.KEYS.PAGE_LINK.USE_PAGE_PATH_FOR_LINKED,
-                mUsePathNameForLinked.isChecked
+            this.putString(
+                GeneralConsts.KEYS.SYSTEM.FORMAT_DATA_SMALL,
+                mConfigSystemDateSmall
             )
 
             this.putBoolean(
                 GeneralConsts.KEYS.MONITORING.MY_ANIME_LIST,
-                mMalMonitoringChecked.visibility == View.VISIBLE
+                mConfigSystemMalMonitoringChecked.visibility == View.VISIBLE
             )
 
             this.putString(
                 GeneralConsts.KEYS.THEME.THEME_MODE,
-                mThemeModeSelect.toString()
+                mConfigSystemThemeModeSelect.toString()
             )
 
             this.putString(
                 GeneralConsts.KEYS.THEME.THEME_USED,
-                mThemeSelect.toString()
+                mConfigSystemThemeSelect.toString()
             )
 
             this.commit()
         }
 
         mLOGGER.info(
-            "Save prefer CONFIG:" + "\n[Library] Path " + mLibraryPath.editText?.text +
-                    " - Order " + mLibraryOrder.editText?.text +
-                    "\n[SubTitle] Language " + mDefaultSubtitleLanguage.editText?.text +
-                    " - Translate " + mDefaultSubtitleTranslate.editText?.text +
-                    "\n[System] Format Data " + mSystemFormatDate.editText?.text +
+            "Save prefer CONFIG:" + "\n[Library] Path " + mMangaLibraryPath.editText?.text +
+                    " - Order " + mMangaLibraryOrder.editText?.text +
+                    "\n[SubTitle] Language " + mMangaDefaultSubtitleLanguage.editText?.text +
+                    " - Translate " + mMangaDefaultSubtitleTranslate.editText?.text +
+                    "\n[System] Format Data " + mConfigSystemFormatDate.editText?.text +
                     "\n[Book] Path " + mBookLibraryPath.editText?.text +
                     " - Order " + mBookLibraryOrder.editText?.text
         )
@@ -593,66 +704,93 @@ class ConfigFragment : Fragment() {
     private fun loadConfig() {
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
 
-        mLibraryPath.editText?.setText(
-            sharedPreferences.getString(
-                GeneralConsts.KEYS.LIBRARY.FOLDER,
-                ""
-            )
-        )
+        mMangaLibraryPath.editText?.setText(mViewModel.getDefault(Type.MANGA))
 
-        mBookLibraryPath.editText?.setText(
+        mMangaPageModeSelectType = PageMode.valueOf(
             sharedPreferences.getString(
-                GeneralConsts.KEYS.LIBRARY.BOOK_FOLDER,
-                ""
-            )
-        )
-
-        mDateSelect = sharedPreferences.getString(
-            GeneralConsts.KEYS.SYSTEM.FORMAT_DATA,
-            GeneralConsts.CONFIG.DATA_FORMAT[0]
-        )!!
-        mPageModeSelect = PageMode.valueOf(
-            sharedPreferences.getString(
-                GeneralConsts.KEYS.READER.PAGE_MODE,
+                GeneralConsts.KEYS.READER.MANGA_PAGE_MODE,
                 PageMode.Comics.toString()
             )!!
         )
-        mReaderModeSelect = ReaderMode.valueOf(
+        mMangaReaderModeSelectType = ReaderMode.valueOf(
             sharedPreferences.getString(
-                GeneralConsts.KEYS.READER.READER_MODE,
+                GeneralConsts.KEYS.READER.MANGA_READER_MODE,
                 ReaderMode.FIT_WIDTH.toString()
             )!!
         )
-        mOrderSelect = Order.valueOf(
+        mMangaOrderSelect = Order.valueOf(
             sharedPreferences.getString(
-                GeneralConsts.KEYS.LIBRARY.ORDER,
+                GeneralConsts.KEYS.LIBRARY.MANGA_ORDER,
                 Order.Name.toString()
             )!!
         )
-        mDefaultSubtitleLanguageSelect = Languages.valueOf(
+        mMangaDefaultSubtitleLanguageSelect = Languages.valueOf(
             sharedPreferences.getString(
                 GeneralConsts.KEYS.SUBTITLE.LANGUAGE,
                 Languages.JAPANESE.toString()
             )!!
         )
-        mDefaultSubtitleTranslateSelect = Languages.valueOf(
+        mMangaDefaultSubtitleTranslateSelect = Languages.valueOf(
             sharedPreferences.getString(
                 GeneralConsts.KEYS.SUBTITLE.TRANSLATE,
                 Languages.PORTUGUESE.toString()
             )!!
         )
+        mMangaLibraryOrderAutoComplete.setText(
+            mMangaMapOrder.filterValues { it == mMangaOrderSelect }.keys.first(),
+            false
+        )
+        mMangaDefaultSubtitleLanguageAutoComplete.setText(
+            mMangaMapLanguage.filterValues { it == mMangaDefaultSubtitleLanguageSelect }.keys.first(),
+            false
+        )
+        mMangaSubtitleTranslateAutoComplete.setText(
+            mMangaMapLanguage.filterValues { it == mMangaDefaultSubtitleTranslateSelect }.keys.first(),
+            false
+        )
+        mMangaReaderComicModeAutoComplete.setText(
+            mMangaMapReaderMode.filterValues { it == mMangaReaderModeSelectType }.keys.first(),
+            false
+        )
+        mMangaPageModeAutoComplete.setText(
+            mMangaMapPageMode.filterValues { it == mMangaPageModeSelectType }.keys.first(),
+            false
+        )
+        mMangaShowClockAndBattery.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY,
+            false
+        )
+        mMangaUseMagnifierType.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE,
+            false
+        )
+        mMangaUseDualPageCalculate.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.PAGE_LINK.USE_DUAL_PAGE_CALCULATE,
+            false
+        )
+        mMangaUsePathNameForLinked.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.PAGE_LINK.USE_PAGE_PATH_FOR_LINKED,
+            false
+        )
 
-        mLibraryOrderAutoComplete.setText(
-            mMapOrder.filterValues { it == mOrderSelect }.keys.first(),
-            false
+        mBookFontSize.value = sharedPreferences.getFloat(
+            GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE,
+            GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT
         )
-        mDefaultSubtitleLanguageAutoComplete.setText(
-            mMapLanguage.filterValues { it == mDefaultSubtitleLanguageSelect }.keys.first(),
-            false
+        mBookLibraryPath.editText?.setText(mViewModel.getDefault(Type.BOOK))
+
+        mBookOrderSelect = Order.valueOf(
+            sharedPreferences.getString(
+                GeneralConsts.KEYS.LIBRARY.BOOK_ORDER,
+                Order.Name.toString()
+            )!!
         )
-        mSubtitleTranslateAutoComplete.setText(
-            mMapLanguage.filterValues { it == mDefaultSubtitleTranslateSelect }.keys.first(),
-            false
+
+        mBookScrollingModeSelect = ScrollingType.valueOf(
+            sharedPreferences.getString(
+                GeneralConsts.KEYS.READER.BOOK_PAGE_SCROLLING_MODE,
+                ScrollingType.Pagination.toString()
+            )!!
         )
 
         mBookLibraryOrderAutoComplete.setText(
@@ -660,40 +798,41 @@ class ConfigFragment : Fragment() {
             false
         )
 
-        mSystemFormatDateAutoComplete.setText(
-            "$mDateSelect (%s)".format(
-                SimpleDateFormat(mDateSelect).format(
+        mBookScrollingModeAutoComplete.setText(
+            mBookMapScrollingMode.filterValues { it == mBookScrollingModeSelect }.keys.first(),
+            false
+        )
+
+        mBookProcessJapaneseText.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT,
+            true
+        )
+
+        mBookTextWithFurigana.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT,
+            true
+        )
+
+        mBookProcessVocabulary.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.READER.BOOK_PROCESS_VOCABULARY,
+            true
+        )
+
+        mConfigSystemDateSelect = sharedPreferences.getString(
+            GeneralConsts.KEYS.SYSTEM.FORMAT_DATA,
+            GeneralConsts.CONFIG.DATA_FORMAT[0]
+        )!!
+        mConfigSystemDateSmall = sharedPreferences.getString(
+            GeneralConsts.KEYS.SYSTEM.FORMAT_DATA_SMALL,
+            GeneralConsts.CONFIG.DATA_FORMAT_SMALL[0]
+        )!!
+
+        mConfigSystemFormatDateAutoComplete.setText(
+            "$mConfigSystemDateSelect (%s)".format(
+                SimpleDateFormat(mConfigSystemDateSelect).format(
                     Date()
                 )
             ), false
-        )
-        mReaderComicModeAutoComplete.setText(
-            mMapReaderMode.filterValues { it == mReaderModeSelect }.keys.first(),
-            false
-        )
-        mPageModeAutoComplete.setText(
-            mMapPageMode.filterValues { it == mPageModeSelect }.keys.first(),
-            false
-        )
-
-        mShowClockAndBattery.isChecked = sharedPreferences.getBoolean(
-            GeneralConsts.KEYS.READER.SHOW_CLOCK_AND_BATTERY,
-            false
-        )
-
-        mUseMagnifierType.isChecked = sharedPreferences.getBoolean(
-            GeneralConsts.KEYS.READER.USE_MAGNIFIER_TYPE,
-            false
-        )
-
-        mUseDualPageCalculate.isChecked = sharedPreferences.getBoolean(
-            GeneralConsts.KEYS.PAGE_LINK.USE_DUAL_PAGE_CALCULATE,
-            false
-        )
-
-        mUsePathNameForLinked.isChecked = sharedPreferences.getBoolean(
-            GeneralConsts.KEYS.PAGE_LINK.USE_PAGE_PATH_FOR_LINKED,
-            false
         )
 
         if (sharedPreferences.contains(GeneralConsts.KEYS.DATABASE.LAST_BACKUP)) {
@@ -701,75 +840,94 @@ class ConfigFragment : Fragment() {
                 GeneralConsts.KEYS.DATABASE.LAST_BACKUP,
                 Date().toString()
             )?.let {
-                SimpleDateFormat(GeneralConsts.PATTERNS.DATE_TIME_PATTERN, Locale.getDefault()).parse(
+                SimpleDateFormat(
+                    GeneralConsts.PATTERNS.DATE_TIME_PATTERN,
+                    Locale.getDefault()
+                ).parse(
                     it
                 )
             }
-            mLastBackup.text = getString(
+            mConfigSystemLastBackup.text = getString(
                 R.string.config_database_last_backup,
                 backup?.let {
-                    SimpleDateFormat(mDateSelect + " " + GeneralConsts.PATTERNS.TIME_PATTERN, Locale.getDefault()).format(
+                    SimpleDateFormat(
+                        mConfigSystemDateSelect + " " + GeneralConsts.PATTERNS.TIME_PATTERN,
+                        Locale.getDefault()
+                    ).format(
                         it
                     )
                 }
             )
         }
 
-        mMalMonitoringChecked.visibility = if (sharedPreferences.getBoolean(
+        mConfigSystemMalMonitoringChecked.visibility = if (sharedPreferences.getBoolean(
                 GeneralConsts.KEYS.MONITORING.MY_ANIME_LIST,
                 false
             )
         ) View.VISIBLE else View.GONE
 
-        mThemeModeSelect = ThemeMode.valueOf(
+        mConfigSystemThemeModeSelect = ThemeMode.valueOf(
             sharedPreferences.getString(
                 GeneralConsts.KEYS.THEME.THEME_MODE,
                 ThemeMode.SYSTEM.toString()
             )!!
         )
-        mThemeSelect = Themes.valueOf(sharedPreferences.getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
-
-        mThemeModeAutoComplete.setText(
-            mMapThemeMode.filterValues { it == mThemeModeSelect }.keys.first(),
+        mConfigSystemThemeSelect = Themes.valueOf(
+            sharedPreferences.getString(
+                GeneralConsts.KEYS.THEME.THEME_USED,
+                Themes.ORIGINAL.toString()
+            )!!
+        )
+        mConfigSystemThemeModeAutoComplete.setText(
+            mMangaMapThemeMode.filterValues { it == mConfigSystemThemeModeSelect }.keys.first(),
             false
         )
 
     }
 
     private fun changeMonitoring() {
-        if (mMalMonitoringChecked.visibility == View.GONE) {
+        if (mConfigSystemMalMonitoringChecked.visibility == View.GONE) {
 
         } else {
             val dialog: AlertDialog =
-                AlertDialog.Builder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+                MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                     .setTitle(getString(R.string.manga_library_menu_delete))
-                    .setMessage(getString(R.string.config_monitoring_disconnect, getString(R.string.config_monitoring_mal)))
+                    .setMessage(
+                        getString(
+                            R.string.config_monitoring_disconnect,
+                            getString(R.string.config_monitoring_mal)
+                        )
+                    )
                     .setPositiveButton(
                         R.string.action_disconnect
                     ) { _, _ ->
-                        mMalMonitoringChecked.visibility = View.GONE
+                        mConfigSystemMalMonitoringChecked.visibility = View.GONE
                     }.create()
             dialog.show()
         }
     }
 
-    private fun openLibraries() {
+    private fun openLibraries(type: Type) {
         val intent = Intent(requireContext(), MenuActivity::class.java)
         val bundle = Bundle()
         bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_config_libraries)
+        bundle.putString(GeneralConsts.KEYS.LIBRARY.LIBRARY_TYPE, type.toString())
         intent.putExtras(bundle)
-        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+        requireActivity().overridePendingTransition(
+            R.anim.fade_in_fragment_add_enter,
+            R.anim.fade_out_fragment_remove_exit
+        )
         startActivityForResult(intent, GeneralConsts.REQUEST.CONFIG_LIBRARIES, null)
     }
 
     private fun prepareThemes() {
         val listener = object : ThemesListener {
             override fun onClick(theme: Pair<Themes, Boolean>) {
-                mThemeSelect = theme.first
+                mConfigSystemThemeSelect = theme.first
                 saveTheme()
 
                 mViewModel.setEnableTheme(theme.first)
-                requireActivity().setTheme(mThemeSelect.getValue())
+                requireActivity().setTheme(mConfigSystemThemeSelect.getValue())
                 restartTheme()
             }
         }
@@ -781,9 +939,9 @@ class ConfigFragment : Fragment() {
 
         mViewModel.loadThemes(theme)
         val lineAdapter = ThemesCardAdapter(requireContext(), mViewModel.themes.value!!, listener)
-        mThemes.adapter = lineAdapter
+        mConfigSystemThemes.adapter = lineAdapter
 
-        mThemes.scrollBy(mViewModel.getSelectedThemeIndex())
+        mConfigSystemThemes.scrollBy(mViewModel.getSelectedThemeIndex())
 
         mViewModel.themes.observe(viewLifecycleOwner) {
             lineAdapter.updateList(it)
@@ -794,12 +952,12 @@ class ConfigFragment : Fragment() {
         with(GeneralConsts.getSharedPreferences(requireContext()).edit()) {
             this.putString(
                 GeneralConsts.KEYS.THEME.THEME_MODE,
-                mThemeModeSelect.toString()
+                mConfigSystemThemeModeSelect.toString()
             )
 
             this.putString(
                 GeneralConsts.KEYS.THEME.THEME_USED,
-                mThemeSelect.toString()
+                mConfigSystemThemeSelect.toString()
             )
 
             this.putBoolean(
@@ -821,6 +979,67 @@ class ConfigFragment : Fragment() {
             this.commit()
         }
         requireActivity().recreate()
+    }
+
+    private fun prepareFonts() {
+        val listenerNormal = object : FontsListener {
+            override fun onClick(font: Pair<FontType, Boolean>) {
+                saveFont(font.first, false)
+                mViewModel.setEnableFont(font.first, false)
+            }
+        }
+
+        val fontNormal = FontType.valueOf(
+            GeneralConsts.getSharedPreferences(requireContext())
+                .getString(GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE_NORMAL, FontType.TimesNewRoman.toString())!!
+        )
+
+        mViewModel.loadFontsNormal(fontNormal)
+        val lineAdapterNormal = FontsCardAdapter(requireContext(), mViewModel.fontsNormal.value!!, listenerNormal)
+        mBookFontTypeNormal.adapter = lineAdapterNormal
+        mBookFontTypeNormal.scrollBy(mViewModel.getSelectedFontTypeIndex(false))
+
+        mViewModel.fontsNormal.observe(viewLifecycleOwner) {
+            lineAdapterNormal.updateList(it)
+        }
+
+        val listenerJapanese = object : FontsListener {
+            override fun onClick(font: Pair<FontType, Boolean>) {
+                saveFont(font.first, true)
+                mViewModel.setEnableFont(font.first, true)
+            }
+        }
+
+        val fontJapanese = FontType.valueOf(
+            GeneralConsts.getSharedPreferences(requireContext())
+                .getString(GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE_JAPANESE, FontType.BabelStoneErjian1.toString())!!
+        )
+
+        mViewModel.loadFontsJapanese(fontJapanese)
+        val lineAdapterJapanese = FontsCardAdapter(requireContext(), mViewModel.fontsJapanese.value!!, listenerJapanese)
+        mBookFontTypeJapanese.adapter = lineAdapterJapanese
+        mBookFontTypeJapanese.scrollBy(mViewModel.getSelectedFontTypeIndex(true))
+
+        mViewModel.fontsJapanese.observe(viewLifecycleOwner) {
+            lineAdapterJapanese.updateList(it)
+        }
+    }
+
+    private fun saveFont(font: FontType, isJapanese : Boolean) {
+        with(GeneralConsts.getSharedPreferences(requireContext()).edit()) {
+            if (isJapanese)
+                this.putString(
+                    GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE_JAPANESE,
+                    font.toString()
+                )
+            else
+                this.putString(
+                    GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE_NORMAL,
+                    font.toString()
+                )
+
+            this.commit()
+        }
     }
 
 }

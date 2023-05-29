@@ -8,14 +8,16 @@ import android.graphics.Color
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import br.com.fenix.bilingualreader.model.entity.Chapters
 import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.model.entity.Pages
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
+import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
+import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import com.squareup.picasso.Transformation
 import jp.wasabeef.picasso.transformations.ColorFilterTransformation
@@ -26,18 +28,14 @@ import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
 import java.io.File
 
-class MangaReaderViewModel(application: Application) : AndroidViewModel(application) {
+class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
-    private val mContext = application.applicationContext
-    private var mPreferences: SharedPreferences? = GeneralConsts.getSharedPreferences(mContext)
-
+    private var mPreferences: SharedPreferences = GeneralConsts.getSharedPreferences(app.applicationContext)
     private val mLOGGER = LoggerFactory.getLogger(MangaReaderViewModel::class.java)
 
+    // --------------------------------------------------------- Fonts / Layout ---------------------------------------------------------
     private var mFilters: MutableLiveData<MutableList<Transformation>> = MutableLiveData(arrayListOf())
     val filters: LiveData<MutableList<Transformation>> = mFilters
-
-    private var mChapters: MutableLiveData<MutableList<Pages>> = MutableLiveData(arrayListOf())
-    val chapters: LiveData<MutableList<Pages>> = mChapters
 
     private var mCustomFilter: MutableLiveData<Boolean> = MutableLiveData(false)
     val customFilter: LiveData<Boolean> = mCustomFilter
@@ -132,52 +130,52 @@ class MangaReaderViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     private fun loadPreferences() {
-        mCustomFilter.value = mPreferences!!.getBoolean(
+        mCustomFilter.value = mPreferences.getBoolean(
             GeneralConsts.KEYS.COLOR_FILTER.CUSTOM_FILTER,
             false
         )
 
-        mColorRed.value = mPreferences!!.getInt(
+        mColorRed.value = mPreferences.getInt(
             GeneralConsts.KEYS.COLOR_FILTER.COLOR_RED,
             0
         )
 
-        mColorGreen.value = mPreferences!!.getInt(
+        mColorGreen.value = mPreferences.getInt(
             GeneralConsts.KEYS.COLOR_FILTER.COLOR_BLUE,
             0
         )
 
-        mColorBlue.value = mPreferences!!.getInt(
+        mColorBlue.value = mPreferences.getInt(
             GeneralConsts.KEYS.COLOR_FILTER.COLOR_GREEN,
             0
         )
 
-        mColorAlpha.value = mPreferences!!.getInt(
+        mColorAlpha.value = mPreferences.getInt(
             GeneralConsts.KEYS.COLOR_FILTER.COLOR_ALPHA,
             0
         )
 
-        mGrayScale.value = mPreferences!!.getBoolean(
+        mGrayScale.value = mPreferences.getBoolean(
             GeneralConsts.KEYS.COLOR_FILTER.GRAY_SCALE,
             false
         )
 
-        mInvertColor.value = mPreferences!!.getBoolean(
+        mInvertColor.value = mPreferences.getBoolean(
             GeneralConsts.KEYS.COLOR_FILTER.INVERT_COLOR,
             false
         )
 
-        mSepia.value = mPreferences!!.getBoolean(
+        mSepia.value = mPreferences.getBoolean(
             GeneralConsts.KEYS.COLOR_FILTER.SEPIA,
             false
         )
 
-        mBlueLight.value = mPreferences!!.getBoolean(
+        mBlueLight.value = mPreferences.getBoolean(
             GeneralConsts.KEYS.COLOR_FILTER.BLUE_LIGHT,
             false
         )
 
-        mBlueLightAlpha.value = mPreferences!!.getInt(
+        mBlueLightAlpha.value = mPreferences.getInt(
             GeneralConsts.KEYS.COLOR_FILTER.BLUE_LIGHT_ALPHA,
             100
         )
@@ -186,8 +184,8 @@ class MangaReaderViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     private fun savePreferences() {
-        with(mPreferences?.edit()) {
-            this!!.putBoolean(
+        with(mPreferences.edit()) {
+            this.putBoolean(
                 GeneralConsts.KEYS.COLOR_FILTER.CUSTOM_FILTER,
                 mCustomFilter.value!!
             )
@@ -247,33 +245,22 @@ class MangaReaderViewModel(application: Application) : AndroidViewModel(applicat
             filters.add(GrayscaleTransformation())
 
         if (mInvertColor.value!!)
-            filters.add(InvertFilterTransformation(mContext))
+            filters.add(InvertFilterTransformation(app.applicationContext))
 
         if (mSepia.value!!)
-            filters.add(SepiaFilterTransformation(mContext))
+            filters.add(SepiaFilterTransformation(app.applicationContext))
 
         mFilters.value = filters
     }
 
-    fun clearChapter() {
-        mChapters.value = arrayListOf()
-    }
-
-    fun selectPage(page: Int) {
-        if (mChapters.value == null || mChapters.value!!.isEmpty())
-            return
-
-        mChapters.value?.forEach { it.isSelected = it.page == page }
-        mChapters.value = mChapters.value
-    }
-
+    // --------------------------------------------------------- Chapters ---------------------------------------------------------
     private fun loadImage(parse: Parse, page: Int) : Bitmap? {
         try {
             var stream = parse.getPage(page)
             val option = BitmapFactory.Options()
             option.inJustDecodeBounds = true
             BitmapFactory.decodeStream(stream, null, option)
-            option.inSampleSize = Util.calculateInSampleSize(
+            option.inSampleSize = ImageUtil.calculateInSampleSize(
                 option,
                 ReaderConsts.PAGE.PAGE_CHAPTER_LIST_WIDTH,
                 ReaderConsts.PAGE.PAGE_CHAPTER_LIST_HEIGHT
@@ -294,45 +281,53 @@ class MangaReaderViewModel(application: Application) : AndroidViewModel(applicat
         return null
     }
 
-    fun loadChapter(manga: Manga?, number: Int, refresh: (Int) -> (Unit)): Boolean {
+    fun loadChapter(manga: Manga?, number: Int): Boolean {
         if (manga == null) {
-            clearChapter()
+            SharedData.clearChapters()
             return false
         }
 
-        var loaded = false
-        if (mChapters.value == null || mChapters.value!!.isEmpty()) {
-            val parse = ParseFactory.create(manga.file) ?: return loaded
-            loaded = true
-            val list = arrayListOf<Pages>()
+        if (SharedData.isProcessed(manga)) {
+            val parse = ParseFactory.create(manga.file) ?: return false
+
             if (parse is RarParse) {
-                val cacheDir = File(GeneralConsts.getCacheDir(mContext), GeneralConsts.CACHE_FOLDER.IMAGE)
+                val cacheDir = File(GeneralConsts.getCacheDir(app.applicationContext), GeneralConsts.CACHE_FOLDER.IMAGE)
                 (parse as RarParse?)!!.setCacheDirectory(cacheDir)
             }
 
-            for (i in 0 until parse.numPages())
-                list.add(Pages(Util.getNameFromPath(parse.getPagePath(i) ?: ""), i, i+1))
+            val list = arrayListOf<Chapters>()
+            val chapters = parse.getPagePaths()
+            var title = Chapters("", 0, 0, 0f, true)
 
-            mChapters.value = list
+            for (i in 0 until parse.numPages()) {
+                val chapter = chapters.entries.filter { it.value <= i }.sortedByDescending{ it.value }.first()
+                if (title.chapter != chapter.value.toFloat()) {
+                    title = Chapters(chapter.key, i, i + 1, chapter.value.toFloat(), true)
+                    list.add(title)
+                }
 
+                list.add(Chapters(Util.getNameFromPath(parse.getPagePath(i) ?: ""), i, i+1, 0f, false, isSelected = number == i+1))
+            }
+
+            SharedData.setChapters(manga, list)
             CoroutineScope(Dispatchers.IO).launch {
                 val deferred = async {
                     if (number > 5) {
                         for (i in number - 5 until list.size){
                             val page = list[i]
                             page.image = loadImage(parse, page.number)
-                            withContext(Dispatchers.Main) { refresh(page.number) }
+                            withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
                         }
 
                         for (i in number - 5 downTo 0){
                             val page = list[i]
                             page.image = loadImage(parse, page.number)
-                            withContext(Dispatchers.Main) { refresh(page.number) }
+                            withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
                         }
                     } else
                         for (page in list) {
                             page.image = loadImage(parse, page.number)
-                            withContext(Dispatchers.Main) { refresh(page.number) }
+                            withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
                         }
 
                     Util.destroyParse(parse)
@@ -340,12 +335,12 @@ class MangaReaderViewModel(application: Application) : AndroidViewModel(applicat
 
                 deferred.await()
                 withContext(Dispatchers.Main) {
-                    mChapters.value = list
+                    SharedData.setChapters(manga, list.toList())
                 }
             }
         }
 
-        return loaded
+        return true
     }
 
 }

@@ -43,7 +43,7 @@ data class SubTitle(
     var file: File = File(path),
 
     @Ignore
-    var chapter: Chapter? = null,
+    var subTitleChapter: SubTitleChapter? = null,
 
     @Ignore
     var update: Boolean = false
@@ -68,11 +68,11 @@ data class SubTitle(
         pageKey: String = "",
         pageCount: Int = 0,
         path: String = "",
-        chapter: Chapter?
+        subTitleChapter: SubTitleChapter?
     ) : this(
         null, id_manga, language, chapterKey, pageKey, pageCount, path, LocalDateTime.now(), LocalDateTime.now(), File(path)
     ) {
-        this.chapter = chapter
+        this.subTitleChapter = subTitleChapter
     }
 
     override fun toString(): String {

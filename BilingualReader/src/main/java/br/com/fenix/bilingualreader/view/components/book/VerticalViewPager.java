@@ -12,6 +12,8 @@ import androidx.viewpager.widget.ViewPager;
 
 import java.lang.reflect.Field;
 
+import br.com.ebook.foobnix.android.utils.Dips;
+
 public class VerticalViewPager extends CustomViewPager {
 
     private MyScroller value;
@@ -38,7 +40,7 @@ public class VerticalViewPager extends CustomViewPager {
 
             Field mFlingDistance = viewpager.getDeclaredField("mFlingDistance");
             mFlingDistance.setAccessible(true);
-            //mFlingDistance.set(this, Dips.DP_10);
+            mFlingDistance.set(this, Dips.DP_10);
 
             Field mMinimumVelocity = viewpager.getDeclaredField("mMinimumVelocity");
             mMinimumVelocity.setAccessible(true);

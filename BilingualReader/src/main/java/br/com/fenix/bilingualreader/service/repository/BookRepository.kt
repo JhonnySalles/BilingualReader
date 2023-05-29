@@ -2,6 +2,8 @@ package br.com.fenix.bilingualreader.service.repository
 
 import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.BookConfiguration
+import br.com.fenix.bilingualreader.model.entity.Library
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
@@ -9,7 +11,9 @@ class BookRepository(context: Context) {
 
     private val mLOGGER = LoggerFactory.getLogger(BookRepository::class.java)
     private var mDataBase = DataBase.getDataBase(context).getBookDao()
+    private var mConfiguration = DataBase.getDataBase(context).getBookConfigurationDao()
 
+    // --------------------------------------------------------- BOOK ---------------------------------------------------------
     fun save(obj: Book): Long {
         obj.lastAlteration = LocalDateTime.now()
         return mDataBase.save(obj)
@@ -45,39 +49,39 @@ class BookRepository(context: Context) {
             mDataBase.delete(obj)
     }
 
-    fun list(): List<Book>? {
+    fun list(library: Library): List<Book> {
         return try {
-            mDataBase.list()
+            mDataBase.list(library.id)
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book: " + e.message, e)
-            null
+            listOf()
         }
     }
 
-    fun listRecentChange(): List<Book>? {
+    fun listRecentChange(library: Library): List<Book> {
         return try {
-            mDataBase.listRecentChange()
+            mDataBase.listRecentChange(library.id)
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book: " + e.message, e)
-            null
+            listOf()
         }
     }
 
-    fun listRecentDeleted(): List<Book>? {
+    fun listRecentDeleted(library: Library): List<Book> {
         return try {
-            mDataBase.listRecentDeleted()
+            mDataBase.listRecentDeleted(library.id)
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book: " + e.message, e)
-            null
+            listOf()
         }
     }
 
-    fun listDeleted(): List<Book>? {
+    fun listDeleted(library: Library): List<Book> {
         return try {
-            mDataBase.listDeleted()
+            mDataBase.listDeleted(library.id)
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book: " + e.message, e)
-            null
+            listOf()
         }
     }
 
@@ -128,6 +132,15 @@ class BookRepository(context: Context) {
         }
     }
 
+    fun findByFilePath(name: String): Book? {
+        return try {
+            mDataBase.getByPath(name)
+        } catch (e: Exception) {
+            mLOGGER.error("Error when find Book by file name: " + e.message, e)
+            null
+        }
+    }
+
     fun findByFileFolder(folder: String): List<Book>? {
         return try {
             mDataBase.listByFolder(folder)
@@ -137,9 +150,9 @@ class BookRepository(context: Context) {
         }
     }
 
-    fun listOrderByTitle(): List<Book>? {
+    fun listOrderByTitle(library: Library): List<Book>? {
         return try {
-            mDataBase.listOrderByTitle()
+            mDataBase.listOrderByTitle(library.id)
         } catch (e: Exception) {
             mLOGGER.error("Error when find Book by file folder: " + e.message, e)
             null
@@ -159,6 +172,25 @@ class BookRepository(context: Context) {
         } catch (e: Exception) {
             mLOGGER.error("Error when find last Book open: " + e.message, e)
             Pair(null, null)
+        }
+    }
+
+    // --------------------------------------------------------- Configuration ---------------------------------------------------------
+
+    fun saveConfiguration(config: BookConfiguration) {
+        mConfiguration.save(config)
+    }
+
+    fun updateConfiguration(config: BookConfiguration) {
+        mConfiguration.update(config)
+    }
+
+    fun findConfiguration(idBook: Long): BookConfiguration? {
+        return try {
+            mConfiguration.find(idBook)
+        } catch (e: Exception) {
+            mLOGGER.error("Error when find Book Configuration: " + e.message, e)
+            null
         }
     }
 

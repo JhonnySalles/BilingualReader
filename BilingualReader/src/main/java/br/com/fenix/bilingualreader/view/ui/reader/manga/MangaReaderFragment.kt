@@ -42,6 +42,7 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.PageMode
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
@@ -51,8 +52,8 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
-import br.com.fenix.bilingualreader.view.components.manga.PageImageView
-import br.com.fenix.bilingualreader.view.components.manga.PageViewPager
+import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
+import br.com.fenix.bilingualreader.view.components.manga.ImageViewPager
 import br.com.fenix.bilingualreader.view.managers.MangaHandler
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
@@ -87,7 +88,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mPagerAdapter: ComicPagerAdapter
     private lateinit var mPreferences: SharedPreferences
     private lateinit var mGestureDetector: GestureDetector
-    private lateinit var mViewPager: PageViewPager
+    private lateinit var mViewPager: ImageViewPager
     private lateinit var mPreviousButton: MaterialButton
     private lateinit var mNextButton: MaterialButton
 
@@ -111,9 +112,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mSubtitleController: SubTitleController
 
     init {
-        mResourceViewMode[R.id.view_mode_aspect_fill] = ReaderMode.ASPECT_FILL
-        mResourceViewMode[R.id.view_mode_aspect_fit] = ReaderMode.ASPECT_FIT
-        mResourceViewMode[R.id.view_mode_fit_width] = ReaderMode.FIT_WIDTH
+        mResourceViewMode[R.id.manga_view_mode_aspect_fill] = ReaderMode.ASPECT_FILL
+        mResourceViewMode[R.id.manga_view_mode_aspect_fit] = ReaderMode.ASPECT_FIT
+        mResourceViewMode[R.id.manga_view_mode_fit_width] = ReaderMode.FIT_WIDTH
     }
 
     companion object {
@@ -168,10 +169,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     private var mCurrentFragment: FrameLayout? = null
-    fun getCurrencyImageView(): PageImageView? {
+    fun getCurrencyImageView(): ImageViewPage? {
         if (mCurrentFragment == null)
             return null
-        return mCurrentFragment?.findViewById(R.id.page_image_view) as PageImageView
+        return mCurrentFragment?.findViewById(R.id.page_image_view) as ImageViewPage
     }
 
     private fun onRefresh() {
@@ -198,7 +199,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         super.onCreate(savedInstanceState)
         mCurrentPage = 0
         mStorage = Storage(requireContext())
-        mLibrary = LibraryUtil.getDefault(requireContext())
+        mLibrary = LibraryUtil.getDefault(requireContext(), Type.MANGA)
         mPreferences = GeneralConsts.getSharedPreferences(requireContext())
         mSubtitleController = SubTitleController.getInstance(requireContext())
 
@@ -239,7 +240,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     mLOGGER.info("Error in open file.")
             } else {
                 mLOGGER.info("File not founded.")
-                AlertDialog.Builder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+                MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                     .setTitle(getString(R.string.manga_excluded))
                     .setMessage(getString(R.string.file_not_found))
                     .setPositiveButton(
@@ -254,19 +255,19 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
             mReaderMode = ReaderMode.valueOf(
                 mPreferences.getString(
-                    GeneralConsts.KEYS.READER.READER_MODE,
+                    GeneralConsts.KEYS.READER.MANGA_READER_MODE,
                     ReaderMode.FIT_WIDTH.toString()
                 ).toString()
             )
 
             mUseMagnifierType = mPreferences.getBoolean(
-                GeneralConsts.KEYS.READER.USE_MAGNIFIER_TYPE,
+                GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE,
                 false
             )
 
             mIsLeftToRight = PageMode.valueOf(
                 mPreferences.getString(
-                    GeneralConsts.KEYS.READER.PAGE_MODE,
+                    GeneralConsts.KEYS.READER.MANGA_PAGE_MODE,
                     PageMode.Comics.toString()
                 )!!
             ) == PageMode.Comics
@@ -298,18 +299,19 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         mRoot = requireActivity().findViewById(R.id.root_activity_manga_reader)
         mToolbarTop = requireActivity().findViewById(R.id.reader_manga_toolbar_reader_top)
-        mPopupSubtitle = requireActivity().findViewById(R.id.popup_menu_translate)
-        mPopupColor = requireActivity().findViewById(R.id.popup_menu_color)
-        mPageNavLayout = requireActivity().findViewById(R.id.reader_manga_nav_reader)
+        mPopupSubtitle = requireActivity().findViewById(R.id.popup_manga_translate)
+        mPopupColor = requireActivity().findViewById(R.id.popup_manga_color)
+        mPageNavLayout = requireActivity().findViewById(R.id.reader_manga_bottom_progress_content)
         mToolbarBottom = requireActivity().findViewById(R.id.reader_manga_toolbar_reader_bottom)
         mPreviousButton = requireActivity().findViewById(R.id.reader_manga_nav_previous_file)
         mNextButton = requireActivity().findViewById(R.id.reader_manga_nav_next_file)
-        mViewPager = view.findViewById<View>(R.id.fragment_reader) as PageViewPager
+        mViewPager = view.findViewById<View>(R.id.fragment_reader) as ImageViewPager
 
-        (mPageNavLayout.findViewById<View>(R.id.reader_manga_nav_reader_progress) as SeekBar).also {
+        (mPageNavLayout.findViewById<View>(R.id.reader_manga_bottom_progress) as SeekBar).also {
             mPageSeekBar = it
         }
-        mPageNavTextView = mPageNavLayout.findViewById<View>(R.id.reader_manga_nav_reader_title) as TextView
+        mPageNavTextView =
+            mPageNavLayout.findViewById<View>(R.id.reader_manga_bottom_progress_title) as TextView
 
         if (mParse == null) {
             view.findViewById<ImageView>(R.id.image_error).visibility = View.VISIBLE
@@ -338,7 +340,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         })
 
         mViewPager.adapter = mPagerAdapter
-        mViewPager.offscreenPageLimit = ReaderConsts.READER.OFF_SCREEN_PAGE_LIMIT
+        mViewPager.offscreenPageLimit = ReaderConsts.READER.MANGA_OFF_SCREEN_PAGE_LIMIT
         mViewPager.setOnTouchListener(this)
         mViewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
             override fun onPageSelected(position: Int) {
@@ -348,7 +350,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     setCurrentPage(mViewPager.adapter!!.count - position)
             }
         })
-        mViewPager.setOnSwipeOutListener(object : PageViewPager.OnSwipeOutListener {
+        mViewPager.setOnSwipeOutListener(object : ImageViewPager.OnSwipeOutListener {
             override fun onSwipeOutAtStart() {
                 if (mIsLeftToRight) hitBeginning() else hitEnding()
             }
@@ -380,18 +382,18 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_reader_manga, menu)
         when (mReaderMode) {
-            ReaderMode.ASPECT_FILL -> menu.findItem(R.id.view_mode_aspect_fill).isChecked = true
-            ReaderMode.ASPECT_FIT -> menu.findItem(R.id.view_mode_aspect_fit).isChecked = true
-            ReaderMode.FIT_WIDTH -> menu.findItem(R.id.view_mode_fit_width).isChecked = true
+            ReaderMode.ASPECT_FILL -> menu.findItem(R.id.manga_view_mode_aspect_fill).isChecked = true
+            ReaderMode.ASPECT_FIT -> menu.findItem(R.id.manga_view_mode_aspect_fit).isChecked = true
+            ReaderMode.FIT_WIDTH -> menu.findItem(R.id.manga_view_mode_fit_width).isChecked = true
         }
         if (mIsLeftToRight)
-            menu.findItem(R.id.reading_left_to_right).isChecked = true
+            menu.findItem(R.id.reading_manga_left_to_right).isChecked = true
         else
-            menu.findItem(R.id.reading_right_to_left).isChecked = true
+            menu.findItem(R.id.reading_manga_right_to_left).isChecked = true
 
-        menu.findItem(R.id.menu_item_use_magnifier_type).isChecked = mUseMagnifierType
-        menu.findItem(R.id.menu_item_show_clock_and_battery).isChecked = mPreferences.getBoolean(
-            GeneralConsts.KEYS.READER.SHOW_CLOCK_AND_BATTERY,
+        menu.findItem(R.id.menu_item_reader_manga_use_magnifier_type).isChecked = mUseMagnifierType
+        menu.findItem(R.id.menu_item_reader_manga_show_clock_and_battery).isChecked = mPreferences.getBoolean(
+            GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY,
             false
         )
     }
@@ -427,8 +429,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         super.onDestroy()
     }
 
-    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-        v?.performClick()
+    override fun onTouch(v: View, event: MotionEvent): Boolean {
+        v.performClick()
         return mGestureDetector.onTouchEvent(event)
     }
 
@@ -442,7 +444,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.view_mode_aspect_fill, R.id.view_mode_aspect_fit, R.id.view_mode_fit_width -> {
+            R.id.manga_view_mode_aspect_fill, R.id.manga_view_mode_aspect_fit, R.id.manga_view_mode_fit_width -> {
                 item.isChecked = true
                 mReaderMode = mResourceViewMode[item.itemId] ?: ReaderMode.FIT_WIDTH
                 updatePageViews(mViewPager) {
@@ -452,15 +454,15 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     it.setViewMode(mReaderMode)
                 }
             }
-            R.id.reading_left_to_right, R.id.reading_right_to_left -> {
+            R.id.reading_manga_left_to_right, R.id.reading_manga_right_to_left -> {
                 item.isChecked = true
                 val page = getCurrentPage()
-                mIsLeftToRight = item.itemId == R.id.reading_left_to_right
+                mIsLeftToRight = item.itemId == R.id.reading_manga_left_to_right
                 setCurrentPage(page, false)
                 mViewPager.adapter?.notifyDataSetChanged()
                 updateSeekBar()
             }
-            R.id.menu_item_use_magnifier_type -> {
+            R.id.menu_item_reader_manga_use_magnifier_type -> {
                 item.isChecked = !item.isChecked
                 mUseMagnifierType = item.isChecked
                 updatePageViews(mViewPager) {
@@ -469,13 +471,13 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
                 with(mPreferences.edit()) {
                     this.putBoolean(
-                        GeneralConsts.KEYS.READER.USE_MAGNIFIER_TYPE,
+                        GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE,
                         mUseMagnifierType
                     )
                     this.commit()
                 }
             }
-            R.id.menu_item_save_share_image -> openPopupSaveShareImage()
+            R.id.menu_item_reader_manga_save_share_image -> openPopupSaveShareImage()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -518,7 +520,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         if (mManga != null)
             mSubtitleController.changeSubtitleInReader(mManga!!, mCurrentPage)
 
-        (requireActivity() as MangaReaderActivity).changePage(mManga?.title ?: "", mParse?.getPagePath(mCurrentPage) ?: "", mCurrentPage + 1)
+        (requireActivity() as MangaReaderActivity).changePage(
+            mManga?.title ?: "",
+            mParse?.getPagePath(mCurrentPage) ?: "",
+            mCurrentPage + 1
+        )
     }
 
     inner class ComicPagerAdapter : PagerAdapter() {
@@ -539,13 +545,13 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
             val inflater =
                 requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            val layout: View = inflater.inflate(R.layout.fragment_reader_page, container, false)
-            val pageImageView: PageImageView =
-                layout.findViewById<View>(R.id.page_image_view) as PageImageView
-            if (mReaderMode === ReaderMode.ASPECT_FILL) pageImageView.setTranslateToRightEdge(!mIsLeftToRight)
-            pageImageView.setViewMode(mReaderMode)
-            pageImageView.useMagnifierType = mUseMagnifierType
-            pageImageView.setOnTouchListener(this@MangaReaderFragment)
+            val layout: View = inflater.inflate(R.layout.fragment_manga_page, container, false)
+            val imageViewPage: ImageViewPage =
+                layout.findViewById<View>(R.id.page_image_view) as ImageViewPage
+            if (mReaderMode === ReaderMode.ASPECT_FILL) imageViewPage.setTranslateToRightEdge(!mIsLeftToRight)
+            imageViewPage.setViewMode(mReaderMode)
+            imageViewPage.useMagnifierType = mUseMagnifierType
+            imageViewPage.setOnTouchListener(this@MangaReaderFragment)
             container.addView(layout)
             val t = MyTarget(layout, position)
             loadImage(t)
@@ -575,7 +581,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 .tag(requireActivity())
 
             if (resize)
-                request.resize(ReaderConsts.READER.MAX_PAGE_WIDTH, ReaderConsts.READER.MAX_PAGE_HEIGHT)
+                request.resize(
+                    ReaderConsts.READER.MAX_PAGE_WIDTH,
+                    ReaderConsts.READER.MAX_PAGE_HEIGHT
+                )
                     .centerInside()
                     .onlyScaleDown()
 
@@ -594,7 +603,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 .tag(requireActivity())
 
             if (resize)
-                request.resize(ReaderConsts.READER.MAX_PAGE_WIDTH, ReaderConsts.READER.MAX_PAGE_HEIGHT)
+                request.resize(
+                    ReaderConsts.READER.MAX_PAGE_WIDTH,
+                    ReaderConsts.READER.MAX_PAGE_HEIGHT
+                )
                     .centerInside()
                     .onlyScaleDown()
 
@@ -664,10 +676,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     inner class MyTouchListener : SimpleOnGestureListener() {
 
-        override fun onLongPress(e: MotionEvent?) {
+        override fun onLongPress(e: MotionEvent) {
             super.onLongPress(e)
-            if (e == null) return
-            val view: PageImageView = getCurrencyImageView() ?: return
+            val view: ImageViewPage = getCurrencyImageView() ?: return
             val coordinator = view.getPointerCoordinate(e)
             mSubtitleController.selectTextByCoordinate(coordinator)
         }
@@ -691,6 +702,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             }
 
             when (position) {
+                Position.TOP -> shareImage(true)
                 Position.LEFT -> {
                     if (mIsLeftToRight) {
                         if (getCurrentPage() == 1) hitBeginning() else setCurrentPage(getCurrentPage() - 1)
@@ -718,7 +730,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private fun getPosition(e: MotionEvent): Position {
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-        val horizontalSize = resources.getDimensionPixelSize(R.dimen.reader_touch_demonstration_initial_horizontal)
+        val horizontalSize =
+            resources.getDimensionPixelSize(R.dimen.reader_touch_demonstration_initial_horizontal)
         val horizontal = (if (isLandscape) horizontalSize * 1.2 else horizontalSize * 1.5).toFloat()
 
         val x = e.x
@@ -752,13 +765,13 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
     }
 
-    private fun updatePageViews(parentView: ViewGroup, change: (PageImageView) -> (Unit)) {
+    private fun updatePageViews(parentView: ViewGroup, change: (ImageViewPage) -> (Unit)) {
         for (i in 0 until parentView.childCount) {
             val child = parentView.getChildAt(i)
             if (child is ViewGroup) {
                 updatePageViews(child, change)
-            } else if (child is PageImageView) {
-                val view: PageImageView = child
+            } else if (child is ImageViewPage) {
+                val view: ImageViewPage = child
                 change(view)
             }
         }
@@ -768,7 +781,12 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         return (requireActivity() as AppCompatActivity).supportActionBar
     }
 
-    private val windowInsetsController by lazy { WindowInsetsControllerCompat(requireActivity().window, mViewPager) }
+    private val windowInsetsController by lazy {
+        WindowInsetsControllerCompat(
+            requireActivity().window,
+            mViewPager
+        )
+    }
 
     fun setFullscreen(fullscreen: Boolean) {
         mIsFullscreen = fullscreen
@@ -777,7 +795,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 windowInsetsController.let {
                     it.hide(WindowInsetsCompat.Type.systemBars())
-                    it.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                    it.systemBarsBehavior =
+                        WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                 }
                 WindowCompat.setDecorFitsSystemWindows(w, true)
             } else {
@@ -800,7 +819,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             mPopupSubtitle.visibility = View.GONE
             mPopupColor.visibility = View.GONE
             mRoot.fitsSystemWindows = false
-            changeContentsVisibility(fullscreen)
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 windowInsetsController.let {
@@ -827,8 +845,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             w.navigationBarColor = resources.getColor(R.color.status_bar_color)
 
             //mRoot.fitsSystemWindows = true
-            changeContentsVisibility(fullscreen)
         }
+
+        changeContentsVisibility(fullscreen)
     }
 
     private val duration = 200L
@@ -858,7 +877,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         mPageNavLayout.animate().alpha(finalAlpha).setDuration(duration)
             .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mPageNavLayout.visibility = visibility
                 }
@@ -866,7 +885,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         mToolbarBottom.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
             .setDuration(duration).setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mToolbarBottom.visibility = visibility
                 }
@@ -874,7 +893,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         mToolbarTop.animate().alpha(finalAlpha).translationY(finalTranslation)
             .setDuration(duration).setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mToolbarTop.visibility = visibility
                 }
@@ -882,7 +901,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         mNextButton.animate().alpha(finalAlpha).setDuration(duration)
             .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mNextButton.visibility = visibility
                 }
@@ -890,7 +909,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         mPreviousButton.animate().alpha(finalAlpha).setDuration(duration)
             .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mPreviousButton.visibility = visibility
                 }
@@ -920,9 +939,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mNewManga = newManga
         mNewMangaTitle = titleRes
         val dialog: AlertDialog =
-            AlertDialog.Builder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+            MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(titleRes)
-                .setMessage(newManga.file.name)
+                .setMessage(newManga.fileName)
                 .setPositiveButton(
                     R.string.switch_action_positive
                 ) { _, _ ->
@@ -963,47 +982,54 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             .setIcon(R.drawable.ic_save_share_image)
             .setItems(items) { _, selectItem ->
                 val language = items[selectItem]
-
-                mParse?.getPage(mCurrentPage)?.let {
-                    val os: OutputStream
-                    try {
-                        val fileName = (mManga?.name ?: mCurrentPage.toString()) + ".jpeg"
-                        val values = ContentValues()
-                        values.put(Images.Media.DISPLAY_NAME, fileName)
-                        values.put(Images.Media.TITLE, fileName)
-                        values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis())
-                        values.put(Images.Media.MIME_TYPE, "image/jpeg")
-
-                        val uri: Uri? = requireContext().contentResolver.insert(Images.Media.EXTERNAL_CONTENT_URI, values)
-                        os = requireContext().contentResolver.openOutputStream(uri!!)!!
-                        val bitmap = BitmapFactory.decodeStream(it)
-                        bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, os)
-
-                        if (language.equals(requireContext().getString(R.string.reading_manga_choice_share_image), true)) {
-                            val image = File(uri.toString())
-                            val shareIntent = Intent()
-                            shareIntent.action = Intent.ACTION_SEND
-                            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                            shareIntent.type = "image/jpeg"
-                            shareIntent.putExtra(Intent.EXTRA_STREAM, image)
-                            shareIntent.putExtra(Intent.EXTRA_TEXT, fileName)
-                            startActivity(
-                                Intent.createChooser(
-                                    shareIntent,
-                                    requireContext().getString(R.string.reading_manga_choice_share_chose_app)
-                                )
-                            )
-                            image.delete()
-                        }
-
-                        Util.closeOutputStream(os)
-                    } catch (e: Exception) {
-                        mLOGGER.error("Error generate image to share.", e)
-                    } finally {
-                        Util.closeInputStream(it)
-                    }
-                }
+                shareImage(language.equals(
+                    requireContext().getString(R.string.reading_manga_choice_share_image),
+                    true
+                ))
             }
             .show()
+    }
+
+    private fun shareImage(isShare : Boolean) {
+        mParse?.getPage(mCurrentPage)?.let {
+            val os: OutputStream
+            try {
+                val fileName = (mManga?.name ?: mCurrentPage.toString()) + ".jpeg"
+                val values = ContentValues()
+                values.put(Images.Media.DISPLAY_NAME, fileName)
+                values.put(Images.Media.TITLE, fileName)
+                values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis())
+                values.put(Images.Media.MIME_TYPE, "image/jpeg")
+
+                val uri: Uri? = requireContext().contentResolver.insert(
+                    Images.Media.EXTERNAL_CONTENT_URI,
+                    values
+                )
+                os = requireContext().contentResolver.openOutputStream(uri!!)!!
+                val bitmap = BitmapFactory.decodeStream(it)
+                bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, os)
+
+                if (isShare) {
+                    val shareIntent = Intent()
+                    shareIntent.action = Intent.ACTION_SEND
+                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    shareIntent.type = "image/*"
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, fileName)
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
+                    startActivity(
+                        Intent.createChooser(
+                            shareIntent,
+                            requireContext().getString(R.string.reading_manga_choice_share_chose_app)
+                        )
+                    )
+                }
+
+                Util.closeOutputStream(os)
+            } catch (e: Exception) {
+                mLOGGER.error("Error generate image to share.", e)
+            } finally {
+                Util.closeInputStream(it)
+            }
+        }
     }
 }

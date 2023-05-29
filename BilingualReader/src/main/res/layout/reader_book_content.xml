@@ -14,7 +14,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true">
+        android:fitsSystemWindows="false">
 
         <include
             android:id="@+id/container_book_progress"
@@ -26,88 +26,87 @@
             layout="@layout/reader_book_progress"/>
 
         <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/toolbar_reader_book_top"
+            android:id="@+id/reader_book_toolbar_top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fitsSystemWindows="true"
             android:background="@drawable/main_toolbar_background"
             android:paddingBottom="5dp"
-            android:theme="@style/MainToolbarContentTheme" >
+            android:theme="@style/MainToolbarContentTheme"
+            app:elevation="0dp">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar_book_reader"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/default_navigator_header_size"
+                android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                android:padding="0dp"
                 app:popupTheme="@style/MainToolbarStyle"
-                android:theme="@style/MainToolbarTheme"/>
+                android:theme="@style/MainToolbarTheme"
+                android:contentInsetStart="0dp"
+                android:contentInsetLeft="0dp"
+                app:contentInsetLeft="0dp"
+                app:contentInsetStart="0dp"/>
 
             <TextView
-                android:id="@+id/toolbar_book_chapter"
+                android:id="@+id/reader_book_toolbar_title"
                 style="@style/ReaderToolbarTheme"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                android:gravity="center"
+                android:textSize="@dimen/title_medium_size"/>
+
+            <TextView
+                android:id="@+id/reader_book_toolbar_chapter"
+                style="@style/ReaderBookToolbarTheme"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:textSize="15dp"
-                android:text="Capitulo 15: O general"/>
+                android:layout_margin="0dp"
+                android:textSize="@dimen/title_small_size"/>
         </com.google.android.material.appbar.AppBarLayout>
 
         <LinearLayout
-            android:id="@+id/toolbar_reader_book_bottom"
+            android:id="@+id/reader_book_toolbar_bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fitsSystemWindows="true"
             android:layout_alignParentBottom="true"
-            android:paddingTop="5dp"
-            android:paddingBottom="10dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="5dp"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
             android:background="@drawable/main_toolbar_background_inverse"
             android:gravity="center"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/reader_book_bottom_progress_title"
+                style="@style/ReaderBookToolbarTheme"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp"
-                android:orientation="vertical"
-                android:minHeight="40dp">
+                android:textSize="@dimen/title_medium_size"/>
 
-                <TextView
-                    android:id="@+id/reader_book_nav_title"
-                    style="@style/ReaderToolbarTheme"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/title_size"
-                    android:text="Posição 10 de 2016 • 53%"/>
-
-                <com.google.android.material.slider.Slider
-                    android:id="@+id/reader_book_nav_progress"
-                    style="@style/Slider"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:valueFrom="0.0"
-                    android:valueTo="100.0"
-                    android:value="50.0"
-                    android:maxHeight="2dp"
-                    android:minHeight="2dp"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <com.google.android.material.slider.Slider
+                android:id="@+id/reader_book_bottom_progress"
+                style="@style/Slider"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
+                android:valueFrom="1F"
+                android:valueTo="100F"
+                android:value="1"
+                android:stepSize="1"
+                android:maxHeight="2dp"
+                android:minHeight="2dp"/>
 
-                <TextView
-                    android:id="@+id/reader_book_author"
-                    style="@style/TextTitle.PageNumber"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/title_size"
-                    android:layout_marginEnd="5dp"
-                    android:text="Isacc Asimov"/>
-
-            </LinearLayout>
-
+            <TextView
+                android:id="@+id/reader_book_toolbar_bottom_author"
+                style="@style/ReaderToolbarTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/title_medium_size"
+                android:layout_marginEnd="5dp"/>
         </LinearLayout>
     </RelativeLayout>
 </layout>

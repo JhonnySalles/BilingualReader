@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/AppBackground"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.ui.library.manga.LibraryMangaPopupFilter">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/margin"
+        android:paddingBottom="@dimen/margin_bottom">
+        <CheckBox
+            android:id="@+id/popup_library_filter_favorite"
+            style="@style/CheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/popup_library_manga_filter_favorite"/>
+
+        <CheckBox
+            android:id="@+id/popup_library_filter_reading"
+            style="@style/CheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/popup_library_manga_filter_reading"/>
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>
+

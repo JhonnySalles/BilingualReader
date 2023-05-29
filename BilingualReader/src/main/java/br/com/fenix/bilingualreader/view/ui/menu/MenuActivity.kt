@@ -10,6 +10,9 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.view.ui.book.BookAnnotationFragment
+import br.com.fenix.bilingualreader.view.ui.book.BookSearchFragment
+import br.com.fenix.bilingualreader.view.ui.chapters.MangaChaptersFragment
 
 
 class MenuActivity : AppCompatActivity() {
@@ -31,6 +34,9 @@ class MenuActivity : AppCompatActivity() {
         val newFragment = fragment ?: when (id) {
             R.id.frame_config_libraries -> ConfigLibrariesFragment()
             R.id.frame_select_manga -> SelectMangaFragment()
+            R.id.frame_manga_chapters -> MangaChaptersFragment()
+            R.id.frame_book_search -> BookSearchFragment()
+            R.id.frame_book_annotation -> BookAnnotationFragment()
             else -> null
         }
 

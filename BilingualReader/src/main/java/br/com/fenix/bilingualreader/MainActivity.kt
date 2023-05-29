@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.SubMenu
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -12,12 +13,16 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
+import br.com.fenix.bilingualreader.databinding.ActivityMainBinding
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.ThemeMode
 import br.com.fenix.bilingualreader.model.enums.Themes
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.listener.MainListener
+import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
-import br.com.fenix.bilingualreader.service.scanner.Scanner
+import br.com.fenix.bilingualreader.service.scanner.ScannerBook
+import br.com.fenix.bilingualreader.service.scanner.ScannerManga
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
@@ -26,6 +31,8 @@ import br.com.fenix.bilingualreader.view.ui.about.AboutFragment
 import br.com.fenix.bilingualreader.view.ui.configuration.ConfigFragment
 import br.com.fenix.bilingualreader.view.ui.help.HelpFragment
 import br.com.fenix.bilingualreader.view.ui.history.HistoryFragment
+import br.com.fenix.bilingualreader.view.ui.library.book.BookLibraryFragment
+import br.com.fenix.bilingualreader.view.ui.library.book.BookLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryFragment
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyFragment
@@ -42,13 +49,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private val mLOGGER = LoggerFactory.getLogger(MainActivity::class.java)
 
-    private lateinit var mLibraryModel: MangaLibraryViewModel
+    private lateinit var mMangaLibraryModel: MangaLibraryViewModel
+    private lateinit var mBookLibraryModel: BookLibraryViewModel
     private lateinit var mToolBar: Toolbar
     private lateinit var mFragmentManager: FragmentManager
     private lateinit var mNavigationView: NavigationView
     private lateinit var mMenu: Menu
     private lateinit var mToggle: ActionBarDrawerToggle
     private lateinit var mDrawer: DrawerLayout
+
+    private lateinit var binding: ActivityMainBinding
 
     private val mDefaultUncaughtHandler = Thread.getDefaultUncaughtExceptionHandler()
 
@@ -59,12 +69,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         val theme = Themes.valueOf(
-            GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!
+            GeneralConsts.getSharedPreferences(this)
+                .getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!
         )
         setTheme(theme.getValue())
 
         when (ThemeMode.valueOf(
-            GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_MODE, ThemeMode.SYSTEM.toString())!!
+            GeneralConsts.getSharedPreferences(this)
+                .getString(GeneralConsts.KEYS.THEME.THEME_MODE, ThemeMode.SYSTEM.toString())!!
         )) {
             ThemeMode.DARK -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             ThemeMode.LIGHT -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
@@ -74,15 +86,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onCreate(savedInstanceState)
 
         clearCache()
+        initializeBook()
 
-        setContentView(R.layout.activity_main)
+        //setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         mToolBar = findViewById(R.id.main_toolbar)
         MenuUtil.tintToolbar(mToolBar, theme)
         setSupportActionBar(mToolBar)
 
         // drawer_Layout is a default layout from app
-        mDrawer = findViewById(R.id.drawer_layout)
+        mDrawer = binding.drawerLayout
         mToggle = ActionBarDrawerToggle(
             this,
             mDrawer,
@@ -94,11 +110,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mToggle.syncState()
 
         // nav_view have a menu layout
-        mNavigationView = findViewById(R.id.nav_view)
+        mNavigationView = binding.navView
         mNavigationView.setNavigationItemSelectedListener(this)
 
-        mLibraryModel = ViewModelProvider(this).get(MangaLibraryViewModel::class.java)
-        mLibraryModel.setDefaultLibrary(LibraryUtil.getDefault(this))
+        mMangaLibraryModel = ViewModelProvider(this)[MangaLibraryViewModel::class.java]
+        mMangaLibraryModel.setDefaultLibrary(LibraryUtil.getDefault(this, Type.MANGA))
+
+        mBookLibraryModel = ViewModelProvider(this)[BookLibraryViewModel::class.java]
+        mBookLibraryModel.setDefaultLibrary(LibraryUtil.getDefault(this, Type.BOOK))
 
         mFragmentManager = supportFragmentManager
 
@@ -119,15 +138,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             fragment = ConfigFragment()
         } else {
             val idLibrary = GeneralConsts.getSharedPreferences(this)
-                .getLong(GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY, GeneralConsts.KEYS.LIBRARY.DEFAULT)
+                .getLong(
+                    GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY,
+                    GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
+                )
 
-            val library = if (idLibrary != GeneralConsts.KEYS.LIBRARY.DEFAULT)
-                mLibraries.find { it.id == idLibrary } ?: LibraryUtil.getDefault(this)
-            else
-                LibraryUtil.getDefault(this)
-
-            mLibraryModel.setLibrary(library)
-            fragment = MangaLibraryFragment()
+            fragment = if (idLibrary.compareTo(R.id.menu_manga_library_default) == 0 ||
+                idLibrary in GeneralConsts.KEYS.LIBRARIES.MANGA_INDEX_LIBRARIES..(GeneralConsts.KEYS.LIBRARIES.MANGA_INDEX_LIBRARIES + mLibraries.size)) {
+                val library = if (idLibrary.compareTo(R.id.menu_manga_library_default) == 0)
+                    LibraryUtil.getDefault(this, Type.MANGA)
+                    else
+                        mLibraries.find { it.id == idLibrary } ?: LibraryUtil.getDefault(this, Type.MANGA)
+                mMangaLibraryModel.setLibrary(library)
+                MangaLibraryFragment()
+            } else if (idLibrary.compareTo(R.id.menu_book_library_default) == 0 ||
+                idLibrary in GeneralConsts.KEYS.LIBRARIES.BOOK_INDEX_LIBRARIES..(GeneralConsts.KEYS.LIBRARIES.BOOK_INDEX_LIBRARIES + mLibraries.size) ) {
+                val library = if (idLibrary.compareTo(R.id.menu_book_library_default) == 0)
+                    LibraryUtil.getDefault(this, Type.BOOK)
+                else
+                    mLibraries.find { it.id == idLibrary } ?: LibraryUtil.getDefault(this, Type.BOOK)
+                mBookLibraryModel.setLibrary(library)
+                BookLibraryFragment()
+            } else {
+                mMangaLibraryModel.setLibrary(LibraryUtil.getDefault(this, Type.MANGA))
+                MangaLibraryFragment()
+            }
 
             intent.dataString?.let {
                 fragment = when (it) {
@@ -173,11 +208,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val libraries = repository.listEnabled()
             if (libraries.isNotEmpty()) {
                 setLibraries(libraries)
-                Scanner(this).scanLibrariesSilent(libraries)
+                scanSilent(libraries)
             }
         } catch (e: Exception) {
             mLOGGER.error("Error clearing cache folders.", e)
         }
+    }
+
+    private fun scanSilent(libraries: List<Library>) {
+        var scan = mutableListOf(LibraryUtil.getDefault(this, Type.MANGA))
+        scan.addAll(libraries.filter { it.type == Type.MANGA })
+        val idLibrary = GeneralConsts.getSharedPreferences(this)
+            .getLong(
+                GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY,
+                GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
+            )
+        ScannerManga(this).scanLibrariesSilent(scan.filter { it.id != idLibrary && idLibrary.compareTo(it.menuKey) != 0 })
+
+        scan = mutableListOf(LibraryUtil.getDefault(this, Type.BOOK))
+        scan.addAll(libraries.filter { it.type == Type.BOOK })
+        ScannerBook(this).scanLibrariesSilent(scan.filter { it.id != idLibrary && idLibrary.compareTo(it.menuKey) != 0 })
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -186,19 +236,28 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val fragment = supportFragmentManager.findFragmentById(item.itemId)
         val newFragment = fragment ?: when (item.itemId) {
-            R.id.menu_library_default -> {
-                mLibraryModel.setLibrary(LibraryUtil.getDefault(this))
+            R.id.menu_manga_library_default -> {
+                mMangaLibraryModel.setLibrary(LibraryUtil.getDefault(this, Type.MANGA))
                 MangaLibraryFragment()
+            }
+            R.id.menu_book_library_default -> {
+                mBookLibraryModel.setLibrary(LibraryUtil.getDefault(this, Type.BOOK))
+                BookLibraryFragment()
             }
             R.id.menu_configuration -> ConfigFragment()
             R.id.menu_help -> HelpFragment()
             R.id.menu_about -> AboutFragment()
             R.id.menu_history -> HistoryFragment()
             R.id.menu_vocabulary -> VocabularyFragment()
-            in GeneralConsts.KEYS.LIBRARIES.INDEX_LIBRARIES..(GeneralConsts.KEYS.LIBRARIES.INDEX_LIBRARIES + mLibraries.size) -> {
-                val index = item.itemId - GeneralConsts.KEYS.LIBRARIES.INDEX_LIBRARIES
-                mLibraryModel.setLibrary(mLibraries[index])
+            in GeneralConsts.KEYS.LIBRARIES.MANGA_INDEX_LIBRARIES..(GeneralConsts.KEYS.LIBRARIES.MANGA_INDEX_LIBRARIES + mLibraries.filter { it.type == Type.MANGA }.size) -> {
+                val library = mLibraries.find { it.menuKey == item.itemId } ?: LibraryUtil.getDefault(this, Type.MANGA)
+                mMangaLibraryModel.setLibrary(library)
                 MangaLibraryFragment()
+            }
+            in GeneralConsts.KEYS.LIBRARIES.BOOK_INDEX_LIBRARIES..(GeneralConsts.KEYS.LIBRARIES.BOOK_INDEX_LIBRARIES + mLibraries.filter { it.type == Type.BOOK }.size) -> {
+                val library = mLibraries.find { it.menuKey == item.itemId } ?: LibraryUtil.getDefault(this, Type.BOOK)
+                mBookLibraryModel.setLibrary(library)
+                BookLibraryFragment()
             }
             else -> null
         }
@@ -244,7 +303,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun openFragment(fragment: Fragment) {
         if (fragment is MangaLibraryFragment)
-            mLibraryModel.saveLastLibrary()
+            mMangaLibraryModel.saveLastLibrary()
+        else if (fragment is BookLibraryFragment)
+            mBookLibraryModel.saveLastLibrary()
 
         mFragmentManager.beginTransaction().setCustomAnimations(
             R.anim.slide_fragment_add_enter,
@@ -257,22 +318,44 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             .commit()
     }
 
-    private lateinit var mLibraries: List<Library>
+    private var mLibraries: List<Library> = listOf()
+    private fun cleanLibraries(menu : Menu) {
+        var submenu: SubMenu? = menu.findItem(R.id.menu_manga_library_content).subMenu
+        var list = mLibraries.filter { it.type == Type.MANGA }
+
+        for ((index, _) in list.withIndex())
+            submenu?.removeItem(GeneralConsts.KEYS.LIBRARIES.MANGA_INDEX_LIBRARIES + index)
+
+        submenu = menu.findItem(R.id.menu_book_library_content).subMenu
+        list = mLibraries.filter { it.type == Type.BOOK }
+
+        for ((index, _) in list.withIndex())
+            submenu?.removeItem(GeneralConsts.KEYS.LIBRARIES.BOOK_INDEX_LIBRARIES + index)
+    }
+    private fun setLibraries(submenu: SubMenu?, type: Type, libraries: List<Library>) {
+        val list = libraries.filter { it.type == type }
+        val icon = if (type == Type.BOOK) R.drawable.ico_book else R.drawable.ico_library
+        for ((index, library) in list.withIndex())
+            submenu?.let {
+                val key = (if (type == Type.BOOK) GeneralConsts.KEYS.LIBRARIES.BOOK_INDEX_LIBRARIES else GeneralConsts.KEYS.LIBRARIES.MANGA_INDEX_LIBRARIES) + index
+                library.menuKey = key
+                it.add(0, key, 0, library.title).apply { setIcon(icon) }
+            }
+    }
+
     fun setLibraries(libraries: List<Library>) {
         val menu = mNavigationView.menu
-        val submenu: Menu = menu.findItem(R.id.menu_library_content).subMenu
 
-        if (!::mLibraries.isInitialized)
-            mLibraries = libraries
-
-        for ((index, _) in mLibraries.withIndex())
-            submenu.removeItem(GeneralConsts.KEYS.LIBRARIES.INDEX_LIBRARIES + index)
-
-        for ((index, library) in libraries.withIndex())
-            submenu.add(0, GeneralConsts.KEYS.LIBRARIES.INDEX_LIBRARIES + index, 0, library.title).apply { setIcon(R.drawable.ic_library) }
+        cleanLibraries(menu)
+        setLibraries(menu.findItem(R.id.menu_manga_library_content).subMenu, Type.MANGA, libraries)
+        setLibraries(menu.findItem(R.id.menu_book_library_content).subMenu, Type.BOOK, libraries)
 
         mLibraries = libraries
         mNavigationView.invalidate()
+    }
+
+    private fun initializeBook() {
+        DocumentParse.init(this)
     }
 
 }

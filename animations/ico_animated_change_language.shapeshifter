@@ -1,0 +1,822 @@
+{
+  "version": 1,
+  "layers": {
+    "vectorLayer": {
+      "id": "253",
+      "name": "vector",
+      "type": "vector",
+      "width": 600,
+      "height": 600,
+      "children": [
+        {
+          "id": "251",
+          "name": "back1",
+          "type": "group",
+          "translateX": 20,
+          "translateY": 20,
+          "children": [
+            {
+              "id": "255",
+              "name": "border2",
+              "type": "path",
+              "pathData": "M 266.1 309.02 C 266.1 309.02 103.19 309.02 103.19 309.02 C 51.72 309.02 10 267.29 10 215.83 C 10 215.83 10 103.19 10 103.19 C 10 51.72 51.72 10 103.19 10 C 103.19 10 266.1 10 266.1 10 C 317.57 10 359.29 51.72 359.29 103.19 C 359.29 103.19 359.29 215.83 359.29 215.83 C 359.29 267.29 317.57 309.02 266.1 309.02",
+              "strokeColor": "#aaaaaa",
+              "strokeWidth": 20
+            },
+            {
+              "id": "257",
+              "name": "japanese1",
+              "type": "path",
+              "pathData": "M 185.6 75.81 C 185.6 75.81 185.6 121.88 185.6 121.88",
+              "strokeColor": "#aaaaaa",
+              "strokeWidth": 20
+            },
+            {
+              "id": "256",
+              "name": "japanese2",
+              "type": "path",
+              "pathData": "M 96.83 121.88 C 96.83 121.88 274.38 121.88 274.38 121.88",
+              "strokeColor": "#aaaaaa",
+              "strokeWidth": 20
+            },
+            {
+              "id": "254",
+              "name": "japanese3",
+              "type": "path",
+              "pathData": "M 148.13 157.23 C 148.13 157.23 179.1 221.16 251.53 249.64",
+              "strokeColor": "#aaaaaa",
+              "strokeWidth": 20
+            },
+            {
+              "id": "289",
+              "name": "japanese4",
+              "type": "path",
+              "pathData": "M 236.54 121.88 C 236.54 121.88 219.06 210.18 122.65 249.64",
+              "strokeColor": "#aaaaaa",
+              "strokeWidth": 20
+            }
+          ]
+        },
+        {
+          "id": "370",
+          "name": "back2",
+          "type": "group",
+          "translateX": 120,
+          "translateY": 120,
+          "children": [
+            {
+              "id": "372",
+              "name": "border1",
+              "type": "path",
+              "pathData": "M 266.1 309.02 C 266.1 309.02 103.19 309.02 103.19 309.02 C 51.72 309.02 10 267.29 10 215.83 C 10 215.83 10 103.19 10 103.19 C 10 51.72 51.72 10 103.19 10 C 103.19 10 266.1 10 266.1 10 C 317.57 10 359.29 51.72 359.29 103.19 C 359.29 103.19 359.29 215.83 359.29 215.83 C 359.29 267.29 317.57 309.02 266.1 309.02",
+              "fillAlpha": 0,
+              "strokeColor": "#aaaaaa",
+              "strokeAlpha": 0,
+              "strokeWidth": 20
+            },
+            {
+              "id": "395",
+              "name": "english3",
+              "type": "path",
+              "pathData": "M 120.58 231.18 C 120.58 231.18 179.01 97.75 179.01 97.75 C 181.26 92.67 188.48 92.67 190.73 97.75 C 190.73 97.75 249.09 231.18 249.09 231.18",
+              "fillAlpha": 0,
+              "strokeColor": "#aaaaaa",
+              "strokeAlpha": 0,
+              "strokeWidth": 20
+            },
+            {
+              "id": "396",
+              "name": "english4",
+              "type": "path",
+              "pathData": "M 146.77 171.37 C 146.77 171.37 220.58 171.37 220.58 171.37",
+              "fillAlpha": 0,
+              "strokeColor": "#aaaaaa",
+              "strokeAlpha": 0,
+              "strokeWidth": 20
+            }
+          ]
+        },
+        {
+          "id": "294",
+          "name": "front1",
+          "type": "group",
+          "translateX": 220,
+          "translateY": 220,
+          "children": [
+            {
+              "id": "295",
+              "name": "background1",
+              "type": "path",
+              "pathData": "M 266.1 309.02 C 266.1 309.02 103.19 309.02 103.19 309.02 C 51.72 309.02 10 267.29 10 215.83 C 10 215.83 10 103.19 10 103.19 C 10 51.72 51.72 10 103.19 10 C 103.19 10 266.1 10 266.1 10 C 317.57 10 359.29 51.72 359.29 103.19 C 359.29 103.19 359.29 215.83 359.29 215.83 C 359.29 267.29 317.57 309.02 266.1 309.02",
+              "fillColor": "#ffffff",
+              "strokeColor": "#ffffff",
+              "strokeWidth": 20
+            },
+            {
+              "id": "297",
+              "name": "english1",
+              "type": "path",
+              "pathData": "M 120.58 231.18 C 120.58 231.18 179.01 97.75 179.01 97.75 C 181.26 92.67 188.48 92.67 190.73 97.75 C 190.73 97.75 249.09 231.18 249.09 231.18",
+              "strokeColor": "#000000",
+              "strokeWidth": 20
+            },
+            {
+              "id": "298",
+              "name": "english2",
+              "type": "path",
+              "pathData": "M 146.77 171.37 C 146.77 171.37 220.58 171.37 220.58 171.37",
+              "strokeColor": "#000000",
+              "strokeWidth": 20
+            }
+          ]
+        },
+        {
+          "id": "371",
+          "name": "front2",
+          "type": "group",
+          "translateX": 120,
+          "translateY": 120,
+          "children": [
+            {
+              "id": "343",
+              "name": "background2",
+              "type": "path",
+              "pathData": "M 266.1 309.02 C 266.1 309.02 103.19 309.02 103.19 309.02 C 51.72 309.02 10 267.29 10 215.83 C 10 215.83 10 103.19 10 103.19 C 10 51.72 51.72 10 103.19 10 C 103.19 10 266.1 10 266.1 10 C 317.57 10 359.29 51.72 359.29 103.19 C 359.29 103.19 359.29 215.83 359.29 215.83 C 359.29 267.29 317.57 309.02 266.1 309.02",
+              "fillColor": "#ffffff",
+              "fillAlpha": 0,
+              "strokeColor": "#ffffff",
+              "strokeAlpha": 0,
+              "strokeWidth": 20
+            },
+            {
+              "id": "418",
+              "name": "japanese5",
+              "type": "path",
+              "pathData": "M 185.6 75.81 C 185.6 75.81 185.6 121.88 185.6 121.88",
+              "fillAlpha": 0,
+              "strokeColor": "#000000",
+              "strokeAlpha": 0,
+              "strokeWidth": 20
+            },
+            {
+              "id": "419",
+              "name": "japanese6",
+              "type": "path",
+              "pathData": "M 96.83 121.88 C 96.83 121.88 274.38 121.88 274.38 121.88",
+              "fillAlpha": 0,
+              "strokeColor": "#000000",
+              "strokeAlpha": 0,
+              "strokeWidth": 20
+            },
+            {
+              "id": "420",
+              "name": "japanese7",
+              "type": "path",
+              "pathData": "M 148.13 157.23 C 148.13 157.23 179.1 221.16 251.53 249.64",
+              "fillAlpha": 0,
+              "strokeColor": "#000000",
+              "strokeAlpha": 0,
+              "strokeWidth": 20
+            },
+            {
+              "id": "421",
+              "name": "japanese8",
+              "type": "path",
+              "pathData": "M 236.54 121.88 C 236.54 121.88 219.06 210.18 122.65 249.64",
+              "fillAlpha": 0,
+              "strokeColor": "#000000",
+              "strokeAlpha": 0,
+              "strokeWidth": 20
+            }
+          ]
+        }
+      ]
+    },
+    "hiddenLayerIds": []
+  },
+  "timeline": {
+    "animation": {
+      "id": "2",
+      "name": "anim",
+      "duration": 1800,
+      "blocks": [
+        {
+          "id": "438",
+          "layerId": "251",
+          "propertyName": "translateX",
+          "startTime": 0,
+          "endTime": 303,
+          "interpolator": "ACCELERATE_DECELERATE",
+          "type": "number",
+          "fromValue": 20,
+          "toValue": 120
+        },
+        {
+          "id": "439",
+          "layerId": "251",
+          "propertyName": "translateY",
+          "startTime": 0,
+          "endTime": 303,
+          "interpolator": "ACCELERATE_DECELERATE",
+          "type": "number",
+          "fromValue": 20,
+          "toValue": 120
+        },
+        {
+          "id": "440",
+          "layerId": "294",
+          "propertyName": "translateY",
+          "startTime": 0,
+          "endTime": 303,
+          "interpolator": "ACCELERATE_DECELERATE",
+          "type": "number",
+          "fromValue": 220,
+          "toValue": 120
+        },
+        {
+          "id": "441",
+          "layerId": "294",
+          "propertyName": "translateX",
+          "startTime": 0,
+          "endTime": 303,
+          "interpolator": "ACCELERATE_DECELERATE",
+          "type": "number",
+          "fromValue": 220,
+          "toValue": 120
+        },
+        {
+          "id": "444",
+          "layerId": "343",
+          "propertyName": "fillAlpha",
+          "startTime": 303,
+          "endTime": 549,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "447",
+          "layerId": "420",
+          "propertyName": "strokeAlpha",
+          "startTime": 303,
+          "endTime": 549,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "448",
+          "layerId": "421",
+          "propertyName": "strokeAlpha",
+          "startTime": 303,
+          "endTime": 549,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "449",
+          "layerId": "419",
+          "propertyName": "strokeAlpha",
+          "startTime": 303,
+          "endTime": 549,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "450",
+          "layerId": "418",
+          "propertyName": "strokeAlpha",
+          "startTime": 303,
+          "endTime": 549,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "451",
+          "layerId": "298",
+          "propertyName": "strokeAlpha",
+          "startTime": 303,
+          "endTime": 549,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0
+        },
+        {
+          "id": "452",
+          "layerId": "297",
+          "propertyName": "strokeAlpha",
+          "startTime": 303,
+          "endTime": 549,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0
+        },
+        {
+          "id": "453",
+          "layerId": "295",
+          "propertyName": "fillAlpha",
+          "startTime": 511,
+          "endTime": 549,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0
+        },
+        {
+          "id": "454",
+          "layerId": "396",
+          "propertyName": "strokeAlpha",
+          "startTime": 511,
+          "endTime": 549,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "455",
+          "layerId": "395",
+          "propertyName": "strokeAlpha",
+          "startTime": 511,
+          "endTime": 549,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "456",
+          "layerId": "372",
+          "propertyName": "strokeAlpha",
+          "startTime": 511,
+          "endTime": 549,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "457",
+          "layerId": "289",
+          "propertyName": "strokeAlpha",
+          "startTime": 511,
+          "endTime": 549,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0
+        },
+        {
+          "id": "458",
+          "layerId": "254",
+          "propertyName": "strokeAlpha",
+          "startTime": 511,
+          "endTime": 549,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0
+        },
+        {
+          "id": "459",
+          "layerId": "256",
+          "propertyName": "strokeAlpha",
+          "startTime": 511,
+          "endTime": 549,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0
+        },
+        {
+          "id": "460",
+          "layerId": "372",
+          "propertyName": "fillAlpha",
+          "startTime": 511,
+          "endTime": 549,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "461",
+          "layerId": "295",
+          "propertyName": "strokeAlpha",
+          "startTime": 511,
+          "endTime": 549,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0
+        },
+        {
+          "id": "462",
+          "layerId": "343",
+          "propertyName": "strokeAlpha",
+          "startTime": 303,
+          "endTime": 549,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "463",
+          "layerId": "257",
+          "propertyName": "strokeAlpha",
+          "startTime": 511,
+          "endTime": 549,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0
+        },
+        {
+          "id": "464",
+          "layerId": "255",
+          "propertyName": "fillAlpha",
+          "startTime": 511,
+          "endTime": 549,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0
+        },
+        {
+          "id": "466",
+          "layerId": "255",
+          "propertyName": "strokeAlpha",
+          "startTime": 511,
+          "endTime": 549,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0
+        },
+        {
+          "id": "467",
+          "layerId": "370",
+          "propertyName": "translateX",
+          "startTime": 549,
+          "endTime": 853,
+          "interpolator": "OVERSHOOT",
+          "type": "number",
+          "fromValue": 120,
+          "toValue": 20
+        },
+        {
+          "id": "468",
+          "layerId": "370",
+          "propertyName": "translateY",
+          "startTime": 549,
+          "endTime": 853,
+          "interpolator": "OVERSHOOT",
+          "type": "number",
+          "fromValue": 120,
+          "toValue": 20
+        },
+        {
+          "id": "469",
+          "layerId": "371",
+          "propertyName": "translateY",
+          "startTime": 549,
+          "endTime": 853,
+          "interpolator": "OVERSHOOT",
+          "type": "number",
+          "fromValue": 120,
+          "toValue": 220
+        },
+        {
+          "id": "470",
+          "layerId": "371",
+          "propertyName": "translateX",
+          "startTime": 549,
+          "endTime": 853,
+          "interpolator": "OVERSHOOT",
+          "type": "number",
+          "fromValue": 120,
+          "toValue": 220
+        },
+        {
+          "id": "471",
+          "layerId": "370",
+          "propertyName": "translateX",
+          "startTime": 999,
+          "endTime": 1301,
+          "interpolator": "ACCELERATE_DECELERATE",
+          "type": "number",
+          "fromValue": 20,
+          "toValue": 120
+        },
+        {
+          "id": "472",
+          "layerId": "370",
+          "propertyName": "translateY",
+          "startTime": 1000,
+          "endTime": 1301,
+          "interpolator": "ACCELERATE_DECELERATE",
+          "type": "number",
+          "fromValue": 20,
+          "toValue": 120
+        },
+        {
+          "id": "473",
+          "layerId": "371",
+          "propertyName": "translateY",
+          "startTime": 1000,
+          "endTime": 1301,
+          "interpolator": "ACCELERATE_DECELERATE",
+          "type": "number",
+          "fromValue": 220,
+          "toValue": 120
+        },
+        {
+          "id": "474",
+          "layerId": "371",
+          "propertyName": "translateX",
+          "startTime": 1000,
+          "endTime": 1301,
+          "interpolator": "ACCELERATE_DECELERATE",
+          "type": "number",
+          "fromValue": 220,
+          "toValue": 120
+        },
+        {
+          "id": "475",
+          "layerId": "297",
+          "propertyName": "strokeAlpha",
+          "startTime": 1301,
+          "endTime": 1551,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 1
+        },
+        {
+          "id": "476",
+          "layerId": "298",
+          "propertyName": "strokeAlpha",
+          "startTime": 1301,
+          "endTime": 1551,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 1
+        },
+        {
+          "id": "477",
+          "layerId": "343",
+          "propertyName": "fillAlpha",
+          "startTime": 1301,
+          "endTime": 1551,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0
+        },
+        {
+          "id": "478",
+          "layerId": "343",
+          "propertyName": "strokeAlpha",
+          "startTime": 1301,
+          "endTime": 1551,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0
+        },
+        {
+          "id": "479",
+          "layerId": "418",
+          "propertyName": "strokeAlpha",
+          "startTime": 1301,
+          "endTime": 1551,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0
+        },
+        {
+          "id": "480",
+          "layerId": "419",
+          "propertyName": "strokeAlpha",
+          "startTime": 1301,
+          "endTime": 1551,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0
+        },
+        {
+          "id": "481",
+          "layerId": "420",
+          "propertyName": "strokeAlpha",
+          "startTime": 1301,
+          "endTime": 1551,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0
+        },
+        {
+          "id": "482",
+          "layerId": "421",
+          "propertyName": "strokeAlpha",
+          "startTime": 1301,
+          "endTime": 1551,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0
+        },
+        {
+          "id": "483",
+          "layerId": "295",
+          "propertyName": "fillAlpha",
+          "startTime": 1301,
+          "endTime": 1335,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "484",
+          "layerId": "295",
+          "propertyName": "strokeAlpha",
+          "startTime": 1301,
+          "endTime": 1335,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "485",
+          "layerId": "396",
+          "propertyName": "strokeAlpha",
+          "startTime": 1517,
+          "endTime": 1551,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0
+        },
+        {
+          "id": "486",
+          "layerId": "395",
+          "propertyName": "strokeAlpha",
+          "startTime": 1517,
+          "endTime": 1551,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0
+        },
+        {
+          "id": "487",
+          "layerId": "372",
+          "propertyName": "fillAlpha",
+          "startTime": 1517,
+          "endTime": 1551,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0
+        },
+        {
+          "id": "488",
+          "layerId": "372",
+          "propertyName": "strokeAlpha",
+          "startTime": 1517,
+          "endTime": 1551,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0
+        },
+        {
+          "id": "489",
+          "layerId": "289",
+          "propertyName": "strokeAlpha",
+          "startTime": 1517,
+          "endTime": 1551,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "490",
+          "layerId": "254",
+          "propertyName": "strokeAlpha",
+          "startTime": 1517,
+          "endTime": 1551,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "491",
+          "layerId": "256",
+          "propertyName": "strokeAlpha",
+          "startTime": 1517,
+          "endTime": 1551,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "492",
+          "layerId": "257",
+          "propertyName": "strokeAlpha",
+          "startTime": 1517,
+          "endTime": 1551,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "493",
+          "layerId": "255",
+          "propertyName": "strokeAlpha",
+          "startTime": 1517,
+          "endTime": 1551,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "494",
+          "layerId": "255",
+          "propertyName": "fillAlpha",
+          "startTime": 1517,
+          "endTime": 1551,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0,
+          "toValue": 1
+        },
+        {
+          "id": "495",
+          "layerId": "251",
+          "propertyName": "translateX",
+          "startTime": 1551,
+          "endTime": 1800,
+          "interpolator": "OVERSHOOT",
+          "type": "number",
+          "fromValue": 120,
+          "toValue": 20
+        },
+        {
+          "id": "496",
+          "layerId": "251",
+          "propertyName": "translateY",
+          "startTime": 1551,
+          "endTime": 1800,
+          "interpolator": "OVERSHOOT",
+          "type": "number",
+          "fromValue": 120,
+          "toValue": 20
+        },
+        {
+          "id": "497",
+          "layerId": "294",
+          "propertyName": "translateY",
+          "startTime": 1551,
+          "endTime": 1800,
+          "interpolator": "OVERSHOOT",
+          "type": "number",
+          "fromValue": 120,
+          "toValue": 220
+        },
+        {
+          "id": "498",
+          "layerId": "294",
+          "propertyName": "translateX",
+          "startTime": 1551,
+          "endTime": 1800,
+          "interpolator": "OVERSHOOT",
+          "type": "number",
+          "fromValue": 120,
+          "toValue": 220
+        }
+      ]
+    }
+  }
+}

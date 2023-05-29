@@ -16,7 +16,7 @@
         app:srcCompat="@mipmap/book_not_found"
         android:contentDescription="@string/reader_not_found" />
 
-    <br.com.fenix.bilingualreader.view.components.manga.PageViewPager
+    <br.com.fenix.bilingualreader.view.components.manga.ImageViewPager
         android:id="@+id/fragment_reader"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

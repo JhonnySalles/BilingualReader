@@ -1,14 +1,18 @@
 package br.com.fenix.bilingualreader.model.entity
 
 import androidx.room.*
+import br.com.ebook.foobnix.ext.EbookMeta
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import java.io.File
 import java.io.Serializable
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.*
 
 @Entity(
     tableName = DataBaseConsts.BOOK.TABLE_NAME,
@@ -18,40 +22,68 @@ class Book(
     id: Long?,
     title: String,
     author: String,
+    password: String,
     annotation: String,
     year: String,
     genre: String,
     publisher: String,
     isbn: String,
     pages: Int,
+    chapter: Int,
+    chapterDescription: String,
     bookMark: Int,
     language: Languages,
     path: String,
-    fileSize: Double,
+    folder: String,
     name: String,
     type: FileType,
-    folder: String,
+    fileSize: Long,
     favorite: Boolean,
+    fkLibrary: Long?,
+    tags: MutableList<Long>,
+    excluded: Boolean,
     dateCreate: LocalDateTime?,
     lastAccess: LocalDateTime?,
     lastAlteration: LocalDateTime?,
-    excluded: Boolean
+    fileAlteration: Date,
+    lastVocabImport: LocalDateTime?,
+    lastVerify: LocalDate?
 ) : Serializable {
 
+    @Ignore
     constructor(
-        title: String, author: String, annotation: String,
+        fkLibrary: Long?, title: String, author: String, annotation: String,
         year: String, genre: String, publisher: String, isbn: String,
-        path: String, folder: String, name: String, fileSize: Double,
+        path: String, folder: String, name: String, fileSize: Long,
         pages: Int
     ) : this(
-        null, title, author, annotation, year, genre, publisher, isbn, pages, 0,
-        Languages.ENGLISH, path, fileSize, name, FileType.UNKNOWN, folder, false,
-        LocalDateTime.now(), null, LocalDateTime.now(), false
+        null, title, author, "", annotation, year, genre, publisher, isbn, pages, 0, "", 0,
+        Languages.ENGLISH, path, folder, name, FileType.UNKNOWN, fileSize, false, fkLibrary, mutableListOf(), false,
+        LocalDateTime.now(), null, LocalDateTime.now(), Date(), null, null
     ) {
-        this.file = File(path)
-        this.fileName = Util.getNameWithoutExtensionFromPath(path)
-        this.extension = Util.getExtensionFromPath(path)
         this.type = FileUtil.getFileType(this.fileName)
+        this.fileAlteration = Date(this.file.lastModified())
+    }
+
+    @Ignore
+    constructor(fkLibrary: Long?, id: Long?, file: File, meta: EbookMeta, language: Libraries) : this(
+        id, meta.title, meta.author ?: "", "", meta.annotation ?: "", "", meta.genre ?: "", "", "", 1, 0,
+        "", 0, Languages.ENGLISH, file.path, file.parent, file.nameWithoutExtension, FileType.UNKNOWN, file.length(), false,
+        fkLibrary, mutableListOf(), false, LocalDateTime.now(), null, LocalDateTime.now(), Date(), null, null
+    ) {
+        this.language = when (meta.lang) {
+            "ja", "jp" -> Languages.JAPANESE
+            "en" -> Languages.ENGLISH
+            "pt" -> Languages.PORTUGUESE
+            else -> when(language) {
+                Libraries.ENGLISH -> Languages.ENGLISH
+                Libraries.JAPANESE -> Languages.JAPANESE
+                Libraries.PORTUGUESE -> Languages.PORTUGUESE
+                else -> this.language
+            }
+        }
+        this.type = FileUtil.getFileType(file.name)
+        this.fileAlteration = Date(this.file.lastModified())
     }
 
     @PrimaryKey(autoGenerate = true)
@@ -63,6 +95,9 @@ class Book(
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.AUTHOR)
     var author: String = author
+
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.PASSWORD)
+    var password: String = password
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.ANNOTATION)
     var annotation: String = annotation
@@ -82,6 +117,12 @@ class Book(
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.PAGES)
     var pages: Int = pages
 
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.CHAPTER)
+    var chapter: Int = chapter
+
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.CHAPTER_DESCRIPTION)
+    var chapterDescription: String = chapterDescription
+
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.BOOK_MARK)
     var bookMark: Int = bookMark
 
@@ -95,13 +136,13 @@ class Book(
     var file: File = File(path)
 
     @Ignore
-    var fileName: String = ""
+    var fileName: String = Util.getNameWithoutExtensionFromPath(path)
 
     @Ignore
-    var extension: String = ""
+    var extension: String = Util.getExtensionFromPath(path)
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FILE_SIZE)
-    var fileSize: Double = fileSize
+    var fileSize: Long = fileSize
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FILE_NAME)
     var name: String = name
@@ -115,6 +156,15 @@ class Book(
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FAVORITE)
     var favorite: Boolean = favorite
 
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.EXCLUDED)
+    var excluded: Boolean = excluded
+
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY)
+    var fkLibrary: Long? = fkLibrary
+
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.TAGS)
+    var tags: MutableList<Long> = tags
+
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.DATE_CREATE)
     var dateCreate: LocalDateTime? = dateCreate
 
@@ -124,8 +174,14 @@ class Book(
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION)
     var lastAlteration: LocalDateTime? = lastAlteration
 
-    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.EXCLUDED)
-    var excluded: Boolean = excluded
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FILE_ALTERATION)
+    var fileAlteration: Date = fileAlteration
+
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.LAST_VOCABULARY_IMPORT)
+    var lastVocabImport: LocalDateTime? = lastVocabImport
+
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.LAST_VERIFY)
+    var lastVerify: LocalDate? = lastVerify
 
     override fun toString(): String {
         return "Book(id=$id, title='$title', author='$author', language=$language, path='$path', fileName='$fileName', extension='$extension', fileSize=$fileSize, name='$name', favorite=$favorite, excluded=$excluded)"
@@ -159,8 +215,36 @@ class Book(
 
     fun update(book: Book) {
         this.bookMark = book.bookMark
+        this.pages = book.pages
+        this.tags = book.tags
+        this.language = book.language
         this.favorite = book.favorite
         this.lastAccess = book.lastAccess
+        this.lastAlteration = book.lastAlteration
+        this.lastVocabImport = book.lastVocabImport
+    }
+
+    fun update(meta: EbookMeta, language: Libraries) {
+        this.title = meta.title
+        this.author = meta.author ?: ""
+        this.annotation = meta.annotation ?: ""
+        this.genre = meta.genre ?: ""
+        this.fileSize = file.length()
+
+        this.language = when (meta.lang) {
+            "ja", "jp" -> Languages.JAPANESE
+            "en" -> Languages.ENGLISH
+            "pt" -> Languages.PORTUGUESE
+            else -> when(language) {
+                Libraries.ENGLISH -> Languages.ENGLISH
+                Libraries.JAPANESE -> Languages.JAPANESE
+                Libraries.PORTUGUESE -> Languages.PORTUGUESE
+                else -> this.language
+            }
+        }
+        this.type = FileUtil.getFileType(file.name)
+        this.fileAlteration = Date(this.file.lastModified())
+        this.lastVocabImport = null
     }
 
 }

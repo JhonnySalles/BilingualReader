@@ -11,6 +11,9 @@
 
         <item name="materialAlertDialogTitleTextStyle">@style/AppCompatAlertDialogTitle</item>
         <item name="materialAlertDialogBodyTextStyle">@style/AppCompatAlertDialogContent</item>
+
+        <item name="shapeAppearanceOverlay">@style/MaterialAlertDialog.Rounded</item>
+        <item name="alertDialogStyle">@style/MaterialAlertDialog.Rounded</item>
     </style>
 
     <style name="NegativeButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
@@ -46,14 +49,15 @@
         <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
         <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
 
-        <item name="alertDialogStyle">@style/MaterialAlertDialog.Rounded</item>
+        <item name="shapeAppearanceOverlay">@style/MaterialAlertDialog.Rounded</item>
     </style>
 
     <style name="MaterialAlertDialog.Rounded" parent="MaterialAlertDialog.MaterialComponents">
-        <item name="shapeAppearance">@style/ShapeAppearanceOverlay.MaterialAlertDialog.Rounded</item>
+        <item name="shapeAppearance">@style/BorderRounded</item>
     </style>
 
-    <style name="ShapeAppearanceOverlay.MaterialAlertDialog.Rounded" parent="">
+    <style name="BorderRounded" parent="">
+        <item name="cornerFamily">rounded</item>
         <item name="cornerSize">10dp</item>
     </style>
 

@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.VocabularyManga
-import br.com.fenix.bilingualreader.service.controller.ImageCoverController
+import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import com.google.android.material.card.MaterialCardView
 
 class VocabularyMangaListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -25,11 +25,16 @@ class VocabularyMangaListViewHolder(itemView: View) : RecyclerView.ViewHolder(it
     }
 
     init {
-        mDefaultImageCover1 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_1)
-        mDefaultImageCover2 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_2)
-        mDefaultImageCover3 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_3)
-        mDefaultImageCover4 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_4)
-        mDefaultImageCover5 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_5)
+        mDefaultImageCover1 =
+            BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_1)
+        mDefaultImageCover2 =
+            BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_2)
+        mDefaultImageCover3 =
+            BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_3)
+        mDefaultImageCover4 =
+            BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_4)
+        mDefaultImageCover5 =
+            BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_5)
     }
 
     fun bind(vocabulary: VocabularyManga, mangaList: MutableMap<Long, Bitmap?>) {
@@ -63,7 +68,12 @@ class VocabularyMangaListViewHolder(itemView: View) : RecyclerView.ViewHolder(it
     }
 
     private fun setCover(cover: ImageView, manga: Manga, mangaList: MutableMap<Long, Bitmap?>) {
-        ImageCoverController.instance.setImageCoverAsync(itemView.context, manga, cover, true) { b ->
+        MangaImageCoverController.instance.setImageCoverAsync(
+            itemView.context,
+            manga,
+            cover,
+            true
+        ) { b ->
             if (b != null) {
                 mangaList[manga.id!!] = b
                 // Limit 2k in size

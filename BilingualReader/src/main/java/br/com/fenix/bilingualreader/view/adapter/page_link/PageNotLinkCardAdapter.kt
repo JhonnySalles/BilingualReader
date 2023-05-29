@@ -4,13 +4,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.PageLink
+import br.com.fenix.bilingualreader.model.entity.LinkedPage
 import br.com.fenix.bilingualreader.service.listener.PageLinkCardListener
 
 class PageNotLinkCardAdapter : RecyclerView.Adapter<PageNotLinkViewHolder>() {
 
     private lateinit var mListener: PageLinkCardListener
-    private var mPageNotLinkList: ArrayList<PageLink> = arrayListOf()
+    private var mPageNotLinkList: ArrayList<LinkedPage> = arrayListOf()
 
     override fun onBindViewHolder(holder: PageNotLinkViewHolder, position: Int) {
         holder.bind(mPageNotLinkList[position])
@@ -24,7 +24,7 @@ class PageNotLinkCardAdapter : RecyclerView.Adapter<PageNotLinkViewHolder>() {
         return mPageNotLinkList.size
     }
 
-    fun updateList(list: ArrayList<PageLink>) {
+    fun updateList(list: ArrayList<LinkedPage>) {
         mPageNotLinkList = list
         notifyDataSet()
     }

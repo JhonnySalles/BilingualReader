@@ -3,8 +3,12 @@ package br.com.fenix.bilingualreader.util.helpers
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.ActivityManager
-import android.content.*
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.DialogInterface
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -12,32 +16,31 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PointF
+import android.graphics.drawable.Animatable2
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.Drawable
+import android.os.Handler
 import android.util.DisplayMetrics
 import android.util.TypedValue
-import android.view.Menu
-import android.view.MotionEvent
-import android.view.ScaleGestureDetector
+import android.view.*
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
-import android.view.View
 import android.widget.ImageView
 import android.widget.SearchView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.model.enums.FileType
-import br.com.fenix.bilingualreader.model.enums.Languages
-import br.com.fenix.bilingualreader.model.enums.Themes
+import br.com.fenix.bilingualreader.model.enums.*
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
+import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.util.helpers.Util.Utils.getColorFromAttr
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import java.io.*
@@ -46,7 +49,6 @@ import java.math.BigInteger
 import java.nio.channels.FileChannel
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
-import java.text.SimpleDateFormat
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -78,14 +80,22 @@ class Util {
             return sizeInBytes / 1024
         }
 
-        fun getDeviceWidth(context: Context): Int {
+        fun getDeviceWidth(): Int {
             val displayMetrics = Resources.getSystem().displayMetrics
-            return Math.round(displayMetrics.widthPixels / displayMetrics.density)
+            return (displayMetrics.widthPixels / displayMetrics.density).roundToInt()
         }
 
-        fun getDeviceHeight(context: Context): Int {
+        fun getDeviceHeight(): Int {
             val displayMetrics = Resources.getSystem().displayMetrics
-            return Math.round(displayMetrics.heightPixels / displayMetrics.density)
+            return (displayMetrics.heightPixels / displayMetrics.density).roundToInt()
+        }
+
+        fun screenHeight(): Int {
+            return Resources.getSystem().displayMetrics.heightPixels
+        }
+
+        fun screenWidth(): Int {
+            return Resources.getSystem().displayMetrics.widthPixels
         }
 
         fun MD5(string: String): String {
@@ -109,7 +119,8 @@ class Util {
                 val md5Bytes = digest.digest()
                 var returnVal = ""
                 for (element in md5Bytes)
-                    returnVal += Integer.toString((element and 0xff.toByte()) + 0x100, 16).substring(1)
+                    returnVal += Integer.toString((element and 0xff.toByte()) + 0x100, 16)
+                        .substring(1)
 
                 returnVal
             } catch (e: Exception) {
@@ -117,27 +128,6 @@ class Util {
             } finally {
                 closeInputStream(image)
             }
-        }
-
-        fun calculateInSampleSize(
-            options: BitmapFactory.Options,
-            reqWidth: Int,
-            reqHeight: Int
-        ): Int {
-            val height = options.outHeight
-            val width = options.outWidth
-            var inSampleSize = 1
-            if (height > reqHeight || width > reqWidth) {
-                val halfHeight = height / 2
-                val halfWidth = width / 2
-
-                while (halfHeight / inSampleSize > reqHeight
-                    && halfWidth / inSampleSize > reqWidth
-                ) {
-                    inSampleSize *= 2
-                }
-            }
-            return inSampleSize
         }
 
         fun calculateMemorySize(context: Context, percentage: Int): Int {
@@ -179,34 +169,6 @@ class Util {
                 output.write(b, 0, n)
             }
             return output
-        }
-
-        fun imageToByteArray(image: Bitmap): ByteArray? {
-            val output = ByteArrayOutputStream()
-            return output.use { otp ->
-                image.compress(Bitmap.CompressFormat.JPEG, 100, otp)
-                otp.toByteArray()
-            }
-        }
-
-        fun encodeImageBase64(image: Bitmap): String {
-            return android.util.Base64.encodeToString(
-                imageToByteArray(image),
-                android.util.Base64.DEFAULT
-            )
-        }
-
-        fun decodeImageBase64(image: String): Bitmap {
-            val imageBytes = android.util.Base64.decode(image, android.util.Base64.DEFAULT)
-            return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-        }
-
-        fun imageToInputStream(image: Bitmap): InputStream {
-            val output = ByteArrayOutputStream()
-            return output.use { otp ->
-                image.compress(Bitmap.CompressFormat.JPEG, 100, otp)
-                ByteArrayInputStream(output.toByteArray())
-            }
         }
 
         fun closeInputStream(input: InputStream?) {
@@ -287,7 +249,11 @@ class Util {
                 path
         }
 
-        fun normalizeNameCache(name: String, prefix: String = "", isRandom: Boolean = true): String {
+        fun normalizeNameCache(
+            name: String,
+            prefix: String = "",
+            isRandom: Boolean = true
+        ): String {
             val normalize = if (name.contains("-"))
                 name.substringBefore("-")
             else if (name.contains(" "))
@@ -295,7 +261,8 @@ class Util {
             else name
 
             val random = if (isRandom) (0..1000).random() else ""
-            return prefix + normalize.replace("[^\\w\\d ]".toRegex(), "").trim().plus(random).lowercase()
+            return prefix + normalize.replace("[^\\w\\d ]".toRegex(), "").trim().plus(random)
+                .lowercase()
         }
 
         fun normalizeFilePath(path: String): String {
@@ -348,7 +315,9 @@ class Util {
 
         private fun getNumberAtEnd(str: String): String {
             var numbers = ""
-            val m: Matcher = Pattern.compile("\\d+$|\\d+\\w$|\\d+\\.\\d+$|(\\(|\\{|\\[)\\d+(\\)|\\]|\\})$").matcher(str)
+            val m: Matcher =
+                Pattern.compile("\\d+$|\\d+\\w$|\\d+\\.\\d+$|(\\(|\\{|\\[)\\d+(\\)|\\]|\\})$")
+                    .matcher(str)
             while (m.find())
                 numbers = m.group()
 
@@ -359,9 +328,13 @@ class Util {
             return if (name.contains(Regex("\\d+$")))
                 numbers.padStart(10, '0')
             else if (name.contains(Regex("\\d+\\w\$")))
-                numbers.replace(Regex("\\w\$"), "").padStart(10, '0') + numbers.replace(Regex("\\d+"), "")
+                numbers.replace(Regex("\\w\$"), "")
+                    .padStart(10, '0') + numbers.replace(Regex("\\d+"), "")
             else if (name.contains(Regex("\\d+\\.\\d+\$")))
-                numbers.replace(Regex("\\.\\d+\$"), "").padStart(10, '0') + '.' + numbers.replace(Regex("\\d+\\."), "")
+                numbers.replace(Regex("\\.\\d+\$"), "").padStart(10, '0') + '.' + numbers.replace(
+                    Regex("\\d+\\."),
+                    ""
+                )
             else if (name.contains(Regex("(\\(|\\{|\\[)\\d+(\\)|\\]|\\})$")))
                 numbers.replace(Regex("[^0-9]"), "").padStart(10, '0')
             else
@@ -374,7 +347,10 @@ class Util {
             return if (numbers.isEmpty())
                 getNameFromPath(path)
             else
-                name.substring(0, name.lastIndexOf(numbers)) + getPadding(name, numbers) + getExtensionFromPath(path)
+                name.substring(0, name.lastIndexOf(numbers)) + getPadding(
+                    name,
+                    numbers
+                ) + getExtensionFromPath(path)
         }
 
         var googleLang: String = ""
@@ -408,32 +384,65 @@ class Util {
                 ""
         }
 
-        private var mapThemes: HashMap<String, Themes>? = null
-        fun getThemes(context: Context): HashMap<String, Themes> {
-            return if (mapThemes != null)
-                mapThemes!!
+        fun getColors(context: Context): Map<String, Color> {
+            return Color.getColors().associateBy { context.getString(it.getDescription()) }
+        }
+
+
+        private var mapMangaFilter: HashMap<String, Filter>? = null
+        private var mapBookFilter: HashMap<String, Filter>? = null
+        fun getMangaFilters(context: Context): HashMap<String, Filter> {
+            return if (mapMangaFilter != null)
+                mapMangaFilter!!
             else {
-                val themes = context.resources.getStringArray(R.array.themes)
-                mapThemes = hashMapOf(
-                    themes[0] to Themes.ORIGINAL,
-                    themes[1] to Themes.BLOOD_RED,
-                    themes[2] to Themes.BLUE,
-                    themes[3] to Themes.FOREST_GREEN,
-                    themes[4] to Themes.GREEN,
-                    themes[5] to Themes.NEON_BLUE,
-                    themes[6] to Themes.NEON_GREEN,
-                    themes[7] to Themes.OCEAN_BLUE,
-                    themes[8] to Themes.PINK,
-                    themes[9] to Themes.RED,
+                val types = context.resources.getStringArray(R.array.manga_filters)
+                mapMangaFilter = hashMapOf(
+                    types[0] to Filter.Author,
+                    types[1] to Filter.Publisher,
+                    types[2] to Filter.Series,
+                    types[3] to Filter.Type,
+                    types[4] to Filter.Volume
                 )
-                mapThemes!!
+                mapMangaFilter!!
             }
         }
 
-        fun themeDescription(context: Context, themes: Themes): String {
-            val mapThemes = getThemes(context)
-            return if (mapThemes.containsValue(themes))
-                mapThemes.filter { themes == it.value }.keys.first()
+        fun getBookFilters(context: Context): HashMap<String, Filter> {
+            return if (mapBookFilter != null)
+                mapBookFilter!!
+            else {
+                val types = context.resources.getStringArray(R.array.book_filters)
+                mapBookFilter = hashMapOf(
+                    types[0] to Filter.Author,
+                    types[1] to Filter.Publisher,
+                    types[2] to Filter.Tag,
+                    types[3] to Filter.Type
+                )
+                mapBookFilter!!
+            }
+        }
+
+        fun stringToFilter(context: Context, type: Type, text: String): Filter {
+            var filter = Filter.None
+            val mapFilters = when(type) {
+                Type.MANGA -> getMangaFilters(context)
+                Type.BOOK -> getBookFilters(context)
+            }
+            for (item in mapFilters)
+                if (item.key.equals(text, true)) {
+                    filter = item.value
+                    break
+                }
+            return filter
+        }
+
+        fun filterToString(context: Context, type: Type, filter: Filter): String {
+            val mapFilters = when(type) {
+                Type.MANGA -> getMangaFilters(context)
+                Type.BOOK -> getBookFilters(context)
+            }
+            return if (mapFilters.containsValue(filter))
+                mapFilters.filter { filter == it.value }.keys.first()
             else
                 ""
         }
@@ -464,14 +473,6 @@ class Util {
             return text.substringBeforeLast("Volume").replace(" - ", "").trim()
         }
 
-        fun formatterDate(context: Context, date: Date?): String {
-            if (date == null)
-                return context.getString(R.string.date_format_unknown)
-            val preferences = GeneralConsts.getSharedPreferences(context)
-            val pattern = preferences.getString(GeneralConsts.KEYS.SYSTEM.FORMAT_DATA, "yyyy-MM-dd")
-            return SimpleDateFormat(pattern, Locale.getDefault()).format(date)
-        }
-
         fun setBold(text: String): String =
             "<b>$text</b>"
 
@@ -483,7 +484,11 @@ class Util {
             return vertical
         }
 
-        fun getDivideStrings(text: String, delimiter: Char = '\n', occurrences: Int = 10): Pair<String, String> {
+        fun getDivideStrings(
+            text: String,
+            delimiter: Char = '\n',
+            occurrences: Int = 10
+        ): Pair<String, String> {
             var postion = text.length
             var occurence = 0
             for ((i, c) in text.withIndex()) {
@@ -501,14 +506,8 @@ class Util {
             return Pair(string1, string2)
         }
 
-        @ColorInt
-        fun Context.getColorFromAttr(
-            @AttrRes attrColor: Int,
-            typedValue: TypedValue = TypedValue(),
-            resolveRefs: Boolean = true
-        ): Int {
-            theme.resolveAttribute(attrColor, typedValue, resolveRefs)
-            return typedValue.data
+        fun formatDecimal(percent: Float): String {
+            return "%,.2f".format(percent)
         }
 
     }
@@ -517,6 +516,11 @@ class Util {
 class FileUtil(val context: Context) {
 
     companion object FileUtil {
+
+        fun isXml(filename: String): Boolean {
+            return filename.lowercase(Locale.getDefault())
+                .matches(Regex(".*\\.(xml)$"))
+        }
 
         fun isJson(filename: String): Boolean {
             return filename.lowercase(Locale.getDefault())
@@ -534,6 +538,12 @@ class FileUtil(val context: Context) {
             } catch (e: Exception) {
                 FileType.UNKNOWN
             }
+        }
+
+        fun formatSize(size: Long): String {
+            if (size < 1024) return "$size B"
+            val z = (63 - java.lang.Long.numberOfLeadingZeros(size)) / 10
+            return String.format("%.1f %sB", size.toDouble() / (1L shl z * 10), " KMGTPE"[z])
         }
 
     }
@@ -597,6 +607,18 @@ class FileUtil(val context: Context) {
         ).show()
     }
 
+    fun copyName(book: Book) {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("Copied Text", book.fileName)
+        clipboard.setPrimaryClip(clip)
+
+        Toast.makeText(
+            context,
+            context.getString(R.string.action_copy_name, book.fileName),
+            Toast.LENGTH_LONG
+        ).show()
+    }
+
 
 }
 
@@ -614,7 +636,7 @@ class MsgUtil {
 
         fun validPermission(context: Context, grantResults: IntArray) {
             if (!validPermission(grantResults))
-                AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle)
+                MaterialAlertDialogBuilder(context, R.style.AppCompatAlertDialogStyle)
                     .setTitle(context.getString(R.string.alert_permission_files_access_denied_title))
                     .setMessage(context.getString(R.string.alert_permission_files_access_denied))
                     .setPositiveButton(R.string.action_neutral) { _, _ -> }.create().show()
@@ -681,15 +703,23 @@ class MsgUtil {
 
 class LibraryUtil {
     companion object LibraryUtils {
-        fun getDefault(context: Context): Library {
-            val preference: SharedPreferences = GeneralConsts.getSharedPreferences(context)
-            val path = preference.getString(GeneralConsts.KEYS.LIBRARY.FOLDER, "") ?: ""
-            return Library(GeneralConsts.KEYS.LIBRARY.DEFAULT, context.getString(R.string.manga_library_default), path)
-        }
-
-        fun getBook(context: Context): String {
-            val preference: SharedPreferences = GeneralConsts.getSharedPreferences(context)
-            return preference.getString(GeneralConsts.KEYS.LIBRARY.BOOK_FOLDER, "") ?: ""
+        fun getDefault(context: Context, type: Type): Library {
+            val base = DataBase.getDataBase(context).getLibrariesDao()
+            val string = if (type == Type.BOOK)
+                context.getString(R.string.book_library_default)
+            else
+                context.getString(R.string.manga_library_default)
+            val key = if (type == Type.BOOK)
+                GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK
+            else
+                GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
+            return Library(
+                key,
+                string,
+                base.getDefault(key)?.path ?: "",
+                type = type,
+                excluded = true
+            )
         }
     }
 }
@@ -724,7 +754,7 @@ class ImageUtil {
                             .scaleY(1.0f)
                             .setDuration(300L)
                             .setListener(object : AnimatorListenerAdapter() {
-                                override fun onAnimationEnd(animation: Animator?) {
+                                override fun onAnimationEnd(animation: Animator) {
                                     super.onAnimationEnd(animation)
                                     mScaleFactor = 1.0f
                                     image.scaleX = mScaleFactor
@@ -748,6 +778,56 @@ class ImageUtil {
 
             image.setOnClickListener { oneClick() }
         }
+
+        fun calculateInSampleSize(
+            options: BitmapFactory.Options,
+            reqWidth: Int,
+            reqHeight: Int
+        ): Int {
+            val height = options.outHeight
+            val width = options.outWidth
+            var inSampleSize = 1
+            if (height > reqHeight || width > reqWidth) {
+                val halfHeight = height / 2
+                val halfWidth = width / 2
+
+                while (halfHeight / inSampleSize > reqHeight
+                    && halfWidth / inSampleSize > reqWidth
+                ) {
+                    inSampleSize *= 2
+                }
+            }
+            return inSampleSize
+        }
+
+        fun imageToByteArray(image: Bitmap): ByteArray? {
+            val output = ByteArrayOutputStream()
+            return output.use { otp ->
+                image.compress(Bitmap.CompressFormat.JPEG, 100, otp)
+                otp.toByteArray()
+            }
+        }
+
+        fun encodeImageBase64(image: Bitmap): String {
+            return android.util.Base64.encodeToString(
+                imageToByteArray(image),
+                android.util.Base64.DEFAULT
+            )
+        }
+
+        fun decodeImageBase64(image: String): Bitmap {
+            val imageBytes = android.util.Base64.decode(image, android.util.Base64.DEFAULT)
+            return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+        }
+
+        fun imageToInputStream(image: Bitmap): InputStream {
+            val output = ByteArrayOutputStream()
+            return output.use { otp ->
+                image.compress(Bitmap.CompressFormat.JPEG, 100, otp)
+                ByteArrayInputStream(output.toByteArray())
+            }
+        }
+
     }
 }
 
@@ -783,10 +863,12 @@ class MenuUtil {
         }
 
         fun tintColor(context: Context, textInput: TextInputLayout) {
-            textInput.hintTextColor = ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorSecondary))
+            textInput.hintTextColor =
+                ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorSecondary))
             textInput.boxBackgroundColor = context.getColorFromAttr(R.attr.colorOnSurface)
             textInput.boxStrokeColor = context.getColorFromAttr(R.attr.colorSurface)
-            textInput.placeholderTextColor = ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorPrimary))
+            textInput.placeholderTextColor =
+                ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorPrimary))
             tintIcons(context, textInput.startIconDrawable, R.attr.colorSecondary)
             tintIcons(context, textInput.endIconDrawable, R.attr.colorSecondary)
         }
@@ -809,18 +891,45 @@ class MenuUtil {
         }
 
         fun tintIcons(context: Context, searchView: SearchView) {
-            tintIcons(context, searchView.findViewById<ImageView>(context.resources.getIdentifier("android:id/search_button", null, null)))
             tintIcons(
                 context,
-                searchView.findViewById<ImageView>(context.resources.getIdentifier("android:id/search_close_btn", null, null))
+                searchView.findViewById<ImageView>(
+                    context.resources.getIdentifier(
+                        "android:id/search_button",
+                        null,
+                        null
+                    )
+                )
             )
             tintIcons(
                 context,
-                searchView.findViewById<ImageView>(context.resources.getIdentifier("android:id/search_mag_icon", null, null))
+                searchView.findViewById<ImageView>(
+                    context.resources.getIdentifier(
+                        "android:id/search_close_btn",
+                        null,
+                        null
+                    )
+                )
             )
             tintIcons(
                 context,
-                searchView.findViewById<ImageView>(context.resources.getIdentifier("android:id/search_voice_btn", null, null))
+                searchView.findViewById<ImageView>(
+                    context.resources.getIdentifier(
+                        "android:id/search_mag_icon",
+                        null,
+                        null
+                    )
+                )
+            )
+            tintIcons(
+                context,
+                searchView.findViewById<ImageView>(
+                    context.resources.getIdentifier(
+                        "android:id/search_voice_btn",
+                        null,
+                        null
+                    )
+                )
             )
         }
 
@@ -828,5 +937,147 @@ class MenuUtil {
             drawer.color = context.getColorFromAttr(R.attr.colorOnSurfaceVariant)
         }
 
+        fun longClick(activity: Activity, menuItem: Int, longCLick: () -> (Unit)) {
+            Handler().post {
+                activity.findViewById<View?>(menuItem)?.setOnLongClickListener {
+                    longCLick()
+                    true
+                }
+            }
+        }
+
+        fun animatedSequenceDrawable(menu: MenuItem, vararg id: Int) {
+            executeAnimatedSequence(menu, 0, id)
+        }
+
+        private fun executeAnimatedSequence(menu: MenuItem, sequence: Int, id: IntArray) {
+            menu.setIcon(id[sequence])
+            (menu.icon as AnimatedVectorDrawable).registerAnimationCallback(object :
+                Animatable2.AnimationCallback() {
+                override fun onAnimationEnd(drawable: Drawable?) {
+                    super.onAnimationEnd(drawable)
+                    val next = sequence.plus(1)
+                    if (id.size > next)
+                        executeAnimatedSequence(menu, next, id)
+                }
+            })
+            (menu.icon as AnimatedVectorDrawable).start()
+        }
+    }
+}
+
+class ThemeUtil {
+    companion object ThemeUtils {
+
+        private var mapThemes: HashMap<String, Themes>? = null
+        fun getThemes(context: Context): HashMap<String, Themes> {
+            return if (mapThemes != null)
+                mapThemes!!
+            else {
+                val themes = context.resources.getStringArray(R.array.themes)
+                mapThemes = hashMapOf(
+                    themes[0] to Themes.ORIGINAL,
+                    themes[1] to Themes.BLOOD_RED,
+                    themes[2] to Themes.BLUE,
+                    themes[3] to Themes.FOREST_GREEN,
+                    themes[4] to Themes.GREEN,
+                    themes[5] to Themes.NEON_BLUE,
+                    themes[6] to Themes.NEON_GREEN,
+                    themes[7] to Themes.OCEAN_BLUE,
+                    themes[8] to Themes.PINK,
+                    themes[9] to Themes.RED,
+                )
+                mapThemes!!
+            }
+        }
+
+        fun themeDescription(context: Context, themes: Themes): String {
+            val mapThemes = getThemes(context)
+            return if (mapThemes.containsValue(themes))
+                mapThemes.filter { themes == it.value }.keys.first()
+            else
+                ""
+        }
+
+        @ColorInt
+        fun Context.getColorFromAttr(
+            @AttrRes attrColor: Int,
+            typedValue: TypedValue = TypedValue(),
+            resolveRefs: Boolean = true
+        ): Int {
+            theme.resolveAttribute(attrColor, typedValue, resolveRefs)
+            return typedValue.data
+        }
+    }
+}
+
+class FontUtil {
+    companion object FontUtils {
+        fun dipToPixels(context: Context, dipValue: Float): Float {
+            val metrics = context.resources.displayMetrics
+            return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics)
+        }
+
+        fun pixelToDips(context: Context, pixelValue: Float): Int {
+            val metrics = context.resources.displayMetrics
+            return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, pixelValue, metrics)
+                .roundToInt()
+        }
+
+    }
+}
+
+class TextUtil {
+    companion object TextUtils {
+
+        private val mPartsDivs = listOf(".", "!", ";", "?", ":")
+        fun getParts(text: String): Array<String> {
+            var max = -1
+            for (ch in mPartsDivs) {
+                val last = text.lastIndexOf(ch)
+                if (last > max) {
+                    max = last
+                }
+            }
+            if (max == -1) {
+                max = text.lastIndexOf(",")
+            }
+            val firstPart = if (max > 0) text.substring(0, max + 1) else text
+            val secondPart = if (max > 0) text.substring(max + 1) else ""
+            return arrayOf(firstPart, secondPart)
+        }
+
+        fun clearHtml(html : String) : String {
+            return html.replace(Regex("<[^>]*>"), "")
+        }
+
+        fun formatHtml(html : String, endLine: String = "<br>") : String {
+            return html.replace("<p>", "").replace("</p>", "").replace("<end-line>", endLine)
+        }
+
+        fun replaceEndLine(pageHTML: String, character: String = ""): String {
+            var pageHTML = pageHTML
+            pageHTML = pageHTML.replace("-<end-line>", character)
+            pageHTML = pageHTML.replace("- <end-line>", character)
+            pageHTML = pageHTML.replace("<end-line>", " $character")
+            return pageHTML
+        }
+
+        fun replaceHTMLforTTS(pageHTML: String?): String {
+            var pageHTML = pageHTML ?: return ""
+            pageHTML = pageHTML.replace("<b>", "").replace("</b>", "").replace("<i>", "")
+                .replace("</i>", "").replace("<tt>", "").replace("</tt>", "")
+            pageHTML = pageHTML.replace("<br/>", " ")
+            pageHTML = replaceEndLine(pageHTML, "")
+            pageHTML = pageHTML.replace("<p>", "").replace("</p>", " ")
+            pageHTML = pageHTML.replace("&nbsp;", " ").replace("&lt;", " ").replace("&gt;", "")
+                .replace("&amp;", " ").replace("&quot;", " ")
+            pageHTML = pageHTML.replace("'", "")
+            pageHTML = pageHTML.replace("*", "")
+            pageHTML = pageHTML.replace("  ", " ").replace("  ", " ")
+            pageHTML = pageHTML.replace(".", ". ").replace(" .", ".").replace(" .", ".")
+            pageHTML = pageHTML.replace("(?u)(\\w+)(-\\s)".toRegex(), "$1")
+            return pageHTML
+        }
     }
 }

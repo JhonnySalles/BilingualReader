@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/AppBackground"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/margin_small"
+    android:paddingTop="@dimen/margin_small"
+    android:paddingRight="@dimen/margin_small"
+    android:paddingBottom="@dimen/margin_bottom"
+    tools:context=".view.ui.reader.book.PopupBookLayout">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/popup_book_layout_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/popup_book_layout_scrolling_type"
+            style="@style/TextInputDropMenu"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/popup_reading_layout_scrolling_type"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <AutoCompleteTextView
+                android:id="@+id/popup_book_layout_scrolling_type_menu_autocomplete"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:ellipsize="start"
+                android:inputType="none"
+                android:maxLines="1"
+                tools:ignore="LabelFor" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.divider.MaterialDivider
+            android:id="@+id/popup_book_layout_margin_divider"
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin_big"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_scrolling_type"/>
+
+        <TextView
+            android:id="@+id/popup_book_layout_margin_description"
+            style="@style/TextTitle.Config"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/popup_reading_layout_margin"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_margin_divider"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/popup_book_layout_margin_small"
+            style="@style/Button.SquaredIconOnly"
+            android:layout_width="@dimen/popup_reader_button_width"
+            android:layout_height="@dimen/popup_reader_button_width"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="1dp"
+            android:minHeight="@dimen/popup_reader_button_min_height"
+            android:tooltipText="@string/popup_reading_layout_margin_small"
+            app:icon="@drawable/ico_animated_margin_small"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/popup_book_layout_margin_medium"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_margin_description" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/popup_book_layout_margin_medium"
+            style="@style/Button.SquaredIconOnly"
+            android:layout_width="@dimen/popup_reader_button_width"
+            android:layout_height="@dimen/popup_reader_button_width"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="1dp"
+            android:minHeight="@dimen/popup_reader_button_min_height"
+            android:tooltipText="@string/popup_reading_layout_margin_medium"
+            app:icon="@drawable/ico_animated_margin_medium"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintLeft_toRightOf="@+id/popup_book_layout_margin_small"
+            app:layout_constraintRight_toLeftOf="@+id/popup_book_layout_margin_big"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_margin_description" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/popup_book_layout_margin_big"
+            style="@style/Button.SquaredIconOnly"
+            android:layout_width="@dimen/popup_reader_button_width"
+            android:layout_height="@dimen/popup_reader_button_width"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="1dp"
+            android:minHeight="@dimen/popup_reader_button_min_height"
+            android:tooltipText="@string/popup_reading_layout_margin_big"
+            app:icon="@drawable/ico_animated_margin_big"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintLeft_toRightOf="@+id/popup_book_layout_margin_medium"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_margin_description"/>
+
+
+        <com.google.android.material.divider.MaterialDivider
+            android:id="@+id/popup_book_layout_spacing_divider"
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin_big"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_margin_small"/>
+
+        <TextView
+            android:id="@+id/popup_book_layout_spacing_description"
+            style="@style/TextTitle.Config"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/popup_reading_layout_spacing"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_spacing_divider"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/popup_book_layout_spacing_small"
+            style="@style/Button.SquaredIconOnly"
+            android:layout_width="@dimen/popup_reader_button_width"
+            android:layout_height="@dimen/popup_reader_button_width"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="1dp"
+            android:minHeight="@dimen/popup_reader_button_min_height"
+            android:tooltipText="@string/popup_reading_layout_spacing_small"
+            app:icon="@drawable/ico_animated_spacing_small"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/popup_book_layout_spacing_medium"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_spacing_description" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/popup_book_layout_spacing_medium"
+            style="@style/Button.SquaredIconOnly"
+            android:layout_width="@dimen/popup_reader_button_width"
+            android:layout_height="@dimen/popup_reader_button_width"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="1dp"
+            android:minHeight="@dimen/popup_reader_button_min_height"
+            android:tooltipText="@string/popup_reading_layout_spacing_medium"
+            app:icon="@drawable/ico_animated_spacing_medium"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintLeft_toRightOf="@+id/popup_book_layout_spacing_small"
+            app:layout_constraintRight_toLeftOf="@+id/popup_book_layout_spacing_big"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_spacing_description"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/popup_book_layout_spacing_big"
+            style="@style/Button.SquaredIconOnly"
+            android:layout_width="@dimen/popup_reader_button_width"
+            android:layout_height="@dimen/popup_reader_button_width"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="1dp"
+            android:minHeight="@dimen/popup_reader_button_min_height"
+            android:tooltipText="@string/popup_reading_layout_spacing_big"
+            app:icon="@drawable/ico_animated_spacing_big"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintLeft_toRightOf="@+id/popup_book_layout_spacing_medium"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_spacing_description"/>
+
+
+        <com.google.android.material.divider.MaterialDivider
+            android:id="@+id/popup_book_layout_alignment_divider"
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin_big"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_spacing_small"/>
+
+        <TextView
+            android:id="@+id/popup_book_layout_alignment_description"
+            style="@style/TextTitle.Config"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/popup_reading_layout_alignment"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_alignment_divider" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/popup_book_layout_alignment_justify"
+            style="@style/Button.SquaredIconOnly"
+            android:layout_width="@dimen/popup_reader_button_width"
+            android:layout_height="@dimen/popup_reader_button_width"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="1dp"
+            android:minHeight="@dimen/popup_reader_button_min_height"
+            android:tooltipText="@string/popup_reading_layout_alignment_complete"
+            app:icon="@drawable/ico_animated_align_justify"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/popup_book_layout_alignment_left"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_alignment_description"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/popup_book_layout_alignment_left"
+            style="@style/Button.SquaredIconOnly"
+            android:layout_width="@dimen/popup_reader_button_width"
+            android:layout_height="@dimen/popup_reader_button_width"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="1dp"
+            android:minHeight="@dimen/popup_reader_button_min_height"
+            android:tooltipText="@string/popup_reading_layout_alignment_left"
+            app:icon="@drawable/ico_animated_align_left"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintLeft_toRightOf="@+id/popup_book_layout_alignment_justify"
+            app:layout_constraintRight_toLeftOf="@+id/popup_book_layout_alignment_center"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_alignment_description"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/popup_book_layout_alignment_center"
+            style="@style/Button.SquaredIconOnly"
+            android:layout_width="@dimen/popup_reader_button_width"
+            android:layout_height="@dimen/popup_reader_button_width"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="1dp"
+            android:minHeight="@dimen/popup_reader_button_min_height"
+            android:tooltipText="@string/popup_reading_layout_alignment_left"
+            app:icon="@drawable/ico_animated_align_center"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintLeft_toRightOf="@+id/popup_book_layout_alignment_left"
+            app:layout_constraintRight_toLeftOf="@+id/popup_book_layout_alignment_right"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_alignment_description"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/popup_book_layout_alignment_right"
+            style="@style/Button.SquaredIconOnly"
+            android:layout_width="@dimen/popup_reader_button_width"
+            android:layout_height="@dimen/popup_reader_button_width"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="1dp"
+            android:minHeight="@dimen/popup_reader_button_min_height"
+            android:tooltipText="@string/popup_reading_layout_alignment_right"
+            app:icon="@drawable/ico_animated_align_right"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintLeft_toRightOf="@+id/popup_book_layout_alignment_center"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_alignment_description"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

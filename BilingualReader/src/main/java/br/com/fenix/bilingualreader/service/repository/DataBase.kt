@@ -14,7 +14,6 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import br.com.fenix.bilingualreader.MainActivity
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.*
-import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import br.com.fenix.bilingualreader.util.helpers.BackupError
 import br.com.fenix.bilingualreader.util.helpers.Converters
 import br.com.fenix.bilingualreader.util.helpers.ErrorRestoreDatabase
@@ -26,14 +25,18 @@ import java.io.File
 
 @Database(
     version = 1, exportSchema = true,
-    entities = [Manga::class, Book::class, SubTitle::class, KanjiJLPT::class, Kanjax::class, FileLink::class, PageLink::class,
-        Vocabulary::class, Library::class, VocabularyManga::class, VocabularyBook::class]
+    entities = [Manga::class, Library::class, SubTitle::class, KanjiJLPT::class, Kanjax::class,
+        LinkedFile::class, LinkedPage::class, Vocabulary::class, VocabularyManga::class, VocabularyBook::class,
+        Book::class, BookAnnotation::class, BookConfiguration::class, BookSearch::class, Tags::class]
 )
 @TypeConverters(Converters::class)
 abstract class DataBase : RoomDatabase() {
 
     abstract fun getMangaDao(): MangaDAO
     abstract fun getBookDao(): BookDAO
+    abstract fun getBookAnnotation(): BookAnnotationDAO
+    abstract fun getBookSearch(): BookSearchDAO
+    abstract fun getBookConfigurationDao(): BookConfigurationDAO
     abstract fun getSubTitleDao(): SubTitleDAO
     abstract fun getKanjiJLPTDao(): KanjiJLPTDAO
     abstract fun getKanjaxDao(): KanjaxDAO
@@ -41,6 +44,7 @@ abstract class DataBase : RoomDatabase() {
     abstract fun getPageLinkDao(): PageLinkDAO
     abstract fun getVocabularyDao(): VocabularyDAO
     abstract fun getLibrariesDao(): LibrariesDAO
+    abstract fun getTagsDao(): TagsDAO
 
     // Singleton - One database initialize only
     companion object {
@@ -56,12 +60,26 @@ abstract class DataBase : RoomDatabase() {
                 INSTANCE = Room.databaseBuilder(context, DataBase::class.java, DATABASE_NAME)
                     .addCallback(rdc)
                     .addMigrations(
-                        Migrations.MIGRATION_1_2, Migrations.MIGRATION_2_3, Migrations.MIGRATION_3_4, Migrations.MIGRATION_4_5,
-                        Migrations.MIGRATION_5_6, Migrations.MIGRATION_6_7, Migrations.MIGRATION_7_8, Migrations.MIGRATION_8_9,
-                        Migrations.MIGRATION_9_10, Migrations.MIGRATION_10_11, Migrations.MIGRATION_11_12, Migrations.MIGRATION_12_13,
+                        Migrations.MIGRATION_1_2,
+                        Migrations.MIGRATION_2_3,
+                        Migrations.MIGRATION_3_4,
+                        Migrations.MIGRATION_4_5,
+                        Migrations.MIGRATION_5_6,
+                        Migrations.MIGRATION_6_7,
+                        Migrations.MIGRATION_7_8,
+                        Migrations.MIGRATION_8_9,
+                        Migrations.MIGRATION_9_10,
+                        Migrations.MIGRATION_10_11,
+                        Migrations.MIGRATION_11_12,
+                        Migrations.MIGRATION_12_13,
                         Migrations.MIGRATION_13_14
                     )
                     .allowMainThreadQueries()
+                    /*.setQueryCallback(object : QueryCallback { // Shows query
+                        override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                            println("SQL Query: $sqlQuery SQL Args: $bindArgs")
+                        }
+                    }, Executors.newSingleThreadExecutor())*/
                     .build() // MainThread uses another thread in db conection
             }
             return INSTANCE
@@ -79,7 +97,6 @@ abstract class DataBase : RoomDatabase() {
 
                 val vocabulary = mAssets.open("vocabulary.sql").bufferedReader().use(BufferedReader::readText)
                 database.execSQL(Migrations.SQLINITIAL.VOCABULARY + vocabulary)
-                database.execSQL( "UPDATE " + DataBaseConsts.VOCABULARY.TABLE_NAME + " SET " + DataBaseConsts.VOCABULARY.COLUMNS.REVISED + " = 1"  )
 
                 mLOGGER.info("Completed initial database data.")
             }
@@ -97,11 +114,11 @@ abstract class DataBase : RoomDatabase() {
                 .backupIsEncrypted(false)
                 .apply {
                     onCompleteListener { success, message, exitCode ->
-                        mLOGGER.error("Backup database. success: $success, msg: $message, code: $exitCode.")
+                        mLOGGER.warn("Backup database. success: $success, msg: $message, code: $exitCode.")
                         if (success)
                             backup.restartApp(Intent(context, MainActivity::class.java))
                         else {
-                            mLOGGER.error("Error when backup database", message)
+                            mLOGGER.error("Error when backup database: $message.")
                             throw BackupError("Error when backup database")
                         }
                     }
@@ -119,7 +136,7 @@ abstract class DataBase : RoomDatabase() {
                 .apply {
                     onCompleteListener { success, message, exitCode ->
                         mLOGGER.error("Backup database. success: $success, msg: $message, code: $exitCode.")
-                        if (success){
+                        if (success) {
                             Toast.makeText(
                                 context,
                                 context.getString(R.string.config_database_backup_success),

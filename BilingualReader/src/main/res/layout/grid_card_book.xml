@@ -6,7 +6,8 @@
     style="@style/AppBackground.Card"
     android:layout_width="@dimen/book_grid_card_layout_width"
     android:layout_height="@dimen/book_grid_card_layout_height"
-    android:layout_margin="5dp">
+    android:layout_margin="5dp"
+    app:strokeWidth="0.0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         style="@style/Card"
@@ -45,21 +46,19 @@
             <!-- Title, secondary and supporting text -->
             <TextView
                 android:id="@+id/book_grid_title"
-                style="@style/TextNormal.Card.Title"
+                style="@style/TextTitle.Card"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/book_grid_title_size"
-                android:text="Fundação asd asd as asdf asfd"
                 android:transitionName="transition_book_title"/>
 
             <TextView
                 android:id="@+id/book_grid_sub_title"
-                style="@style/TextNormal.Card.Inverse"
+                style="@style/TextNormal.Card.Title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
                 android:layout_marginBottom="1dp"
-                android:text="asdfasdfasdfasd adf asd asd as d sad "
                 android:singleLine="true"
                 android:textSize="@dimen/book_grid_sub_title"/>
 
@@ -77,7 +76,6 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:textSize="@dimen/book_grid_sub_title"
-                    android:text="MOBI"
                     android:ellipsize="end"
                     android:lines="1"
                     android:maxLines="1"
@@ -91,7 +89,6 @@
                     android:layout_height="wrap_content"
                     android:paddingEnd="5dp"
                     android:textSize="@dimen/book_grid_sub_title"
-                    android:text="100%"
                     android:gravity="right"
                     android:textAlignment="gravity"
                     android:transitionName="transition_book_title"/>
@@ -102,7 +99,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/book_grid_sub_title"
-                    android:text="22/02/2012"
                     android:gravity="right"
                     android:textAlignment="gravity"
                     android:transitionName="transition_book_title"/>
@@ -115,7 +111,6 @@
             android:layout_width="match_parent"
             android:layout_height="5dp"
             android:transitionName="transition_progress_bar"
-            android:layout_marginBottom="1dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"/>
@@ -130,7 +125,7 @@
         android:layout_marginStart="5dp"
         android:layout_marginTop="5dp"
         android:background="@drawable/ic_favorite_mark_border"
-        android:src="@drawable/ic_favorite_unmark"
+        android:src="@drawable/ico_favorite_unmark"
         android:layout_gravity="start"/>
 
     <ImageView

@@ -3,12 +3,19 @@ package br.com.fenix.bilingualreader.util.constants
 import android.annotation.TargetApi
 import android.content.Context
 import android.content.SharedPreferences
+import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.enums.*
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts.PATTERNS.DATE_PATTERN
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts.PATTERNS.DATE_PATTERN_SMALL
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts.PATTERNS.TIME_PATTERN
 import java.io.File
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 class GeneralConsts private constructor() {
@@ -21,9 +28,14 @@ class GeneralConsts private constructor() {
             return context.getSharedPreferences(KEYS.PREFERENCE_NAME, Context.MODE_PRIVATE)
         }
 
-        fun formatterDate(context: Context, dateTime: Date): String {
+        fun formatterDate(context: Context, dateTime: Date?, isSmall: Boolean = false): String {
+            if (dateTime == null)
+                return context.getString(R.string.date_format_unknown)
+
             val preferences = getSharedPreferences(context)
-            val pattern = preferences.getString(KEYS.SYSTEM.FORMAT_DATA, DATE_PATTERN)
+            val format = if (isSmall) DATE_PATTERN_SMALL else DATE_PATTERN
+            val key = if (isSmall) KEYS.SYSTEM.FORMAT_DATA_SMALL else KEYS.SYSTEM.FORMAT_DATA
+            val pattern = preferences.getString(key, format)
             return SimpleDateFormat(pattern, Locale.getDefault()).format(dateTime)
         }
 
@@ -33,10 +45,26 @@ class GeneralConsts private constructor() {
             return SimpleDateFormat(pattern, Locale.getDefault()).format(dateTime)
         }
 
-        @TargetApi(26)
-        fun formatterDate(context: Context, dateTime: LocalDateTime): String {
+        fun formatterDate(context: Context, date: Long): String {
             val preferences = getSharedPreferences(context)
             val pattern = preferences.getString(KEYS.SYSTEM.FORMAT_DATA, DATE_PATTERN)
+            val dateTime = Instant.ofEpochMilli(date).atZone(ZoneId.systemDefault()).toLocalDate()
+            return dateTime.format(DateTimeFormatter.ofPattern(pattern))
+        }
+
+        @TargetApi(26)
+        fun formatterDate(context: Context, dateTime: LocalDate): String {
+            val preferences = getSharedPreferences(context)
+            val pattern = preferences.getString(KEYS.SYSTEM.FORMAT_DATA, DATE_PATTERN)
+            return dateTime.format(DateTimeFormatter.ofPattern(pattern))
+        }
+
+        @TargetApi(26)
+        fun formatterDate(context: Context, dateTime: LocalDateTime, isSmall: Boolean = false): String {
+            val preferences = getSharedPreferences(context)
+            val format = if (isSmall) DATE_PATTERN_SMALL else DATE_PATTERN
+            val key = if (isSmall) KEYS.SYSTEM.FORMAT_DATA_SMALL else KEYS.SYSTEM.FORMAT_DATA
+            val pattern = preferences.getString(key, format)
             return dateTime.format(DateTimeFormatter.ofPattern(pattern))
         }
 
@@ -46,12 +74,30 @@ class GeneralConsts private constructor() {
             val pattern = preferences.getString(KEYS.SYSTEM.FORMAT_DATA, DATE_PATTERN) + " " + TIME_PATTERN
             return dateTime.format(DateTimeFormatter.ofPattern(pattern))
         }
+
+        fun formatCountDays(context: Context, dateTime: LocalDateTime?): String {
+            return if (dateTime == null)
+                ""
+            else if (dateTime.isAfter(LocalDateTime.now().minusDays(1)))
+                context.getString(R.string.date_format_today)
+            else if (dateTime.isAfter(LocalDateTime.now().minusDays(7)))
+                context.getString(
+                    R.string.date_format_day_ago,
+                    ChronoUnit.DAYS.between(dateTime, LocalDateTime.now()).toString()
+                )
+            else
+                formatterDate(
+                    context,
+                    dateTime
+                )
+        }
     }
 
     object PATTERNS {
         const val DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss"
         const val BACKUP_DATE_PATTERN = "yyyy-MM-dd_HH-mm-ss"
         const val DATE_PATTERN = "yyyy-MM-dd"
+        const val DATE_PATTERN_SMALL = "yy-MM-dd"
         const val TIME_PATTERN = "hh:mm:ss a"
     }
 
@@ -59,20 +105,23 @@ class GeneralConsts private constructor() {
         const val PREFERENCE_NAME = "SHARED_PREFS"
 
         object LIBRARY {
-            const val FOLDER = "LIBRARY_FOLDER"
-            const val ORDER = "LIBRARY_ORDER"
+            const val DEFAULT_MANGA = -1L
+            const val DEFAULT_BOOK = -2L
             const val ORIENTATION = "LAST_ORIENTATION"
-            const val LIBRARY_TYPE = "LAST_LIBRARY_TYPE"
-            const val DEFAULT = -1L
-            const val LAST_LIBRARY = "LAST_LIBRARY"
 
-            const val BOOK_FOLDER = "BOOK_FOLDER"
+            const val MANGA_ORDER = "MANGA_LIBRARY_ORDER"
+            const val MANGA_LIBRARY_TYPE = "MANGA_LAST_LIBRARY_TYPE"
+
             const val BOOK_ORDER = "BOOK_LIBRARY_ORDER"
             const val BOOK_LIBRARY_TYPE = "BOOK_LAST_LIBRARY_TYPE"
+
+            const val LAST_LIBRARY = "LAST_LIBRARY"
+            const val LIBRARY_TYPE = "LIBRARY_TYPE"
         }
 
         object LIBRARIES {
-            const val INDEX_LIBRARIES = 1000
+            const val MANGA_INDEX_LIBRARIES = 1000
+            const val BOOK_INDEX_LIBRARIES = 2000
         }
 
         object SUBTITLE {
@@ -82,15 +131,28 @@ class GeneralConsts private constructor() {
         }
 
         object READER {
-            const val READER_MODE = "READER_MODE"
-            const val PAGE_MODE = "READER_PAGE_MODE"
-            const val SHOW_CLOCK_AND_BATTERY = "SHOW_CLOCK_AND_BATTERY"
-            const val USE_MAGNIFIER_TYPE = "USE_MAGNIFIER_TYPE"
+            const val MANGA_READER_MODE = "MANGA_READER_MODE"
+            const val MANGA_PAGE_MODE = "MANGA_READER_PAGE_MODE"
+            const val MANGA_SHOW_CLOCK_AND_BATTERY = "MANGA_SHOW_CLOCK_AND_BATTERY"
+            const val MANGA_USE_MAGNIFIER_TYPE = "MANGA_USE_MAGNIFIER_TYPE"
+
+            const val BOOK_PAGE_ALIGNMENT = "BOOK_PAGE_ALIGNMENT"
+            const val BOOK_PAGE_MARGIN = "BOOK_PAGE_MARGIN"
+            const val BOOK_PAGE_SPACING = "BOOK_PAGE_SPACING"
+            const val BOOK_PAGE_SCROLLING_MODE = "BOOK_PAGE_SCROLLING_MODE"
+            const val BOOK_PAGE_FONT_TYPE_NORMAL = "BOOK_PAGE_FONT_TYPE_NORMAL"
+            const val BOOK_PAGE_FONT_TYPE_JAPANESE = "BOOK_PAGE_FONT_TYPE_JAPANESE"
+            const val BOOK_PAGE_FONT_SIZE = "BOOK_PAGE_FONT_SIZE"
+            const val BOOK_PAGE_FONT_SIZE_DEFAULT = 5f
+            const val BOOK_PROCESS_JAPANESE_TEXT = "BOOK_PROCESS_JAPANESE_TEXT"
+            const val BOOK_GENERATE_FURIGANA_ON_TEXT = "BOOK_GENERATE_FURIGANA_ON_TEXT"
+            const val BOOK_PROCESS_VOCABULARY = "BOOK_PROCESS_VOCABULARY"
         }
 
         object SYSTEM {
             const val LANGUAGE = "SYSTEM_LANGUAGE"
             const val FORMAT_DATA = "SYSTEM_FORMAT_DATA"
+            const val FORMAT_DATA_SMALL = "FORMAT_DATA_SMALL"
         }
 
         object MANGA {
@@ -107,12 +169,28 @@ class GeneralConsts private constructor() {
             const val PAGE_NUMBER = "PAGE_NUMBER"
         }
 
+        object VOCABULARY {
+            const val TEXT = "VOCABULARY_TEXT"
+            const val TYPE = "VOCABULARY_TYPE"
+        }
+
+        object CHAPTERS {
+            const val TITLE = "CHAPTERS_TITLE"
+            const val NUMBER = "CHAPTERS_NUMBER"
+            const val PAGE = "CHAPTERS_PAGE"
+        }
+
         object OBJECT {
             const val MANGA = "MANGA_OBJECT"
             const val FILE = "FILE_OBJECT"
             const val PAGE_LINK = "PAGE_LINK"
             const val LIBRARY = "LIBRARY"
             const val BOOK = "BOOK_OBJECT"
+            const val DOCUMENT_PATH = "DOCUMENT_PATH"
+            const val DOCUMENT_FONT_SIZE = "DOCUMENT_FONT_SIZE"
+            const val DOCUMENT_PASSWORD = "DOCUMENT_PASSWORD"
+            const val BOOK_ANNOTATION = "BOOK_ANNOTATION_OBJECT"
+            const val BOOK_SEARCH = "BOOK_SEARCH_OBJECT"
         }
 
         object COLOR_FILTER {
@@ -169,12 +247,15 @@ class GeneralConsts private constructor() {
 
     object CONFIG {
         val DATA_FORMAT = listOf("dd/MM/yyyy", "MM/dd/yy", "dd/MM/yy", "yyyy-MM-dd")
+        val DATA_FORMAT_SMALL = listOf("dd/MM/yy", "MM/dd/yy", "dd/MM/yy", "yy-MM-dd")
     }
 
     object CACHE_FOLDER {
         const val TESSERACT = "tesseract"
         const val RAR = "RarTemp"
-        const val COVERS = "Covers"
+        const val MANGA_COVERS = "MangaCovers"
+        const val BOOK_COVERS = "BookCovers"
+        const val BOOKS = "Books"
         const val LINKED = "Linked"
         const val IMAGE = "Image"
         const val THREAD = "thread"
@@ -200,6 +281,10 @@ class GeneralConsts private constructor() {
         const val FOLDER_LINK = "link"
     }
 
+    object LINKS {
+        const val TATOEBA = "https://tatoeba.org/pt-br/sentences/search?query="
+    }
+
     object REQUEST {
         const val PERMISSION_DRAW_OVERLAYS = 505
         const val PERMISSION_DRAW_OVERLAYS_FLOATING_OCR = 506
@@ -216,7 +301,11 @@ class GeneralConsts private constructor() {
         const val CONFIG_LIBRARIES = 600
         const val SELECT_MANGA = 601
         const val MANGA_DETAIL = 602
-        const val BOOK_DETAIL = 603
+        const val MANGA_CHAPTERS = 603
+        const val BOOK_DETAIL = 604
+        const val BOOK_SEARCH = 605
+        const val BOOK_ANNOTATION = 606
+        const val BOOK_CHAPTERS = 607
     }
 
 }

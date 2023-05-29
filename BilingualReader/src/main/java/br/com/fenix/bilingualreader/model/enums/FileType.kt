@@ -39,11 +39,11 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
     AZW(1, arrayOf("azw"), arrayOf("application/azw", "application/x-azw")),
     AZW3(1, arrayOf("azw3"), arrayOf("application/azw3", "application/x-azw3")),
     HTML(1, arrayOf("html", "htm", "xhtml", "xhtm", "xml"), arrayOf("text/html", "text/xml")),
-    DOC(1, arrayOf("doc"), arrayOf("application/msword")),
-    DOCX(1, arrayOf("docx"), arrayOf("application/vnd.openxmlformats-officedocument.wordprocessingml.document")),
+    //DOC(1, arrayOf("doc"), arrayOf("application/msword")),
+    //DOCX(1, arrayOf("docx"), arrayOf("application/vnd.openxmlformats-officedocument.wordprocessingml.document")),
     OPDS(1, arrayOf("opds"), arrayOf("application/opds", "application/x-opds")),
     TIFF(1, arrayOf("tiff", "tif"), arrayOf("image/tiff")),
-    ODT(1, arrayOf("odt"), arrayOf("application/vnd.oasis.opendocument.text")),
+    //ODT(1, arrayOf("odt"), arrayOf("application/vnd.oasis.opendocument.text")),
     MD(1, arrayOf("md"), arrayOf("text/markdown", "text/x-markdown")),
     MHT(1, arrayOf("mht", "mhtml", "shtml"), arrayOf("message/rfc822")),
 
@@ -75,11 +75,20 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
         return false
     }
 
-    fun getMimeType(): String =
-        mimeTypes.joinToString { "|" }
+    fun compareExtension(path: String): Boolean {
+        val name = path.lowercase()
+        for (ext in extensions) {
+            if (name.endsWith(ext))
+                return true
+        }
+        return false
+    }
 
-    fun getMime(): Array<String> =
-        mimeTypes
+    fun getMimeType(): String = mimeTypes.joinToString { "|" }
+
+    fun getMime(): Array<String> = mimeTypes
+
+    fun getExtensions(): Array<String> = extension
 
     companion object {
         fun isManga(name: String): Boolean {
@@ -96,11 +105,9 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
             return false
         }
 
-        fun getManga() =
-            values().filter { it.type == 0 }
+        fun getManga() = values().filter { it.type == 0 }
 
-        fun getBook() =
-            values().filter { it.type == 1 }
+        fun getBook() = values().filter { it.type == 1 }
 
         fun getMimeManga(): ArrayList<String> {
             val array = arrayListOf<String>()
@@ -116,11 +123,9 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
             return array
         }
 
-        fun getMimeTypeManga() =
-            getMimeManga().joinToString { "|" }
+        fun getMimeTypeManga() = getMimeManga().joinToString { "|" }
 
-        fun getMimeTypeBook() =
-            getMimeBook().joinToString { "|" }
+        fun getMimeTypeBook() = getMimeBook().joinToString { "|" }
 
         fun getType(file: File): FileType {
             for (item in values())

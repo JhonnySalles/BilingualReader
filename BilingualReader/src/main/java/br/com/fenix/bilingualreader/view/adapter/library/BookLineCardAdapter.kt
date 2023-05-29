@@ -22,7 +22,7 @@ class BookLineCardAdapter : RecyclerView.Adapter<BookLineViewHolder>() {
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookLineViewHolder {
-        val item = LayoutInflater.from(parent.context).inflate(R.layout.line_card_manga, parent, false)
+        val item = LayoutInflater.from(parent.context).inflate(R.layout.line_card_book, parent, false)
         return BookLineViewHolder(item, mListener)
     }
 
