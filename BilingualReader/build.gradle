@@ -11,6 +11,7 @@ android {
     defaultConfig {
         applicationId 'br.com.fenix'
         minSdk 26
+        minSdkVersion 26
         targetSdk 33
         versionCode 1
         versionName '1.0.'
@@ -84,7 +85,8 @@ dependencies {
 
     //Rar and 7zip
     implementation 'org.tukaani:xz:1.9'
-    implementation 'com.github.junrar:junrar:7.5.4'
+    implementation 'com.github.junrar:junrar:7.5.4' // Only > Android O
+    //implementation 'com.github.junrar:junrar:7.4.1' // Only < Android O
 
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'jp.wasabeef:picasso-transformations:2.4.0'

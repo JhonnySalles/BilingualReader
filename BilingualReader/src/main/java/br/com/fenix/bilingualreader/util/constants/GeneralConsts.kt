@@ -17,6 +17,8 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.*
+import java.util.concurrent.TimeUnit
+import kotlin.time.DurationUnit
 
 class GeneralConsts private constructor() {
     companion object {
@@ -75,6 +77,7 @@ class GeneralConsts private constructor() {
             return dateTime.format(DateTimeFormatter.ofPattern(pattern))
         }
 
+        @TargetApi(26)
         fun formatCountDays(context: Context, dateTime: LocalDateTime?): String {
             return if (dateTime == null)
                 ""
@@ -90,6 +93,33 @@ class GeneralConsts private constructor() {
                     context,
                     dateTime
                 )
+        }
+
+        fun formatCountDays(context: Context, dateTime: Date?): String {
+            return if (dateTime == null)
+                ""
+            else {
+                val today = Calendar.getInstance()
+                today.add(Calendar.DAY_OF_YEAR, -1)
+                val seven = Calendar.getInstance()
+                seven.add(Calendar.DAY_OF_YEAR, -7)
+
+                if (today.after(dateTime))
+                    context.getString(R.string.date_format_today)
+                else if (seven.after(dateTime)) {
+                    val date = Calendar.getInstance()
+                    date.time = dateTime
+                    val days = TimeUnit.MILLISECONDS.toDays(Calendar.getInstance().timeInMillis - date.timeInMillis)
+                    context.getString(
+                        R.string.date_format_day_ago,
+                        days.toString()
+                    )
+                } else
+                    formatterDate(
+                        context,
+                        dateTime
+                    )
+            }
         }
     }
 
