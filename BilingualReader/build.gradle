@@ -13,7 +13,7 @@ android {
         minSdk 24
         minSdkVersion 24
         maxSdkVersion 25
-        targetSdk 24
+        targetSdk 31
         versionCode 1
         versionName '1.0.'
         versionNameSuffix '1 (Nougat)'

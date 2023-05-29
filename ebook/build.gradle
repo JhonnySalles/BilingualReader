@@ -19,7 +19,7 @@ android {
         minSdk 24
         minSdkVersion 24
         maxSdkVersion 25
-        targetSdk 24
+        targetSdk 31
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
