@@ -767,31 +767,32 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             onRefresh()
     }
 
+    private fun getGridLayout(): GridLayoutManager {
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val columnWidth: Int = when (mGridType) {
+            LibraryMangaType.GRID_BIG -> resources.getDimension(R.dimen.manga_grid_card_layout_width)
+                .toInt()
+            LibraryMangaType.GRID_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_landscape_medium)
+                .toInt() else resources.getDimension(R.dimen.manga_grid_card_layout_width_medium)
+                .toInt()
+            LibraryMangaType.GRID_SMALL -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_small)
+                .toInt()
+            else resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
+            else -> resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
+        } + 1
+
+        val spaceCount: Int =
+            max(1, Resources.getSystem().displayMetrics.widthPixels / columnWidth)
+        return GridLayoutManager(requireContext(), spaceCount)
+    }
+
     private fun generateLayout() {
         if (mGridType != LibraryMangaType.LINE) {
             val gridAdapter = MangaGridCardAdapter()
             mRecyclerView.adapter = gridAdapter
-
-            val isLandscape =
-                resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-            val columnWidth: Int = when (mGridType) {
-                LibraryMangaType.GRID_BIG -> resources.getDimension(R.dimen.manga_grid_card_layout_width)
-                    .toInt()
-                LibraryMangaType.GRID_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_landscape_medium)
-                    .toInt() else resources.getDimension(R.dimen.manga_grid_card_layout_width_medium)
-                    .toInt()
-                LibraryMangaType.GRID_SMALL -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_small)
-                    .toInt()
-                else resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
-                else -> resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
-            } + 1
-
-            val spaceCount: Int =
-                max(1, Resources.getSystem().displayMetrics.widthPixels / columnWidth)
-            mRecyclerView.layoutManager = GridLayoutManager(requireContext(), spaceCount)
+            mRecyclerView.layoutManager = getGridLayout()
             gridAdapter.attachListener(mListener)
-            mRecyclerView.layoutAnimation =
-                AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_grid)
+            mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_grid)
         } else {
             val lineAdapter = MangaLineCardAdapter()
             mRecyclerView.adapter = lineAdapter
@@ -961,6 +962,18 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
         override fun getPageTitle(position: Int): CharSequence {
             return fragmentTitle[position]
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE || newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            if (mGridType != LibraryMangaType.LINE) {
+                if (mGridType == LibraryMangaType.GRID_SMALL && resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE)
+                    onChangeLayout()
+                else
+                    mRecyclerView.layoutManager = getGridLayout()
+            }
         }
     }
 
