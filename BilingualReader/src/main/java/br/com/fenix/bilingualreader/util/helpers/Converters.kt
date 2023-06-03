@@ -2,8 +2,8 @@ package br.com.fenix.bilingualreader.util.helpers
 
 import android.graphics.Bitmap
 import androidx.room.TypeConverter
-import java.time.LocalDate
-import java.time.LocalDateTime
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import java.text.SimpleDateFormat
 import java.util.*
 
 class Converters {
@@ -18,22 +18,23 @@ class Converters {
         return ImageUtil.encodeImageBase64(image)
     }
 
-    /*@TypeConverter
-    fun fromLocalDateTime(dateTime: String?): LocalDateTime? {
-        if (dateTime == null)
-            return null
-        return LocalDateTime.parse(dateTime)
-    }
-
     @TypeConverter
-    fun localDateTimeToString(dateTime: LocalDateTime?): String? {
+    fun fromLocalDateTime(dateTime: String?): Date? {
         if (dateTime == null)
             return null
 
-        return dateTime.toString()
+        return SimpleDateFormat(GeneralConsts.PATTERNS.DATE_TIME_PATTERN, Locale.getDefault()).parse(dateTime)
     }
 
     @TypeConverter
+    fun localDateTimeToString(dateTime: Date?): String? {
+        if (dateTime == null)
+            return null
+
+        return SimpleDateFormat(GeneralConsts.PATTERNS.DATE_TIME_PATTERN, Locale.getDefault()).format(dateTime)
+    }
+
+    /* @TypeConverter
     fun fromLocalDate(date: String?): LocalDate? {
         if (date == null)
             return null
@@ -79,7 +80,7 @@ class Converters {
         return array.joinToString(",")
     }
 
-    @TypeConverter
+    /*@TypeConverter
     fun dateToLong(date: Date?): Long? {
         if (date == null)
             return null
@@ -91,7 +92,6 @@ class Converters {
         if (date == null)
             return null
         return Date(date)
-    }
-
+    }*/
 
 }
