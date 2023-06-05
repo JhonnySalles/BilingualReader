@@ -411,6 +411,15 @@
                             android:layout_marginTop="5dp"
                             android:orientation="vertical"
                             android:visibility="gone">
+                            <com.google.android.material.divider.MaterialDivider
+                                android:id="@+id/manga_detail_local_information_comic_info_book_marks_divider"
+                                style="@style/MaterialDivider"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/margin_small"
+                                android:layout_marginLeft="@dimen/margin"
+                                android:layout_marginRight="@dimen/margin"/>
+
                             <TextView
                                 android:id="@+id/manga_detail_local_information_comic_info_book_marks_title"
                                 style="@style/TextTitle"
@@ -419,6 +428,7 @@
                                 android:layout_marginTop="5dp"
                                 android:layout_marginStart="15dp"
                                 android:textSize="@dimen/manga_detail_local_information_comic_info_book_marks_size"
+                                android:layout_gravity="center_horizontal"
                                 android:text="@string/manga_detail_local_information_comic_info_book_marks_title"/>
 
                             <ListView
