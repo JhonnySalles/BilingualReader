@@ -255,7 +255,7 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
                     mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
             }
 
-        val viewOrderPagerAdapter = ViewPagerAdapter(requireActivity().supportFragmentManager, 0)
+        val viewOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
         viewOrderPagerAdapter.addFragment(
             mPopupOrderFragment,
             resources.getString(R.string.popup_vocabulary_tab_item_ordering)

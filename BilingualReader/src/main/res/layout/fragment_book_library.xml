@@ -88,7 +88,7 @@
             android:id="@+id/book_library_popup_menu_order_filter"
             style="@style/AppBackground.Popup"
             android:layout_width="match_parent"
-            android:layout_height="350dp"
+            android:layout_height="360dp"
             android:gravity="center_horizontal"
             android:orientation="vertical"
             android:paddingTop="1dp"
