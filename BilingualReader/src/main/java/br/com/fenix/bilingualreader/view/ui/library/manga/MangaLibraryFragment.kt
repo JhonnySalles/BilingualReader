@@ -542,8 +542,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                     mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
             }
 
-        val viewFilterOrderPagerAdapter =
-            ViewPagerAdapter(requireActivity().supportFragmentManager, 0)
+        val viewFilterOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
         viewFilterOrderPagerAdapter.addFragment(
             mPopupFilterFragment,
             resources.getString(R.string.popup_library_manga_tab_item_filter)

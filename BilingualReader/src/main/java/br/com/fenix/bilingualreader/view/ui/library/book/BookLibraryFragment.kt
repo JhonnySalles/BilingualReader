@@ -413,6 +413,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                 Order.LastAccess -> if (isDesc) R.drawable.ico_animated_sort_to_desc_last_access else R.drawable.ico_animated_sort_to_asc_last_access
                 Order.Date -> if (isDesc) R.drawable.ico_animated_sort_to_desc_date_created else R.drawable.ico_animated_sort_to_asc_date_created
                 Order.Author -> if (isDesc) R.drawable.ico_animated_sort_to_desc_author else R.drawable.ico_animated_sort_to_asc_author
+                Order.Genre -> if (isDesc) R.drawable.ico_animated_sort_to_desc_tag else R.drawable.ico_animated_sort_to_asc_tag
                 else -> null
             }
             mSortDesc = isDesc
@@ -426,6 +427,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                     Order.LastAccess -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_last_access
                     Order.Date -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_date_created
                     Order.Author -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_author
+                    Order.Genre -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_tag
                     else -> null
                 } else
                 when (mSortType) {
@@ -434,6 +436,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                     Order.LastAccess -> R.drawable.ico_animated_sort_asc_ico_exit_last_access
                     Order.Date -> R.drawable.ico_animated_sort_asc_ico_exit_date_created
                     Order.Author -> R.drawable.ico_animated_sort_asc_ico_exit_author
+                    Order.Genre -> R.drawable.ico_animated_sort_asc_ico_exit_tag
                     else -> null
                 }
 
@@ -443,6 +446,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                 Order.LastAccess -> R.drawable.ico_animated_sort_asc_ico_enter_last_access
                 Order.Date -> R.drawable.ico_animated_sort_asc_ico_enter_date_created
                 Order.Author -> R.drawable.ico_animated_sort_asc_ico_enter_author
+                Order.Genre -> R.drawable.ico_animated_sort_asc_ico_enter_tag
                 else -> null
             }
 
@@ -565,8 +569,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                     mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
             }
 
-        val viewFilterOrderPagerAdapter =
-            ViewPagerAdapter(requireActivity().supportFragmentManager, 0)
+        val viewFilterOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
         viewFilterOrderPagerAdapter.addFragment(
             mPopupFilterFragment,
             resources.getString(R.string.popup_library_book_tab_item_filter)
