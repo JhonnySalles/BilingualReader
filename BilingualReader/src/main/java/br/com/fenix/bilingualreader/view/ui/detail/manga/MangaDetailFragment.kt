@@ -308,7 +308,7 @@ class MangaDetailFragment : Fragment() {
                 if (it.author.isNotEmpty())
                     mLocalInformationAuthors.text = HtmlCompat.fromHtml(
                         requireContext().getString(
-                            R.string.manga_detail_local_information_volume,
+                            R.string.manga_detail_local_information_authors,
                             it.author
                         ), HtmlCompat.FROM_HTML_MODE_COMPACT
                     )
@@ -318,8 +318,8 @@ class MangaDetailFragment : Fragment() {
                 if (it.series.isNotEmpty())
                     mLocalInformationSeries.text = HtmlCompat.fromHtml(
                         requireContext().getString(
-                            R.string.manga_detail_local_information_volume,
-                            it.author
+                            R.string.manga_detail_local_information_series,
+                            it.series
                         ), HtmlCompat.FROM_HTML_MODE_COMPACT
                     )
                 else
