@@ -28,6 +28,7 @@ import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.VocabularyCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyLoadState
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaListCardAdapter
@@ -286,6 +287,8 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener,
             peekHeight = 195
             this.state = BottomSheetBehavior.STATE_COLLAPSED
             mBottomSheet = this
+            if (resources.getBoolean(R.bool.isTablet))
+                this.maxWidth = Util.dpToPx(requireContext(), 350)
         }
         mBottomSheet.isDraggable = true
 

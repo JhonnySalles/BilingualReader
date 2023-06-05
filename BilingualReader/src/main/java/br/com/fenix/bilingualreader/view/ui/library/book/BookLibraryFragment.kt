@@ -558,6 +558,8 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             peekHeight = 195
             this.state = BottomSheetBehavior.STATE_COLLAPSED
             mBottomSheet = this
+            if (resources.getBoolean(R.bool.isTablet))
+                this.maxWidth = Util.dpToPx(requireContext(), 350)
         }
         mBottomSheet.isDraggable = true
 
