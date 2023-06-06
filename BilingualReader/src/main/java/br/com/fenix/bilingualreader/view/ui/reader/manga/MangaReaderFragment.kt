@@ -229,7 +229,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
                 mParse = ParseFactory.create(file)
                 if (mParse != null) {
-                    mSubtitleController.getListChapter(mManga, mParse!!)
+                    if (savedInstanceState == null)
+                        mSubtitleController.getListChapter(mManga, mParse!!)
+
                     mSubtitleController.mReaderFragment = this
                     mFileName = file.name
                     mCurrentPage = max(1, min(mCurrentPage, mParse!!.numPages()))

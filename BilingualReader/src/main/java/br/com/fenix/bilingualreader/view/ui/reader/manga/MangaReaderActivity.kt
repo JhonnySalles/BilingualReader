@@ -712,6 +712,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
     private var mLastFloatingWindowOcr = false
     private var mLastFloatingShowing = false
+    private var mLastFloatingButtons = false
     override fun onResume() {
         super.onResume()
         if (mLastFloatingWindowOcr)
@@ -719,6 +720,9 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
         if (mLastFloatingShowing)
             mFloatingSubtitleReader.show()
+
+        if (mLastFloatingButtons)
+            mFloatingButtons.show()
     }
 
     override fun onStop() {
@@ -734,8 +738,11 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 mFloatingWindowOcr.dismiss()
         }
 
-        if (::mFloatingButtons.isInitialized && mFloatingButtons.isShowing)
-            mFloatingButtons.dismiss()
+        if (::mFloatingButtons.isInitialized) {
+            mLastFloatingButtons = mFloatingButtons.isShowing
+            if (mFloatingButtons.isShowing)
+                mFloatingButtons.dismiss()
+        }
 
         super.onStop()
     }

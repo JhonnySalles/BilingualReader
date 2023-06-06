@@ -164,6 +164,7 @@ class SubTitleController private constructor(private val context: Context) {
         getSubtitle().clear()
         mChaptersKeys.value = listOf()
         mPagesKeys.value = listOf()
+        clearSubtitlesSelected()
     }
 
 
