@@ -22,8 +22,7 @@ import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import com.google.android.material.button.MaterialButton
 
 
-class VocabularyViewHolder(itemView: View, private val listener: VocabularyCardListener) :
-    RecyclerView.ViewHolder(itemView) {
+class VocabularyViewHolder(itemView: View, private val listener: VocabularyCardListener) : RecyclerView.ViewHolder(itemView) {
 
     companion object {
         private fun openVocabulary(context: Context, vocabulary: String, type: Type) {

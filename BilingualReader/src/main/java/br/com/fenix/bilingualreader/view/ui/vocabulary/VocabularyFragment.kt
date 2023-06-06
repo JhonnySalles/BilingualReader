@@ -72,11 +72,6 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
 
-    companion object {
-        var mSortType: Order = Order.Description
-        var mSortDesc: Boolean = false
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -130,15 +125,15 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
         }
 
         mViewModel.order.observe(viewLifecycleOwner) {
-            if (it.first == mSortType && it.second == mSortDesc)
+            if (it.first == VocabularyActivity.mSortType && it.second == VocabularyActivity.mSortDesc)
                 return@observe
 
-            val isDesc = if (mSortType == it.first) it.second else null
+            val isDesc = if (VocabularyActivity.mSortType == it.first) it.second else null
             onChangeIconSort(it.first, isDesc)
         }
 
-        if (mInitialVocabulary.isNotEmpty())
-            searchView.setQuery(mInitialVocabulary, true)
+        if (VocabularyActivity.mVocabularySelect.isNotEmpty())
+            searchView.setQuery(VocabularyActivity.mVocabularySelect, true)
     }
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
@@ -302,18 +297,18 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
                 Order.Frequency -> if (isDesc) R.drawable.ico_animated_sort_to_desc_frequency else R.drawable.ico_animated_sort_to_asc_frequency
                 else -> null
             }
-            mSortDesc = isDesc
+            VocabularyActivity.mSortDesc = isDesc
             if (icon != null)
                 MenuUtil.animatedSequenceDrawable(miOrder, icon)
         } else {
-            val initial: Int? = if (mSortDesc)
-                when (mSortType) {
+            val initial: Int? = if (VocabularyActivity.mSortDesc)
+                when (VocabularyActivity.mSortType) {
                     Order.Description -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_name
                     Order.Favorite -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_favorited
                     Order.Frequency -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_frequency
                     else -> null
                 } else
-                when (mSortType) {
+                when (VocabularyActivity.mSortType) {
                     Order.Description -> R.drawable.ico_animated_sort_asc_ico_exit_name
                     Order.Favorite -> R.drawable.ico_animated_sort_asc_ico_exit_favorited
                     Order.Frequency -> R.drawable.ico_animated_sort_asc_ico_exit_frequency
@@ -330,9 +325,9 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
             if (initial != null && final != null)
                 MenuUtil.animatedSequenceDrawable(miOrder, initial, final)
 
-            mSortDesc = false
+            VocabularyActivity.mSortDesc = false
         }
-        mSortType = order
+        VocabularyActivity.mSortType = order
     }
 
     private fun onOpenMenuSort() {
@@ -389,11 +384,6 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
             mViewModel.setQuery(searchView.query.toString(), mFavorite.isChecked)
         else
             mViewModel.setQuery("", mFavorite.isChecked)
-    }
-
-    var mInitialVocabulary = ""
-    override fun setVocabulary(vocabulary: String) {
-        mInitialVocabulary = vocabulary
     }
 
     override fun setObject(obj: Vocabulary) {

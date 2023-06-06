@@ -34,6 +34,7 @@ import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaListC
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.InitializeVocabulary
 import br.com.fenix.bilingualreader.view.components.PopupOrderListener
+import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyFragment
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyPopupOrder
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -46,9 +47,7 @@ import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 
 
-class VocabularyMangaFragment : Fragment(), PopupOrderListener,
-    SwipeRefreshLayout.OnRefreshListener,
-    InitializeVocabulary<Manga> {
+class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener, InitializeVocabulary<Manga> {
 
     private val mLOGGER = LoggerFactory.getLogger(VocabularyMangaFragment::class.java)
 
@@ -88,11 +87,6 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener,
             mMangaNameEditText.text?.toString() ?: "",
             searchView.query.toString()
         )
-    }
-
-    companion object {
-        var mSortType: Order = Order.Description
-        var mSortDesc: Boolean = false
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -149,15 +143,12 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener,
         }
 
         mViewModel.order.observe(viewLifecycleOwner) {
-            if (it.first == VocabularyFragment.mSortType && it.second == VocabularyFragment.mSortDesc)
-                return@observe
-
-            val isDesc = if (VocabularyFragment.mSortType == it.first) it.second else null
+            val isDesc = if (VocabularyActivity.mSortType == it.first) it.second else null
             onChangeIconSort(it.first, isDesc)
         }
 
-        if (mInitialVocabulary.isNotEmpty())
-            searchView.setQuery(mInitialVocabulary, true)
+        if (VocabularyActivity.mVocabularySelect.isNotEmpty())
+            searchView.setQuery(VocabularyActivity.mVocabularySelect, true)
     }
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
@@ -306,8 +297,8 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener,
         mPopupFilterOrderView.adapter = viewOrderPagerAdapter
 
         mManga?.let {
-            mMangaNameEditText.setText(it.name)
-            mViewModel.setQuery(it.name, mInitialVocabulary)
+            mMangaNameEditText.setText(it.title)
+            mViewModel.setQuery(it.title, VocabularyActivity.mVocabularySelect)
         }
 
         return root
@@ -347,18 +338,18 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener,
                 Order.Frequency -> if (isDesc) R.drawable.ico_animated_sort_to_desc_frequency else R.drawable.ico_animated_sort_to_asc_frequency
                 else -> null
             }
-            VocabularyFragment.mSortDesc = isDesc
+            VocabularyActivity.mSortDesc = isDesc
             if (icon != null)
                 MenuUtil.animatedSequenceDrawable(miOrder, icon)
         } else {
-            val initial: Int? = if (VocabularyFragment.mSortDesc)
-                when (VocabularyFragment.mSortType) {
+            val initial: Int? = if (VocabularyActivity.mSortDesc)
+                when (VocabularyActivity.mSortType) {
                     Order.Description -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_name
                     Order.Favorite -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_favorited
                     Order.Frequency -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_frequency
                     else -> null
                 } else
-                when (VocabularyFragment.mSortType) {
+                when (VocabularyActivity.mSortType) {
                     Order.Description -> R.drawable.ico_animated_sort_asc_ico_exit_name
                     Order.Favorite -> R.drawable.ico_animated_sort_asc_ico_exit_favorited
                     Order.Frequency -> R.drawable.ico_animated_sort_asc_ico_exit_frequency
@@ -375,9 +366,9 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener,
             if (initial != null && final != null)
                 MenuUtil.animatedSequenceDrawable(miOrder, initial, final)
 
-            VocabularyFragment.mSortDesc = false
+            VocabularyActivity.mSortDesc = false
         }
-        VocabularyFragment.mSortType = order
+        VocabularyActivity.mSortType = order
     }
 
     private fun onOpenMenuSort() {
@@ -440,11 +431,6 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener,
             )
         else
             mViewModel.setQuery(mMangaNameEditText.text.toString(), "", mFavorite.isChecked)
-    }
-
-    var mInitialVocabulary = ""
-    override fun setVocabulary(vocabulary: String) {
-        mInitialVocabulary = vocabulary
     }
 
     override fun setObject(obj: Manga) {
