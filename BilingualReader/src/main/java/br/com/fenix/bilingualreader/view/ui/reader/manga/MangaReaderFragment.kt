@@ -56,6 +56,7 @@ import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPager
 import br.com.fenix.bilingualreader.view.managers.MangaHandler
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.squareup.picasso.MemoryPolicy
@@ -306,6 +307,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mPreviousButton = requireActivity().findViewById(R.id.reader_manga_nav_previous_file)
         mNextButton = requireActivity().findViewById(R.id.reader_manga_nav_next_file)
         mViewPager = view.findViewById<View>(R.id.fragment_reader) as ImageViewPager
+
+        if (resources.getBoolean(R.bool.isTablet) && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            BottomSheetBehavior.from(mPopupSubtitle).maxWidth = Util.dpToPx(requireContext(), 500)
+            BottomSheetBehavior.from(mPopupColor).maxWidth = Util.dpToPx(requireContext(), 500)
+        }
 
         (mPageNavLayout.findViewById<View>(R.id.reader_manga_bottom_progress) as SeekBar).also {
             mPageSeekBar = it
