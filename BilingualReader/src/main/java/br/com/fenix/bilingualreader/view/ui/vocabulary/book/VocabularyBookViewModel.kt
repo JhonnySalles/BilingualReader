@@ -12,6 +12,7 @@ import androidx.paging.cachedIn
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
+import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.transformLatest
@@ -28,14 +29,14 @@ class VocabularyBookViewModel(application: Application) : AndroidViewModel(appli
     private var mIsQuery = MutableLiveData(false)
     val isQuery: LiveData<Boolean> = mIsQuery
 
-    private var mOrder = MutableLiveData(Pair(Order.Description, false))
+    private var mOrder = MutableLiveData(Pair(VocabularyActivity.mSortType, VocabularyActivity.mSortDesc))
     val order: LiveData<Pair<Order, Boolean>> = mOrder
 
     inner class Query(
         var book: String = "",
-        var vocabulary: String = "",
-        var favorite: Boolean = false,
-        var order: Pair<Order, Boolean> = Pair(Order.Description, false)
+        var vocabulary: String = VocabularyActivity.mVocabularySelect,
+        var favorite: Boolean = VocabularyActivity.mIsFavorite,
+        var order: Pair<Order, Boolean> = Pair(VocabularyActivity.mSortType, VocabularyActivity.mSortDesc)
     )
 
     private val currentQuery = MutableStateFlow(Query())
@@ -46,10 +47,12 @@ class VocabularyBookViewModel(application: Application) : AndroidViewModel(appli
                 PagingSource(mDataBase, query)
             }.flow.collectLatest {
                 emit(it)
+                mIsQuery.value = false
             }
         }.cachedIn(viewModelScope)
 
     private fun setQuery(query: Query) {
+        mIsQuery.value = true
         currentQuery.value = query
     }
 
@@ -58,28 +61,6 @@ class VocabularyBookViewModel(application: Application) : AndroidViewModel(appli
             Query(
                 book,
                 vocabulary,
-                currentQuery.value.favorite,
-                currentQuery.value.order
-            )
-        )
-    }
-
-    fun setQueryVocabulary(vocabulary: String) {
-        setQuery(
-            Query(
-                currentQuery.value.book,
-                vocabulary,
-                currentQuery.value.favorite,
-                currentQuery.value.order
-            )
-        )
-    }
-
-    fun setQueryBook(book: String) {
-        setQuery(
-            Query(
-                book,
-                currentQuery.value.vocabulary,
                 currentQuery.value.favorite,
                 currentQuery.value.order
             )

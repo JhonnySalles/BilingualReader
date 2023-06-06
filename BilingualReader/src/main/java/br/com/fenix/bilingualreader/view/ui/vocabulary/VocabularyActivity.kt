@@ -9,6 +9,7 @@ import androidx.appcompat.widget.Toolbar
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
@@ -20,6 +21,13 @@ import br.com.fenix.bilingualreader.view.ui.vocabulary.manga.VocabularyMangaFrag
 
 
 class VocabularyActivity : AppCompatActivity() {
+
+    companion object VocabularyData {
+        var mVocabularySelect : String = ""
+        var mIsFavorite : Boolean = false
+        var mSortType: Order = Order.Description
+        var mSortDesc: Boolean = false
+    }
 
     private lateinit var mBackgroundImage: ImageView
 
@@ -47,7 +55,7 @@ class VocabularyActivity : AppCompatActivity() {
         else
             null
 
-        val vocabulary = if (bundle != null && bundle.containsKey(GeneralConsts.KEYS.VOCABULARY.TEXT))
+        mVocabularySelect = if (bundle != null && bundle.containsKey(GeneralConsts.KEYS.VOCABULARY.TEXT))
             bundle[GeneralConsts.KEYS.VOCABULARY.TEXT] as String
         else
             ""
@@ -93,8 +101,6 @@ class VocabularyActivity : AppCompatActivity() {
                     frag
                 }
             }
-
-        fragment.setVocabulary(vocabulary)
 
         supportFragmentManager
             .beginTransaction()
