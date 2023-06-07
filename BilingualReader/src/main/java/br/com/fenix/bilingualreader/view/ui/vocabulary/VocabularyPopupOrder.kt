@@ -55,17 +55,24 @@ class VocabularyPopupOrder(var listener: PopupOrderListener) : Fragment() {
         }
     }
 
-    private fun getNextState(checkbox: TriStateCheckBox): Int {
-        return when (checkbox.state) {
-            TriStateCheckBox.STATE_UNCHECKED -> TriStateCheckBox.STATE_CHECKED
-            TriStateCheckBox.STATE_CHECKED -> TriStateCheckBox.STATE_INDETERMINATE
-            TriStateCheckBox.STATE_INDETERMINATE -> TriStateCheckBox.STATE_CHECKED
-            else -> TriStateCheckBox.STATE_INDETERMINATE
-        }
+    private fun getNextState(checkbox: TriStateCheckBox, isInverted: Boolean = false): Int {
+        return if (isInverted)
+            when (checkbox.state) {
+                TriStateCheckBox.STATE_UNCHECKED -> TriStateCheckBox.STATE_INDETERMINATE
+                TriStateCheckBox.STATE_INDETERMINATE -> TriStateCheckBox.STATE_CHECKED
+                TriStateCheckBox.STATE_CHECKED -> TriStateCheckBox.STATE_INDETERMINATE
+                else -> TriStateCheckBox.STATE_CHECKED
+            }
+        else
+            when (checkbox.state) {
+                TriStateCheckBox.STATE_UNCHECKED -> TriStateCheckBox.STATE_CHECKED
+                TriStateCheckBox.STATE_CHECKED -> TriStateCheckBox.STATE_INDETERMINATE
+                TriStateCheckBox.STATE_INDETERMINATE -> TriStateCheckBox.STATE_CHECKED
+                else -> TriStateCheckBox.STATE_INDETERMINATE
+            }
     }
 
-    private fun getCheckList() =
-        arrayListOf(mOrderDescription, mOrderFrequency, mOrderFavorite)
+    private fun getCheckList() = arrayListOf(mOrderDescription, mOrderFrequency, mOrderFavorite)
 
     private fun addListener() {
         val listCheck = getCheckList()
@@ -79,7 +86,10 @@ class VocabularyPopupOrder(var listener: PopupOrderListener) : Fragment() {
 
             mOrderDescription.state = getNextState(mOrderDescription)
             when (mOrderDescription.state) {
-                TriStateCheckBox.STATE_INDETERMINATE -> listener.popupSorted(Order.Description, true)
+                TriStateCheckBox.STATE_INDETERMINATE -> listener.popupSorted(
+                    Order.Description,
+                    true
+                )
                 TriStateCheckBox.STATE_CHECKED -> listener.popupSorted(Order.Description)
                 TriStateCheckBox.STATE_UNCHECKED -> {
                     mOrderDescription.state = TriStateCheckBox.STATE_CHECKED
@@ -98,7 +108,7 @@ class VocabularyPopupOrder(var listener: PopupOrderListener) : Fragment() {
                 if (check != mOrderFrequency)
                     check.state = TriStateCheckBox.STATE_UNCHECKED
 
-            mOrderFrequency.state = getNextState(mOrderFrequency)
+            mOrderFrequency.state = getNextState(mOrderFrequency, true)
             when (mOrderFrequency.state) {
                 TriStateCheckBox.STATE_INDETERMINATE -> listener.popupSorted(Order.Frequency, true)
                 TriStateCheckBox.STATE_CHECKED -> listener.popupSorted(Order.Frequency)

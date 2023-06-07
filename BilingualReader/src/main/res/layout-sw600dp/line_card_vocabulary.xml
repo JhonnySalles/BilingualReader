@@ -23,22 +23,44 @@
         android:layout_weight="1"
         android:orientation="vertical"
         android:layout_marginStart="@dimen/margin">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/vocabulary_basic_form"
+                style="@style/TextNormal.Vocabulary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/vocabulary_content_text_big_size" />
+
+            <TextView
+                android:id="@+id/vocabulary_reading"
+                style="@style/TextNormal.Vocabulary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_big"
+                android:textSize="@dimen/vocabulary_content_text_normal_size"/>
+
+            <TextView
+                android:id="@+id/vocabulary_appear"
+                style="@style/TextNormal.Vocabulary"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/margin_big"
+                android:textSize="@dimen/vocabulary_content_text_normal_size"/>
+        </LinearLayout>
+
         <TextView
-            android:id="@+id/vocabulary_reading"
+            android:id="@+id/vocabulary_meaning_pt"
             style="@style/TextNormal.Vocabulary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/vocabulary_content_text_normal_size"/>
+            android:layout_marginTop="@dimen/margin"
+            android:textSize="@dimen/vocabulary_content_text_big_size"/>
 
         <TextView
-            android:id="@+id/vocabulary_appear"
-            style="@style/TextNormal.Vocabulary"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="@dimen/vocabulary_content_text_normal_size"/>
-
-        <TextView
-            android:id="@+id/vocabulary_meaning"
+            android:id="@+id/vocabulary_meaning_en"
             style="@style/TextNormal.Vocabulary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -39,7 +39,9 @@ class VocabularyViewHolder(itemView: View, private val listener: VocabularyCardL
         val content = itemView.findViewById<LinearLayout>(R.id.vocabulary_content)
         val title = itemView.findViewById<TextView>(R.id.vocabulary_title)
         val reading = itemView.findViewById<TextView>(R.id.vocabulary_reading)
-        val meaning = itemView.findViewById<TextView>(R.id.vocabulary_meaning)
+        val basic = itemView.findViewById<TextView>(R.id.vocabulary_basic_form)
+        val meaningPt = itemView.findViewById<TextView>(R.id.vocabulary_meaning_pt)
+        val meaningEn = itemView.findViewById<TextView>(R.id.vocabulary_meaning_en)
         val appear = itemView.findViewById<TextView>(R.id.vocabulary_appear)
         val favorite = itemView.findViewById<MaterialButton>(R.id.vocabulary_favorite)
 
@@ -71,7 +73,9 @@ class VocabularyViewHolder(itemView: View, private val listener: VocabularyCardL
 
         title.text = Util.setVerticalText(vocabulary.word)
         reading.text = vocabulary.reading + (if (!vocabulary.revised) '¹' else "")
-        meaning.text = vocabulary.portuguese
+        basic.text = vocabulary.basicForm
+        meaningPt.text = vocabulary.portuguese
+        meaningEn.text = vocabulary.english
         appear.text = itemView.context.getString(R.string.vocabulary_appear, vocabulary.appears)
 
         favorite.setIconResource(if (vocabulary.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
