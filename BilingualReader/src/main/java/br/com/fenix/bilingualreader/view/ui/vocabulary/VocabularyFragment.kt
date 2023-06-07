@@ -128,8 +128,8 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
             if (it.first == VocabularyActivity.mSortType && it.second == VocabularyActivity.mSortDesc)
                 return@observe
 
-            val isDesc = if (VocabularyActivity.mSortType == it.first) it.second else null
-            onChangeIconSort(it.first, isDesc)
+            val isChange = VocabularyActivity.mSortType != it.first
+            onChangeIconSort(it.first, it.second, isChange)
         }
 
         if (VocabularyActivity.mVocabularySelect.isNotEmpty())
@@ -289,15 +289,14 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
         }
     }
 
-    private fun onChangeIconSort(order: Order, isDesc: Boolean?) {
-        if (isDesc != null) {
+    private fun onChangeIconSort(order: Order, isDesc: Boolean, isChange: Boolean) {
+        if (!isChange) {
             val icon: Int? = when (order) {
                 Order.Description -> if (isDesc) R.drawable.ico_animated_sort_to_desc_name else R.drawable.ico_animated_sort_to_asc_name
                 Order.Favorite -> if (isDesc) R.drawable.ico_animated_sort_to_desc_favorited else R.drawable.ico_animated_sort_to_asc_favorited
                 Order.Frequency -> if (isDesc) R.drawable.ico_animated_sort_to_desc_frequency else R.drawable.ico_animated_sort_to_asc_frequency
                 else -> null
             }
-            VocabularyActivity.mSortDesc = isDesc
             if (icon != null)
                 MenuUtil.animatedSequenceDrawable(miOrder, icon)
         } else {
@@ -315,18 +314,28 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
                     else -> null
                 }
 
-            val final: Int? = when (order) {
+            val intermediary: Int? = when (order) {
                 Order.Description -> R.drawable.ico_animated_sort_asc_ico_enter_name
                 Order.Favorite -> R.drawable.ico_animated_sort_asc_ico_enter_favorited
                 Order.Frequency -> R.drawable.ico_animated_sort_asc_ico_enter_frequency
                 else -> null
             }
 
-            if (initial != null && final != null)
-                MenuUtil.animatedSequenceDrawable(miOrder, initial, final)
+            val final: Int? = if (isDesc) {
+                when (order) {
+                    Order.Description -> R.drawable.ico_animated_sort_to_desc_name
+                    Order.Favorite -> R.drawable.ico_animated_sort_to_desc_favorited
+                    Order.Frequency -> R.drawable.ico_animated_sort_to_desc_frequency
+                    else -> null
+                }
+            } else null
 
-            VocabularyActivity.mSortDesc = false
+            if (initial != null && intermediary != null && final != null)
+                MenuUtil.animatedSequenceDrawable(miOrder, initial, intermediary, final)
+            else if (initial != null && intermediary != null)
+                MenuUtil.animatedSequenceDrawable(miOrder, initial, intermediary)
         }
+        VocabularyActivity.mSortDesc = isDesc
         VocabularyActivity.mSortType = order
     }
 
@@ -356,7 +365,10 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
             Toast.LENGTH_SHORT
         ).show()
 
-        mViewModel.sorted(orderBy)
+        if (orderBy == Order.Frequency)
+            mViewModel.sorted(orderBy, true)
+        else
+            mViewModel.sorted(orderBy)
     }
 
     override fun onDestroy() {

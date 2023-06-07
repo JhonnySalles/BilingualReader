@@ -56,7 +56,22 @@
                 </LinearLayout>
 
                 <TextView
-                    android:id="@+id/vocabulary_meaning"
+                    android:id="@+id/vocabulary_basic_form"
+                    style="@style/TextNormal.Vocabulary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/vocabulary_content_text_big_size" />
+
+                <TextView
+                    android:id="@+id/vocabulary_meaning_pt"
+                    style="@style/TextNormal.Vocabulary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin"
+                    android:textSize="@dimen/vocabulary_content_text_big_size" />
+
+                <TextView
+                    android:id="@+id/vocabulary_meaning_en"
                     style="@style/TextNormal.Vocabulary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
