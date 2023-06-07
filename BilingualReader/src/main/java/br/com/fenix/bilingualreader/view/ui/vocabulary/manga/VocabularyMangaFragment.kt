@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.view.ui.vocabulary.manga
 
+import android.content.res.Configuration
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Build
 import android.os.Bundle
@@ -444,6 +445,12 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
             )
         else
             mViewModel.setQuery(mMangaNameEditText.text.toString(), "", mFavorite.isChecked)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        val myAdapter = mRecyclerView.adapter
+        mRecyclerView.adapter = myAdapter
     }
 
     override fun setObject(obj: Manga) {

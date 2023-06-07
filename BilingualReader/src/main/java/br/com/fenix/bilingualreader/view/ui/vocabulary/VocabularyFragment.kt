@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.view.ui.vocabulary
 
+import android.content.res.Configuration
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Build
 import android.os.Bundle
@@ -24,6 +25,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
+import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.VocabularyCardListener
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
@@ -33,6 +35,7 @@ import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaListC
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.InitializeVocabulary
 import br.com.fenix.bilingualreader.view.components.PopupOrderListener
+import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
@@ -396,6 +399,12 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
             mViewModel.setQuery(searchView.query.toString(), mFavorite.isChecked)
         else
             mViewModel.setQuery("", mFavorite.isChecked)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        val myAdapter = mRecyclerView.adapter
+        mRecyclerView.adapter = myAdapter
     }
 
     override fun setObject(obj: Vocabulary) {
