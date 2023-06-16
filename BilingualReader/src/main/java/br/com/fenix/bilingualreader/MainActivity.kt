@@ -137,31 +137,29 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             fragment = ConfigFragment()
         } else {
-            val idLibrary = GeneralConsts.getSharedPreferences(this)
-                .getLong(
+            val idLibrary = GeneralConsts.getSharedPreferences(this).getLong(
                     GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY,
                     GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
                 )
 
-            fragment = if (idLibrary.compareTo(R.id.menu_manga_library_default) == 0 ||
-                idLibrary in GeneralConsts.KEYS.LIBRARIES.MANGA_INDEX_LIBRARIES..(GeneralConsts.KEYS.LIBRARIES.MANGA_INDEX_LIBRARIES + mLibraries.size)) {
-                val library = if (idLibrary.compareTo(R.id.menu_manga_library_default) == 0)
-                    LibraryUtil.getDefault(this, Type.MANGA)
-                    else
-                        mLibraries.find { it.id == idLibrary } ?: LibraryUtil.getDefault(this, Type.MANGA)
-                mMangaLibraryModel.setLibrary(library)
-                MangaLibraryFragment()
-            } else if (idLibrary.compareTo(R.id.menu_book_library_default) == 0 ||
-                idLibrary in GeneralConsts.KEYS.LIBRARIES.BOOK_INDEX_LIBRARIES..(GeneralConsts.KEYS.LIBRARIES.BOOK_INDEX_LIBRARIES + mLibraries.size) ) {
-                val library = if (idLibrary.compareTo(R.id.menu_book_library_default) == 0)
+            val library = mLibraries.find { it.id == idLibrary } ?: if (idLibrary.compareTo(R.id.menu_book_library_default) == 0)
                     LibraryUtil.getDefault(this, Type.BOOK)
                 else
-                    mLibraries.find { it.id == idLibrary } ?: LibraryUtil.getDefault(this, Type.BOOK)
-                mBookLibraryModel.setLibrary(library)
-                BookLibraryFragment()
-            } else {
-                mMangaLibraryModel.setLibrary(LibraryUtil.getDefault(this, Type.MANGA))
-                MangaLibraryFragment()
+                    LibraryUtil.getDefault(this, Type.MANGA)
+
+            fragment = when (library.type) {
+                Type.MANGA -> {
+                    mMangaLibraryModel.setLibrary(library)
+                    MangaLibraryFragment()
+                }
+                Type.BOOK -> {
+                    mBookLibraryModel.setLibrary(library)
+                    BookLibraryFragment()
+                }
+                else -> {
+                    mMangaLibraryModel.setLibrary(LibraryUtil.getDefault(this, Type.MANGA))
+                    MangaLibraryFragment()
+                }
             }
 
             intent.dataString?.let {
@@ -223,11 +221,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY,
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
             )
-        ScannerManga(this).scanLibrariesSilent(scan.filter { it.id != idLibrary && idLibrary.compareTo(it.menuKey) != 0 })
+        ScannerManga(this).scanLibrariesSilent(scan.filter { it.id != idLibrary && idLibrary.compareTo(it.id!!) != 0 })
 
         scan = mutableListOf(LibraryUtil.getDefault(this, Type.BOOK))
         scan.addAll(libraries.filter { it.type == Type.BOOK })
-        ScannerBook(this).scanLibrariesSilent(scan.filter { it.id != idLibrary && idLibrary.compareTo(it.menuKey) != 0 })
+        ScannerBook(this).scanLibrariesSilent(scan.filter { it.id != idLibrary && idLibrary.compareTo(it.id!!) != 0 })
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
