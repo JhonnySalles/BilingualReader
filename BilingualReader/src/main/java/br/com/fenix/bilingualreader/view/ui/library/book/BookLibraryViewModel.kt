@@ -58,7 +58,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         val key = if (mLibrary.id == GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK)
             R.id.menu_book_library_default
         else
-            mLibrary.menuKey
+            mLibrary.id!!
         mPreferences.edit().putLong(
             GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY,
             key.toLong()
