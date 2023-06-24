@@ -177,7 +177,8 @@ class ScannerManga(private val context: Context) {
                 file.walk().onFail { _, ioException -> mLOGGER.warn("File walk error", ioException) }
                     .filterNot { it.isDirectory }.forEach {
                         walked = true
-                        if (mRunning[library]!!.mIsStopped) return
+                        if (!mRunning.containsKey(library) || mRunning[library]!!.mIsStopped)
+                            return
                         if (FileType.isManga(it.name)) {
                             if (storageFiles.containsKey(it.path))
                                 storageFiles.remove(it.path)
@@ -229,7 +230,7 @@ class ScannerManga(private val context: Context) {
                     }
 
                 // delete missing comics
-                if (!mRunning[library]!!.mIsStopped && !mRunning[library]!!.mIsRestarted && walked)
+                if (mRunning.containsKey(library) && !mRunning[library]!!.mIsStopped && !mRunning[library]!!.mIsRestarted && walked)
                     for (missing in storageFiles.values) {
                         isProcess = true
                         storage.delete(missing)
@@ -239,14 +240,16 @@ class ScannerManga(private val context: Context) {
             } catch (e: Exception) {
                 mLOGGER.error("Error to scanner manga.", e)
             } finally {
-                val run = mRunning.remove(library)!!
-                run.mIsStopped = false
-                if (run.mIsRestarted) {
-                    run.mIsRestarted = false
-                    val mRestartHandler: Handler = RestartHandler(this@ScannerManga, library)
-                    mRestartHandler.sendEmptyMessageDelayed(1, 200)
-                } else if (!isSilent)
-                    notifyLibraryUpdateFinished(isProcess)
+                if (mRunning.containsKey(library)) {
+                    val run = mRunning.remove(library)!!
+                    run.mIsStopped = false
+                    if (run.mIsRestarted) {
+                        run.mIsRestarted = false
+                        val mRestartHandler: Handler = RestartHandler(this@ScannerManga, library)
+                        mRestartHandler.sendEmptyMessageDelayed(1, 200)
+                    } else if (!isSilent)
+                        notifyLibraryUpdateFinished(isProcess)
+                }
             }
         }
     }
