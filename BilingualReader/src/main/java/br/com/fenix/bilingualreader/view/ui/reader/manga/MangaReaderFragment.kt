@@ -797,6 +797,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     fun setFullscreen(fullscreen: Boolean) {
+        // Use to press full screen when rotate causes crash
+        if (!isAdded || context == null)
+            return
+
         mIsFullscreen = fullscreen
         val w: Window = requireActivity().window
         if (fullscreen) {

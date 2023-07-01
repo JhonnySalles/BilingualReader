@@ -240,13 +240,14 @@ class VocabularyRepository(context: Context) {
                     val list = mutableSetOf<Vocabulary?>()
                     val pages = mutableListOf<Vocabulary>()
 
-                    chaptersList.parallelStream()
+                    //Not use parallel because error when add pages list
+                    chaptersList.stream()
                         .forEach {
                             for (vocabulary in it.vocabulary)
                                 if (!list.contains(vocabulary))
                                     list.add(vocabulary)
 
-                            it.subTitlePages.parallelStream().forEach { p -> pages.addAll(p.vocabulary) }
+                            it.subTitlePages.stream().map { p -> pages.addAll(p.vocabulary) }
                         }
 
                     for (vocabulary in list) {
