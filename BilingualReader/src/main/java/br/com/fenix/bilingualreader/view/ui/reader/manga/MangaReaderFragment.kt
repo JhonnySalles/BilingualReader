@@ -422,7 +422,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     override fun onDestroy() {
-        mCurrentFragment = null
         mSubtitleController.clearImageBackup()
         mSubtitleController.mReaderFragment = null
         Util.destroyParse(mParse)

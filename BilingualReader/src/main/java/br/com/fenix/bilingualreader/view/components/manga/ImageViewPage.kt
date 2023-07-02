@@ -388,7 +388,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) :
 
     open fun computeCurrentImageSize(): Point {
         val size = Point()
-        val d: Drawable = drawable
+        val d: Drawable = drawable ?: return size
         mMatrix.getValues(m)
         val scale = m[Matrix.MSCALE_X]
         val width = d.intrinsicWidth * scale
