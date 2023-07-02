@@ -170,7 +170,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     private var mCurrentFragment: FrameLayout? = null
     fun getCurrencyImageView(): ImageViewPage? {
-        if (mCurrentFragment == null)
+        if (!isAdded || context == null || mCurrentFragment == null)
             return null
         return mCurrentFragment?.findViewById(R.id.page_image_view) as ImageViewPage
     }
@@ -422,6 +422,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     override fun onDestroy() {
+        mCurrentFragment = null
         mSubtitleController.clearImageBackup()
         mSubtitleController.mReaderFragment = null
         Util.destroyParse(mParse)
