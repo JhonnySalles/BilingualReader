@@ -17,6 +17,8 @@ import java.io.File
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class TestUtil {
@@ -71,10 +73,10 @@ class MangaTestUtil {
             val mangaPath = filePath.ifEmpty { MANGA_TEST_FILE_PATH }
             val manga = Manga(
                 null,
-                Util.getNameFromPath(mangaPath),
+                Util.getNameWithoutExtensionFromPath(mangaPath),
                 mangaPath,
                 Util.getFolderFromPath(mangaPath),
-                Util.getNameWithoutExtensionFromPath(mangaPath),
+                Util.getNameFromPath(mangaPath),
                 10 * 1024,
                 FileType.CBR,
                 10,
@@ -92,8 +94,8 @@ class MangaTestUtil {
                 TestUtil.getRandomLocalDateTime(),
                 Date(),
                 Date(),
-                0,
-                if ((1..2).random() > 1) Date() else null,
+                Date(),
+                if ((1..2).random() > 1) LocalDateTime.now() else null,
                 if ((1..2).random() > 1) LocalDate.now() else null
             )
 
@@ -121,10 +123,10 @@ class MangaTestUtil {
         fun getManga(): Manga {
             return Manga(
                 1,
-                Util.getNameFromPath(MANGA_TEST_FILE_PATH),
+                Util.getNameWithoutExtensionFromPath(MANGA_TEST_FILE_PATH),
                 MANGA_TEST_FILE_PATH,
                 Util.getFolderFromPath(MANGA_TEST_FILE_PATH),
-                Util.getNameWithoutExtensionFromPath(MANGA_TEST_FILE_PATH),
+                Util.getNameFromPath(MANGA_TEST_FILE_PATH),
                 3 * 2048,
                 FileType.CB7,
                 10,
@@ -142,8 +144,8 @@ class MangaTestUtil {
                 TestUtil.getRandomLocalDateTime(),
                 Date(),
                 Date(),
-                0,
-                if ((1..5).random() > 2) Date() else null,
+                Date(),
+                if ((1..5).random() > 2) LocalDateTime.now() else null,
                 if ((1..2).random() > 1) LocalDate.now() else null
             )
         }
@@ -161,10 +163,10 @@ class MangaTestUtil {
                 array.add(
                     Manga(
                         i.toLong(),
-                        Util.getNameFromPath(MANGA_TEST_FILE_PATH),
+                        Util.getNameWithoutExtensionFromPath(MANGA_TEST_FILE_PATH),
                         MANGA_TEST_FILE_PATH,
                         Util.getFolderFromPath(MANGA_TEST_FILE_PATH),
-                        Util.getNameWithoutExtensionFromPath(MANGA_TEST_FILE_PATH),
+                        Util.getNameFromPath(MANGA_TEST_FILE_PATH),
                         i * 2048L,
                         FileType.CBZ,
                         125,
@@ -182,8 +184,8 @@ class MangaTestUtil {
                         TestUtil.getRandomLocalDateTime(),
                         Date(),
                         Date(),
-                        0,
-                        if (i in 4..6) Date() else null,
+                        Date(),
+                        if (i in 4..6) LocalDateTime.now() else null,
                         if ((1..2).random() > 1) LocalDate.now() else null
                     )
                 )
@@ -223,7 +225,7 @@ class BookTestUtil {
             val bookPath = filePath.ifEmpty { BOOK_TEST_FILE_PATH }
             val book = Book(
                 1,
-                Util.getNameFromPath(bookPath),
+                Util.getNameWithoutExtensionFromPath(bookPath),
                 "Author",
                 "",
                 "Annotation",
@@ -236,24 +238,24 @@ class BookTestUtil {
                 150,
                 0,
                 "",
-                0,
+                10,
                 Languages.ENGLISH,
                 bookPath,
                 Util.getFolderFromPath(bookPath),
-                Util.getNameWithoutExtensionFromPath(bookPath),
+                Util.getNameFromPath(bookPath),
                 FileType.EPUB,
                 10 * 1024,
                 (1..2).random() > 1,
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK,
+                mutableListOf(),
                 (1..5).random() > 4,
                 TestUtil.getRandomLocalDateTime(),
                 Date(),
                 Date(),
-                0,
-                if ((1..2).random() > 1) Date() else null,
+                Date(),
+                if ((1..2).random() > 1) LocalDateTime.now() else null,
                 if ((1..2).random() > 1) LocalDate.now() else null
             )
-
 
             /*if (filePath.isNotEmpty()) {
                 val parse = ParseFactory.create(filePath) ?: return book
@@ -279,7 +281,7 @@ class BookTestUtil {
         fun getBook(): Book {
             return Book(
                 1,
-                Util.getNameFromPath(BOOK_TEST_FILE_PATH),
+                Util.getNameWithoutExtensionFromPath(BOOK_TEST_FILE_PATH),
                 "Author",
                 "",
                 "Annotation",
@@ -296,17 +298,18 @@ class BookTestUtil {
                 Languages.ENGLISH,
                 BOOK_TEST_FILE_PATH,
                 Util.getFolderFromPath(BOOK_TEST_FILE_PATH),
-                Util.getNameWithoutExtensionFromPath(BOOK_TEST_FILE_PATH),
+                Util.getNameFromPath(BOOK_TEST_FILE_PATH),
                 FileType.EPUB,
                 10 * 1024,
                 (1..2).random() > 1,
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK,
+                mutableListOf(),
                 (1..5).random() > 4,
                 TestUtil.getRandomLocalDateTime(),
                 Date(),
                 Date(),
-                0,
-                if ((1..2).random() > 1) Date() else null,
+                Date(),
+                if ((1..2).random() > 1) LocalDateTime.now() else null,
                 if ((1..2).random() > 1) LocalDate.now() else null
             )
         }
@@ -324,7 +327,7 @@ class BookTestUtil {
                 array.add(
                     Book(
                         1,
-                        Util.getNameFromPath(BOOK_TEST_FILE_PATH),
+                        Util.getNameWithoutExtensionFromPath(BOOK_TEST_FILE_PATH),
                         "Author",
                         "",
                         "Annotation",
@@ -341,17 +344,18 @@ class BookTestUtil {
                         Languages.ENGLISH,
                         BOOK_TEST_FILE_PATH,
                         Util.getFolderFromPath(BOOK_TEST_FILE_PATH),
-                        Util.getNameWithoutExtensionFromPath(BOOK_TEST_FILE_PATH),
+                        Util.getNameFromPath(BOOK_TEST_FILE_PATH),
                         FileType.EPUB,
                         10 * 1024,
                         (1..2).random() > 1,
                         GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK,
+                        mutableListOf(),
                         (1..5).random() > 4,
                         TestUtil.getRandomLocalDateTime(),
                         Date(),
                         Date(),
-                        0,
-                        if ((1..2).random() > 1) Date() else null,
+                        Date(),
+                        if ((1..2).random() > 1) LocalDateTime.now() else null,
                         if ((1..2).random() > 1) LocalDate.now() else null
                     )
                 )
