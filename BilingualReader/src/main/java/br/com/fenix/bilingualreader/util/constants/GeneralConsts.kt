@@ -18,7 +18,6 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.time.DurationUnit
 
 class GeneralConsts private constructor() {
     companion object {
@@ -52,6 +51,16 @@ class GeneralConsts private constructor() {
             val pattern = preferences.getString(KEYS.SYSTEM.FORMAT_DATA, DATE_PATTERN)
             val dateTime = Instant.ofEpochMilli(date).atZone(ZoneId.systemDefault()).toLocalDate()
             return dateTime.format(DateTimeFormatter.ofPattern(pattern))
+        }
+
+        @TargetApi(26)
+        fun dateTimeToDate(dateTime: LocalDateTime): Date {
+            return Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant())
+        }
+
+        @TargetApi(26)
+        fun dateToDateTime(dateTime: Date): LocalDateTime {
+            return LocalDateTime.ofInstant(dateTime.toInstant(), ZoneId.systemDefault())
         }
 
         @TargetApi(26)
@@ -183,6 +192,7 @@ class GeneralConsts private constructor() {
             const val LANGUAGE = "SYSTEM_LANGUAGE"
             const val FORMAT_DATA = "SYSTEM_FORMAT_DATA"
             const val FORMAT_DATA_SMALL = "FORMAT_DATA_SMALL"
+            const val SHARE_MARK_DRIVE = "SHARE_MARK_DRIVE"
         }
 
         object MANGA {
@@ -240,10 +250,6 @@ class GeneralConsts private constructor() {
             const val USE_IN_SEARCH_TRANSLATE = "USE_PAGE_LINK_IN_SEARCH_TRANSLATE"
             const val USE_DUAL_PAGE_CALCULATE = "USE_DUAL_PAGE_CALCULATE"
             const val USE_PAGE_PATH_FOR_LINKED = "USE_PAGE_PATH_FOR_LINKED"
-        }
-
-        object MONITORING {
-            const val MY_ANIME_LIST = "MONITORING_MY_ANIME_LIST"
         }
 
         object DATABASE {
@@ -336,6 +342,13 @@ class GeneralConsts private constructor() {
         const val BOOK_SEARCH = 605
         const val BOOK_ANNOTATION = 606
         const val BOOK_CHAPTERS = 607
+        const val GOOGLE_SIGN_IN = 700
+    }
+
+    object SHARE_MARKS {
+        const val FOLDER = "BilingualReader"
+        const val MANGA_FILE = "MangaMarks.json"
+        const val BOOK_FILE = "BookMarks.json"
     }
 
 }

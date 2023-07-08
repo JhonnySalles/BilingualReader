@@ -250,7 +250,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         ScannerManga.getInstance(requireContext()).addUpdateHandler(mUpdateHandler)
 
         if (mViewModel.isEmpty())
-            onRefresh()
+            refresh()
         else
             mViewModel.updateList { change, indexes ->
                 if (change)
@@ -763,7 +763,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (requestCode == GeneralConsts.REQUEST.PERMISSION_FILES_ACCESS && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-            onRefresh()
+            refresh()
     }
 
     private fun getGridLayout(): GridLayoutManager {
@@ -855,6 +855,20 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     override fun onRefresh() {
+        refresh()
+
+        GeneralConsts.getSharedPreferences(requireContext()).let { share ->
+            if (share.getBoolean(GeneralConsts.KEYS.SYSTEM.SHARE_MARK_DRIVE, false))
+                mViewModel.processShareMarks(requireContext()) { notify ->
+                    if (notify) {
+                        val range = (mViewModel.listMangas.value?.size ?: 1)
+                        notifyDataSet(0, range)
+                    }
+                }
+        }
+    }
+
+    private fun refresh() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (mHandler.hasCallbacks(mDismissUpButton))
                 mHandler.removeCallbacks(mDismissUpButton)

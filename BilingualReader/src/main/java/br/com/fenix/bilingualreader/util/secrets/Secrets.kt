@@ -27,6 +27,7 @@ class Secrets {
     }
 
     private var MY_ANIME_LIST_CLIENT_ID: String = ""
+    private var GOOGLE_ID_TOKEN: String = ""
 
     init {
         try {
@@ -36,6 +37,7 @@ class Secrets {
             properties.load(inputStream)
 
             MY_ANIME_LIST_CLIENT_ID = properties.getProperty("ANIME_LIST_CLIENT_ID")
+            GOOGLE_ID_TOKEN = properties.getProperty("GOOGLE_ID_TOKEN")
         } catch (e: IOException) {
             e.printStackTrace()
             mLOGGER.error("Error to read secrets", e)
@@ -44,6 +46,10 @@ class Secrets {
 
     fun getMyAnimeListClientId(): String {
         return MY_ANIME_LIST_CLIENT_ID
+    }
+
+    fun getGoogleIdToken(): String {
+        return GOOGLE_ID_TOKEN
     }
 
 }

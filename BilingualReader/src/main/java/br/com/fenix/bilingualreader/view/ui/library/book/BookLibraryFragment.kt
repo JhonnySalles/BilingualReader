@@ -277,7 +277,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         ScannerBook.getInstance(requireContext()).addUpdateHandler(mUpdateHandler)
 
         if (mViewModel.isEmpty())
-            onRefresh()
+            refresh()
         else
             mViewModel.updateList { change, indexes ->
                 if (change)
@@ -809,7 +809,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (requestCode == GeneralConsts.REQUEST.PERMISSION_FILES_ACCESS && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-            onRefresh()
+            refresh()
     }
 
     private fun generateLayout() {
@@ -889,6 +889,20 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     }
 
     override fun onRefresh() {
+        refresh()
+
+        GeneralConsts.getSharedPreferences(requireContext()).let { share ->
+            if (share.getBoolean(GeneralConsts.KEYS.SYSTEM.SHARE_MARK_DRIVE, false))
+                mViewModel.processShareMarks(requireContext()) { notify ->
+                    if (notify) {
+                        val range = (mViewModel.listBook.value?.size ?: 1)
+                        notifyDataSet(0, range)
+                    }
+                }
+        }
+    }
+
+    private fun refresh() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (mHandler.hasCallbacks(mDismissUpButton))
                 mHandler.removeCallbacks(mDismissUpButton)
@@ -909,6 +923,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             ScannerBook.getInstance(requireContext()).scanLibrary(mViewModel.getLibrary())
         }
     }
+
     override fun popupOrderOnChange() {
         val range = (mViewModel.listBook.value?.size ?: 1)
         notifyDataSet(0, range)

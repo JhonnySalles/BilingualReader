@@ -94,7 +94,23 @@
             style="@style/SwitchMaterial"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
             android:text="@string/config_system_share_mark_drive" />
+
+        <TextView
+            android:id="@+id/config_system_share_mark_signed_account"
+            style="@style/TextNormal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:text=""
+            android:visibility="gone" />
+
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/config_system_share_mark_sign_in_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/config_system_format_date"
