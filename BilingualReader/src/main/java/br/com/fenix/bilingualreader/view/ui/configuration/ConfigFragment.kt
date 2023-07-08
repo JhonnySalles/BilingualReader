@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -23,16 +22,25 @@ import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.*
+import br.com.fenix.bilingualreader.util.secrets.Secrets
 import br.com.fenix.bilingualreader.view.adapter.fonts.FontsCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.themes.ThemesCardAdapter
 import br.com.fenix.bilingualreader.view.ui.library.book.BookLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.menu.ConfigLibrariesViewModel
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.SignInButton
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.Scope
+import com.google.android.gms.tasks.Task
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputLayout
+import com.google.api.services.drive.DriveScopes
 import org.lucasr.twowayview.TwoWayView
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -54,7 +62,10 @@ class ConfigFragment : Fragment() {
 
     private lateinit var mConfigSystemFormatDate: TextInputLayout
     private lateinit var mConfigSystemFormatDateAutoComplete: AutoCompleteTextView
+
     private lateinit var mConfigSystemShareMarkDrive: SwitchMaterial
+    private lateinit var mConfigSystemShareMarkAccount: TextView
+    private lateinit var mConfigSystemShareMarkSignIn: SignInButton
 
     private lateinit var mConfigSystemBackup: Button
     private lateinit var mConfigSystemRestore: Button
@@ -184,11 +195,11 @@ class ConfigFragment : Fragment() {
         mConfigSystemFormatDateAutoComplete =
             view.findViewById(R.id.config_system_menu_autocomplete_format_date)
         mConfigSystemShareMarkDrive = view.findViewById(R.id.config_system_share_mark_drive)
+        mConfigSystemShareMarkAccount = view.findViewById(R.id.config_system_share_mark_signed_account)
+        mConfigSystemShareMarkSignIn = view.findViewById(R.id.config_system_share_mark_sign_in_button)
 
-        mMangaUseDualPageCalculate =
-            view.findViewById(R.id.config_manga_switch_use_dual_page_calculate)
-        mMangaUsePathNameForLinked =
-            view.findViewById(R.id.config_manga_switch_use_path_name_for_linked)
+        mMangaUseDualPageCalculate = view.findViewById(R.id.config_manga_switch_use_dual_page_calculate)
+        mMangaUsePathNameForLinked = view.findViewById(R.id.config_manga_switch_use_path_name_for_linked)
 
         mConfigSystemBackup = view.findViewById(R.id.config_system_backup)
         mConfigSystemRestore = view.findViewById(R.id.config_system_restore)
@@ -428,6 +439,19 @@ class ConfigFragment : Fragment() {
         prepareFonts()
         loadConfig()
 
+        mConfigSystemShareMarkSignIn.setOnClickListener {
+            val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(Secrets.getSecrets(requireContext()).getGoogleIdToken())
+                .requestEmail()
+                .requestScopes(Scope(DriveScopes.DRIVE))
+                .build()
+
+            val googleSignInClient = GoogleSignIn.getClient(requireActivity(), signInOptions)
+            startActivityForResult(googleSignInClient.signInIntent, GeneralConsts.REQUEST.GOOGLE_SIGN_IN)
+        }
+
+        googleSigIn(GoogleSignIn.getLastSignedInAccount(requireContext()))
+
         mViewModel.loadLibrary(null)
     }
 
@@ -546,6 +570,17 @@ class ConfigFragment : Fragment() {
                         getString(R.string.config_database_restore),
                         getString(R.string.config_database_error_read_file)
                     ) { _, _ -> }
+                }
+            }
+
+            GeneralConsts.REQUEST.GOOGLE_SIGN_IN -> {
+                val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
+                try {
+                    val account: GoogleSignInAccount = task.getResult(ApiException::class.java)
+                    googleSigIn(account)
+                } catch (e: ApiException) {
+                    mLOGGER.warn("SignIn failed code=" + e.statusCode, e)
+                    googleSigIn(null)
                 }
             }
         }
@@ -823,7 +858,7 @@ class ConfigFragment : Fragment() {
 
         mConfigSystemShareMarkDrive.isChecked = sharedPreferences.getBoolean(
             GeneralConsts.KEYS.SYSTEM.SHARE_MARK_DRIVE,
-            true
+            false
         )
 
         mConfigSystemFormatDateAutoComplete.setText(
@@ -1010,6 +1045,18 @@ class ConfigFragment : Fragment() {
                 )
 
             this.commit()
+        }
+    }
+
+    private fun googleSigIn(account: GoogleSignInAccount?) {
+        if (account != null) {
+            mConfigSystemShareMarkAccount.visibility = View.VISIBLE
+            mConfigSystemShareMarkSignIn.visibility = View.GONE
+            mConfigSystemShareMarkAccount.text = requireContext().getString(R.string.config_system_share_mark_account, account.email)
+        } else {
+            mConfigSystemShareMarkAccount.visibility = View.GONE
+            mConfigSystemShareMarkSignIn.visibility = View.VISIBLE
+            mConfigSystemShareMarkAccount.text = ""
         }
     }
 

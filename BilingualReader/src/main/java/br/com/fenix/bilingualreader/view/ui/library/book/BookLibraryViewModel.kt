@@ -1,8 +1,10 @@
 package br.com.fenix.bilingualreader.view.ui.library.book
 
 import android.app.Application
+import android.content.Context
 import android.widget.Filter
 import android.widget.Filterable
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -13,6 +15,7 @@ import br.com.fenix.bilingualreader.model.entity.Tags
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.service.controller.MarkShareController
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.TagsRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -40,6 +43,8 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     val listBook: LiveData<MutableList<Book>> = mListBook
 
     private var mTags = mutableListOf<Tags>()
+
+    private var mProcessShareMark = false
 
     fun setDefaultLibrary(library: Library) {
         if (mLibrary.id == library.id)
@@ -413,6 +418,39 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                 list.addAll(it.values as Collection<Book>)
             }
             mListBook.value = list
+        }
+    }
+
+    fun processShareMarks(context: Context, processed: (notify: Boolean) -> (Unit)) {
+        if (!mProcessShareMark) {
+            val share = MarkShareController(context)
+            var notify = false
+            val process: (book: Book) -> (Unit) = { item ->
+                if (mLibrary.id == item.fkLibrary) {
+                    notify = true
+                    mListBookFull.value?.find { book -> book.id == item.id }?.let { book ->
+                        book.favorite = item.favorite
+                        book.bookMark = item.bookMark
+                        book.lastAccess = item.lastAccess
+                    }
+                    mListBook.value?.find { book -> book.id == item.id }?.let { book ->
+                        book.favorite = item.favorite
+                        book.bookMark = item.bookMark
+                        book.lastAccess = item.lastAccess
+                    }
+                }
+            }
+            share.bookShareMark(process) {
+                mProcessShareMark = false
+                if (it)
+                    processed(notify)
+
+                val msg = if (it)
+                    context.getString(R.string.book_share_mark_drive_processed)
+                else
+                    context.getString(R.string.book_share_mark_drive_unprocessed)
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }

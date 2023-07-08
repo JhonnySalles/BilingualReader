@@ -1,8 +1,10 @@
 package br.com.fenix.bilingualreader.view.ui.library.manga
 
 import android.app.Application
+import android.content.Context
 import android.widget.Filter
 import android.widget.Filterable
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,6 +14,7 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.service.controller.MarkShareController
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
@@ -36,6 +39,8 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     private var mListMangasFull = MutableLiveData<MutableList<Manga>>(mutableListOf())
     private var mListMangas = MutableLiveData<MutableList<Manga>>(mutableListOf())
     val listMangas: LiveData<MutableList<Manga>> = mListMangas
+
+    private var mProcessShareMark = false
 
     fun setDefaultLibrary(library: Library) {
         if (mLibrary.id == library.id)
@@ -83,8 +88,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     fun addStackLibrary(id: String, library: Library) =
         mStackLibrary.put(id, Triple(mStackLibrary.size + 1, library, mListMangasFull.value!!))
 
-    fun removeStackLibrary(id: String) =
-        mStackLibrary.remove(id)
+    fun removeStackLibrary(id: String) = mStackLibrary.remove(id)
 
     fun save(obj: Manga): Manga {
         if (obj.id == 0L)
@@ -235,8 +239,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
         refreshComplete(mListMangas.value!!.isNotEmpty())
     }
 
-    fun isEmpty(): Boolean =
-        mListMangas.value == null || mListMangas.value!!.isEmpty()
+    fun isEmpty(): Boolean = mListMangas.value == null || mListMangas.value!!.isEmpty()
 
     fun sorted() {
         sorted(mOrder.value?.first ?: Order.Name)
@@ -397,6 +400,39 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                 list.addAll(it.values as Collection<Manga>)
             }
             mListMangas.value = list
+        }
+    }
+
+    fun processShareMarks(context: Context, processed: (notify: Boolean) -> (Unit)) {
+        if (!mProcessShareMark) {
+            val share = MarkShareController(context)
+            var notify = false
+            val process: (manga: Manga) -> (Unit) = { item ->
+                if (mLibrary.id == item.fkLibrary) {
+                    notify = true
+                    mListMangasFull.value?.find { manga -> manga.id == item.id }?.let { manga ->
+                        manga.favorite = item.favorite
+                        manga.bookMark = item.bookMark
+                        manga.lastAccess = item.lastAccess
+                    }
+                    mListMangas.value?.find { manga -> manga.id == item.id }?.let { manga ->
+                        manga.favorite = item.favorite
+                        manga.bookMark = item.bookMark
+                        manga.lastAccess = item.lastAccess
+                    }
+                }
+            }
+            share.mangaShareMark(process) {
+                mProcessShareMark = false
+                if (it)
+                    processed(notify)
+
+                val msg = if (it)
+                    context.getString(R.string.manga_share_mark_drive_processed)
+                else
+                    context.getString(R.string.manga_share_mark_drive_unprocessed)
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }
