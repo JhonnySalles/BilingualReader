@@ -89,6 +89,13 @@
             android:layout_marginBottom="@dimen/margin_small"
             android:text="@string/config_title_system" />
 
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/config_system_share_mark_drive"
+            style="@style/SwitchMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/config_system_share_mark_drive" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/config_system_format_date"
             style="@style/TextInputDropMenu"
@@ -153,72 +160,5 @@
             android:layout_marginStart="@dimen/margin"
             android:layout_marginBottom="@dimen/margin_small"
             android:gravity="center|start" />
-
-        <com.google.android.material.divider.MaterialDivider
-            style="@style/MaterialDivider"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/margin"
-            android:layout_marginTop="@dimen/margin"
-            android:layout_marginRight="@dimen/margin"
-            android:layout_marginBottom="@dimen/margin_small" />
-
-        <TextView
-            style="@style/TextTitle.Config"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin"
-            android:layout_marginBottom="@dimen/margin_small"
-            android:text="@string/config_title_monitoring" />
-
-        <LinearLayout
-            android:id="@+id/config_system_tracker_my_anime_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/config_tracker_margin"
-            android:layout_marginTop="@dimen/margin"
-            android:layout_marginEnd="@dimen/config_tracker_margin"
-            android:layout_marginBottom="@dimen/margin_bottom"
-            android:orientation="horizontal">
-
-            <com.google.android.material.card.MaterialCardView
-                style="@style/AppBackground.Card"
-                android:layout_width="@dimen/config_tracker_ico_size"
-                android:layout_height="@dimen/config_tracker_ico_size"
-                app:cardBackgroundColor="#2E51A2"
-                app:cardElevation="0dp">
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:adjustViewBounds="true"
-                    android:importantForAccessibility="no"
-                    android:padding="4dp"
-                    android:src="@mipmap/ic_myanimelist" />
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <TextView
-                style="@style/TextNormal.Config"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="@dimen/margin"
-                android:layout_weight="1"
-                android:gravity="center|start"
-                android:text="@string/config_monitoring_mal" />
-
-            <ImageView
-                android:id="@+id/config_system_tracker_checked"
-                android:layout_width="@dimen/config_tracker_ico_size"
-                android:layout_height="@dimen/config_tracker_ico_size"
-                android:adjustViewBounds="true"
-                android:contentDescription="@string/config_tracker_checked"
-                android:gravity="center"
-                android:padding="2dp"
-                android:src="@drawable/ic_tracker_checked"
-                android:visibility="gone"
-                app:tint="?attr/colorSecondary" />
-
-        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

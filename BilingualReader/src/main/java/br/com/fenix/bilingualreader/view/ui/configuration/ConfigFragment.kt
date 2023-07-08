@@ -54,13 +54,11 @@ class ConfigFragment : Fragment() {
 
     private lateinit var mConfigSystemFormatDate: TextInputLayout
     private lateinit var mConfigSystemFormatDateAutoComplete: AutoCompleteTextView
+    private lateinit var mConfigSystemShareMarkDrive: SwitchMaterial
 
     private lateinit var mConfigSystemBackup: Button
     private lateinit var mConfigSystemRestore: Button
     private lateinit var mConfigSystemLastBackup: TextView
-
-    private lateinit var mConfigSystemMalMonitoring: LinearLayout
-    private lateinit var mConfigSystemMalMonitoringChecked: ImageView
 
     private var mConfigSystemThemeModeSelect: ThemeMode = ThemeMode.SYSTEM
     private var mConfigSystemThemeSelect: Themes = Themes.ORIGINAL
@@ -185,6 +183,7 @@ class ConfigFragment : Fragment() {
         mConfigSystemFormatDate = view.findViewById(R.id.config_system_format_date)
         mConfigSystemFormatDateAutoComplete =
             view.findViewById(R.id.config_system_menu_autocomplete_format_date)
+        mConfigSystemShareMarkDrive = view.findViewById(R.id.config_system_share_mark_drive)
 
         mMangaUseDualPageCalculate =
             view.findViewById(R.id.config_manga_switch_use_dual_page_calculate)
@@ -194,9 +193,6 @@ class ConfigFragment : Fragment() {
         mConfigSystemBackup = view.findViewById(R.id.config_system_backup)
         mConfigSystemRestore = view.findViewById(R.id.config_system_restore)
         mConfigSystemLastBackup = view.findViewById(R.id.config_system_last_backup)
-
-        mConfigSystemMalMonitoring = view.findViewById(R.id.config_system_tracker_my_anime_list)
-        mConfigSystemMalMonitoringChecked = view.findViewById(R.id.config_system_tracker_checked)
 
         mMangaLibraryPathAutoComplete.setOnClickListener {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
@@ -427,8 +423,6 @@ class ConfigFragment : Fragment() {
                 GeneralConsts.REQUEST.RESTORE_BACKUP
             )
         }
-
-        mConfigSystemMalMonitoring.setOnClickListener { changeMonitoring() }
 
         prepareThemes()
         prepareFonts()
@@ -661,6 +655,11 @@ class ConfigFragment : Fragment() {
                 mBookFontSize.value
             )
 
+            this.putBoolean(
+                GeneralConsts.KEYS.SYSTEM.SHARE_MARK_DRIVE,
+                mConfigSystemShareMarkDrive.isChecked
+            )
+
             this.putString(
                 GeneralConsts.KEYS.SYSTEM.FORMAT_DATA,
                 mConfigSystemDateSelect
@@ -669,11 +668,6 @@ class ConfigFragment : Fragment() {
             this.putString(
                 GeneralConsts.KEYS.SYSTEM.FORMAT_DATA_SMALL,
                 mConfigSystemDateSmall
-            )
-
-            this.putBoolean(
-                GeneralConsts.KEYS.MONITORING.MY_ANIME_LIST,
-                mConfigSystemMalMonitoringChecked.visibility == View.VISIBLE
             )
 
             this.putString(
@@ -815,7 +809,7 @@ class ConfigFragment : Fragment() {
 
         mBookProcessVocabulary.isChecked = sharedPreferences.getBoolean(
             GeneralConsts.KEYS.READER.BOOK_PROCESS_VOCABULARY,
-            true
+            false
         )
 
         mConfigSystemDateSelect = sharedPreferences.getString(
@@ -826,6 +820,11 @@ class ConfigFragment : Fragment() {
             GeneralConsts.KEYS.SYSTEM.FORMAT_DATA_SMALL,
             GeneralConsts.CONFIG.DATA_FORMAT_SMALL[0]
         )!!
+
+        mConfigSystemShareMarkDrive.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.SYSTEM.SHARE_MARK_DRIVE,
+            true
+        )
 
         mConfigSystemFormatDateAutoComplete.setText(
             "$mConfigSystemDateSelect (%s)".format(
@@ -860,12 +859,6 @@ class ConfigFragment : Fragment() {
             )
         }
 
-        mConfigSystemMalMonitoringChecked.visibility = if (sharedPreferences.getBoolean(
-                GeneralConsts.KEYS.MONITORING.MY_ANIME_LIST,
-                false
-            )
-        ) View.VISIBLE else View.GONE
-
         mConfigSystemThemeModeSelect = ThemeMode.valueOf(
             sharedPreferences.getString(
                 GeneralConsts.KEYS.THEME.THEME_MODE,
@@ -883,28 +876,6 @@ class ConfigFragment : Fragment() {
             false
         )
 
-    }
-
-    private fun changeMonitoring() {
-        if (mConfigSystemMalMonitoringChecked.visibility == View.GONE) {
-
-        } else {
-            val dialog: AlertDialog =
-                MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
-                    .setTitle(getString(R.string.manga_library_menu_delete))
-                    .setMessage(
-                        getString(
-                            R.string.config_monitoring_disconnect,
-                            getString(R.string.config_monitoring_mal)
-                        )
-                    )
-                    .setPositiveButton(
-                        R.string.action_disconnect
-                    ) { _, _ ->
-                        mConfigSystemMalMonitoringChecked.visibility = View.GONE
-                    }.create()
-            dialog.show()
-        }
     }
 
     private fun openLibraries(type: Type) {

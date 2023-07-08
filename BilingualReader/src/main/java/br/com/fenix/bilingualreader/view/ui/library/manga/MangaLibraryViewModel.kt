@@ -61,8 +61,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
         ).apply()
     }
 
-    fun getLibrary() =
-        mLibrary
+    fun getLibrary() = mLibrary
 
     fun existStack(id: String): Boolean =
         mStackLibrary.contains(id)
