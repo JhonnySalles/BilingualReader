@@ -31,8 +31,6 @@ import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
 import java.io.*
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 
@@ -79,7 +77,10 @@ class ShareMarkController(var context: Context) {
         share.lastAlteration = Date()
         share.origin = getDeviceName()
 
-        val gson = GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
+        val gson = GsonBuilder()
+            .setDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME)
+            .excludeFieldsWithoutExposeAnnotation()
+            .create()
         val writer = FileWriter(file)
         gson.toJson(share, writer)
         writer.flush()
@@ -417,7 +418,10 @@ class ShareMarkController(var context: Context) {
             getShareFiles { access ->
                 if (access == ShareMarkType.SUCCESS) {
                     try {
-                        val gson = GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
+                        val gson = GsonBuilder()
+                            .setDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME)
+                            .excludeFieldsWithoutExposeAnnotation()
+                            .create()
                         val repository = MangaRepository(context)
 
                         val reader = JsonReader(FileReader(getFile(GeneralConsts.SHARE_MARKS.MANGA_FILE_WITH_EXTENSION)))
@@ -475,10 +479,10 @@ class ShareMarkController(var context: Context) {
             true
         } else {
             //Differ 10 seconds
-            val diff: Long = item.lastAccess.time - GeneralConsts.dateTimeToDate(book.lastAccess!!).time
+            val diff: Long = item.lastAccess.time - book.lastAccess!!.time
             if (diff > 10000 || diff < -10000) {
                 item.bookMark = book.bookMark
-                item.lastAccess = GeneralConsts.dateTimeToDate(book.lastAccess!!)
+                item.lastAccess = book.lastAccess!!
                 item.favorite = book.favorite
                 item.alter = true
             }
@@ -518,7 +522,10 @@ class ShareMarkController(var context: Context) {
     ) {
         getShareFiles { access ->
             if (access == ShareMarkType.SUCCESS) {
-                val gson = GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
+                val gson = GsonBuilder()
+                    .setDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME)
+                    .excludeFieldsWithoutExposeAnnotation()
+                    .create()
                 val repository = BookRepository(context)
 
                 val reader = JsonReader(FileReader(getFile(GeneralConsts.SHARE_MARKS.BOOK_FILE_WITH_EXTENSION)))

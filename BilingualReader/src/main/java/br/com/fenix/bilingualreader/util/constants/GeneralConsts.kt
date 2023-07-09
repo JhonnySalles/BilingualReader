@@ -346,6 +346,7 @@ class GeneralConsts private constructor() {
     }
 
     object SHARE_MARKS {
+        const val PARSE_DATE_TIME = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
         const val DATE_TIME = "yyyyMMdd HHmmss"
         const val FILE_EXTENSION = ".json"
 
