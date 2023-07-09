@@ -1,6 +1,5 @@
 package br.com.fenix.bilingualreader.service.controller
 
-import android.R.attr.capitalize
 import android.content.Context
 import android.os.Build
 import br.com.fenix.bilingualreader.R
@@ -47,7 +46,7 @@ class ShareMarkController(var context: Context) {
     private var mIdManga: String = ""
     private var mIdBook: String = ""
 
-    fun getDeviceName(): String {
+    private fun getDeviceName(): String {
         val manufacturer: String = Build.MANUFACTURER
         val model: String = Build.MODEL
         return if (model.startsWith(manufacturer))
@@ -255,17 +254,11 @@ class ShareMarkController(var context: Context) {
 
                                 for (file in result.files)
                                     when (file.name) {
-                                        GeneralConsts.SHARE_MARKS.MANGA_FILE_WITH_EXTENSION -> mIdManga =
-                                            file.id
-                                        GeneralConsts.SHARE_MARKS.BOOK_FILE_WITH_EXTENSION -> mIdBook =
-                                            file.id
+                                        GeneralConsts.SHARE_MARKS.MANGA_FILE_WITH_EXTENSION -> mIdManga = file.id
+                                        GeneralConsts.SHARE_MARKS.BOOK_FILE_WITH_EXTENSION -> mIdBook = file.id
                                         GeneralConsts.SHARE_MARKS.FOLDER -> mIdFolder = file.id
                                         else -> {
-                                            if (file.name.contains(
-                                                    GeneralConsts.SHARE_MARKS.MANGA_FILE,
-                                                    true
-                                                )
-                                            )
+                                            if (file.name.contains(GeneralConsts.SHARE_MARKS.MANGA_FILE,true))
                                                 mangas++
 
                                             if (mangas > limit) {
@@ -273,11 +266,7 @@ class ShareMarkController(var context: Context) {
                                                 mangas = 0
                                             }
 
-                                            if (file.name.contains(
-                                                    GeneralConsts.SHARE_MARKS.BOOK_FILE,
-                                                    true
-                                                )
-                                            )
+                                            if (file.name.contains(GeneralConsts.SHARE_MARKS.BOOK_FILE,true))
                                                 books++
 
                                             if (books > limit) {
@@ -485,9 +474,14 @@ class ShareMarkController(var context: Context) {
             book.favorite = item.favorite
             true
         } else {
-            item.bookMark = book.bookMark
-            item.lastAccess = book.lastAccess!!
-            item.favorite = book.favorite
+            //Differ 10 seconds
+            val diff: Long = item.lastAccess.time - GeneralConsts.dateTimeToDate(book.lastAccess!!).time
+            if (diff > 10000 || diff < -10000) {
+                item.bookMark = book.bookMark
+                item.lastAccess = GeneralConsts.dateTimeToDate(book.lastAccess!!)
+                item.favorite = book.favorite
+                item.alter = true
+            }
             false
         }
     }
