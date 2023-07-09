@@ -31,6 +31,7 @@ import br.com.fenix.bilingualreader.view.ui.menu.ConfigLibrariesViewModel
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
@@ -439,14 +440,23 @@ class ConfigFragment : Fragment() {
         prepareFonts()
         loadConfig()
 
-        mConfigSystemShareMarkSignIn.setOnClickListener {
-            val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(Secrets.getSecrets(requireContext()).getGoogleIdToken())
-                .requestEmail()
-                .requestScopes(Scope(DriveScopes.DRIVE))
-                .build()
+        mConfigSystemShareMarkAccount.setOnLongClickListener {
+            MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+                .setTitle(getString(R.string.config_system_share_mark_sign_out_title))
+                .setMessage(getString(R.string.config_system_share_mark_sign_out))
+                .setPositiveButton(R.string.action_confirm) { _, _ ->
+                    GoogleSignIn.getLastSignedInAccount(requireContext())?.let {
+                        getSignClient().signOut()
+                    }
+                    googleSigIn(null)
+                }
+                .setNegativeButton(R.string.action_cancel) { _, _ -> }
+                .create().show()
+            true
+        }
 
-            val googleSignInClient = GoogleSignIn.getClient(requireActivity(), signInOptions)
+        mConfigSystemShareMarkSignIn.setOnClickListener {
+            val googleSignInClient = getSignClient()
             startActivityForResult(googleSignInClient.signInIntent, GeneralConsts.REQUEST.GOOGLE_SIGN_IN)
         }
 
@@ -581,6 +591,11 @@ class ConfigFragment : Fragment() {
                 } catch (e: ApiException) {
                     mLOGGER.warn("SignIn failed code=" + e.statusCode, e)
                     googleSigIn(null)
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.config_system_share_mark_sign_in_error),
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
@@ -1048,11 +1063,22 @@ class ConfigFragment : Fragment() {
         }
     }
 
+    private fun getSignClient() : GoogleSignInClient {
+        val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(Secrets.getSecrets(requireContext()).getGoogleIdToken())
+            .requestEmail()
+            .requestScopes(Scope(DriveScopes.DRIVE))
+            .build()
+
+        return GoogleSignIn.getClient(requireActivity(), signInOptions)
+    }
+
     private fun googleSigIn(account: GoogleSignInAccount?) {
         if (account != null) {
             mConfigSystemShareMarkAccount.visibility = View.VISIBLE
             mConfigSystemShareMarkSignIn.visibility = View.GONE
-            mConfigSystemShareMarkAccount.text = requireContext().getString(R.string.config_system_share_mark_account, account.email)
+            val display  = if (account.email != null) account.email else account.displayName
+            mConfigSystemShareMarkAccount.text = requireContext().getString(R.string.config_system_share_mark_account, display)
         } else {
             mConfigSystemShareMarkAccount.visibility = View.GONE
             mConfigSystemShareMarkSignIn.visibility = View.VISIBLE

@@ -29,7 +29,7 @@
         android:theme="@style/Theme.MangaReader"
         android:usesCleartextTraffic="true">
         <activity
-            android:name="br.com.fenix.bilingualreader.MainActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.MangaReader"
             android:configChanges="orientation|screenSize">
@@ -42,32 +42,32 @@
                 android:resource="@xml/shortcuts"/>
         </activity>
         <activity
-            android:name="br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity"
+            android:name=".view.ui.reader.manga.MangaReaderActivity"
             android:exported="true"
             android:theme="@style/Theme.MangaReader.FullScreen"
             android:parentActivityName="br.com.fenix.bilingualreader.MainActivity"/>
         <activity
-            android:name="br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkActivity"
+            android:name=".view.ui.pages_link.PagesLinkActivity"
             android:exported="true"
             android:theme="@style/Theme.MangaReader.NoActionBar"
             android:parentActivityName="br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity"/>
         <activity
-            android:name="br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity"
+            android:name=".view.ui.reader.book.BookReaderActivity"
             android:exported="true"
             android:theme="@style/Theme.MangaReader.FullScreen"
             android:parentActivityName="br.com.fenix.bilingualreader.MainActivity"/>
         <activity
-            android:name="br.com.fenix.bilingualreader.view.ui.detail.DetailActivity"
+            android:name=".view.ui.detail.DetailActivity"
             android:exported="true"
             android:theme="@style/Theme.MangaReader.NoActionBar"
             android:parentActivityName="br.com.fenix.bilingualreader.MainActivity"/>
         <activity
-            android:name="br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity"
+            android:name=".view.ui.vocabulary.VocabularyActivity"
             android:exported="true"
             android:theme="@style/Theme.MangaReader.NoActionBar"
             android:parentActivityName="br.com.fenix.bilingualreader.MainActivity"/>
         <activity
-            android:name="br.com.fenix.bilingualreader.view.ui.menu.MenuActivity"
+            android:name=".view.ui.menu.MenuActivity"
             android:exported="true"
             android:theme="@style/Theme.MangaReader.NoActionBar"
             android:parentActivityName="br.com.fenix.bilingualreader.MainActivity"/>

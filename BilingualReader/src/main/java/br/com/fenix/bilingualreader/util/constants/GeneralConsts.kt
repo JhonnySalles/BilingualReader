@@ -343,12 +343,19 @@ class GeneralConsts private constructor() {
         const val BOOK_ANNOTATION = 606
         const val BOOK_CHAPTERS = 607
         const val GOOGLE_SIGN_IN = 700
+        const val DRIVE_AUTHORIZATION = 701
     }
 
     object SHARE_MARKS {
+        const val DATE_TIME = "yyyyMMdd HHmmss"
+        const val FILE_EXTENSION = ".json"
+
         const val FOLDER = "BilingualReader"
-        const val MANGA_FILE = "MangaMarks.json"
-        const val BOOK_FILE = "BookMarks.json"
+        const val MANGA_FILE = "MangaMarks"
+        const val BOOK_FILE = "BookMarks"
+
+        const val MANGA_FILE_WITH_EXTENSION = MANGA_FILE + FILE_EXTENSION
+        const val BOOK_FILE_WITH_EXTENSION = BOOK_FILE + FILE_EXTENSION
     }
 
 }

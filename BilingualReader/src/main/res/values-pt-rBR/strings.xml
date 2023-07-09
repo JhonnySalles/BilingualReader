@@ -83,6 +83,9 @@
     <string name="config_system_format_date">Formato de data</string>
     <string name="config_system_share_mark_drive">Compartilhar marcações no Google Drive</string>
     <string name="config_system_share_mark_account">Conta Google: %s</string>
+    <string name="config_system_share_mark_sign_in_error">Erro ao logar!</string>
+    <string name="config_system_share_mark_sign_out_title">Deslogar</string>
+    <string name="config_system_share_mark_sign_out">Deslogar a conta?</string>
 
     <string name="config_option_date_time_format_0">Padrão (%s)</string>
 
@@ -161,8 +164,13 @@
     </string-array>
 
     <!-- READER - BOOK -->
-    <string name="book_share_mark_drive_processed">Marks shared to Google drive</string>
-    <string name="book_share_mark_drive_unprocessed">Marks not shared to Google drive</string>
+    <string name="book_share_mark_drive_processed">Marcadores compartilhada no Google drive</string>
+    <string name="book_share_mark_drive_unprocessed">Marcadores não compartilhada no Google drive</string>
+    <string name="book_share_mark_drive_without_alteration">Nenhuma alteração em marcadores encontrada</string>
+    <string name="book_share_mark_drive_need_permission">Necessário permissão para o Google drive</string>
+    <string name="book_share_mark_drive_need_sign_in">Necessário logar na conta do Google</string>
+    <string name="book_share_mark_drive_error_download">Ocorreu um erro no download do Google drive</string>
+    <string name="book_share_mark_drive_error_upload">Ocorreu um erro no upload do Google drive</string>
 
     <string name="menu_reading_book_favorite">Favorito</string>
     <string name="menu_book_reading_order">Ordem da lista</string>
@@ -266,6 +274,11 @@
 
     <string name="manga_share_mark_drive_processed">Marcadores compartilhada no Google drive</string>
     <string name="manga_share_mark_drive_unprocessed">Marcadores não compartilhada no Google drive</string>
+    <string name="manga_share_mark_drive_without_alteration">Nenhuma alteração em marcadores encontrada</string>
+    <string name="manga_share_mark_drive_need_permission">Necessário permissão para o Google drive</string>
+    <string name="manga_share_mark_drive_need_sign_in">Necessário logar na conta do Google</string>
+    <string name="manga_share_mark_drive_error_download">Ocorreu um erro no download do Google drive</string>
+    <string name="manga_share_mark_drive_error_upload">Ocorreu um erro no upload do Google drive</string>
 
     <string name="menu_manga_view_mode">Modo de preenchimento</string>
     <string name="menu_manga_view_mode_aspect_fill">Aspecto preencher</string>
@@ -499,7 +512,7 @@
     <string name="manga_detail_local_information_comic_info_characters"><![CDATA[<b>Personagens:</b> %s]]></string>
     <string name="manga_detail_local_information_comic_info_teams"><![CDATA[<b>Times:</b> %s]]></string>
     <string name="manga_detail_local_information_comic_info_locations"><![CDATA[<b>Localizações:</b> %s]]></string>
-    <string name="manga_detail_local_information_comic_info_book_marks_title">Marcações nas páginas</string>
+    <string name="manga_detail_local_information_comic_info_book_marks_title">Marcadores nas páginas</string>
 
     <string name="manga_detail_web_information">Informações Web</string>
     <string name="manga_detail_related">Relacionados</string>

@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "269550539712",
+    "project_id": "bilingual-reader-272ac",
+    "storage_bucket": "bilingual-reader-272ac.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:269550539712:android:11dc80ed33aaa4b14dee25",
+        "android_client_info": {
+          "package_name": "br.com.fenix.bilingualreader"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "269550539712-01343120leq5iccr1imil9ijs7n68di6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.fenix.bilingualreader",
+            "certificate_hash": "809f69a34136f5615c013b55c6b1088a0be88f81"
+          }
+        },
+        {
+          "client_id": "269550539712-e9iuff2k6nhefq11kqta487dej7s9r4l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.fenix.bilingualreader",
+            "certificate_hash": "5677c01b0fc1880c7442a989206d22261ab63312"
+          }
+        },
+        {
+          "client_id": "269550539712-4hmocdd2ll51nms524fhr6eb8al9o7ru.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVY0e5_-xKmuCCCc-iKZbEgnrC3nmoF7c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "269550539712-4hmocdd2ll51nms524fhr6eb8al9o7ru.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

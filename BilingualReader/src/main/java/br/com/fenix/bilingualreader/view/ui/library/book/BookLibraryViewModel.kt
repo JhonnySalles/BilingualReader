@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.widget.Filter
 import android.widget.Filterable
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -14,8 +13,9 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Tags
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
+import br.com.fenix.bilingualreader.model.enums.ShareMarkType
 import br.com.fenix.bilingualreader.model.enums.Type
-import br.com.fenix.bilingualreader.service.controller.MarkShareController
+import br.com.fenix.bilingualreader.service.controller.ShareMarkController
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.TagsRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -421,9 +421,9 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         }
     }
 
-    fun processShareMarks(context: Context, processed: (notify: Boolean) -> (Unit)) {
+    fun processShareMarks(context: Context, processed: (result: ShareMarkType) -> (Unit)) {
         if (!mProcessShareMark) {
-            val share = MarkShareController(context)
+            val share = ShareMarkController(context)
             var notify = false
             val process: (book: Book) -> (Unit) = { item ->
                 if (mLibrary.id == item.fkLibrary) {
@@ -442,14 +442,10 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             }
             share.bookShareMark(process) {
                 mProcessShareMark = false
-                if (it)
-                    processed(notify)
-
-                val msg = if (it)
-                    context.getString(R.string.book_share_mark_drive_processed)
+                if ((it == ShareMarkType.SUCCESS || it == ShareMarkType.NOT_ALTERATION) && notify)
+                    processed(ShareMarkType.NOTIFY_DATA_SET)
                 else
-                    context.getString(R.string.book_share_mark_drive_unprocessed)
-                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                    processed(it)
             }
         }
     }
