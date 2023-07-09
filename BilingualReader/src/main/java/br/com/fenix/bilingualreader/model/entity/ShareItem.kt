@@ -1,6 +1,5 @@
 package br.com.fenix.bilingualreader.model.entity
 
-import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
@@ -31,7 +30,7 @@ data class ShareItem(
     constructor(
         manga: Manga
     ) : this(
-        manga.fileName, manga.bookMark, manga.pages, manga.favorite, GeneralConsts.dateTimeToDate(manga.lastAccess!!)
+        manga.fileName, manga.bookMark, manga.pages, manga.favorite, manga.lastAccess!!
     ) {
         alter = true
     }
@@ -39,7 +38,7 @@ data class ShareItem(
     constructor(
         book: Book
     ) : this(
-        book.fileName, book.bookMark, book.pages, book.favorite, GeneralConsts.dateTimeToDate(book.lastAccess!!)
+        book.fileName, book.bookMark, book.pages, book.favorite, book.lastAccess!!
     ) {
         alter = true
     }

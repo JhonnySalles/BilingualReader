@@ -31,6 +31,7 @@ import com.google.gson.stream.JsonReader
 import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
 import java.io.*
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -168,8 +169,7 @@ class ShareMarkController(var context: Context) {
     ): String {
         return try {
             val gfile = com.google.api.services.drive.model.File()
-            gfile.name = nameWithoutExtension + "_" + LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern(GeneralConsts.SHARE_MARKS.DATE_TIME)) + GeneralConsts.SHARE_MARKS.FILE_EXTENSION
+            gfile.name = nameWithoutExtension + "_" + SimpleDateFormat(GeneralConsts.SHARE_MARKS.DATE_TIME, Locale.getDefault()).format(Date()) + GeneralConsts.SHARE_MARKS.FILE_EXTENSION
             drive.Files().update(idFile, gfile).execute()
 
             uploadShareFile(
@@ -375,22 +375,17 @@ class ShareMarkController(var context: Context) {
 
     // --------------------------------------------------------- Manga ---------------------------------------------------------
     private fun compare(item: ShareItem, manga: Manga): Boolean {
-        return if (manga.lastAccess == null || item.lastAccess.after(
-                GeneralConsts.dateTimeToDate(
-                    manga.lastAccess!!
-                )
-            )
-        ) {
+        return if (manga.lastAccess == null || item.lastAccess.after(manga.lastAccess!!)) {
             manga.bookMark = item.bookMark
-            manga.lastAccess = GeneralConsts.dateToDateTime(item.lastAccess)
+            manga.lastAccess = item.lastAccess
             manga.favorite = item.favorite
             true
         } else {
             //Differ 10 seconds
-            val diff: Long = item.lastAccess.time - GeneralConsts.dateTimeToDate(manga.lastAccess!!).time
+            val diff: Long = item.lastAccess.time - manga.lastAccess!!.time
             if (diff > 10000 || diff < -10000) {
                 item.bookMark = manga.bookMark
-                item.lastAccess = GeneralConsts.dateTimeToDate(manga.lastAccess!!)
+                item.lastAccess = manga.lastAccess!!
                 item.favorite = manga.favorite
                 item.alter = true
             }
@@ -484,19 +479,14 @@ class ShareMarkController(var context: Context) {
 
     // --------------------------------------------------------- Book ---------------------------------------------------------
     private fun compare(item: ShareItem, book: Book): Boolean {
-        return if (book.lastAccess == null || item.lastAccess.after(
-                GeneralConsts.dateTimeToDate(
-                    book.lastAccess!!
-                )
-            )
-        ) {
+        return if (book.lastAccess == null || item.lastAccess.after(book.lastAccess!!)) {
             book.bookMark = item.bookMark
-            book.lastAccess = GeneralConsts.dateToDateTime(item.lastAccess)
+            book.lastAccess = item.lastAccess
             book.favorite = item.favorite
             true
         } else {
             item.bookMark = book.bookMark
-            item.lastAccess = GeneralConsts.dateTimeToDate(book.lastAccess!!)
+            item.lastAccess = book.lastAccess!!
             item.favorite = book.favorite
             false
         }

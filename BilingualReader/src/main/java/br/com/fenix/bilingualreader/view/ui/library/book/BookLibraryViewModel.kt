@@ -421,6 +421,10 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         }
     }
 
+    /**
+     * @param context    Context system
+     * @param processed  Function call when processed, parameter is true if can notify list change
+     */
     fun processShareMarks(context: Context, processed: (result: ShareMarkType) -> (Unit)) {
         if (!mProcessShareMark) {
             val share = ShareMarkController(context)
