@@ -18,7 +18,6 @@ import br.com.fenix.bilingualreader.service.controller.ShareMarkController
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import java.util.*
 import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 
@@ -407,8 +406,6 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     /**
      * @param context    Context system
      * @param processed  Function call when processed, parameter is true if can notify list change
-     *
-     * @throws UserRecoverableAuthIOException if can't be authorized connect on drive
      */
     fun processShareMarks(context: Context, processed: (result: ShareMarkType) -> (Unit)) {
         if (!mProcessShareMark) {
