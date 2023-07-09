@@ -731,8 +731,10 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == GeneralConsts.REQUEST.MANGA_DETAIL)
-            notifyDataSet(itemRefresh!!)
+        when (requestCode) {
+            GeneralConsts.REQUEST.MANGA_DETAIL -> notifyDataSet(itemRefresh!!)
+            GeneralConsts.REQUEST.DRIVE_AUTHORIZATION -> shareMarkToDrive()
+        }
     }
 
     private fun loadConfig() {
@@ -856,14 +858,33 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     override fun onRefresh() {
         refresh()
+        shareMarkToDrive()
+    }
 
+    private fun shareMarkToDrive() {
         GeneralConsts.getSharedPreferences(requireContext()).let { share ->
             if (share.getBoolean(GeneralConsts.KEYS.SYSTEM.SHARE_MARK_DRIVE, false))
-                mViewModel.processShareMarks(requireContext()) { notify ->
-                    if (notify) {
-                        val range = (mViewModel.listMangas.value?.size ?: 1)
-                        notifyDataSet(0, range)
+                mViewModel.processShareMarks(requireContext()) { result ->
+
+                    val msg = when (result) {
+                        ShareMarkType.SUCCESS -> getString(R.string.manga_share_mark_drive_processed)
+                        ShareMarkType.NOTIFY_DATA_SET -> {
+                            val range = (mViewModel.listMangas.value?.size ?: 1)
+                            notifyDataSet(0, range)
+                            getString(R.string.manga_share_mark_drive_processed)
+                        }
+                        ShareMarkType.NOT_ALTERATION -> getString(R.string.manga_share_mark_drive_without_alteration)
+                        ShareMarkType.NEED_PERMISSION_DRIVE ->  {
+                            startActivityForResult(result.intent, GeneralConsts.REQUEST.DRIVE_AUTHORIZATION)
+                            getString(R.string.manga_share_mark_drive_need_permission)
+                        }
+                        ShareMarkType.NOT_CONNECT_DRIVE -> getString(R.string.manga_share_mark_drive_need_sign_in)
+                        ShareMarkType.ERROR_DOWNLOAD -> getString(R.string.manga_share_mark_drive_error_download)
+                        ShareMarkType.ERROR_UPLOAD -> getString(R.string.manga_share_mark_drive_error_upload)
+                        else -> getString(R.string.manga_share_mark_drive_unprocessed)
                     }
+
+                    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
                 }
         }
     }

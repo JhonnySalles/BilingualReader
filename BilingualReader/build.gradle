@@ -131,6 +131,7 @@ dependencies {
         exclude group: 'org.apache.httpcomponents'
         exclude module: 'guava-jdk5'
     }
+    implementation platform('com.google.firebase:firebase-bom:32.1.1')
 
     / ** BOOK **/
     implementation project(':ebook')
