@@ -419,11 +419,6 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                         manga.bookMark = item.bookMark
                         manga.lastAccess = item.lastAccess
                     }
-                    mListMangas.value?.find { manga -> manga.id == item.id }?.let { manga ->
-                        manga.favorite = item.favorite
-                        manga.bookMark = item.bookMark
-                        manga.lastAccess = item.lastAccess
-                    }
                 }
             }
             share.mangaShareMark(process) {
