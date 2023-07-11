@@ -437,11 +437,6 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                         book.bookMark = item.bookMark
                         book.lastAccess = item.lastAccess
                     }
-                    mListBook.value?.find { book -> book.id == item.id }?.let { book ->
-                        book.favorite = item.favorite
-                        book.bookMark = item.bookMark
-                        book.lastAccess = item.lastAccess
-                    }
                 }
             }
             share.bookShareMark(process) {
