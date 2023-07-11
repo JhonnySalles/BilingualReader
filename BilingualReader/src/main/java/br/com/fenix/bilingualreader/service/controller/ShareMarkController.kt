@@ -481,10 +481,10 @@ class ShareMarkController(var context: Context) {
             true
         } else {
             //Differ 10 seconds
-            val diff: Long = item.lastAccess.time - book.lastAccess!!.time
+            val diff: Long = item.lastAccess.time - GeneralConsts.dateTimeToDate(book.lastAccess!!).time
             if (diff > 10000 || diff < -10000) {
                 item.bookMark = book.bookMark
-                item.lastAccess = book.lastAccess!!
+                item.lastAccess = GeneralConsts.dateTimeToDate(book.lastAccess!!)
                 item.favorite = book.favorite
                 item.alter = true
             }
