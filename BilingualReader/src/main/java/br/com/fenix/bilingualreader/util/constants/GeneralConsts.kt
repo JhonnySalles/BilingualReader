@@ -3,6 +3,8 @@ package br.com.fenix.bilingualreader.util.constants
 import android.annotation.TargetApi
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
+import androidx.annotation.RequiresApi
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.*
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts.PATTERNS.DATE_PATTERN
@@ -45,6 +47,7 @@ class GeneralConsts private constructor() {
             return SimpleDateFormat(pattern, Locale.getDefault()).format(dateTime)
         }
 
+        @TargetApi(Build.VERSION_CODES.O)
         fun formatterDate(context: Context, date: Long): String {
             val preferences = getSharedPreferences(context)
             val pattern = preferences.getString(KEYS.SYSTEM.FORMAT_DATA, DATE_PATTERN)
@@ -265,6 +268,11 @@ class GeneralConsts private constructor() {
             const val THEME_USED = "THEME_USED"
             const val THEME_MODE = "THEME_MODE"
             const val THEME_CHANGE = "THEME_CHANGE"
+        }
+
+        object SHARE_MARKS {
+            const val LAST_SYNC_MANGA = "SHARE_MARKS_LAST_SYNC_MANGA"
+            const val LAST_SYNC_BOOK = "SHARE_MARKS_LAST_SYNC_BOOK"
         }
     }
 

@@ -18,7 +18,7 @@ data class ShareMark(
     var type: Type?,
     @Expose
     @SerializedName("itens")
-    var marks: Set<ShareItem>?
+    var marks: MutableSet<ShareItem>?
 ) : Serializable {
-    constructor(type: Type) : this("", null, type, setOf())
+    constructor(type: Type) : this("", null, type, mutableSetOf())
 }

@@ -12,10 +12,8 @@ import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.exceptions.DriveDownloadException
 import br.com.fenix.bilingualreader.model.exceptions.DriveUploadException
 import br.com.fenix.bilingualreader.service.repository.BookRepository
-import br.com.fenix.bilingualreader.service.repository.LibraryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
@@ -38,7 +36,9 @@ class ShareMarkController(var context: Context) {
 
     private val mLOGGER = LoggerFactory.getLogger(ShareMarkController::class.java)
 
-    private val mLibraryRepository = LibraryRepository(context)
+    companion object {
+        const val INITIAL_SYNC_DATE_TIME = "2000-01-01T01:01:01.001-0300"
+    }
 
     private var mIdFolder: String = ""
     private var mIdManga: String = ""
@@ -94,9 +94,9 @@ class ShareMarkController(var context: Context) {
             share.type = type
 
         if (share.marks == null)
-            share.marks = setOf()
+            share.marks = mutableSetOf()
         else if (share.marks!!.any { it == null })
-            share.marks = share.marks!!.filter { it != null }.toSet()
+            share.marks = share.marks!!.filter { it != null }.toMutableSet()
     }
 
     private fun getDriveService(): Drive? {
@@ -373,36 +373,27 @@ class ShareMarkController(var context: Context) {
         } else {
             //Differ 10 seconds
             val diff: Long = item.lastAccess.time - manga.lastAccess!!.time
-            if (diff > 10000 || diff < -10000) {
-                item.bookMark = manga.bookMark
-                item.lastAccess = manga.lastAccess!!
-                item.favorite = manga.favorite
-                item.alter = true
-            }
+            if (diff > 10000 || diff < -10000)
+                item.merge(manga)
             false
         }
     }
 
     private fun processManga(
-        shares: Set<ShareItem>,
+        shares: MutableSet<ShareItem>,
+        process: List<ShareItem>,
         mangas: List<Manga>,
         update: (manga: Manga) -> (Unit)
-    ): Set<ShareItem> {
-        val list = mutableSetOf<ShareItem>()
-        list.addAll(shares)
-
+    ) {
         for (manga in mangas)
-            shares.parallelStream().filter { it.file == manga.fileName }.findFirst().also {
+            process.parallelStream().filter { it.file == manga.fileName }.findFirst().also {
                 if (it.isPresent) {
                     if (compare(it.get(), manga))
                         update(manga)
                 } else
-                    list.add(ShareItem(manga))
+                    shares.add(ShareItem(manga))
             }
-
-        return list.toSet()
     }
-
 
     /**
      * @param update  Function call when object is updated
@@ -417,50 +408,52 @@ class ShareMarkController(var context: Context) {
         try {
             getShareFiles { access ->
                 if (access == ShareMarkType.SUCCESS) {
-                    try {
-                        val gson = GsonBuilder()
-                            .setDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME)
-                            .excludeFieldsWithoutExposeAnnotation()
-                            .create()
-                        val repository = MangaRepository(context)
+                    val gson = GsonBuilder()
+                        .setDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME)
+                        .excludeFieldsWithoutExposeAnnotation()
+                        .create()
+                    val repository = MangaRepository(context)
 
-                        val reader = JsonReader(FileReader(getFile(GeneralConsts.SHARE_MARKS.MANGA_FILE_WITH_EXTENSION)))
-                        val share: ShareMark = gson.fromJson(reader, ShareMark::class.java)
-                        ajusts(share, Type.MANGA)
+                    val reader = JsonReader(FileReader(getFile(GeneralConsts.SHARE_MARKS.MANGA_FILE_WITH_EXTENSION)))
+                    val share: ShareMark = gson.fromJson(reader, ShareMark::class.java)
+                    ajusts(share, Type.MANGA)
 
-                        repository.list(LibraryUtil.getDefault(context, Type.MANGA))
-                            ?.filter { it.lastAccess != null }?.apply {
-                            share.marks = processManga(share.marks ?: setOf(), this) { manga ->
+                    val prefs = GeneralConsts.getSharedPreferences(context)
+                    val simpleDate = SimpleDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME, Locale.getDefault())
+                    val lastSync = simpleDate.parse(prefs.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, INITIAL_SYNC_DATE_TIME)!!)!!
+
+                    val list = share.marks!!.filter { it.sync.after(lastSync) }
+
+                    repository.listSync(lastSync).apply {
+                            processManga(share.marks!!, list, this) { manga ->
+                                repository.update(manga)
+                                update(manga)
+                            }
+                    }
+
+                    list.filter { !it.processed }.forEach {
+                        repository.findByFileName(it.file)?.let { manga ->
+                            if (compare(it, manga)) {
                                 repository.update(manga)
                                 update(manga)
                             }
                         }
-
-                        val libs = mLibraryRepository.list(Type.MANGA)
-                        for (lib in libs)
-                            repository.list(lib)?.filter { it.lastAccess != null }?.apply {
-                                share.marks = processManga(share.marks ?: setOf(), this) { manga ->
-                                    repository.update(manga)
-                                    update(manga)
-                                }
-                            }
-
-                        val isUpdate = if (share.marks != null) share.marks!!.any { it.alter } else false
-
-                        if (isUpdate)
-                            saveShareFile(
-                                ending,
-                                mIdFolder,
-                                mIdManga,
-                                GeneralConsts.SHARE_MARKS.MANGA_FILE,
-                                getFile(share, GeneralConsts.SHARE_MARKS.MANGA_FILE_WITH_EXTENSION)
-                            )
-                        else
-                            ending(ShareMarkType.NOT_ALTERATION)
-                    } catch (e: Exception) {
-                        mLOGGER.error(e.message, e)
-                        ending(ShareMarkType.ERROR)
                     }
+
+                    val isUpdate = if (share.marks!!.isNotEmpty()) share.marks!!.any { it.alter } else false
+
+                    if (isUpdate)
+                        saveShareFile(
+                            ending,
+                            mIdFolder,
+                            mIdManga,
+                            GeneralConsts.SHARE_MARKS.MANGA_FILE,
+                            getFile(share, GeneralConsts.SHARE_MARKS.MANGA_FILE_WITH_EXTENSION)
+                        )
+                    else
+                        ending(ShareMarkType.NOT_ALTERATION)
+
+                    prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, simpleDate.format(Date())).apply()
                 } else
                     ending(access)
             }
@@ -480,34 +473,26 @@ class ShareMarkController(var context: Context) {
         } else {
             //Differ 10 seconds
             val diff: Long = item.lastAccess.time - book.lastAccess!!.time
-            if (diff > 10000 || diff < -10000) {
-                item.bookMark = book.bookMark
-                item.lastAccess = book.lastAccess!!
-                item.favorite = book.favorite
-                item.alter = true
-            }
+            if (diff > 10000 || diff < -10000)
+                item.merge(book)
             false
         }
     }
 
     private fun processBook(
-        shares: Set<ShareItem>,
+        shares: MutableSet<ShareItem>,
+        process: List<ShareItem>,
         books: List<Book>,
         update: (book: Book) -> (Unit)
-    ): Set<ShareItem> {
-        val list = mutableSetOf<ShareItem>()
-        list.addAll(shares)
-
+    ) {
         for (book in books)
-            shares.parallelStream().filter { it.file == book.fileName }.findFirst().also {
+            process.parallelStream().filter { it.file == book.fileName }.findFirst().also {
                 if (it.isPresent) {
                     if (compare(it.get(), book))
                         update(book)
                 } else
-                    list.add(ShareItem(book))
+                    shares.add(ShareItem(book))
             }
-
-        return list.toSet()
     }
 
     /**
@@ -520,51 +505,62 @@ class ShareMarkController(var context: Context) {
         update: (book: Book) -> (Unit),
         ending: (processed: ShareMarkType) -> (Unit)
     ) {
-        getShareFiles { access ->
-            if (access == ShareMarkType.SUCCESS) {
-                val gson = GsonBuilder()
-                    .setDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME)
-                    .excludeFieldsWithoutExposeAnnotation()
-                    .create()
-                val repository = BookRepository(context)
+        try {
+            getShareFiles { access ->
+                if (access == ShareMarkType.SUCCESS) {
+                    val gson = GsonBuilder()
+                        .setDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME)
+                        .excludeFieldsWithoutExposeAnnotation()
+                        .create()
+                    val repository = BookRepository(context)
 
-                val reader = JsonReader(FileReader(getFile(GeneralConsts.SHARE_MARKS.BOOK_FILE_WITH_EXTENSION)))
-                val share: ShareMark = gson.fromJson(reader, ShareMark::class.java)
-                ajusts(share, Type.BOOK)
+                    val reader = JsonReader(FileReader(getFile(GeneralConsts.SHARE_MARKS.BOOK_FILE_WITH_EXTENSION)))
+                    val share: ShareMark = gson.fromJson(reader, ShareMark::class.java)
+                    ajusts(share, Type.BOOK)
 
-                repository.list(LibraryUtil.getDefault(context, Type.BOOK))
-                    .filter { it.lastAccess != null }.let {
-                    if (it.isNotEmpty())
-                        share.marks = processBook(share.marks ?: setOf(), it) { book ->
-                            repository.update(book)
-                            update(book)
-                        }
-                }
+                    val sync = Date()
+                    val prefs = GeneralConsts.getSharedPreferences(context)
+                    val simpleDate = SimpleDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME, Locale.getDefault())
+                    val lastSync = simpleDate.parse(prefs.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, INITIAL_SYNC_DATE_TIME)!!)!!
 
-                val libs = mLibraryRepository.list(Type.BOOK)
-                for (lib in libs)
-                    repository.list(lib).filter { it.lastAccess != null }.let {
+                    val list = share.marks!!.filter { it.sync.after(lastSync) }
+
+                    repository.listSync(lastSync).let {
                         if (it.isNotEmpty())
-                            share.marks = processBook(share.marks ?: setOf(), it) { book ->
+                            processBook(share.marks!!, list, it) { book ->
                                 repository.update(book)
                                 update(book)
                             }
                     }
 
-                val isUpdate = if (share.marks != null) share.marks!!.any { it.alter } else false
+                    list.filter { !it.processed }.forEach {
+                        repository.findByFileName(it.file)?.let { book ->
+                            if (compare(it, book))
+                                update(book)
+                        }
+                    }
 
-                if (isUpdate)
-                    saveShareFile(
-                        ending,
-                        mIdFolder,
-                        mIdBook,
-                        GeneralConsts.SHARE_MARKS.BOOK_FILE,
-                        getFile(share, GeneralConsts.SHARE_MARKS.BOOK_FILE_WITH_EXTENSION)
-                    )
-                else
-                    ending(ShareMarkType.NOT_ALTERATION)
-            } else
-                ending(access)
+                    val isUpdate = if (share.marks!!.isNotEmpty()) share.marks!!.any { it.alter } else false
+
+                    if (isUpdate)
+                        saveShareFile(
+                            ending,
+                            mIdFolder,
+                            mIdBook,
+                            GeneralConsts.SHARE_MARKS.BOOK_FILE,
+                            getFile(share, GeneralConsts.SHARE_MARKS.BOOK_FILE_WITH_EXTENSION)
+                        )
+                    else
+                        ending(ShareMarkType.NOT_ALTERATION)
+
+                    prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, simpleDate.format(sync)).apply()
+                } else
+                    ending(access)
+            }
+        } catch (e: Exception) {
+            mLOGGER.error(e.message, e)
+            ending(ShareMarkType.ERROR)
         }
     }
+
 }

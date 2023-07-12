@@ -66,7 +66,7 @@ class Book(
     @Ignore
     constructor(fkLibrary: Long?, id: Long?, file: File, meta: EbookMeta, language: Libraries) : this(
         id, meta.title, meta.author ?: "", "", meta.annotation ?: "", "", meta.genre ?: "", "", "", 1, 0,
-        "", 0, Languages.ENGLISH, file.path, file.parent, file.nameWithoutExtension, FileType.UNKNOWN, file.length(), false,
+        "", 0, Languages.ENGLISH, file.path, file.parent, file.name, FileType.UNKNOWN, file.length(), false,
         fkLibrary, mutableListOf(), false, Date(), null, Date(), Date(), null, null
     ) {
         this.language = when (meta.lang) {
