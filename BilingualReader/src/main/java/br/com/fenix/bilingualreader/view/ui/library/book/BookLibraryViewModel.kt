@@ -427,6 +427,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
      */
     fun processShareMarks(context: Context, processed: (result: ShareMarkType) -> (Unit)) {
         if (!mProcessShareMark) {
+            mProcessShareMark = true
             val share = ShareMarkController(context)
             var notify = false
             val process: (book: Book) -> (Unit) = { item ->

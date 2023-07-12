@@ -409,6 +409,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
      */
     fun processShareMarks(context: Context, processed: (result: ShareMarkType) -> (Unit)) {
         if (!mProcessShareMark) {
+            mProcessShareMark = true
             val share = ShareMarkController(context)
             var notify = false
             val process: (manga: Manga) -> (Unit) = { item ->
