@@ -40,7 +40,6 @@ data class ShareItem(
     ) {
         alter = true
         processed = true
-        sync = Date()
     }
 
     constructor(
@@ -50,7 +49,6 @@ data class ShareItem(
     ) {
         alter = true
         processed = true
-        sync = Date()
     }
 
     fun merge(manga: Manga) {

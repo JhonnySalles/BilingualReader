@@ -399,7 +399,6 @@ class ShareMarkController(var context: Context) {
      * @param update  Function call when object is updated
      * @param ending  Function call when process finish, parameter make a process results
      *
-     * @throws UserRecoverableAuthIOException if can't be authorized connect on drive
      */
     fun mangaShareMark(
         update: (manga: Manga) -> (Unit),
@@ -499,7 +498,6 @@ class ShareMarkController(var context: Context) {
      * @param update  Function call when object is updated
      * @param ending  Function call when process finish, parameter is true if can processed list
      *
-     * @throws UserRecoverableAuthIOException if can't be authorized to connect on drive
      */
     fun bookShareMark(
         update: (book: Book) -> (Unit),
