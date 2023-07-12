@@ -28,6 +28,7 @@ import com.google.gson.stream.JsonReader
 import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
 import java.io.*
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -374,7 +375,7 @@ class ShareMarkController(var context: Context) {
             true
         } else {
             //Differ 10 seconds
-            val diff: Long = item.lastAccess.time - manga.lastAccess!!.time
+            val diff: Long = item.lastAccess.time - GeneralConsts.dateTimeToDate(manga.lastAccess!!).time
             if (diff > 10000 || diff < -10000)
                 item.merge(manga)
             false
@@ -401,7 +402,6 @@ class ShareMarkController(var context: Context) {
      * @param update  Function call when object is updated
      * @param ending  Function call when process finish, parameter make a process results
      *
-     * @throws UserRecoverableAuthIOException if can't be authorized connect on drive
      */
     fun mangaShareMark(
         update: (manga: Manga) -> (Unit),
@@ -474,7 +474,7 @@ class ShareMarkController(var context: Context) {
             true
         } else {
             //Differ 10 seconds
-            val diff: Long = item.lastAccess.time - book.lastAccess!!.time
+            val diff: Long = item.lastAccess.time - GeneralConsts.dateTimeToDate(book.lastAccess!!).time
             if (diff > 10000 || diff < -10000)
                 item.merge(book)
             false
@@ -501,7 +501,6 @@ class ShareMarkController(var context: Context) {
      * @param update  Function call when object is updated
      * @param ending  Function call when process finish, parameter is true if can processed list
      *
-     * @throws UserRecoverableAuthIOException if can't be authorized to connect on drive
      */
     fun bookShareMark(
         update: (book: Book) -> (Unit),

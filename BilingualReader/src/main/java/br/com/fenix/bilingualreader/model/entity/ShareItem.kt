@@ -37,26 +37,24 @@ data class ShareItem(
     constructor(
         manga: Manga
     ) : this(
-        manga.fileName, manga.bookMark, manga.pages, manga.favorite, GeneralConsts.dateTimeToDate(manga.lastAccess!!)
+        manga.fileName, manga.bookMark, manga.pages, manga.favorite, GeneralConsts.dateTimeToDate(manga.lastAccess!!), Date()
     ) {
         alter = true
         processed = true
-        sync = Date()
     }
 
     constructor(
         book: Book
     ) : this(
-        book.fileName, book.bookMark, book.pages, book.favorite, GeneralConsts.dateTimeToDate(book.lastAccess!!)
+        book.fileName, book.bookMark, book.pages, book.favorite, GeneralConsts.dateTimeToDate(book.lastAccess!!), Date()
     ) {
         alter = true
         processed = true
-        sync = Date()
     }
 
     fun merge(manga: Manga) {
         this.bookMark = manga.bookMark
-        this.lastAccess = manga.lastAccess!!
+        this.lastAccess = GeneralConsts.dateTimeToDate(manga.lastAccess!!)
         this.favorite = manga.favorite
         this.alter = true
         this.processed = true
@@ -64,7 +62,7 @@ data class ShareItem(
     }
     fun merge(book: Book) {
         this.bookMark = book.bookMark
-        this.lastAccess = book.lastAccess!!
+        this.lastAccess = GeneralConsts.dateTimeToDate(book.lastAccess!!)
         this.favorite = book.favorite
         this.alter = true
         this.processed = true

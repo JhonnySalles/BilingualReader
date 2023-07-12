@@ -295,14 +295,14 @@ class GeneralConsts private constructor() {
     }
 
     object CACHE_FOLDER {
-        const val TESSERACT = "tesseract"
+        const val TESSERACT = "Tesseract"
         const val RAR = "RarTemp"
         const val MANGA_COVERS = "MangaCovers"
         const val BOOK_COVERS = "BookCovers"
         const val BOOKS = "Books"
         const val LINKED = "Linked"
         const val IMAGE = "Image"
-        const val THREAD = "thread"
+        const val THREAD = "Thread"
         const val A = "a"
         const val B = "b"
         const val C = "c"
