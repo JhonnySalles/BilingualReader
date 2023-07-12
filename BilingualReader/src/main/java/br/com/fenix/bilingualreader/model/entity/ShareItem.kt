@@ -22,11 +22,17 @@ data class ShareItem(
     var favorite: Boolean,
     @Expose
     @SerializedName("ultimoAcesso")
-    var lastAccess: Date
+    var lastAccess: Date,
+    @Expose
+    @SerializedName("sincronizado")
+    var sync: Date
 ) : Serializable {
 
     @Expose(serialize = false, deserialize = false)
     var alter : Boolean = false
+
+    @Expose(serialize = false, deserialize = false)
+    var processed : Boolean = false
 
     constructor(
         manga: Manga
@@ -34,6 +40,8 @@ data class ShareItem(
         manga.fileName, manga.bookMark, manga.pages, manga.favorite, GeneralConsts.dateTimeToDate(manga.lastAccess!!)
     ) {
         alter = true
+        processed = true
+        sync = Date()
     }
 
     constructor(
@@ -42,6 +50,25 @@ data class ShareItem(
         book.fileName, book.bookMark, book.pages, book.favorite, GeneralConsts.dateTimeToDate(book.lastAccess!!)
     ) {
         alter = true
+        processed = true
+        sync = Date()
+    }
+
+    fun merge(manga: Manga) {
+        this.bookMark = manga.bookMark
+        this.lastAccess = manga.lastAccess!!
+        this.favorite = manga.favorite
+        this.alter = true
+        this.processed = true
+        this.sync = Date()
+    }
+    fun merge(book: Book) {
+        this.bookMark = book.bookMark
+        this.lastAccess = book.lastAccess!!
+        this.favorite = book.favorite
+        this.alter = true
+        this.processed = true
+        this.sync = Date()
     }
 
     override fun equals(other: Any?): Boolean {

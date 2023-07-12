@@ -125,7 +125,7 @@ class BookRepository(context: Context) {
 
     fun findByFileName(name: String): Book? {
         return try {
-            mDataBase.get(name)
+            mDataBase.getByFileName(name)
         } catch (e: Exception) {
             mLOGGER.error("Error when find Book by file name: " + e.message, e)
             null
@@ -156,6 +156,15 @@ class BookRepository(context: Context) {
         } catch (e: Exception) {
             mLOGGER.error("Error when find Book by file folder: " + e.message, e)
             null
+        }
+    }
+
+    fun listSync(date: Date): List<Book> {
+        return try {
+            mDataBase.listSync(date)
+        } catch (e: Exception) {
+            mLOGGER.error("Error when list Book: " + e.message, e)
+            listOf()
         }
     }
 

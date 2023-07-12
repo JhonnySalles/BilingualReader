@@ -5,6 +5,7 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper
 import br.com.fenix.bilingualreader.model.entity.*
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
+import java.util.*
 
 
 interface DataBaseDAO<T> {
@@ -76,10 +77,10 @@ abstract class MangaDAO : DataBaseDAO<Manga> {
     abstract fun get(id: Long): Manga
 
     @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.MANGA.COLUMNS.FILE_NAME + " = :name")
-    abstract fun get(name: String): Manga
+    abstract fun getByFileName(name: String): Manga?
 
     @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.MANGA.COLUMNS.FILE_PATH + " = :path")
-    abstract fun getByPath(path: String): Manga
+    abstract fun getByPath(path: String): Manga?
 
     @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.MANGA.COLUMNS.FILE_FOLDER + " = :folder ORDER BY " + DataBaseConsts.MANGA.COLUMNS.TITLE)
     abstract fun listByFolder(folder: String): List<Manga>
@@ -105,6 +106,9 @@ abstract class MangaDAO : DataBaseDAO<Manga> {
     @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 0 ORDER BY " + DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS + " DESC LIMIT 2")
     abstract fun getLastOpen(): List<Manga>?
 
+    @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS + " >= :date ORDER BY " + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY + ", " + DataBaseConsts.MANGA.COLUMNS.FILE_NAME)
+    abstract fun listSync(date: Date): List<Manga>
+
 }
 
 
@@ -127,10 +131,10 @@ abstract class BookDAO : DataBaseDAO<Book> {
     abstract fun get(id: Long): Book
 
     @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.BOOK.COLUMNS.FILE_NAME + " = :name")
-    abstract fun get(name: String): Book
+    abstract fun getByFileName(name: String): Book?
 
     @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.BOOK.COLUMNS.FILE_PATH + " = :path")
-    abstract fun getByPath(path: String): Book
+    abstract fun getByPath(path: String): Book?
 
     @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.BOOK.COLUMNS.FILE_FOLDER + " = :folder ORDER BY " + DataBaseConsts.BOOK.COLUMNS.TITLE)
     abstract fun listByFolder(folder: String): List<Book>
@@ -152,6 +156,9 @@ abstract class BookDAO : DataBaseDAO<Book> {
 
     @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 ORDER BY " + DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS + " DESC LIMIT 2")
     abstract fun getLastOpen(): List<Book>?
+
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS + " >= :date ORDER BY " + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + ", " + DataBaseConsts.BOOK.COLUMNS.FILE_NAME)
+    abstract fun listSync(date: Date): List<Book>
 
 }
 

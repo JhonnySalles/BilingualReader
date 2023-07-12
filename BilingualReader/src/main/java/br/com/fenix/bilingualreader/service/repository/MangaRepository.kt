@@ -131,7 +131,7 @@ class MangaRepository(context: Context) {
 
     fun findByFileName(name: String): Manga? {
         return try {
-            mDataBase.get(name)
+            mDataBase.getByFileName(name)
         } catch (e: Exception) {
             mLOGGER.error("Error when find Manga by file name: " + e.message, e)
             null
@@ -178,6 +178,15 @@ class MangaRepository(context: Context) {
         } catch (e: Exception) {
             mLOGGER.error("Error when find last Manga open: " + e.message, e)
             Pair(null, null)
+        }
+    }
+
+    fun listSync(date: Date): List<Manga> {
+        return try {
+            mDataBase.listSync(date)
+        } catch (e: Exception) {
+            mLOGGER.error("Error when list Manga: " + e.message, e)
+            listOf()
         }
     }
 
