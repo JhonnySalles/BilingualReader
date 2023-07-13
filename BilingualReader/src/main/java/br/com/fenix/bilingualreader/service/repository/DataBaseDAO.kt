@@ -36,10 +36,10 @@ abstract class MangaDAO : DataBaseDAO<Manga> {
     @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY + " = :library AND " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 0")
     abstract fun list(library: Long?): List<Manga>
 
-    @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY + " = :library AND " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION + " >= datetime('now','-1 day')")
+    @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY + " = :library AND " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION + " >= datetime('now','-5 hour')")
     abstract fun listRecentChange(library: Long?): List<Manga>
 
-    @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY + " = :library AND " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 1 AND " + DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION + " >= datetime('now','-1 day')")
+    @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY + " = :library AND " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 1 AND " + DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION + " >= datetime('now','-5 hour')")
     abstract fun listRecentDeleted(library: Long?): List<Manga>
 
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
@@ -121,10 +121,10 @@ abstract class BookDAO : DataBaseDAO<Book> {
     @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + " = :library AND " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0")
     abstract fun list(library: Long?): List<Book>
 
-    @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + " = :library AND " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION + " >= datetime('now','-1 day')")
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + " = :library AND " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION + " >= datetime('now','-5 hour')")
     abstract fun listRecentChange(library: Long?): List<Book>
 
-    @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + " = :library AND " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 1 AND " + DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION + " >= datetime('now','-1 day')")
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + " = :library AND " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 1 AND " + DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION + " >= datetime('now','-5 hour')")
     abstract fun listRecentDeleted(library: Long?): List<Book>
 
     @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.BOOK.COLUMNS.ID + " = :id")

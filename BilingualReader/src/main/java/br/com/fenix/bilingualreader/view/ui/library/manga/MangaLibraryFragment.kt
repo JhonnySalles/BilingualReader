@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.view.ui.library.manga
 
+import android.Manifest
 import android.app.ActivityOptions
 import android.app.SearchManager
 import android.content.Context
@@ -19,6 +20,9 @@ import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -33,6 +37,7 @@ import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.*
+import br.com.fenix.bilingualreader.service.controller.ShareMarkController
 import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.service.repository.Storage
@@ -253,7 +258,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             refresh()
         else
             mViewModel.updateList { change, indexes ->
-                if (change)
+                if (change && indexes.isNotEmpty())
                     notifyDataSet(indexes)
             }
 
@@ -863,9 +868,21 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     private fun shareMarkToDrive() {
         GeneralConsts.getSharedPreferences(requireContext()).let { share ->
-            if (share.getBoolean(GeneralConsts.KEYS.SYSTEM.SHARE_MARK_DRIVE, false))
-                mViewModel.processShareMarks(requireContext()) { result ->
+            if (share.getBoolean(GeneralConsts.KEYS.SYSTEM.SHARE_MARK_DRIVE, false)) {
+                val notification = NotificationCompat.Builder(requireContext(), ShareMarkController.NOTIFICATIONS_CHANNEL_ID)
+                    .setSmallIcon(R.mipmap.app_icon_small)
+                    .setContentTitle(getString(R.string.notifications_share_mark_drive_title))
+                    .setContentText(getString(R.string.notifications_share_mark_drive_title))
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .setOngoing(true)
+                    .setOnlyAlertOnce(true)
+                    .setProgress(10, 0, true)
+                val notificationManager = NotificationManagerCompat.from(requireContext())
 
+                if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                    notificationManager.notify(2, notification.build())
+
+                mViewModel.processShareMarks(requireContext()) { result ->
                     val msg = when (result) {
                         ShareMarkType.SUCCESS -> getString(R.string.manga_share_mark_drive_processed)
                         ShareMarkType.NOTIFY_DATA_SET -> {
@@ -874,18 +891,29 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                             getString(R.string.manga_share_mark_drive_processed)
                         }
                         ShareMarkType.NOT_ALTERATION -> getString(R.string.manga_share_mark_drive_without_alteration)
-                        ShareMarkType.NEED_PERMISSION_DRIVE ->  {
-                            startActivityForResult(result.intent, GeneralConsts.REQUEST.DRIVE_AUTHORIZATION)
+                        ShareMarkType.NEED_PERMISSION_DRIVE -> {
+                            startActivityForResult(
+                                result.intent,
+                                GeneralConsts.REQUEST.DRIVE_AUTHORIZATION
+                            )
                             getString(R.string.manga_share_mark_drive_need_permission)
                         }
                         ShareMarkType.NOT_CONNECT_DRIVE -> getString(R.string.manga_share_mark_drive_need_sign_in)
                         ShareMarkType.ERROR_DOWNLOAD -> getString(R.string.manga_share_mark_drive_error_download)
                         ShareMarkType.ERROR_UPLOAD -> getString(R.string.manga_share_mark_drive_error_upload)
+                        ShareMarkType.ERROR_NETWORK -> getString(R.string.manga_share_mark_drive_error_network)
                         else -> getString(R.string.manga_share_mark_drive_unprocessed)
                     }
 
                     Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                    notification.setContentText(msg)
+                        .setProgress(0, 0, false)
+                        .setOngoing(false)
+
+                    if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                        notificationManager.notify(2, notification.build())
                 }
+            }
         }
     }
 

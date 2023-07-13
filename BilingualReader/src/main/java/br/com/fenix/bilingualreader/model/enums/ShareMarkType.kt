@@ -11,6 +11,7 @@ enum class ShareMarkType {
     NEED_PERMISSION_DRIVE,
     NOT_CONNECT_DRIVE,
 
+    ERROR_NETWORK,
     ERROR_DOWNLOAD,
     ERROR_UPLOAD,
     ERROR;

@@ -24,6 +24,10 @@
     <string name="date_format_today">Hoje</string>
     <string name="date_format_day_ago">%s dias atrás.</string>
 
+    <!-- NOTIFICATIONS -->
+    <string name="notifications_share_mark_drive_title">Sincronizando</string>
+    <string name="notifications_share_mark_drive_content">Sincronizando marcações para o Google drive.</string>
+
     <!-- MENU -->
     <string name="menu_search">Procurar</string>
     <string name="menu_libraries">Bibliotecas</string>
@@ -171,6 +175,7 @@
     <string name="book_share_mark_drive_need_sign_in">Necessário logar na conta do Google</string>
     <string name="book_share_mark_drive_error_download">Ocorreu um erro no download do Google drive</string>
     <string name="book_share_mark_drive_error_upload">Ocorreu um erro no upload do Google drive</string>
+    <string name="book_share_mark_drive_error_network">Não foi possível conectar ao Google drive, verifique sua internet</string>
 
     <string name="menu_reading_book_favorite">Favorito</string>
     <string name="menu_book_reading_order">Ordem da lista</string>
@@ -279,6 +284,7 @@
     <string name="manga_share_mark_drive_need_sign_in">Necessário logar na conta do Google</string>
     <string name="manga_share_mark_drive_error_download">Ocorreu um erro no download do Google drive</string>
     <string name="manga_share_mark_drive_error_upload">Ocorreu um erro no upload do Google drive</string>
+    <string name="manga_share_mark_drive_error_network">Não foi possível conectar ao Google drive, verifique sua internet</string>
 
     <string name="menu_manga_view_mode">Modo de preenchimento</string>
     <string name="menu_manga_view_mode_aspect_fill">Aspecto preencher</string>

@@ -185,10 +185,11 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                 change = true
                 for (Book in list) {
                     if (mListBookFull.value!!.contains(Book)) {
-                        mListBookFull.value!![mListBookFull.value!!.indexOf(Book)].update(Book)
-                        val index = mListBook.value!!.indexOf(Book)
-                        if (index > -1)
-                            indexes.add(Pair(ListMode.MOD, index))
+                        if (mListBookFull.value!![mListBookFull.value!!.indexOf(Book)].update(Book)) {
+                            val index = mListBook.value!!.indexOf(Book)
+                            if (index > -1)
+                                indexes.add(Pair(ListMode.MOD, index))
+                        }
                     } else {
                         mListBook.value!!.add(Book)
                         mListBookFull.value!!.add(Book)
