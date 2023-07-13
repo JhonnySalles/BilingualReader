@@ -186,7 +186,7 @@ class Manga(
     var sort: Date? = null
 
     override fun toString(): String {
-        return "Book(id=$id, title='$title', pages=$pages, bookMark=$bookMark, type='$type', update=$update)"
+        return "Manga(id=$id, title='$title', pages=$pages, bookMark=$bookMark, type='$type', update=$update)"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -211,13 +211,18 @@ class Manga(
         return result
     }
 
-    fun update(manga: Manga) {
+    fun update(manga: Manga) : Boolean {
+        val updated = this.bookMark != manga.bookMark || this.favorite != manga.favorite ||
+                this.hasSubtitle != manga.hasSubtitle || this.lastAccess != manga.lastAccess
+
         this.bookMark = manga.bookMark
         this.favorite = manga.favorite
         this.lastAccess = manga.lastAccess
         this.hasSubtitle = manga.hasSubtitle
         this.lastAlteration = manga.lastAlteration
         this.lastVocabImport = manga.lastVocabImport
+
+        return updated
     }
 
     fun update(parse: Parse) {

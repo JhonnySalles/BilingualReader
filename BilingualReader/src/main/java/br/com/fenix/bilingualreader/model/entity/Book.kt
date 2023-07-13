@@ -211,7 +211,11 @@ class Book(
         return result
     }
 
-    fun update(book: Book) {
+    fun update(book: Book) : Boolean {
+        val updated = this.bookMark != book.bookMark || this.favorite != book.favorite ||
+                this.pages != book.pages || this.language != book.language ||
+                this.tags != book.tags || this.lastAccess != book.lastAccess
+
         this.bookMark = book.bookMark
         this.pages = book.pages
         this.tags = book.tags
@@ -220,6 +224,8 @@ class Book(
         this.lastAccess = book.lastAccess
         this.lastAlteration = book.lastAlteration
         this.lastVocabImport = book.lastVocabImport
+
+        return updated
     }
 
     fun update(meta: EbookMeta, language: Libraries) {

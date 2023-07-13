@@ -23,6 +23,10 @@
     <string name="date_format_today">Today</string>
     <string name="date_format_day_ago">%s days ago.</string>
 
+    <!-- NOTIFICATIONS -->
+    <string name="notifications_share_mark_drive_title">Sync marks</string>
+    <string name="notifications_share_mark_drive_content">Synchronization bookmarks to Google drive</string>
+
     <!-- MENU -->
     <string name="menu_search">Search</string>
     <string name="menu_libraries">Libraries</string>
@@ -173,6 +177,7 @@
     <string name="book_share_mark_drive_need_sign_in">Need sign in to Google Account</string>
     <string name="book_share_mark_drive_error_download">An error occurred when download from Google drive</string>
     <string name="book_share_mark_drive_error_upload">An error occurred when upload to Google drive</string>
+    <string name="book_share_mark_drive_error_network">Unable to connect to Google drive, check your internet</string>
 
     <string name="menu_reading_book_favorite">Favorite</string>
     <string name="menu_book_reading_order">List order</string>
@@ -305,6 +310,7 @@
     <string name="manga_share_mark_drive_need_sign_in">Need sign in to Google Account</string>
     <string name="manga_share_mark_drive_error_download">An error occurred when download from Google drive</string>
     <string name="manga_share_mark_drive_error_upload">An error occurred when upload to Google drive</string>
+    <string name="manga_share_mark_drive_error_network">Unable to connect to Google drive, check your internet</string>
 
     <string name="menu_manga_view_mode">View Mode</string>
     <string name="menu_manga_view_mode_aspect_fill">Aspect Fill</string>
