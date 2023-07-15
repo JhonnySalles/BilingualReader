@@ -25,6 +25,8 @@
     <string name="date_format_day_ago">%s dias atrás.</string>
 
     <!-- NOTIFICATIONS -->
+    <string name="notifications_channel_name">Bilingual Reader</string>
+    <string name="notifications_channel_description">Bilingual Reader</string>
     <string name="notifications_share_mark_drive_title">Sincronizando</string>
     <string name="notifications_share_mark_drive_content">Sincronizando marcações para o Google drive.</string>
 

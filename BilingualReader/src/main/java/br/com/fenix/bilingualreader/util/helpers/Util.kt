@@ -32,6 +32,7 @@ import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
+import androidx.core.app.NotificationCompat
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -1079,5 +1080,20 @@ class TextUtil {
             pageHTML = pageHTML.replace("(?u)(\\w+)(-\\s)".toRegex(), "$1")
             return pageHTML
         }
+    }
+}
+
+class NotificationUtil {
+    companion object NotificationUtils {
+        const val NOTIFICATIONS_CHANNEL_ID = "BilingualReaderChannel"
+
+        fun getNotification(context: Context, title: String, content: String) = NotificationCompat.Builder(context, NOTIFICATIONS_CHANNEL_ID)
+            .setSmallIcon(R.mipmap.notification_icon)
+            .setContentTitle(title)
+            .setContentText(content)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setProgress(10, 0, true)
     }
 }

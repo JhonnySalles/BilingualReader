@@ -45,7 +45,6 @@ class ShareMarkController(var context: Context) {
 
     companion object {
         const val INITIAL_SYNC_DATE_TIME = "2000-01-01T01:01:01.001-0300"
-        const val NOTIFICATIONS_CHANNEL_ID = "ShareMarkToDrive"
     }
 
     private var mIdFolder: String = ""
