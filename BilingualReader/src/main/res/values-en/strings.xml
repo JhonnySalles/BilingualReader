@@ -27,7 +27,7 @@
     <!-- NOTIFICATIONS -->
     <string name="notifications_channel_name">Bilingual Reader</string>
     <string name="notifications_channel_description">Bilingual Reader</string>
-    <string name="notifications_share_mark_drive_title">Sync marks</string>
+    <string name="notifications_share_mark_drive_title">Synchronization</string>
     <string name="notifications_share_mark_drive_content">Synchronization bookmarks to Google drive</string>
 
     <!-- MENU -->
