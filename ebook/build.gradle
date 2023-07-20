@@ -13,14 +13,13 @@ buildscript {
 }
 
 android {
-    compileSdk 31
+    compileSdk 34
 
     defaultConfig {
         minSdk 24
         minSdkVersion 24
         maxSdkVersion 25
         targetSdk 31
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -31,12 +30,12 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_18
-        targetCompatibility JavaVersion.VERSION_18
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "18"
+        jvmTarget = "17"
     }
 
     lint {
