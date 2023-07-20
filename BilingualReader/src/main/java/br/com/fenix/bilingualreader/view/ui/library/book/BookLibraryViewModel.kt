@@ -20,7 +20,8 @@ import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.TagsRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
-import java.util.*
+import java.util.Locale
+import java.util.Objects
 import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 
 class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filterable {

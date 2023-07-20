@@ -4,7 +4,11 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import br.com.fenix.bilingualreader.model.enums.*
+import br.com.fenix.bilingualreader.model.enums.AlignmentLayoutType
+import br.com.fenix.bilingualreader.model.enums.FontType
+import br.com.fenix.bilingualreader.model.enums.MarginLayoutType
+import br.com.fenix.bilingualreader.model.enums.ScrollingType
+import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.Serializable
 

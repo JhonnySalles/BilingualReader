@@ -9,7 +9,12 @@ import br.com.fenix.bilingualreader.model.entity.BookSearch
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.BookSearchRepository
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 
 class BookSearchViewModel(var app: Application) : AndroidViewModel(app) {

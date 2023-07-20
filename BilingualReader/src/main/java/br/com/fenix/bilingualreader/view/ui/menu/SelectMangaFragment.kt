@@ -7,7 +7,13 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.*
+import android.view.ContextMenu
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
 import android.widget.SearchView

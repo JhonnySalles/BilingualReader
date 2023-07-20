@@ -15,7 +15,7 @@ import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.Locale
 
 
 class SelectMangaViewModel(application: Application) : AndroidViewModel(application), Filterable {

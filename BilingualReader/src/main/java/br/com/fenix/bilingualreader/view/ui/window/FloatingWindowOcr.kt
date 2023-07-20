@@ -9,7 +9,12 @@ import android.graphics.Point
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.view.*
+import android.view.GestureDetector
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageButton

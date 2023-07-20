@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import br.com.ebook.BuildConfig;
 import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.Dips;
 import br.com.ebook.foobnix.android.utils.LOG;

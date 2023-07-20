@@ -1,6 +1,10 @@
 package br.com.fenix.bilingualreader.model.entity
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Ignore
+import androidx.room.Index
+import androidx.room.PrimaryKey
 import br.com.ebook.foobnix.ext.EbookMeta
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Languages

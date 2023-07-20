@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import br.com.ebook.BuildConfig;
 import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.Dips;
 import br.com.ebook.foobnix.android.utils.LOG;

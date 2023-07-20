@@ -2,7 +2,6 @@ package br.com.ebook.foobnix.android.utils;
 
 import android.util.Log;
 
-import br.com.ebook.BuildConfig;
 import br.com.ebook.Config;
 
 public class LOG {

@@ -10,7 +10,11 @@ import br.com.fenix.bilingualreader.service.parses.book.ImageParse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.io.File
 

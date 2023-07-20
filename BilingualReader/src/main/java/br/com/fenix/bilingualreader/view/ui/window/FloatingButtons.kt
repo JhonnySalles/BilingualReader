@@ -6,7 +6,13 @@ import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.os.Build
-import android.view.*
+import android.view.GestureDetector
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources

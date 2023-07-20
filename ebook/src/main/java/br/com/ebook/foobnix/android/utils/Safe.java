@@ -5,7 +5,6 @@ import android.view.View;
 
 import java.util.Random;
 
-import br.com.ebook.BuildConfig;
 import br.com.ebook.Config;
 import br.com.ebook.foobnix.pdf.info.IMG;
 import br.com.ebook.universalimageloader.core.ImageLoader;

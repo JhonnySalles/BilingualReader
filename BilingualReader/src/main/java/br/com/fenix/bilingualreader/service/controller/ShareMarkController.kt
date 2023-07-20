@@ -5,7 +5,6 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
-import androidx.core.app.NotificationCompat
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Manga
@@ -29,9 +28,17 @@ import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.google.gson.GsonBuilder
 import com.google.gson.stream.JsonReader
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
-import java.io.*
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.FileReader
+import java.io.FileWriter
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.*

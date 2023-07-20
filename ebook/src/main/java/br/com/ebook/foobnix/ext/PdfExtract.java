@@ -3,7 +3,6 @@ package br.com.ebook.foobnix.ext;
 import org.ebookdroid.core.codec.CodecDocument;
 import org.ebookdroid.droids.mupdf.codec.PdfContext;
 
-import br.com.ebook.BuildConfig;
 import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.LOG;
 

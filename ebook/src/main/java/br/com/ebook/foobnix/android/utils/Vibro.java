@@ -2,7 +2,6 @@ package br.com.ebook.foobnix.android.utils;
 
 import android.annotation.TargetApi;
 
-import br.com.ebook.BuildConfig;
 import br.com.ebook.Config;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 

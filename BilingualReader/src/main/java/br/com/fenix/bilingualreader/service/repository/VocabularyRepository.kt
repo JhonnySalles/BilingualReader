@@ -3,7 +3,12 @@ package br.com.fenix.bilingualreader.service.repository
 import android.content.Context
 import android.widget.Toast
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.*
+import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.entity.SubTitleChapter
+import br.com.fenix.bilingualreader.model.entity.Vocabulary
+import br.com.fenix.bilingualreader.model.entity.VocabularyBook
+import br.com.fenix.bilingualreader.model.entity.VocabularyManga
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.japanese.Formatter
@@ -14,10 +19,17 @@ import br.com.fenix.bilingualreader.util.helpers.FontUtil
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.book.VocabularyBookViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.manga.VocabularyMangaViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.*
+import java.util.Collections
+import java.util.Date
+import java.util.Objects
 import kotlin.streams.toList
 
 class VocabularyRepository(context: Context) {

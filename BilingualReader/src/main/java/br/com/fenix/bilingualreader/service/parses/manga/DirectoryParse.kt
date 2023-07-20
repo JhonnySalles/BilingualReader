@@ -5,7 +5,11 @@ import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.core.Persister
-import java.io.*
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileInputStream
+import java.io.IOException
+import java.io.InputStream
 
 class DirectoryParse : Parse {
 

@@ -25,7 +25,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import br.com.ebook.BaseExtractor;
-import br.com.ebook.BuildConfig;
 import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.StreamUtils;
