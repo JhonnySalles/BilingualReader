@@ -4,7 +4,6 @@ import android.annotation.TargetApi
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
-import androidx.annotation.RequiresApi
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.*
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts.PATTERNS.DATE_PATTERN

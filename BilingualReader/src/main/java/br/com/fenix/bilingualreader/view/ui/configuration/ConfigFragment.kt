@@ -8,20 +8,40 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.Button
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import br.com.fenix.bilingualreader.MainActivity
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.enums.*
+import br.com.fenix.bilingualreader.model.enums.FontType
+import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.model.enums.Order
+import br.com.fenix.bilingualreader.model.enums.PageMode
+import br.com.fenix.bilingualreader.model.enums.ReaderMode
+import br.com.fenix.bilingualreader.model.enums.ScrollingType
+import br.com.fenix.bilingualreader.model.enums.ThemeMode
+import br.com.fenix.bilingualreader.model.enums.Themes
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.listener.FontsListener
 import br.com.fenix.bilingualreader.service.listener.ThemesListener
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.util.helpers.*
+import br.com.fenix.bilingualreader.util.helpers.BackupError
+import br.com.fenix.bilingualreader.util.helpers.ErrorRestoreDatabase
+import br.com.fenix.bilingualreader.util.helpers.InvalidDatabase
+import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
+import br.com.fenix.bilingualreader.util.helpers.MsgUtil
+import br.com.fenix.bilingualreader.util.helpers.RestoredNewDatabase
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
+import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.secrets.Secrets
 import br.com.fenix.bilingualreader.view.adapter.fonts.FontsCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.themes.ThemesCardAdapter
@@ -47,7 +67,8 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 
 class ConfigFragment : Fragment() {

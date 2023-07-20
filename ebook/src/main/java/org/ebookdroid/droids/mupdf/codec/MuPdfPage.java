@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import br.com.ebook.BuildConfig;
 import br.com.ebook.fitz.StructuredText;
 import br.com.ebook.fitz.StructuredText.TextBlock;
 import br.com.ebook.fitz.StructuredText.TextLine;

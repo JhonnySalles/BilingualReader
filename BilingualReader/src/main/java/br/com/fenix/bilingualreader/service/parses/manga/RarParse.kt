@@ -8,7 +8,12 @@ import com.github.junrar.exception.RarException
 import com.github.junrar.rarfile.FileHeader
 import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.core.Persister
-import java.io.*
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
 
 
 class RarParse : Parse {

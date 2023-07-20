@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import androidx.room.TypeConverter
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.Date
 
 class Converters {
 

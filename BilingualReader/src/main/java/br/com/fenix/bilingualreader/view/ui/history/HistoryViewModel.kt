@@ -13,7 +13,7 @@ import br.com.fenix.bilingualreader.service.repository.LibraryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
-import java.util.*
+import java.util.Locale
 
 class HistoryViewModel(application: Application) : AndroidViewModel(application), Filterable {
 

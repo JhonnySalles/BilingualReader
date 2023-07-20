@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import br.com.ebook.BuildConfig;
 import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;

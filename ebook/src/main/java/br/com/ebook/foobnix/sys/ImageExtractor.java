@@ -30,7 +30,6 @@ import java.io.InputStream;
 import java.util.Locale;
 
 import br.com.ebook.BaseExtractor;
-import br.com.ebook.BuildConfig;
 import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.Dips;
 import br.com.ebook.foobnix.android.utils.LOG;

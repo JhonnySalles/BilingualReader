@@ -14,7 +14,6 @@ import android.view.WindowManager;
 
 import java.util.Locale;
 
-import br.com.ebook.BuildConfig;
 import br.com.ebook.Config;
 
 public class Dips {

@@ -6,7 +6,7 @@ import com.github.junrar.exception.UnsupportedRarV5Exception
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
-import java.util.*
+import java.util.Locale
 
 class ParseFactory {
 

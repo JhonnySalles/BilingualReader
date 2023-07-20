@@ -1,14 +1,9 @@
 package br.com.fenix.bilingualreader.view.ui.library.manga
 
-import android.Manifest
 import android.app.Application
 import android.content.Context
-import android.content.pm.PackageManager
 import android.widget.Filter
 import android.widget.Filterable
-import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -23,8 +18,8 @@ import br.com.fenix.bilingualreader.service.controller.ShareMarkController
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
-import br.com.fenix.bilingualreader.util.secrets.Secrets
-import java.util.*
+import java.util.Locale
+import java.util.Objects
 import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 
 class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filterable {
