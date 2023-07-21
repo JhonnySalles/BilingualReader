@@ -87,11 +87,15 @@
 
     <string name="config_system_language">Linguagem do sistema</string>
     <string name="config_system_format_date">Formato de data</string>
+
+    <string name="config_system_share_mark">Compartilhar marcadores</string>
     <string name="config_system_share_mark_drive">Compartilhar marcações no Google Drive</string>
     <string name="config_system_share_mark_account">Conta Google: %s</string>
     <string name="config_system_share_mark_sign_in_error">Erro ao logar!</string>
     <string name="config_system_share_mark_sign_out_title">Deslogar</string>
     <string name="config_system_share_mark_sign_out">Deslogar a conta?</string>
+    <string name="config_system_share_mark_clear_last_sync_title">Limpeza sincronização</string>
+    <string name="config_system_share_mark_clear_last_sync">Deseja limpar a data e hora da última sincronização?</string>
 
     <string name="config_option_date_time_format_0">Padrão (%s)</string>
 
@@ -171,6 +175,8 @@
 
     <!-- READER - BOOK -->
     <string name="book_share_mark_drive_processed">Marcadores compartilhada no Google drive</string>
+    <string name="book_share_mark_drive_processed_receive">Marcadores atualizados do Google drive</string>
+    <string name="book_share_mark_drive_processed_send">Marcadores enviados ao Google drive</string>
     <string name="book_share_mark_drive_unprocessed">Marcadores não compartilhada no Google drive</string>
     <string name="book_share_mark_drive_without_alteration">Nenhuma alteração em marcadores encontrada</string>
     <string name="book_share_mark_drive_need_permission">Necessário permissão para o Google drive</string>
@@ -279,8 +285,10 @@
     <string name="reader_not_found">Não encontrado</string>
     <string name="file_not_found">Arquivo não encontrado</string>
 
-    <string name="manga_share_mark_drive_processed">Marcadores compartilhada no Google drive</string>
-    <string name="manga_share_mark_drive_unprocessed">Marcadores não compartilhada no Google drive</string>
+    <string name="manga_share_mark_drive_processed">Marcadores compartilhados no Google drive</string>
+    <string name="manga_share_mark_drive_processed_receive">Marcadores atualizados do Google drive</string>
+    <string name="manga_share_mark_drive_processed_send">Marcadores enviados ao Google drive</string>
+    <string name="manga_share_mark_drive_unprocessed">Marcadores não compartilhados no Google drive</string>
     <string name="manga_share_mark_drive_without_alteration">Nenhuma alteração em marcadores encontrada</string>
     <string name="manga_share_mark_drive_need_permission">Necessário permissão para o Google drive</string>
     <string name="manga_share_mark_drive_need_sign_in">Necessário logar na conta do Google</string>

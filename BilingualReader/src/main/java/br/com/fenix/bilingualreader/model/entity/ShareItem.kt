@@ -82,4 +82,8 @@ data class ShareItem(
     override fun hashCode(): Int {
         return file.hashCode()
     }
+
+    override fun toString(): String {
+        return "ShareItem(file='$file', bookMark=$bookMark, pages=$pages, favorite=$favorite, sync=$sync, alter=$alter, processed=$processed)"
+    }
 }

@@ -139,6 +139,7 @@ class GeneralConsts private constructor() {
         const val DATE_PATTERN = "yyyy-MM-dd"
         const val DATE_PATTERN_SMALL = "yy-MM-dd"
         const val TIME_PATTERN = "hh:mm:ss a"
+        const val FULL_DATE_TIME = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
     }
 
     object KEYS {

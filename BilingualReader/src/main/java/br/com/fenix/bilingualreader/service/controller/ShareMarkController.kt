@@ -113,8 +113,16 @@ class ShareMarkController(var context: Context) {
         return file
     }
 
-    // --------------------------------------------------------- Google Drive ---------------------------------------------------------
+    fun clearLastSync() {
+        val prefs = GeneralConsts.getSharedPreferences(context)
+        with(prefs.edit()) {
+            this.remove(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA)
+            this.remove(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK)
+            this.commit()
+        }
+    }
 
+    // --------------------------------------------------------- Google Drive ---------------------------------------------------------
     private fun ajusts(share: ShareMark, type: Type) {
         if (share.type == null)
             share.type = type
@@ -406,15 +414,18 @@ class ShareMarkController(var context: Context) {
 
                 val prefs = GeneralConsts.getSharedPreferences(context)
                 val simpleDate = SimpleDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME, Locale.getDefault())
-                val lastSync = simpleDate.parse(prefs.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, INITIAL_SYNC_DATE_TIME)!!)!!
+                val lastSync = if (share.marks!!.isEmpty())
+                    simpleDate.parse(INITIAL_SYNC_DATE_TIME)!!
+                else
+                    simpleDate.parse(prefs.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, INITIAL_SYNC_DATE_TIME)!!)!!
 
                 val list = share.marks!!.filter { it.sync.after(lastSync) }
 
                 repository.listSync(lastSync).apply {
                     for (manga in this)
-                        list.parallelStream().filter { it.file == manga.fileName }.findFirst().also {
-                            if (it.isPresent) {
-                                if (compare(it.get(), manga)) {
+                        share.marks!!.find { it.file == manga.name }.also {
+                            if (it != null) {
+                                if (compare(it, manga)) {
                                     repository.update(manga)
                                     withContext(Dispatchers.Main) {
                                         update(manga)
@@ -440,14 +451,19 @@ class ShareMarkController(var context: Context) {
 
                 val shared = if (isUpdate)
                     saveShareFile(mIdFolder, mIdManga, GeneralConsts.SHARE_MARKS.MANGA_FILE, getFile(share, GeneralConsts.SHARE_MARKS.MANGA_FILE_WITH_EXTENSION))
+                else if (list.isNotEmpty())
+                    ShareMarkType.SUCCESS
                 else
                     ShareMarkType.NOT_ALTERATION
+
+                ShareMarkType.send = isUpdate
+                ShareMarkType.receive = list.isNotEmpty()
+
+                prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, simpleDate.format(Date())).apply()
 
                 withContext(Dispatchers.Main) {
                     ending(shared)
                 }
-
-                prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, simpleDate.format(Date())).apply()
             }
         }
     }
@@ -458,6 +474,7 @@ class ShareMarkController(var context: Context) {
      *
      */
     fun mangaShareMark(update: (manga: Manga) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
+        ShareMarkType.clear()
         if (!isOnline()) {
             ending(ShareMarkType.ERROR_NETWORK)
             return
@@ -514,7 +531,7 @@ class ShareMarkController(var context: Context) {
 
                 repository.listSync(lastSync).apply {
                     for (book in this)
-                        list.parallelStream().filter { it.file == book.fileName }.findFirst().also {
+                        list.parallelStream().filter { it.file == book.name }.findFirst().also {
                             if (it.isPresent) {
                                 if (compare(it.get(), book)) {
                                     repository.update(book)
@@ -560,6 +577,7 @@ class ShareMarkController(var context: Context) {
      *
      */
     fun bookShareMark(update: (book: Book) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
+        ShareMarkType.clear()
         if (!isOnline()) {
             ending(ShareMarkType.ERROR_NETWORK)
             return

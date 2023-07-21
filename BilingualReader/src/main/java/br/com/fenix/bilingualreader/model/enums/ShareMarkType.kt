@@ -17,4 +17,14 @@ enum class ShareMarkType {
     ERROR;
 
     var intent: Intent? = null
+
+    companion object {
+        var send: Boolean = false
+        var receive: Boolean = false
+
+        fun clear() {
+            send = false
+            receive = false
+        }
+    }
 }

@@ -89,32 +89,6 @@
             android:layout_marginBottom="@dimen/margin_small"
             android:text="@string/config_title_system" />
 
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/config_system_share_mark_drive"
-            style="@style/SwitchMaterial"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin_small"
-            android:text="@string/config_system_share_mark_drive" />
-
-        <TextView
-            android:id="@+id/config_system_share_mark_signed_account"
-            style="@style/TextNormal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_small"
-            android:layout_marginBottom="@dimen/margin_small"
-            android:layout_marginStart="@dimen/margin"
-            android:layout_marginEnd="@dimen/margin"
-            android:text=""
-            android:visibility="gone" />
-
-        <com.google.android.gms.common.SignInButton
-            android:id="@+id/config_system_share_mark_sign_in_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin_small" />
-
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/config_system_format_date"
             style="@style/TextInputDropMenu"
@@ -131,6 +105,61 @@
                 android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.divider.MaterialDivider
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small" />
+
+        <TextView
+            style="@style/TextTitle.Config"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_system_share_mark" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/config_system_share_mark_drive"
+            style="@style/SwitchMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:text="@string/config_system_share_mark_drive" />
+
+        <Button
+            android:id="@+id/config_system_share_mark_signed_account"
+            style="@style/Button.LabelStart"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text=""
+            android:visibility="gone"
+            app:icon="@drawable/ic_google_account" />
+
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/config_system_share_mark_sign_in_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small" />
+
+        <Button
+            android:id="@+id/config_system_share_mark_last_sync"
+            style="@style/Button.LabelStart"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text=""
+            android:visibility="gone"
+            app:icon="@drawable/ic_share_mark_last_sync" />
 
         <com.google.android.material.divider.MaterialDivider
             style="@style/MaterialDivider"
