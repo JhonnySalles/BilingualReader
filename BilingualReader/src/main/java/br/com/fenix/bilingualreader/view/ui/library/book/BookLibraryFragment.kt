@@ -908,11 +908,16 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
                 mViewModel.processShareMarks(requireContext()) { result ->
                     val msg = when (result) {
-                        ShareMarkType.SUCCESS -> getString(R.string.book_share_mark_drive_processed)
-                        ShareMarkType.NOTIFY_DATA_SET -> {
-                            val range = (mViewModel.listBook.value?.size ?: 1)
-                            notifyDataSet(0, range)
-                            getString(R.string.book_share_mark_drive_processed)
+                        ShareMarkType.SUCCESS, ShareMarkType.NOTIFY_DATA_SET -> {
+                            if (result == ShareMarkType.NOTIFY_DATA_SET)
+                                sortList()
+
+                            if (ShareMarkType.receive && !ShareMarkType.send)
+                                getString(R.string.book_share_mark_drive_processed_receive)
+                            else if (!ShareMarkType.receive && ShareMarkType.send)
+                                getString(R.string.book_share_mark_drive_processed_send)
+                            else
+                                getString(R.string.book_share_mark_drive_processed)
                         }
                         ShareMarkType.NOT_ALTERATION -> getString(R.string.book_share_mark_drive_without_alteration)
                         ShareMarkType.NEED_PERMISSION_DRIVE -> {

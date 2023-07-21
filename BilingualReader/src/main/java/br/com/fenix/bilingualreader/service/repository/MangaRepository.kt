@@ -3,9 +3,12 @@ package br.com.fenix.bilingualreader.service.repository
 import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import org.slf4j.LoggerFactory
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.Date
+import java.util.Locale
 
 class MangaRepository(context: Context) {
 
@@ -184,7 +187,8 @@ class MangaRepository(context: Context) {
 
     fun listSync(date: Date): List<Manga> {
         return try {
-            mDataBase.listSync(date)
+            val simple = SimpleDateFormat(GeneralConsts.PATTERNS.FULL_DATE_TIME, Locale.getDefault())
+            mDataBase.listSync(simple.format(date))
         } catch (e: Exception) {
             mLOGGER.error("Error when list Manga: " + e.message, e)
             listOf()

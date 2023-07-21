@@ -76,7 +76,7 @@ abstract class MangaDAO : DataBaseDAO<Manga> {
     @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.MANGA.COLUMNS.ID + " = :id")
     abstract fun get(id: Long): Manga
 
-    @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.MANGA.COLUMNS.FILE_NAME + " = :name")
+    @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 0 AND UPPER(" + DataBaseConsts.MANGA.COLUMNS.FILE_NAME + ") = UPPER(:name)")
     abstract fun getByFileName(name: String): Manga?
 
     @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.MANGA.COLUMNS.FILE_PATH + " = :path")
@@ -107,7 +107,7 @@ abstract class MangaDAO : DataBaseDAO<Manga> {
     abstract fun getLastOpen(): List<Manga>?
 
     @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS + " >= :date ORDER BY " + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY + ", " + DataBaseConsts.MANGA.COLUMNS.FILE_NAME)
-    abstract fun listSync(date: Date): List<Manga>
+    abstract fun listSync(date: String): List<Manga>
 
 }
 

@@ -37,7 +37,7 @@ data class ShareItem(
     constructor(
         manga: Manga
     ) : this(
-        manga.fileName, manga.bookMark, manga.pages, manga.favorite, GeneralConsts.dateTimeToDate(manga.lastAccess!!), Date()
+        manga.name, manga.bookMark, manga.pages, manga.favorite, GeneralConsts.dateTimeToDate(manga.lastAccess!!), Date()
     ) {
         alter = true
         processed = true
@@ -46,7 +46,7 @@ data class ShareItem(
     constructor(
         book: Book
     ) : this(
-        book.fileName, book.bookMark, book.pages, book.favorite, GeneralConsts.dateTimeToDate(book.lastAccess!!), Date()
+        book.name, book.bookMark, book.pages, book.favorite, GeneralConsts.dateTimeToDate(book.lastAccess!!), Date()
     ) {
         alter = true
         processed = true
@@ -82,5 +82,9 @@ data class ShareItem(
 
     override fun hashCode(): Int {
         return file.hashCode()
+    }
+
+    override fun toString(): String {
+        return "ShareItem(file='$file', bookMark=$bookMark, pages=$pages, favorite=$favorite, sync=$sync, alter=$alter, processed=$processed)"
     }
 }

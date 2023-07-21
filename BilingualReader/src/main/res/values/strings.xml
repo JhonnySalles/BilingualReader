@@ -86,11 +86,15 @@
 
     <string name="config_system_format_date">Date format</string>
     <string name="config_system_language">System language</string>
+
+    <string name="config_system_share_mark">Share marks</string>
     <string name="config_system_share_mark_drive">Share marks to Google drive</string>
     <string name="config_system_share_mark_account">Google account: %s</string>
     <string name="config_system_share_mark_sign_in_error">Sig in error!</string>
     <string name="config_system_share_mark_sign_out_title">Sign out</string>
     <string name="config_system_share_mark_sign_out">Sign out account?</string>
+    <string name="config_system_share_mark_clear_last_sync_title">Clear sync</string>
+    <string name="config_system_share_mark_clear_last_sync">Do you want to clear the last sync date and time?</string>
 
     <string name="config_option_date_time_format_0">Default (%s)</string>
     <string name="config_option_date_time_format_1" translatable="false">MM/dd/yy (%s)</string>
@@ -173,6 +177,8 @@
 
     <!-- READER - BOOK -->
     <string name="book_share_mark_drive_processed">Marks shared to Google drive</string>
+    <string name="book_share_mark_drive_processed_receive">Bookmarks updated from Google drive</string>
+    <string name="book_share_mark_drive_processed_send">Bookmarks uploaded to Google drive</string>
     <string name="book_share_mark_drive_unprocessed">Marks not shared to Google drive</string>
     <string name="book_share_mark_drive_without_alteration">No changes to bookmarks found</string>
     <string name="book_share_mark_drive_need_permission">Need permission to Google drive</string>
@@ -306,6 +312,8 @@
     <string name="file_not_found">File not found</string>
 
     <string name="manga_share_mark_drive_processed">Bookmarks shared to Google drive</string>
+    <string name="manga_share_mark_drive_processed_receive">Bookmarks updated from Google drive</string>
+    <string name="manga_share_mark_drive_processed_send">Bookmarks uploaded to Google drive</string>
     <string name="manga_share_mark_drive_unprocessed">Bookmarks not shared to Google drive</string>
     <string name="manga_share_mark_drive_without_alteration">No changes to bookmarks found</string>
     <string name="manga_share_mark_drive_need_permission">Need permission to Google drive</string>

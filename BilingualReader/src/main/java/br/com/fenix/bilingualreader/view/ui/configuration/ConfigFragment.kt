@@ -29,6 +29,7 @@ import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.ThemeMode
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.service.controller.ShareMarkController
 import br.com.fenix.bilingualreader.service.listener.FontsListener
 import br.com.fenix.bilingualreader.service.listener.ThemesListener
 import br.com.fenix.bilingualreader.service.repository.DataBase
@@ -86,8 +87,9 @@ class ConfigFragment : Fragment() {
     private lateinit var mConfigSystemFormatDateAutoComplete: AutoCompleteTextView
 
     private lateinit var mConfigSystemShareMarkDrive: SwitchMaterial
-    private lateinit var mConfigSystemShareMarkAccount: TextView
+    private lateinit var mConfigSystemShareMarkAccount: Button
     private lateinit var mConfigSystemShareMarkSignIn: SignInButton
+    private lateinit var mConfigSystemShareMarkLastSync: Button
 
     private lateinit var mConfigSystemBackup: Button
     private lateinit var mConfigSystemRestore: Button
@@ -219,6 +221,7 @@ class ConfigFragment : Fragment() {
         mConfigSystemShareMarkDrive = view.findViewById(R.id.config_system_share_mark_drive)
         mConfigSystemShareMarkAccount = view.findViewById(R.id.config_system_share_mark_signed_account)
         mConfigSystemShareMarkSignIn = view.findViewById(R.id.config_system_share_mark_sign_in_button)
+        mConfigSystemShareMarkLastSync = view.findViewById(R.id.config_system_share_mark_last_sync)
 
         mMangaUseDualPageCalculate = view.findViewById(R.id.config_manga_switch_use_dual_page_calculate)
         mMangaUsePathNameForLinked = view.findViewById(R.id.config_manga_switch_use_path_name_for_linked)
@@ -470,6 +473,19 @@ class ConfigFragment : Fragment() {
                         getSignClient().signOut()
                     }
                     googleSigIn(null)
+                }
+                .setNegativeButton(R.string.action_cancel) { _, _ -> }
+                .create().show()
+            true
+        }
+
+        mConfigSystemShareMarkLastSync.setOnLongClickListener {
+            MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+                .setTitle(getString(R.string.config_system_share_mark_clear_last_sync_title))
+                .setMessage(getString(R.string.config_system_share_mark_clear_last_sync))
+                .setPositiveButton(R.string.action_confirm) { _, _ ->
+                    ShareMarkController(requireContext()).clearLastSync()
+                    mConfigSystemShareMarkLastSync.visibility = View.GONE
                 }
                 .setNegativeButton(R.string.action_cancel) { _, _ -> }
                 .create().show()
@@ -947,6 +963,13 @@ class ConfigFragment : Fragment() {
             false
         )
 
+        mConfigSystemShareMarkLastSync.visibility = if (sharedPreferences.contains(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA)) {
+            val sync = sharedPreferences.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, Date().toString())
+            val dateSync = SimpleDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME, Locale.getDefault()).parse(sync)
+            mConfigSystemShareMarkLastSync.text = SimpleDateFormat(mConfigSystemDateSelect + " " + GeneralConsts.PATTERNS.TIME_PATTERN, Locale.getDefault()).format(dateSync)
+            View.VISIBLE
+        } else
+            View.GONE
     }
 
     private fun openLibraries(type: Type) {
