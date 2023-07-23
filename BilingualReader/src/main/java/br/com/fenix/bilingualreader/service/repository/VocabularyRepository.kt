@@ -301,9 +301,9 @@ class VocabularyRepository(var context: Context) {
 
                         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
                             notificationManager.notify(notifyId, notification.build())
-                    }
 
-                    Toast.makeText(context, mMsgImport, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, mMsgImport, Toast.LENGTH_SHORT).show()
+                    }
                 } catch (e: Exception) {
                     mLOGGER.error("Error process manga vocabulary. ", e)
 
