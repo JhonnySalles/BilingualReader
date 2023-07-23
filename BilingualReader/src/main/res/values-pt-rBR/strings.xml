@@ -633,6 +633,7 @@
     <string name="vocabulary_import_title">Importando vocabulário</string>
     <string name="vocabulary_import">Importando vocabulário de %s.</string>
     <string name="vocabulary_imported">Concluído importação do vocabulário.</string>
+    <string name="vocabulary_import_error">Erro ao importar o vocabulário.</string>
 
     <string name="menu_vocabulary_search">Procurar</string>
     <string name="menu_vocabulary_order">Ordem</string>
