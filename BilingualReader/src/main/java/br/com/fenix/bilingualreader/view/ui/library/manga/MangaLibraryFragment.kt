@@ -66,7 +66,7 @@ import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.service.scanner.ScannerManga
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
-import br.com.fenix.bilingualreader.util.helpers.NotificationUtil
+import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.library.MangaGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaLineCardAdapter
@@ -895,10 +895,11 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         GeneralConsts.getSharedPreferences(requireContext()).let { share ->
             if (share.getBoolean(GeneralConsts.KEYS.SYSTEM.SHARE_MARK_DRIVE, false)) {
                 val notificationManager = NotificationManagerCompat.from(requireContext())
-                val notification = NotificationUtil.getNotification(requireContext(), getString(R.string.notifications_share_mark_drive_title), getString(R.string.notifications_share_mark_drive_content))
+                val notification = Notifications.getNotification(requireContext(), getString(R.string.notifications_share_mark_drive_title), getString(R.string.notifications_share_mark_drive_content))
+                val notifyId = Notifications.getID()
 
                 if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
-                    notificationManager.notify(2, notification.build())
+                    notificationManager.notify(notifyId, notification.build())
 
                 mViewModel.processShareMarks(requireContext()) { result ->
                     val msg = when (result) {
@@ -934,7 +935,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                         .setOngoing(false)
 
                     if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
-                        notificationManager.notify(2, notification.build())
+                        notificationManager.notify(notifyId, notification.build())
                 }
             }
         }

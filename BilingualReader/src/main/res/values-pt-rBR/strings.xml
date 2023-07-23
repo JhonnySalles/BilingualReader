@@ -623,13 +623,16 @@
     <string name="vocabulary_find">Vocabulário</string>
     <string name="vocabulary_favorites">Favoritos</string>
     <string name="vocabulary_appear">Frequência: %d</string>
-    <string name="vocabulary_imported">Concluído importação do vocabulário.</string>
     <string name="vocabulary_favorite">Favoritos</string>
     <string name="vocabulary_manga_favorite">Favoritos</string>
     <string name="vocabulary_book_favorite">Favoritos</string>
     <string name="vocabulary_manga_button">Manga</string>
     <string name="vocabulary_book_button">Livro</string>
     <string name="vocabulary_tatoeba_button">Tatoeba</string>
+
+    <string name="vocabulary_import_title">Importando vocabulário</string>
+    <string name="vocabulary_import">Importando vocabulário de %s.</string>
+    <string name="vocabulary_imported">Concluído importação do vocabulário.</string>
 
     <string name="menu_vocabulary_search">Procurar</string>
     <string name="menu_vocabulary_order">Ordem</string>

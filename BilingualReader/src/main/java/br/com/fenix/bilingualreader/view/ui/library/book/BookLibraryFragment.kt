@@ -10,13 +10,33 @@ import android.content.res.Resources
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.graphics.drawable.AnimatedVectorDrawable
-import android.os.*
+import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.provider.BaseColumns
 import android.util.Pair
-import android.view.*
+import android.view.ContextThemeWrapper
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
-import android.widget.*
+import android.widget.AbsListView
+import android.widget.AutoCompleteTextView
+import android.widget.CursorAdapter
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.PopupMenu
+import android.widget.ProgressBar
+import android.widget.SearchView
+import android.widget.SimpleCursorAdapter
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
@@ -34,14 +54,20 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
-import br.com.fenix.bilingualreader.model.enums.*
+import br.com.fenix.bilingualreader.model.enums.FileType
+import br.com.fenix.bilingualreader.model.enums.Libraries
+import br.com.fenix.bilingualreader.model.enums.LibraryBookType
+import br.com.fenix.bilingualreader.model.enums.ListMode
+import br.com.fenix.bilingualreader.model.enums.Order
+import br.com.fenix.bilingualreader.model.enums.ShareMarkType
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
 import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.service.scanner.ScannerBook
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
-import br.com.fenix.bilingualreader.util.helpers.NotificationUtil
+import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.library.BookGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookLineCardAdapter
@@ -55,7 +81,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 import kotlin.math.max
 
 
@@ -902,11 +928,12 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     private fun shareMarkToDrive() {
         GeneralConsts.getSharedPreferences(requireContext()).let { share ->
             if (share.getBoolean(GeneralConsts.KEYS.SYSTEM.SHARE_MARK_DRIVE, false)) {
-                val notification = NotificationUtil.getNotification(requireContext(), getString(R.string.notifications_share_mark_drive_title), getString(R.string.notifications_share_mark_drive_content))
+                val notification = Notifications.getNotification(requireContext(), getString(R.string.notifications_share_mark_drive_title), getString(R.string.notifications_share_mark_drive_content))
                 val notificationManager = NotificationManagerCompat.from(requireContext())
+                val notifyId = Notifications.getID()
 
                 if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
-                    notificationManager.notify(2, notification.build())
+                    notificationManager.notify(notifyId, notification.build())
 
                 mViewModel.processShareMarks(requireContext()) { result ->
                     val msg = when (result) {
@@ -942,7 +969,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                         .setOngoing(false)
 
                     if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
-                        notificationManager.notify(2, notification.build())
+                        notificationManager.notify(notifyId, notification.build())
                 }
             }
         }
