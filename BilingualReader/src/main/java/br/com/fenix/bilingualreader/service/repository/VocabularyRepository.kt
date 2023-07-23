@@ -306,6 +306,12 @@ class VocabularyRepository(var context: Context) {
                     Toast.makeText(context, mMsgImport, Toast.LENGTH_SHORT).show()
                 } catch (e: Exception) {
                     mLOGGER.error("Error process manga vocabulary. ", e)
+
+                    notification.setContentText(context.getString(R.string.vocabulary_import_error))
+                        .setOngoing(false)
+
+                    if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                        notificationManager.notify(notifyId, notification.build())
                 }
             }
         }
