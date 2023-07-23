@@ -1,7 +1,11 @@
 package br.com.fenix.bilingualreader.service.repository
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationManagerCompat
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Manga
@@ -16,6 +20,7 @@ import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FontUtil
+import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.book.VocabularyBookViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.manga.VocabularyMangaViewModel
@@ -32,13 +37,11 @@ import java.util.Date
 import java.util.Objects
 import kotlin.streams.toList
 
-class VocabularyRepository(context: Context) {
+class VocabularyRepository(var context: Context) {
 
     private val mLOGGER = LoggerFactory.getLogger(VocabularyRepository::class.java)
     private val mBase = DataBase.getDataBase(context)
     private var mDataBaseDAO = mBase.getVocabularyDao()
-    private val mMsgImport = context.getString(R.string.vocabulary_imported)
-    private val mVocabImported = Toast.makeText(context, mMsgImport, Toast.LENGTH_SHORT)
 
     private fun getOrderDesc(order: Order) : String {
         return when(order) {
@@ -240,11 +243,17 @@ class VocabularyRepository(context: Context) {
         if (manga.lastVocabImport != null && !Date(manga.file.lastModified()).after(manga.fileAlteration))
             return
 
-        val chaptersList = Collections
-            .synchronizedCollection(subTitleChapters.parallelStream()
+        val chaptersList = Collections.synchronizedCollection(subTitleChapters.parallelStream()
                 .filter(Objects::nonNull)
                 .filter { it.language == Languages.JAPANESE && it.vocabulary.isNotEmpty() }
                 .toList())
+
+        val notifyId = Notifications.getID()
+        val notificationManager = NotificationManagerCompat.from(context)
+        val notification = Notifications.getNotification(context, context.getString(R.string.vocabulary_import_title), context.getString(R.string.vocabulary_import, manga.title))
+
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+            notificationManager.notify(notifyId, notification.build())
 
         CoroutineScope(newSingleThreadContext("VocabularyThread")).launch {
             async {
@@ -262,7 +271,7 @@ class VocabularyRepository(context: Context) {
                             it.subTitlePages.stream().map { p -> pages.addAll(p.vocabulary) }
                         }
 
-                    for (vocabulary in list) {
+                    for ((index, vocabulary) in list.withIndex()) {
                         if (vocabulary != null) {
                             var appears = 0
 
@@ -271,16 +280,30 @@ class VocabularyRepository(context: Context) {
                             withContext(Dispatchers.Main) {
                                 vocabulary.id = save(vocabulary)
                                 vocabulary.id?.let { insert(manga.id!!, it, appears) }
+
+                                notification.setProgress(list.size, index, false)
+                                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                                    notificationManager.notify(notifyId, notification.build())
                             }
                         }
                     }
 
                     manga.lastVocabImport = LocalDateTime.now()
                     manga.fileAlteration = Date(manga.file.lastModified())
-                    withContext(Dispatchers.Main) { mBase.getMangaDao().update(manga) }
 
-                    mVocabImported.setText("$mMsgImport\n${manga.title}")
-                    mVocabImported.show()
+                    val mMsgImport = "${context.getString(R.string.vocabulary_imported)}\n${manga.title}"
+                    withContext(Dispatchers.Main) {
+                        mBase.getMangaDao().update(manga)
+
+                        notification.setContentText(mMsgImport)
+                            .setProgress(list.size, list.size, false)
+                            .setOngoing(false)
+
+                        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                            notificationManager.notify(notifyId, notification.build())
+                    }
+
+                    Toast.makeText(context, mMsgImport, Toast.LENGTH_SHORT).show()
                 } catch (e: Exception) {
                     mLOGGER.error("Error process manga vocabulary. ", e)
                 }
@@ -298,6 +321,13 @@ class VocabularyRepository(context: Context) {
         val book = mBase.getBookDao().get(idBook)
         if (book.language != Languages.JAPANESE || (book.lastVocabImport != null && !Date(book.file.lastModified()).after(book.fileAlteration)))
             return
+
+        val notifyId = Notifications.getID()
+        val notificationManager = NotificationManagerCompat.from(context)
+        val notification = Notifications.getNotification(context, context.getString(R.string.vocabulary_import_title), context.getString(R.string.vocabulary_import, book.title))
+
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+            notificationManager.notify(notifyId, notification.build())
 
         CoroutineScope(newSingleThreadContext("VocabularyThread")).launch {
             async {
@@ -325,10 +355,21 @@ class VocabularyRepository(context: Context) {
 
                     book.lastVocabImport = LocalDateTime.now()
                     book.fileAlteration = Date(book.file.lastModified())
-                    withContext(Dispatchers.Main) { mBase.getBookDao().update(book) }
 
-                    mVocabImported.setText("$mMsgImport\n${book.title}")
-                    mVocabImported.show()
+                    val mMsgImport = "${context.getString(R.string.vocabulary_imported)}\n${book.title}"
+
+                    withContext(Dispatchers.Main) {
+                        mBase.getBookDao().update(book)
+
+                        notification.setContentText(mMsgImport)
+                            .setProgress(0, 0, false)
+                            .setOngoing(false)
+
+                        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                            notificationManager.notify(notifyId, notification.build())
+                    }
+
+                    Toast.makeText(context, mMsgImport, Toast.LENGTH_SHORT).show()
                 } catch (e: Exception) {
                     mLOGGER.error("Error process book vocabulary. ", e)
                 }

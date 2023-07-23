@@ -1082,18 +1082,3 @@ class TextUtil {
         }
     }
 }
-
-class NotificationUtil {
-    companion object NotificationUtils {
-        const val NOTIFICATIONS_CHANNEL_ID = "BilingualReaderChannel"
-
-        fun getNotification(context: Context, title: String, content: String) = NotificationCompat.Builder(context, NOTIFICATIONS_CHANNEL_ID)
-            .setSmallIcon(R.mipmap.notification_icon)
-            .setContentTitle(title)
-            .setContentText(content)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setOngoing(true)
-            .setOnlyAlertOnce(true)
-            .setProgress(10, 0, true)
-    }
-}

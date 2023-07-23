@@ -13,6 +13,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -32,7 +33,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.MsgUtil
-import br.com.fenix.bilingualreader.util.helpers.NotificationUtil
+import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.view.ui.about.AboutFragment
 import br.com.fenix.bilingualreader.view.ui.configuration.ConfigFragment
 import br.com.fenix.bilingualreader.view.ui.help.HelpFragment
@@ -366,12 +367,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     @SuppressLint("ObsoleteSdkInt")
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(NotificationUtil.NOTIFICATIONS_CHANNEL_ID, getString(R.string.notifications_channel_name), NotificationManager.IMPORTANCE_DEFAULT).apply {
+            val channel = NotificationChannel(Notifications.NOTIFICATIONS_CHANNEL_ID, getString(R.string.notifications_channel_name), NotificationManager.IMPORTANCE_DEFAULT).apply {
                 description = getString(R.string.notifications_channel_description)
             }
             val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
+    }
+
+    override fun onDestroy() {
+        NotificationManagerCompat.from(this).cancelAll()
+        super.onDestroy()
     }
 
 }
