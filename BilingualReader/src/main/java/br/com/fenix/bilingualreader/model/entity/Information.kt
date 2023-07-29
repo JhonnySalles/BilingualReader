@@ -8,6 +8,7 @@ import br.com.fenix.bilingualreader.service.tracker.mal.MalTransform
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
+import java.time.LocalDate
 import java.util.Calendar
 
 class Information() {
@@ -193,17 +194,15 @@ class Information() {
         manga.coverArtist?.let { this@Information.authors += it + " (" + context.getString(R.string.text_cover_artist) + "), " }
         manga.colorist?.let { this@Information.authors += it + " (" + context.getString(R.string.text_colorist) + "), " }
 
-        this.release = if (manga.year != null) {
-            val calendar = Calendar.getInstance()
-            calendar.set(manga.year!!, (manga.month ?: 1), (manga.day ?: 1))
+        this.release = if (manga.year != null)
             context.getString(
                 R.string.manga_detail_local_information_release,
                 GeneralConsts.formatterDate(
                     context,
-                    calendar.time
+                    LocalDate.of(manga.year!!, manga.month ?: 1, manga.day ?: 1)
                 )
             )
-        } else ""
+        else ""
 
         if (authors.isNotEmpty())
             this.authors = context.getString(
