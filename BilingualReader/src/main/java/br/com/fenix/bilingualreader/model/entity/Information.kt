@@ -9,7 +9,6 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import java.time.LocalDate
-import java.util.Calendar
 
 class Information() {
     companion object {
