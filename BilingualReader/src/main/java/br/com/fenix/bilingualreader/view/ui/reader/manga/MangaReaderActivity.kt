@@ -220,6 +220,11 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 mMenuPopupTranslate.animate()
                     .setDuration(200)
                     .translationY(0f)
+            } else {
+                mMenuPopupTranslate.translationX = 100F
+                mMenuPopupTranslate.animate()
+                    .setDuration(200)
+                    .translationX(0f)
             }
         }
         findViewById<MaterialButton>(R.id.reader_manga_btn_popup_color).setOnClickListener {
@@ -231,6 +236,11 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 mMenuPopupColor.animate()
                     .setDuration(200)
                     .translationY(0f)
+            } else {
+                mMenuPopupColor.translationX = 100F
+                mMenuPopupColor.animate()
+                    .setDuration(200)
+                    .translationX(0f)
             }
         }
 
