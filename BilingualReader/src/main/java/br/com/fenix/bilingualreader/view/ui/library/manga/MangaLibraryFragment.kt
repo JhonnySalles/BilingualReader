@@ -810,8 +810,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             else -> resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
         } + 1
 
-        val spaceCount: Int =
-            max(1, Resources.getSystem().displayMetrics.widthPixels / columnWidth)
+        val spaceCount: Int = max(1, (Resources.getSystem().displayMetrics.widthPixels -5) / columnWidth)
         return GridLayoutManager(requireContext(), spaceCount)
     }
 
