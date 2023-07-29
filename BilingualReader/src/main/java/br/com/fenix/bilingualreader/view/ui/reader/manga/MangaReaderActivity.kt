@@ -31,6 +31,7 @@ import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
@@ -58,6 +59,7 @@ import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.reader.MangaChaptersCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
+import br.com.fenix.bilingualreader.view.ui.history.HistoryViewModel
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkActivity
 import br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkViewModel
@@ -76,7 +78,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
     private val mLOGGER = LoggerFactory.getLogger(MangaReaderActivity::class.java)
 
-    private val mViewModel: MangaReaderViewModel by viewModels()
+    private val mViewModel: MangaReaderViewModel by lazy { ViewModelProvider(this)[MangaReaderViewModel::class.java] }
 
     private lateinit var mReaderTitle: TextView
     private lateinit var mReaderProgress: DottedSeekBar
@@ -445,7 +447,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         } else
             MangaReaderFragment.create()
 
-        val fileLink: PagesLinkViewModel by viewModels()
+        val fileLink = ViewModelProvider(this)[PagesLinkViewModel::class.java]
         mSubtitleController.setFileLink(fileLink.getFileLink(manga))
         setFragment(fragment)
     }
@@ -505,7 +507,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         setManga(manga)
 
         mSubtitleController.clearExternalSubtitlesSelected()
-        val fileLink: PagesLinkViewModel by viewModels()
+        val fileLink = ViewModelProvider(this)[PagesLinkViewModel::class.java]
         mSubtitleController.setFileLink(fileLink.getFileLink(manga))
 
         setFragment(MangaReaderFragment.create(mLibrary, manga))

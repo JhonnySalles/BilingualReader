@@ -17,6 +17,7 @@ import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
+import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
@@ -32,6 +33,7 @@ import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.google.android.material.tabs.TabLayout
@@ -43,7 +45,7 @@ class BookReaderActivity : AppCompatActivity() {
 
     private val mLOGGER = LoggerFactory.getLogger(BookReaderActivity::class.java)
 
-    private val mViewModel: BookReaderViewModel by viewModels()
+    private val mViewModel: BookReaderViewModel by lazy { ViewModelProvider(this)[BookReaderViewModel::class.java] }
 
     private lateinit var mToolBarTop: Toolbar
     private lateinit var mToolBarChapter: TextView
