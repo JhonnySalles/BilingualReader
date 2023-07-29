@@ -41,7 +41,8 @@ import java.io.FileReader
 import java.io.FileWriter
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 
 class ShareMarkController(var context: Context) {

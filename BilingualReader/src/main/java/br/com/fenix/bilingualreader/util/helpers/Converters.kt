@@ -4,7 +4,8 @@ import android.graphics.Bitmap
 import androidx.room.TypeConverter
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class Converters {
 

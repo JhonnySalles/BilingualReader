@@ -24,10 +24,7 @@ import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.view.adapter.history.HistoryCardAdapter
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import java.time.Instant
-import java.time.LocalDateTime
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class HistoryFragment : Fragment() {

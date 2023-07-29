@@ -9,7 +9,7 @@ import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.Serializable
-import java.util.*
+import java.util.Date
 
 @Entity(
     tableName = DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME,

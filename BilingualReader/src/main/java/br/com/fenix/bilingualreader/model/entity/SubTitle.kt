@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.File
-import java.util.*
+import java.util.Date
 
 @Entity(
     tableName = DataBaseConsts.SUBTITLES.TABLE_NAME,

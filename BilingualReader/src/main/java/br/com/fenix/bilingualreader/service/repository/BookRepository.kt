@@ -5,7 +5,6 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookConfiguration
 import br.com.fenix.bilingualreader.model.entity.Library
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
 import java.util.Date
 
 class BookRepository(context: Context) {

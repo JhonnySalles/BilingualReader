@@ -4,7 +4,7 @@ import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.LinkedFile
 import br.com.fenix.bilingualreader.model.entity.LinkedPage
 import br.com.fenix.bilingualreader.model.entity.Manga
-import java.util.*
+import java.util.Date
 
 class FileLinkRepository(context: Context) {
 

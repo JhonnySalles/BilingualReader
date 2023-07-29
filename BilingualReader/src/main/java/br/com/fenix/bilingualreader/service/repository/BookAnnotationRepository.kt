@@ -3,9 +3,7 @@ package br.com.fenix.bilingualreader.service.repository
 import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import org.slf4j.LoggerFactory
-import java.time.Instant
-import java.time.LocalDateTime
-import java.util.*
+import java.util.Date
 
 class BookAnnotationRepository(context: Context) {
 

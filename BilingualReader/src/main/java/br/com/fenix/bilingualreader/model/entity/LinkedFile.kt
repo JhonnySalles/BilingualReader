@@ -10,7 +10,7 @@ import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.File
 import java.io.Serializable
-import java.util.*
+import java.util.Date
 
 @Entity(
     tableName = DataBaseConsts.FILELINK.TABLE_NAME,

@@ -14,7 +14,7 @@ import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import java.io.File
 import java.io.Serializable
-import java.util.*
+import java.util.Date
 
 @Entity(
     tableName = DataBaseConsts.BOOK.TABLE_NAME,

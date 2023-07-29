@@ -3,7 +3,7 @@ package br.com.fenix.bilingualreader.service.repository
 import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.SubTitle
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.Date
 
 class SubTitleRepository(context: Context) {
 

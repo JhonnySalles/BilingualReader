@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.Serializable
-import java.util.*
+import java.util.Date
 
 @Entity(
     tableName = DataBaseConsts.BOOK_SEARCH_HISTORY.TABLE_NAME,
