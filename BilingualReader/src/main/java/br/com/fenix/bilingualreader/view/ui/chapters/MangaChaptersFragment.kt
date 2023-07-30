@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.view.ui.chapters
 
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,6 +20,7 @@ import br.com.fenix.bilingualreader.view.adapter.chapters.ChaptersLineAdapter
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderViewModel
 import org.slf4j.LoggerFactory
+import kotlin.math.max
 
 
 class MangaChaptersFragment : Fragment(), ChapterLoadListener {
@@ -34,7 +36,9 @@ class MangaChaptersFragment : Fragment(), ChapterLoadListener {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        requireArguments().let { PosInitial = if (it.containsKey(GeneralConsts.KEYS.MANGA.PAGE_NUMBER)) it.getInt(GeneralConsts.KEYS.MANGA.PAGE_NUMBER) else 0 }
+        requireArguments().let {
+            PosInitial = if (it.containsKey(GeneralConsts.KEYS.MANGA.PAGE_NUMBER)) it.getInt(GeneralConsts.KEYS.MANGA.PAGE_NUMBER) else 0
+        }
     }
 
     override fun onCreateView(
@@ -65,7 +69,10 @@ class MangaChaptersFragment : Fragment(), ChapterLoadListener {
         val adapter = ChaptersLineAdapter()
         adapter.attachListener(listener)
         mRecyclerView.adapter = adapter
-        val count = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 3 else 3
+
+        val count = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            max(4, (Resources.getSystem().displayMetrics.widthPixels) / resources.getDimension(R.dimen.chapters_grid_card_layout_width).toInt()) - 1
+        } else 3
         mRecyclerView.layoutManager = StaggeredGridLayoutManager(count, StaggeredGridLayoutManager.VERTICAL)
 
         observer()
