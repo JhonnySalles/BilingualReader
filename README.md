@@ -65,7 +65,7 @@ Caso tenha alguma dúvida sobre como processar o json favor entrar em contato. E
 
 O aplicativo é também compatível com legendas extraidas e pré processadas com o programa [MangaExtractor](https://github.com/JhonnySalles/MangaExtractor), onde após exportar para json as legendas com o formato abaixo, é possível carrega-los tanto embutido no arquivo de manga (rar/zip/tar), como também importado um arquivo de json solto localizado em alguma pasta no celular.
 
-    List<Class> capitulos          # Lista de classes de capitulos
+    List<Class> capitulos      # Lista de classes de capitulos
     ├── id
     ├── manga                  # Nome do manga
     ├── volume              
@@ -90,14 +90,14 @@ O aplicativo é também compatível com legendas extraidas e pré processadas co
     │   └── vocabulario        # Vocabulário da página
     │       ├── palavra       
     │       ├── portugues      # Significado da palavra em português
-    │	      ├── ingles         # Significado da palavra em inglês
-    │	      ├── leitura        # Leitura em katakana
+    │	    |  ├── ingles         # Significado da palavra em inglês
+    │	    |  ├── leitura        # Leitura em katakana
     │       └── revisado       # Flag sinalizadora que o vocabulário foi revisado ou não. 
     └── vocabulario            # Vocabulário do capitulo
         ├── palavra            
         ├── portugues          # Significado da palavra em português
-	      ├── ingles             # Significado da palavra em inglês
-	      ├── leitura            # Leitura em katakana
+	|   ├── ingles            # Significado da palavra em inglês
+	|   └── leitura           # Leitura em katakana
         └── revisado           # Flag sinalizadora que o vocabulário foi revisado ou não.
   
          
@@ -108,6 +108,7 @@ O aplicativo é também compatível com legendas extraidas e pré processadas co
 
 * 1.0.0
     * Commit inicial com as alterações do projeto base.
+    * Implementado a abertura de livros no formato PDF, EPUB, MOBI e FB2.
 * 1.0.1
     * Em progresso.
 
@@ -118,27 +119,37 @@ O aplicativo é também compatível com legendas extraidas e pré processadas co
 - [X] Abertura de arquivos cbz/zip
 - [X] Abertura de arquivos cbt/tar
 - [X] Abertura de arquivos cb7/7z
-- [X] Carregar legendas pré processadas
-- [X] Localização da legenda em outro idioma
-- [X] Popup flutuante da legenda para facilitar a leitura
-- [X] Impressão na imagem das coordenadas de texto extraido para melhor localizar a legenda
-- [X] Reconhecimento de furigana do texto em japonês
-- [X] Reconhecimento do nivel jlpt do kanji
-- [X] Significado do kanji
-- [X] Troca das legendas entre idiomas selecionados (devido a diferenças de paginas entre versões pode não localizar de forma satisfatória)
-- [X] Abertura de um segundo arquivo para leitura de multi idioma (com a troca de imagens entre o original e outro arquivo em outro idioma)
-- [X] Rastreamento de erros e logs.
-- [X] Chamada ao aplicativo Kaku para utilização de OCR
-- [X] Reconhecimento de palavras utilizando o Tesseract OCR/Google Vision
+- [X] Leitor de Livros
+- [X] Abertura de arquivos pdf
+- [X] Abertura de arquivos epub/epub3 [ebook]
+- [X] Abertura de arquivos mobi [ebook]
+- [X] Abertura de arquivos fb2 [ebook]
+- [X] Abertura de arquivos djvu [ebook]
+- [X] Arquivo de legendas pré processadas [Mangas/Comics]
+- [X] Localização da legenda em outro idioma [Mangas/Comics]
+- [X] Auto-Scroll quando pressionar avançar [Mangas/Comics]
+- [X] Zoom com o clique longo [Mangas/Comics]
+- [X] Impressão na imagem as coordenadas de legenda para melhor entendimento
 - [X] Dicionarios Japonês
-- [ ] Leitor de novels
-- [ ] Abertura de arquivos pdf
-- [ ] Abertura de arquivos ebook no formato awz/awz3
-- [ ] Abertura de arquivos ebook no formato epub/epub3
-- [ ] Abertura de arquivos ebook no formato mobi
-- [ ] Abertura de arquivos ebook no formato fb2
-- [ ] Abertura de arquivos ebook no formato doc/docx
-- [ ] Abertura de arquivos ebook no formato html
+- [X] Reconhecimento de furigana do texto em japonês
+- [X] Apresentação do nivel jlpt do kanji
+- [X] Significado do kanji
+- [X] Implementação de temas
+- [X] Alternar entre legendas selecionados (devido a diferenças de paginas entre as versões em diferente idioma a localização não ocorria de forma satisfatória)
+- [X] Abertura de um segundo arquivo para leitura de multi idioma (alternar entre as imagens da página com um siples botão) [Mangas/Comics]
+- [X] Permitir a modificação do vinculo entre as páginas dos dois arquivos [Mangas/Comics]
+- [X] Automatizar o vinculo entre as páginas, levando em consideração páginas duplas [Mangas/Comics]
+- [X] Rastreamento de erros e logs
+- [X] Chamada ao aplicativo Kaku para utilização de OCR
+- [X] Reconhecimento de palavras utilizando o <b>Tesseract OCR/Google Vision</b>
+- [X] Dicionarios Japonês
+- [X] Leitura de metadata de Mangas/Comics no formato <b>ComicRack</b>
+- [X] Sugestões de filtros na biblioteca (Autor, Extensão, Série, Volume, editora)
+- [X] Adicionar marcação do capítulo na barra de progresso (capítulos separado por pastas no arquivo)
+- [X] Lista de páginas com separação por capítulos
+- [X] Compartilhar imagem [Mangas/Comics]
+- [X] Animações nos ícones
+- [X] Compartilhamento de marcações entre o dispositivos através do Google Drive
 - [ ] Exportar vocabularios ao Anki
 
 
@@ -160,7 +171,7 @@ O aplicativo é também compatível com legendas extraidas e pré processadas co
 
 > Para executar o projeto é necessário ter o android studio instalado junto com uma versão do emulador.
 
-> Abra então no android studio a pasta do projeto e aguarde o gradle processar as dependências 
+> Abra então no android studio a pasta do projeto e aguarde o gradle processar as dependências. 
 
 > Após a instalação das dependências compile e execute o projeto, no qual será então aberto no emulador.
 
@@ -169,36 +180,246 @@ O aplicativo é também compatível com legendas extraidas e pré processadas co
 
 > Algumas imagens do aplicativo
 
-![Biblioteca](https://i.imgur.com/roLmu9C.png)
+<p align="center">
+   <img alt="Menu principal" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Menu.png" width="300" class="center">
+</p>
 
-![Leitor](https://i.imgur.com/r4hhAzj.jpg)
 
-![Leitor](https://i.imgur.com/Awwcjyc.jpg)
+<p align="center">
+   <img alt="Biblioteca" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Biblioteca_01.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Biblioteca" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Biblioteca_02.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Leitor" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Leitura_01.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Leitor" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Leitura_03.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Capítulos" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Paginas_01.png" width="300" class="center">
+</p>
+
+
+> Biblioteca
+
+<p align="center">
+   <img alt="Bibliotecaa" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Biblioteca_01.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Ordenação" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Biblioteca_05.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Filtro" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Biblioteca_06.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Sugestões de pesquisa" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Biblioteca_03.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Filtrado Sugestões" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Biblioteca_04.png" width="300" class="center">
+</p>
+
+
+> MetaData
+
+<p align="center">
+   <img alt="MetaData ComicRack" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Detalhe_01.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Informações do arquivo" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Detalhe_02.png" width="300" class="center">
+</p>
+
+
+> Vinculo entre arquivos
+
+<p align="center">
+   <img alt="Vinculo de paginas entre dois arquivos" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Vinculo_01.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Movimentação das próximas imagens" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Vinculo_02.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Vinculo em página simples" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Vinculo_03.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Vinculo de pagina dupla" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Vinculo_04.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Pagina dupla" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Vinculo_05.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Zoom da pagina" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Vinculo_06.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Zoom da pagina" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Vinculo_07.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Página original" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Vinculo_08.png" width="500" class="center">
+</p>
+
+<p align="center">
+   <img alt="Página vinculada" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Vinculo_09.png" width="500" class="center">
+</p>
+
+<p align="center">
+   <img alt="Página original com zoom" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Vinculo_10.png" width="500" class="center">
+</p>
+
+<p align="center">
+   <img alt="Zoom mantido na troca" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Vinculo_11.png" width="500" class="center">
+</p>
+
+
+> Leitura
+
+<p align="center">
+   <img alt="Leitor" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Leitura_03.png" width="500" class="center">
+</p>
+
+<p align="center">
+   <img alt="Zoom mantendo pressionado" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Leitura_04.png" width="500" class="center">
+</p>
+
+<p align="center">
+   <img alt="Funções de touch" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Leitura_05.png" width="500" class="center">
+</p>
+
+<p align="center">
+   <img alt="Auto Scroll ao clicar na próxima página" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Leitura_06.png" width="500" class="center">
+</p>
+
+<p align="center">
+   <img alt="Auto Scroll na leitura" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Leitura_07.png" width="500" class="center">
+</p>
+
+<p align="center">
+   <img alt="Auto Scroll na leitura" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Leitura_08.png" width="500" class="center">
+</p>
+
+<p align="center">
+   <img alt="Auto Scroll próxima página" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Leitura_09.png" width="500" class="center">
+</p>
+
+<p align="center">
+   <img alt="Cores e iluminação" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Leitura_02.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Compartilhar a imagem" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Compartilhar_01.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Compartilhar a imagem" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Compartilhar_02.png" width="300" class="center">
+</p>
+
+
+> Legenda
+
+<p align="center">
+   <img alt="Legendas" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Legenda_01.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Legendas" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Legenda_02.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Vocabulário" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Legenda_03.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Legenda" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Legenda_04.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Legenda" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Legenda_05.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Kanji" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Legenda_06.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Kanji" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Legenda_07.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Kanji" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Legenda_08.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Popup da legenda" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Popup_01.png" width="500" class="center">
+</p>
+
+<p align="center">
+   <img alt="Identificação da legenda pela coordenada no clique longo" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Popup_02.png" width="500" class="center">
+</p>
+
+<p align="center">
+   <img alt="Impressão da localização da legenda" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Popup_03.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Impressão da localização da legenda" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Popup_04.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Impressão da localização da legenda em outro idioma" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Popup_05.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Copia do vocabulário" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Popup_06.png" width="300" class="center">
+</p>
 
 
 > Recursos
 
-![Vinculo de paginas em dois arquivos](https://i.imgur.com/uCvYPV6.png)
+<p align="center">
+   <img alt="Sincronização de marcações" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Notificacao_01.png" width="300" class="center">
+</p>
 
-![Paginas não vinculadas](https://i.imgur.com/E1kyoQ4.png)
+<p align="center">
+   <img alt="Sincronização de marcações" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Notificacao_02.png" width="300" class="center">
+</p>
 
-![Paginas duplas](https://i.imgur.com/adp9MwE.png)
+<p align="center">
+   <img alt="Importação de vocabulário" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Notificacao_03.png" width="300" class="center">
+</p>
 
-![Popup flutuante](https://i.imgur.com/dIuQO9N.jpg)
+<p align="center">
+   <img alt="Temas" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Tema_01.png" width="300" class="center">
+</p>
 
-![Localização do texto reconhecido com ocr](https://i.imgur.com/fMavbfI.jpg)
+<p align="center">
+   <img alt="Temas" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Tema_02.png" width="300" class="center">
+</p>
 
-![Informações da legenda](https://i.imgur.com/t7LR4PV.jpg)
-
-![Informações do kanji](https://i.imgur.com/j0Wzpsv.jpg)
-
-![Informações do kanji](https://i.imgur.com/js2wlIb.jpg)
-
-![Vocabulário](https://i.imgur.com/xG1jfYr.jpg)
+<p align="center">
+   <img alt="Temas" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Tema_03.png" width="300" class="center">
+</p>
 
 
 > Estrutura do arquivo recomendada
 
-![Estrutura de pasta](https://i.imgur.com/EZdlHGV.png)
+<p align="center">
+   <img alt="Estrutura de pastas do arquivo" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Estrutura_do_Arquivo.png" width="500" class="center">
+</p>
 
 > Recomendo embutir a legenda no arquivo e separar as pastas por capitulo para facilitar a localização da legenda correta quando não for possível o aplicativo encontrar a pagina correspondente.
