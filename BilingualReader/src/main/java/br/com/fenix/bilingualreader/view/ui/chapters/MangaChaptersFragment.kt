@@ -2,7 +2,11 @@ package br.com.fenix.bilingualreader.view.ui.chapters
 
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.graphics.drawable.AnimatedVectorDrawable
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +23,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.view.adapter.chapters.ChaptersLineAdapter
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderViewModel
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.slf4j.LoggerFactory
 import kotlin.math.max
 
@@ -30,14 +35,25 @@ class MangaChaptersFragment : Fragment(), ChapterLoadListener {
     private val mViewModel: MangaReaderViewModel by activityViewModels()
 
     private lateinit var mRecyclerView: RecyclerView
-    private var PosInitial = 0
+    private lateinit var mScrollUp: FloatingActionButton
+    private lateinit var mScrollDown: FloatingActionButton
+
+    private lateinit var mToolbar: androidx.appcompat.widget.Toolbar
+
+    private var mPosInitial = 0
+    private var mTolbarTitle = ""
+
+    private var mHandler = Handler(Looper.getMainLooper())
+    private val mDismissUpButton = Runnable { mScrollUp.hide() }
+    private val mDismissDownButton = Runnable { mScrollDown.hide() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
         requireArguments().let {
-            PosInitial = if (it.containsKey(GeneralConsts.KEYS.MANGA.PAGE_NUMBER)) it.getInt(GeneralConsts.KEYS.MANGA.PAGE_NUMBER) else 0
+            mPosInitial = if (it.containsKey(GeneralConsts.KEYS.MANGA.PAGE_NUMBER)) it.getInt(GeneralConsts.KEYS.MANGA.PAGE_NUMBER) else 0
+            mTolbarTitle = it.getString(GeneralConsts.KEYS.MANGA.TITLE, "")
         }
     }
 
@@ -49,12 +65,72 @@ class MangaChaptersFragment : Fragment(), ChapterLoadListener {
         val root = inflater.inflate(R.layout.fragment_manga_chapters, container, false)
 
         mRecyclerView = root.findViewById(R.id.manga_chapters_recycler_view)
+        mScrollUp = root.findViewById(R.id.manga_chapter_scroll_up)
+        mScrollDown = root.findViewById(R.id.manga_chapter_scroll_down)
+        mToolbar = root.findViewById(R.id.toolbar_manga_chapter)
+
+        (requireActivity() as MenuActivity).setActionBar(mToolbar)
+
+        mToolbar.title = mTolbarTitle
+
+        mScrollUp.visibility = View.GONE
+        mScrollDown.visibility = View.GONE
 
         return root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        mScrollUp.setOnClickListener {
+            (mScrollUp.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.smoothScrollToPosition(0)
+        }
+
+        mScrollDown.setOnClickListener {
+            (mScrollDown.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.smoothScrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount)
+        }
+
+        mRecyclerView.setOnScrollChangeListener { _, _, _, _, yOld ->
+            if (yOld > 20) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (mHandler.hasCallbacks(mDismissDownButton))
+                        mHandler.removeCallbacks(mDismissDownButton)
+                } else
+                    mHandler.removeCallbacks(mDismissDownButton)
+
+                mScrollDown.hide()
+            } else if (yOld < -20) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (mHandler.hasCallbacks(mDismissUpButton))
+                        mHandler.removeCallbacks(mDismissUpButton)
+                } else
+                    mHandler.removeCallbacks(mDismissUpButton)
+
+                mScrollUp.hide()
+            }
+
+            if (yOld > 150) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (mHandler.hasCallbacks(mDismissUpButton))
+                        mHandler.removeCallbacks(mDismissUpButton)
+                } else
+                    mHandler.removeCallbacks(mDismissUpButton)
+
+                mHandler.postDelayed(mDismissUpButton, 3000)
+                mScrollUp.show()
+            } else if (yOld < -150) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (mHandler.hasCallbacks(mDismissUpButton))
+                        mHandler.removeCallbacks(mDismissUpButton)
+                } else
+                    mHandler.removeCallbacks(mDismissUpButton)
+
+                mHandler.postDelayed(mDismissDownButton, 3000)
+                mScrollDown.show()
+            }
+        }
 
         val listener = object : ChapterCardListener {
             override fun onClick(page: Chapters) {
@@ -83,12 +159,23 @@ class MangaChaptersFragment : Fragment(), ChapterLoadListener {
         SharedData.chapters.observe(viewLifecycleOwner) {
             (mRecyclerView.adapter as ChaptersLineAdapter).updateList(it)
         }
-        if (PosInitial > 0)
-            mRecyclerView.scrollToPosition(PosInitial)
+        if (mPosInitial > 0)
+            mRecyclerView.scrollToPosition(mPosInitial)
     }
 
     override fun onDestroy() {
         SharedData.remListener(this)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (mHandler.hasCallbacks(mDismissUpButton))
+                mHandler.removeCallbacks(mDismissUpButton)
+            if (mHandler.hasCallbacks(mDismissDownButton))
+                mHandler.removeCallbacks(mDismissDownButton)
+        } else {
+            mHandler.removeCallbacks(mDismissUpButton)
+            mHandler.removeCallbacks(mDismissDownButton)
+        }
+
         super.onDestroy()
     }
 

@@ -1167,6 +1167,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         val intent = Intent(this, MenuActivity::class.java)
         val bundle = Bundle()
         bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_manga_chapters)
+        bundle.putString(GeneralConsts.KEYS.MANGA.TITLE, mManga?.title ?: "")
 
         mFragment?.let {
             bundle.putInt(GeneralConsts.KEYS.MANGA.PAGE_NUMBER, it.getCurrentPage() - 1)
