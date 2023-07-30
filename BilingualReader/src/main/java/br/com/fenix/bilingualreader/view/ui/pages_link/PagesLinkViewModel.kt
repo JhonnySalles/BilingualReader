@@ -583,30 +583,21 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
             return
         }
 
-        if (destinyType != PageLinkType.LINKED && destiny.isDualImage) {
-            mPagesNotLinked.value!!.add(
-                LinkedPage(
-                    destiny.idFile, true, destiny.fileLinkRightPage, destiny.fileLinkLeftPages, destiny.fileLinkRightPageName,
-                    destiny.fileLinkRightPagePath, destiny.isFileRightDualPage, destiny.imageRightFileLinkPage
-                )
-            )
-            notifyMessages(PageLinkType.NOT_LINKED, PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_IMAGE_ADDED, getPageNotLinkLastIndex())
-        } else if (destinyType == PageLinkType.LINKED && destiny.fileLinkLeftPage != PageLinkConsts.VALUES.PAGE_EMPTY) {
-            mPagesNotLinked.value!!.add(
-                LinkedPage(
-                    destiny.idFile, true, destiny.fileLinkLeftPage, destiny.fileLinkLeftPages, destiny.fileLinkLeftPageName,
-                    destiny.fileLinkLeftPagePath, destiny.isFileLeftDualPage, destiny.imageLeftFileLinkPage
-                )
-            )
-            notifyMessages(PageLinkType.NOT_LINKED, PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_IMAGE_ADDED, getPageNotLinkLastIndex())
-        }
+        var notLink = if (destinyType != PageLinkType.LINKED && destiny.isDualImage)
+            LinkedPage(destiny.idFile, true, destiny.fileLinkRightPage, destiny.fileLinkLeftPages, destiny.fileLinkRightPageName,
+                destiny.fileLinkRightPagePath, destiny.isFileRightDualPage, destiny.imageRightFileLinkPage)
+        else if (destinyType == PageLinkType.LINKED && destiny.fileLinkLeftPage != PageLinkConsts.VALUES.PAGE_EMPTY)
+            LinkedPage(destiny.idFile, true, destiny.fileLinkLeftPage, destiny.fileLinkLeftPages, destiny.fileLinkLeftPageName,
+                destiny.fileLinkLeftPagePath, destiny.isFileLeftDualPage, destiny.imageLeftFileLinkPage)
+        else
+            null
 
         when {
             (originType == PageLinkType.DUAL_PAGE && destinyType == PageLinkType.DUAL_PAGE) -> {
                 val originIndex = mPagesLink.value!!.indexOf(origin)
                 val destinyIndex = mPagesLink.value!!.indexOf(destiny)
 
-                destiny.addRightFromLeftPageLink(origin)
+                destiny.addRightPageLink(origin)
                 origin.clearRightPageLink()
 
                 notifyMessages(originType, PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_ITEM_CHANGE, originIndex)
@@ -637,7 +628,13 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
                 when {
                     originType != PageLinkType.DUAL_PAGE && destinyType == PageLinkType.LINKED -> destiny.addLeftPageLink(origin)
                     originType != PageLinkType.DUAL_PAGE && destinyType != PageLinkType.LINKED -> destiny.addRightFromLeftPageLink(origin)
-                    originType == PageLinkType.DUAL_PAGE && destinyType == PageLinkType.LINKED -> destiny.addLeftPageLink(origin)
+                    originType == PageLinkType.DUAL_PAGE && destinyType == PageLinkType.LINKED -> {
+                        if ((destinyIndex + 1) < mPagesLink.value!!.size) {
+                            notLink = null
+                            onMove(mPagesLink.value!![destinyIndex], mPagesLink.value!![destinyIndex + 1])
+                        }
+                        destiny.addLeftFromRightPageLink(origin)
+                    }
                     originType == PageLinkType.DUAL_PAGE && destinyType != PageLinkType.LINKED -> destiny.addRightFromLeftPageLink(origin)
                 }
 
@@ -669,6 +666,11 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
                 }
             }
         }
+
+        if (notLink != null) {
+            mPagesNotLinked.value!!.add(notLink)
+            notifyMessages(PageLinkType.NOT_LINKED, PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_IMAGE_ADDED, getPageNotLinkLastIndex())
+        }
     }
 
     fun onMove(origin: LinkedPage?, destiny: LinkedPage?) {
@@ -697,7 +699,11 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
             differ *= -1
             for (i in destinyIndex until limit) {
                 when {
-                    i == destinyIndex -> mPagesLink.value!![i].addLeftPageLink(origin)
+                    i == destinyIndex -> {
+                        mPagesLink.value!![i].addLeftPageLink(origin)
+                        origin.clearLeftPageLink()
+                        notifyMessages(PageLinkType.LINKED, PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_ITEM_CHANGE, originIndex)
+                    }
                     (i + differ) > (limit) -> continue
                     else -> {
                         mPagesLink.value!![i].addLeftPageLink(mPagesLink.value!![i + differ])
