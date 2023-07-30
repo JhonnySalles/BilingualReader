@@ -317,13 +317,13 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
             CoroutineScope(Dispatchers.IO).launch {
                 val deferred = async {
                     if (number > 5) {
-                        for (i in number - 5 until list.size){
+                        for (i in (number - 3) until list.size) {
                             val page = list[i]
                             page.image = loadImage(parse, page.number)
                             withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
                         }
 
-                        for (i in number - 5 downTo 0){
+                        for (i in (number - 4) downTo 0) {
                             val page = list[i]
                             page.image = loadImage(parse, page.number)
                             withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
