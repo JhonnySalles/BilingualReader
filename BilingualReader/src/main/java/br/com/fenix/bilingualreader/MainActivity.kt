@@ -4,11 +4,14 @@ import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.SubMenu
+import android.view.View
+import android.view.WindowManager
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -34,6 +37,7 @@ import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.MsgUtil
 import br.com.fenix.bilingualreader.util.helpers.Notifications
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.view.ui.about.AboutFragment
 import br.com.fenix.bilingualreader.view.ui.configuration.ConfigFragment
 import br.com.fenix.bilingualreader.view.ui.help.HelpFragment
@@ -75,22 +79,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mDefaultUncaughtHandler?.uncaughtException(t, e)
         }
 
+        val isDark : Boolean = when (ThemeMode.valueOf(
+            GeneralConsts.getSharedPreferences(this)
+                .getString(GeneralConsts.KEYS.THEME.THEME_MODE, ThemeMode.SYSTEM.toString())!!
+        )) {
+            ThemeMode.DARK -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                true
+            }
+
+            ThemeMode.LIGHT -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                false
+            }
+            else -> resources.getBoolean(R.bool.isNight)
+        }
+
         val theme = Themes.valueOf(
             GeneralConsts.getSharedPreferences(this)
                 .getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!
         )
         setTheme(theme.getValue())
 
-        when (ThemeMode.valueOf(
-            GeneralConsts.getSharedPreferences(this)
-                .getString(GeneralConsts.KEYS.THEME.THEME_MODE, ThemeMode.SYSTEM.toString())!!
-        )) {
-            ThemeMode.DARK -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            ThemeMode.LIGHT -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            else -> {}
-        }
-
         super.onCreate(savedInstanceState)
+
+        ThemeUtil.transparentTheme(window, isDark)
 
         clearCache()
         initializeBook()
@@ -146,24 +159,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             fragment = ConfigFragment()
         } else {
             val idLibrary = GeneralConsts.getSharedPreferences(this).getLong(
-                    GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY,
-                    GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
-                )
+                GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY,
+                GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
+            )
 
             val library = mLibraries.find { it.id == idLibrary } ?: if (idLibrary.compareTo(R.id.menu_book_library_default) == 0)
-                    LibraryUtil.getDefault(this, Type.BOOK)
-                else
-                    LibraryUtil.getDefault(this, Type.MANGA)
+                LibraryUtil.getDefault(this, Type.BOOK)
+            else
+                LibraryUtil.getDefault(this, Type.MANGA)
 
             fragment = when (library.type) {
                 Type.MANGA -> {
                     mMangaLibraryModel.setLibrary(library)
                     MangaLibraryFragment()
                 }
+
                 Type.BOOK -> {
                     mBookLibraryModel.setLibrary(library)
                     BookLibraryFragment()
                 }
+
                 else -> {
                     mMangaLibraryModel.setLibrary(LibraryUtil.getDefault(this, Type.MANGA))
                     MangaLibraryFragment()
@@ -246,10 +261,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 mMangaLibraryModel.setLibrary(LibraryUtil.getDefault(this, Type.MANGA))
                 MangaLibraryFragment()
             }
+
             R.id.menu_book_library_default -> {
                 mBookLibraryModel.setLibrary(LibraryUtil.getDefault(this, Type.BOOK))
                 BookLibraryFragment()
             }
+
             R.id.menu_configuration -> ConfigFragment()
             R.id.menu_help -> HelpFragment()
             R.id.menu_about -> AboutFragment()
@@ -260,11 +277,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 mMangaLibraryModel.setLibrary(library)
                 MangaLibraryFragment()
             }
+
             in GeneralConsts.KEYS.LIBRARIES.BOOK_INDEX_LIBRARIES..(GeneralConsts.KEYS.LIBRARIES.BOOK_INDEX_LIBRARIES + mLibraries.filter { it.type == Type.BOOK }.size) -> {
                 val library = mLibraries.find { it.menuKey == item.itemId } ?: LibraryUtil.getDefault(this, Type.BOOK)
                 mBookLibraryModel.setLibrary(library)
                 BookLibraryFragment()
             }
+
             else -> null
         }
 
@@ -325,7 +344,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private var mLibraries: List<Library> = listOf()
-    private fun cleanLibraries(menu : Menu) {
+    private fun cleanLibraries(menu: Menu) {
         var submenu: SubMenu? = menu.findItem(R.id.menu_manga_library_content).subMenu
         var list = mLibraries.filter { it.type == Type.MANGA }
 
@@ -338,12 +357,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         for ((index, _) in list.withIndex())
             submenu?.removeItem(GeneralConsts.KEYS.LIBRARIES.BOOK_INDEX_LIBRARIES + index)
     }
+
     private fun setLibraries(submenu: SubMenu?, type: Type, libraries: List<Library>) {
         val list = libraries.filter { it.type == type }
         val icon = if (type == Type.BOOK) R.drawable.ico_book else R.drawable.ico_library
         for ((index, library) in list.withIndex())
             submenu?.let {
-                val key = (if (type == Type.BOOK) GeneralConsts.KEYS.LIBRARIES.BOOK_INDEX_LIBRARIES else GeneralConsts.KEYS.LIBRARIES.MANGA_INDEX_LIBRARIES) + index
+                val key =
+                    (if (type == Type.BOOK) GeneralConsts.KEYS.LIBRARIES.BOOK_INDEX_LIBRARIES else GeneralConsts.KEYS.LIBRARIES.MANGA_INDEX_LIBRARIES) + index
                 library.menuKey = key
                 it.add(0, key, 0, library.title).apply { setIcon(icon) }
             }
@@ -367,7 +388,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     @SuppressLint("ObsoleteSdkInt")
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(Notifications.NOTIFICATIONS_CHANNEL_ID, getString(R.string.notifications_channel_name), NotificationManager.IMPORTANCE_DEFAULT).apply {
+            val channel = NotificationChannel(
+                Notifications.NOTIFICATIONS_CHANNEL_ID,
+                getString(R.string.notifications_channel_name),
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
                 description = getString(R.string.notifications_channel_description)
             }
             val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

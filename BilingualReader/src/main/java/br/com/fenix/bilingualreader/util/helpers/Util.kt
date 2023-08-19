@@ -19,6 +19,7 @@ import android.graphics.PointF
 import android.graphics.drawable.Animatable2
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Handler
 import android.util.DisplayMetrics
 import android.util.TypedValue
@@ -32,6 +33,7 @@ import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
+import androidx.core.widget.NestedScrollView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -1007,6 +1009,43 @@ class ThemeUtil {
         ): Int {
             theme.resolveAttribute(attrColor, typedValue, resolveRefs)
             return typedValue.data
+        }
+
+        fun transparentTheme(window: Window, isDarkTheme: Boolean, @ColorInt colorStatus: Int? = null, @ColorInt colorNavigation: Int? = null, isLightStatus: Boolean = false) {
+            if (isDarkTheme)
+                window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
+            else
+                window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR)
+
+            if (isLightStatus)
+                window.decorView.systemUiVisibility = (window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+
+            window.statusBarColor = colorStatus ?: android.graphics.Color.TRANSPARENT
+            window.navigationBarColor = colorNavigation ?: android.graphics.Color.TRANSPARENT
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                window.setDecorFitsSystemWindows(false)
+                window.isStatusBarContrastEnforced = false
+                window.isNavigationBarContrastEnforced = false
+            }
+        }
+
+        fun changeStatusColorFromListener(window: Window, scrollView: NestedScrollView, isDarkTheme: Boolean, limit: Int = 1000) {
+            val decorView = window.decorView
+
+            if (isDarkTheme) {
+                val defaultUi = decorView.systemUiVisibility
+                decorView.systemUiVisibility = (defaultUi or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+                scrollView.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+                    if ((scrollY < limit && oldScrollY > limit) || (scrollY > limit && oldScrollY < limit)) {
+                        if (scrollY <= limit)
+                            decorView.systemUiVisibility = (defaultUi or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+                        else
+                            decorView.systemUiVisibility = defaultUi
+                    }
+                }
+            } else
+                decorView.systemUiVisibility = (decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
         }
     }
 }

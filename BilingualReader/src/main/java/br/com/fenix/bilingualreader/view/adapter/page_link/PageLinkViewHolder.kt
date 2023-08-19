@@ -81,7 +81,7 @@ class PageLinkViewHolder(itemView: View, private val listener: PageLinkCardListe
         val dualPageName = itemView.findViewById<TextView>(R.id.dual_page_link_page_name)
         val dualProgress = itemView.findViewById<ProgressBar>(R.id.dual_page_progress_bar)
 
-        root.setBackgroundColor(itemView.context.getColorFromAttr(R.attr.colorSurface))
+        root.setBackgroundColor(itemView.context.getColor(R.color.transparent))
         mangaRoot.setOnClickListener(getDoubleClick(mangaRoot, page, true))
         pageRoot.setOnClickListener(getDoubleClick(pageRoot, page))
 
@@ -175,13 +175,13 @@ class PageLinkViewHolder(itemView: View, private val listener: PageLinkCardListe
                 }
 
                 DragEvent.ACTION_DRAG_EXITED -> {
-                    root.setBackgroundColor(itemView.context.getColorFromAttr(R.attr.colorSurface))
+                    root.setBackgroundColor(itemView.context.getColor(R.color.transparent))
                     setSelectedPageLink(page, pageRoot, dualPageRoot, isClear = true)
                     true
                 }
 
                 DragEvent.ACTION_DROP -> {
-                    root.setBackgroundColor(itemView.context.getColorFromAttr(R.attr.colorSurface))
+                    root.setBackgroundColor(itemView.context.getColor(R.color.transparent))
                     listener.onDropItem(
                         PageLinkType.valueOf(dragEvent.clipData.getItemAt(PageLinkConsts.CLIPDATA.PAGE_TYPE).text.toString()),
                         PageLinkType.LINKED,
@@ -216,7 +216,7 @@ class PageLinkViewHolder(itemView: View, private val listener: PageLinkCardListe
                 }
 
                 DragEvent.ACTION_DRAG_EXITED -> {
-                    root.setBackgroundColor(itemView.context.getColorFromAttr(R.attr.colorSurface))
+                    root.setBackgroundColor(itemView.context.getColor(R.color.transparent))
                     setSelectedPageLink(page, pageRoot, dualPageRoot, isClear = true)
                     true
                 }
@@ -232,7 +232,7 @@ class PageLinkViewHolder(itemView: View, private val listener: PageLinkCardListe
                 }
 
                 DragEvent.ACTION_DRAG_ENDED -> {
-                    root.setBackgroundColor(itemView.context.getColorFromAttr(R.attr.colorSurface))
+                    root.setBackgroundColor(itemView.context.getColor(R.color.transparent))
                     val v = dragEvent.localState as View
                     if (!dragEvent.result || v.tag.toString().compareTo(PageLinkConsts.TAG.PAGE_LINK_RIGHT, true) != 0)
                         v.visibility = View.VISIBLE

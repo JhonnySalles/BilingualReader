@@ -26,6 +26,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.drawToBitmap
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -59,6 +60,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) :
     private var mLastZoomPos: PointF
     private var mPaint: Paint
     private var mBorder: Paint
+    private var mBackground: Paint
     private lateinit var mBitmap: Bitmap
     private lateinit var mShader: BitmapShader
     private val mMagnifierScale = 2.5F
@@ -128,9 +130,13 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) :
         mPaint = Paint()
 
         mBorder = Paint()
-        mBorder.color = resources.getColor(R.color.page_border)
+        mBorder.color = context.getColor(R.color.black)
         mBorder.style = Paint.Style.STROKE
         mBorder.strokeWidth = resources.getDimension(R.dimen.reader_zoom_border)
+
+        mBackground = Paint()
+        mBackground.color = context.getColorFromAttr(R.attr.colorOnSurface)
+        mBackground.style = Paint.Style.FILL
     }
 
     fun autoScroll(isBack: Boolean = false): Boolean {
@@ -492,8 +498,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) :
                 val x = if (mZoomPos.x < (width / 2)) width.minus(mMagnifierSize) else 0F
 
                 if (mLastZoomPos.x != x)
-                    mLastZoomPos.y =
-                        if (mZoomPos.y < (height / 2)) height.minus(mMagnifierSize) else 0F
+                    mLastZoomPos.y = if (mZoomPos.y < (height / 2)) height.minus(mMagnifierSize) else 0F
 
                 mLastZoomPos.x = x
 
@@ -511,6 +516,15 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) :
                     mLastZoomPos.y + mMagnifierSize + 1,
                     mBorder
                 )
+
+                canvas?.drawRect(
+                    mLastZoomPos.x,
+                    mLastZoomPos.y,
+                    mLastZoomPos.x + mMagnifierSize,
+                    mLastZoomPos.y + mMagnifierSize,
+                    mBackground
+                )
+
                 canvas?.drawRect(
                     mLastZoomPos.x,
                     mLastZoomPos.y,
