@@ -108,7 +108,7 @@
     </style>
 
     <style name="AppBackground.Reader" parent="AppBackground">
-        <item name="android:background">?attr/colorOnSurfaceInverse</item>
+        <item name="android:background">@drawable/app_background</item>
     </style>
 
     <style name="AppBackground.Popup" parent="AppBackground">
