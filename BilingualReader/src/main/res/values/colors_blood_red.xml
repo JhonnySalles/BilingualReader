@@ -24,7 +24,7 @@
     <color name="blood_theme_light_surfaceVariant">#DEE3EB</color>
     <color name="blood_theme_light_onSurfaceVariant">#e62e00</color>
     <color name="blood_theme_light_outline">#e62e00</color>
-    <color name="blood_theme_light_inverseOnSurface">#FFEDEA</color>
+    <color name="blood_theme_light_inverseOnSurface">#ff7d66</color>
     <color name="blood_theme_light_inverseSurface">#ff0008</color>
     <color name="blood_theme_light_inversePrimary">#FFFFFF</color>
     <color name="blood_theme_light_shadow">#000000</color>
@@ -54,7 +54,7 @@
     <color name="blood_theme_dark_surfaceVariant">#ffcccc</color>
     <color name="blood_theme_dark_onSurfaceVariant">#ff1a1a</color>
     <color name="blood_theme_dark_outline">#cc0000</color>
-    <color name="blood_theme_dark_inverseOnSurface">#410002</color>
+    <color name="blood_theme_dark_inverseOnSurface">#800004</color>
     <color name="blood_theme_dark_inverseSurface">#FFDAD6</color>
     <color name="blood_theme_dark_inversePrimary">#FFFFFF</color>
     <color name="blood_theme_dark_shadow">#000000</color>

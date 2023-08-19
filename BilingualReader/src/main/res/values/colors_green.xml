@@ -24,7 +24,7 @@
     <color name="green_theme_light_surfaceVariant">#FFFFFF</color>
     <color name="green_theme_light_onSurfaceVariant">#009900</color>
     <color name="green_theme_light_outline">#2eb82e</color>
-    <color name="green_theme_light_inverseOnSurface">#F2F1E9</color>
+    <color name="green_theme_light_inverseOnSurface">#1aff1a</color>
     <color name="green_theme_light_inverseSurface">#5cd65c</color>
     <color name="green_theme_light_inversePrimary">#FFFFFF</color>
     <color name="green_theme_light_shadow">#000000</color>
@@ -54,7 +54,7 @@
     <color name="green_theme_dark_surfaceVariant">#FFFFFF</color>
     <color name="green_theme_dark_onSurfaceVariant">#009900</color>
     <color name="green_theme_dark_outline">#009900</color>
-    <color name="green_theme_dark_inverseOnSurface">#1B1C17</color>
+    <color name="green_theme_dark_inverseOnSurface">#003300</color>
     <color name="green_theme_dark_inverseSurface">#E4E3DB</color>
     <color name="green_theme_dark_inversePrimary">#FFFFFF</color>
     <color name="green_theme_dark_shadow">#000000</color>
