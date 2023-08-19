@@ -27,6 +27,7 @@ class HistoryViewHolder(itemView: View, private val listener: MangaCardListener)
     }
 
     fun bind(manga: Manga) {
+        val mangaStatus = itemView.findViewById<View>(R.id.history_status)
         val mangaImage = itemView.findViewById<ImageView>(R.id.history_image_cover)
         val mangaTitle = itemView.findViewById<TextView>(R.id.history_text_title)
         val mangaLastAccess = itemView.findViewById<TextView>(R.id.history_line_last_access)
@@ -62,10 +63,13 @@ class HistoryViewHolder(itemView: View, private val listener: MangaCardListener)
         mangaFavorite.visibility = if (manga.favorite) View.VISIBLE else View.GONE
         mangaSubtitle.visibility = if (manga.hasSubtitle) View.VISIBLE else View.GONE
 
-        if (manga.excluded)
+        if (manga.excluded) {
             cardView.setBackgroundResource(R.drawable.history_custom_ripple_item_deleted)
-        else
+            mangaStatus.setBackgroundResource(R.drawable.history_item_deleted_background)
+        } else {
             cardView.setBackgroundResource(R.drawable.history_custom_ripple)
+            mangaStatus.setBackgroundResource(R.drawable.history_item_background)
+        }
 
     }
 
