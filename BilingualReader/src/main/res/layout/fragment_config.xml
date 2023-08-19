@@ -5,11 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="@dimen/default_navigator_header_margin_top"
+    android:clipToPadding="false"
+    android:clipChildren="false"
+    android:fitsSystemWindows="true"
     tools:context=".view.ui.configuration.ConfigFragment">
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"

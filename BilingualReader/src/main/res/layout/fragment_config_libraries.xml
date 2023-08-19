@@ -53,7 +53,7 @@
                 android:layout_height="@dimen/default_navigator_header_size"
                 android:gravity="start|center"
                 app:popupTheme="@style/MainToolbarStyle"
-                android:theme="@style/MainToolbarTheme">
+                android:theme="@style/MainToolbarThemeWithShadow">
 
                 <TextView
                     android:id="@+id/config_libraries_title"

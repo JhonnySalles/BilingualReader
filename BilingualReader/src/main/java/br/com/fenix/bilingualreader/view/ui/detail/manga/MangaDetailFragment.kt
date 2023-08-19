@@ -14,6 +14,7 @@ import android.widget.ListView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.text.HtmlCompat
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -29,6 +30,7 @@ import br.com.fenix.bilingualreader.service.listener.InformationCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.view.adapter.detail.manga.InformationRelatedCardAdapter
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
@@ -113,6 +115,8 @@ class MangaDetailFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_manga_detail, container, false)
+
+        ThemeUtil.changeStatusColorFromListener(requireActivity().window, root.findViewById(R.id.manga_detail_scroll), resources.getBoolean(R.bool.isNight))
 
         mBackgroundImage = root.findViewById(R.id.manga_detail_background_image)
         mImage = root.findViewById(R.id.manga_detail_manga_image)

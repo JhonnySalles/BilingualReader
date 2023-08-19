@@ -68,10 +68,10 @@ class MangaTestUtil {
             MangaImageCoverController.instance.saveCoverToCache(context, manga, cover)
         }
 
-        fun getManga(context: Context, filePath: String = ""): Manga {
+        fun getManga(context: Context, filePath: String = "", id : Long? = null): Manga {
             val mangaPath = filePath.ifEmpty { MANGA_TEST_FILE_PATH }
             val manga = Manga(
-                null,
+                id,
                 Util.getNameWithoutExtensionFromPath(mangaPath),
                 mangaPath,
                 Util.getFolderFromPath(mangaPath),

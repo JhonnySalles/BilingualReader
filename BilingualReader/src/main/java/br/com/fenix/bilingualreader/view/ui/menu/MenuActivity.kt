@@ -3,6 +3,8 @@ package br.com.fenix.bilingualreader.view.ui.menu
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
@@ -10,6 +12,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.view.ui.book.BookAnnotationFragment
 import br.com.fenix.bilingualreader.view.ui.book.BookSearchFragment
 import br.com.fenix.bilingualreader.view.ui.chapters.MangaChaptersFragment
@@ -25,6 +28,8 @@ class MenuActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_menu)
+
+        ThemeUtil.transparentTheme(window, resources.getBoolean(R.bool.isNight), getColor(R.color.black))
 
         MenuUtil.tintBackground(this, findViewById(R.id.menu_background))
 

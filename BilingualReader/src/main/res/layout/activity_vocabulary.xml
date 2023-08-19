@@ -9,7 +9,7 @@
     android:fitsSystemWindows="true"
     android:clipToPadding="false"
     android:clipChildren="false"
-    android:theme="@style/Theme.MangaReader.NoNavigationBar"
+    android:theme="@style/Theme.MangaReader"
     tools:context=".view.ui.vocabulary.VocabularyActivity">
 
     <ImageView
@@ -20,6 +20,7 @@
         android:adjustViewBounds="true"
         android:background="@color/manga_detail_title_background"
         android:translationY="-30dp"
+        android:visibility="gone"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -31,6 +32,7 @@
         android:layout_height="250dp"
         android:layout_gravity="bottom"
         android:background="@drawable/vocabulary_title_background"
+        android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"/>
@@ -72,7 +74,7 @@
                 android:gravity="start|center"
                 android:background="@android:color/transparent"
                 app:popupTheme="@style/MainToolbarStyle"
-                android:theme="@style/MainToolbarTheme"/>
+                android:theme="@style/MainToolbarThemeWithShadow"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 

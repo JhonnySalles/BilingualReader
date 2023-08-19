@@ -2,6 +2,8 @@ package br.com.fenix.bilingualreader.view.ui.pages_link
 
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import br.com.fenix.bilingualreader.R
@@ -9,6 +11,7 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -30,6 +33,8 @@ class PagesLinkActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pages_link)
+
+        ThemeUtil.transparentTheme(window, resources.getBoolean(R.bool.isNight), isLightStatus = !resources.getBoolean(R.bool.isNight))
 
         val extras = intent.extras
         val fragment = supportFragmentManager.findFragmentById(R.id.root_frame_pages_link)

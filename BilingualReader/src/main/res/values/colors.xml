@@ -66,6 +66,7 @@
 
     <color name="shadow">#000000</color>
     <color name="shadow_inverse">#FFFFFF</color>
+    <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
     <color name="translucent">#55000000</color>
 

@@ -42,7 +42,7 @@
                 android:layout_margin="0dp"
                 android:padding="0dp"
                 app:popupTheme="@style/MainToolbarStyle"
-                android:theme="@style/MainToolbarTheme"
+                android:theme="@style/MainToolbarThemeWithShadow"
                 android:contentInsetStart="0dp"
                 android:contentInsetLeft="0dp"
                 app:contentInsetLeft="0dp"
