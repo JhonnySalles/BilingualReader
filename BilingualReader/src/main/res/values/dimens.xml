@@ -330,6 +330,7 @@
     <dimen name="dual_page_link_card_layout_width_tablet">200dp</dimen>
     <dimen name="dual_page_link_card_layout_height_tablet">250dp</dimen>
     <dimen name="dual_page_link_card_selected_stroke">2dp</dimen>
+    <dimen name="page_link_manga_name_size">12sp</dimen>
     <dimen name="page_link_card_page_number_size">12sp</dimen>
     <dimen name="page_link_card_page_number_margin">8dp</dimen>
     <dimen name="page_link_card_page_name_size">12sp</dimen>
