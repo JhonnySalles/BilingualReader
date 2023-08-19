@@ -1027,7 +1027,8 @@ class ThemeUtil {
                 window.setDecorFitsSystemWindows(false)
                 window.isStatusBarContrastEnforced = false
                 window.isNavigationBarContrastEnforced = false
-            }
+            } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
         }
 
         fun changeStatusColorFromListener(window: Window, scrollView: NestedScrollView, isDarkTheme: Boolean, limit: Int = 1000) {
