@@ -182,17 +182,15 @@
 
             <TextView
                 android:id="@+id/pages_link_name_manga"
+                style="@style/TextTitle.Line.Title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textAppearance="?attr/textAppearanceHeadline6"
-                android:textColor="?attr/colorPrimaryInverse"
-                android:textSize="@dimen/page_link_card_page_number_size"
+                android:textSize="@dimen/page_link_manga_name_size"
                 android:layout_marginTop="@dimen/page_link_card_page_name_margin"
                 android:paddingStart="2dp"
-                android:paddingEnd="2dp"
-                android:background="?attr/colorOnSurface"/>
+                android:paddingEnd="2dp"/>
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButtonToggleGroup
