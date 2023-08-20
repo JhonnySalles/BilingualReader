@@ -26,10 +26,10 @@
         layout="@layout/activity_main_content" />
 
     <View
-        android:background="@color/black"
+        android:background="?attr/statusBarColor"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:translationY="-100dp"
+        android:translationY="-99dp"
         android:layout_gravity="top"/>
 
     <!-- action bar -->
@@ -37,7 +37,7 @@
         android:id="@+id/main_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/main_toolbar_background"
+        android:background="@drawable/app_main_toolbar_background"
         android:theme="@style/MainToolbarContentTheme"
         app:elevation="0.1dp">
 
