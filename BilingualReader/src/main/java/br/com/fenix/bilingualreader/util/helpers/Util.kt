@@ -18,6 +18,7 @@ import android.graphics.BitmapFactory
 import android.graphics.PointF
 import android.graphics.drawable.Animatable2
 import android.graphics.drawable.AnimatedVectorDrawable
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Handler
@@ -1011,7 +1012,7 @@ class ThemeUtil {
             return typedValue.data
         }
 
-        fun transparentTheme(window: Window, isDarkTheme: Boolean, @ColorInt colorStatus: Int? = null, @ColorInt colorNavigation: Int? = null, isLightStatus: Boolean = false) {
+        fun transparentTheme(window: Window, isDarkTheme: Boolean, statusBarDrawable: Drawable? = null, @ColorInt statusBarColor: Int? = null, isLightStatus: Boolean = false) {
             if (isDarkTheme)
                 window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
             else
@@ -1020,14 +1021,22 @@ class ThemeUtil {
             if (isLightStatus)
                 window.decorView.systemUiVisibility = (window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
 
-            window.statusBarColor = colorStatus ?: android.graphics.Color.TRANSPARENT
-            window.navigationBarColor = colorNavigation ?: android.graphics.Color.TRANSPARENT
+            window.statusBarColor = android.graphics.Color.TRANSPARENT
+            window.navigationBarColor = android.graphics.Color.TRANSPARENT
+
+            if (statusBarDrawable != null || statusBarColor != null) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                val background = statusBarDrawable ?: ColorDrawable(statusBarColor!!)
+                window.setBackgroundDrawable(background)
+            }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 window.setDecorFitsSystemWindows(false)
                 window.isStatusBarContrastEnforced = false
                 window.isNavigationBarContrastEnforced = false
-            }
+            } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
+
         }
 
         fun changeStatusColorFromListener(window: Window, scrollView: NestedScrollView, isDarkTheme: Boolean, limit: Int = 1000) {

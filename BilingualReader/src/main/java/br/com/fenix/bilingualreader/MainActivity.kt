@@ -15,6 +15,7 @@ import android.view.WindowManager
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.view.GravityCompat
@@ -38,6 +39,7 @@ import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.MsgUtil
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.view.ui.about.AboutFragment
 import br.com.fenix.bilingualreader.view.ui.configuration.ConfigFragment
 import br.com.fenix.bilingualreader.view.ui.help.HelpFragment
@@ -103,7 +105,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         super.onCreate(savedInstanceState)
 
-        ThemeUtil.transparentTheme(window, isDark)
+        ThemeUtil.transparentTheme(window, isDark, AppCompatResources.getDrawable(this, R.drawable.app_main_statusbar_background), isLightStatus = !isDark)
 
         clearCache()
         initializeBook()

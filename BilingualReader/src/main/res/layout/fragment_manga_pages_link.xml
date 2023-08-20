@@ -43,7 +43,7 @@
             style="@style/AppBackground.Accent"
             android:layout_width="match_parent"
             android:layout_height="100dp"
-            android:translationY="-90dp"
+            android:translationY="-99dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>

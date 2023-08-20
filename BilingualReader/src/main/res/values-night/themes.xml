@@ -31,6 +31,11 @@
         <item name="colorOnSurfaceInverse">@color/manga_reader_theme_dark_inverseOnSurface</item>
         <item name="colorSurfaceInverse">@color/manga_reader_theme_dark_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/manga_reader_theme_dark_inversePrimary</item>
+
+        <item name="statusBarColor">@color/statusBarColorNight</item>
+        <item name="toolbarStartColor">@color/toolbarStartColorNight</item>
+        <item name="toolbarCenterColor">@color/toolbarCenterColorNight</item>
+        <item name="toolbarEndColor">@color/toolbarEndColorNight</item>
     </style>
 
     <!--== Default Theme ==-->

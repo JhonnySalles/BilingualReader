@@ -66,9 +66,20 @@
 
     <color name="shadow">#000000</color>
     <color name="shadow_inverse">#FFFFFF</color>
-    <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
     <color name="translucent">#55000000</color>
+
+    <color name="magnifier_border">#000000</color>
+
+    <color name="statusBarColorLight">#FFFFFFFF</color>
+    <color name="toolbarStartColorLight">#11FFFFFF</color>
+    <color name="toolbarCenterColorLight">#99FFFFFF</color>
+    <color name="toolbarEndColorLight">#FFFFFFFF</color>
+
+    <color name="statusBarColorNight">#FF000000</color>
+    <color name="toolbarStartColorNight">#11000000</color>
+    <color name="toolbarCenterColorNight">#99000000</color>
+    <color name="toolbarEndColorNight">#FF000000</color>
 
     <!--
         colorPrimary, colorOnPrimary = Text color white/green

@@ -22,6 +22,7 @@ import android.view.ViewConfiguration
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.Interpolator
 import android.widget.OverScroller
+import androidx.compose.ui.graphics.Color
 import androidx.core.view.ViewCompat
 import androidx.core.view.drawToBitmap
 import br.com.fenix.bilingualreader.R
@@ -130,7 +131,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) :
         mPaint = Paint()
 
         mBorder = Paint()
-        mBorder.color = context.getColor(R.color.black)
+        mBorder.color = context.getColor(R.color.magnifier_border)
         mBorder.style = Paint.Style.STROKE
         mBorder.strokeWidth = resources.getDimension(R.dimen.reader_zoom_border)
 

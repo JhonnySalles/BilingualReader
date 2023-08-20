@@ -29,7 +29,7 @@ class MenuActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_menu)
 
-        ThemeUtil.transparentTheme(window, resources.getBoolean(R.bool.isNight), getColor(R.color.black))
+        ThemeUtil.transparentTheme(window, resources.getBoolean(R.bool.isNight))
 
         MenuUtil.tintBackground(this, findViewById(R.id.menu_background))
 
