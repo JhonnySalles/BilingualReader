@@ -6,7 +6,7 @@
         android:centerColor="?attr/colorSurface"
         android:endColor="@color/transparent"
         android:angle="90"
-        android:centerY="0.1"
+        android:centerY="0.3"
         android:type="linear"
         android:useLevel="true" />
 </shape>

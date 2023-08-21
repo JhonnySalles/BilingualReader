@@ -6,7 +6,7 @@
         <item
             android:id="@+id/menu_manga_library_content"
             android:icon="@drawable/ico_library"
-            android:title="@string/menu_libraries">
+            android:title="@string/menu_manga">
             <menu android:id="@+id/menu_manga_library_items">
                 <item
                     android:id="@+id/menu_manga_library_default"

@@ -235,12 +235,12 @@ class VocabularyRepository(var context: Context) {
         mDataBaseDAO.insert(mBase.openHelper, idMangaOrBook, idVocabulary, appears, isManga)
     }
 
-    fun processVocabulary(idManga: Long?, subTitleChapters: List<SubTitleChapter>) {
+    fun processVocabulary(idManga: Long?, subTitleChapters: List<SubTitleChapter>, forced : Boolean = false) {
         if (subTitleChapters.isEmpty() || idManga == null)
             return
 
         val manga = mBase.getMangaDao().get(idManga)
-        if (manga.lastVocabImport != null && !Date(manga.file.lastModified()).after(manga.fileAlteration))
+        if (!forced && manga.lastVocabImport != null && !Date(manga.file.lastModified()).after(manga.fileAlteration))
             return
 
         val chaptersList = Collections.synchronizedCollection(subTitleChapters.parallelStream()
@@ -268,7 +268,7 @@ class VocabularyRepository(var context: Context) {
                                 if (!list.contains(vocabulary))
                                     list.add(vocabulary)
 
-                            it.subTitlePages.stream().map { p -> pages.addAll(p.vocabulary) }
+                            it.subTitlePages.stream().forEach { p -> pages.addAll(p.vocabulary) }
                         }
 
                     for ((index, vocabulary) in list.withIndex()) {

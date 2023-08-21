@@ -2,13 +2,13 @@ package br.com.fenix.bilingualreader.model.enums
 
 import java.io.File
 
-enum class FileType(var type: Int, var extension: Array<String>, var mimeType: Array<String>) {
-    UNKNOWN(-1, arrayOf(), arrayOf()),
+enum class FileType(var type: Int, var extension: Array<String>, var mimeType: Array<String>, var acronym : String) {
+    UNKNOWN(-1, arrayOf(), arrayOf(), ""),
 
     // Book file
-    PDF(1, arrayOf("pdf", "xps"), arrayOf("application/pdf", "application/oxps", "application/vnd.ms-xpsdocument")),
-    EPUB(1, arrayOf("epub"), arrayOf("application/epub+zip")),
-    EPUB3(1, arrayOf("epub3"), arrayOf("application/epub3+zip")),
+    PDF(1, arrayOf("pdf", "xps"), arrayOf("application/pdf", "application/oxps", "application/vnd.ms-xpsdocument"), "PDF"),
+    EPUB(1, arrayOf("epub"), arrayOf("application/epub+zip"), "EPUB"),
+    EPUB3(1, arrayOf("epub3"), arrayOf("application/epub3+zip"), "EPUB3"),
     MOBI(
         1,
         arrayOf("mobi", "azw", "azw3", "azw4", "pdb", "prc"),
@@ -18,9 +18,9 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
             "application/x-mobi8-ebook",
             "application/x-kindle-application",
             "application/vnd.amazon.mobi8-ebook"
-        )
+        ), "MOBI"
     ),
-    DJVU(1, arrayOf("djvu"), arrayOf("image/vnd.djvu", "image/djvu", "image/x-djvu")),
+    DJVU(1, arrayOf("djvu"), arrayOf("image/vnd.djvu", "image/djvu", "image/x-djvu"), "DJVU"),
     FB2(
         1,
         arrayOf("fb2"),
@@ -32,36 +32,37 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
             "application/fb2+zip",
             "application/fb2.zip",
             "application/x-zip-compressed-fb2"
-        )
+        ), "FB2"
     ),
-    TXT(1, arrayOf("txt", "playlist", "log"), arrayOf("text/plain", "text/x-log")),
-    RTF(1, arrayOf("rtf"), arrayOf("application/rtf", "application/x-rtf", "text/rtf", "text/richtext")),
-    AZW(1, arrayOf("azw"), arrayOf("application/azw", "application/x-azw")),
-    AZW3(1, arrayOf("azw3"), arrayOf("application/azw3", "application/x-azw3")),
-    HTML(1, arrayOf("html", "htm", "xhtml", "xhtm", "xml"), arrayOf("text/html", "text/xml")),
+    TXT(1, arrayOf("txt", "playlist", "log"), arrayOf("text/plain", "text/x-log"), "TXT"),
+    RTF(1, arrayOf("rtf"), arrayOf("application/rtf", "application/x-rtf", "text/rtf", "text/richtext"), "RTF"),
+    AZW(1, arrayOf("azw"), arrayOf("application/azw", "application/x-azw"), "AZW"),
+    AZW3(1, arrayOf("azw3"), arrayOf("application/azw3", "application/x-azw3"), "AZW3"),
+    HTML(1, arrayOf("html", "htm", "xhtml", "xhtm", "xml"), arrayOf("text/html", "text/xml"), "HTML"),
     //DOC(1, arrayOf("doc"), arrayOf("application/msword")),
     //DOCX(1, arrayOf("docx"), arrayOf("application/vnd.openxmlformats-officedocument.wordprocessingml.document")),
-    OPDS(1, arrayOf("opds"), arrayOf("application/opds", "application/x-opds")),
-    TIFF(1, arrayOf("tiff", "tif"), arrayOf("image/tiff")),
+    OPDS(1, arrayOf("opds"), arrayOf("application/opds", "application/x-opds"), "OPDS"),
+    TIFF(1, arrayOf("tiff", "tif"), arrayOf("image/tiff"), "TIFF"),
     //ODT(1, arrayOf("odt"), arrayOf("application/vnd.oasis.opendocument.text")),
-    MD(1, arrayOf("md"), arrayOf("text/markdown", "text/x-markdown")),
-    MHT(1, arrayOf("mht", "mhtml", "shtml"), arrayOf("message/rfc822")),
+    MD(1, arrayOf("md"), arrayOf("text/markdown", "text/x-markdown"), "MD"),
+    MHT(1, arrayOf("mht", "mhtml", "shtml"), arrayOf("message/rfc822"), "MHT"),
 
     // Comic file
-    CBZ(0, arrayOf("cbz"), arrayOf("application/cbz", "application/x-cbz", "application/comicbook+zip")),
-    CBR(0, arrayOf("cbr"), arrayOf("application/cbr", "application/x-cbr", "application/comicbook+rar")),
-    CB7(0, arrayOf("cb7"), arrayOf("application/cb7", "application/x-cb7", "application/comicbook+7z")),
-    CBT(0, arrayOf("cbt"), arrayOf("application/cbt", "application/x-cbt", "application/comicbook+tar")),
+    CBZ(0, arrayOf("cbz"), arrayOf("application/cbz", "application/x-cbz", "application/comicbook+zip"), "CBZ("),
+    CBR(0, arrayOf("cbr"), arrayOf("application/cbr", "application/x-cbr", "application/comicbook+rar"), "CBR"),
+    CB7(0, arrayOf("cb7"), arrayOf("application/cb7", "application/x-cb7", "application/comicbook+7z"), "CB7"),
+    CBT(0, arrayOf("cbt"), arrayOf("application/cbt", "application/x-cbt", "application/comicbook+tar"), "CBT"),
 
     ZIP(
         0,
         arrayOf("zip"),
-        arrayOf("application/zip", "application/x-compressed", "application/x-compressed-zip", "application/x-zip-compressed")
+        arrayOf("application/zip", "application/x-compressed", "application/x-compressed-zip", "application/x-zip-compressed"),
+        "ZIP"
     ),
-    RAR(0, arrayOf("rar"), arrayOf("application/rar", "application/x-rar", "application/comicbook+rar")),
-    SEVENZ(0, arrayOf("7z"), arrayOf("application/7z", "application/x-7z", "application/comicbook+7z")),
-    TAR(0, arrayOf("tar"), arrayOf("application/tar", "application/x-tar", "application/comicbook+tar")),
-    DIRECTORY(0, arrayOf(), arrayOf());
+    RAR(0, arrayOf("rar"), arrayOf("application/rar", "application/x-rar", "application/comicbook+rar"), "ZIP"),
+    SEVENZ(0, arrayOf("7z"), arrayOf("application/7z", "application/x-7z", "application/comicbook+7z"), "7Z"),
+    TAR(0, arrayOf("tar"), arrayOf("application/tar", "application/x-tar", "application/comicbook+tar"), "TAR("),
+    DIRECTORY(0, arrayOf(), arrayOf(), "DIR");
 
     private var extensions: Array<String> = extension
     private var mimeTypes: Array<String> = mimeType
