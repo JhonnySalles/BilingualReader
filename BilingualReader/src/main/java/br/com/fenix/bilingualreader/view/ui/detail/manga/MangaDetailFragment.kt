@@ -14,7 +14,6 @@ import android.widget.ListView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.text.HtmlCompat
-import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -64,6 +63,7 @@ class MangaDetailFragment : Fragment() {
     private lateinit var mFileLinkContent: LinearLayout
     private lateinit var mFileLinksList: ListView
     private lateinit var mSubtitlesContent: LinearLayout
+    private lateinit var mImportVocabulary: MaterialButton
     private lateinit var mSubtitlesList: ListView
 
     private lateinit var mWebInformationContent: LinearLayout
@@ -136,53 +136,39 @@ class MangaDetailFragment : Fragment() {
         mFileLinkContent = root.findViewById(R.id.manga_detail_files_link_detail)
         mFileLinksList = root.findViewById(R.id.manga_detail_files_links_list)
         mSubtitlesContent = root.findViewById(R.id.manga_detail_subtitle_content)
+        mImportVocabulary = root.findViewById(R.id.manga_detail_subtitles_import_vocabulary)
         mSubtitlesList = root.findViewById(R.id.manga_detail_subtitles_list)
 
         mLocalInformationContent = root.findViewById(R.id.manga_detail_local_information)
         mLocalInformationSeries = root.findViewById(R.id.manga_detail_local_information_series)
         mLocalInformationAuthors = root.findViewById(R.id.manga_detail_local_information_authors)
 
-        mLocalInformationVolumeReleasePublisherContent =
-            root.findViewById(R.id.manga_detail_local_information_volume_release_publisher)
+        mLocalInformationVolumeReleasePublisherContent = root.findViewById(R.id.manga_detail_local_information_volume_release_publisher)
         mLocalInformationVolume = root.findViewById(R.id.manga_detail_local_information_volume)
         mLocalInformationRelease = root.findViewById(R.id.manga_detail_local_information_release)
-        mLocalInformationPublisher =
-            root.findViewById(R.id.manga_detail_local_information_publisher)
+        mLocalInformationPublisher = root.findViewById(R.id.manga_detail_local_information_publisher)
 
-        mLocalInformationComicInfo =
-            root.findViewById(R.id.manga_detail_local_information_comic_info)
+        mLocalInformationComicInfo = root.findViewById(R.id.manga_detail_local_information_comic_info)
 
-        mLocalInformationComicInfoTitleLanguageContent =
-            root.findViewById(R.id.manga_detail_local_information_comic_info_title_language)
-        mLocalInformationComicInfoTitle =
-            root.findViewById(R.id.manga_detail_local_information_comic_info_title)
-        mLocalInformationComicInfoLanguage =
-            root.findViewById(R.id.manga_detail_local_information_comic_info_language)
-        mLocalInformationComicInfoStoryArch =
-            root.findViewById(R.id.manga_detail_local_information_comic_info_story_arch)
-        mLocalInformationComicInfoGenre =
-            root.findViewById(R.id.manga_detail_local_information_comic_info_genre)
-        mLocalInformationComicInfoCharacters =
-            root.findViewById(R.id.manga_detail_local_information_comic_info_characters)
-        mLocalInformationComicInfoTeams =
-            root.findViewById(R.id.manga_detail_local_information_comic_info_teams)
-        mLocalInformationComicInfoLocations =
-            root.findViewById(R.id.manga_detail_local_information_comic_info_locations)
+        mLocalInformationComicInfoTitleLanguageContent = root.findViewById(R.id.manga_detail_local_information_comic_info_title_language)
+        mLocalInformationComicInfoTitle = root.findViewById(R.id.manga_detail_local_information_comic_info_title)
+        mLocalInformationComicInfoLanguage = root.findViewById(R.id.manga_detail_local_information_comic_info_language)
+        mLocalInformationComicInfoStoryArch = root.findViewById(R.id.manga_detail_local_information_comic_info_story_arch)
+        mLocalInformationComicInfoGenre = root.findViewById(R.id.manga_detail_local_information_comic_info_genre)
+        mLocalInformationComicInfoCharacters = root.findViewById(R.id.manga_detail_local_information_comic_info_characters)
+        mLocalInformationComicInfoTeams = root.findViewById(R.id.manga_detail_local_information_comic_info_teams)
+        mLocalInformationComicInfoLocations = root.findViewById(R.id.manga_detail_local_information_comic_info_locations)
 
-        mLocalInformationComicInfoBookMarksContent =
-            root.findViewById(R.id.manga_detail_local_information_comic_info_book_marks_content)
-        mLocalInformationComicInfoBookMarks =
-            root.findViewById(R.id.manga_detail_local_information_comic_info_book_marks)
+        mLocalInformationComicInfoBookMarksContent = root.findViewById(R.id.manga_detail_local_information_comic_info_book_marks_content)
+        mLocalInformationComicInfoBookMarks = root.findViewById(R.id.manga_detail_local_information_comic_info_book_marks)
 
         mWebInformationContent = root.findViewById(R.id.manga_detail_web_information)
         mWebInformationImage = root.findViewById(R.id.manga_detail_web_information_image)
         mWebInformationSynopsis = root.findViewById(R.id.manga_detail_web_information_synopsis)
-        mWebInformationAlternativeTitles =
-            root.findViewById(R.id.manga_detail_web_information_alternative_titles)
+        mWebInformationAlternativeTitles = root.findViewById(R.id.manga_detail_web_information_alternative_titles)
         mWebInformationStatus = root.findViewById(R.id.manga_detail_web_information_status)
         mWebInformationPublish = root.findViewById(R.id.manga_detail_web_information_publish)
-        mWebInformationVolumes =
-            root.findViewById(R.id.manga_detail_web_information_volumes_chapters)
+        mWebInformationVolumes = root.findViewById(R.id.manga_detail_web_information_volumes_chapters)
         mWebInformationAuthors = root.findViewById(R.id.manga_detail_web_information_author)
         mWebInformationGenres = root.findViewById(R.id.manga_detail_web_information_genres)
         mWebInformationOrigin = root.findViewById(R.id.manga_detail_web_information_origin)
@@ -208,14 +194,12 @@ class MangaDetailFragment : Fragment() {
             openVocabulary()
         }
 
-        mSubtitlesList.adapter =
-            ArrayAdapter(requireContext(), R.layout.list_item_all_text, mSubtitles)
-        mFileLinksList.adapter =
-            ArrayAdapter(requireContext(), R.layout.list_item_all_text, mFileLinks)
-        mChaptersList.adapter =
-            ArrayAdapter(requireContext(), R.layout.list_item_all_text, mChapters)
-        mLocalInformationComicInfoBookMarks.adapter =
-            ArrayAdapter(requireContext(), R.layout.list_item_all_text, mBookMarks)
+        mImportVocabulary.setOnClickListener { mViewModel.importVocabulary() }
+
+        mSubtitlesList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mSubtitles)
+        mFileLinksList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mFileLinks)
+        mChaptersList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mChapters)
+        mLocalInformationComicInfoBookMarks.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mBookMarks)
 
         mWebInfoRelatedRelatedList.adapter = InformationRelatedCardAdapter()
         mWebInfoRelatedRelatedList.layoutManager = LinearLayoutManager(requireContext())

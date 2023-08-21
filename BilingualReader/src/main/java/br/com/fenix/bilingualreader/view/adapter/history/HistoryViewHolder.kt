@@ -51,7 +51,7 @@ class HistoryViewHolder(itemView: View, private val listener: MangaCardListener)
         mangaTitle.text = manga.title
 
         mangaLastAccess.text = if (manga.lastAccess != null) GeneralConsts.formatterDate(itemView.context, manga.lastAccess!!) else ""
-        mangaFileType.text = manga.type.toString()
+        mangaFileType.text = manga.type.acronym
         mangaFileSize.text = FileUtil.formatSize(manga.fileSize)
         val percent: Float = if (manga.bookMark > 0) ((manga.bookMark.toFloat() / manga.pages) * 100) else 0f
         mangaPagesRead.text = "${manga.bookMark} / ${manga.pages}" + if (percent > 0) (" (" + Util.formatDecimal(percent) + ")") else ""
