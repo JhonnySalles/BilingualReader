@@ -46,7 +46,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/default_navigator_header_size"
             app:popupTheme="@style/MainToolbarStyle"
-            android:theme="@style/MainToolbarThemeWithShadow"/>
+            style="@style/MainToolbarThemeWithShadow"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 

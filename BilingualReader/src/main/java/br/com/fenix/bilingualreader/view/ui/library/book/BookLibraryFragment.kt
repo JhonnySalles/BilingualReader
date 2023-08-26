@@ -66,6 +66,7 @@ import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.service.scanner.ScannerBook
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.Util
@@ -163,29 +164,34 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             }
         })
 
-        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text",
-            "id", "android")) as AutoCompleteTextView
+        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(
+            Resources.getSystem().getIdentifier(
+                "search_src_text",
+                "id", "android"
+            )
+        ) as AutoCompleteTextView
         searchSrcTextView.threshold = 1
         searchSrcTextView.setDropDownBackgroundResource(R.drawable.list_item_suggestion_background)
 
         val from = arrayOf(SearchManager.SUGGEST_COLUMN_TEXT_1)
         val to = intArrayOf(R.id.list_item_suggestion)
         val suggestions = Util.getBookFilters(requireContext()).keys.toList()
-        val cursorAdapter = SimpleCursorAdapter(requireContext(), R.layout.list_item_suggestion, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER)
+        val cursorAdapter =
+            SimpleCursorAdapter(requireContext(), R.layout.list_item_suggestion, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER)
         mViewModel.loadTags()
 
         searchView.suggestionsAdapter = cursorAdapter
-        searchView.setOnSuggestionListener(object: SearchView.OnSuggestionListener {
+        searchView.setOnSuggestionListener(object : SearchView.OnSuggestionListener {
             override fun onSuggestionSelect(position: Int): Boolean {
                 return false
             }
 
             override fun onSuggestionClick(position: Int): Boolean {
                 val cursor = searchView.suggestionsAdapter.getItem(position) as Cursor?
-                if( cursor != null) {
+                if (cursor != null) {
                     val colum = cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1)
                     val selection = cursor.getString(colum)
-                    val query =  searchView.query.toString().substringBeforeLast('@', "") + " " + selection
+                    val query = searchView.query.toString().substringBeforeLast('@', "") + " " + selection
                     searchView.setQuery(query.trim(), false)
                 }
                 return true
@@ -219,12 +225,26 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                             }
                             return false
                         } else if (!substring.contains(' ')) {
-                            if (substring.contains(Util.filterToString(requireContext(), Type.BOOK, br.com.fenix.bilingualreader.model.enums.Filter.Type) , true)) {
+                            if (substring.contains(
+                                    Util.filterToString(
+                                        requireContext(),
+                                        Type.BOOK,
+                                        br.com.fenix.bilingualreader.model.enums.Filter.Type
+                                    ), true
+                                )
+                            ) {
                                 substring = substring.substringBefore(":")
                                 FileType.getBook().forEachIndexed { index, type ->
                                     cursor.addRow(arrayOf(index, "@$substring:$type "))
                                 }
-                            } else if (substring.contains(Util.filterToString(requireContext(), Type.BOOK, br.com.fenix.bilingualreader.model.enums.Filter.Tag) , true)) {
+                            } else if (substring.contains(
+                                    Util.filterToString(
+                                        requireContext(),
+                                        Type.BOOK,
+                                        br.com.fenix.bilingualreader.model.enums.Filter.Tag
+                                    ), true
+                                )
+                            ) {
                                 substring = substring.substringBefore(":")
                                 mViewModel.getTags().forEachIndexed { index, tags ->
                                     if (tags.name.contains(" "))
@@ -396,12 +416,8 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     }
 
     private fun onOpenMenuSort() {
-        mMenuPopupFilterOrder.visibility = View.VISIBLE
         mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
-        mMenuPopupFilterOrder.translationY = 100F
-        mMenuPopupFilterOrder.animate()
-            .setDuration(200)
-            .translationY(0f)
+        AnimationUtil.animatePopupOpen(requireActivity(), mMenuPopupFilterOrder)
     }
 
     private fun onChangeSort() {
@@ -553,7 +569,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
         root.findViewById<ImageView>(R.id.book_library_popup_menu_order_filter_close)
             .setOnClickListener {
-                mMenuPopupFilterOrder.visibility = View.GONE
+                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupFilterOrder)
             }
 
         ComponentsUtil.setThemeColor(requireContext(), mRefreshLayout)
@@ -708,9 +724,12 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                             mViewModel.clearHistory(book)
                             notifyDataSet(position)
                         }
+
                         R.id.menu_book_config_delete -> deleteBook(book, position)
                         R.id.menu_book_config_detail -> goBookDetail(book, root, position)
-                        R.id.menu_book_config_tag -> { mPopupTag.getPopupTags(book) { mViewModel.loadTags() } }
+                        R.id.menu_book_config_tag -> {
+                            mPopupTag.getPopupTags(book) { mViewModel.loadTags() }
+                        }
                     }
                     true
                 }
@@ -852,6 +871,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             val columnWidth: Int = when (mGridType) {
                 LibraryBookType.GRID -> resources.getDimension(R.dimen.book_grid_card_layout_width)
                     .toInt()
+
                 else -> resources.getDimension(R.dimen.book_grid_card_layout_width).toInt()
             } + 1
 
@@ -928,7 +948,11 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     private fun shareMarkToDrive() {
         GeneralConsts.getSharedPreferences(requireContext()).let { share ->
             if (share.getBoolean(GeneralConsts.KEYS.SYSTEM.SHARE_MARK_DRIVE, false)) {
-                val notification = Notifications.getNotification(requireContext(), getString(R.string.notifications_share_mark_drive_title), getString(R.string.notifications_share_mark_drive_content))
+                val notification = Notifications.getNotification(
+                    requireContext(),
+                    getString(R.string.notifications_share_mark_drive_title),
+                    getString(R.string.notifications_share_mark_drive_content)
+                )
                 val notificationManager = NotificationManagerCompat.from(requireContext())
                 val notifyId = Notifications.getID()
 
@@ -948,6 +972,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                             else
                                 getString(R.string.book_share_mark_drive_processed)
                         }
+
                         ShareMarkType.NOT_ALTERATION -> getString(R.string.book_share_mark_drive_without_alteration)
                         ShareMarkType.NEED_PERMISSION_DRIVE -> {
                             startActivityForResult(
@@ -956,6 +981,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                             )
                             getString(R.string.book_share_mark_drive_need_permission)
                         }
+
                         ShareMarkType.NOT_CONNECT_DRIVE -> getString(R.string.book_share_mark_drive_need_sign_in)
                         ShareMarkType.ERROR_DOWNLOAD -> getString(R.string.book_share_mark_drive_error_download)
                         ShareMarkType.ERROR_UPLOAD -> getString(R.string.book_share_mark_drive_error_upload)
@@ -968,7 +994,11 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                         .setProgress(0, 0, false)
                         .setOngoing(false)
 
-                    if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                    if (ActivityCompat.checkSelfPermission(
+                            requireContext(),
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED
+                    )
                         notificationManager.notify(notifyId, notification.build())
                 }
             }

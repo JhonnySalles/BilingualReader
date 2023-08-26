@@ -65,6 +65,7 @@ import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.service.scanner.ScannerManga
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.Util
@@ -374,12 +375,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     private fun onOpenMenuSort() {
-        mMenuPopupFilterOrder.visibility = View.VISIBLE
         mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
-        mMenuPopupFilterOrder.translationY = 100F
-        mMenuPopupFilterOrder.animate()
-            .setDuration(200)
-            .translationY(0f)
+        AnimationUtil.animatePopupOpen(requireActivity(), mMenuPopupFilterOrder)
     }
 
     private fun onChangeSort() {
@@ -524,7 +521,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
         root.findViewById<ImageView>(R.id.manga_library_popup_menu_order_filter_close)
             .setOnClickListener {
-                mMenuPopupFilterOrder.visibility = View.GONE
+                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupFilterOrder)
             }
 
         ComponentsUtil.setThemeColor(requireContext(), mRefreshLayout)

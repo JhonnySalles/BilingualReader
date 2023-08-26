@@ -33,7 +33,7 @@
 
         <FrameLayout
             android:id="@+id/popup_manga_translate"
-            style="@style/AppBackground.Popup"
+            style="@style/AppBackground.PopupBottom"
             android:layout_width="match_parent"
             android:layout_height="500dp"
             android:layout_alignParentBottom="true"
@@ -61,6 +61,7 @@
                 android:layout_height="20dp"
                 android:layout_gravity="end|top"
                 android:layout_marginTop="1dp"
+                android:layout_marginEnd="@dimen/margin_small"
                 android:contentDescription="@string/popup_reading_manga_close"
                 android:scaleType="center"
                 android:src="@drawable/ic_close"/>
@@ -125,7 +126,7 @@
 
         <FrameLayout
             android:id="@+id/popup_manga_color"
-            style="@style/AppBackground.Popup"
+            style="@style/AppBackground.PopupBottom"
             android:layout_width="match_parent"
             android:layout_height="350dp"
             android:layout_alignParentBottom="true"

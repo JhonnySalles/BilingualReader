@@ -110,17 +110,32 @@
         <item name="iconTint">?attr/colorOnSurfaceVariant</item>
     </style>
 
-    <style name="MainToolbarThemeWithShadow" parent="Base.Theme.MangaReader">
-        <item name="android:textColorPrimary">?attr/colorSurfaceVariant</item>
-        <item name="android:textColorSecondary">?attr/colorOnSurfaceVariant</item>
-        <item name="colorControlNormal">?attr/colorOnSurfaceVariant</item> <!-- butons -->
-        <item name="android:textColor">?attr/colorOnSurfaceVariant</item> <!-- text menu -->
-        <item name="colorControlHighlight">?attr/colorOnSurfaceVariant</item>
-        <item name="iconTint">?attr/colorOnSurfaceVariant</item> <!--Icons -->
+    <style name="TitleShadow" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:shadowColor">@color/shadow</item>
         <item name="android:shadowDx">5</item>
         <item name="android:shadowDy">5</item>
         <item name="android:shadowRadius">5</item>
+    </style>
+
+    <style name="SubTitleShadow" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
+        <item name="android:textSize">11sp</item>
+        <item name="android:shadowColor">@color/shadow</item>
+        <item name="android:shadowDx">3</item>
+        <item name="android:shadowDy">3</item>
+        <item name="android:shadowRadius">3</item>
+    </style>
+
+    <style name="MainToolbarThemeWithShadow" parent="Base.Theme.MangaReader">
+        <item name="android:textColorPrimary">?attr/colorSurfaceVariant</item>
+        <item name="android:textColorSecondary">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item> <!-- text menu -->
+        <item name="titleTextColor">?attr/colorSurfaceVariant</item>
+        <item name="titleTextAppearance">@style/TitleShadow</item>
+        <item name="subtitleTextColor">?attr/colorOnSurfaceVariant</item>
+        <item name="subtitleTextAppearance">@style/SubTitleShadow</item>
+        <item name="colorControlNormal">?attr/colorOnSurfaceVariant</item> <!-- butons -->
+        <item name="colorControlHighlight">?attr/colorOnSurfaceVariant</item>
+        <item name="iconTint">?attr/colorOnSurfaceVariant</item> <!--Icons -->
     </style>
 
     <style name="MainToolbarThemeWithShadow.BloodRed" parent="Theme.MangaReader.BloodRed">
@@ -202,14 +217,6 @@
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
         <item name="colorControlHighlight">?attr/colorOnSurfaceVariant</item>
         <item name="iconTint">?attr/colorOnSurfaceVariant</item>
-    </style>
-
-    <style name="MainSubToolbarTheme" parent="Base.Theme.MangaReader">
-        <item name="android:textColorPrimary">?attr/colorPrimary</item>
-        <item name="android:textColorSecondary">?attr/colorOnSecondary</item>
-        <item name="colorControlNormal">?attr/colorOnSecondary</item>
-        <item name="android:textColor">?attr/colorPrimary</item>
-        <item name="colorControlHighlight">?attr/colorOnSecondary</item>
     </style>
 
     <style name="ReaderToolbarTheme" parent="Base.Theme.MangaReader">

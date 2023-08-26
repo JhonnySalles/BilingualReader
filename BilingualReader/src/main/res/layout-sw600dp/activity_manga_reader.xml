@@ -33,7 +33,7 @@
 
         <FrameLayout
             android:id="@+id/popup_manga_translate"
-            style="@style/AppBackground.Popup"
+            style="@style/AppBackground.PopupBottom"
             android:layout_width="match_parent"
             android:layout_height="450dp"
             android:layout_alignParentBottom="true"
@@ -124,7 +124,7 @@
 
         <FrameLayout
             android:id="@+id/popup_manga_color"
-            style="@style/AppBackground.Popup"
+            style="@style/AppBackground.PopupBottom"
             android:layout_width="match_parent"
             android:layout_height="350dp"
             android:layout_alignParentBottom="true"

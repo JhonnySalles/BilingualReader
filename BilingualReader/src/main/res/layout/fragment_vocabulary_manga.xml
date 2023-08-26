@@ -13,8 +13,6 @@
         android:id="@+id/vocabulary_manga_root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="@dimen/margin_small"
-        android:layout_marginEnd="@dimen/margin_small"
         android:paddingTop="@dimen/default_navigator_header_margin_top">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -23,7 +21,9 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small">
             <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
                 android:id="@+id/vocabulary_manga_refresh"
                 android:layout_width="match_parent"
@@ -110,7 +110,7 @@
 
         <FrameLayout
             android:id="@+id/vocabulary_manga_popup_menu_order_filter"
-            style="@style/AppBackground.Popup"
+            style="@style/AppBackground.PopupBottom"
             android:layout_width="match_parent"
             android:layout_height="350dp"
             android:gravity="center_horizontal"
@@ -138,6 +138,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|top"
                 android:layout_marginTop="1dp"
+                android:layout_marginEnd="@dimen/margin_small"
                 android:contentDescription="@string/popup_reading_manga_close"
                 android:scaleType="center"
                 android:src="@drawable/ic_close"/>

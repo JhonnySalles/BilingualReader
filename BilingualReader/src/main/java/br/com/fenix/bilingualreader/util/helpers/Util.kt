@@ -26,6 +26,7 @@ import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.*
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.SearchView
 import android.widget.TextView
@@ -427,7 +428,7 @@ class Util {
 
         fun stringToFilter(context: Context, type: Type, text: String): Filter {
             var filter = Filter.None
-            val mapFilters = when(type) {
+            val mapFilters = when (type) {
                 Type.MANGA -> getMangaFilters(context)
                 Type.BOOK -> getBookFilters(context)
             }
@@ -440,7 +441,7 @@ class Util {
         }
 
         fun filterToString(context: Context, type: Type, filter: Filter): String {
-            val mapFilters = when(type) {
+            val mapFilters = when (type) {
                 Type.MANGA -> getMangaFilters(context)
                 Type.BOOK -> getBookFilters(context)
             }
@@ -751,6 +752,7 @@ class ImageUtil {
                         initTouchDown = System.currentTimeMillis()
                         initPos = PointF(event.x, event.y)
                     }
+
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                         image.animate()
                             .scaleX(1.0f)
@@ -771,6 +773,7 @@ class ImageUtil {
                         if (isTouchLength && isTouchDuration)
                             view.performClick()
                     }
+
                     else -> {
                         mScaleGestureDetector.onTouchEvent(event)
                     }
@@ -1012,7 +1015,13 @@ class ThemeUtil {
             return typedValue.data
         }
 
-        fun transparentTheme(window: Window, isDarkTheme: Boolean, statusBarDrawable: Drawable? = null, @ColorInt statusBarColor: Int? = null, isLightStatus: Boolean = false) {
+        fun transparentTheme(
+            window: Window,
+            isDarkTheme: Boolean,
+            statusBarDrawable: Drawable? = null,
+            @ColorInt statusBarColor: Int? = null,
+            isLightStatus: Boolean = false
+        ) {
             if (isDarkTheme)
                 window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
             else
@@ -1094,11 +1103,11 @@ class TextUtil {
             return arrayOf(firstPart, secondPart)
         }
 
-        fun clearHtml(html : String) : String {
+        fun clearHtml(html: String): String {
             return html.replace(Regex("<[^>]*>"), "")
         }
 
-        fun formatHtml(html : String, endLine: String = "<br>") : String {
+        fun formatHtml(html: String, endLine: String = "<br>"): String {
             return html.replace("<p>", "").replace("</p>", "").replace("<end-line>", endLine)
         }
 
@@ -1126,5 +1135,72 @@ class TextUtil {
             pageHTML = pageHTML.replace("(?u)(\\w+)(-\\s)".toRegex(), "$1")
             return pageHTML
         }
+    }
+}
+
+class AnimationUtil {
+    companion object AnimationUtils {
+        const val duration = 200L
+        fun animatePopupOpen(activity: Activity, frame: FrameLayout, isVertical: Boolean = true, navigationColor: Boolean = true) {
+            frame.visibility = View.VISIBLE
+            if (isVertical) {
+                if (navigationColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                    activity.window.navigationBarColor = activity.getColorFromAttr(R.attr.colorSurface)
+
+                val positionInitial = frame.translationY
+                frame.translationY = positionInitial + 200F
+                frame.animate()
+                    .setDuration(duration)
+                    .translationY(positionInitial)
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            super.onAnimationEnd(animation)
+                        }
+                    })
+            } else {
+                val positionInitial = frame.translationX
+                frame.translationX = 200F
+                frame.animate()
+                    .setDuration(duration)
+                    .translationX(positionInitial)
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            super.onAnimationEnd(animation)
+                        }
+                    })
+            }
+        }
+
+        fun animatePopupClose(activity: Activity, frame: FrameLayout, isVertical: Boolean = true, navigationColor: Boolean = true) {
+            if (isVertical) {
+                val positionInitial = frame.translationY
+                frame.animate()
+                    .setDuration(duration)
+                    .translationY(positionInitial + 200F)
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            super.onAnimationEnd(animation)
+                            frame.visibility = View.GONE
+                            frame.translationY = positionInitial
+
+                            if (navigationColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                                activity.window.navigationBarColor = android.graphics.Color.TRANSPARENT
+                        }
+                    })
+            } else {
+                val positionInitial = frame.translationX
+                frame.animate()
+                    .setDuration(duration)
+                    .translationX(positionInitial + 200F)
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            super.onAnimationEnd(animation)
+                            frame.visibility = View.GONE
+                            frame.translationX = positionInitial
+                        }
+                    })
+            }
+        }
+
     }
 }
