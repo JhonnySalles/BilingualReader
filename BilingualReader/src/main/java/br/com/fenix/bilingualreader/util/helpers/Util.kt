@@ -426,14 +426,14 @@ class Util {
             }
         }
 
-        fun stringToFilter(context: Context, type: Type, text: String): Filter {
+        fun stringToFilter(context: Context, type: Type, text: String, contains: Boolean = false): Filter {
             var filter = Filter.None
             val mapFilters = when (type) {
                 Type.MANGA -> getMangaFilters(context)
                 Type.BOOK -> getBookFilters(context)
             }
             for (item in mapFilters)
-                if (item.key.equals(text, true)) {
+                if ((contains && item.key.contains(text, true)) || (!contains && item.key.equals(text, true))) {
                     filter = item.value
                     break
                 }

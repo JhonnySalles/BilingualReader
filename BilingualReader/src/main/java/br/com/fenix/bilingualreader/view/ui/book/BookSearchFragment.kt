@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.view.ui.book
 
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Build
 import android.os.Bundle
@@ -14,6 +15,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.widget.AutoCompleteTextView
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.PopupMenu
@@ -102,6 +104,9 @@ class BookSearchFragment : Fragment() {
                 return false
             }
         })
+
+        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
+        searchSrcTextView.setTextAppearance(R.style.SearchShadow)
 
         searchView.setOnCloseListener {
             mViewModel.clearSearch()

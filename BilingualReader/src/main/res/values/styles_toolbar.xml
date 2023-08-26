@@ -125,6 +125,14 @@
         <item name="android:shadowRadius">3</item>
     </style>
 
+    <style name="SearchShadow" parent="Widget.AppCompat.SearchView">
+        <item name="android:textColor">?attr/colorSurfaceVariant</item>
+        <item name="android:shadowColor">@color/shadow</item>
+        <item name="android:shadowDx">3</item>
+        <item name="android:shadowDy">3</item>
+        <item name="android:shadowRadius">3</item>
+    </style>
+
     <style name="MainToolbarThemeWithShadow" parent="Base.Theme.MangaReader">
         <item name="android:textColorPrimary">?attr/colorSurfaceVariant</item>
         <item name="android:textColorSecondary">?attr/colorOnSurfaceVariant</item>

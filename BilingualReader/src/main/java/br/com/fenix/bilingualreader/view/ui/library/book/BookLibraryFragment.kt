@@ -172,6 +172,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         ) as AutoCompleteTextView
         searchSrcTextView.threshold = 1
         searchSrcTextView.setDropDownBackgroundResource(R.drawable.list_item_suggestion_background)
+        searchSrcTextView.setTextAppearance(R.style.SearchShadow)
 
         val from = arrayOf(SearchManager.SUGGEST_COLUMN_TEXT_1)
         val to = intArrayOf(R.id.list_item_suggestion)
@@ -203,6 +204,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                 return false
             }
 
+            var lastSuggestion = ""
             override fun onQueryTextChange(newText: String?): Boolean {
                 val cursor = MatrixCursor(
                     arrayOf(
@@ -225,32 +227,15 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                             }
                             return false
                         } else if (!substring.contains(' ')) {
-                            if (substring.contains(
-                                    Util.filterToString(
-                                        requireContext(),
-                                        Type.BOOK,
-                                        br.com.fenix.bilingualreader.model.enums.Filter.Type
-                                    ), true
-                                )
-                            ) {
+                            mViewModel.getSuggestions(substring).let{
                                 substring = substring.substringBefore(":")
-                                FileType.getBook().forEachIndexed { index, type ->
-                                    cursor.addRow(arrayOf(index, "@$substring:$type "))
-                                }
-                            } else if (substring.contains(
-                                    Util.filterToString(
-                                        requireContext(),
-                                        Type.BOOK,
-                                        br.com.fenix.bilingualreader.model.enums.Filter.Tag
-                                    ), true
-                                )
-                            ) {
-                                substring = substring.substringBefore(":")
-                                mViewModel.getTags().forEachIndexed { index, tags ->
-                                    if (tags.name.contains(" "))
-                                        cursor.addRow(arrayOf(index, "@$substring:'${tags.name}' "))
-                                    else
-                                        cursor.addRow(arrayOf(index, "@$substring:${tags.name} "))
+                                it.forEachIndexed { index, suggestion ->
+                                    run {
+                                        if (suggestion.contains(' '))
+                                            cursor.addRow(arrayOf(index, "@$substring:\"$suggestion\" "))
+                                        else
+                                            cursor.addRow(arrayOf(index, "@$substring:$suggestion "))
+                                    }
                                 }
                             }
                             return false
@@ -263,7 +248,11 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                     }
                 }
 
-                mRefreshLayout.isEnabled = newText == null || newText.isEmpty()
+                if (newText?.trim().equals(lastSuggestion, true))
+                    return false
+                lastSuggestion = newText?.trim() ?: ""
+
+                mRefreshLayout.isEnabled = newText.isNullOrEmpty()
                 filter(newText)
                 return false
             }
