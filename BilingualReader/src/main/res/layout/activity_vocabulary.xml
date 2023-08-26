@@ -75,7 +75,7 @@
                 android:gravity="start|center"
                 android:background="@android:color/transparent"
                 app:popupTheme="@style/MainToolbarStyle"
-                android:theme="@style/MainToolbarThemeWithShadow"/>
+                style="@style/MainToolbarThemeWithShadow"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 

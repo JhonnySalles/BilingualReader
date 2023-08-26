@@ -34,6 +34,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.apache.commons.codec.binary.Hex
 import org.apache.commons.codec.digest.DigestUtils
 import org.slf4j.LoggerFactory
@@ -152,7 +153,16 @@ class SubTitleController private constructor(private val context: Context) {
                 mParse = parse
                 val listJson: List<String> = mParse.getSubtitles()
                 isSelected = false
-                getChapterFromJson(listJson)
+
+                withContext(Dispatchers.Main) {
+                    clean()
+                }
+
+                val listSubTitleChapter = getChapterFromJson(listJson)
+
+                withContext(Dispatchers.Main) {
+                    setListChapter(listSubTitleChapter)
+                }
 
                 manga?.let {
                     if (it.hasSubtitle != parse.hasSubtitles()) {
@@ -171,14 +181,12 @@ class SubTitleController private constructor(private val context: Context) {
     }
 
 
-    fun getChapterFromJson(listJson: List<String>, isSelected: Boolean = false) {
+    fun getChapterFromJson(listJson: List<String>, isSelected: Boolean = false) : MutableList<SubTitleChapter>  {
         this.isSelected = isSelected
-        clean()
         isNotEmpty = listJson.isNotEmpty()
+        val listSubTitleChapter: MutableList<SubTitleChapter> = arrayListOf()
         if (listJson.isNotEmpty()) {
             val gson = Gson()
-            val listSubTitleChapter: MutableList<SubTitleChapter> = arrayListOf()
-
             listJson.forEach {
                 try {
                     val subTitleVolume: SubTitleVolume = gson.fromJson(it, SubTitleVolume::class.java)
@@ -198,8 +206,8 @@ class SubTitleController private constructor(private val context: Context) {
             }
 
             mVocabularyRepository.processVocabulary(mManga?.id, listSubTitleChapter)
-            setListChapter(listSubTitleChapter)
         }
+        return listSubTitleChapter;
     }
 
     private fun setListChapter(subTitleChapters: MutableList<SubTitleChapter>) {

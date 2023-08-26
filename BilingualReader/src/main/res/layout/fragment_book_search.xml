@@ -111,7 +111,7 @@
                 android:layout_height="@dimen/default_navigator_header_size"
                 android:background="@android:color/transparent"
                 app:popupTheme="@style/MainToolbarStyle"
-                android:theme="@style/MainToolbarThemeWithShadow">
+                style="@style/MainToolbarThemeWithShadow">
                 <ProgressBar
                     android:id="@+id/book_search_in_progress"
                     style="@style/RoundedProgressBar"

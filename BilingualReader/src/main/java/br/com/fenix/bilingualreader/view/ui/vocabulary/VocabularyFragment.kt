@@ -32,6 +32,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.VocabularyCardListener
+import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyLoadState
@@ -175,7 +176,7 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
 
         root.findViewById<ImageView>(R.id.vocabulary_popup_menu_order_filter_close)
             .setOnClickListener {
-                mMenuPopupFilterOrder.visibility = View.GONE
+                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupFilterOrder)
             }
 
         mScrollUp.visibility = View.GONE
@@ -346,12 +347,8 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
     }
 
     private fun onOpenMenuSort() {
-        mMenuPopupFilterOrder.visibility = View.VISIBLE
         mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
-        mMenuPopupFilterOrder.translationY = 100F
-        mMenuPopupFilterOrder.animate()
-            .setDuration(200)
-            .translationY(0f)
+        AnimationUtil.animatePopupOpen(requireActivity(), mMenuPopupFilterOrder)
     }
 
     private fun onChangeSort() {

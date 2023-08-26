@@ -111,8 +111,12 @@
         <item name="android:background">@drawable/app_background</item>
     </style>
 
-    <style name="AppBackground.Popup" parent="AppBackground">
-        <item name="android:background">?attr/colorOnSurface</item>
+    <style name="AppBackground.PopupBottom" parent="AppBackground">
+        <item name="android:background">@drawable/popup_bottom_background</item>
+    </style>
+
+    <style name="AppBackground.PopupRight" parent="AppBackground">
+        <item name="android:background">@drawable/popup_right_background</item>
     </style>
 
     <style name="MaterialDivider" parent="Theme.MangaReader">
@@ -173,7 +177,7 @@
         <item name="endIconMode">clear_text</item>
     </style>
 
-    <style name="TextFieldEditText"  parent="Base.Widget.AppCompat.EditText" >
+    <style name="TextFieldEditText"  parent="Base.Widget.AppCompat.EditText">
         <item name="android:inputType">text</item>
         <item name="android:textColor">?attr/colorPrimary</item>
         <item name="colorControlActivated">?attr/colorSecondary</item>
