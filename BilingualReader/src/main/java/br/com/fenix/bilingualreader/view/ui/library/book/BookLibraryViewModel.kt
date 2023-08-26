@@ -10,7 +10,9 @@ import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
+import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.Tags
+import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
@@ -20,8 +22,16 @@ import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.TagsRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.withContext
 import java.util.Locale
 import java.util.Objects
+import java.util.regex.Pattern
+import kotlin.streams.toList
 import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 
 class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filterable {
@@ -37,12 +47,14 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     private var mOrder = MutableLiveData(Pair(Order.Name, false))
     val order: LiveData<Pair<Order, Boolean>> = mOrder
     private var mTypeFilter = MutableLiveData(FilterType.None)
-    val typeFilter: LiveData<br.com.fenix.bilingualreader.model.enums.Filter> = mTypeFilter
+    val typeFilter: LiveData<FilterType> = mTypeFilter
 
     private var mListBookFull = MutableLiveData<MutableList<Book>>(mutableListOf())
     private var mListBook = MutableLiveData<MutableList<Book>>(mutableListOf())
     val listBook: LiveData<MutableList<Book>> = mListBook
 
+    private var mSuggestionAuthor = setOf<String>()
+    private var mSuggestionPublisher = setOf<String>()
     private var mTags = mutableListOf<Tags>()
 
     private var mProcessShareMark = false
@@ -83,6 +95,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                     mLibrary = item.value.second
                     mListBookFull.value = item.value.third.toMutableList()
                     mListBook.value = item.value.third.toMutableList()
+                    setSuggestions(mListBookFull.value)
                     break
                 }
             }
@@ -152,6 +165,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     fun setList(list: ArrayList<Book>) {
         mListBook.value = list
         mListBookFull.value = list.toMutableList()
+        setSuggestions(list)
     }
 
     fun addList(Book: Book): Int {
@@ -225,6 +239,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             change = false
         }
 
+        setSuggestions(mListBookFull.value)
         refreshComplete(change, indexes)
     }
 
@@ -234,11 +249,13 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             if (mListBookFull.value == null || mListBookFull.value!!.isEmpty()) {
                 mListBook.value = list.toMutableList()
                 mListBookFull.value = list.toMutableList()
+                setSuggestions(mListBookFull.value)
             } else
                 update(list)
         } else {
             mListBookFull.value = mutableListOf()
             mListBook.value = mutableListOf()
+            setSuggestions(mListBookFull.value)
         }
 
         refreshComplete(mListBook.value!!.isNotEmpty())
@@ -252,7 +269,6 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         mTags = mTagsRepository.list()
         return mTags
     }
-    fun getTags() = mTags
 
     fun isEmpty(): Boolean = mListBook.value == null || mListBook.value!!.isEmpty()
 
@@ -303,6 +319,46 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             }
     }
 
+    private fun setSuggestions(list : List<Book>?) {
+        mSuggestionAuthor = setOf()
+        mSuggestionPublisher = setOf()
+
+        if (list.isNullOrEmpty())
+            return
+
+        CoroutineScope(newSingleThreadContext("SuggestionThread")).launch {
+            async {
+                val authors = mutableSetOf<String>()
+                val publishers = mutableSetOf<String>()
+                val tags = mutableSetOf<String>()
+
+                list.forEach {
+                    authors.add(it.author)
+                    publishers.add(it.publisher)
+                }
+
+                authors.removeIf {it.isEmpty()}
+                publishers.removeIf {it.isEmpty()}
+
+                withContext(Dispatchers.Main) {
+                    mSuggestionAuthor = authors
+                    mSuggestionPublisher = publishers
+                }
+            }
+        }
+    }
+    fun getSuggestions(filter : String): List<String> {
+        val type = filter.substringBeforeLast(':')
+        val condition = filter.substringAfterLast(':')
+        return when(Util.stringToFilter(app, Type.BOOK, type, true)) {
+            FilterType.Author -> mSuggestionAuthor.parallelStream().filter { condition.isEmpty() || it.contains(condition, true) }.toList()
+            FilterType.Publisher -> mSuggestionPublisher.parallelStream().filter { condition.isEmpty() || it.contains(condition, true) }.toList()
+            FilterType.Tag -> mTags.parallelStream().map { "$it" }.toList()
+            FilterType.Type -> FileType.getBook().parallelStream().map { "$it" }.toList()
+            else -> listOf()
+        }
+    }
+
     fun clearFilter() {
         val newList: MutableList<Book> = mutableListOf()
         newList.addAll(mListBookFull.value!!.filter(Objects::nonNull))
@@ -313,7 +369,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         return mBookFilter
     }
 
-    private fun filtered(book: Book?, filterPattern: String, filterConditions :ArrayList<Pair<br.com.fenix.bilingualreader.model.enums.Filter, String>>): Boolean {
+    private fun filtered(book: Book?, filterPattern: String, filterConditions :ArrayList<Pair<FilterType, String>>): Boolean {
         if (book == null)
             return false
 
@@ -329,19 +385,19 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             var condition = false
             filterConditions.forEach {
                 when (it.first) {
-                    br.com.fenix.bilingualreader.model.enums.Filter.Type -> {
+                    FilterType.Type -> {
                         if (book.type.name.contains(it.second, true))
                             condition = true
                     }
-                    br.com.fenix.bilingualreader.model.enums.Filter.Publisher -> {
+                    FilterType.Publisher -> {
                         if (book.publisher.contains(it.second, true))
                             condition = true
                     }
-                    br.com.fenix.bilingualreader.model.enums.Filter.Author -> {
+                    FilterType.Author -> {
                         if (book.author.contains(it.second, true))
                             condition = true
                     }
-                    br.com.fenix.bilingualreader.model.enums.Filter.Tag -> {
+                    FilterType.Tag -> {
                         if (it.second.isEmpty() && book.tags.isEmpty())
                             return false
                         else if (it.second.isNotEmpty()) {
@@ -383,26 +439,22 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                 filteredList.addAll(mListBookFull.value!!.filter(Objects::nonNull))
             } else {
                 var filterPattern = constraint.toString()
-                val filterCondition = arrayListOf<Pair<br.com.fenix.bilingualreader.model.enums.Filter, String>>()
+                val filterCondition = arrayListOf<Pair<FilterType, String>>()
                 constraint?.contains('@').run {
-                    //This regex split only space and ignore space inside quotes
-                    constraint?.split(" (?=(?:[^\"\']*(\"|\')[^\"\']*(\"|\'))*[^\"\']*\$)".toRegex())?.let {
-                        for (word in it) {
-                            if (word.contains(Regex("@[\\S]+:(\\S++ |\\S++)"))) {
-                                filterPattern = filterPattern.replace(word, "", true)
-                                val type = Util.stringToFilter(app.applicationContext, Type.BOOK, word.substringBefore(":").replace("@", ""))
-                                if (type != br.com.fenix.bilingualreader.model.enums.Filter.None) {
-                                    val condition = word.substringAfter(":")
-                                    if (condition.isNotEmpty())
-                                        filterCondition.add(Pair(type, condition))
-                                }
-                            }
+                    val m = Pattern.compile("(@\\S*:([^\"]\\S*|\".+?\"\\s*))").matcher(constraint)
+                    while (m.find()) {
+                        val item = m.group(1)?.replace("\"", "") ?: continue
+                        filterPattern = filterPattern.replace(m.group(1)!!, "", true)
+                        val type = Util.stringToFilter(app.applicationContext, Type.BOOK, item.substringBefore(":").replace("@", ""))
+                        if (type != FilterType.None) {
+                            val condition = item.substringAfter(":")
+                            if (condition.isNotEmpty())
+                                filterCondition.add(Pair(type, condition))
                         }
                     }
                 }
 
                 filterPattern = filterPattern.lowercase(Locale.getDefault()).trim()
-
                 filteredList.addAll(mListBookFull.value!!.filter {
                     filtered(it, filterPattern, filterCondition)
                 })

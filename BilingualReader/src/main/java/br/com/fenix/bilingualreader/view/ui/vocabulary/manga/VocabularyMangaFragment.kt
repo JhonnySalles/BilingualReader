@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.view.ui.vocabulary.manga
 
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Build
 import android.os.Bundle
@@ -15,6 +16,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.widget.AutoCompleteTextView
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -142,6 +144,9 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
                 return false
             }
         })
+
+        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
+        searchSrcTextView.setTextAppearance(R.style.SearchShadow)
 
         MenuUtil.longClick(requireActivity(), R.id.menu_vocabulary_list_order) {
             if (!mRefreshLayout.isRefreshing)

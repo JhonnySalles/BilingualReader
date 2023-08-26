@@ -149,10 +149,10 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         searchView = miSearch.actionView as SearchView
         searchView.imeOptions = EditorInfo.IME_ACTION_DONE
 
-        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text",
-            "id", "android")) as AutoCompleteTextView
+        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
         searchSrcTextView.threshold = 1
         searchSrcTextView.setDropDownBackgroundResource(R.drawable.list_item_suggestion_background)
+        searchSrcTextView.setTextAppearance(R.style.SearchShadow)
 
         val from = arrayOf(SearchManager.SUGGEST_COLUMN_TEXT_1)
         val to = intArrayOf(R.id.list_item_suggestion)
@@ -170,7 +170,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                 if( cursor != null) {
                     val colum = cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1)
                     val selection = cursor.getString(colum)
-                    val query =  searchView.query.toString().substringBeforeLast('@', "") + " " + selection
+                    val query = searchView.query.toString().substringBeforeLast('@', "") + " " + selection
                     searchView.setQuery(query.trim(), false)
                 }
                 return true
@@ -182,6 +182,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                 return false
             }
 
+            var lastSuggestion = ""
             override fun onQueryTextChange(newText: String?): Boolean {
                 val cursor = MatrixCursor(
                     arrayOf(
@@ -204,10 +205,15 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                             }
                             return false
                         } else if (!substring.contains(' ')) {
-                            if (substring.contains(Util.filterToString(requireContext(), Type.MANGA, br.com.fenix.bilingualreader.model.enums.Filter.Type) , true)) {
+                            mViewModel.getSuggestions(substring).let{
                                 substring = substring.substringBefore(":")
-                                FileType.getManga().forEachIndexed { index, type ->
-                                    cursor.addRow(arrayOf(index, "@$substring:$type "))
+                                it.forEachIndexed { index, suggestion ->
+                                    run {
+                                        if (suggestion.contains(' '))
+                                            cursor.addRow(arrayOf(index, "@$substring:\"$suggestion\" "))
+                                        else
+                                            cursor.addRow(arrayOf(index, "@$substring:$suggestion "))
+                                    }
                                 }
                             }
                             return false
@@ -220,7 +226,11 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                     }
                 }
 
-                mRefreshLayout.isEnabled = newText == null || newText.isEmpty()
+                if (newText?.trim().equals(lastSuggestion, true))
+                    return false
+                lastSuggestion = newText?.trim() ?: ""
+
+                mRefreshLayout.isEnabled = newText.isNullOrEmpty()
                 filter(newText)
                 return false
             }
