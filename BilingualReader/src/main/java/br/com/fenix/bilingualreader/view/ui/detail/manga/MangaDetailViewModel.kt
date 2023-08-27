@@ -83,7 +83,11 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
                 (parse as RarParse?)!!.setCacheDirectory(cacheDir)
             }
 
-            parse.getComicInfo()?.let { mLocalInformation.value = Information(app.applicationContext, it) }
+            parse.getComicInfo()?.let {
+                mLocalInformation.value = Information(app.applicationContext, it)
+                if (manga.update(it))
+                    mMangaRepository.update(manga)
+            }
 
             mPaths = parse.getPagePaths()
             mListChapters.value = mPaths.keys.toMutableList()
