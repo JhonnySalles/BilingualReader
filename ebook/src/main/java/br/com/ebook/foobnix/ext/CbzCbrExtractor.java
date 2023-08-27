@@ -1,8 +1,5 @@
 package br.com.ebook.foobnix.ext;
 
-import com.github.junrar.Archive;
-import com.github.junrar.rarfile.FileHeader;
-
 import org.ebookdroid.BookType;
 
 import java.io.ByteArrayOutputStream;
