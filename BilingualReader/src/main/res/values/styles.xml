@@ -85,6 +85,11 @@
     </style>
 
     <!-- - - - - - - - - - - - - - - - - - - - Basic System Style - - - - - - - - - - - - - - - - - - - -->
+    <style name="AppBarLayout" parent="Theme.MangaReader">
+        <item name="android:background">@drawable/app_main_toolbar_background</item>
+        <item name="elevation">0.0dp</item>
+    </style>
+
     <style name="AppBackground" parent="Theme.MangaReader">
         <item name="android:background">@drawable/app_background</item>
     </style>
@@ -569,7 +574,7 @@
 
     <style name="TextNormal.History.Title" parent="TextNormal">
         <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
-        <item name="android:textColor">?attr/colorOnTertiary</item>
+        <item name="android:textColor">?attr/colorPrimaryContainer</item>
     </style>
 
     <style name="TextNormal.History.Subtitle" parent="TextTitle">

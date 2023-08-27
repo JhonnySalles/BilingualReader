@@ -283,8 +283,7 @@ class MangaDetailFragment : Fragment() {
                 mTitle.text = it.name
                 mFolder.text = it.path
                 val folder = mViewModel.getChapterFolder(it.bookMark)
-                mBookMark.text =
-                    "${it.bookMark} / ${it.pages}" + if (folder.isNotEmpty()) " - $folder" else ""
+                mBookMark.text = "${it.bookMark} / ${it.pages}" + if (folder.isNotEmpty()) " - $folder" else ""
                 mLastAccess.text = if (it.lastAccess == null) "" else GeneralConsts.formatterDate(
                     requireContext(),
                     it.lastAccess!!
@@ -418,12 +417,9 @@ class MangaDetailFragment : Fragment() {
         mViewModel.localInformation.observe(viewLifecycleOwner) {
             mBookMarks.clear()
             if (it != null) {
-                mLocalInformationVolume.text =
-                    HtmlCompat.fromHtml(it.volumes, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mLocalInformationPublisher.text =
-                    HtmlCompat.fromHtml(it.publisher, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mLocalInformationRelease.text =
-                    HtmlCompat.fromHtml(it.release, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mLocalInformationVolume.text = HtmlCompat.fromHtml(it.volumes, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mLocalInformationPublisher.text = HtmlCompat.fromHtml(it.publisher, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mLocalInformationRelease.text = HtmlCompat.fromHtml(it.release, HtmlCompat.FROM_HTML_MODE_COMPACT)
 
                 mLocalInformationVolumeReleasePublisherContent.visibility =
                     if (it.volumes.isNotEmpty() || it.publisher.isNotEmpty() || it.release.isNotEmpty())
@@ -431,14 +427,10 @@ class MangaDetailFragment : Fragment() {
                     else
                         View.GONE
 
-                mLocalInformationComicInfoTitle.text =
-                    HtmlCompat.fromHtml(it.title, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mLocalInformationComicInfoTitle.visibility =
-                    if (it.title.isNotEmpty()) View.VISIBLE else View.GONE
-                mLocalInformationComicInfoLanguage.text =
-                    HtmlCompat.fromHtml(it.languageDescription, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mLocalInformationComicInfoLanguage.visibility =
-                    if (it.languageDescription.isNotEmpty()) View.VISIBLE else View.GONE
+                mLocalInformationComicInfoTitle.text = HtmlCompat.fromHtml(it.title, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mLocalInformationComicInfoTitle.visibility = if (it.title.isNotEmpty()) View.VISIBLE else View.GONE
+                mLocalInformationComicInfoLanguage.text = HtmlCompat.fromHtml(it.languageDescription, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mLocalInformationComicInfoLanguage.visibility = if (it.languageDescription.isNotEmpty()) View.VISIBLE else View.GONE
 
                 mLocalInformationComicInfoTitleLanguageContent.visibility =
                     if (mLocalInformationComicInfoTitle.visibility == View.VISIBLE ||
@@ -448,26 +440,16 @@ class MangaDetailFragment : Fragment() {
                     else
                         View.GONE
 
-                mLocalInformationComicInfoStoryArch.text =
-                    HtmlCompat.fromHtml(it.storyArch, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mLocalInformationComicInfoStoryArch.visibility =
-                    if (it.storyArch.isNotEmpty()) View.VISIBLE else View.GONE
-                mLocalInformationComicInfoGenre.text =
-                    HtmlCompat.fromHtml(it.genres, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mLocalInformationComicInfoGenre.visibility =
-                    if (it.genres.isNotEmpty()) View.VISIBLE else View.GONE
-                mLocalInformationComicInfoCharacters.text =
-                    HtmlCompat.fromHtml(it.characters, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mLocalInformationComicInfoCharacters.visibility =
-                    if (it.characters.isNotEmpty()) View.VISIBLE else View.GONE
-                mLocalInformationComicInfoTeams.text =
-                    HtmlCompat.fromHtml(it.teams, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mLocalInformationComicInfoTeams.visibility =
-                    if (it.teams.isNotEmpty()) View.VISIBLE else View.GONE
-                mLocalInformationComicInfoLocations.text =
-                    HtmlCompat.fromHtml(it.locations, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mLocalInformationComicInfoLocations.visibility =
-                    if (it.locations.isNotEmpty()) View.VISIBLE else View.GONE
+                mLocalInformationComicInfoStoryArch.text = HtmlCompat.fromHtml(it.storyArch, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mLocalInformationComicInfoStoryArch.visibility = if (it.storyArch.isNotEmpty()) View.VISIBLE else View.GONE
+                mLocalInformationComicInfoGenre.text = HtmlCompat.fromHtml(it.genres, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mLocalInformationComicInfoGenre.visibility = if (it.genres.isNotEmpty()) View.VISIBLE else View.GONE
+                mLocalInformationComicInfoCharacters.text = HtmlCompat.fromHtml(it.characters, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mLocalInformationComicInfoCharacters.visibility = if (it.characters.isNotEmpty()) View.VISIBLE else View.GONE
+                mLocalInformationComicInfoTeams.text = HtmlCompat.fromHtml(it.teams, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mLocalInformationComicInfoTeams.visibility = if (it.teams.isNotEmpty()) View.VISIBLE else View.GONE
+                mLocalInformationComicInfoLocations.text = HtmlCompat.fromHtml(it.locations, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mLocalInformationComicInfoLocations.visibility = if (it.locations.isNotEmpty()) View.VISIBLE else View.GONE
 
                 if (it.bookMarks.isNotEmpty()) {
                     mLocalInformationComicInfoBookMarksContent.visibility = View.VISIBLE
@@ -519,20 +501,15 @@ class MangaDetailFragment : Fragment() {
                         mWebInformationImage
                     )
 
-                mWebInformationAlternativeTitles.text =
-                    HtmlCompat.fromHtml(it.alternativeTitles, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mWebInformationStatus.text =
-                    HtmlCompat.fromHtml(it.status, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mWebInformationPublish.text =
-                    HtmlCompat.fromHtml(it.release, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mWebInformationAlternativeTitles.text = HtmlCompat.fromHtml(it.alternativeTitles, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mWebInformationStatus.text = HtmlCompat.fromHtml(it.status, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mWebInformationPublish.text = HtmlCompat.fromHtml(it.release, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mWebInformationVolumes.text = HtmlCompat.fromHtml(
                     it.volumes + ", " + it.chapters,
                     HtmlCompat.FROM_HTML_MODE_COMPACT
                 )
-                mWebInformationAuthors.text =
-                    HtmlCompat.fromHtml(it.authors, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mWebInformationGenres.text =
-                    HtmlCompat.fromHtml(it.genres, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mWebInformationAuthors.text = HtmlCompat.fromHtml(it.authors, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mWebInformationGenres.text = HtmlCompat.fromHtml(it.genres, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mWebInformationOrigin.text = it.origin
             } else {
                 mWebInformationContent.visibility = View.GONE

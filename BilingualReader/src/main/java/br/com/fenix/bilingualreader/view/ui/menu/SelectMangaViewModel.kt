@@ -45,8 +45,8 @@ class SelectMangaViewModel(application: Application) : AndroidViewModel(applicat
             mLibrary = library
     }
 
-    fun setDefaultLibrary(type: Libraries) {
-        mLibrary = mLibraryRepository.get(type) ?: mDefaultLibrary
+    fun setDefaultLibrary(language: Libraries) {
+        mLibrary = mLibraryRepository.get(Type.MANGA, language) ?: mDefaultLibrary
     }
 
     fun setLibrary(library: Library) {
@@ -63,7 +63,7 @@ class SelectMangaViewModel(application: Application) : AndroidViewModel(applicat
         mLibrary = library
 
         val list = mMangaRepository.list(mLibrary)
-        if (list == null || list.isEmpty()) {
+        if (list.isNullOrEmpty()) {
             mListMangasFull.value = mutableListOf()
             mListMangas.value = mutableListOf()
         } else {
@@ -74,8 +74,7 @@ class SelectMangaViewModel(application: Application) : AndroidViewModel(applicat
         prepareList()
     }
 
-    fun getLibrary() =
-        mLibrary
+    fun getLibrary() = mLibrary
 
     fun list(id: Long, manga: String, refreshComplete: (Boolean) -> (Unit)) {
         this.id = id

@@ -4,6 +4,7 @@ import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import br.com.fenix.bilingualreader.model.entity.*
 import br.com.fenix.bilingualreader.model.enums.Libraries
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.util.*
 
@@ -547,8 +548,8 @@ abstract class LibrariesDAO : DataBaseDAO<Library> {
     @Query("SELECT * FROM " + DataBaseConsts.LIBRARIES.TABLE_NAME + " WHERE " + DataBaseConsts.LIBRARIES.COLUMNS.ID + " = :id")
     abstract fun get(id: Long): Library
 
-    @Query("SELECT * FROM " + DataBaseConsts.LIBRARIES.TABLE_NAME + " WHERE " + DataBaseConsts.LIBRARIES.COLUMNS.TYPE + " = :type")
-    abstract fun get(type: Libraries): Library
+    @Query("SELECT * FROM " + DataBaseConsts.LIBRARIES.TABLE_NAME + " WHERE " + DataBaseConsts.LIBRARIES.COLUMNS.TYPE + " = :type AND " + DataBaseConsts.LIBRARIES.COLUMNS.LANGUAGE + " = :language")
+    abstract fun get(type: Type, language: Libraries): Library
 
     @Query("UPDATE " + DataBaseConsts.LIBRARIES.TABLE_NAME + " SET " + DataBaseConsts.LIBRARIES.COLUMNS.EXCLUDED + " = 1 WHERE " + DataBaseConsts.LIBRARIES.COLUMNS.ID + " = :id")
     abstract fun delete(id: Long)

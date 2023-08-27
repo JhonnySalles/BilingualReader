@@ -165,23 +165,18 @@ class ConfigFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         mMangaLibraryPath = view.findViewById(R.id.config_manga_library_path)
-        mMangaLibraryPathAutoComplete =
-            view.findViewById(R.id.config_manga_menu_autocomplete_library_path)
+        mMangaLibraryPathAutoComplete = view.findViewById(R.id.config_manga_menu_autocomplete_library_path)
         mMangaLibraryOrder = view.findViewById(R.id.config_manga_library_order)
-        mMangaLibraryOrderAutoComplete =
-            view.findViewById(R.id.config_manga_menu_autocomplete_library_order)
+        mMangaLibraryOrderAutoComplete = view.findViewById(R.id.config_manga_menu_autocomplete_library_order)
         mMangaLibrariesButton = view.findViewById(R.id.config_manga_libraries)
 
         mBookLibrariesButton = view.findViewById(R.id.config_book_libraries)
         mBookLibraryPath = view.findViewById(R.id.config_book_library_path)
-        mBookLibraryPathAutoComplete =
-            view.findViewById(R.id.config_book_menu_autocomplete_library_path)
+        mBookLibraryPathAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_library_path)
         mBookLibraryOrder = view.findViewById(R.id.config_book_library_order)
-        mBookLibraryOrderAutoComplete =
-            view.findViewById(R.id.config_book_menu_autocomplete_library_order)
+        mBookLibraryOrderAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_library_order)
         mBookScrollingMode = view.findViewById(R.id.config_book_scrolling_mode)
-        mBookScrollingModeAutoComplete =
-            view.findViewById(R.id.config_book_menu_autocomplete_scrolling_mode)
+        mBookScrollingModeAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_scrolling_mode)
 
         mBookFontTypeNormal = view.findViewById(R.id.config_book_list_fonts_normal)
         mBookFontTypeJapanese = view.findViewById(R.id.config_book_list_fonts_japanese)
@@ -192,32 +187,23 @@ class ConfigFragment : Fragment() {
         mBookProcessVocabulary = view.findViewById(R.id.config_book_process_vocabulary)
 
         mConfigSystemThemeMode = view.findViewById(R.id.config_system_theme_mode)
-        mConfigSystemThemeModeAutoComplete =
-            view.findViewById(R.id.config_system_menu_autocomplete_theme_mode)
+        mConfigSystemThemeModeAutoComplete = view.findViewById(R.id.config_system_menu_autocomplete_theme_mode)
         mConfigSystemThemes = view.findViewById(R.id.config_system_list_themes)
 
-        mMangaDefaultSubtitleLanguage =
-            view.findViewById(R.id.config_manga_default_subtitle_language)
-        mMangaDefaultSubtitleLanguageAutoComplete =
-            view.findViewById(R.id.config_manga_menu_autocomplete_default_subtitle_language)
-        mMangaDefaultSubtitleTranslate =
-            view.findViewById(R.id.config_manga_default_subtitle_translate)
-        mMangaSubtitleTranslateAutoComplete =
-            view.findViewById(R.id.config_manga_menu_autocomplete_default_subtitle_translate)
+        mMangaDefaultSubtitleLanguage = view.findViewById(R.id.config_manga_default_subtitle_language)
+        mMangaDefaultSubtitleLanguageAutoComplete = view.findViewById(R.id.config_manga_menu_autocomplete_default_subtitle_language)
+        mMangaDefaultSubtitleTranslate = view.findViewById(R.id.config_manga_default_subtitle_translate)
+        mMangaSubtitleTranslateAutoComplete = view.findViewById(R.id.config_manga_menu_autocomplete_default_subtitle_translate)
 
         mMangaReaderComicMode = view.findViewById(R.id.config_manga_reader_comic_mode)
-        mMangaReaderComicModeAutoComplete =
-            view.findViewById(R.id.config_manga_menu_autocomplete_reader_comic_mode)
+        mMangaReaderComicModeAutoComplete = view.findViewById(R.id.config_manga_menu_autocomplete_reader_comic_mode)
         mMangaReaderPageMode = view.findViewById(R.id.config_manga_reader_page_mode)
-        mMangaPageModeAutoComplete =
-            view.findViewById(R.id.config_manga_menu_autocomplete_page_mode)
-        mMangaShowClockAndBattery =
-            view.findViewById(R.id.config_manga_switch_show_clock_and_battery)
+        mMangaPageModeAutoComplete = view.findViewById(R.id.config_manga_menu_autocomplete_page_mode)
+        mMangaShowClockAndBattery = view.findViewById(R.id.config_manga_switch_show_clock_and_battery)
         mMangaUseMagnifierType = view.findViewById(R.id.config_manga_switch_use_magnifier_type)
 
         mConfigSystemFormatDate = view.findViewById(R.id.config_system_format_date)
-        mConfigSystemFormatDateAutoComplete =
-            view.findViewById(R.id.config_system_menu_autocomplete_format_date)
+        mConfigSystemFormatDateAutoComplete = view.findViewById(R.id.config_system_menu_autocomplete_format_date)
         mConfigSystemShareMarkDrive = view.findViewById(R.id.config_system_share_mark_drive)
         mConfigSystemShareMarkAccount = view.findViewById(R.id.config_system_share_mark_signed_account)
         mConfigSystemShareMarkSignIn = view.findViewById(R.id.config_system_share_mark_sign_in_button)

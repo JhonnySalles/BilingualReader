@@ -35,11 +35,10 @@
     <!-- action bar -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/main_bar_layout"
+        style="@style/AppBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/app_main_toolbar_background"
-        android:theme="@style/MainToolbarContentTheme"
-        app:elevation="0.1dp">
+        android:theme="@style/MainToolbarContentTheme">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/main_toolbar"

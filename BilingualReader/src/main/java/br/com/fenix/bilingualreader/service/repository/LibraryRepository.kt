@@ -55,9 +55,9 @@ class LibraryRepository(var context: Context) {
         }
     }
 
-    fun get(type: Libraries): Library? {
+    fun get(type: Type, language: Libraries): Library? {
         return try {
-            mDataBase.get(type)
+            mDataBase.get(type, language)
         } catch (e: Exception) {
             mLOGGER.error("Error when get Library: " + e.message, e)
             null
