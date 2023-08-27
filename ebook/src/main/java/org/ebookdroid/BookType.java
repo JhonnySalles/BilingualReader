@@ -3,7 +3,6 @@ package org.ebookdroid;
 import android.content.Intent;
 
 import org.ebookdroid.core.codec.CodecContext;
-import org.ebookdroid.droids.CbrContext;
 import org.ebookdroid.droids.EpubContext;
 import org.ebookdroid.droids.Fb2Context;
 import org.ebookdroid.droids.HtmlContext;
@@ -29,7 +28,6 @@ public enum BookType {
     TIFF(PdfContext.class, Arrays.asList("tiff", "tif"), Arrays.asList("image/tiff")),
 
     CBZ(PdfContext.class, Arrays.asList("cbz"), Arrays.asList("application/x-cbz")),
-	CBR(CbrContext.class, Arrays.asList("cbr"), Arrays.asList("application/x-cbr")),
 
     EPUB(EpubContext.class, Arrays.asList("epub"), Arrays.asList("application/epub+zip")),
 

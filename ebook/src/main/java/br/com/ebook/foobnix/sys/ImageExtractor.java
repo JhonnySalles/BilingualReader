@@ -114,7 +114,7 @@ public class ImageExtractor implements ImageDownloader {
             cover = BaseExtractor.arrayToBitmap(RtfExtract.getImageCover(unZipPath), pageUrl.getWidth());
         } else if (BookType.PDF.is(unZipPath) || BookType.DJVU.is(unZipPath) || BookType.TIFF.is(unZipPath)) {
             cover = proccessOtherPage(pageUrl, fileMeta);
-        } else if (BookType.CBZ.is(unZipPath) || BookType.CBR.is(unZipPath)) {
+        } else if (BookType.CBZ.is(unZipPath)) {
             cover = BaseExtractor.arrayToBitmap(CbzCbrExtractor.getBookCover(unZipPath), pageUrl.getWidth());
         } else if (ExtUtils.isFileArchive(unZipPath)) {
             String ext = ExtUtils.getFileExtension(unZipPath);
