@@ -9,7 +9,6 @@
     android:fitsSystemWindows="true"
     android:clipToPadding="false"
     android:clipChildren="false"
-    android:theme="@style/Theme.MangaReader"
     tools:context=".view.ui.vocabulary.VocabularyActivity">
 
     <View

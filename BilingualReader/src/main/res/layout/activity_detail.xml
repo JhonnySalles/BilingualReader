@@ -9,7 +9,6 @@
     android:fitsSystemWindows="true"
     android:clipToPadding="false"
     android:clipChildren="false"
-    android:theme="@style/Theme.MangaReader"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".view.ui.detail.DetailActivity">
 

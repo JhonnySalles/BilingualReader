@@ -30,10 +30,10 @@
     <color name="blood_theme_light_shadow">#000000</color>
     <color name="blood_theme_light_surfaceTint">#990005</color>
     <color name="blood_theme_light_surfaceTintColor">#990005</color>
-    <color name="blood_theme_light_statusBarColor">#ffe6e6</color>
+    <color name="blood_theme_light_statusBarColor">#ff554d</color>
     <color name="blood_theme_light_toolbarStartColor">#11ff0000</color>
     <color name="blood_theme_light_toolbarCenterColor">#66ff0000</color>
-    <color name="blood_theme_light_toolbarEndColor">#ffe6e6</color>
+    <color name="blood_theme_light_toolbarEndColor">#ff554d</color>
     <color name="blood_theme_light_toolbarTitleColor">#FFFFFF</color>
     <color name="blood_theme_light_toolbarTitleAccents">#e62e00</color>
 
@@ -66,10 +66,10 @@
     <color name="blood_theme_dark_shadow">#000000</color>
     <color name="blood_theme_dark_surfaceTint">#ff0000</color>
     <color name="blood_theme_dark_surfaceTintColor">#ff0000</color>
-    <color name="blood_theme_dark_statusBarColor">#0a0f0f</color>
-    <color name="blood_theme_dark_toolbarStartColor">#11000000</color>
-    <color name="blood_theme_dark_toolbarCenterColor">#99000000</color>
-    <color name="blood_theme_dark_toolbarEndColor">#0a0f0f</color>
+    <color name="blood_theme_dark_statusBarColor">#330300</color>
+    <color name="blood_theme_dark_toolbarStartColor">#111a0000</color>
+    <color name="blood_theme_dark_toolbarCenterColor">#991a0000</color>
+    <color name="blood_theme_dark_toolbarEndColor">#330300</color>
     <color name="blood_theme_dark_toolbarTitleColor">#FFFFFF</color>
     <color name="blood_theme_dark_toolbarTitleAccents">#ff1a1a</color>
 </resources>

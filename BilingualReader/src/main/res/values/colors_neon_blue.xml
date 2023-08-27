@@ -30,10 +30,10 @@
     <color name="blue_neon_theme_light_shadow">#000000</color>
     <color name="blue_neon_theme_light_surfaceTint">#006874</color>
     <color name="blue_neon_theme_light_surfaceTintColor">#006874</color>
-    <color name="blue_neon_theme_light_statusBarColor">#ecf9ec</color>
-    <color name="blue_neon_theme_light_toolbarStartColor">#11f3f3f1</color>
-    <color name="blue_neon_theme_light_toolbarCenterColor">#66f3f3f1</color>
-    <color name="blue_neon_theme_light_toolbarEndColor">#ecf9ec</color>
+    <color name="blue_neon_theme_light_statusBarColor">#00e6e6</color>
+    <color name="blue_neon_theme_light_toolbarStartColor">#8866ffff</color>
+    <color name="blue_neon_theme_light_toolbarCenterColor">#9966ffff</color>
+    <color name="blue_neon_theme_light_toolbarEndColor">#00e6e6</color>
     <color name="blue_neon_theme_light_toolbarTitleColor">#FFFFFF</color>
     <color name="blue_neon_theme_light_toolbarTitleAccents">#447c88</color>
 
@@ -46,7 +46,7 @@
     <color name="blue_neon_theme_dark_secondaryContainer">#334B4F</color>
     <color name="blue_neon_theme_dark_onSecondaryContainer">#CDE7EC</color>
     <color name="blue_neon_theme_dark_tertiary">#BAC6EA</color>
-    <color name="blue_neon_theme_dark_onTertiary">#001a1a</color>
+    <color name="blue_neon_theme_dark_onTertiary">#47d8eb</color>
     <color name="blue_neon_theme_dark_tertiaryContainer">#3366cc</color>
     <color name="blue_neon_theme_dark_onTertiaryContainer">#212121</color>
     <color name="blue_neon_theme_dark_error">#FFB4AB</color>
@@ -66,10 +66,10 @@
     <color name="blue_neon_theme_dark_shadow">#000000</color>
     <color name="blue_neon_theme_dark_surfaceTint">#4FD8EB</color>
     <color name="blue_neon_theme_dark_surfaceTintColor">#4FD8EB</color>
-    <color name="blue_neon_theme_dark_statusBarColor">#0a0f0f</color>
-    <color name="blue_neon_theme_dark_toolbarStartColor">#11000000</color>
-    <color name="blue_neon_theme_dark_toolbarCenterColor">#99000000</color>
-    <color name="blue_neon_theme_dark_toolbarEndColor">#0a0f0f</color>
+    <color name="blue_neon_theme_dark_statusBarColor">#0047b3</color>
+    <color name="blue_neon_theme_dark_toolbarStartColor">#11005c99</color>
+    <color name="blue_neon_theme_dark_toolbarCenterColor">#99005c99</color>
+    <color name="blue_neon_theme_dark_toolbarEndColor">#0047b3</color>
     <color name="blue_neon_theme_dark_toolbarTitleColor">#FFFFFF</color>
     <color name="blue_neon_theme_dark_toolbarTitleAccents">#447c88</color>
 </resources>

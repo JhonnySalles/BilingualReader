@@ -30,10 +30,10 @@
     <color name="ocean_theme_light_shadow">#000000</color>
     <color name="ocean_theme_light_surfaceTint">#006496</color>
     <color name="ocean_theme_light_surfaceTintColor">#006496</color>
-    <color name="ocean_theme_light_statusBarColor">#ecf9ec</color>
-    <color name="ocean_theme_light_toolbarStartColor">#11f3f3f1</color>
-    <color name="ocean_theme_light_toolbarCenterColor">#66f3f3f1</color>
-    <color name="ocean_theme_light_toolbarEndColor">#ecf9ec</color>
+    <color name="ocean_theme_light_statusBarColor">#66b3ff</color>
+    <color name="ocean_theme_light_toolbarStartColor">#110080ff</color>
+    <color name="ocean_theme_light_toolbarCenterColor">#660080ff</color>
+    <color name="ocean_theme_light_toolbarEndColor">#66b3ff</color>
     <color name="ocean_theme_light_toolbarTitleColor">#FFFFFF</color>
     <color name="ocean_theme_light_toolbarTitleAccents">#4d4dff</color>
 
@@ -66,10 +66,10 @@
     <color name="ocean_theme_dark_shadow">#000000</color>
     <color name="ocean_theme_dark_surfaceTint">#0066ff</color>
     <color name="ocean_theme_dark_surfaceTintColor">#0066ff</color>
-    <color name="ocean_theme_dark_statusBarColor">#0a0f0f</color>
+    <color name="ocean_theme_dark_statusBarColor">#000d1a</color>
     <color name="ocean_theme_dark_toolbarStartColor">#11000000</color>
     <color name="ocean_theme_dark_toolbarCenterColor">#99000000</color>
-    <color name="ocean_theme_dark_toolbarEndColor">#0a0f0f</color>
+    <color name="ocean_theme_dark_toolbarEndColor">#000d1a</color>
     <color name="ocean_theme_dark_toolbarTitleColor">#FFFFFF</color>
     <color name="ocean_theme_dark_toolbarTitleAccents">#4d4dff</color>
 </resources>
