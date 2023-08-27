@@ -34,14 +34,14 @@ import java.util.concurrent.TimeUnit
 class SubTitleLinkedPageLinkTypeActivityTest {
 
     // Inform a file test here
-    private val filePath = "" // "storage/emulated/0/Manga/Manga of test.cbr"
+    private val filePath = "/storage/emulated/0/Mangas/Akame ga Kill - Volume 01.cbr" // "/storage/emulated/0/Manga/Manga of test.cbr"
     private val filePathLink = filePath
-    private val manga: Manga = MangaTestUtil.getManga(ApplicationProvider.getApplicationContext(), filePath)
+    private val manga: Manga = MangaTestUtil.getManga(ApplicationProvider.getApplicationContext(), filePath, 1)
     private var intent: Intent? = null
 
     init {
-        assertFalse("Not informed comic file, please declare 'filePath' in PagesLinkActivityTest", filePath.isEmpty())
-        assertTrue("Comic file informed not found, please verify declared 'filePath' in PagesLinkActivityTest", manga.file.exists())
+        assertFalse("Not informed comic file, please declare 'filePath' in SubTitleLinkedPageLinkTypeActivityTest", filePath.isEmpty())
+        assertTrue("Comic file informed not found, please verify declared 'filePath' in SubTitleLinkedPageLinkTypeActivityTest", manga.file.exists())
 
         intent = Intent(ApplicationProvider.getApplicationContext(), PagesLinkActivity::class.java)
 
@@ -59,7 +59,7 @@ class SubTitleLinkedPageLinkTypeActivityTest {
     private val awaitProcessSeconds = 2L
 
     @Test
-    fun `1_test_manga_detail`() {
+    fun `1_test_page_link`() {
         val waiter = CountDownLatch(1)
         val scenario = activityScenarioRule.scenario
 

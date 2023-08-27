@@ -201,6 +201,7 @@ class GeneralConsts private constructor() {
         object MANGA {
             const val ID = "MANGA_ID"
             const val NAME = "MANGA_NAME"
+            const val TITLE = "MANGA_TITLE"
             const val MARK = "MANGA_MARK"
             const val PAGE_NUMBER = "PAGE_NUMBER"
         }

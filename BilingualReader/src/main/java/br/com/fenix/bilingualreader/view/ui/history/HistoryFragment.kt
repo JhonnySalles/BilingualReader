@@ -2,9 +2,11 @@ package br.com.fenix.bilingualreader.view.ui.history
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.res.Resources
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.EditorInfo
+import android.widget.AutoCompleteTextView
 import android.widget.PopupMenu
 import android.widget.SearchView
 import androidx.appcompat.app.AlertDialog
@@ -70,6 +72,9 @@ class HistoryFragment : Fragment() {
                 return false
             }
         })
+
+        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
+        searchSrcTextView.setTextAppearance(R.style.SearchShadow)
     }
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {

@@ -32,7 +32,7 @@
 
     <!-- MENU -->
     <string name="menu_search">Procurar</string>
-    <string name="menu_libraries">Bibliotecas</string>
+    <string name="menu_manga">Comics / Mangas</string>
     <string name="menu_library">Biblioteca</string>
     <string name="menu_books">Livros</string>
     <string name="menu_book">Biblioteca</string>
@@ -511,6 +511,8 @@
     <string name="manga_detail_file_links_title">Arquivos vinculados</string>
     <string name="manga_detail_manga_deleted">Arquivo apagado</string>
     <string name="manga_detail_vocabulary">Vocabulário</string>
+
+    <string name="manga_detail_subtitles_import_vocabulary">Importar vocabulário das legendas</string>
 
     <!-- Use CDATA for format string in html -->
     <string name="manga_detail_local_information_title">Detalhes</string>

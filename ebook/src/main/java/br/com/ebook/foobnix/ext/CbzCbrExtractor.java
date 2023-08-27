@@ -16,8 +16,6 @@ import java.util.zip.ZipFile;
 import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
-import junrar.Archive;
-import junrar.rarfile.FileHeader;
 
 public class CbzCbrExtractor {
 
@@ -71,19 +69,6 @@ public class CbzCbrExtractor {
                 }
                 zipFile.close();
 
-            } else if (BookType.CBR.is(path)) {
-                FileInputStream is = new FileInputStream(new File(path));
-                Archive archive = new Archive(new File(path));
-                FileHeader fileHeader = archive.getFileHeaders().get(0);
-                if (fileHeader.isDirectory()) {
-                    fileHeader = archive.getFileHeaders().get(1);
-
-                }
-                if (Config.SHOW_LOG)
-                    LOG.d("EXtract CBR", fileHeader.getFileNameString());
-                archive.extractFile(fileHeader, out);
-                archive.close();
-                is.close();
             }
 
         } catch (Exception e) {

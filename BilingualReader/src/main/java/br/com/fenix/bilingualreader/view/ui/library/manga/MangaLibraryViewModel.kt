@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
@@ -18,9 +19,18 @@ import br.com.fenix.bilingualreader.service.controller.ShareMarkController
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.withContext
 import java.util.Locale
 import java.util.Objects
+import java.util.regex.Pattern
+import kotlin.streams.toList
 import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
+
 
 class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filterable {
 
@@ -41,6 +51,11 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     private var mListMangas = MutableLiveData<MutableList<Manga>>(mutableListOf())
     val listMangas: LiveData<MutableList<Manga>> = mListMangas
 
+    private var mSuggestionAuthor = setOf<String>()
+    private var mSuggestionPublisher = setOf<String>()
+    private var mSuggestionSeries = setOf<String>()
+    private var mSuggestionVolume = setOf<String>()
+
     private var mProcessShareMark = false
 
     fun setDefaultLibrary(library: Library) {
@@ -52,6 +67,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
         if (mLibrary.id != library.id) {
             mListMangasFull.value = mutableListOf()
             mListMangas.value = mutableListOf()
+            setSuggestions(mListMangasFull.value)
         }
         mLibrary = library
     }
@@ -80,14 +96,14 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                     mLibrary = item.value.second
                     mListMangasFull.value = item.value.third.toMutableList()
                     mListMangas.value = item.value.third.toMutableList()
+                    setSuggestions(mListMangasFull.value)
                     break
                 }
             }
         }
     }
 
-    fun addStackLibrary(id: String, library: Library) =
-        mStackLibrary.put(id, Triple(mStackLibrary.size + 1, library, mListMangasFull.value!!))
+    fun addStackLibrary(id: String, library: Library) = mStackLibrary.put(id, Triple(mStackLibrary.size + 1, library, mListMangasFull.value!!))
 
     fun removeStackLibrary(id: String) = mStackLibrary.remove(id)
 
@@ -179,7 +195,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
         val indexes = mutableListOf<Pair<ListMode, Int>>()
         if (mListMangasFull.value != null && mListMangasFull.value!!.isNotEmpty()) {
             val list = mMangaRepository.listRecentChange(mLibrary)
-            if (list != null && list.isNotEmpty()) {
+            if (!list.isNullOrEmpty()) {
                 change = true
                 for (manga in list) {
                     if (mListMangasFull.value!!.contains(manga)) {
@@ -196,7 +212,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                 }
             }
             val listDel = mMangaRepository.listRecentDeleted(mLibrary)
-            if (listDel != null && listDel.isNotEmpty()) {
+            if (!listDel.isNullOrEmpty()) {
                 change = true
                 for (manga in listDel) {
                     if (mListMangasFull.value!!.contains(manga)) {
@@ -222,6 +238,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
             change = false
         }
 
+        setSuggestions(mListMangasFull.value)
         refreshComplete(change, indexes)
     }
 
@@ -231,11 +248,13 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
             if (mListMangasFull.value == null || mListMangasFull.value!!.isEmpty()) {
                 mListMangas.value = list.toMutableList()
                 mListMangasFull.value = list.toMutableList()
+                setSuggestions(mListMangasFull.value)
             } else
                 update(list)
         } else {
             mListMangasFull.value = mutableListOf()
             mListMangas.value = mutableListOf()
+            setSuggestions(mListMangasFull.value)
         }
 
         refreshComplete(mListMangas.value!!.isNotEmpty())
@@ -290,6 +309,56 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
             }
     }
 
+    private fun setSuggestions(list : List<Manga>?) {
+        mSuggestionAuthor = setOf()
+        mSuggestionPublisher = setOf()
+        mSuggestionSeries = setOf()
+        mSuggestionVolume = setOf()
+
+        if (list.isNullOrEmpty())
+            return
+
+        CoroutineScope(newSingleThreadContext("SuggestionThread")).launch {
+            async {
+                val authors = mutableSetOf<String>()
+                val publishers = mutableSetOf<String>()
+                val series = mutableSetOf<String>()
+                val volumes = mutableSetOf<String>()
+
+                list.forEach {
+                    authors.add(it.author)
+                    publishers.add(it.publisher)
+                    series.add(it.series)
+                    volumes.add(it.volume)
+                }
+
+                authors.removeIf {it.isEmpty()}
+                publishers.removeIf {it.isEmpty()}
+                series.removeIf {it.isEmpty()}
+                volumes.removeIf {it.isEmpty()}
+
+                withContext(Dispatchers.Main) {
+                    mSuggestionAuthor = authors
+                    mSuggestionPublisher = publishers
+                    mSuggestionSeries = series
+                    mSuggestionVolume = volumes
+                }
+            }
+        }
+    }
+    fun getSuggestions(filter : String): List<String> {
+        val type = filter.substringBeforeLast(':')
+        val condition = filter.substringAfterLast(':')
+        return when(Util.stringToFilter(app, Type.MANGA, type, true)) {
+            FilterType.Author -> mSuggestionAuthor.parallelStream().filter { condition.isEmpty() || it.contains(condition, true) }.toList()
+            FilterType.Publisher -> mSuggestionPublisher.parallelStream().filter { condition.isEmpty() || it.contains(condition, true) }.toList()
+            FilterType.Series -> mSuggestionSeries.parallelStream().filter { condition.isEmpty() || it.contains(condition, true) }.toList()
+            FilterType.Volume ->  mSuggestionVolume.parallelStream().filter { condition.isEmpty() || it.contains(condition, true) }.toList()
+            FilterType.Type -> FileType.getManga().parallelStream().map { "$it" }.toList()
+            else -> listOf()
+        }
+    }
+
     fun filterType(filter: FilterType) {
         mTypeFilter.value = filter
         getFilter().filter(mWordFilter)
@@ -309,7 +378,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
         return mMangaFilter
     }
 
-    private fun filtered(manga: Manga?, filterPattern: String, filterConditions :ArrayList<Pair<br.com.fenix.bilingualreader.model.enums.Filter, String>>): Boolean {
+    private fun filtered(manga: Manga?, filterPattern: String, filterConditions :ArrayList<Pair<FilterType, String>>): Boolean {
         if (manga == null)
             return false
 
@@ -325,23 +394,23 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
             var condition = false
             filterConditions.forEach {
                 when (it.first) {
-                    br.com.fenix.bilingualreader.model.enums.Filter.Type -> {
+                    FilterType.Type -> {
                         if (manga.type.name.contains(it.second, true))
                             condition = true
                     }
-                    br.com.fenix.bilingualreader.model.enums.Filter.Volume -> {
+                    FilterType.Volume -> {
                         if (manga.volume.equals(it.second, true))
                             condition = true
                     }
-                    br.com.fenix.bilingualreader.model.enums.Filter.Publisher -> {
+                    FilterType.Publisher -> {
                         if (manga.publisher.contains(it.second, true))
                             condition = true
                     }
-                    br.com.fenix.bilingualreader.model.enums.Filter.Series -> {
+                    FilterType.Series -> {
                         if (manga.series.contains(it.second, true))
                             condition = true
                     }
-                    br.com.fenix.bilingualreader.model.enums.Filter.Author -> {
+                    FilterType.Author -> {
                         if (manga.author.contains(it.second, true))
                             condition = true
                     }
@@ -362,29 +431,26 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
             mWordFilter = constraint.toString()
             val filteredList: MutableList<Manga> = mutableListOf()
 
-            if ((constraint == null || constraint.isEmpty()) && mTypeFilter.value == FilterType.None) {
+            if (constraint.isNullOrEmpty() && mTypeFilter.value == FilterType.None) {
                 filteredList.addAll(mListMangasFull.value!!.filter(Objects::nonNull))
             } else {
                 var filterPattern = constraint.toString()
-                val filterCondition = arrayListOf<Pair<br.com.fenix.bilingualreader.model.enums.Filter, String>>()
-                constraint?.contains('@').run {
-                    constraint?.split(" ")?.let {
-                        for (word in it) {
-                            if (word.contains(Regex("@[\\S]+:(\\S++ |\\S++)"))) {
-                                filterPattern = filterPattern.replace(word, "", true)
-                                val type = Util.stringToFilter(app.applicationContext, Type.MANGA, word.substringBefore(":").replace("@", ""))
-                                if (type != br.com.fenix.bilingualreader.model.enums.Filter.None) {
-                                    val condition = word.substringAfter(":")
-                                    if (condition.isNotEmpty())
-                                        filterCondition.add(Pair(type, condition))
-                                }
-                            }
+                val filterCondition = arrayListOf<Pair<FilterType, String>>()
+                constraint!!.contains('@').run {
+                    val m = Pattern.compile("(@\\S*:([^\"]\\S*|\".+?\"\\s*))").matcher(constraint)
+                    while (m.find()) {
+                        val item = m.group(1)?.replace("\"", "") ?: continue
+                        filterPattern = filterPattern.replace(m.group(1)!!, "", true)
+                        val type = Util.stringToFilter(app.applicationContext, Type.MANGA, item.substringBefore(":").replace("@", ""))
+                        if (type != FilterType.None) {
+                            val condition = item.substringAfter(":")
+                            if (condition.isNotEmpty())
+                                filterCondition.add(Pair(type, condition))
                         }
                     }
                 }
 
                 filterPattern = filterPattern.lowercase(Locale.getDefault()).trim()
-
                 filteredList.addAll(mListMangasFull.value!!.filter {
                     filtered(it, filterPattern, filterCondition)
                 })

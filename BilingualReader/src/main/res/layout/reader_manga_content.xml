@@ -44,7 +44,7 @@
             android:id="@+id/reader_manga_toolbar_reader_top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/main_toolbar_background"
+            android:background="@drawable/app_reader_toolbar_background"
             android:theme="@style/MainToolbarContentTheme"
             app:elevation="0dp">
 
@@ -52,32 +52,8 @@
                 android:id="@+id/reader_manga_toolbar_reader"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/default_navigator_header_size"
-                android:theme="@style/MainToolbarTheme"
-                app:popupTheme="@style/MainToolbarStyle">
-
-                <LinearLayout
-                    android:id="@+id/reader_manga_toolbar_title_content"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_alignParentBottom="true"
-                    android:gravity="center|start"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/reader_manga_toolbar_title_custom"
-                        style="@style/ReaderToolbarTheme"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="@dimen/title_size" />
-
-                    <TextView
-                        android:id="@+id/reader_manga_toolbar_subtitle_custom"
-                        style="@style/ReaderSubToolbarTheme"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="@dimen/title_small_size" />
-                </LinearLayout>
-            </com.google.android.material.appbar.MaterialToolbar>
+                app:popupTheme="@style/MainToolbarStyle"
+                style="@style/MainToolbarThemeWithShadow"/>
 
             <LinearLayout
                 android:id="@+id/reader_manga_sub_toolbar"
@@ -170,7 +146,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:background="@drawable/main_toolbar_background_inverse"
+            android:background="@drawable/app_reader_toolbar_background_inverse"
             android:gravity="center"
             android:orientation="horizontal">
 

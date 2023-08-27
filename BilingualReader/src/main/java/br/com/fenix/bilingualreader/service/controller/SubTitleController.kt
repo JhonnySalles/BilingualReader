@@ -29,8 +29,12 @@ import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderFragment
 import com.google.gson.Gson
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.apache.commons.codec.binary.Hex
 import org.apache.commons.codec.digest.DigestUtils
 import org.slf4j.LoggerFactory
@@ -143,13 +147,22 @@ class SubTitleController private constructor(private val context: Context) {
 
 
     fun getListChapter(manga: Manga?, parse: Parse) =
-        runBlocking { // this: CoroutineScope
-            launch { // launch a new coroutine and continue
+        CoroutineScope(Dispatchers.IO).launch {
+            async {
                 mManga = manga
                 mParse = parse
                 val listJson: List<String> = mParse.getSubtitles()
                 isSelected = false
-                getChapterFromJson(listJson)
+
+                withContext(Dispatchers.Main) {
+                    clean()
+                }
+
+                val listSubTitleChapter = getChapterFromJson(listJson)
+
+                withContext(Dispatchers.Main) {
+                    setListChapter(listSubTitleChapter)
+                }
 
                 manga?.let {
                     if (it.hasSubtitle != parse.hasSubtitles()) {
@@ -168,14 +181,12 @@ class SubTitleController private constructor(private val context: Context) {
     }
 
 
-    fun getChapterFromJson(listJson: List<String>, isSelected: Boolean = false) {
+    fun getChapterFromJson(listJson: List<String>, isSelected: Boolean = false) : MutableList<SubTitleChapter>  {
         this.isSelected = isSelected
-        clean()
         isNotEmpty = listJson.isNotEmpty()
+        val listSubTitleChapter: MutableList<SubTitleChapter> = arrayListOf()
         if (listJson.isNotEmpty()) {
             val gson = Gson()
-            val listSubTitleChapter: MutableList<SubTitleChapter> = arrayListOf()
-
             listJson.forEach {
                 try {
                     val subTitleVolume: SubTitleVolume = gson.fromJson(it, SubTitleVolume::class.java)
@@ -189,14 +200,14 @@ class SubTitleController private constructor(private val context: Context) {
                     try {
                         val subTitleChapter: SubTitleChapter = gson.fromJson(it, SubTitleChapter::class.java)
                         listSubTitleChapter.add(subTitleChapter)
-                    } catch (chapExcept: Exception) {
+                    } catch (_: Exception) {
                     }
                 }
             }
 
             mVocabularyRepository.processVocabulary(mManga?.id, listSubTitleChapter)
-            setListChapter(listSubTitleChapter)
         }
+        return listSubTitleChapter;
     }
 
     private fun setListChapter(subTitleChapters: MutableList<SubTitleChapter>) {

@@ -31,6 +31,13 @@
         <item name="colorOnSurfaceInverse">@color/manga_reader_theme_dark_inverseOnSurface</item>
         <item name="colorSurfaceInverse">@color/manga_reader_theme_dark_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/manga_reader_theme_dark_inversePrimary</item>
+
+        <item name="statusBarColor">@color/manga_reader_theme_dark_statusBarColor</item>
+        <item name="toolbarStartColor">@color/manga_reader_theme_dark_toolbarStartColor</item>
+        <item name="toolbarCenterColor">@color/manga_reader_theme_dark_toolbarCenterColor</item>
+        <item name="toolbarEndColor">@color/manga_reader_theme_dark_toolbarEndColor</item>
+        <item name="toolbarTitleColor">@color/manga_reader_theme_dark_toolbarTitleColor</item>
+        <item name="toolbarTitleAccents">@color/manga_reader_theme_dark_toolbarTitleAccents</item>
     </style>
 
     <!--== Default Theme ==-->
@@ -39,30 +46,10 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowContentTransitions">true</item>
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="android:windowContentOverlay">@null</item>
-    </style>
-
-    <style name="Theme.MangaReader.NoActionBar" parent="Theme.MangaReader">
-        <!-- Customize your theme here. -->
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="android:windowContentTransitions">true</item>
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:windowActionBarOverlay">false</item>
-        <item name="android:windowContentOverlay">@null</item>
-    </style>
-
-    <style name="Theme.MangaReader.NoNavigationBar" parent="Theme.MangaReader">
-        <!-- Customize your theme here. -->
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="android:windowContentTransitions">true</item>
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowActionBarOverlay">true</item>
         <item name="android:windowContentOverlay">@null</item>
     </style>
@@ -104,6 +91,13 @@
         <item name="colorOnSurfaceInverse">@color/blood_theme_dark_inverseOnSurface</item>
         <item name="colorSurfaceInverse">@color/blood_theme_dark_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/blood_theme_dark_inversePrimary</item>
+
+        <item name="statusBarColor">@color/blood_theme_dark_statusBarColor</item>
+        <item name="toolbarStartColor">@color/blood_theme_dark_toolbarStartColor</item>
+        <item name="toolbarCenterColor">@color/blood_theme_dark_toolbarCenterColor</item>
+        <item name="toolbarEndColor">@color/blood_theme_dark_toolbarEndColor</item>
+        <item name="toolbarTitleColor">@color/blood_theme_dark_toolbarTitleColor</item>
+        <item name="toolbarTitleAccents">@color/blood_theme_dark_toolbarTitleAccents</item>
     </style>
 
     <!--== Blue Theme ==-->
@@ -135,6 +129,13 @@
         <item name="colorOnSurfaceInverse">@color/blue_theme_dark_inverseOnSurface</item>
         <item name="colorSurfaceInverse">@color/blue_theme_dark_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/blue_theme_dark_inversePrimary</item>
+
+        <item name="statusBarColor">@color/blue_theme_dark_statusBarColor</item>
+        <item name="toolbarStartColor">@color/blue_theme_dark_toolbarStartColor</item>
+        <item name="toolbarCenterColor">@color/blue_theme_dark_toolbarCenterColor</item>
+        <item name="toolbarEndColor">@color/blue_theme_dark_toolbarEndColor</item>
+        <item name="toolbarTitleColor">@color/blue_theme_dark_toolbarTitleColor</item>
+        <item name="toolbarTitleAccents">@color/blue_theme_dark_toolbarTitleAccents</item>
     </style>
 
     <!--== Forest Green Theme ==-->
@@ -166,6 +167,13 @@
         <item name="colorOnSurfaceInverse">@color/forest_theme_dark_inverseOnSurface</item>
         <item name="colorSurfaceInverse">@color/forest_theme_dark_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/forest_theme_dark_inversePrimary</item>
+
+        <item name="statusBarColor">@color/forest_theme_dark_statusBarColor</item>
+        <item name="toolbarStartColor">@color/forest_theme_dark_toolbarStartColor</item>
+        <item name="toolbarCenterColor">@color/forest_theme_dark_toolbarCenterColor</item>
+        <item name="toolbarEndColor">@color/forest_theme_dark_toolbarEndColor</item>
+        <item name="toolbarTitleColor">@color/forest_theme_dark_toolbarTitleColor</item>
+        <item name="toolbarTitleAccents">@color/forest_theme_dark_toolbarTitleAccents</item>
     </style>
 
     <!--== Green Theme ==-->
@@ -197,6 +205,13 @@
         <item name="colorOnSurfaceInverse">@color/green_theme_dark_inverseOnSurface</item>
         <item name="colorSurfaceInverse">@color/green_theme_dark_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/green_theme_dark_inversePrimary</item>
+
+        <item name="statusBarColor">@color/green_theme_dark_statusBarColor</item>
+        <item name="toolbarStartColor">@color/green_theme_dark_toolbarStartColor</item>
+        <item name="toolbarCenterColor">@color/green_theme_dark_toolbarCenterColor</item>
+        <item name="toolbarEndColor">@color/green_theme_dark_toolbarEndColor</item>
+        <item name="toolbarTitleColor">@color/green_theme_dark_toolbarTitleColor</item>
+        <item name="toolbarTitleAccents">@color/green_theme_dark_toolbarTitleAccents</item>
     </style>
 
     <!--== Neon Blue Theme ==-->
@@ -228,6 +243,13 @@
         <item name="colorOnSurfaceInverse">@color/blue_neon_theme_dark_inverseOnSurface</item>
         <item name="colorSurfaceInverse">@color/blue_neon_theme_dark_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/blue_neon_theme_dark_inversePrimary</item>
+
+        <item name="statusBarColor">@color/blue_neon_theme_dark_statusBarColor</item>
+        <item name="toolbarStartColor">@color/blue_neon_theme_dark_toolbarStartColor</item>
+        <item name="toolbarCenterColor">@color/blue_neon_theme_dark_toolbarCenterColor</item>
+        <item name="toolbarEndColor">@color/blue_neon_theme_dark_toolbarEndColor</item>
+        <item name="toolbarTitleColor">@color/blue_neon_theme_dark_toolbarTitleColor</item>
+        <item name="toolbarTitleAccents">@color/blue_neon_theme_dark_toolbarTitleAccents</item>
     </style>
 
     <!--== Neon Green Theme ==-->
@@ -259,6 +281,13 @@
         <item name="colorOnSurfaceInverse">@color/green_neon_theme_dark_inverseOnSurface</item>
         <item name="colorSurfaceInverse">@color/green_neon_theme_dark_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/green_neon_theme_dark_inversePrimary</item>
+
+        <item name="statusBarColor">@color/green_neon_theme_dark_statusBarColor</item>
+        <item name="toolbarStartColor">@color/green_neon_theme_dark_toolbarStartColor</item>
+        <item name="toolbarCenterColor">@color/green_neon_theme_dark_toolbarCenterColor</item>
+        <item name="toolbarEndColor">@color/green_neon_theme_dark_toolbarEndColor</item>
+        <item name="toolbarTitleColor">@color/green_neon_theme_dark_toolbarTitleColor</item>
+        <item name="toolbarTitleAccents">@color/green_neon_theme_dark_toolbarTitleAccents</item>
     </style>
 
     <!--== Ocean Blue Theme ==-->
@@ -290,6 +319,13 @@
         <item name="colorOnSurfaceInverse">@color/ocean_theme_dark_inverseOnSurface</item>
         <item name="colorSurfaceInverse">@color/ocean_theme_dark_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/ocean_theme_dark_inversePrimary</item>
+
+        <item name="statusBarColor">@color/ocean_theme_dark_statusBarColor</item>
+        <item name="toolbarStartColor">@color/ocean_theme_dark_toolbarStartColor</item>
+        <item name="toolbarCenterColor">@color/ocean_theme_dark_toolbarCenterColor</item>
+        <item name="toolbarEndColor">@color/ocean_theme_dark_toolbarEndColor</item>
+        <item name="toolbarTitleColor">@color/ocean_theme_dark_toolbarTitleColor</item>
+        <item name="toolbarTitleAccents">@color/ocean_theme_dark_toolbarTitleAccents</item>
     </style>
 
     <!--== Pink Theme ==-->
@@ -321,6 +357,13 @@
         <item name="colorOnSurfaceInverse">@color/pink_theme_dark_inverseOnSurface</item>
         <item name="colorSurfaceInverse">@color/pink_theme_dark_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/pink_theme_dark_inversePrimary</item>
+
+        <item name="statusBarColor">@color/pink_theme_dark_statusBarColor</item>
+        <item name="toolbarStartColor">@color/pink_theme_dark_toolbarStartColor</item>
+        <item name="toolbarCenterColor">@color/pink_theme_dark_toolbarCenterColor</item>
+        <item name="toolbarEndColor">@color/pink_theme_dark_toolbarEndColor</item>
+        <item name="toolbarTitleColor">@color/pink_theme_dark_toolbarTitleColor</item>
+        <item name="toolbarTitleAccents">@color/pink_theme_dark_toolbarTitleAccents</item>
     </style>
 
     <!--== Red Theme ==-->
@@ -352,6 +395,13 @@
         <item name="colorOnSurfaceInverse">@color/red_theme_dark_inverseOnSurface</item>
         <item name="colorSurfaceInverse">@color/red_theme_dark_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/red_theme_dark_inversePrimary</item>
+
+        <item name="statusBarColor">@color/red_theme_dark_statusBarColor</item>
+        <item name="toolbarStartColor">@color/red_theme_dark_toolbarStartColor</item>
+        <item name="toolbarCenterColor">@color/red_theme_dark_toolbarCenterColor</item>
+        <item name="toolbarEndColor">@color/red_theme_dark_toolbarEndColor</item>
+        <item name="toolbarTitleColor">@color/red_theme_dark_toolbarTitleColor</item>
+        <item name="toolbarTitleAccents">@color/red_theme_dark_toolbarTitleAccents</item>
     </style>
 
 </resources>

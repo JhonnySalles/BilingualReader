@@ -24,12 +24,18 @@
     <color name="forest_theme_light_surfaceVariant">#DEE3EB</color>
     <color name="forest_theme_light_onSurfaceVariant">#4dff4d</color>
     <color name="forest_theme_light_outline">#33cc33</color>
-    <color name="forest_theme_light_inverseOnSurface">#CDFFB1</color>
+    <color name="forest_theme_light_inverseOnSurface">#7eff33</color>
     <color name="forest_theme_light_inverseSurface">#5cd65c</color>
     <color name="forest_theme_light_inversePrimary">#FFFFFF</color>
     <color name="forest_theme_light_shadow">#000000</color>
     <color name="forest_theme_light_surfaceTint">#00ff00</color>
     <color name="forest_theme_light_surfaceTintColor">#00ff00</color>
+    <color name="forest_theme_light_statusBarColor">#009900</color>
+    <color name="forest_theme_light_toolbarStartColor">#11009900</color>
+    <color name="forest_theme_light_toolbarCenterColor">#66009900</color>
+    <color name="forest_theme_light_toolbarEndColor">#009900</color>
+    <color name="forest_theme_light_toolbarTitleColor">#FFFFFF</color>
+    <color name="forest_theme_light_toolbarTitleAccents">#4dff4d</color>
 
     <color name="forest_theme_dark_primary">#e6ffe6</color>
     <color name="forest_theme_dark_onPrimary">#33ff33</color>
@@ -54,10 +60,16 @@
     <color name="forest_theme_dark_surfaceVariant">#99e699  </color>
     <color name="forest_theme_dark_onSurfaceVariant">#009933</color>
     <color name="forest_theme_dark_outline">#009933</color>
-    <color name="forest_theme_dark_inverseOnSurface">#062100</color>
+    <color name="forest_theme_dark_inverseOnSurface">#41b300</color>
     <color name="forest_theme_dark_inverseSurface">#A8F782</color>
     <color name="forest_theme_dark_inversePrimary">#FFFFFF</color>
     <color name="forest_theme_dark_shadow">#000000</color>
     <color name="forest_theme_dark_surfaceTint">#009933</color>
     <color name="forest_theme_dark_surfaceTintColor">#009933</color>
+    <color name="forest_theme_dark_statusBarColor">#001100</color>
+    <color name="forest_theme_dark_toolbarStartColor">#11001a00</color>
+    <color name="forest_theme_dark_toolbarCenterColor">#99001a00</color>
+    <color name="forest_theme_dark_toolbarEndColor">#001100</color>
+    <color name="forest_theme_dark_toolbarTitleColor">#FFFFFF</color>
+    <color name="forest_theme_dark_toolbarTitleAccents">#009933</color>
 </resources>

@@ -13,7 +13,9 @@
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:clipChildren="false">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/book_library_content"
@@ -86,7 +88,7 @@
 
         <FrameLayout
             android:id="@+id/book_library_popup_menu_order_filter"
-            style="@style/AppBackground.Popup"
+            style="@style/AppBackground.PopupBottom"
             android:layout_width="match_parent"
             android:layout_height="360dp"
             android:gravity="center_horizontal"
@@ -113,6 +115,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|top"
                 android:layout_marginTop="1dp"
+                android:layout_marginEnd="@dimen/margin_small"
                 android:contentDescription="@string/popup_reading_book_close"
                 android:scaleType="center"
                 android:src="@drawable/ic_close"/>

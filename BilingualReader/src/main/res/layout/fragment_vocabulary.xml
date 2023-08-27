@@ -6,15 +6,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:clipToPadding="false"
+    android:clipChildren="false"
+    android:fitsSystemWindows="true"
     tools:context=".view.ui.vocabulary.VocabularyFragment">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/vocabulary_root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="@dimen/margin_small"
-        android:layout_marginEnd="@dimen/margin_small"
-        android:layout_marginBottom="@dimen/margin_small"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:paddingTop="@dimen/default_navigator_header_margin_top">
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -23,6 +25,11 @@
             android:layout_height="match_parent"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/vocabulary_margin_top"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
             app:layout_constrainedHeight="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -35,6 +42,8 @@
                 android:layout_height="match_parent"
                 android:scrollbarStyle="outsideOverlay"
                 android:scrollbars="vertical"
+                android:clipToPadding="false"
+                android:paddingBottom="@dimen/manga_library_padding"
                 app:layout_constraintVertical_bias="0" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
@@ -75,7 +84,7 @@
 
         <FrameLayout
             android:id="@+id/vocabulary_popup_menu_order_filter"
-            style="@style/AppBackground.Popup"
+            style="@style/AppBackground.PopupBottom"
             android:layout_width="match_parent"
             android:layout_height="350dp"
             android:gravity="center_horizontal"
@@ -102,6 +111,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|top"
                 android:layout_marginTop="1dp"
+                android:layout_marginEnd="@dimen/margin_small"
                 android:contentDescription="@string/popup_reading_manga_close"
                 android:scaleType="center"
                 android:src="@drawable/ic_close"/>

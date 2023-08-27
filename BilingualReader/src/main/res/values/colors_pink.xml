@@ -25,12 +25,18 @@
     <color name="pink_theme_light_surfaceVariant">#F5DDDB</color>
     <color name="pink_theme_light_onSurfaceVariant">#b30059</color>
     <color name="pink_theme_light_outline">#857371</color>
-    <color name="pink_theme_light_inverseOnSurface">#FBEEEC</color>
+    <color name="pink_theme_light_inverseOnSurface">#ff80bf</color>
     <color name="pink_theme_light_inverseSurface">#362F2E</color>
     <color name="pink_theme_light_inversePrimary">#FFB3AC</color>
     <color name="pink_theme_light_shadow">#000000</color>
     <color name="pink_theme_light_surfaceTint">#9C413C</color>
     <color name="pink_theme_light_surfaceTintColor">#9C413C</color>
+    <color name="pink_theme_light_statusBarColor">#ecf9ec</color>
+    <color name="pink_theme_light_toolbarStartColor">#11f3f3f1</color>
+    <color name="pink_theme_light_toolbarCenterColor">#66f3f3f1</color>
+    <color name="pink_theme_light_toolbarEndColor">#ecf9ec</color>
+    <color name="pink_theme_light_toolbarTitleColor">#FFFFFF</color>
+    <color name="pink_theme_light_toolbarTitleAccents">#b30059</color>
 
     <color name="pink_theme_dark_primary">#FFFFFF</color>
     <color name="pink_theme_dark_onPrimary">#FFB3AC</color>
@@ -55,10 +61,16 @@
     <color name="pink_theme_dark_surfaceVariant">#FFFFFF</color>
     <color name="pink_theme_dark_onSurfaceVariant">#b30059</color>
     <color name="pink_theme_dark_outline">#b30059</color>
-    <color name="pink_theme_dark_inverseOnSurface">#E4E1E6</color>
+    <color name="pink_theme_dark_inverseOnSurface">#99004d</color>
     <color name="pink_theme_dark_inverseSurface">#FFFFFF</color>
     <color name="pink_theme_dark_inversePrimary">#9C413C</color>
     <color name="pink_theme_dark_shadow">#000000</color>
     <color name="pink_theme_dark_surfaceTint">#FFB3AC</color>
     <color name="pink_theme_dark_surfaceTintColor">#FFB3AC</color>
+    <color name="pink_theme_dark_statusBarColor">#0a0f0f</color>
+    <color name="pink_theme_dark_toolbarStartColor">#11000000</color>
+    <color name="pink_theme_dark_toolbarCenterColor">#99000000</color>
+    <color name="pink_theme_dark_toolbarEndColor">#0a0f0f</color>
+    <color name="pink_theme_dark_toolbarTitleColor">#FFFFFF</color>
+    <color name="pink_theme_dark_toolbarTitleAccents">#b30059</color>
 </resources>

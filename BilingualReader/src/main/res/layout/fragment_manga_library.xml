@@ -13,7 +13,9 @@
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:clipChildren="false">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/manga_library_content"
@@ -85,14 +87,14 @@
 
         <FrameLayout
             android:id="@+id/manga_library_popup_menu_order_filter"
-            style="@style/AppBackground.Popup"
+            style="@style/AppBackground.PopupBottom"
             android:layout_width="match_parent"
             android:layout_height="350dp"
             android:gravity="center_horizontal"
             android:orientation="vertical"
             android:paddingTop="1dp"
-            android:layout_alignParentBottom="true"
             android:visibility="gone"
+            android:layout_alignParentBottom="true"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
             <ImageView
@@ -112,6 +114,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|top"
                 android:layout_marginTop="1dp"
+                android:layout_marginEnd="@dimen/margin_small"
                 android:contentDescription="@string/popup_reading_manga_close"
                 android:scaleType="center"
                 android:src="@drawable/ic_close"/>

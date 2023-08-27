@@ -16,7 +16,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:clipChildren="false">
+        android:clipChildren="false"
+        style="@style/AppBackground">
         
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/select_manga_recycler"
@@ -51,7 +52,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/default_navigator_header_size"
                 app:popupTheme="@style/MainToolbarStyle"
-                android:theme="@style/MainToolbarTheme">
+                style="@style/MainToolbarThemeWithShadow">
 
                 <TextView
                     android:id="@+id/toolbar_select_manga_title"

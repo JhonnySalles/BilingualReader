@@ -16,6 +16,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
+import android.widget.AutoCompleteTextView
 import android.widget.SearchView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -100,6 +101,9 @@ class SelectMangaFragment : Fragment() {
                 return false
             }
         })
+
+        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
+        searchSrcTextView.setTextAppearance(R.style.SearchShadow)
     }
 
     override fun onCreateView(

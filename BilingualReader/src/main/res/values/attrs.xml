@@ -46,4 +46,11 @@
     </declare-styleable>
 
     <bool name="isNight">false</bool>
+
+    <attr format="reference" name="statusBarColor"/>
+    <attr format="reference" name="toolbarStartColor"/>
+    <attr format="reference" name="toolbarCenterColor"/>
+    <attr format="reference" name="toolbarEndColor"/>
+    <attr format="reference" name="toolbarTitleColor"/>
+    <attr format="reference" name="toolbarTitleAccents"/>
 </resources>

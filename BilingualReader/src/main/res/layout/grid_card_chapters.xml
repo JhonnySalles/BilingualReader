@@ -12,10 +12,12 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/chapter_grid_card"
+        style="@style/AppBackground.Card"
         android:layout_width="@dimen/chapters_grid_card_layout_width"
         android:layout_height="@dimen/chapters_grid_card_layout_height"
         app:cardPreventCornerOverlap="false"
         app:cardUseCompatPadding="false"
+        app:strokeColor="?attr/colorPrimaryContainer"
         app:strokeWidth="0dp">
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

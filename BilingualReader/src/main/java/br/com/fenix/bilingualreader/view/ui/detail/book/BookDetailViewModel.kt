@@ -19,8 +19,7 @@ class BookDetailViewModel(application: Application) : AndroidViewModel(applicati
     private val mLOGGER = LoggerFactory.getLogger(BookDetailViewModel::class.java)
 
     private val mBookRepository: BookRepository = BookRepository(application.applicationContext)
-    private val mFileLinkRepository: FileLinkRepository =
-        FileLinkRepository(application.applicationContext)
+    private val mFileLinkRepository: FileLinkRepository = FileLinkRepository(application.applicationContext)
 
     var library: Library? = null
     private var mBook = MutableLiveData<Book?>(null)

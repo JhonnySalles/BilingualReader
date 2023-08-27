@@ -176,68 +176,9 @@ class MangaImageCoverController private constructor() {
         return image
     }
 
-    fun setImageCoverAsync(
+    private fun setImageCoverAsync(
         context: Context,
         manga: Manga,
-        imageView: ImageView,
-        isCoverSize: Boolean = true
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                var image: Bitmap? = null
-                val deferred = async {
-                    image = getMangaCover(context, manga, isCoverSize)
-                }
-                deferred.await()
-                withContext(Dispatchers.Main) {
-                    if (image != null)
-                        imageView.setImageBitmap(image)
-                }
-            } catch (m: OutOfMemoryError) {
-                System.gc()
-                mLOGGER.error("Memory full, cleaning", m)
-            } catch (m: IOException) {
-                mLOGGER.error("Error to load image async: " + manga.name, m)
-            } catch (e: Exception) {
-                mLOGGER.error("Error to load image async: " + manga.name, e)
-            }
-        }
-    }
-
-    fun setImageCoverAsync(
-        context: Context,
-        manga: Manga,
-        imagesView: ArrayList<ImageView>,
-        isCoverSize: Boolean = true,
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                var image: Bitmap? = null
-                val deferred = async {
-                    image = getMangaCover(context, manga, isCoverSize)
-                }
-                deferred.await()
-                withContext(Dispatchers.Main) {
-                    if (image != null) {
-                        for (imageView in imagesView)
-                            imageView.setImageBitmap(image)
-                    }
-                }
-            } catch (m: OutOfMemoryError) {
-                System.gc()
-                mLOGGER.error("Memory full, cleaning", m)
-            } catch (m: IOException) {
-                mLOGGER.error("Error to load image async: " + manga.name, m)
-            } catch (e: Exception) {
-                mLOGGER.error("Error to load image async: " + manga.name, e)
-            }
-        }
-    }
-
-    fun setImageCoverAsync(
-        context: Context,
-        manga: Manga,
-        imageView: ImageView,
         isCoverSize: Boolean = true,
         function: (Bitmap?) -> (Unit)
     ) {
@@ -249,8 +190,6 @@ class MangaImageCoverController private constructor() {
                 }
                 deferred.await()
                 withContext(Dispatchers.Main) {
-                    if (image != null)
-                        imageView.setImageBitmap(image)
                     function(image)
                 }
             } catch (m: OutOfMemoryError) {
@@ -261,6 +200,45 @@ class MangaImageCoverController private constructor() {
             } catch (e: Exception) {
                 mLOGGER.error("Error to load image async: " + manga.name, e)
             }
+        }
+    }
+
+    fun setImageCoverAsync(
+        context: Context,
+        manga: Manga,
+        imageView: ImageView,
+        isCoverSize: Boolean = true
+    ) {
+        setImageCoverAsync(context, manga, isCoverSize) {
+            if (it != null)
+                imageView.setImageBitmap(it)
+        }
+    }
+
+    fun setImageCoverAsync(
+        context: Context,
+        manga: Manga,
+        imagesView: ArrayList<ImageView>,
+        isCoverSize: Boolean = true
+    ) {
+        setImageCoverAsync(context, manga, isCoverSize) {
+            if (it != null)
+                for (imageView in imagesView)
+                    imageView.setImageBitmap(it)
+        }
+    }
+
+    fun setImageCoverAsync(
+        context: Context,
+        manga: Manga,
+        imageView: ImageView,
+        isCoverSize: Boolean = true,
+        onFinish: (Bitmap?) -> (Unit)
+    ) {
+        setImageCoverAsync(context, manga, isCoverSize) {
+            if (it != null)
+                imageView.setImageBitmap(it)
+            onFinish(it)
         }
     }
 

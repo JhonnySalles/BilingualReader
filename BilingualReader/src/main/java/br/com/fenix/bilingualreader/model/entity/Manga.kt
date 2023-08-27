@@ -218,7 +218,9 @@ class Manga(
 
     fun update(manga: Manga) : Boolean {
         val updated = this.bookMark != manga.bookMark || this.favorite != manga.favorite ||
-                this.hasSubtitle != manga.hasSubtitle || this.lastAccess != manga.lastAccess
+                this.hasSubtitle != manga.hasSubtitle || this.lastAccess != manga.lastAccess ||
+                this.author != manga.author || this.series != manga.series || this.publisher != manga.publisher ||
+                this.volume != manga.volume || this.release != manga.release
 
         this.bookMark = manga.bookMark
         this.favorite = manga.favorite
@@ -226,6 +228,11 @@ class Manga(
         this.hasSubtitle = manga.hasSubtitle
         this.lastAlteration = manga.lastAlteration
         this.lastVocabImport = manga.lastVocabImport
+        this.author = manga.author
+        this.series = manga.series
+        this.publisher = manga.publisher
+        this.volume = manga.volume
+        this.release = manga.release
 
         return updated
     }
@@ -240,23 +247,35 @@ class Manga(
         this.volume = title.substringAfterLast("Volume", "").trim().replace(Regex("[^\\d.][\\s\\S]+"), "")
 
         parse.getComicInfo()?.let {
-            this.author = ""
-
-            if (it.writer != null && it.writer!!.isNotEmpty())
-                author += it.writer + ", "
-            if (it.penciller != null && it.penciller!!.isNotEmpty() && !author.contains(it.penciller!!, true))
-                author += it.penciller + ", "
-            if (it.inker != null && it.inker!!.isNotEmpty() && !author.contains(it.inker!!, true))
-                author += it.inker + ", "
-
-            if (author.contains(","))
-                author = author.substringBeforeLast(", ") + "."
-
-            this.series = it.series.toString()
-            this.publisher = it.publisher.toString()
-            this.volume = it.volume.toString()
-            this.release = if (it.year != null) LocalDate.of(it.year!!, it.month?:1, it.day?:1) else null
+            update(it)
         }
+    }
+
+    fun update(comic: ComicInfo) : Boolean  {
+        var author = ""
+
+        if (comic.writer != null && comic.writer!!.isNotEmpty())
+            author += comic.writer + ", "
+        if (comic.penciller != null && comic.penciller!!.isNotEmpty() && !author.contains(comic.penciller!!, true))
+            author += comic.penciller + ", "
+        if (comic.inker != null && comic.inker!!.isNotEmpty() && !author.contains(comic.inker!!, true))
+            author += comic.inker + ", "
+
+        if (author.contains(","))
+            author = author.substringBeforeLast(", ") + "."
+
+        val release = if (comic.year != null) LocalDate.of(comic.year!!, comic.month ?: 1, comic.day ?: 1) else null
+
+        val updated = this.author != author || this.series != comic.series .toString()|| this.publisher != comic.publisher.toString() ||
+                this.volume != comic.volume.toString() || this.release != release
+
+        this.series = comic.series.toString()
+        this.publisher = comic.publisher.toString()
+        this.volume = comic.volume.toString()
+        this.author = author
+        this.release = release
+
+        return updated
     }
 
 }

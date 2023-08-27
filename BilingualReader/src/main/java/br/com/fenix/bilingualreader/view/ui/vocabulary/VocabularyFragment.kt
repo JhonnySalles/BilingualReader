@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.view.ui.vocabulary
 
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Build
 import android.os.Bundle
@@ -13,6 +14,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.widget.AutoCompleteTextView
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.SearchView
@@ -32,6 +34,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.VocabularyCardListener
+import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyLoadState
@@ -120,6 +123,9 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
             }
         })
 
+        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
+        searchSrcTextView.setTextAppearance(R.style.SearchShadow)
+
         MenuUtil.longClick(requireActivity(), R.id.menu_vocabulary_list_order) {
             if (!mRefreshLayout.isRefreshing)
                 onOpenMenuSort()
@@ -175,7 +181,7 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
 
         root.findViewById<ImageView>(R.id.vocabulary_popup_menu_order_filter_close)
             .setOnClickListener {
-                mMenuPopupFilterOrder.visibility = View.GONE
+                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupFilterOrder)
             }
 
         mScrollUp.visibility = View.GONE
@@ -346,12 +352,8 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
     }
 
     private fun onOpenMenuSort() {
-        mMenuPopupFilterOrder.visibility = View.VISIBLE
         mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
-        mMenuPopupFilterOrder.translationY = 100F
-        mMenuPopupFilterOrder.animate()
-            .setDuration(200)
-            .translationY(0f)
+        AnimationUtil.animatePopupOpen(requireActivity(), mMenuPopupFilterOrder)
     }
 
     private fun onChangeSort() {

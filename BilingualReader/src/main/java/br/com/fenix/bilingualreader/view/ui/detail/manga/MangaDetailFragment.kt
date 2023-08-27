@@ -29,6 +29,7 @@ import br.com.fenix.bilingualreader.service.listener.InformationCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.view.adapter.detail.manga.InformationRelatedCardAdapter
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
@@ -62,6 +63,7 @@ class MangaDetailFragment : Fragment() {
     private lateinit var mFileLinkContent: LinearLayout
     private lateinit var mFileLinksList: ListView
     private lateinit var mSubtitlesContent: LinearLayout
+    private lateinit var mImportVocabulary: MaterialButton
     private lateinit var mSubtitlesList: ListView
 
     private lateinit var mWebInformationContent: LinearLayout
@@ -114,6 +116,8 @@ class MangaDetailFragment : Fragment() {
     ): View? {
         val root = inflater.inflate(R.layout.fragment_manga_detail, container, false)
 
+        ThemeUtil.changeStatusColorFromListener(requireActivity().window, root.findViewById(R.id.manga_detail_scroll), resources.getBoolean(R.bool.isNight))
+
         mBackgroundImage = root.findViewById(R.id.manga_detail_background_image)
         mImage = root.findViewById(R.id.manga_detail_manga_image)
         mTitle = root.findViewById(R.id.manga_detail_title)
@@ -132,53 +136,39 @@ class MangaDetailFragment : Fragment() {
         mFileLinkContent = root.findViewById(R.id.manga_detail_files_link_detail)
         mFileLinksList = root.findViewById(R.id.manga_detail_files_links_list)
         mSubtitlesContent = root.findViewById(R.id.manga_detail_subtitle_content)
+        mImportVocabulary = root.findViewById(R.id.manga_detail_subtitles_import_vocabulary)
         mSubtitlesList = root.findViewById(R.id.manga_detail_subtitles_list)
 
         mLocalInformationContent = root.findViewById(R.id.manga_detail_local_information)
         mLocalInformationSeries = root.findViewById(R.id.manga_detail_local_information_series)
         mLocalInformationAuthors = root.findViewById(R.id.manga_detail_local_information_authors)
 
-        mLocalInformationVolumeReleasePublisherContent =
-            root.findViewById(R.id.manga_detail_local_information_volume_release_publisher)
+        mLocalInformationVolumeReleasePublisherContent = root.findViewById(R.id.manga_detail_local_information_volume_release_publisher)
         mLocalInformationVolume = root.findViewById(R.id.manga_detail_local_information_volume)
         mLocalInformationRelease = root.findViewById(R.id.manga_detail_local_information_release)
-        mLocalInformationPublisher =
-            root.findViewById(R.id.manga_detail_local_information_publisher)
+        mLocalInformationPublisher = root.findViewById(R.id.manga_detail_local_information_publisher)
 
-        mLocalInformationComicInfo =
-            root.findViewById(R.id.manga_detail_local_information_comic_info)
+        mLocalInformationComicInfo = root.findViewById(R.id.manga_detail_local_information_comic_info)
 
-        mLocalInformationComicInfoTitleLanguageContent =
-            root.findViewById(R.id.manga_detail_local_information_comic_info_title_language)
-        mLocalInformationComicInfoTitle =
-            root.findViewById(R.id.manga_detail_local_information_comic_info_title)
-        mLocalInformationComicInfoLanguage =
-            root.findViewById(R.id.manga_detail_local_information_comic_info_language)
-        mLocalInformationComicInfoStoryArch =
-            root.findViewById(R.id.manga_detail_local_information_comic_info_story_arch)
-        mLocalInformationComicInfoGenre =
-            root.findViewById(R.id.manga_detail_local_information_comic_info_genre)
-        mLocalInformationComicInfoCharacters =
-            root.findViewById(R.id.manga_detail_local_information_comic_info_characters)
-        mLocalInformationComicInfoTeams =
-            root.findViewById(R.id.manga_detail_local_information_comic_info_teams)
-        mLocalInformationComicInfoLocations =
-            root.findViewById(R.id.manga_detail_local_information_comic_info_locations)
+        mLocalInformationComicInfoTitleLanguageContent = root.findViewById(R.id.manga_detail_local_information_comic_info_title_language)
+        mLocalInformationComicInfoTitle = root.findViewById(R.id.manga_detail_local_information_comic_info_title)
+        mLocalInformationComicInfoLanguage = root.findViewById(R.id.manga_detail_local_information_comic_info_language)
+        mLocalInformationComicInfoStoryArch = root.findViewById(R.id.manga_detail_local_information_comic_info_story_arch)
+        mLocalInformationComicInfoGenre = root.findViewById(R.id.manga_detail_local_information_comic_info_genre)
+        mLocalInformationComicInfoCharacters = root.findViewById(R.id.manga_detail_local_information_comic_info_characters)
+        mLocalInformationComicInfoTeams = root.findViewById(R.id.manga_detail_local_information_comic_info_teams)
+        mLocalInformationComicInfoLocations = root.findViewById(R.id.manga_detail_local_information_comic_info_locations)
 
-        mLocalInformationComicInfoBookMarksContent =
-            root.findViewById(R.id.manga_detail_local_information_comic_info_book_marks_content)
-        mLocalInformationComicInfoBookMarks =
-            root.findViewById(R.id.manga_detail_local_information_comic_info_book_marks)
+        mLocalInformationComicInfoBookMarksContent = root.findViewById(R.id.manga_detail_local_information_comic_info_book_marks_content)
+        mLocalInformationComicInfoBookMarks = root.findViewById(R.id.manga_detail_local_information_comic_info_book_marks)
 
         mWebInformationContent = root.findViewById(R.id.manga_detail_web_information)
         mWebInformationImage = root.findViewById(R.id.manga_detail_web_information_image)
         mWebInformationSynopsis = root.findViewById(R.id.manga_detail_web_information_synopsis)
-        mWebInformationAlternativeTitles =
-            root.findViewById(R.id.manga_detail_web_information_alternative_titles)
+        mWebInformationAlternativeTitles = root.findViewById(R.id.manga_detail_web_information_alternative_titles)
         mWebInformationStatus = root.findViewById(R.id.manga_detail_web_information_status)
         mWebInformationPublish = root.findViewById(R.id.manga_detail_web_information_publish)
-        mWebInformationVolumes =
-            root.findViewById(R.id.manga_detail_web_information_volumes_chapters)
+        mWebInformationVolumes = root.findViewById(R.id.manga_detail_web_information_volumes_chapters)
         mWebInformationAuthors = root.findViewById(R.id.manga_detail_web_information_author)
         mWebInformationGenres = root.findViewById(R.id.manga_detail_web_information_genres)
         mWebInformationOrigin = root.findViewById(R.id.manga_detail_web_information_origin)
@@ -204,14 +194,12 @@ class MangaDetailFragment : Fragment() {
             openVocabulary()
         }
 
-        mSubtitlesList.adapter =
-            ArrayAdapter(requireContext(), R.layout.list_item_all_text, mSubtitles)
-        mFileLinksList.adapter =
-            ArrayAdapter(requireContext(), R.layout.list_item_all_text, mFileLinks)
-        mChaptersList.adapter =
-            ArrayAdapter(requireContext(), R.layout.list_item_all_text, mChapters)
-        mLocalInformationComicInfoBookMarks.adapter =
-            ArrayAdapter(requireContext(), R.layout.list_item_all_text, mBookMarks)
+        mImportVocabulary.setOnClickListener { mViewModel.importVocabulary() }
+
+        mSubtitlesList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mSubtitles)
+        mFileLinksList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mFileLinks)
+        mChaptersList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mChapters)
+        mLocalInformationComicInfoBookMarks.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mBookMarks)
 
         mWebInfoRelatedRelatedList.adapter = InformationRelatedCardAdapter()
         mWebInfoRelatedRelatedList.layoutManager = LinearLayoutManager(requireContext())
@@ -295,8 +283,7 @@ class MangaDetailFragment : Fragment() {
                 mTitle.text = it.name
                 mFolder.text = it.path
                 val folder = mViewModel.getChapterFolder(it.bookMark)
-                mBookMark.text =
-                    "${it.bookMark} / ${it.pages}" + if (folder.isNotEmpty()) " - $folder" else ""
+                mBookMark.text = "${it.bookMark} / ${it.pages}" + if (folder.isNotEmpty()) " - $folder" else ""
                 mLastAccess.text = if (it.lastAccess == null) "" else GeneralConsts.formatterDate(
                     requireContext(),
                     it.lastAccess!!
@@ -430,12 +417,9 @@ class MangaDetailFragment : Fragment() {
         mViewModel.localInformation.observe(viewLifecycleOwner) {
             mBookMarks.clear()
             if (it != null) {
-                mLocalInformationVolume.text =
-                    HtmlCompat.fromHtml(it.volumes, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mLocalInformationPublisher.text =
-                    HtmlCompat.fromHtml(it.publisher, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mLocalInformationRelease.text =
-                    HtmlCompat.fromHtml(it.release, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mLocalInformationVolume.text = HtmlCompat.fromHtml(it.volumes, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mLocalInformationPublisher.text = HtmlCompat.fromHtml(it.publisher, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mLocalInformationRelease.text = HtmlCompat.fromHtml(it.release, HtmlCompat.FROM_HTML_MODE_COMPACT)
 
                 mLocalInformationVolumeReleasePublisherContent.visibility =
                     if (it.volumes.isNotEmpty() || it.publisher.isNotEmpty() || it.release.isNotEmpty())
@@ -443,14 +427,10 @@ class MangaDetailFragment : Fragment() {
                     else
                         View.GONE
 
-                mLocalInformationComicInfoTitle.text =
-                    HtmlCompat.fromHtml(it.title, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mLocalInformationComicInfoTitle.visibility =
-                    if (it.title.isNotEmpty()) View.VISIBLE else View.GONE
-                mLocalInformationComicInfoLanguage.text =
-                    HtmlCompat.fromHtml(it.languageDescription, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mLocalInformationComicInfoLanguage.visibility =
-                    if (it.languageDescription.isNotEmpty()) View.VISIBLE else View.GONE
+                mLocalInformationComicInfoTitle.text = HtmlCompat.fromHtml(it.title, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mLocalInformationComicInfoTitle.visibility = if (it.title.isNotEmpty()) View.VISIBLE else View.GONE
+                mLocalInformationComicInfoLanguage.text = HtmlCompat.fromHtml(it.languageDescription, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mLocalInformationComicInfoLanguage.visibility = if (it.languageDescription.isNotEmpty()) View.VISIBLE else View.GONE
 
                 mLocalInformationComicInfoTitleLanguageContent.visibility =
                     if (mLocalInformationComicInfoTitle.visibility == View.VISIBLE ||
@@ -460,26 +440,16 @@ class MangaDetailFragment : Fragment() {
                     else
                         View.GONE
 
-                mLocalInformationComicInfoStoryArch.text =
-                    HtmlCompat.fromHtml(it.storyArch, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mLocalInformationComicInfoStoryArch.visibility =
-                    if (it.storyArch.isNotEmpty()) View.VISIBLE else View.GONE
-                mLocalInformationComicInfoGenre.text =
-                    HtmlCompat.fromHtml(it.genres, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mLocalInformationComicInfoGenre.visibility =
-                    if (it.genres.isNotEmpty()) View.VISIBLE else View.GONE
-                mLocalInformationComicInfoCharacters.text =
-                    HtmlCompat.fromHtml(it.characters, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mLocalInformationComicInfoCharacters.visibility =
-                    if (it.characters.isNotEmpty()) View.VISIBLE else View.GONE
-                mLocalInformationComicInfoTeams.text =
-                    HtmlCompat.fromHtml(it.teams, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mLocalInformationComicInfoTeams.visibility =
-                    if (it.teams.isNotEmpty()) View.VISIBLE else View.GONE
-                mLocalInformationComicInfoLocations.text =
-                    HtmlCompat.fromHtml(it.locations, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mLocalInformationComicInfoLocations.visibility =
-                    if (it.locations.isNotEmpty()) View.VISIBLE else View.GONE
+                mLocalInformationComicInfoStoryArch.text = HtmlCompat.fromHtml(it.storyArch, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mLocalInformationComicInfoStoryArch.visibility = if (it.storyArch.isNotEmpty()) View.VISIBLE else View.GONE
+                mLocalInformationComicInfoGenre.text = HtmlCompat.fromHtml(it.genres, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mLocalInformationComicInfoGenre.visibility = if (it.genres.isNotEmpty()) View.VISIBLE else View.GONE
+                mLocalInformationComicInfoCharacters.text = HtmlCompat.fromHtml(it.characters, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mLocalInformationComicInfoCharacters.visibility = if (it.characters.isNotEmpty()) View.VISIBLE else View.GONE
+                mLocalInformationComicInfoTeams.text = HtmlCompat.fromHtml(it.teams, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mLocalInformationComicInfoTeams.visibility = if (it.teams.isNotEmpty()) View.VISIBLE else View.GONE
+                mLocalInformationComicInfoLocations.text = HtmlCompat.fromHtml(it.locations, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mLocalInformationComicInfoLocations.visibility = if (it.locations.isNotEmpty()) View.VISIBLE else View.GONE
 
                 if (it.bookMarks.isNotEmpty()) {
                     mLocalInformationComicInfoBookMarksContent.visibility = View.VISIBLE
@@ -531,20 +501,15 @@ class MangaDetailFragment : Fragment() {
                         mWebInformationImage
                     )
 
-                mWebInformationAlternativeTitles.text =
-                    HtmlCompat.fromHtml(it.alternativeTitles, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mWebInformationStatus.text =
-                    HtmlCompat.fromHtml(it.status, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mWebInformationPublish.text =
-                    HtmlCompat.fromHtml(it.release, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mWebInformationAlternativeTitles.text = HtmlCompat.fromHtml(it.alternativeTitles, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mWebInformationStatus.text = HtmlCompat.fromHtml(it.status, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mWebInformationPublish.text = HtmlCompat.fromHtml(it.release, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mWebInformationVolumes.text = HtmlCompat.fromHtml(
                     it.volumes + ", " + it.chapters,
                     HtmlCompat.FROM_HTML_MODE_COMPACT
                 )
-                mWebInformationAuthors.text =
-                    HtmlCompat.fromHtml(it.authors, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mWebInformationGenres.text =
-                    HtmlCompat.fromHtml(it.genres, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mWebInformationAuthors.text = HtmlCompat.fromHtml(it.authors, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mWebInformationGenres.text = HtmlCompat.fromHtml(it.genres, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mWebInformationOrigin.text = it.origin
             } else {
                 mWebInformationContent.visibility = View.GONE

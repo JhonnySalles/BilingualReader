@@ -18,12 +18,15 @@ import android.graphics.BitmapFactory
 import android.graphics.PointF
 import android.graphics.drawable.Animatable2
 import android.graphics.drawable.AnimatedVectorDrawable
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Handler
 import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.*
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.SearchView
 import android.widget.TextView
@@ -32,6 +35,7 @@ import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
+import androidx.core.widget.NestedScrollView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -41,6 +45,7 @@ import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import java.io.*
@@ -422,14 +427,14 @@ class Util {
             }
         }
 
-        fun stringToFilter(context: Context, type: Type, text: String): Filter {
+        fun stringToFilter(context: Context, type: Type, text: String, contains: Boolean = false): Filter {
             var filter = Filter.None
-            val mapFilters = when(type) {
+            val mapFilters = when (type) {
                 Type.MANGA -> getMangaFilters(context)
                 Type.BOOK -> getBookFilters(context)
             }
             for (item in mapFilters)
-                if (item.key.equals(text, true)) {
+                if ((contains && item.key.contains(text, true)) || (!contains && item.key.equals(text, true))) {
                     filter = item.value
                     break
                 }
@@ -437,7 +442,7 @@ class Util {
         }
 
         fun filterToString(context: Context, type: Type, filter: Filter): String {
-            val mapFilters = when(type) {
+            val mapFilters = when (type) {
                 Type.MANGA -> getMangaFilters(context)
                 Type.BOOK -> getBookFilters(context)
             }
@@ -748,6 +753,7 @@ class ImageUtil {
                         initTouchDown = System.currentTimeMillis()
                         initPos = PointF(event.x, event.y)
                     }
+
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                         image.animate()
                             .scaleX(1.0f)
@@ -768,6 +774,7 @@ class ImageUtil {
                         if (isTouchLength && isTouchDuration)
                             view.performClick()
                     }
+
                     else -> {
                         mScaleGestureDetector.onTouchEvent(event)
                     }
@@ -1008,6 +1015,57 @@ class ThemeUtil {
             theme.resolveAttribute(attrColor, typedValue, resolveRefs)
             return typedValue.data
         }
+
+        fun transparentTheme(
+            window: Window,
+            isDarkTheme: Boolean,
+            statusBarDrawable: Drawable? = null,
+            @ColorInt statusBarColor: Int? = null,
+            isLightStatus: Boolean = false
+        ) {
+            if (isDarkTheme)
+                window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
+            else
+                window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR)
+
+            if (isLightStatus)
+                window.decorView.systemUiVisibility = (window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+
+            window.statusBarColor = android.graphics.Color.TRANSPARENT
+            window.navigationBarColor = android.graphics.Color.TRANSPARENT
+
+            if (statusBarDrawable != null || statusBarColor != null) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                val background = statusBarDrawable ?: ColorDrawable(statusBarColor!!)
+                window.setBackgroundDrawable(background)
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                window.setDecorFitsSystemWindows(false)
+                window.isStatusBarContrastEnforced = false
+                window.isNavigationBarContrastEnforced = false
+            } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
+
+        }
+
+        fun changeStatusColorFromListener(window: Window, scrollView: NestedScrollView, isDarkTheme: Boolean, limit: Int = 1000) {
+            val decorView = window.decorView
+
+            if (isDarkTheme) {
+                val defaultUi = decorView.systemUiVisibility
+                decorView.systemUiVisibility = (defaultUi or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+                scrollView.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+                    if ((scrollY < limit && oldScrollY > limit) || (scrollY > limit && oldScrollY < limit)) {
+                        if (scrollY <= limit)
+                            decorView.systemUiVisibility = (defaultUi or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+                        else
+                            decorView.systemUiVisibility = defaultUi
+                    }
+                }
+            } else
+                decorView.systemUiVisibility = (decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+        }
     }
 }
 
@@ -1047,11 +1105,11 @@ class TextUtil {
             return arrayOf(firstPart, secondPart)
         }
 
-        fun clearHtml(html : String) : String {
+        fun clearHtml(html: String): String {
             return html.replace(Regex("<[^>]*>"), "")
         }
 
-        fun formatHtml(html : String, endLine: String = "<br>") : String {
+        fun formatHtml(html: String, endLine: String = "<br>"): String {
             return html.replace("<p>", "").replace("</p>", "").replace("<end-line>", endLine)
         }
 
@@ -1079,5 +1137,72 @@ class TextUtil {
             pageHTML = pageHTML.replace("(?u)(\\w+)(-\\s)".toRegex(), "$1")
             return pageHTML
         }
+    }
+}
+
+class AnimationUtil {
+    companion object AnimationUtils {
+        const val duration = 200L
+        fun animatePopupOpen(activity: Activity, frame: FrameLayout, isVertical: Boolean = true, navigationColor: Boolean = true) {
+            frame.visibility = View.VISIBLE
+            if (isVertical) {
+                if (navigationColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                    activity.window.navigationBarColor = activity.getColorFromAttr(R.attr.colorSurface)
+
+                val positionInitial = frame.translationY
+                frame.translationY = positionInitial + 200F
+                frame.animate()
+                    .setDuration(duration)
+                    .translationY(positionInitial)
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            super.onAnimationEnd(animation)
+                        }
+                    })
+            } else {
+                val positionInitial = frame.translationX
+                frame.translationX = 200F
+                frame.animate()
+                    .setDuration(duration)
+                    .translationX(positionInitial)
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            super.onAnimationEnd(animation)
+                        }
+                    })
+            }
+        }
+
+        fun animatePopupClose(activity: Activity, frame: FrameLayout, isVertical: Boolean = true, navigationColor: Boolean = true) {
+            if (isVertical) {
+                val positionInitial = frame.translationY
+                frame.animate()
+                    .setDuration(duration)
+                    .translationY(positionInitial + 200F)
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            super.onAnimationEnd(animation)
+                            frame.visibility = View.GONE
+                            frame.translationY = positionInitial
+
+                            if (navigationColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                                activity.window.navigationBarColor = android.graphics.Color.TRANSPARENT
+                        }
+                    })
+            } else {
+                val positionInitial = frame.translationX
+                frame.animate()
+                    .setDuration(duration)
+                    .translationX(positionInitial + 200F)
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            super.onAnimationEnd(animation)
+                            frame.visibility = View.GONE
+                            frame.translationX = positionInitial
+                        }
+                    })
+            }
+        }
+
     }
 }

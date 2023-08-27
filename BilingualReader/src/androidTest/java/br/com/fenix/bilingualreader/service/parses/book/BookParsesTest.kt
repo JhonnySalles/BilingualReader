@@ -70,7 +70,7 @@ class BookParsesTest {
 
         val parse = ImageParse(ApplicationProvider.getApplicationContext())
         for (book in books) {
-            val cover = parse.getCoverPage(book.path)
+            val cover = parse.getCoverPage(book.path, false)
 
             TestCase.assertTrue(
                 "Book " + book.name + " (" + book.extension + ") not generate cover. Please verify in " + BookParsesTest::class.java.name,
@@ -86,7 +86,7 @@ class BookParsesTest {
         val waiter = CountDownLatch(1)
 
         for (book in books) {
-            val parse = DocumentParse(book.path, book.password, fontSizeDips)
+            val parse = DocumentParse(book.path, book.password, fontSizeDips, false)
 
             TestCase.assertTrue(
                 "Book " + book.name + " (" + book.extension + ") not loaded. Please verify in " + BookParsesTest::class.java.name,

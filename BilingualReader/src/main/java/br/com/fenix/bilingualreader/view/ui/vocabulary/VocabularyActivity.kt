@@ -3,6 +3,8 @@ package br.com.fenix.bilingualreader.view.ui.vocabulary
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
+import android.view.WindowManager
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -16,6 +18,7 @@ import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.view.ui.vocabulary.book.VocabularyBookFragment
 import br.com.fenix.bilingualreader.view.ui.vocabulary.manga.VocabularyMangaFragment
 
@@ -40,6 +43,8 @@ class VocabularyActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_vocabulary)
+
+        ThemeUtil.transparentTheme(window, resources.getBoolean(R.bool.isNight))
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar_vocabulary)
         MenuUtil.tintToolbar(toolbar, theme)
@@ -68,7 +73,10 @@ class VocabularyActivity : AppCompatActivity() {
             null
 
         mBackgroundImage = findViewById(R.id.vocabulary_background_image)
-        mBackgroundImage.setImageResource(R.mipmap.vocabulary_semi)
+        mBackgroundImage.visibility = View.GONE
+
+        val shadow = findViewById<View>(R.id.vocabulary_background_image_shadow)
+        shadow.visibility = View.GONE
 
         val fragment = if (type == null)
             VocabularyFragment()
@@ -81,9 +89,15 @@ class VocabularyActivity : AppCompatActivity() {
                         BookImageCoverController.instance.setImageCoverAsync(
                             this,
                             obj,
-                            arrayListOf(mBackgroundImage),
+                            mBackgroundImage,
                             false
-                        )
+                        ) {
+                            if (it != null)
+                                mBackgroundImage.visibility = View.VISIBLE
+
+                            shadow.visibility = mBackgroundImage.visibility
+                            window.decorView.systemUiVisibility = (window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+                        }
                     }
                     frag
                 }
@@ -94,9 +108,15 @@ class VocabularyActivity : AppCompatActivity() {
                         MangaImageCoverController.instance.setImageCoverAsync(
                             this,
                             obj,
-                            arrayListOf(mBackgroundImage),
+                            mBackgroundImage,
                             false
-                        )
+                        ) {
+                            if (it != null)
+                                mBackgroundImage.visibility = View.VISIBLE
+
+                            shadow.visibility = mBackgroundImage.visibility
+                            window.decorView.systemUiVisibility = (window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+                        }
                     }
                     frag
                 }
