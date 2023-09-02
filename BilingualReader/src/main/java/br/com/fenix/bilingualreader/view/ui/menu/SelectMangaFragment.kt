@@ -205,13 +205,20 @@ class SelectMangaFragment : Fragment() {
     }
 
     private fun recyclerLayout() {
-        if (MangaLibraryFragment.mGridType != LibraryMangaType.LINE) {
-            val gridAdapter = MangaGridCardAdapter()
+        val type = LibraryMangaType.valueOf(
+            GeneralConsts.getSharedPreferences(requireContext()).getString(
+                GeneralConsts.KEYS.LIBRARY.MANGA_LIBRARY_TYPE,
+                LibraryMangaType.LINE.toString()
+            )
+                .toString()
+        )
+
+        if (type != LibraryMangaType.LINE) {
+            val gridAdapter = MangaGridCardAdapter(type)
             mRecycler.adapter = gridAdapter
 
-            val isLandscape =
-                resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-            val columnWidth: Int = when (MangaLibraryFragment.mGridType) {
+            val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+            val columnWidth: Int = when (type) {
                 LibraryMangaType.GRID_BIG -> resources.getDimension(R.dimen.manga_grid_card_layout_width)
                     .toInt()
                 LibraryMangaType.GRID_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_landscape_medium)

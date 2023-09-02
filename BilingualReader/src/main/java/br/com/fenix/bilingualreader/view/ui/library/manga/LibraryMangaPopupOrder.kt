@@ -77,10 +77,6 @@ class LibraryMangaPopupOrder(var listener: PopupOrderListener) : Fragment() {
         mOrderName.setOnCheckedChangeListener { _, _ ->
             removeListener(listCheck)
 
-            for (check in listCheck)
-                if (check != mOrderName)
-                    check.state = TriStateCheckBox.STATE_UNCHECKED
-
             mOrderName.state = getNextState(mOrderName)
             when (mOrderName.state) {
                 TriStateCheckBox.STATE_INDETERMINATE -> listener.popupSorted(Order.Name, true)
@@ -98,10 +94,6 @@ class LibraryMangaPopupOrder(var listener: PopupOrderListener) : Fragment() {
 
         mOrderDate.setOnCheckedChangeListener { _, _ ->
             removeListener(listCheck)
-
-            for (check in listCheck)
-                if (check != mOrderDate)
-                    check.state = TriStateCheckBox.STATE_UNCHECKED
 
             mOrderDate.state = getNextState(mOrderDate)
             when (mOrderDate.state) {
@@ -121,10 +113,6 @@ class LibraryMangaPopupOrder(var listener: PopupOrderListener) : Fragment() {
         mOrderAccess.setOnCheckedChangeListener { _, _ ->
             removeListener(listCheck)
 
-            for (check in listCheck)
-                if (check != mOrderAccess)
-                    check.state = TriStateCheckBox.STATE_UNCHECKED
-
             mOrderAccess.state = getNextState(mOrderAccess)
             when (mOrderAccess.state) {
                 TriStateCheckBox.STATE_INDETERMINATE -> listener.popupSorted(Order.LastAccess, true)
@@ -142,10 +130,6 @@ class LibraryMangaPopupOrder(var listener: PopupOrderListener) : Fragment() {
 
         mOrderFavorite.setOnCheckedChangeListener { _, _ ->
             removeListener(listCheck)
-
-            for (check in listCheck)
-                if (check != mOrderFavorite)
-                    check.state = TriStateCheckBox.STATE_UNCHECKED
 
             mOrderFavorite.state = getNextState(mOrderFavorite)
             when (mOrderFavorite.state) {

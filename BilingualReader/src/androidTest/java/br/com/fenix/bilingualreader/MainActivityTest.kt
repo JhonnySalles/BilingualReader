@@ -171,15 +171,15 @@ class MainActivityTest {
 
         waiter.await(animationTimer, TimeUnit.MILLISECONDS)
 
-        onView(withId(R.id.menu_manga_library_grid_type)).perform(click())
+        onView(withId(R.id.menu_manga_library_type)).perform(click())
 
         waiter.await(animationTimer, TimeUnit.MILLISECONDS)
 
-        onView(withId(R.id.menu_manga_library_grid_type)).perform(click())
+        onView(withId(R.id.menu_manga_library_type)).perform(click())
 
         waiter.await(animationTimer, TimeUnit.MILLISECONDS)
 
-        onView(withId(R.id.menu_manga_library_grid_type)).perform(click())
+        onView(withId(R.id.menu_manga_library_type)).perform(click())
 
         waiter.await(animationTimer, TimeUnit.MILLISECONDS)
 

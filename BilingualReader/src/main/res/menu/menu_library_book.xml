@@ -18,10 +18,10 @@
     </item>
 
     <item
-        android:id="@+id/menu_book_library_grid_type"
+        android:id="@+id/menu_book_library_type"
         android:icon="@drawable/ic_type_grid_big"
         android:orderInCategory="110"
-        android:title="@string/menu_book_grid_type"
+        android:title="@string/menu_book_library_type"
         android:visible="true"
         app:showAsAction="always" />
 </menu>

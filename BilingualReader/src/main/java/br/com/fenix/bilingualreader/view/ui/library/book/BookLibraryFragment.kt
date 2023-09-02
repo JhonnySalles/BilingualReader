@@ -54,13 +54,11 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
-import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
-import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
 import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.repository.Storage
@@ -106,11 +104,12 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     private lateinit var mListener: BookCardListener
     private lateinit var mScrollUp: FloatingActionButton
     private lateinit var mScrollDown: FloatingActionButton
-    private lateinit var mMenuPopupFilterOrder: FrameLayout
-    private lateinit var mPopupFilterOrderView: ViewPager
-    private lateinit var mPopupFilterOrderTab: TabLayout
+    private lateinit var mMenuPopupLibrary: FrameLayout
+    private lateinit var mPopupLibraryView: ViewPager
+    private lateinit var mPopupLibraryTab: TabLayout
     private lateinit var mPopupFilterFragment: LibraryBookPopupFilter
     private lateinit var mPopupOrderFragment: LibraryBookPopupOrder
+    private lateinit var mPopupTypeFragment: LibraryBookPopupType
     private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
 
     private lateinit var mPopupTag: PopupTags
@@ -120,7 +119,6 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
 
     companion object {
-        var mGridType: LibraryBookType = LibraryBookType.GRID
         var mSortType: Order = Order.Name
         var mSortDesc: Boolean = false
     }
@@ -146,7 +144,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         inflater.inflate(R.menu.menu_library_book, menu)
         super.onCreateOptionsMenu(menu, inflater)
 
-        miGridType = menu.findItem(R.id.menu_book_library_grid_type)
+        miGridType = menu.findItem(R.id.menu_book_library_type)
         miGridOrder = menu.findItem(R.id.menu_book_library_list_order)
         miSearch = menu.findItem(R.id.menu_book_library_search)
 
@@ -260,12 +258,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
         enableSearchView(searchView, !mRefreshLayout.isRefreshing)
 
-        MenuUtil.longClick(requireActivity(), R.id.menu_book_library_list_order) {
-            if (!mRefreshLayout.isRefreshing)
-                onOpenMenuSort()
-        }
-
-        val iconGrid: Int = when (mGridType) {
+        val iconGrid: Int = when (mViewModel.libraryType.value) {
             LibraryBookType.GRID -> R.drawable.ic_type_grid_big
             else -> R.drawable.ic_type_list
         }
@@ -280,14 +273,16 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         }
         miGridOrder.setIcon(iconSort)
 
-        MenuUtil.longClick(requireActivity(), R.id.menu_manga_library_list_order) {
-            if (!mRefreshLayout.isRefreshing)
-                onOpenMenuSort()
+        MenuUtil.longClick(requireActivity(), R.id.menu_book_library_list_order) {
+            if (!mRefreshLayout.isRefreshing) {
+                onOpenMenuLibrary()
+            }
         }
 
-        miGridOrder.setOnMenuItemClickListener {
-            onChangeSort()
-            true
+        MenuUtil.longClick(requireActivity(), R.id.menu_book_library_type) {
+            if (!mRefreshLayout.isRefreshing) {
+                onOpenMenuLibrary()
+            }
         }
 
         mViewModel.order.observe(viewLifecycleOwner) {
@@ -398,15 +393,15 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
-            R.id.menu_book_library_grid_type -> onChangeLayout()
+            R.id.menu_book_library_type -> mViewModel.changeLibraryType()
             R.id.menu_book_library_list_order -> onChangeSort()
         }
         return super.onOptionsItemSelected(menuItem)
     }
 
-    private fun onOpenMenuSort() {
+    private fun onOpenMenuLibrary() {
         mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
-        AnimationUtil.animatePopupOpen(requireActivity(), mMenuPopupFilterOrder)
+        AnimationUtil.animatePopupOpen(requireActivity(), mMenuPopupLibrary)
     }
 
     private fun onChangeSort() {
@@ -499,25 +494,23 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         notifyDataSet(0, range)
     }
 
-    private fun onChangeLayout() {
-        mGridType = when (mGridType) {
-            LibraryBookType.LINE -> LibraryBookType.GRID
-            else -> LibraryBookType.LINE
-        }
-
+    private fun onChangeLayout(type: LibraryBookType) {
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         with(sharedPreferences.edit()) {
-            this!!.putString(GeneralConsts.KEYS.LIBRARY.BOOK_LIBRARY_TYPE, mGridType.toString())
+            this!!.putString(GeneralConsts.KEYS.LIBRARY.BOOK_LIBRARY_TYPE, type.toString())
             this.commit()
         }
 
-        onChangeIconLayout()
-        generateLayout()
-        updateList(mViewModel.listBook.value!!)
+        onChangeIconLayout(type)
+        generateLayout(type)
+        updateList(type, mViewModel.listBook.value!!)
     }
 
-    private fun onChangeIconLayout() {
-        val icon: Int = when (mGridType) {
+    private fun onChangeIconLayout(type: LibraryBookType) {
+        if (!::miGridType.isInitialized)
+            return
+
+        val icon: Int = when (type) {
             LibraryBookType.GRID -> R.drawable.ico_animated_type_grid_list_to_gridbig
             else -> R.drawable.ico_animated_type_grid_gridbig_to_list
         }
@@ -532,10 +525,6 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     ): View? {
         val root = inflater.inflate(R.layout.fragment_book_library, container, false)
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
-        mGridType = LibraryBookType.valueOf(
-            sharedPreferences.getString(GeneralConsts.KEYS.LIBRARY.BOOK_LIBRARY_TYPE, LibraryBookType.GRID.toString())
-                .toString()
-        )
 
         mMapOrder = hashMapOf(
             Order.Name to getString(R.string.config_option_book_order_name),
@@ -552,13 +541,13 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         mScrollUp = root.findViewById(R.id.book_library_scroll_up)
         mScrollDown = root.findViewById(R.id.book_library_scroll_down)
 
-        mMenuPopupFilterOrder = root.findViewById(R.id.book_library_popup_menu_order_filter)
-        mPopupFilterOrderTab = root.findViewById(R.id.book_library_popup_order_filter_tab)
-        mPopupFilterOrderView = root.findViewById(R.id.book_library_popup_order_filter_view_pager)
+        mMenuPopupLibrary = root.findViewById(R.id.book_library_popup_menu_library)
+        mPopupLibraryTab = root.findViewById(R.id.book_library_popup_library_tab)
+        mPopupLibraryView = root.findViewById(R.id.book_library_popup_library_view_pager)
 
-        root.findViewById<ImageView>(R.id.book_library_popup_menu_order_filter_close)
+        root.findViewById<ImageView>(R.id.book_library_popup_menu_library_close)
             .setOnClickListener {
-                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupFilterOrder)
+                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupLibrary)
             }
 
         ComponentsUtil.setThemeColor(requireContext(), mRefreshLayout)
@@ -584,12 +573,13 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             mRecyclerView.smoothScrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount)
         }
 
-        mPopupFilterOrderTab.setupWithViewPager(mPopupFilterOrderView)
+        mPopupLibraryTab.setupWithViewPager(mPopupLibraryView)
 
         mPopupFilterFragment = LibraryBookPopupFilter()
         mPopupOrderFragment = LibraryBookPopupOrder(this)
+        mPopupTypeFragment = LibraryBookPopupType()
 
-        BottomSheetBehavior.from(mMenuPopupFilterOrder).apply {
+        BottomSheetBehavior.from(mMenuPopupLibrary).apply {
             peekHeight = 195
             this.state = BottomSheetBehavior.STATE_COLLAPSED
             mBottomSheet = this
@@ -615,8 +605,12 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             mPopupOrderFragment,
             resources.getString(R.string.popup_library_book_tab_item_ordering)
         )
+        viewFilterOrderPagerAdapter.addFragment(
+            mPopupTypeFragment,
+            resources.getString(R.string.popup_library_book_tab_item_type)
+        )
 
-        mPopupFilterOrderView.adapter = viewFilterOrderPagerAdapter
+        mPopupLibraryView.adapter = viewFilterOrderPagerAdapter
 
         mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -746,7 +740,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         if (!Storage.isPermissionGranted(requireContext()))
             Storage.takePermission(requireContext(), requireActivity())
 
-        generateLayout()
+        generateLayout(mViewModel.libraryType.value!!)
         setIsRefreshing(true)
         ScannerBook.getInstance(requireContext()).scanLibrary(mViewModel.getLibrary())
 
@@ -785,22 +779,22 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
         intent.putExtras(bundle)
 
-        val idText = if (mGridType != LibraryBookType.LINE)
+        val idText = if (mViewModel.libraryType.value != LibraryBookType.LINE)
             R.id.book_grid_title
         else
             R.id.book_line_title
 
-        val idAuthor = if (mGridType != LibraryBookType.LINE)
+        val idAuthor = if (mViewModel.libraryType.value != LibraryBookType.LINE)
             R.id.book_grid_sub_title
         else
             R.id.book_line_sub_title
 
-        val idProgress = if (mGridType != LibraryBookType.LINE)
+        val idProgress = if (mViewModel.libraryType.value != LibraryBookType.LINE)
             R.id.book_grid_progress
         else
             R.id.book_line_progress
 
-        val idCover = if (mGridType != LibraryBookType.LINE)
+        val idCover = if (mViewModel.libraryType.value != LibraryBookType.LINE)
             R.id.book_grid_image_cover
         else
             R.id.book_line_image_cover
@@ -831,13 +825,13 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             ).toString()
         )
 
-        mGridType = LibraryBookType.valueOf(
+        val type = LibraryBookType.valueOf(
             sharedPreferences.getString(
                 GeneralConsts.KEYS.LIBRARY.BOOK_LIBRARY_TYPE,
                 LibraryBookType.LINE.toString()
             ).toString()
         )
-
+        mViewModel.setLibraryType(type)
         mViewModel.sorted(mSortType)
     }
 
@@ -852,12 +846,12 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             refresh()
     }
 
-    private fun generateLayout() {
-        if (mGridType != LibraryBookType.LINE) {
+    private fun generateLayout(type: LibraryBookType) {
+        if (type != LibraryBookType.LINE) {
             val gridAdapter = BookGridCardAdapter()
             mRecyclerView.adapter = gridAdapter
 
-            val columnWidth: Int = when (mGridType) {
+            val columnWidth: Int = when (type) {
                 LibraryBookType.GRID -> resources.getDimension(R.dimen.book_grid_card_layout_width)
                     .toInt()
 
@@ -878,21 +872,21 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     }
 
     private fun setAnimationRecycler(isAnimate: Boolean) {
-        if (mGridType != LibraryBookType.LINE)
+        if (mViewModel.libraryType.value != LibraryBookType.LINE)
             (mRecyclerView.adapter as BookGridCardAdapter).isAnimation = isAnimate
         else
             (mRecyclerView.adapter as BookLineCardAdapter).isAnimation = isAnimate
     }
 
     private fun removeList(book: Book) {
-        if (mGridType != LibraryBookType.LINE)
+        if (mViewModel.libraryType.value != LibraryBookType.LINE)
             (mRecyclerView.adapter as BookGridCardAdapter).removeList(book)
         else
             (mRecyclerView.adapter as BookLineCardAdapter).removeList(book)
     }
 
-    private fun updateList(list: MutableList<Book>) {
-        if (mGridType != LibraryBookType.LINE)
+    private fun updateList(type : LibraryBookType, list: MutableList<Book>) {
+        if (type != LibraryBookType.LINE)
             (mRecyclerView.adapter as BookGridCardAdapter).updateList(list)
         else
             (mRecyclerView.adapter as BookLineCardAdapter).updateList(list)
@@ -900,7 +894,10 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
     private fun observer() {
         mViewModel.listBook.observe(viewLifecycleOwner) {
-            updateList(it)
+            updateList(mViewModel.libraryType.value!!, it)
+        }
+        mViewModel.libraryType.observe(viewLifecycleOwner) {
+            onChangeLayout(it)
         }
     }
 

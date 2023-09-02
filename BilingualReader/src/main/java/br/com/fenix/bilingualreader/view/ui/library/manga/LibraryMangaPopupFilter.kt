@@ -60,24 +60,19 @@ class LibraryMangaPopupFilter : Fragment() {
 
         mFilterFavorite.setOnCheckedChangeListener { _, isChecked ->
             removeListener(list)
-            if (isChecked) {
-                mFilterReading.isChecked = false
+            if (isChecked)
                 mViewModel.filterType(Filter.Favorite)
-            } else
+            else
                 mViewModel.filterType(Filter.None)
-
             addListener()
         }
 
         mFilterReading.setOnCheckedChangeListener { _, isChecked ->
             removeListener(list)
-            mViewModel.filterType(Filter.Reading)
-            if (isChecked) {
-                mFilterFavorite.isChecked = false
+            if (isChecked)
                 mViewModel.filterType(Filter.Reading)
-            } else
+            else
                 mViewModel.filterType(Filter.None)
-
             addListener()
         }
     }
