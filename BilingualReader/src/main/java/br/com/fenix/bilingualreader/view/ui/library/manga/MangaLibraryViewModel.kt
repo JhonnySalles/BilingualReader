@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.widget.Filter
 import android.widget.Filterable
-import android.widget.GridLayout
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -13,7 +12,6 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.FileType
-import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
@@ -271,7 +269,10 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
         val type = when (mLibraryType.value) {
             LibraryMangaType.LINE -> LibraryMangaType.GRID_BIG
             LibraryMangaType.GRID_BIG -> LibraryMangaType.GRID_MEDIUM
-            LibraryMangaType.GRID_MEDIUM -> if (isLandscape) LibraryMangaType.GRID_SMALL else LibraryMangaType.LINE
+            LibraryMangaType.GRID_MEDIUM -> if (isLandscape) LibraryMangaType.GRID_SMALL else LibraryMangaType.SEPARATOR_BIG
+            LibraryMangaType.GRID_SMALL -> LibraryMangaType.SEPARATOR_BIG
+            LibraryMangaType.SEPARATOR_BIG -> LibraryMangaType.SEPARATOR_MEDIUM
+            LibraryMangaType.SEPARATOR_MEDIUM -> LibraryMangaType.LINE
             else -> LibraryMangaType.LINE
         }
         setLibraryType(type)

@@ -29,12 +29,13 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
+import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaLineCardAdapter
-import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.slf4j.LoggerFactory
 import kotlin.math.max
@@ -219,14 +220,11 @@ class SelectMangaFragment : Fragment() {
 
             val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
             val columnWidth: Int = when (type) {
-                LibraryMangaType.GRID_BIG -> resources.getDimension(R.dimen.manga_grid_card_layout_width)
-                    .toInt()
-                LibraryMangaType.GRID_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_landscape_medium)
-                    .toInt() else resources.getDimension(R.dimen.manga_grid_card_layout_width_medium)
-                    .toInt()
-                LibraryMangaType.GRID_SMALL -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_small)
-                    .toInt()
-                else resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
+                LibraryMangaType.SEPARATOR_BIG,
+                LibraryMangaType.GRID_BIG -> resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
+                LibraryMangaType.SEPARATOR_MEDIUM,
+                LibraryMangaType.GRID_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_landscape_medium).toInt() else resources.getDimension(R.dimen.manga_grid_card_layout_width_medium).toInt()
+                LibraryMangaType.GRID_SMALL -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_small).toInt() else resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
                 else -> resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
             } + 1
 
@@ -270,10 +268,7 @@ class SelectMangaFragment : Fragment() {
 
     private fun observer() {
         mViewModel.listMangas.observe(viewLifecycleOwner) {
-            if (mGridType != LibraryMangaType.LINE)
-                (mRecycler.adapter as MangaGridCardAdapter).updateList(it)
-            else
-                (mRecycler.adapter as MangaLineCardAdapter).updateList(it)
+            (mRecycler.adapter as BaseAdapter<Manga, *>).updateList(Order.None, it)
         }
     }
 

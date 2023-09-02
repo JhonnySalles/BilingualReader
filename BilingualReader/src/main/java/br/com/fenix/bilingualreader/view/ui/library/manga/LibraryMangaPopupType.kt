@@ -9,9 +9,7 @@ import android.widget.CheckBox
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.enums.Filter
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
-import br.com.fenix.bilingualreader.view.components.TriStateCheckBox
 import org.slf4j.LoggerFactory
 
 class LibraryMangaPopupType : Fragment() {
@@ -23,6 +21,8 @@ class LibraryMangaPopupType : Fragment() {
     private lateinit var mTypeGridBig: CheckBox
     private lateinit var mTypeGridMedium: CheckBox
     private lateinit var mTypeGridSmall: CheckBox
+    private lateinit var mTypeSeparatorMedium: CheckBox
+    private lateinit var mTypeSeparatorSmall: CheckBox
     private lateinit var mTypeLine: CheckBox
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,82 +40,59 @@ class LibraryMangaPopupType : Fragment() {
         mTypeGridBig = root.findViewById(R.id.popup_library_manga_type_grid_big)
         mTypeGridMedium = root.findViewById(R.id.popup_library_manga_type_grid_medium)
         mTypeGridSmall = root.findViewById(R.id.popup_library_manga_type_grid_small)
+        mTypeSeparatorMedium = root.findViewById(R.id.popup_library_manga_type_separator_big)
+        mTypeSeparatorSmall = root.findViewById(R.id.popup_library_manga_type_separator_medium)
         mTypeLine = root.findViewById(R.id.popup_library_manga_type_line)
 
         mTypeGridSmall.visibility = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) View.VISIBLE else View.GONE
 
         setChecked(getCheckList(), mViewModel.libraryType.value ?: LibraryMangaType.GRID_BIG)
         observer()
-        addListener()
+        addListener(getCheckList())
 
         return root
     }
 
-    private fun setChecked(checkboxes: ArrayList<CheckBox>, type: LibraryMangaType) {
-        for (check in checkboxes)
-            check.isChecked = false
+    private fun getCheckList() = mapOf(
+        Pair(LibraryMangaType.GRID_BIG, mTypeGridBig),
+        Pair(LibraryMangaType.GRID_MEDIUM, mTypeGridMedium),
+        Pair(LibraryMangaType.GRID_SMALL, mTypeGridSmall),
+        Pair(LibraryMangaType.SEPARATOR_BIG, mTypeSeparatorMedium),
+        Pair(LibraryMangaType.SEPARATOR_MEDIUM, mTypeSeparatorSmall),
+        Pair(LibraryMangaType.LINE, mTypeLine)
+    )
 
-        when (type) {
-            LibraryMangaType.GRID_BIG -> mTypeGridBig.isChecked = true
-            LibraryMangaType.GRID_MEDIUM -> mTypeGridMedium.isChecked = true
-            LibraryMangaType.GRID_SMALL -> mTypeGridSmall.isChecked = true
-            LibraryMangaType.LINE -> mTypeLine.isChecked = true
-            else -> {}
-        }
+    private fun setChecked(checkboxes: Map<LibraryMangaType, CheckBox>, type: LibraryMangaType) {
+        for (check in checkboxes)
+            check.value.isChecked = check.key == type
     }
 
-    private fun getCheckList() = arrayListOf(mTypeGridBig, mTypeGridMedium, mTypeGridSmall, mTypeLine)
-
-    private fun addListener() {
+    private fun addListener(checkboxes: Map<LibraryMangaType, CheckBox>) {
         val list = getCheckList()
 
-        mTypeGridBig.setOnCheckedChangeListener { _, isChecked ->
-            removeListener(list)
-            if (isChecked)
-                mViewModel.setLibraryType(LibraryMangaType.GRID_BIG)
-            else
-                mViewModel.setLibraryType(LibraryMangaType.LINE)
-            addListener()
-        }
-
-        mTypeGridMedium.setOnCheckedChangeListener { _, isChecked ->
-            removeListener(list)
-            if (isChecked)
-                mViewModel.setLibraryType(LibraryMangaType.GRID_MEDIUM)
-            else
-                mViewModel.setLibraryType(LibraryMangaType.GRID_BIG)
-            addListener()
-        }
-
-        mTypeGridSmall.setOnCheckedChangeListener { _, isChecked ->
-            removeListener(list)
-            if (isChecked)
-                mViewModel.setLibraryType(LibraryMangaType.GRID_SMALL)
-            else
-                mViewModel.setLibraryType(LibraryMangaType.GRID_BIG)
-            addListener()
-        }
-
-        mTypeLine.setOnCheckedChangeListener { _, isChecked ->
-            removeListener(list)
-            if (isChecked)
-                mViewModel.setLibraryType(LibraryMangaType.LINE)
-            else
-                mViewModel.setLibraryType(LibraryMangaType.GRID_BIG)
-            addListener()
-        }
+        for (check in checkboxes)
+            check.value.setOnCheckedChangeListener { _, isChecked ->
+                removeListener(list)
+                if (isChecked)
+                    mViewModel.setLibraryType(check.key)
+                else if (check.key == LibraryMangaType.GRID_BIG)
+                    mViewModel.setLibraryType(LibraryMangaType.LINE)
+                else
+                    mViewModel.setLibraryType(LibraryMangaType.GRID_BIG)
+                addListener(list)
+            }
     }
 
-    private fun removeListener(checkboxes : ArrayList<CheckBox>) {
+    private fun removeListener(checkboxes: Map<LibraryMangaType, CheckBox>) {
         for (check in checkboxes)
-            check.setOnCheckedChangeListener(null)
+            check.value.setOnCheckedChangeListener(null)
     }
 
     private fun observer() {
         mViewModel.libraryType.observe(viewLifecycleOwner) {
             removeListener(getCheckList())
             setChecked(getCheckList(), it)
-            addListener()
+            addListener(getCheckList())
         }
     }
 
