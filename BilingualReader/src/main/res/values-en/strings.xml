@@ -447,6 +447,9 @@
     <string name="manga_library_default">Default</string>
     <string name="manga_library_menu_copy">Copy</string>
 
+    <string name="manga_library_separator_favorite">Favorite</string>
+    <string name="manga_library_separator_non_favorite">Others</string>
+
     <string-array name="manga_filters">
         <item>Author</item>
         <item>Publisher</item>
@@ -491,6 +494,8 @@
     <string name="popup_library_manga_type_grid_big">Grid big</string>
     <string name="popup_library_manga_type_grid_medium">Grid medium</string>
     <string name="popup_library_manga_type_grid_small">Grid small</string>
+    <string name="popup_library_manga_type_separator_big">Grid big with separator</string>
+    <string name="popup_library_manga_type_separator_medium">Grid medium with separator</string>
     <string name="popup_library_manga_type_line">Line</string>
 
     <!-- POPUP LIBRARY - Book -->

@@ -68,6 +68,7 @@ import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookLineCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
@@ -274,15 +275,14 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         miGridOrder.setIcon(iconSort)
 
         MenuUtil.longClick(requireActivity(), R.id.menu_book_library_list_order) {
-            if (!mRefreshLayout.isRefreshing) {
-                onOpenMenuLibrary()
-            }
+            if (!mRefreshLayout.isRefreshing)
+                onOpenMenuLibrary(1)
         }
 
         MenuUtil.longClick(requireActivity(), R.id.menu_book_library_type) {
-            if (!mRefreshLayout.isRefreshing) {
-                onOpenMenuLibrary()
-            }
+            if (!mRefreshLayout.isRefreshing)
+                onOpenMenuLibrary(0)
+
         }
 
         mViewModel.order.observe(viewLifecycleOwner) {
@@ -399,7 +399,8 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         return super.onOptionsItemSelected(menuItem)
     }
 
-    private fun onOpenMenuLibrary() {
+    private fun onOpenMenuLibrary(select: Int = 0) {
+        mPopupLibraryTab.selectTab(mPopupLibraryTab.getTabAt(select))
         mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
         AnimationUtil.animatePopupOpen(requireActivity(), mMenuPopupLibrary)
     }
@@ -503,7 +504,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
         onChangeIconLayout(type)
         generateLayout(type)
-        updateList(type, mViewModel.listBook.value!!)
+        updateList(mViewModel.listBook.value!!)
     }
 
     private fun onChangeIconLayout(type: LibraryBookType) {
@@ -596,16 +597,16 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
         val viewFilterOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
         viewFilterOrderPagerAdapter.addFragment(
+            mPopupTypeFragment,
+            resources.getString(R.string.popup_library_book_tab_item_type)
+        )
+        viewFilterOrderPagerAdapter.addFragment(
             mPopupFilterFragment,
             resources.getString(R.string.popup_library_book_tab_item_filter)
         )
         viewFilterOrderPagerAdapter.addFragment(
             mPopupOrderFragment,
             resources.getString(R.string.popup_library_book_tab_item_ordering)
-        )
-        viewFilterOrderPagerAdapter.addFragment(
-            mPopupTypeFragment,
-            resources.getString(R.string.popup_library_book_tab_item_type)
         )
 
         mPopupLibraryView.adapter = viewFilterOrderPagerAdapter
@@ -870,29 +871,20 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     }
 
     private fun setAnimationRecycler(isAnimate: Boolean) {
-        if (mViewModel.libraryType.value != LibraryBookType.LINE)
-            (mRecyclerView.adapter as BookGridCardAdapter).isAnimation = isAnimate
-        else
-            (mRecyclerView.adapter as BookLineCardAdapter).isAnimation = isAnimate
+        (mRecyclerView.adapter as BaseAdapter<*, *>).isAnimation = isAnimate
     }
 
     private fun removeList(book: Book) {
-        if (mViewModel.libraryType.value != LibraryBookType.LINE)
-            (mRecyclerView.adapter as BookGridCardAdapter).removeList(book)
-        else
-            (mRecyclerView.adapter as BookLineCardAdapter).removeList(book)
+        (mRecyclerView.adapter as BaseAdapter<Book, *>).removeList(book)
     }
 
-    private fun updateList(type : LibraryBookType, list: MutableList<Book>) {
-        if (type != LibraryBookType.LINE)
-            (mRecyclerView.adapter as BookGridCardAdapter).updateList(list)
-        else
-            (mRecyclerView.adapter as BookLineCardAdapter).updateList(list)
+    private fun updateList(list: MutableList<Book>) {
+        (mRecyclerView.adapter as BaseAdapter<Book, *>).updateList(Order.None, list)
     }
 
     private fun observer() {
         mViewModel.listBook.observe(viewLifecycleOwner) {
-            updateList(mViewModel.libraryType.value!!, it)
+            updateList(it)
         }
         mViewModel.libraryType.observe(viewLifecycleOwner) {
             onChangeLayout(it)

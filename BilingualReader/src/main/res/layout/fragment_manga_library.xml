@@ -138,6 +138,12 @@
                     app:tabPaddingTop="0dp">
 
                     <com.google.android.material.tabs.TabItem
+                        android:id="@+id/manga_library_tab_item_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/popup_library_manga_tab_item_type" />
+
+                    <com.google.android.material.tabs.TabItem
                         android:id="@+id/manga_library_tab_item_ordering"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -148,12 +154,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/popup_library_manga_tab_item_filter" />
-
-                    <com.google.android.material.tabs.TabItem
-                        android:id="@+id/manga_library_tab_item_type"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/popup_library_manga_tab_item_type" />
 
                 </com.google.android.material.tabs.TabLayout>
 

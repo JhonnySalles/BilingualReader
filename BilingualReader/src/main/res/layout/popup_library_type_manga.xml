@@ -34,6 +34,20 @@
             android:text="@string/popup_library_manga_type_grid_small"/>
 
         <CheckBox
+            android:id="@+id/popup_library_manga_type_separator_big"
+            style="@style/CheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/popup_library_manga_type_separator_big"/>
+
+        <CheckBox
+            android:id="@+id/popup_library_manga_type_separator_medium"
+            style="@style/CheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/popup_library_manga_type_separator_medium"/>
+
+        <CheckBox
             android:id="@+id/popup_library_manga_type_line"
             style="@style/CheckBox"
             android:layout_width="match_parent"

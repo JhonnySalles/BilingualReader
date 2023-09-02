@@ -20,7 +20,7 @@ import br.com.fenix.bilingualreader.service.listener.ChapterCardListener
 import br.com.fenix.bilingualreader.service.listener.ChapterLoadListener
 import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.view.adapter.chapters.ChaptersLineAdapter
+import br.com.fenix.bilingualreader.view.adapter.chapters.ChaptersGridAdapter
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -142,7 +142,7 @@ class MangaChaptersFragment : Fragment(), ChapterLoadListener {
             }
         }
 
-        val adapter = ChaptersLineAdapter()
+        val adapter = ChaptersGridAdapter()
         adapter.attachListener(listener)
         mRecyclerView.adapter = adapter
 
@@ -157,7 +157,7 @@ class MangaChaptersFragment : Fragment(), ChapterLoadListener {
 
     private fun observer() {
         SharedData.chapters.observe(viewLifecycleOwner) {
-            (mRecyclerView.adapter as ChaptersLineAdapter).updateList(it)
+            (mRecyclerView.adapter as ChaptersGridAdapter).updateList(it)
         }
         if (mPosInitial > 0)
             mRecyclerView.scrollToPosition(mPosInitial)
@@ -180,7 +180,7 @@ class MangaChaptersFragment : Fragment(), ChapterLoadListener {
     }
 
     override fun onLoading(page: Int) {
-        (mRecyclerView.adapter as ChaptersLineAdapter).notifyItemChanged(page)
+        (mRecyclerView.adapter as ChaptersGridAdapter).notifyItemChanged(page)
     }
 
 }

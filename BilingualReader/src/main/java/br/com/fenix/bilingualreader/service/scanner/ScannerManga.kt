@@ -149,8 +149,7 @@ class ScannerManga(private val context: Context) {
         var mIsRestarted = false
     }
 
-    private fun generateCover(parse: Parse, manga: Manga) =
-        MangaImageCoverController.instance.getCoverFromFile(context, manga.file, parse)
+    private fun generateCover(parse: Parse, manga: Manga) = MangaImageCoverController.instance.getCoverFromFile(context, manga.file, parse)
 
     private inner class LibraryUpdateRunnable(var library: Library, val isSilent: Boolean = false) : Runnable {
         override fun run() {

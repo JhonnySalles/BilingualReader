@@ -447,6 +447,9 @@
     <string name="manga_library_default">Padrão</string>
     <string name="manga_library_menu_copy">Copiado</string>
 
+    <string name="manga_library_separator_favorite">Favoritos</string>
+    <string name="manga_library_separator_non_favorite">Outros</string>
+
     <string-array name="manga_filters">
         <item>Autor</item>
         <item>Editora</item>
@@ -489,8 +492,10 @@
     <string name="popup_library_manga_filter_reading">Lendo</string>
 
     <string name="popup_library_manga_type_grid_big">Grid grande</string>
-    <string name="popup_library_manga_type_grid_medium">Grid média</string>
+    <string name="popup_library_manga_type_grid_medium">Grid médio</string>
     <string name="popup_library_manga_type_grid_small">Grid pequeno</string>
+    <string name="popup_library_manga_type_separator_big">Grid grande com separador</string>
+    <string name="popup_library_manga_type_separator_medium">Grid médio com separador</string>
     <string name="popup_library_manga_type_line">Linha</string>
 
     <!-- POPUP LIBRARY - Book -->

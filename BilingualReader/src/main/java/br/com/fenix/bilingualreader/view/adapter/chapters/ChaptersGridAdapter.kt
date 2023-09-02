@@ -9,7 +9,7 @@ import br.com.fenix.bilingualreader.model.entity.Chapters
 import br.com.fenix.bilingualreader.service.listener.ChapterCardListener
 
 
-class ChaptersLineAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ChaptersGridAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private lateinit var mListener: ChapterCardListener
     private var mChaptersList: List<Chapters> = listOf()
@@ -50,13 +50,9 @@ class ChaptersLineAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            HEADER -> ChaptersHeaderViewHolder(
-                LayoutInflater.from(parent.context)
-                    .inflate(R.layout.grid_card_divider_chapters, parent, false), mListener
-            )
+            HEADER -> ChaptersHeaderViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.grid_separator_header, parent, false))
             else -> ChaptersViewHolder(
-                LayoutInflater.from(parent.context)
-                    .inflate(R.layout.grid_card_chapters, parent, false), mListener
+                LayoutInflater.from(parent.context).inflate(R.layout.grid_card_chapters, parent, false), mListener
             )
         }
     }

@@ -33,6 +33,12 @@
     <dimen name="manga_line_favorite">10dp</dimen>
     <dimen name="manga_line_content_size">12sp</dimen>
 
+    <dimen name="manga_separator_grid_card_image">210dp</dimen>
+    <dimen name="manga_separator_grid_card_layout_width">160dp</dimen>
+    <dimen name="manga_separator_grid_card_layout_height">210dp</dimen>
+    <dimen name="manga_separator_grid_card_layout_width_medium">130dp</dimen>
+    <dimen name="manga_separator_grid_card_layout_width_landscape_medium">140dp</dimen>
+
     <dimen name="manga_list_padding">80dp</dimen>
 
     <dimen name="manga_library_padding">80dp</dimen>
@@ -195,9 +201,11 @@
 
     <dimen name="book_chapters_list_padding">20dp</dimen>
 
-    <dimen name="chapters_divider_title">16sp</dimen>
     <dimen name="chapters_grid_card_layout_width">100dp</dimen>
     <dimen name="chapters_grid_card_layout_height">150dp</dimen>
+
+    <dimen name="grid_separator_header_title">16sp</dimen>
+    <dimen name="grid_separator_header_items">12sp</dimen>
 
     <dimen name="title_size">18sp</dimen>
     <dimen name="title_medium_size">15sp</dimen>

@@ -6,13 +6,15 @@ import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
+import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 
-class BookGridCardAdapter : RecyclerView.Adapter<BookGridViewHolder>() {
+class BookGridCardAdapter : RecyclerView.Adapter<BookGridViewHolder>(), BaseAdapter<Book, BookCardListener> {
 
     private lateinit var mListener: BookCardListener
     private var mMangaList: MutableList<Book> = mutableListOf()
-    var isAnimation: Boolean = true
+    override var isAnimation: Boolean = true
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookGridViewHolder {
         val item =
@@ -35,17 +37,17 @@ class BookGridCardAdapter : RecyclerView.Adapter<BookGridViewHolder>() {
         return mMangaList.size
     }
 
-    fun attachListener(listener: BookCardListener) {
+    override fun attachListener(listener: BookCardListener) {
         mListener = listener
     }
 
-    fun removeList(book: Book) {
+    override fun removeList(book: Book) {
         if (mMangaList.contains(book))
             notifyItemRemoved(mMangaList.indexOf(book))
         mMangaList.remove(book)
     }
 
-    fun updateList(list: MutableList<Book>) {
+    override fun updateList(order: Order, list: MutableList<Book>) {
         mMangaList = list
         notifyDataSetChanged()
     }
