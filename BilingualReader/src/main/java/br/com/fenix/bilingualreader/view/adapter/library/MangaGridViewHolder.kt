@@ -20,8 +20,7 @@ import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryFragment
 import com.google.android.material.card.MaterialCardView
 
 
-class MangaGridViewHolder(itemView: View, private val listener: MangaCardListener) :
-    RecyclerView.ViewHolder(itemView) {
+class MangaGridViewHolder(var type: LibraryMangaType, itemView: View, private val listener: MangaCardListener) : RecyclerView.ViewHolder(itemView) {
 
     companion object {
         var mIsLandscape: Boolean = false
@@ -79,7 +78,7 @@ class MangaGridViewHolder(itemView: View, private val listener: MangaCardListene
 
         subtitle.visibility  = if (manga.hasSubtitle) View.VISIBLE else View.GONE
 
-        when (MangaLibraryFragment.mGridType) {
+        when (type) {
             LibraryMangaType.GRID_MEDIUM -> if (mIsLandscape) cardView.layoutParams.width = mMangaCardWidthLandscapeMedium
             else cardView.layoutParams.width = mMangaCardWidthMedium
             LibraryMangaType.GRID_SMALL ->
@@ -112,7 +111,7 @@ class MangaGridViewHolder(itemView: View, private val listener: MangaCardListene
         mangaImage.setImageBitmap(image)
         MangaImageCoverController.instance.setImageCoverAsync(itemView.context, manga, mangaImage)
 
-        val isSmall = manga.lastAccess != null && manga.bookMark > 0 && MangaLibraryFragment.mGridType != LibraryMangaType.GRID_BIG
+        val isSmall = manga.lastAccess != null && manga.bookMark > 0 && type != LibraryMangaType.GRID_BIG
 
         mangaTitle.text = manga.title
         mangaFileType.text = Util.getExtensionFromPath(manga.path).uppercase()

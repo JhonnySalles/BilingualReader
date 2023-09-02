@@ -797,6 +797,7 @@
     </style>
 
     <style name="PopupTab" parent="AppBackground">
+        <item name="android:background">?attr/colorSurface</item>
         <item name="tabSelectedTextColor">?attr/colorTertiaryContainer</item>
         <item name="tabTextAppearance">@style/TextPopupTab</item>
         <item name="tabTextColor">?attr/colorPrimary</item>

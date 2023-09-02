@@ -10,9 +10,9 @@ import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
-import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.Tags
 import br.com.fenix.bilingualreader.model.enums.FileType
+import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
@@ -48,6 +48,9 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     val order: LiveData<Pair<Order, Boolean>> = mOrder
     private var mTypeFilter = MutableLiveData(FilterType.None)
     val typeFilter: LiveData<FilterType> = mTypeFilter
+
+    private var mLibraryType = MutableLiveData(LibraryBookType.GRID)
+    val libraryType: LiveData<LibraryBookType> = mLibraryType
 
     private var mListBookFull = MutableLiveData<MutableList<Book>>(mutableListOf())
     private var mListBook = MutableLiveData<MutableList<Book>>(mutableListOf())
@@ -270,6 +273,18 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         return mTags
     }
 
+    fun changeLibraryType() {
+        val type = when (mLibraryType.value) {
+            LibraryBookType.LINE -> LibraryBookType.GRID
+            else -> LibraryBookType.LINE
+        }
+        setLibraryType(type)
+    }
+
+    fun setLibraryType(type: LibraryBookType) {
+        mLibraryType.value = type
+    }
+
     fun isEmpty(): Boolean = mListBook.value == null || mListBook.value!!.isEmpty()
 
     fun sorted() {
@@ -326,13 +341,15 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         if (list.isNullOrEmpty())
             return
 
+        val process = list.stream().toList()
+
         CoroutineScope(newSingleThreadContext("SuggestionThread")).launch {
             async {
                 val authors = mutableSetOf<String>()
                 val publishers = mutableSetOf<String>()
                 val tags = mutableSetOf<String>()
 
-                list.forEach {
+                process.forEach {
                     authors.add(it.author)
                     publishers.add(it.publisher)
                 }

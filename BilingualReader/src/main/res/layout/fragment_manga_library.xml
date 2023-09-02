@@ -86,7 +86,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <FrameLayout
-            android:id="@+id/manga_library_popup_menu_order_filter"
+            android:id="@+id/manga_library_popup_menu_library"
             style="@style/AppBackground.PopupBottom"
             android:layout_width="match_parent"
             android:layout_height="350dp"
@@ -108,7 +108,7 @@
                 android:src="@drawable/ic_line_popup"/>
 
             <ImageView
-                android:id="@+id/manga_library_popup_menu_order_filter_close"
+                android:id="@+id/manga_library_popup_menu_library_close"
                 style="@style/TextTitle.Popup"
                 android:layout_width="70dp"
                 android:layout_height="wrap_content"
@@ -126,7 +126,7 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/manga_library_popup_order_filter_tab"
+                    android:id="@+id/manga_library_popup_library_tab"
                     style="@style/PopupTab"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -149,15 +149,22 @@
                         android:layout_height="wrap_content"
                         android:text="@string/popup_library_manga_tab_item_filter" />
 
+                    <com.google.android.material.tabs.TabItem
+                        android:id="@+id/manga_library_tab_item_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/popup_library_manga_tab_item_type" />
+
                 </com.google.android.material.tabs.TabLayout>
 
                 <androidx.viewpager.widget.ViewPager
-                    android:id="@+id/manga_library_popup_order_filter_view_pager"
+                    android:id="@+id/manga_library_popup_library_view_pager"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:paddingTop="2dp"
                     app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
             </LinearLayout>
         </FrameLayout>
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </FrameLayout>

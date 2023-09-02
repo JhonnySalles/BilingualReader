@@ -41,8 +41,8 @@
     <string name="menu_config">Configuration</string>
     <string name="menu_history">History</string>
     <string name="menu_vocabulary">Vocabulary</string>
-    <string name="menu_manga_grid_type">Grid type</string>
-    <string name="menu_book_grid_type">Grid type</string>
+    <string name="menu_manga_library_type">Grid type</string>
+    <string name="menu_book_library_type">Grid type</string>
 
     <!-- CONFIG -->
     <string name="config_sector_system">System</string>
@@ -478,6 +478,7 @@
     <!-- POPUP LIBRARY - Manga / Comic -->
     <string name="popup_library_manga_tab_item_ordering">Order</string>
     <string name="popup_library_manga_tab_item_filter">Filter</string>
+    <string name="popup_library_manga_tab_item_type">Grid</string>
 
     <string name="popup_library_manga_order_name">For name</string>
     <string name="popup_library_manga_order_date">For date</string>
@@ -487,9 +488,15 @@
     <string name="popup_library_manga_filter_favorite">Favorite</string>
     <string name="popup_library_manga_filter_reading">Reading</string>
 
+    <string name="popup_library_manga_type_grid_big">Grid big</string>
+    <string name="popup_library_manga_type_grid_medium">Grid medium</string>
+    <string name="popup_library_manga_type_grid_small">Grid small</string>
+    <string name="popup_library_manga_type_line">Line</string>
+
     <!-- POPUP LIBRARY - Book -->
     <string name="popup_library_book_tab_item_ordering">Order</string>
     <string name="popup_library_book_tab_item_filter">Filter</string>
+    <string name="popup_library_book_tab_item_type">Grid</string>
 
     <string name="popup_library_book_order_name">For name</string>
     <string name="popup_library_book_order_date">For date</string>
@@ -500,6 +507,9 @@
 
     <string name="popup_library_book_filter_favorite">Favorite</string>
     <string name="popup_library_book_filter_reading">Reading</string>
+
+    <string name="popup_library_book_type_grid">Grid</string>
+    <string name="popup_library_book_type_line">Line</string>
 
     <!-- MANGA DETAIL -->
     <string name="manga_detail_favorite">Favorite</string>
