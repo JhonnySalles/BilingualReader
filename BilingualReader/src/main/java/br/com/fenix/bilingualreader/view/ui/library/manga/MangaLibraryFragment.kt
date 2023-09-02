@@ -49,6 +49,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
@@ -67,8 +68,10 @@ import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaLineCardAdapter
+import br.com.fenix.bilingualreader.view.adapter.library.MangaSeparatorGridCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.PopupOrderListener
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
@@ -235,10 +238,13 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         })
 
         enableSearchView(searchView, !mRefreshLayout.isRefreshing)
+
         val iconGrid: Int = when (mViewModel.libraryType.value) {
             LibraryMangaType.GRID_SMALL -> R.drawable.ic_type_grid_small
             LibraryMangaType.GRID_BIG -> R.drawable.ic_type_grid_big
             LibraryMangaType.GRID_MEDIUM -> R.drawable.ic_type_grid_medium
+            LibraryMangaType.SEPARATOR_BIG -> R.drawable.ic_type_grid_medium
+            LibraryMangaType.SEPARATOR_MEDIUM -> R.drawable.ic_type_grid_small
             else -> R.drawable.ic_type_list
         }
         miGridType.setIcon(iconGrid)
@@ -252,17 +258,14 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         miGridOrder.setIcon(iconSort)
 
         MenuUtil.longClick(requireActivity(), R.id.menu_manga_library_list_order) {
-            if (!mRefreshLayout.isRefreshing) {
-                mPopupLibraryTab.selectTab(mPopupLibraryTab.getTabAt(1))
-                onOpenMenuLibrary()
-            }
+            if (!mRefreshLayout.isRefreshing)
+                onOpenMenuLibrary(1)
+
         }
 
         MenuUtil.longClick(requireActivity(), R.id.menu_manga_library_type) {
-            if (!mRefreshLayout.isRefreshing) {
-                mPopupLibraryTab.selectTab(mPopupLibraryTab.getTabAt(0))
-                onOpenMenuLibrary()
-            }
+            if (!mRefreshLayout.isRefreshing)
+                onOpenMenuLibrary(0)
         }
 
         mViewModel.order.observe(viewLifecycleOwner) {
@@ -386,7 +389,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         return super.onOptionsItemSelected(menuItem)
     }
 
-    private fun onOpenMenuLibrary() {
+    private fun onOpenMenuLibrary(select: Int = 0) {
+        mPopupLibraryTab.selectTab(mPopupLibraryTab.getTabAt(select))
         mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
         AnimationUtil.animatePopupOpen(requireActivity(), mMenuPopupLibrary)
     }
@@ -416,8 +420,11 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
         if (mViewModel.listMangas.value != null) {
             mViewModel.sorted(orderBy)
-            val range = (mViewModel.listMangas.value?.size ?: 1)
-            notifyDataSet(0, range)
+            when (mViewModel.libraryType.value) {
+                LibraryMangaType.SEPARATOR_BIG,
+                LibraryMangaType.SEPARATOR_MEDIUM -> updateList(mViewModel.listMangas.value!!)
+                else -> notifyDataSet(0, (mViewModel.listMangas.value?.size ?: 1))
+            }
         }
     }
 
@@ -468,8 +475,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     private fun sortList() {
         mViewModel.sorted()
-        val range = (mViewModel.listMangas.value?.size ?: 1)
-        notifyDataSet(0, range)
+        notifyDataSet(0, (mViewModel.listMangas.value?.size ?: 1))
     }
 
     private fun onChangeLayout(type: LibraryMangaType) {
@@ -481,7 +487,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
         onChangeIconLayout(type)
         generateLayout(type)
-        updateList(type, mViewModel.listMangas.value!!)
+        updateList(mViewModel.listMangas.value!!)
     }
 
     private fun onChangeIconLayout(type: LibraryMangaType) {
@@ -492,6 +498,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             LibraryMangaType.GRID_SMALL -> R.drawable.ico_animated_type_grid_gridmedium_to_gridsmall
             LibraryMangaType.GRID_BIG -> R.drawable.ico_animated_type_grid_list_to_gridbig
             LibraryMangaType.GRID_MEDIUM -> R.drawable.ico_animated_type_grid_gridbig_to_gridmedium
+            LibraryMangaType.SEPARATOR_BIG -> R.drawable.ico_animated_type_grid_gridbig_to_gridmedium // CRIAR ANIMAÇÃO
+            LibraryMangaType.SEPARATOR_MEDIUM -> R.drawable.ico_animated_type_grid_gridbig_to_gridmedium // CRIAR ANIMAÇÃO
             else -> if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
                 R.drawable.ico_animated_type_grid_gridsmall_to_list
             else
@@ -578,16 +586,16 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
         val viewFilterOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
         viewFilterOrderPagerAdapter.addFragment(
+            mPopupTypeFragment,
+            resources.getString(R.string.popup_library_manga_tab_item_type)
+        )
+        viewFilterOrderPagerAdapter.addFragment(
             mPopupFilterFragment,
             resources.getString(R.string.popup_library_manga_tab_item_filter)
         )
         viewFilterOrderPagerAdapter.addFragment(
             mPopupOrderFragment,
             resources.getString(R.string.popup_library_manga_tab_item_ordering)
-        )
-        viewFilterOrderPagerAdapter.addFragment(
-            mPopupTypeFragment,
-            resources.getString(R.string.popup_library_manga_tab_item_type)
         )
 
         mPopupLibraryView.adapter = viewFilterOrderPagerAdapter
@@ -807,64 +815,62 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             refresh()
     }
 
-    private fun getGridLayout(): GridLayoutManager {
+    private fun getGridLayout(): RecyclerView.LayoutManager {
+        val type = mViewModel.libraryType.value
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        val columnWidth: Int = when (mViewModel.libraryType.value) {
-            LibraryMangaType.GRID_BIG -> resources.getDimension(R.dimen.manga_grid_card_layout_width)
-                .toInt()
-            LibraryMangaType.GRID_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_landscape_medium)
-                .toInt() else resources.getDimension(R.dimen.manga_grid_card_layout_width_medium)
-                .toInt()
-            LibraryMangaType.GRID_SMALL -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_small)
-                .toInt()
-            else resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
+        val columnWidth: Int = when (type) {
+            LibraryMangaType.SEPARATOR_BIG -> resources.getDimension(R.dimen.manga_separator_grid_card_layout_width).toInt()
+            LibraryMangaType.SEPARATOR_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.manga_separator_grid_card_layout_width_landscape_medium).toInt() else resources.getDimension(R.dimen.manga_separator_grid_card_layout_width_medium).toInt()
+            LibraryMangaType.GRID_BIG -> resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
+            LibraryMangaType.GRID_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_landscape_medium).toInt() else resources.getDimension(R.dimen.manga_grid_card_layout_width_medium).toInt()
+            LibraryMangaType.GRID_SMALL -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_small).toInt() else resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
             else -> resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
         } + 1
 
-        val spaceCount: Int = max(1, (Resources.getSystem().displayMetrics.widthPixels -5) / columnWidth)
-        return GridLayoutManager(requireContext(), spaceCount)
+        val spaceCount: Int = max(1, (Resources.getSystem().displayMetrics.widthPixels -3) / columnWidth)
+        println(spaceCount)
+        return when (type) {
+            LibraryMangaType.SEPARATOR_BIG,
+            LibraryMangaType.SEPARATOR_MEDIUM -> StaggeredGridLayoutManager(spaceCount, StaggeredGridLayoutManager.VERTICAL)
+            else -> GridLayoutManager(requireContext(), spaceCount)
+        }
     }
 
     private fun generateLayout(type: LibraryMangaType) {
-        if (type != LibraryMangaType.LINE) {
-            val gridAdapter = MangaGridCardAdapter(type)
-            mRecyclerView.adapter = gridAdapter
-            mRecyclerView.layoutManager = getGridLayout()
-            gridAdapter.attachListener(mListener)
-            mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_grid)
-        } else {
+        if (type == LibraryMangaType.LINE){
             val lineAdapter = MangaLineCardAdapter()
             mRecyclerView.adapter = lineAdapter
             mRecyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
             lineAdapter.attachListener(mListener)
             mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_line)
+        } else {
+            val gridAdapter = when (type) {
+                LibraryMangaType.SEPARATOR_BIG,
+                LibraryMangaType.SEPARATOR_MEDIUM -> MangaSeparatorGridCardAdapter(requireContext(), type)
+                else -> MangaGridCardAdapter(type)
+            }
+            mRecyclerView.adapter = gridAdapter
+            mRecyclerView.layoutManager = getGridLayout()
+            gridAdapter.attachListener(mListener)
+            mRecyclerView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_grid)
         }
     }
 
     private fun setAnimationRecycler(isAnimate: Boolean) {
-        if (mViewModel.libraryType.value != LibraryMangaType.LINE)
-            (mRecyclerView.adapter as MangaGridCardAdapter).isAnimation = isAnimate
-        else
-            (mRecyclerView.adapter as MangaLineCardAdapter).isAnimation = isAnimate
+        (mRecyclerView.adapter as BaseAdapter<*, *>).isAnimation = isAnimate
     }
 
     private fun removeList(manga: Manga) {
-        if (mViewModel.libraryType.value != LibraryMangaType.LINE)
-            (mRecyclerView.adapter as MangaGridCardAdapter).removeList(manga)
-        else
-            (mRecyclerView.adapter as MangaLineCardAdapter).removeList(manga)
+        (mRecyclerView.adapter as BaseAdapter<Manga, *>).removeList(manga)
     }
 
-    private fun updateList(type: LibraryMangaType, list: MutableList<Manga>) {
-        if (type != LibraryMangaType.LINE)
-            (mRecyclerView.adapter as MangaGridCardAdapter).updateList(list)
-        else
-            (mRecyclerView.adapter as MangaLineCardAdapter).updateList(list)
+    private fun updateList(list: MutableList<Manga>) {
+        (mRecyclerView.adapter as BaseAdapter<Manga, *>).updateList(mSortType, list)
     }
 
     private fun observer() {
         mViewModel.listMangas.observe(viewLifecycleOwner) {
-            updateList(mViewModel.libraryType.value!!, it)
+            updateList(it)
         }
         mViewModel.libraryType.observe(viewLifecycleOwner) {
             onChangeLayout(it)
@@ -1019,8 +1025,11 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     override fun popupOrderOnChange() {
-        val range = (mViewModel.listMangas.value?.size ?: 1)
-        notifyDataSet(0, range)
+        when (mViewModel.libraryType.value) {
+            LibraryMangaType.SEPARATOR_BIG,
+            LibraryMangaType.SEPARATOR_MEDIUM -> updateList(mViewModel.listMangas.value!!)
+            else -> notifyDataSet(0, (mViewModel.listMangas.value?.size ?: 1))
+        }
     }
 
     override fun popupSorted(order: Order) {

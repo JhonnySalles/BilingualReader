@@ -10,16 +10,14 @@ import br.com.fenix.bilingualreader.model.entity.Chapters
 import br.com.fenix.bilingualreader.service.listener.ChapterCardListener
 import com.google.android.material.card.MaterialCardView
 
-class ChaptersViewHolder(itemView: View, private val listener: ChapterCardListener) :
-    RecyclerView.ViewHolder(itemView) {
+class ChaptersViewHolder(itemView: View, private val listener: ChapterCardListener) : RecyclerView.ViewHolder(itemView) {
 
     companion object {
         var mPageSelectStroke: Int = 0
     }
 
     init {
-        mPageSelectStroke =
-            itemView.resources.getDimension(R.dimen.manga_chapter_selected_stroke).toInt()
+        mPageSelectStroke = itemView.resources.getDimension(R.dimen.manga_chapter_selected_stroke).toInt()
     }
 
     fun bind(chapter: Chapters, position: Int) {
