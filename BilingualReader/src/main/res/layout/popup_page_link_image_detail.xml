@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/AppBackground"
+    style="@style/AppBackground.Accent"
     android:id="@+id/popup_image_background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"

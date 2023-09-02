@@ -6,18 +6,18 @@ import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 
-class MangaGridCardAdapter : RecyclerView.Adapter<MangaGridViewHolder>() {
+class MangaGridCardAdapter(var type: LibraryMangaType) : RecyclerView.Adapter<MangaGridViewHolder>() {
 
     private lateinit var mListener: MangaCardListener
     private var mMangaList: MutableList<Manga> = mutableListOf()
     var isAnimation: Boolean = true
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MangaGridViewHolder {
-        val item =
-            LayoutInflater.from(parent.context).inflate(R.layout.grid_card_manga, parent, false)
-        return MangaGridViewHolder(item, mListener)
+        val item = LayoutInflater.from(parent.context).inflate(R.layout.grid_card_manga, parent, false)
+        return MangaGridViewHolder(type, item, mListener)
     }
 
     override fun onBindViewHolder(holder: MangaGridViewHolder, position: Int) {

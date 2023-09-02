@@ -2,8 +2,10 @@ package br.com.fenix.bilingualreader.view.ui.library.manga
 
 import android.app.Application
 import android.content.Context
+import android.content.res.Configuration
 import android.widget.Filter
 import android.widget.Filterable
+import android.widget.GridLayout
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,6 +13,8 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.FileType
+import br.com.fenix.bilingualreader.model.enums.LibraryBookType
+import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
@@ -46,6 +50,9 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     val order: LiveData<Pair<Order, Boolean>> = mOrder
     private var mTypeFilter = MutableLiveData(FilterType.None)
     val typeFilter: LiveData<FilterType> = mTypeFilter
+
+    private var mLibraryType = MutableLiveData(LibraryMangaType.GRID_BIG)
+    val libraryType: LiveData<LibraryMangaType> = mLibraryType
 
     private var mListMangasFull = MutableLiveData<MutableList<Manga>>(mutableListOf())
     private var mListMangas = MutableLiveData<MutableList<Manga>>(mutableListOf())
@@ -85,8 +92,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
 
     fun getLibrary() = mLibrary
 
-    fun existStack(id: String): Boolean =
-        mStackLibrary.contains(id)
+    fun existStack(id: String): Boolean = mStackLibrary.contains(id)
 
     fun restoreLastStackLibrary(id: String) {
         if (mStackLibrary.contains(id)) {
@@ -260,6 +266,21 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
         refreshComplete(mListMangas.value!!.isNotEmpty())
     }
 
+    fun changeLibraryType() {
+        val isLandscape = app.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val type = when (mLibraryType.value) {
+            LibraryMangaType.LINE -> LibraryMangaType.GRID_BIG
+            LibraryMangaType.GRID_BIG -> LibraryMangaType.GRID_MEDIUM
+            LibraryMangaType.GRID_MEDIUM -> if (isLandscape) LibraryMangaType.GRID_SMALL else LibraryMangaType.LINE
+            else -> LibraryMangaType.LINE
+        }
+        setLibraryType(type)
+    }
+
+    fun setLibraryType(type: LibraryMangaType) {
+        mLibraryType.value = type
+    }
+
     fun isEmpty(): Boolean = mListMangas.value == null || mListMangas.value!!.isEmpty()
 
     fun sorted() {
@@ -318,6 +339,8 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
         if (list.isNullOrEmpty())
             return
 
+        val process = list.stream().toList()
+
         CoroutineScope(newSingleThreadContext("SuggestionThread")).launch {
             async {
                 val authors = mutableSetOf<String>()
@@ -325,7 +348,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                 val series = mutableSetOf<String>()
                 val volumes = mutableSetOf<String>()
 
-                list.forEach {
+                process.forEach {
                     authors.add(it.author)
                     publishers.add(it.publisher)
                     series.add(it.series)

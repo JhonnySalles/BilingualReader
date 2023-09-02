@@ -4,7 +4,7 @@
     style="@style/AppBackground.Accent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.ui.library.manga.LibraryMangaPopupFilter">
+    tools:context=".view.ui.library.book.LibraryBookPopupType">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,18 +13,18 @@
         android:paddingTop="@dimen/margin"
         android:paddingBottom="@dimen/margin_bottom">
         <CheckBox
-            android:id="@+id/popup_library_filter_favorite"
+            android:id="@+id/popup_library_book_type_grid"
             style="@style/CheckBox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/popup_library_manga_filter_favorite"/>
+            android:text="@string/popup_library_book_type_grid"/>
 
         <CheckBox
-            android:id="@+id/popup_library_filter_reading"
+            android:id="@+id/popup_library_book_type_line"
             style="@style/CheckBox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/popup_library_manga_filter_reading"/>
+            android:text="@string/popup_library_book_type_line"/>
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>
