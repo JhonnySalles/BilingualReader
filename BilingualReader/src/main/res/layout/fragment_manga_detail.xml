@@ -528,7 +528,7 @@
                         android:layout_margin="5dp"
                         android:nestedScrollingEnabled="true"
                         android:divider="@drawable/manga_detail_list_divider"
-                        android:dividerHeight="2dip"/>
+                        android:dividerHeight="1dip"/>
 
                 </LinearLayout>
 
@@ -574,7 +574,7 @@
                         android:layout_margin="5dp"
                         android:nestedScrollingEnabled="true"
                         android:divider="@drawable/manga_detail_list_divider"
-                        android:dividerHeight="2dip"/>
+                        android:dividerHeight="1dip"/>
 
                 </LinearLayout>
 
@@ -741,7 +741,7 @@
                         android:layout_marginEnd="10dp"
                         android:nestedScrollingEnabled="true"
                         android:divider="@drawable/manga_detail_list_divider"
-                        android:dividerHeight="2dip"/>
+                        android:dividerHeight="1dip"/>
 
                     <TextView
                         android:id="@+id/manga_detail_relations_origin"
