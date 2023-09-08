@@ -263,7 +263,7 @@ class Manga(
         if (author.contains(","))
             author = author.substringBeforeLast(", ") + "."
 
-        val release = if (it.year != null) SimpleDateFormat("yyyy/MM/dd").parse("${it.year!!}/${it.month?:1}/${it.day?:1}") else null
+        val release = if (comic.year != null) SimpleDateFormat("yyyy/MM/dd").parse("${comic.year!!}/${comic.month?:1}/${comic.day?:1}") else null
         val updated = this.author != author || this.series != comic.series .toString()|| this.publisher != comic.publisher.toString() ||
                 this.volume != comic.volume.toString() || this.release != release
 
