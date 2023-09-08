@@ -107,7 +107,7 @@ class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryManga
     }
 
     override fun updateList(order: Order, list: MutableList<Manga>) {
-        if (order == Order.None)
+        if (order == Order.None || list.isEmpty())
             mMangaList = list
         else {
             val newList = mutableListOf<Any>()
