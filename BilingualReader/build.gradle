@@ -6,14 +6,14 @@ plugins {
 }
 
 android {
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId 'br.com.fenix'
         minSdk 24
         minSdkVersion 24
         maxSdkVersion 25
-        targetSdk 31
+        targetSdk 34
         versionCode 1
         versionName '1.0.'
         versionNameSuffix '1 (Nougat)'
