@@ -33,8 +33,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 
-open class ImageViewPage(context: Context, attributeSet: AttributeSet?) :
-    androidx.appcompat.widget.AppCompatImageView(context, attributeSet) {
+open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : androidx.appcompat.widget.AppCompatImageView(context, attributeSet) {
 
     constructor(context: Context) : this(context, null)
 
@@ -302,23 +301,13 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) :
             return true
         }
 
-        override fun onScroll(
-            e1: MotionEvent,
-            e2: MotionEvent,
-            distanceX: Float,
-            distanceY: Float
-        ): Boolean {
+        override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
             mMatrix.postTranslate(-distanceX, -distanceY)
             imageMatrix = mMatrix
             return true
         }
 
-        override fun onFling(
-            e1: MotionEvent,
-            e2: MotionEvent,
-            velocityX: Float,
-            velocityY: Float
-        ): Boolean {
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
             val imageSize: Point = computeCurrentImageSize()
             val offset: Point = computeCurrentOffset()
             var minX: Int = -imageSize.x - this@ImageViewPage.width
@@ -484,7 +473,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) :
         return true
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (mZooming && !mPinch) {
             mPaint.shader = mShader

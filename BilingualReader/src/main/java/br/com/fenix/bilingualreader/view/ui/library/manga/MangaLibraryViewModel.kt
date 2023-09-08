@@ -30,6 +30,7 @@ import kotlinx.coroutines.withContext
 import java.util.Locale
 import java.util.Objects
 import java.util.regex.Pattern
+import java.util.stream.Collectors
 import kotlin.streams.toList
 import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 
@@ -340,7 +341,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
         if (list.isNullOrEmpty())
             return
 
-        val process = list.stream().toList()
+        val process = list.parallelStream().collect(Collectors.toList())
 
         CoroutineScope(newSingleThreadContext("SuggestionThread")).launch {
             async {
@@ -374,11 +375,11 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
         val type = filter.substringBeforeLast(':')
         val condition = filter.substringAfterLast(':')
         return when(Util.stringToFilter(app, Type.MANGA, type, true)) {
-            FilterType.Author -> mSuggestionAuthor.parallelStream().filter { condition.isEmpty() || it.contains(condition, true) }.toList()
-            FilterType.Publisher -> mSuggestionPublisher.parallelStream().filter { condition.isEmpty() || it.contains(condition, true) }.toList()
-            FilterType.Series -> mSuggestionSeries.parallelStream().filter { condition.isEmpty() || it.contains(condition, true) }.toList()
-            FilterType.Volume ->  mSuggestionVolume.parallelStream().filter { condition.isEmpty() || it.contains(condition, true) }.toList()
-            FilterType.Type -> FileType.getManga().parallelStream().map { "$it" }.toList()
+            FilterType.Author -> mSuggestionAuthor.parallelStream().filter { condition.isEmpty() || it.contains(condition, true) }.collect(Collectors.toList())
+            FilterType.Publisher -> mSuggestionPublisher.parallelStream().filter { condition.isEmpty() || it.contains(condition, true) }.collect(Collectors.toList())
+            FilterType.Series -> mSuggestionSeries.parallelStream().filter { condition.isEmpty() || it.contains(condition, true) }.collect(Collectors.toList())
+            FilterType.Volume ->  mSuggestionVolume.parallelStream().filter { condition.isEmpty() || it.contains(condition, true) }.collect(Collectors.toList())
+            FilterType.Type -> FileType.getManga().parallelStream().map { "$it" }.collect(Collectors.toList())
             else -> listOf()
         }
     }

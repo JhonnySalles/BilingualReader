@@ -564,8 +564,10 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         mPopupLibraryTab.setupWithViewPager(mPopupLibraryView)
 
         mPopupFilterFragment = LibraryMangaPopupFilter()
-        mPopupOrderFragment = LibraryMangaPopupOrder(this)
+        mPopupOrderFragment = LibraryMangaPopupOrder()
         mPopupTypeFragment = LibraryMangaPopupType()
+
+        mPopupOrderFragment.setListener(this)
 
         BottomSheetBehavior.from(mMenuPopupLibrary).apply {
             peekHeight = 195

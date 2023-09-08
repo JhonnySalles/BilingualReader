@@ -12,7 +12,7 @@ import br.com.fenix.bilingualreader.view.components.PopupOrderListener
 import br.com.fenix.bilingualreader.view.components.TriStateCheckBox
 import org.slf4j.LoggerFactory
 
-class LibraryMangaPopupOrder(var listener: PopupOrderListener) : Fragment() {
+class LibraryMangaPopupOrder : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(LibraryMangaPopupOrder::class.java)
 
@@ -20,6 +20,7 @@ class LibraryMangaPopupOrder(var listener: PopupOrderListener) : Fragment() {
     private lateinit var mOrderDate: TriStateCheckBox
     private lateinit var mOrderAccess: TriStateCheckBox
     private lateinit var mOrderFavorite: TriStateCheckBox
+    private lateinit var listener: PopupOrderListener
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,6 +42,10 @@ class LibraryMangaPopupOrder(var listener: PopupOrderListener) : Fragment() {
         addListener()
         observer()
         return root
+    }
+
+    fun setListener(listener: PopupOrderListener) {
+        this.listener = listener
     }
 
     private fun setChecked(checkboxes: ArrayList<TriStateCheckBox>, order: Order, isDesc: Boolean) {

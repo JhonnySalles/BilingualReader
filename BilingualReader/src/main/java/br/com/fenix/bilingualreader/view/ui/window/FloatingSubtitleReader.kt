@@ -66,20 +66,16 @@ class FloatingSubtitleReader constructor(
     private var touchConsumedByMove = false
 
     private val mOnFlingListener = object : GestureDetector.SimpleOnGestureListener() {
-        override fun onFling(
-            e1: MotionEvent,
-            e2: MotionEvent,
-            velocityX: Float,
-            velocityY: Float
-        ): Boolean {
-            if (abs(e1.x - e2.x) > 150) {
-                if (abs(e2.x) > abs(e1.x))
-                    moveWindow(false)
-                else if (abs(e2.x) < abs(e1.x))
-                    moveWindow(true)
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+            if (e1 != null)
+                if (abs(e1.x - e2.x) > 150) {
+                    if (abs(e2.x) > abs(e1.x))
+                        moveWindow(false)
+                    else if (abs(e2.x) < abs(e1.x))
+                        moveWindow(true)
 
-                return false
-            }
+                    return false
+                }
 
             return super.onFling(e1, e2, velocityX, velocityY)
         }
@@ -344,17 +340,13 @@ class FloatingSubtitleReader constructor(
     }
 
     inner class ChangeTextTouchListener : GestureDetector.SimpleOnGestureListener() {
-        override fun onFling(
-            e1: MotionEvent,
-            e2: MotionEvent,
-            velocityX: Float,
-            velocityY: Float
-        ): Boolean {
-            if (abs(e1.x - e2.x) > 200)
-                if (abs(e2.x) > abs(e1.x))
-                    mSubTitleController.getBeforeText()
-                else if (abs(e2.x) < abs(e1.x))
-                    mSubTitleController.getNextText()
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+            if (e1 != null)
+                if (abs(e1.x - e2.x) > 200)
+                    if (abs(e2.x) > abs(e1.x))
+                        mSubTitleController.getBeforeText()
+                    else if (abs(e2.x) < abs(e1.x))
+                        mSubTitleController.getNextText()
 
 
             return super.onFling(e1, e2, velocityX, velocityY)

@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory
 import java.util.Collections
 import java.util.Date
 import java.util.Objects
+import java.util.stream.Collectors
 import kotlin.streams.toList
 
 class VocabularyRepository(var context: Context) {
@@ -245,7 +246,7 @@ class VocabularyRepository(var context: Context) {
         val chaptersList = Collections.synchronizedCollection(subTitleChapters.parallelStream()
                 .filter(Objects::nonNull)
                 .filter { it.language == Languages.JAPANESE && it.vocabulary.isNotEmpty() }
-                .toList())
+                .collect(Collectors.toList()))
 
         val notifyId = Notifications.getID()
         val notificationManager = NotificationManagerCompat.from(context)

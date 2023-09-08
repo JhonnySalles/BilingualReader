@@ -124,14 +124,9 @@ class FloatingWindowOcr constructor(
         return Point(metrics.widthPixels, metrics.heightPixels)
     }
 
-    override fun onScroll(
-        e1: MotionEvent,
-        e2: MotionEvent,
-        distanceX: Float,
-        distanceY: Float
-    ): Boolean {
-        layoutParams.x = mDX + e2.rawX.toInt()
-        layoutParams.y = mDY + e2.rawY.toInt()
+    override fun onScroll(p0: MotionEvent?, e1: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+        layoutParams.x = mDX + e1.rawX.toInt()
+        layoutParams.y = mDY + e1.rawY.toInt()
         fixBoxBounds()
         windowManager?.updateViewLayout(mFloatingView, layoutParams)
         return true
@@ -193,14 +188,10 @@ class FloatingWindowOcr constructor(
         }
     }
 
-    override fun onFling(
-        e1: MotionEvent,
-        e2: MotionEvent,
-        velocityX: Float,
-        velocityY: Float
-    ): Boolean {
-        if (abs(velocityX) > 200 && (e1.x - e2.x > 100 || e2.x - e1.x > 100))
-            dismiss()
+    override fun onFling(p0: MotionEvent?, e1: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        if (p0 != null)
+            if (abs(velocityX) > 200 && (p0.x - e1.x > 100 || e1.x - p0.x > 100))
+                dismiss()
 
         return false
     }

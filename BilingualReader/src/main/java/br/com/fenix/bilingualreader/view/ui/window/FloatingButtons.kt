@@ -49,20 +49,15 @@ class FloatingButtons constructor(
     var isShowing = false
 
     private val mOnFlingListener = object : GestureDetector.SimpleOnGestureListener() {
-        override fun onFling(
-            e1: MotionEvent,
-            e2: MotionEvent,
-            velocityX: Float,
-            velocityY: Float
-        ): Boolean {
-            if (abs(e1.x - e2.x) > 150) {
-                if (e2.x > e1.x)
-                    moveWindow(false)
-                else if (e2.x < e1.x)
-                    moveWindow(true)
-
-                return false
-            }
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+            if (e1 != null)
+                if (abs(e1.x - e2.x) > 150) {
+                    if (e2.x > e1.x)
+                        moveWindow(false)
+                    else if (e2.x < e1.x)
+                        moveWindow(true)
+                    return false
+                }
 
             return super.onFling(e1, e2, velocityX, velocityY)
         }
