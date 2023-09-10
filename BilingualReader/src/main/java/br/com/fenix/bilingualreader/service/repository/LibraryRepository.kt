@@ -103,4 +103,16 @@ class LibraryRepository(var context: Context) {
         }
     }
 
+    fun deleteAllByPathDefault(type: Type, path: String) {
+        val library = LibraryUtil.getDefault(context, type)
+        deleteAllByPath(library.id!!, type, path)
+    }
+
+    fun deleteAllByPath(idLibrary: Long, type: Type, path: String) {
+        when(type) {
+            Type.MANGA -> mDataBase.deleteMangaByPath(idLibrary, path)
+            Type.BOOK -> mDataBase.deleteBookByPath(idLibrary, path)
+        }
+    }
+
 }

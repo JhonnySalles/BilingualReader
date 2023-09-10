@@ -59,15 +59,21 @@ class ConfigLibrariesViewModel(application: Application) : AndroidViewModel(appl
 
     fun deleteLibrary(library: Library) {
         mListLibraries.value?.removeIf { it == library }
-        if (library.id != null)
+        if (library.id != null) {
             mRepository.delete(library)
+            deleteAllByPath(library.id!!, library.type, library.path)
+        }
     }
 
     fun saveLibrary(library: Library) {
         if (library.id == null)
             library.id = mRepository.save(library)
-        else
+        else {
+            val saved = mRepository.get(library.id!!)
+            if (!saved!!.path.equals(library.path, true))
+                deleteAllByPath(saved.id!!, saved.type, saved.path)
             mRepository.update(library)
+        }
     }
 
     fun findLibraryDeleted(path: String): Library? {
@@ -137,5 +143,8 @@ class ConfigLibrariesViewModel(application: Application) : AndroidViewModel(appl
     fun saveDefault(type: Type, path: String) {
         mRepository.saveDefault(type, path)
     }
+
+    fun deleteAllByPathDefault(type: Type, oldPath: String) = mRepository.deleteAllByPathDefault(type, oldPath)
+    fun deleteAllByPath(idLibrary: Long, type: Type, oldPath: String) = mRepository.deleteAllByPath(idLibrary, type, oldPath)
 
 }

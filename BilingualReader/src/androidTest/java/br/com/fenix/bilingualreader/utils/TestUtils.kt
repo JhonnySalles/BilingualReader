@@ -102,8 +102,7 @@ class MangaTestUtil {
                 val parse = ParseFactory.create(filePath) ?: return manga
                 try {
                     if (parse is RarParse) {
-                        val folder =
-                            GeneralConsts.CACHE_FOLDER.LINKED + '/' + Util.normalizeNameCache(manga.name)
+                        val folder = GeneralConsts.CACHE_FOLDER.LINKED + '/' + Util.normalizeNameCache(manga.name)
                         val cacheDir = File(GeneralConsts.getCacheDir(context), folder)
                         (parse as RarParse?)!!.setCacheDirectory(cacheDir)
                     }

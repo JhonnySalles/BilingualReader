@@ -566,6 +566,12 @@ abstract class LibrariesDAO : DataBaseDAO<Library> {
     @Query("SELECT * FROM " + DataBaseConsts.LIBRARIES.TABLE_NAME + " WHERE " + DataBaseConsts.LIBRARIES.COLUMNS.ID + " = :id")
     abstract fun getDefault(id: Long): Library?
 
+    @Query("UPDATE " + DataBaseConsts.MANGA.TABLE_NAME + " SET " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 1 WHERE " + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY + " = :idLibrary AND " + DataBaseConsts.MANGA.COLUMNS.FILE_FOLDER + " = :path")
+    abstract fun deleteMangaByPath(idLibrary: Long, path: String)
+
+    @Query("UPDATE " + DataBaseConsts.BOOK.TABLE_NAME + " SET " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 1 WHERE " + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + " = :idLibrary AND " + DataBaseConsts.BOOK.COLUMNS.FILE_FOLDER + " = :path")
+    abstract fun deleteBookByPath(idLibrary: Long, path: String)
+
 }
 
 
