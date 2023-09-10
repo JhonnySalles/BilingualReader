@@ -28,6 +28,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
+import org.slf4j.LoggerFactory
 import java.util.Locale
 import java.util.Objects
 import java.util.regex.Pattern
@@ -36,6 +37,8 @@ import kotlin.streams.toList
 import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 
 class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filterable {
+
+    private val mLOGGER = LoggerFactory.getLogger(BookLibraryViewModel::class.java)
 
     private var mStackLibrary = mutableMapOf<String, Triple<Int, Library, MutableList<Book>>>()
     private var mLibrary: Library = Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK)
@@ -106,10 +109,21 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         }
     }
 
-    fun addStackLibrary(id: String, library: Library) =
-        mStackLibrary.put(id, Triple(mStackLibrary.size + 1, library, mListBookFull.value!!))
+    fun addStackLibrary(id: String, library: Library) = mStackLibrary.put(id, Triple(mStackLibrary.size + 1, library, mListBookFull.value!!))
 
     fun removeStackLibrary(id: String) = mStackLibrary.remove(id)
+
+    fun emptyList(idLibrary: Long) {
+        if (mLibrary.id == idLibrary) {
+            mListBookFull.value = mutableListOf()
+            mListBook.value = mutableListOf()
+            setSuggestions(mListBookFull.value)
+        } else {
+            for (stack in mStackLibrary)
+                if (stack.value.second.id == idLibrary)
+                    stack.value.third.clear()
+        }
+    }
 
     fun save(obj: Book): Book {
         if (obj.id == 0L)
@@ -346,21 +360,25 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
 
         CoroutineScope(newSingleThreadContext("SuggestionThread")).launch {
             async {
-                val authors = mutableSetOf<String>()
-                val publishers = mutableSetOf<String>()
-                val tags = mutableSetOf<String>()
+                try {
+                    val authors = mutableSetOf<String>()
+                    val publishers = mutableSetOf<String>()
+                    val tags = mutableSetOf<String>()
 
-                process.forEach {
-                    authors.add(it.author)
-                    publishers.add(it.publisher)
-                }
+                    process.forEach {
+                        authors.add(it.author)
+                        publishers.add(it.publisher)
+                    }
 
-                authors.removeIf {it.isEmpty()}
-                publishers.removeIf {it.isEmpty()}
+                    authors.removeIf {it.isEmpty()}
+                    publishers.removeIf {it.isEmpty()}
 
-                withContext(Dispatchers.Main) {
-                    mSuggestionAuthor = authors
-                    mSuggestionPublisher = publishers
+                    withContext(Dispatchers.Main) {
+                        mSuggestionAuthor = authors
+                        mSuggestionPublisher = publishers
+                    }
+                } catch (e: Exception) {
+                    mLOGGER.error("Error generate suggestion: " + e.message, e)
                 }
             }
         }

@@ -519,8 +519,10 @@ class ConfigFragment : Fragment() {
 
                 mViewModel.saveDefault(Type.MANGA, folder)
 
-                if (!folder.equals(mMangaLibraryPathAutoComplete.text.toString(), true))
+                if (!folder.equals(mMangaLibraryPathAutoComplete.text.toString(), true)) {
                     mViewModel.deleteAllByPathDefault(Type.MANGA, mMangaLibraryPathAutoComplete.text.toString())
+                    ViewModelProvider(requireActivity())[MangaLibraryViewModel::class.java].emptyList(LibraryUtil.getDefault(requireContext(), Type.MANGA).id!!)
+                }
 
                 mMangaLibraryPathAutoComplete.setText(folder)
             }
@@ -536,15 +538,31 @@ class ConfigFragment : Fragment() {
 
                 mViewModel.saveDefault(Type.BOOK, folder)
 
-                if (!folder.equals(mBookLibraryPathAutoComplete.text.toString(), true))
+                if (!folder.equals(mBookLibraryPathAutoComplete.text.toString(), true)) {
                     mViewModel.deleteAllByPathDefault(Type.BOOK, mBookLibraryPathAutoComplete.text.toString())
+                    ViewModelProvider(requireActivity())[BookLibraryViewModel::class.java].emptyList(LibraryUtil.getDefault(requireContext(), Type.BOOK).id!!)
+                }
 
                 mBookLibraryPathAutoComplete.setText(folder)
             }
 
             GeneralConsts.REQUEST.CONFIG_LIBRARIES -> {
+                val clear = data?.extras?.getBoolean(GeneralConsts.KEYS.LIBRARY.CLEAR_LIBRARY_LIST) ?: false
                 mViewModel.loadLibrary(null)
                 (requireActivity() as MainActivity).setLibraries(mViewModel.getListLibrary())
+
+                if (clear) {
+                    val extra = data?.extras
+                    if (extra!!.containsKey(GeneralConsts.KEYS.LIBRARY.LIBRARY_TYPE)) {
+                        val type = Type.valueOf(extra!!.getString(GeneralConsts.KEYS.LIBRARY.LIBRARY_TYPE)!!)
+                        val libraries = extra.getLongArray(GeneralConsts.KEYS.LIBRARY.LIBRARY_ARRAY_ID)!!
+                        for (library in libraries)
+                            when(type) {
+                                Type.BOOK -> ViewModelProvider(requireActivity())[BookLibraryViewModel::class.java].emptyList(library)
+                                Type.MANGA -> ViewModelProvider(requireActivity())[MangaLibraryViewModel::class.java].emptyList(library)
+                            }
+                    }
+                }
             }
 
             GeneralConsts.REQUEST.GENERATE_BACKUP -> {
