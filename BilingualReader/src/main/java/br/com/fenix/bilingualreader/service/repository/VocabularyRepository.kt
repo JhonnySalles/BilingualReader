@@ -36,7 +36,6 @@ import java.util.Collections
 import java.util.Date
 import java.util.Objects
 import java.util.stream.Collectors
-import kotlin.streams.toList
 
 class VocabularyRepository(var context: Context) {
 

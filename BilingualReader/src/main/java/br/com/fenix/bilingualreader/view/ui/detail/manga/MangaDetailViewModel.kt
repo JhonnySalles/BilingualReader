@@ -11,7 +11,6 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.SubTitleChapter
 import br.com.fenix.bilingualreader.model.entity.SubTitleVolume
 import br.com.fenix.bilingualreader.service.listener.ApiListener
-import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.service.repository.FileLinkRepository
@@ -27,8 +26,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
-import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import java.io.File
 

@@ -8,7 +8,6 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
-import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 
 class BookGridCardAdapter : RecyclerView.Adapter<BookGridViewHolder>(), BaseAdapter<Book, BookCardListener> {
 

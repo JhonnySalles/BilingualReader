@@ -21,7 +21,6 @@ import br.com.fenix.bilingualreader.service.controller.ShareMarkController
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
-import br.com.fenix.bilingualreader.view.ui.book.BookAnnotationFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -33,7 +32,6 @@ import java.util.Locale
 import java.util.Objects
 import java.util.regex.Pattern
 import java.util.stream.Collectors
-import kotlin.streams.toList
 import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 
 

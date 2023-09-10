@@ -4,14 +4,11 @@ import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.SubMenu
-import android.view.View
-import android.view.WindowManager
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -39,7 +36,6 @@ import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.MsgUtil
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
-import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.view.ui.about.AboutFragment
 import br.com.fenix.bilingualreader.view.ui.configuration.ConfigFragment
 import br.com.fenix.bilingualreader.view.ui.help.HelpFragment

@@ -17,7 +17,6 @@ import br.com.fenix.bilingualreader.model.enums.PageLinkType
 import br.com.fenix.bilingualreader.service.listener.PageLinkCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.PageLinkConsts
-import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import com.google.android.material.card.MaterialCardView
 import com.pedromassango.doubleclick.DoubleClick
 import com.pedromassango.doubleclick.DoubleClickListener
