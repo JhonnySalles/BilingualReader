@@ -130,6 +130,13 @@ class ScannerManga(private val context: Context) {
         notifyHandlers(msg)
     }
 
+    private fun notifyMediaUpdatedChange(manga: Manga) {
+        val msg = Message()
+        msg.obj = manga
+        msg.what = GeneralConsts.SCANNER.MESSAGE_MANGA_UPDATED_CHANGE
+        notifyHandlers(msg)
+    }
+
     private fun notifyLibraryUpdateFinished(isProcessed: Boolean) {
         val msg = Message()
         msg.obj = isProcessed
@@ -210,6 +217,9 @@ class ScannerManga(private val context: Context) {
                                                     storageFiles.remove(it.nameWithoutExtension)
                                                     val deleted = storageDeletes.getValue(it.nameWithoutExtension)
                                                     deleted.update(parse)
+                                                    if (!deleted.path.equals(it.path, true))
+                                                        deleted.path = it.path
+                                                    notifyMediaUpdatedChange(deleted)
                                                     deleted
                                                 } else if (storage.findMangaByPath(it.path) != null)
                                                     return

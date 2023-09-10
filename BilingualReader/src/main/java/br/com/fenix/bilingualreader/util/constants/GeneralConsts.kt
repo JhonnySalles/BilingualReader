@@ -159,6 +159,10 @@ class GeneralConsts private constructor() {
 
             const val LAST_LIBRARY = "LAST_LIBRARY"
             const val LIBRARY_TYPE = "LIBRARY_TYPE"
+            const val LIBRARY_ID = "LIBRARY_ID"
+            const val LIBRARY_ARRAY_ID = "LIBRARY_ARRAY_ID"
+
+            const val CLEAR_LIBRARY_LIST = "CLEAR_LIBRARY_LIST"
         }
 
         object LIBRARIES {
@@ -315,6 +319,7 @@ class GeneralConsts private constructor() {
         const val MESSAGE_MANGA_UPDATE_FINISHED = 0
         const val MESSAGE_MANGA_UPDATED_ADD = 1
         const val MESSAGE_MANGA_UPDATED_REMOVE = 2
+        const val MESSAGE_MANGA_UPDATED_CHANGE = 3
 
         const val MESSAGE_BOOK_UPDATE_FINISHED = 6
         const val MESSAGE_BOOK_UPDATED_ADD = 7

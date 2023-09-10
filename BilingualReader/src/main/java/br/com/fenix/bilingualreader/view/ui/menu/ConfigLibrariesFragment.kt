@@ -15,6 +15,7 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.PopupMenu
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -92,6 +93,18 @@ class ConfigLibrariesFragment : Fragment() {
         }
         (mRecycleView.adapter as LibrariesLineCardAdapter).attachListener(mListener)
         ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecycleView)
+
+        val callback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                val bundle = Bundle()
+                bundle.putBoolean(GeneralConsts.KEYS.LIBRARY.CLEAR_LIBRARY_LIST, mViewModel.mClearLibraries.isNotEmpty())
+                if (mType != null)
+                    bundle.putString(GeneralConsts.KEYS.LIBRARY.LIBRARY_TYPE, mType.toString())
+                bundle.putLongArray(GeneralConsts.KEYS.LIBRARY.LIBRARY_ARRAY_ID, mViewModel.mClearLibraries.toLongArray())
+                (requireActivity() as MenuActivity).onBack(bundle)
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
 
         observer()
 
@@ -334,6 +347,5 @@ class ConfigLibrariesFragment : Fragment() {
                 .create()
         dialog.show()
     }
-
 
 }

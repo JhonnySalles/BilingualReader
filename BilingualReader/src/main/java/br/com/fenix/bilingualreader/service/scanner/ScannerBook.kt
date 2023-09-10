@@ -130,6 +130,13 @@ class ScannerBook(private val context: Context) {
         notifyHandlers(msg)
     }
 
+    private fun notifyMediaUpdatedChange(book: Book) {
+        val msg = Message()
+        msg.obj = book
+        msg.what = GeneralConsts.SCANNER.MESSAGE_MANGA_UPDATED_CHANGE
+        notifyHandlers(msg)
+    }
+
     private fun notifyLibraryUpdateFinished(isProcessed: Boolean) {
         val msg = Message()
         msg.obj = isProcessed
@@ -203,6 +210,9 @@ class ScannerBook(private val context: Context) {
                                         storageFiles.remove(it.nameWithoutExtension)
                                         val deleted = storageDeletes.getValue(it.nameWithoutExtension)
                                         deleted.update(ebookMeta, mLibrary.language)
+                                        if (!deleted.path.equals(it.path, true))
+                                            deleted.path = it.path
+                                        notifyMediaUpdatedChange(deleted)
                                         deleted
                                     } else if (storage.findBookByPath(it.path) != null)
                                         return

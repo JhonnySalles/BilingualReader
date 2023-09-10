@@ -27,6 +27,8 @@ class ConfigLibrariesViewModel(application: Application) : AndroidViewModel(appl
     private var mListFontsJapanese: MutableLiveData<MutableList<Pair<FontType, Boolean>>> = MutableLiveData(arrayListOf())
     val fontsJapanese: LiveData<MutableList<Pair<FontType, Boolean>>> = mListFontsJapanese
 
+    var mClearLibraries = mutableListOf<Long>()
+
 
     fun newLibrary(library: Library) {
         if (library.title.isEmpty() || library.path.isEmpty())
@@ -62,6 +64,7 @@ class ConfigLibrariesViewModel(application: Application) : AndroidViewModel(appl
         if (library.id != null) {
             mRepository.delete(library)
             deleteAllByPath(library.id!!, library.type, library.path)
+            mClearLibraries.add(library.id!!)
         }
     }
 
@@ -70,8 +73,10 @@ class ConfigLibrariesViewModel(application: Application) : AndroidViewModel(appl
             library.id = mRepository.save(library)
         else {
             val saved = mRepository.get(library.id!!)
-            if (!saved!!.path.equals(library.path, true))
+            if (!saved!!.path.equals(library.path, true)) {
                 deleteAllByPath(saved.id!!, saved.type, saved.path)
+                mClearLibraries.add(saved.id!!)
+            }
             mRepository.update(library)
         }
     }

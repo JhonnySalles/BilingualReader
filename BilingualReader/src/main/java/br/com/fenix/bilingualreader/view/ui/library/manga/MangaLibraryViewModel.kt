@@ -21,12 +21,14 @@ import br.com.fenix.bilingualreader.service.controller.ShareMarkController
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.view.ui.book.BookAnnotationFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
+import org.slf4j.LoggerFactory
 import java.util.Locale
 import java.util.Objects
 import java.util.regex.Pattern
@@ -37,6 +39,7 @@ import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 
 class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filterable {
 
+    private val mLOGGER = LoggerFactory.getLogger(MangaLibraryViewModel::class.java)
 
     private var mStackLibrary = mutableMapOf<String, Triple<Int, Library, MutableList<Manga>>>()
     private var mLibrary: Library = Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
@@ -111,6 +114,18 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     fun addStackLibrary(id: String, library: Library) = mStackLibrary.put(id, Triple(mStackLibrary.size + 1, library, mListMangasFull.value!!))
 
     fun removeStackLibrary(id: String) = mStackLibrary.remove(id)
+
+    fun emptyList(idLibrary: Long) {
+        if (mLibrary.id == idLibrary) {
+            mListMangasFull.value = mutableListOf()
+            mListMangas.value = mutableListOf()
+            setSuggestions(mListMangasFull.value)
+        } else {
+            for (stack in mStackLibrary)
+                if (stack.value.second.id == idLibrary)
+                    stack.value.third.clear()
+        }
+    }
 
     fun save(obj: Manga): Manga {
         if (obj.id == 0L)
@@ -345,28 +360,32 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
 
         CoroutineScope(newSingleThreadContext("SuggestionThread")).launch {
             async {
-                val authors = mutableSetOf<String>()
-                val publishers = mutableSetOf<String>()
-                val series = mutableSetOf<String>()
-                val volumes = mutableSetOf<String>()
+                try {
+                    val authors = mutableSetOf<String>()
+                    val publishers = mutableSetOf<String>()
+                    val series = mutableSetOf<String>()
+                    val volumes = mutableSetOf<String>()
 
-                process.forEach {
-                    authors.add(it.author)
-                    publishers.add(it.publisher)
-                    series.add(it.series)
-                    volumes.add(it.volume)
-                }
+                    process.forEach {
+                        authors.add(it.author)
+                        publishers.add(it.publisher)
+                        series.add(it.series)
+                        volumes.add(it.volume)
+                    }
 
-                authors.removeIf {it.isEmpty()}
-                publishers.removeIf {it.isEmpty()}
-                series.removeIf {it.isEmpty()}
-                volumes.removeIf {it.isEmpty()}
+                    authors.removeIf { it.isEmpty() }
+                    publishers.removeIf { it.isEmpty() }
+                    series.removeIf { it.isEmpty() }
+                    volumes.removeIf { it.isEmpty() }
 
-                withContext(Dispatchers.Main) {
-                    mSuggestionAuthor = authors
-                    mSuggestionPublisher = publishers
-                    mSuggestionSeries = series
-                    mSuggestionVolume = volumes
+                    withContext(Dispatchers.Main) {
+                        mSuggestionAuthor = authors
+                        mSuggestionPublisher = publishers
+                        mSuggestionSeries = series
+                        mSuggestionVolume = volumes
+                    }
+                } catch (e: Exception) {
+                    mLOGGER.error("Error generate suggestion: " + e.message, e)
                 }
             }
         }

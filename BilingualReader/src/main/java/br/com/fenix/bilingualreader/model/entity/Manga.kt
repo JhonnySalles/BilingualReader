@@ -110,6 +110,13 @@ class Manga(
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FILE_PATH)
     var path: String = path
+        set(value) {
+            field = value
+            this.file = File(value)
+            this.fileName = Util.getNameWithoutExtensionFromPath(value)
+            this.extension = Util.getExtensionFromPath(value)
+            this.folder = file.parent ?: ""
+        }
 
     @Ignore
     var file: File = File(path)
