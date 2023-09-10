@@ -518,6 +518,10 @@ class ConfigFragment : Fragment() {
                 }
 
                 mViewModel.saveDefault(Type.MANGA, folder)
+
+                if (!folder.equals(mMangaLibraryPathAutoComplete.text.toString(), true))
+                    mViewModel.deleteAllByPathDefault(Type.MANGA, mMangaLibraryPathAutoComplete.text.toString())
+
                 mMangaLibraryPathAutoComplete.setText(folder)
             }
 
@@ -531,6 +535,10 @@ class ConfigFragment : Fragment() {
                 }
 
                 mViewModel.saveDefault(Type.BOOK, folder)
+
+                if (!folder.equals(mBookLibraryPathAutoComplete.text.toString(), true))
+                    mViewModel.deleteAllByPathDefault(Type.BOOK, mBookLibraryPathAutoComplete.text.toString())
+
                 mBookLibraryPathAutoComplete.setText(folder)
             }
 

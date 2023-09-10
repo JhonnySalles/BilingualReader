@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
 
@@ -197,6 +198,8 @@ class MangaImageCoverController private constructor() {
                 mLOGGER.error("Memory full, cleaning", m)
             } catch (m: IOException) {
                 mLOGGER.error("Error to load image async: " + manga.name, m)
+            } catch (e: FileNotFoundException) {
+                mLOGGER.error("File not found. Error to load image async: " + manga.name, e)
             } catch (e: Exception) {
                 mLOGGER.error("Error to load image async: " + manga.name, e)
             }

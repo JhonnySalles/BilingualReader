@@ -263,11 +263,11 @@ class Util {
                 name.substringBefore("-")
             else if (name.contains(" "))
                 name.substringBefore(" ")
-            else name
+            else
+                name
 
             val random = if (isRandom) (0..1000).random() else ""
-            return prefix + normalize.replace("[^\\w\\d ]".toRegex(), "").trim().plus(random)
-                .lowercase()
+            return prefix + normalize.replace("[^\\w\\d ]".toRegex(), "").trim().plus(random).lowercase()
         }
 
         fun normalizeFilePath(path: String): String {
