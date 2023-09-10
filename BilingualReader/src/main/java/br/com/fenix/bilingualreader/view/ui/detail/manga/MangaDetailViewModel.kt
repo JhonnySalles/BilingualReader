@@ -179,6 +179,13 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
             async {
                 val manga = manga.value ?: return@async
                 val parse = ParseFactory.create(manga.file) ?: return@async
+
+                if (parse is RarParse) {
+                    val folder = GeneralConsts.CACHE_FOLDER.RAR + '/' + Util.normalizeNameCache(manga.name)
+                    val cacheDir = File(cache, folder)
+                    (parse as RarParse?)!!.setCacheDirectory(cacheDir)
+                }
+
                 val listJson: List<String> = parse.getSubtitles()
                 if (listJson.isNotEmpty()) {
                     val gson = Gson()

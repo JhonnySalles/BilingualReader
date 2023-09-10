@@ -103,7 +103,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         ThemeUtil.transparentTheme(window, isDark, AppCompatResources.getDrawable(this, R.drawable.app_main_statusbar_background), isLightStatus = !isDark)
 
-        clearCache()
         initializeBook()
         createNotificationChannel()
 
@@ -399,6 +398,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onDestroy() {
+        clearCache()
         NotificationManagerCompat.from(this).cancelAll()
         super.onDestroy()
     }

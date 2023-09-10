@@ -1054,7 +1054,7 @@ class SubTitleController private constructor(private val context: Context) {
 
         val parse = ParseFactory.create(path)
         if (parse is RarParse) {
-            val folder = GeneralConsts.CACHE_FOLDER.IMAGE
+            val folder = GeneralConsts.CACHE_FOLDER.IMAGE + '/' + Util.normalizeNameCache(Util.getNameFromPath(path))
             val cacheDir = File(GeneralConsts.getCacheDir(context), folder)
             (parse as RarParse?)!!.setCacheDirectory(cacheDir)
         }

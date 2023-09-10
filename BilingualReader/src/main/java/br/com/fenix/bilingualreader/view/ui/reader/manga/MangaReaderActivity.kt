@@ -47,6 +47,7 @@ import br.com.fenix.bilingualreader.service.ocr.GoogleVision
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
+import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.service.repository.*
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
@@ -530,6 +531,11 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         var parse: Parse? = null
         try {
             parse = ParseFactory.create(manga.path)
+            if (parse is RarParse) {
+                val folder = GeneralConsts.FILE_LINK.FOLDER_MANGA + '/' + Util.normalizeNameCache(manga.name)
+                val cacheDir = File(GeneralConsts.getCacheDir(this), folder)
+                (parse as RarParse?)!!.setCacheDirectory(cacheDir)
+            }
         } catch (e: Exception) {
         } finally {
             mReaderProgress.setDots(parse?.getChapters() ?: intArrayOf())

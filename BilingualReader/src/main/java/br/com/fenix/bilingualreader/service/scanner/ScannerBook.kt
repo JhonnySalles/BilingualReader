@@ -205,11 +205,14 @@ class ScannerBook(private val context: Context) {
                                 try {
                                     val ebookMeta = FileMetaCore.get().getEbookMeta(it.path, CacheZipUtils.CacheDir.ZipApp, false)
                                     FileMetaCore.get().udpateFullMeta(FileMeta(it.path), ebookMeta)
+                                    var isCover = false
 
                                     val book = if (storageDeletes.containsKey(it.nameWithoutExtension)) {
                                         storageFiles.remove(it.nameWithoutExtension)
                                         val deleted = storageDeletes.getValue(it.nameWithoutExtension)
                                         deleted.update(ebookMeta, mLibrary.language)
+                                        generateCover(deleted)
+                                        isCover = true
                                         if (!deleted.path.equals(it.path, true))
                                             deleted.path = it.path
                                         notifyMediaUpdatedChange(deleted)
@@ -223,7 +226,7 @@ class ScannerBook(private val context: Context) {
                                     book.folder = it.parent
                                     book.excluded = false
 
-                                    if (!isSilent)
+                                    if (!isSilent && isCover)
                                         generateCover(book)
 
                                     book.id = storage.save(book)

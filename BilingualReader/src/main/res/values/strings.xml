@@ -57,6 +57,7 @@
     <string name="config_title_monitoring">Monitoring</string>
     <string name="config_title_database">Database</string>
     <string name="config_title_themes">Themes</string>
+    <string name="config_title_cover">Covers</string>
 
     <string name="config_manga_switch_use_path_name_for_linked">Use page path to link pages?</string>
     <string name="config_manga_switch_use_dual_page_calculate">Consider double page by calculating dimensions?</string>
@@ -112,6 +113,12 @@
     <string name="config_database_error_read_file">An error occurred when reading the file.</string>
     <string name="config_database_error_restore">An error occurred while restoring the informed backup, reverted to the original file.</string>
     <string name="config_database_error_new_database">An error occurred while restoring the backup and the previous version cannot be restored. A new base has been created.</string>
+
+    <string name="config_covers_delete">Clear cover cache</string>
+    <string name="config_covers_delete_title">Clear cover cache</string>
+    <string name="config_covers_delete_description">Do you really want to delete the cover cache?</string>
+    <string name="config_covers_delete_success">Successfully cleared cache.</string>
+    <string name="config_covers_delete_error">Error clearing cover cache.</string>
 
     <string name="config_theme_mode">Theme mode</string>
     <string-array name="theme_mode">
