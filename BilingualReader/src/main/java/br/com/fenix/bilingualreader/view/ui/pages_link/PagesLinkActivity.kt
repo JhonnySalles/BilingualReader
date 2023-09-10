@@ -2,8 +2,6 @@ package br.com.fenix.bilingualreader.view.ui.pages_link
 
 import android.os.Bundle
 import android.view.MenuItem
-import android.view.View
-import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import br.com.fenix.bilingualreader.R

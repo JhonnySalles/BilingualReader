@@ -45,7 +45,6 @@ import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import java.io.*

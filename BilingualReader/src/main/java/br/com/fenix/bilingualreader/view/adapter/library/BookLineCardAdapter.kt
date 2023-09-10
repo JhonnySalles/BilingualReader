@@ -6,10 +6,8 @@ import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
-import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
-import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 
 
 class BookLineCardAdapter : RecyclerView.Adapter<BookLineViewHolder>(), BaseAdapter<Book, BookCardListener> {

@@ -123,6 +123,7 @@ class ConfigLibrariesFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_config_libraries, container, false)
     }
 
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {

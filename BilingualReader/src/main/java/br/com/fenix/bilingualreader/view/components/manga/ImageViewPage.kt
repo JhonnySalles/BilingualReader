@@ -22,7 +22,6 @@ import android.view.ViewConfiguration
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.Interpolator
 import android.widget.OverScroller
-import androidx.compose.ui.graphics.Color
 import androidx.core.view.ViewCompat
 import androidx.core.view.drawToBitmap
 import br.com.fenix.bilingualreader.R

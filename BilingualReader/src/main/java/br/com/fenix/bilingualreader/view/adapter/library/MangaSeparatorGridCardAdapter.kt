@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import br.com.ebook.foobnix.android.utils.Objects
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.Separator
@@ -14,7 +13,6 @@ import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.view.adapter.chapters.ChaptersHeaderViewHolder
 
 class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryMangaType) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), BaseAdapter<Manga, MangaCardListener> {
 

@@ -16,7 +16,6 @@ import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.TextViewWithBorder
-import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryFragment
 import com.google.android.material.card.MaterialCardView
 
 
