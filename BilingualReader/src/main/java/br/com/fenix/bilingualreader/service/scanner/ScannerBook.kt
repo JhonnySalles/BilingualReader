@@ -18,6 +18,7 @@ import java.io.File
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.util.Date
+import java.util.UUID
 
 class ScannerBook(private val context: Context) {
 
