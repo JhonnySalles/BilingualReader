@@ -50,28 +50,19 @@ class Storage(context: Context) {
         return next
     }
 
-    fun getManga(idManga: Long): Manga? =
-        mMangaRepository.get(idManga)
+    fun getManga(idManga: Long): Manga? = mMangaRepository.get(idManga)
 
-    fun findMangaByName(name: String): Manga? =
-        mMangaRepository.findByFileName(name)
+    fun findMangaByName(name: String): Manga? = mMangaRepository.findByFileName(name)
 
-    fun findMangaByPath(name: String): Manga? =
-        mMangaRepository.findByFilePath(name)
+    fun findMangaByPath(name: String): Manga? = mMangaRepository.findByFilePath(name)
 
-    fun listMangas(library: Library): List<Manga>? =
-        mMangaRepository.list(library)
+    fun listMangas(library: Library): List<Manga>? = mMangaRepository.list(library)
 
-    fun listDeleted(library: Library): List<Manga>? =
-        mMangaRepository.listDeleted(library)
+    fun listDeleted(library: Library): List<Manga>? = mMangaRepository.listDeleted(library)
 
-    fun delete(manga: Manga) {
-        mMangaRepository.delete(manga)
-    }
+    fun delete(manga: Manga) = mMangaRepository.delete(manga)
 
-    fun updateBookMark(manga: Manga) {
-        mMangaRepository.updateBookMark(manga)
-    }
+    fun updateBookMark(manga: Manga) = mMangaRepository.updateBookMark(manga)
 
     fun save(manga: Manga): Long {
         return if (manga.id != null) {

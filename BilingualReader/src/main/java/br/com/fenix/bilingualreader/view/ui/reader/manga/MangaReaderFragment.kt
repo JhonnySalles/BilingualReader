@@ -229,6 +229,19 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
                 mParse = ParseFactory.create(file)
                 if (mParse != null) {
+                    if (mParse is RarParse) {
+                        val child = mCacheFolder[mCacheFolderIndex]
+                        val cacheDir = File(GeneralConsts.getCacheDir(requireContext()), child)
+                        if (!cacheDir.exists()) {
+                            cacheDir.mkdir()
+                        } else {
+                            if (cacheDir.listFiles() != null)
+                                for (f in cacheDir.listFiles()!!)
+                                    f.delete()
+                        }
+                        (mParse as RarParse?)!!.setCacheDirectory(cacheDir)
+                    }
+
                     if (savedInstanceState == null)
                         mSubtitleController.getListChapter(mManga, mParse!!)
 
@@ -274,20 +287,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     PageMode.Comics.toString()
                 )!!
             ) == PageMode.Comics
-
-            // workaround: extract rar archive
-            if (mParse is RarParse) {
-                val child = mCacheFolder[mCacheFolderIndex]
-                val cacheDir = File(GeneralConsts.getCacheDir(requireContext()), child)
-                if (!cacheDir.exists()) {
-                    cacheDir.mkdir()
-                } else {
-                    if (cacheDir.listFiles() != null)
-                        for (f in cacheDir.listFiles()!!)
-                            f.delete()
-                }
-                (mParse as RarParse?)!!.setCacheDirectory(cacheDir)
-            }
         }
 
         setHasOptionsMenu(true)

@@ -58,6 +58,7 @@
     <string name="config_title_monitoring">Monitoramento</string>
     <string name="config_title_database">Banco de dados</string>
     <string name="config_title_themes">Temas</string>
+    <string name="config_title_cover">Capas</string>
 
     <string name="config_manga_switch_use_path_name_for_linked">Utilizar o caminho da página para vincular as páginas?</string>
     <string name="config_manga_switch_use_dual_page_calculate">Considerar página dupla pelo calculo das dimensões?</string>
@@ -110,6 +111,12 @@
     <string name="config_database_error_read_file">Ocorreu um erro ao ler o arquivo.</string>
     <string name="config_database_error_restore">Ocorreu um erro ao restaurar o backup informado, backup revertido ao arquivo original.</string>
     <string name="config_database_error_new_database">Ocorreu um erro ao restaurar o backup e a versão anterior não pode ser restaurado. Uma nova base foi criada.</string>
+
+    <string name="config_covers_delete">Limpar cache de capas</string>
+    <string name="config_covers_delete_title">Limpar cache de capas</string>
+    <string name="config_covers_delete_description">Deseja realmente apagar o cache de capa?</string>
+    <string name="config_covers_delete_success">Cache limpo com sucesso.</string>
+    <string name="config_covers_delete_error">Erro ao limpar cache de capas.</string>
 
     <string name="config_theme_mode">Modo tema</string>
     <string-array name="theme_mode">

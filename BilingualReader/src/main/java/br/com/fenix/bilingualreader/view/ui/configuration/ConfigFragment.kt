@@ -37,6 +37,7 @@ import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.BackupError
 import br.com.fenix.bilingualreader.util.helpers.ErrorRestoreDatabase
+import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.InvalidDatabase
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MsgUtil
@@ -94,6 +95,8 @@ class ConfigFragment : Fragment() {
     private lateinit var mConfigSystemBackup: Button
     private lateinit var mConfigSystemRestore: Button
     private lateinit var mConfigSystemLastBackup: TextView
+
+    private lateinit var mConfigCoversDelete: Button
 
     private var mConfigSystemThemeModeSelect: ThemeMode = ThemeMode.SYSTEM
     private var mConfigSystemThemeSelect: Themes = Themes.ORIGINAL
@@ -215,6 +218,8 @@ class ConfigFragment : Fragment() {
         mConfigSystemBackup = view.findViewById(R.id.config_system_backup)
         mConfigSystemRestore = view.findViewById(R.id.config_system_restore)
         mConfigSystemLastBackup = view.findViewById(R.id.config_system_last_backup)
+
+        mConfigCoversDelete = view.findViewById(R.id.config_covers_delete)
 
         mMangaLibraryPathAutoComplete.setOnClickListener {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
@@ -444,6 +449,36 @@ class ConfigFragment : Fragment() {
                 Intent.createChooser(i, getString(R.string.config_database_select_file)),
                 GeneralConsts.REQUEST.RESTORE_BACKUP
             )
+        }
+
+        mConfigCoversDelete.setOnClickListener {
+            MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+                .setTitle(getString(R.string.config_covers_delete_title))
+                .setMessage(getString(R.string.config_covers_delete_description))
+                .setPositiveButton(R.string.action_confirm) { _, _ ->
+                    try {
+                        val cacheManga = File(GeneralConsts.getCacheDir(requireContext()), GeneralConsts.CACHE_FOLDER.MANGA_COVERS)
+                        if (cacheManga.exists())
+                            cacheManga.listFiles()?.let {
+                                for (f in it)
+                                    f.delete()
+                            }
+
+                        val cacheBook = File(GeneralConsts.getCacheDir(requireContext()), GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
+                        if (cacheBook.exists())
+                            cacheBook.listFiles()?.let {
+                                for (f in it)
+                                    f.delete()
+                            }
+
+                        Toast.makeText(requireContext(), getString(R.string.config_covers_delete_success), Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        mLOGGER.error("Error delete bitmap to cache: " + e.message, e)
+                        Toast.makeText(requireContext(), getString(R.string.config_covers_delete_error), Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .setNegativeButton(R.string.action_cancel) { _, _ -> }
+                .create().show()
         }
 
         prepareThemes()

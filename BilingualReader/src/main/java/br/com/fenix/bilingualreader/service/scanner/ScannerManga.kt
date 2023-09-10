@@ -205,18 +205,21 @@ class ScannerManga(private val context: Context) {
                                     mLOGGER.info("Precessing manga " + it.name + ".")
                                     val parse: Parse? = ParseFactory.create(it)
                                     try {
-                                        if (parse is RarParse) {
-                                            val folder = GeneralConsts.CACHE_FOLDER.RAR + '/' + Util.normalizeNameCache(it.nameWithoutExtension)
-                                            val cacheDir = File(GeneralConsts.getCacheDir(context), folder)
-                                            (parse as RarParse?)!!.setCacheDirectory(cacheDir)
-                                        }
-
                                         if (parse != null)
                                             if (parse.numPages() > 0) {
+                                                if (parse is RarParse) {
+                                                    val folder = GeneralConsts.CACHE_FOLDER.RAR + '/' + Util.normalizeNameCache(it.nameWithoutExtension)
+                                                    val cacheDir = File(GeneralConsts.getCacheDir(context), folder)
+                                                    (parse as RarParse?)!!.setCacheDirectory(cacheDir)
+                                                }
+
+                                                var isCover = false
                                                 val manga = if (storageDeletes.containsKey(it.nameWithoutExtension)) {
                                                     storageFiles.remove(it.nameWithoutExtension)
                                                     val deleted = storageDeletes.getValue(it.nameWithoutExtension)
                                                     deleted.update(parse)
+                                                    generateCover(parse, deleted)
+                                                    isCover = true
                                                     if (!deleted.path.equals(it.path, true))
                                                         deleted.path = it.path
                                                     notifyMediaUpdatedChange(deleted)
@@ -231,7 +234,7 @@ class ScannerManga(private val context: Context) {
                                                 manga.excluded = false
                                                 manga.hasSubtitle = parse.hasSubtitles()
 
-                                                if (!isSilent)
+                                                if (!isSilent && !isCover)
                                                     generateCover(parse, manga)
 
                                                 manga.id = storage.save(manga)
