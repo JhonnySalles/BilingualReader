@@ -265,8 +265,8 @@ class Util {
             else
                 name
 
-            val random = if (isRandom) (0..1000).random() else ""
-            return prefix + normalize.replace("[^\\w\\d ]".toRegex(), "").trim().plus(random).lowercase()
+            val random = if (isRandom) (0..1000000).random() else ""
+            return prefix + normalize.replace("[^\\w\\d ]".toRegex(), "").replace(" ", "_").trim().plus(random).lowercase()
         }
 
         fun normalizeFilePath(path: String): String {
