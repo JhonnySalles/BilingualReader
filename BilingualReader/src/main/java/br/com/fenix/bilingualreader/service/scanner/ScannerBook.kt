@@ -203,16 +203,9 @@ class ScannerBook(private val context: Context) {
                                 mLOGGER.info("Processing book: " + it.name + ".")
                                 isProcess = true
                                 try {
-                                    val ebookMeta = FileMetaCore.get().getEbookMeta(it.path, CacheZipUtils.CacheDir.ZipApp, false)
-                                    FileMetaCore.get().udpateFullMeta(FileMeta(it.path), ebookMeta)
-                                    var isCover = false
-
                                     val book = if (storageDeletes.containsKey(it.nameWithoutExtension)) {
                                         storageFiles.remove(it.nameWithoutExtension)
                                         val deleted = storageDeletes.getValue(it.nameWithoutExtension)
-                                        deleted.update(ebookMeta, mLibrary.language)
-                                        generateCover(deleted)
-                                        isCover = true
                                         if (!deleted.path.equals(it.path, true))
                                             deleted.path = it.path
                                         notifyMediaUpdatedChange(deleted)
@@ -220,17 +213,23 @@ class ScannerBook(private val context: Context) {
                                     } else if (storage.findBookByPath(it.path) != null)
                                         return
                                     else
-                                        Book(mLibrary.id,null,  it,  ebookMeta, mLibrary.language)
+                                        Book(mLibrary.id,null,  it)
 
                                     book.path = it.path
                                     book.folder = it.parent
                                     book.excluded = false
+                                    book.lastVerify = LocalDate.now()
+                                    book.id = storage.save(book)
 
-                                    if (!isSilent && isCover)
+                                    val ebookMeta = FileMetaCore.get().getEbookMeta(it.path, CacheZipUtils.CacheDir.ZipApp, false)
+                                    FileMetaCore.get().udpateFullMeta(FileMeta(it.path), ebookMeta)
+
+                                    book.update(ebookMeta, mLibrary.language)
+                                    storage.save(book)
+
+                                    if (!isSilent)
                                         generateCover(book)
 
-                                    book.id = storage.save(book)
-                                    book.lastVerify = LocalDate.now()
                                     if (!isSilent)
                                         notifyMediaUpdatedAdd(book)
                                 } catch (e: Exception) {

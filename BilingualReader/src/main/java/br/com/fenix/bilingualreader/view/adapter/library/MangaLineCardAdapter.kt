@@ -43,8 +43,10 @@ class MangaLineCardAdapter : RecyclerView.Adapter<MangaLineViewHolder>(), BaseAd
     }
 
     override fun updateList(order: Order, list: MutableList<Manga>) {
+        val currentSize = mMangaList.size
         mMangaList = list
-        notifyDataSetChanged()
+        notifyItemRangeRemoved(0, currentSize)
+        notifyItemRangeInserted(0, mMangaList.size)
     }
 
     override fun attachListener(listener: MangaCardListener) {

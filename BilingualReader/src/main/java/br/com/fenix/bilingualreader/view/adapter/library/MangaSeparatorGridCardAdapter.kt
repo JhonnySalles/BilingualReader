@@ -105,6 +105,7 @@ class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryManga
     }
 
     override fun updateList(order: Order, list: MutableList<Manga>) {
+        val currentSize = mMangaList.size
         if (order == Order.None || list.isEmpty())
             mMangaList = list
         else {
@@ -125,7 +126,8 @@ class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryManga
             last.items = count
             mMangaList = newList
         }
-        notifyDataSetChanged()
+        notifyItemRangeRemoved(0, currentSize)
+        notifyItemRangeInserted(0, mMangaList.size)
     }
 
 }

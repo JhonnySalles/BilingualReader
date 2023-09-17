@@ -63,33 +63,14 @@ class Manga(
     }
 
     @Ignore
-    constructor(fkLibrary: Long?, id: Long?, file: File, parse: Parse) : this(
+    constructor(fkLibrary: Long?, id: Long?, file: File) : this(
         id, file.nameWithoutExtension, file.path, file.parent, file.name, file.length(), FileType.UNKNOWN,
-        parse.numPages(), parse.getChapters(), 0, false, parse.hasSubtitles(), "", "", "",
+        1, intArrayOf(), 0, false, false, "", "", "",
         "", null, fkLibrary, false, LocalDateTime.now(), null, null, Date(file.lastModified()),
         null, null
     ) {
         this.type = FileUtil.getFileType(file.name)
         this.volume = title.substringAfterLast("Volume", "").trim().replace(Regex("[^\\d.][\\s\\S]+"), "")
-
-        parse.getComicInfo()?.let {
-            this.author = ""
-
-            if (it.writer != null && it.writer!!.isNotEmpty())
-                author += it.writer + ", "
-            if (it.penciller != null && it.penciller!!.isNotEmpty() && !author.contains(it.penciller!!, true))
-                author += it.penciller + ", "
-            if (it.inker != null && it.inker!!.isNotEmpty() && !author.contains(it.inker!!, true))
-                author += it.inker + ", "
-
-            if (author.contains(","))
-                author = author.substringBeforeLast(", ") + "."
-
-            this.series = it.series.toString()
-            this.publisher = it.publisher.toString()
-            this.volume = it.volume.toString()
-            this.release = if (it.year != null) LocalDate.of(it.year!!, it.month?:1, it.day?:1) else null
-        }
     }
 
     @PrimaryKey(autoGenerate = true)
@@ -246,6 +227,7 @@ class Manga(
 
     fun update(parse: Parse) {
         this.hasSubtitle = parse.hasSubtitles()
+        this.pages = parse.numPages()
         this.chapters = parse.getChapters()
         this.fileSize = file.length()
         this.fileAlteration = Date(file.lastModified())
