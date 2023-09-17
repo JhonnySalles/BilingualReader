@@ -113,7 +113,7 @@
     </style>
 
     <style name="AppBackground.Reader" parent="AppBackground">
-        <item name="android:background">@drawable/app_background</item>
+        <item name="android:background">?attr/colorSurface</item>
     </style>
 
     <style name="AppBackground.PopupBottom" parent="AppBackground">

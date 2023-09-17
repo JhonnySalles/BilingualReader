@@ -47,8 +47,10 @@ class BookLineCardAdapter : RecyclerView.Adapter<BookLineViewHolder>(), BaseAdap
     }
 
     override fun updateList(order: Order, list: MutableList<Book>) {
+        val currentSize = mMangaList.size
         mMangaList = list
-        notifyDataSetChanged()
+        notifyItemRangeRemoved(0, currentSize)
+        notifyItemRangeInserted(0, mMangaList.size)
     }
 
 }

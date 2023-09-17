@@ -550,11 +550,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
-            val inflater =
-                requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            val inflater = requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             val layout: View = inflater.inflate(R.layout.fragment_manga_page, container, false)
-            val imageViewPage: ImageViewPage =
-                layout.findViewById<View>(R.id.page_image_view) as ImageViewPage
+            val imageViewPage: ImageViewPage = layout.findViewById<View>(R.id.page_image_view) as ImageViewPage
             if (mReaderMode === ReaderMode.ASPECT_FILL) imageViewPage.setTranslateToRightEdge(!mIsLeftToRight)
             imageViewPage.setViewMode(mReaderMode)
             imageViewPage.useMagnifierType = mUseMagnifierType
@@ -588,19 +586,14 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 .tag(requireActivity())
 
             if (resize)
-                request.resize(
-                    ReaderConsts.READER.MAX_PAGE_WIDTH,
-                    ReaderConsts.READER.MAX_PAGE_HEIGHT
-                )
+                request.resize(ReaderConsts.READER.MAX_PAGE_WIDTH, ReaderConsts.READER.MAX_PAGE_HEIGHT)
                     .centerInside()
                     .onlyScaleDown()
 
-            request.transform(mViewModel.filters.value!!)
-                .into(t)
+            request.transform(mViewModel.filters.value!!).into(t)
         } catch (e: Exception) {
             mLOGGER.error("Error in open image: " + e.message, e)
         }
-
     }
 
     fun loadImage(t: Target, path: Uri, resize: Boolean = true) {
@@ -610,15 +603,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 .tag(requireActivity())
 
             if (resize)
-                request.resize(
-                    ReaderConsts.READER.MAX_PAGE_WIDTH,
-                    ReaderConsts.READER.MAX_PAGE_HEIGHT
-                )
+                request.resize(ReaderConsts.READER.MAX_PAGE_WIDTH, ReaderConsts.READER.MAX_PAGE_HEIGHT)
                     .centerInside()
                     .onlyScaleDown()
 
-            request.transform(mViewModel.filters.value!!)
-                .into(t)
+            request.transform(mViewModel.filters.value!!).into(t)
         } catch (e: Exception) {
             mLOGGER.error("Error in open image: " + e.message, e)
         }
@@ -714,14 +703,12 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     if (mIsLeftToRight) {
                         if (getCurrentPage() == 1) hitBeginning() else setCurrentPage(getCurrentPage() - 1)
                     } else {
-                        if (getCurrentPage() == mViewPager.adapter!!.count
-                        ) hitEnding() else setCurrentPage(getCurrentPage() + 1)
+                        if (getCurrentPage() == mViewPager.adapter!!.count) hitEnding() else setCurrentPage(getCurrentPage() + 1)
                     }
                 }
                 Position.RIGHT -> {
                     if (mIsLeftToRight) {
-                        if (getCurrentPage() == mViewPager.adapter!!.count
-                        ) hitEnding() else setCurrentPage(getCurrentPage() + 1)
+                        if (getCurrentPage() == mViewPager.adapter!!.count) hitEnding() else setCurrentPage(getCurrentPage() + 1)
                     } else {
                         if (getCurrentPage() == 1) hitBeginning() else setCurrentPage(getCurrentPage() - 1)
                     }
@@ -789,10 +776,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     private val windowInsetsController by lazy {
-        WindowInsetsControllerCompat(
-            requireActivity().window,
-            mViewPager
-        )
+        WindowInsetsControllerCompat(requireActivity().window, mViewPager)
     }
 
     fun setFullscreen(fullscreen: Boolean) {

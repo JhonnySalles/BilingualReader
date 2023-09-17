@@ -16,8 +16,7 @@ class BookGridCardAdapter : RecyclerView.Adapter<BookGridViewHolder>(), BaseAdap
     override var isAnimation: Boolean = true
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookGridViewHolder {
-        val item =
-            LayoutInflater.from(parent.context).inflate(R.layout.grid_card_book, parent, false)
+        val item = LayoutInflater.from(parent.context).inflate(R.layout.grid_card_book, parent, false)
         return BookGridViewHolder(item, mListener)
     }
 
@@ -47,8 +46,10 @@ class BookGridCardAdapter : RecyclerView.Adapter<BookGridViewHolder>(), BaseAdap
     }
 
     override fun updateList(order: Order, list: MutableList<Book>) {
+        val currentSize = mMangaList.size
         mMangaList = list
-        notifyDataSetChanged()
+        notifyItemRangeRemoved(0, currentSize)
+        notifyItemRangeInserted(0, mMangaList.size)
     }
 
 }

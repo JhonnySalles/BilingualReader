@@ -68,22 +68,11 @@ class Book(
     }
 
     @Ignore
-    constructor(fkLibrary: Long?, id: Long?, file: File, meta: EbookMeta, language: Libraries) : this(
-        id, meta.title, meta.author ?: "", "", meta.annotation ?: "", "", meta.genre ?: "", "", "", 1, 0,
+    constructor(fkLibrary: Long?, id: Long?, file: File) : this(
+        id, "",  "", "",  "", "",  "", "", "", 1, 0,
         "", 0, Languages.ENGLISH, file.path, file.parent, file.name, FileType.UNKNOWN, file.length(), false,
         fkLibrary, mutableListOf(), false, Date(), null, Date(), Date(), null, null
     ) {
-        this.language = when (meta.lang) {
-            "ja", "jp" -> Languages.JAPANESE
-            "en" -> Languages.ENGLISH
-            "pt" -> Languages.PORTUGUESE
-            else -> when(language) {
-                Libraries.ENGLISH -> Languages.ENGLISH
-                Libraries.JAPANESE -> Languages.JAPANESE
-                Libraries.PORTUGUESE -> Languages.PORTUGUESE
-                else -> this.language
-            }
-        }
         this.type = FileUtil.getFileType(file.name)
         this.fileAlteration = Date(this.file.lastModified())
     }

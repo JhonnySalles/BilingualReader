@@ -213,13 +213,9 @@ class ScannerManga(private val context: Context) {
                                                     (parse as RarParse?)!!.setCacheDirectory(cacheDir)
                                                 }
 
-                                                var isCover = false
                                                 val manga = if (storageDeletes.containsKey(it.nameWithoutExtension)) {
                                                     storageFiles.remove(it.nameWithoutExtension)
                                                     val deleted = storageDeletes.getValue(it.nameWithoutExtension)
-                                                    deleted.update(parse)
-                                                    generateCover(parse, deleted)
-                                                    isCover = true
                                                     if (!deleted.path.equals(it.path, true))
                                                         deleted.path = it.path
                                                     notifyMediaUpdatedChange(deleted)
@@ -227,17 +223,20 @@ class ScannerManga(private val context: Context) {
                                                 } else if (storage.findMangaByPath(it.path) != null)
                                                     return
                                                 else
-                                                    Manga(mLibrary.id, null, it, parse)
+                                                    Manga(mLibrary.id, null, it)
 
+                                                println("Processando manga: " + it.path)
                                                 manga.path = it.path
                                                 manga.folder = it.parent
                                                 manga.excluded = false
-                                                manga.hasSubtitle = parse.hasSubtitles()
+                                                manga.id = storage.save(manga)
 
-                                                if (!isSilent && !isCover)
+                                                manga.update(parse)
+                                                storage.save(manga)
+
+                                                if (!isSilent)
                                                     generateCover(parse, manga)
 
-                                                manga.id = storage.save(manga)
                                                 if (!isSilent)
                                                     notifyMediaUpdatedAdd(manga)
                                             }
