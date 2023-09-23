@@ -32,7 +32,7 @@ class PagesLinkActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pages_link)
 
-        ThemeUtil.transparentTheme(window, resources.getBoolean(R.bool.isNight), isLightStatus = !resources.getBoolean(R.bool.isNight))
+        ThemeUtil.statusBarTransparentTheme(window, resources.getBoolean(R.bool.isNight), isLightStatus = !resources.getBoolean(R.bool.isNight))
 
         val extras = intent.extras
         val fragment = supportFragmentManager.findFragmentById(R.id.root_frame_pages_link)

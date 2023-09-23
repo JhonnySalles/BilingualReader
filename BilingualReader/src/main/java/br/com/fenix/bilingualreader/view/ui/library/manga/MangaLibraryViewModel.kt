@@ -298,9 +298,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
 
     fun isEmpty(): Boolean = mListMangas.value == null || mListMangas.value!!.isEmpty()
 
-    fun sorted() {
-        sorted(mOrder.value?.first ?: Order.Name)
-    }
+    fun sorted() = sorted(mOrder.value?.first ?: Order.Name)
 
     fun sorted(order: Order, isDesc: Boolean = false) {
         mOrder.value = Pair(order, isDesc)

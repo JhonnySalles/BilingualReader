@@ -277,9 +277,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         }
     }
 
-    private fun filter(text: String?) {
-        mViewModel.filter.filter(text)
-    }
+    private fun filter(text: String?) = mViewModel.filter.filter(text)
 
     override fun onResume() {
         super.onResume()
@@ -758,12 +756,9 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         else
             R.id.manga_line_image_cover
 
-        val pImageCover: Pair<View, String> =
-            Pair(view.findViewById<ImageView>(idCover), "transition_manga_cover")
-        val pTitle: Pair<View, String> =
-            Pair(view.findViewById<TextView>(idText), "transition_manga_title")
-        val pProgress: Pair<View, String> =
-            Pair(view.findViewById<ProgressBar>(idProgress), "transition_progress_bar")
+        val pImageCover: Pair<View, String> = Pair(view.findViewById<ImageView>(idCover), "transition_manga_cover")
+        val pTitle: Pair<View, String> = Pair(view.findViewById<TextView>(idText), "transition_manga_title")
+        val pProgress: Pair<View, String> = Pair(view.findViewById<ProgressBar>(idProgress), "transition_progress_bar")
 
         val options = ActivityOptions
             .makeSceneTransitionAnimation(

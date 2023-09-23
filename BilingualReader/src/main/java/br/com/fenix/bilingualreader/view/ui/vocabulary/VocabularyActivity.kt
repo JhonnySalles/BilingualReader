@@ -43,7 +43,7 @@ class VocabularyActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_vocabulary)
 
-        ThemeUtil.transparentTheme(window, resources.getBoolean(R.bool.isNight))
+        ThemeUtil.statusBarTransparentTheme(window, resources.getBoolean(R.bool.isNight))
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar_vocabulary)
         MenuUtil.tintToolbar(toolbar, theme)

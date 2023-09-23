@@ -19,11 +19,13 @@ import android.view.inputmethod.EditorInfo
 import android.widget.AutoCompleteTextView
 import android.widget.SearchView
 import android.widget.TextView
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
@@ -33,9 +35,11 @@ import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaLineCardAdapter
+import br.com.fenix.bilingualreader.view.adapter.library.MangaSeparatorGridCardAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.slf4j.LoggerFactory
 import kotlin.math.max
@@ -215,21 +219,13 @@ class SelectMangaFragment : Fragment() {
         )
 
         if (type != LibraryMangaType.LINE) {
-            val gridAdapter = MangaGridCardAdapter(type)
-            mRecycler.adapter = gridAdapter
-
-            val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-            val columnWidth: Int = when (type) {
+            val gridAdapter = when (type) {
                 LibraryMangaType.SEPARATOR_BIG,
-                LibraryMangaType.GRID_BIG -> resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
-                LibraryMangaType.SEPARATOR_MEDIUM,
-                LibraryMangaType.GRID_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_landscape_medium).toInt() else resources.getDimension(R.dimen.manga_grid_card_layout_width_medium).toInt()
-                LibraryMangaType.GRID_SMALL -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_small).toInt() else resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
-                else -> resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
-            } + 1
-
-            val spaceCount: Int = max(1, Resources.getSystem().displayMetrics.widthPixels / columnWidth)
-            mRecycler.layoutManager = GridLayoutManager(requireContext(), spaceCount)
+                LibraryMangaType.SEPARATOR_MEDIUM -> MangaSeparatorGridCardAdapter(requireContext(), type)
+                else -> MangaGridCardAdapter(type)
+            }
+            mRecycler.adapter = gridAdapter
+            mRecycler.layoutManager = getGridLayout(type)
             gridAdapter.attachListener(mListener)
             mRecycler.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_grid)
         } else {
@@ -284,6 +280,26 @@ class SelectMangaFragment : Fragment() {
         }
 
         super.onDestroy()
+    }
+
+    private fun getGridLayout(type: LibraryMangaType): RecyclerView.LayoutManager {
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val columnWidth: Int = when (type) {
+            LibraryMangaType.SEPARATOR_BIG -> resources.getDimension(R.dimen.manga_separator_grid_card_layout_width).toInt()
+            LibraryMangaType.SEPARATOR_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.manga_separator_grid_card_layout_width_landscape_medium).toInt() else resources.getDimension(R.dimen.manga_separator_grid_card_layout_width_medium).toInt()
+            LibraryMangaType.GRID_BIG -> resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
+            LibraryMangaType.GRID_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_landscape_medium).toInt() else resources.getDimension(R.dimen.manga_grid_card_layout_width_medium).toInt()
+            LibraryMangaType.GRID_SMALL -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_small).toInt() else resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
+            else -> resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
+        } + 1
+
+        val spaceCount: Int = max(1, (Resources.getSystem().displayMetrics.widthPixels -3) / columnWidth)
+        println(spaceCount)
+        return when (type) {
+            LibraryMangaType.SEPARATOR_BIG,
+            LibraryMangaType.SEPARATOR_MEDIUM -> StaggeredGridLayoutManager(spaceCount, StaggeredGridLayoutManager.VERTICAL)
+            else -> GridLayoutManager(requireContext(), spaceCount)
+        }
     }
 
 }

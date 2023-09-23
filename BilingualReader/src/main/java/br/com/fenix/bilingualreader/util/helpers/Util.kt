@@ -35,7 +35,10 @@ import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
+import androidx.core.graphics.ColorUtils
 import androidx.core.widget.NestedScrollView
+import androidx.palette.graphics.Palette
+import androidx.palette.graphics.Palette.Swatch
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -44,6 +47,7 @@ import br.com.fenix.bilingualreader.model.enums.*
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.ColorUtil.ColorsUtils.isDark
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
@@ -1015,7 +1019,7 @@ class ThemeUtil {
             return typedValue.data
         }
 
-        fun transparentTheme(
+        fun statusBarTransparentTheme(
             window: Window,
             isDarkTheme: Boolean,
             statusBarDrawable: Drawable? = null,
@@ -1048,22 +1052,28 @@ class ThemeUtil {
 
         }
 
-        fun changeStatusColorFromListener(window: Window, scrollView: NestedScrollView, isDarkTheme: Boolean, limit: Int = 1000) {
+        fun changeStatusColorFromListener(window: Window, scrollView: NestedScrollView, initialStatusLight: Boolean, isLightTheme: Boolean, limit: Int = 1000) {
             val decorView = window.decorView
+            val defaultUi = decorView.systemUiVisibility
 
-            if (isDarkTheme) {
-                val defaultUi = decorView.systemUiVisibility
+            if (initialStatusLight)
                 decorView.systemUiVisibility = (defaultUi or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
-                scrollView.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
-                    if ((scrollY < limit && oldScrollY > limit) || (scrollY > limit && oldScrollY < limit)) {
-                        if (scrollY <= limit)
+            else
+                decorView.systemUiVisibility = defaultUi
+
+            scrollView.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+                if ((scrollY < limit && oldScrollY > limit) || (scrollY > limit && oldScrollY < limit)) {
+                    if (scrollY <= limit) {
+                        if (initialStatusLight)
                             decorView.systemUiVisibility = (defaultUi or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
                         else
                             decorView.systemUiVisibility = defaultUi
-                    }
+                    } else if (isLightTheme)
+                        decorView.systemUiVisibility = (defaultUi or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+                    else
+                        decorView.systemUiVisibility = defaultUi
                 }
-            } else
-                decorView.systemUiVisibility = (decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+            }
         }
     }
 }
@@ -1077,8 +1087,7 @@ class FontUtil {
 
         fun pixelToDips(context: Context, pixelValue: Float): Int {
             val metrics = context.resources.displayMetrics
-            return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, pixelValue, metrics)
-                .roundToInt()
+            return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, pixelValue, metrics).roundToInt()
         }
 
     }
@@ -1201,6 +1210,58 @@ class AnimationUtil {
                         }
                     })
             }
+        }
+
+    }
+}
+
+class ColorUtil {
+    companion object ColorsUtils {
+        fun @receiver:ColorInt Int.isDark(): Boolean = ColorUtils.calculateLuminance(this) < 0.5
+
+        const val LIGHTNESS_UNKNOWN = 0
+        const val LIGHTNESS_DARK = 1
+        const val LIGHTNESS_LIGHT = 2
+        private fun isDark(palette: Palette?) : Int {
+            var mostPopulous: Swatch? = null
+            if (palette != null) {
+                for (swatch in palette.swatches) {
+                    if (mostPopulous == null || swatch.population > mostPopulous.population) {
+                        mostPopulous = swatch
+                    }
+                }
+            }
+
+            mostPopulous ?: return LIGHTNESS_UNKNOWN
+            return if (mostPopulous.rgb.isDark()) LIGHTNESS_DARK else LIGHTNESS_LIGHT
+        }
+
+        fun isLightColor(bitmap: Bitmap, isLight: (Boolean) -> (Unit)) {
+            Palette.from(bitmap)
+                .maximumColorCount(3)
+                .clearFilters()
+                .setRegion(0 , 0, bitmap.width, bitmap.height / 2)
+                .generate { palette ->
+                    val light = when (isDark(palette)) {
+                        LIGHTNESS_DARK -> false
+                        else -> true
+                    }
+                    isLight(light)
+                }
+        }
+
+        fun isLightColor(bitmap: Bitmap, iconWidth: Int, iconHeight: Int, isPositionRight: Boolean = false, isLight: (Boolean) -> (Unit)) {
+            Palette.from(bitmap)
+                .maximumColorCount(3)
+                .clearFilters()
+                .setRegion( if(isPositionRight) bitmap.width - iconWidth else 0, 0, bitmap.width, iconWidth)
+                .generate { palette ->
+                    val light = when (isDark(palette)) {
+                        LIGHTNESS_DARK -> false
+                        else -> true
+                    }
+                    isLight(light)
+                }
         }
 
     }
