@@ -230,17 +230,20 @@ class BookDetailFragment : Fragment() {
     }
 
     private fun observer() {
+        mViewModel.cover.observe(viewLifecycleOwner) {
+            mBackgroundImage.setImageBitmap(it)
+            mImage.setImageBitmap(it)
+
+            ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, false, !resources.getBoolean(R.bool.isNight))
+            if (it != null) {
+                ColorUtil.isLightColor(it) { l ->
+                    ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, l, !resources.getBoolean(R.bool.isNight))
+                }
+            }
+        }
+
         mViewModel.book.observe(viewLifecycleOwner) {
             if (it != null) {
-                ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, false, !resources.getBoolean(R.bool.isNight))
-                BookImageCoverController.instance.setImageCoverAsync(requireContext(), it, arrayListOf(mBackgroundImage, mImage), false) { b ->
-                    if (b != null) {
-                        ColorUtil.isLightColor(b) { l ->
-                            ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, l, !resources.getBoolean(R.bool.isNight))
-                        }
-                    }
-                }
-
                 mBookLanguageAutoComplete.setText(
                     mMapLanguage.filterValues { lan -> lan == it.language }.keys.first(),
                     false
@@ -275,9 +278,6 @@ class BookDetailFragment : Fragment() {
                     mDeleted.visibility = View.GONE
                 }
             } else {
-                mBackgroundImage.setImageBitmap(null)
-                mImage.setImageBitmap(null)
-
                 mBookLanguageAutoComplete.setText("", false)
 
                 mTitle.text = ""
