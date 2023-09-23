@@ -225,7 +225,6 @@ class ScannerManga(private val context: Context) {
                                                 else
                                                     Manga(mLibrary.id, null, it)
 
-                                                println("Processando manga: " + it.path)
                                                 manga.path = it.path
                                                 manga.folder = it.parent
                                                 manga.excluded = false

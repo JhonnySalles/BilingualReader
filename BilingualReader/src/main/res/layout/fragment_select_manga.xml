@@ -9,6 +9,7 @@
     android:clipToPadding="false"
     android:clipChildren="false"
     android:fitsSystemWindows="true"
+    style="@style/AppBackground"
     tools:context=".view.ui.menu.SelectMangaFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -16,8 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:clipChildren="false"
-        style="@style/AppBackground">
+        android:clipChildren="false">
         
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/select_manga_recycler"
@@ -38,11 +38,22 @@
             app:layout_constraintTop_toBottomOf="@+id/content_toolbar_select_manga"
             app:layout_constraintVertical_bias="0"/>
 
+        <View
+            android:background="?attr/statusBarColor"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_gravity="top"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="parent"/>
+
         <com.google.android.material.appbar.AppBarLayout
+            style="@style/AppBarLayout"
             android:id="@+id/content_toolbar_select_manga"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
+            android:theme="@style/MainToolbarContentTheme"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">

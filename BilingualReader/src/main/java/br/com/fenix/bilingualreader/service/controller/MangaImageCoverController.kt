@@ -206,28 +206,20 @@ class MangaImageCoverController private constructor() {
         }
     }
 
-    fun setImageCoverAsync(
-        context: Context,
-        manga: Manga,
-        imageView: ImageView,
-        isCoverSize: Boolean = true
-    ) {
+    fun setImageCoverAsync(context: Context, manga: Manga, imageView: ImageView, isCoverSize: Boolean = true) {
         setImageCoverAsync(context, manga, isCoverSize) {
             if (it != null)
                 imageView.setImageBitmap(it)
         }
     }
 
-    fun setImageCoverAsync(
-        context: Context,
-        manga: Manga,
-        imagesView: ArrayList<ImageView>,
-        isCoverSize: Boolean = true
-    ) {
+    fun setImageCoverAsync(context: Context, manga: Manga, imagesView: ArrayList<ImageView>, isCoverSize: Boolean = true, onFinish: (Bitmap?) -> (Unit)) {
         setImageCoverAsync(context, manga, isCoverSize) {
             if (it != null)
                 for (imageView in imagesView)
                     imageView.setImageBitmap(it)
+
+            onFinish(it)
         }
     }
 

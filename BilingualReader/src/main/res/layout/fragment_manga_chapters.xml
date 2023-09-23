@@ -9,6 +9,7 @@
     android:clipToPadding="false"
     android:clipChildren="false"
     android:fitsSystemWindows="true"
+    style="@style/AppBackground"
     tools:context=".view.ui.chapters.MangaChaptersFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -34,13 +35,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
+        <View
+            android:background="?attr/statusBarColor"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_gravity="top"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="parent"/>
+
         <com.google.android.material.appbar.AppBarLayout
+            style="@style/AppBarLayout"
             android:id="@+id/content_toolbar_manga_chapter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
-            android:background="@color/transparent"
-            android:theme="@style/MainToolbarContentTheme.NoElevation"
+            android:theme="@style/MainToolbarContentTheme"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -50,7 +60,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/default_navigator_header_size"
                 android:gravity="start|center"
-                android:background="@android:color/transparent"
                 app:popupTheme="@style/MainToolbarStyle"
                 style="@style/MainToolbarThemeWithShadow"/>
 

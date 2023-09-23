@@ -14,6 +14,7 @@ import android.widget.ListView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.text.HtmlCompat
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,11 +23,13 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.MangaImageController
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.InformationCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.ColorUtil
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
@@ -45,6 +48,7 @@ class MangaDetailFragment : Fragment() {
 
     private val mViewModel: MangaDetailViewModel by viewModels()
 
+    private lateinit var mRootScroll: NestedScrollView
     private lateinit var mBackgroundImage: ImageView
     private lateinit var mImage: ImageView
     private lateinit var mTitle: TextView
@@ -116,8 +120,7 @@ class MangaDetailFragment : Fragment() {
     ): View? {
         val root = inflater.inflate(R.layout.fragment_manga_detail, container, false)
 
-        ThemeUtil.changeStatusColorFromListener(requireActivity().window, root.findViewById(R.id.manga_detail_scroll), resources.getBoolean(R.bool.isNight))
-
+        mRootScroll = root.findViewById(R.id.manga_detail_scroll)
         mBackgroundImage = root.findViewById(R.id.manga_detail_background_image)
         mImage = root.findViewById(R.id.manga_detail_manga_image)
         mTitle = root.findViewById(R.id.manga_detail_title)
@@ -274,12 +277,15 @@ class MangaDetailFragment : Fragment() {
     private fun observer() {
         mViewModel.manga.observe(viewLifecycleOwner) {
             if (it != null) {
-                MangaImageCoverController.instance.setImageCoverAsync(
-                    requireContext(),
-                    it,
-                    arrayListOf(mBackgroundImage, mImage),
-                    false
-                )
+                ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, false, !resources.getBoolean(R.bool.isNight))
+                MangaImageCoverController.instance.setImageCoverAsync(requireContext(), it, arrayListOf(mBackgroundImage, mImage), false) { b ->
+                    if (b != null) {
+                        ColorUtil.isLightColor(b) { l ->
+                            ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, l, !resources.getBoolean(R.bool.isNight))
+                        }
+                    }
+                }
+
                 mTitle.text = it.name
                 mFolder.text = it.path
                 val folder = mViewModel.getChapterFolder(it.bookMark)

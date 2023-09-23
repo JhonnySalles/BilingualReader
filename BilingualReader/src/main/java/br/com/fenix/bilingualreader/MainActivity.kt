@@ -93,15 +93,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             else -> resources.getBoolean(R.bool.isNight)
         }
 
-        val theme = Themes.valueOf(
-            GeneralConsts.getSharedPreferences(this)
-                .getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!
-        )
+        val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(theme.getValue())
 
         super.onCreate(savedInstanceState)
 
-        ThemeUtil.transparentTheme(window, isDark, AppCompatResources.getDrawable(this, R.drawable.app_main_statusbar_background), isLightStatus = !isDark)
+        ThemeUtil.statusBarTransparentTheme(window, isDark, AppCompatResources.getDrawable(this, R.drawable.app_main_statusbar_background), isLightStatus = !isDark)
 
         initializeBook()
         createNotificationChannel()

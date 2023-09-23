@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.util.LruCache
 import android.widget.ImageView
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.service.parses.book.ImageParse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
@@ -143,64 +144,9 @@ class BookImageCoverController private constructor() {
         return image
     }
 
-    fun setImageCoverAsync(
+    private fun setImageCoverAsync(
         context: Context,
         book: Book,
-        imageView: ImageView,
-        isCoverSize: Boolean = true
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                var image: Bitmap? = null
-                val deferred = async {
-                    image = getBookCover(context, book, isCoverSize)
-                }
-                deferred.await()
-                withContext(Dispatchers.Main) {
-                    if (image != null)
-                        imageView.setImageBitmap(image)
-                }
-            } catch (m: OutOfMemoryError) {
-                System.gc()
-                mLOGGER.error("Memory full, cleaning", m)
-            } catch (e: Exception) {
-                mLOGGER.error("Error to load image async", e)
-            }
-        }
-    }
-
-    fun setImageCoverAsync(
-        context: Context,
-        book: Book,
-        imagesView: ArrayList<ImageView>,
-        isCoverSize: Boolean = true,
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                var image: Bitmap? = null
-                val deferred = async {
-                    image = getBookCover(context, book, isCoverSize)
-                }
-                deferred.await()
-                withContext(Dispatchers.Main) {
-                    if (image != null) {
-                        for (imageView in imagesView)
-                            imageView.setImageBitmap(image)
-                    }
-                }
-            } catch (m: OutOfMemoryError) {
-                System.gc()
-                mLOGGER.error("Memory full, cleaning", m)
-            } catch (e: Exception) {
-                mLOGGER.error("Error to load image array async", e)
-            }
-        }
-    }
-
-    fun setImageCoverAsync(
-        context: Context,
-        book: Book,
-        imageView: ImageView,
         isCoverSize: Boolean = true,
         function: (Bitmap?) -> (Unit)
     ) {
@@ -212,16 +158,45 @@ class BookImageCoverController private constructor() {
                 }
                 deferred.await()
                 withContext(Dispatchers.Main) {
-                    if (image != null)
-                        imageView.setImageBitmap(image)
                     function(image)
                 }
             } catch (m: OutOfMemoryError) {
                 System.gc()
                 mLOGGER.error("Memory full, cleaning", m)
             } catch (e: Exception) {
-                mLOGGER.error("Error to load image array async", e)
+                mLOGGER.error("Error to load image async", e)
             }
+        }
+    }
+
+    fun setImageCoverAsync(context: Context, book: Book, imageView: ImageView, isCoverSize: Boolean = true) {
+        setImageCoverAsync(context, book, isCoverSize) {
+            if (it != null)
+                imageView.setImageBitmap(it)
+        }
+    }
+
+    fun setImageCoverAsync(context: Context, book: Book, imagesView: ArrayList<ImageView>, isCoverSize: Boolean = true, onFinish: (Bitmap?) -> (Unit)) {
+        setImageCoverAsync(context, book, isCoverSize) {
+            if (it != null)
+                for (imageView in imagesView)
+                    imageView.setImageBitmap(it)
+
+            onFinish(it)
+        }
+    }
+
+    fun setImageCoverAsync(
+        context: Context,
+        book: Book,
+        imageView: ImageView,
+        isCoverSize: Boolean = true,
+        onFinish: (Bitmap?) -> (Unit)
+    ) {
+        setImageCoverAsync(context, book, isCoverSize) {
+            if (it != null)
+                imageView.setImageBitmap(it)
+            onFinish(it)
         }
     }
 
