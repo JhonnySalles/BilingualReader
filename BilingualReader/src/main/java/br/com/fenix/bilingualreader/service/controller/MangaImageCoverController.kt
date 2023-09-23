@@ -107,8 +107,7 @@ class MangaImageCoverController private constructor() {
         return getCoverFromFile(context, generateHash(file), parse)
     }
 
-    private fun generateHash(file: File): String =
-        Util.MD5(file.path + file.name)
+    private fun generateHash(file: File): String = Util.MD5(file.path + file.name)
 
     private fun getCoverFromFile(context: Context, hash: String, parse: Parse, isCoverSize: Boolean = true): Bitmap? {
         var index = 0
@@ -177,7 +176,7 @@ class MangaImageCoverController private constructor() {
         return image
     }
 
-    private fun setImageCoverAsync(
+    fun setImageCoverAsync(
         context: Context,
         manga: Manga,
         isCoverSize: Boolean = true,

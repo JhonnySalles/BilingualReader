@@ -275,17 +275,20 @@ class MangaDetailFragment : Fragment() {
     }
 
     private fun observer() {
+        mViewModel.cover.observe(viewLifecycleOwner) {
+            mBackgroundImage.setImageBitmap(it)
+            mImage.setImageBitmap(it)
+
+            ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, false, !resources.getBoolean(R.bool.isNight))
+            if (it != null) {
+                ColorUtil.isLightColor(it) { l ->
+                    ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, l, !resources.getBoolean(R.bool.isNight))
+                }
+            }
+        }
+
         mViewModel.manga.observe(viewLifecycleOwner) {
             if (it != null) {
-                ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, false, !resources.getBoolean(R.bool.isNight))
-                MangaImageCoverController.instance.setImageCoverAsync(requireContext(), it, arrayListOf(mBackgroundImage, mImage), false) { b ->
-                    if (b != null) {
-                        ColorUtil.isLightColor(b) { l ->
-                            ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, l, !resources.getBoolean(R.bool.isNight))
-                        }
-                    }
-                }
-
                 mTitle.text = it.name
                 mFolder.text = it.path
                 val folder = mViewModel.getChapterFolder(it.bookMark)
@@ -368,9 +371,6 @@ class MangaDetailFragment : Fragment() {
                 }
 
             } else {
-                mBackgroundImage.setImageBitmap(null)
-                mImage.setImageBitmap(null)
-
                 mTitle.text = ""
                 mFolder.text = ""
                 mLastAccess.text = ""

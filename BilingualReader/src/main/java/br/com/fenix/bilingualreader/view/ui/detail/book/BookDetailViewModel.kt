@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.view.ui.detail.book
 
 import android.app.Application
 import android.content.Context
+import android.graphics.Bitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,9 +11,21 @@ import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.LinkedFile
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
+import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
+import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
+import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.FileLinkRepository
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.Util
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
+import java.io.File
 
 class BookDetailViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -24,6 +37,9 @@ class BookDetailViewModel(application: Application) : AndroidViewModel(applicati
     var library: Library? = null
     private var mBook = MutableLiveData<Book?>(null)
     val book: LiveData<Book?> = mBook
+
+    private var mCover = MutableLiveData<Bitmap?>(null)
+    val cover: LiveData<Bitmap?> = mCover
 
     private var mPaths: Map<String, Int> = mapOf()
 
@@ -42,10 +58,9 @@ class BookDetailViewModel(application: Application) : AndroidViewModel(applicati
     fun setBook(context: Context, book: Book) {
         mBook.value = book
 
-        mListLinkedFileLinks.value = if (book.id != null) mFileLinkRepository.findAllByManga(book.id!!)
-            ?.toMutableList() else mutableListOf()
-
+        mListLinkedFileLinks.value = if (book.id != null) mFileLinkRepository.findAllByManga(book.id!!)?.toMutableList() else mutableListOf()
         mInformation.value = Information(context, book)
+        BookImageCoverController.instance.setImageCoverAsync(context, book,  false) { mCover.value = it }
     }
 
     fun getPage(folder: String): Int {

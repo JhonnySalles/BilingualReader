@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.view.ui.detail.manga
 
 import android.app.Application
+import android.graphics.Bitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,6 +11,8 @@ import br.com.fenix.bilingualreader.model.entity.LinkedFile
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.SubTitleChapter
 import br.com.fenix.bilingualreader.model.entity.SubTitleVolume
+import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
+import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.ApiListener
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
@@ -26,8 +29,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.io.FileNotFoundException
+import java.io.IOException
 
 class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
 
@@ -41,6 +47,9 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
     var library: Library? = null
     private var mManga = MutableLiveData<Manga?>(null)
     val manga: LiveData<Manga?> = mManga
+
+    private var mCover = MutableLiveData<Bitmap?>(null)
+    val cover: LiveData<Bitmap?> = mCover
 
     private var mPaths: Map<String, Int> = mapOf()
 
@@ -72,25 +81,51 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
         mLocalInformation.value = null
         mWebInformationRelations.value = mutableListOf()
 
-        val parse = ParseFactory.create(manga.file) ?: return
-        try {
-            if (parse is RarParse) {
-                val folder = GeneralConsts.CACHE_FOLDER.RAR + '/' + Util.normalizeNameCache(manga.file.nameWithoutExtension)
-                val cacheDir = File(cache, folder)
-                (parse as RarParse?)!!.setCacheDirectory(cacheDir)
-            }
+        CoroutineScope(Dispatchers.IO).launch {
+            val parse = ParseFactory.create(manga.file) ?: return@launch
+            try {
+                if (parse is RarParse) {
+                    val folder = GeneralConsts.CACHE_FOLDER.RAR + '/' + Util.normalizeNameCache(manga.file.nameWithoutExtension)
+                    val cacheDir = File(cache, folder)
+                    (parse as RarParse?)!!.setCacheDirectory(cacheDir)
+                }
 
-            parse.getComicInfo()?.let {
-                mLocalInformation.value = Information(app.applicationContext, it)
-                if (manga.update(it))
-                    mMangaRepository.update(manga)
-            }
+                MangaImageCoverController.instance.getMangaCover(app.applicationContext, manga, true).let {
+                    withContext(Dispatchers.Main) {
+                        mCover.value = it
+                    }
+                }
 
-            mPaths = parse.getPagePaths()
-            mListChapters.value = mPaths.keys.toMutableList()
-            mListSubtitles.value = parse.getSubtitlesNames().keys.toMutableList()
-        } finally {
-            Util.destroyParse(parse)
+                val info = parse.getComicInfo()
+                if (info != null) {
+                    if (manga.update(info))
+                        mMangaRepository.update(manga)
+                    withContext(Dispatchers.Main) {
+                        mLocalInformation.value = Information(app.applicationContext, info)
+                    }
+                }
+
+                val paths = parse.getPagePaths()
+                val listChapters = paths.keys.toMutableList()
+                val listSubtitles = parse.getSubtitlesNames().keys.toMutableList()
+
+                withContext(Dispatchers.Main) {
+                    mPaths = paths
+                    mListChapters.value = listChapters
+                    mListSubtitles.value = listSubtitles
+                }
+
+                var image: Bitmap? = null
+                val deferred = async {
+                    image = MangaImageCoverController.instance.getMangaCover(app.applicationContext, manga, false)
+                }
+                deferred.await()
+                withContext(Dispatchers.Main) {
+                    mCover.value = image
+                }
+            } finally {
+                Util.destroyParse(parse)
+            }
         }
     }
 

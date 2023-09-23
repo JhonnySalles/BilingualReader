@@ -144,7 +144,7 @@ class BookImageCoverController private constructor() {
         return image
     }
 
-    private fun setImageCoverAsync(
+    fun setImageCoverAsync(
         context: Context,
         book: Book,
         isCoverSize: Boolean = true,
