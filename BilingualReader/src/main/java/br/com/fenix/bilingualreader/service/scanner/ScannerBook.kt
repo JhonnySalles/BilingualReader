@@ -218,7 +218,7 @@ class ScannerBook(private val context: Context) {
                                     book.path = it.path
                                     book.folder = it.parent
                                     book.excluded = false
-                                    book.lastVerify = LocalDate.now()
+                                    book.lastVerify = Date()
                                     book.id = storage.save(book)
 
                                     val ebookMeta = FileMetaCore.get().getEbookMeta(it.path, CacheZipUtils.CacheDir.ZipApp, false)

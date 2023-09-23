@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 import java.lang.ref.WeakReference
+import java.util.Date
 import java.util.UUID
 
 class ScannerManga(private val context: Context) {
@@ -228,6 +229,7 @@ class ScannerManga(private val context: Context) {
                                                 manga.path = it.path
                                                 manga.folder = it.parent
                                                 manga.excluded = false
+                                                manga.lastVerify = Date()
                                                 manga.id = storage.save(manga)
 
                                                 manga.update(parse)

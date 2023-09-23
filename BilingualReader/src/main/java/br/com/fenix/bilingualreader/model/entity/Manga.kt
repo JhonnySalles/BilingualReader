@@ -64,7 +64,7 @@ class Manga(
     @Ignore
     constructor(fkLibrary: Long?, id: Long?, file: File) : this(
         id, file.nameWithoutExtension, file.path, file.parent, file.name, file.length(), FileType.UNKNOWN,
-        parse.numPages(), parse.getChapters(), 0, false, parse.hasSubtitles(), "", "", "",
+        1, intArrayOf(), 0, false, false, "", "", "",
         "", null, fkLibrary, false, Date(), null, null, Date(file.lastModified()),
         null, null
     ) {
