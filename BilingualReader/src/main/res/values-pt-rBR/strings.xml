@@ -85,6 +85,7 @@
 
     <string name="config_manga_reading_show_clock_and_battery">Mostrar o relógio e o percentual bateria?</string>
     <string name="config_manga_reading_use_magnifier_type">Utiliza o zoom em modo de lupa?</string>
+    <string name="config_manga_reading_keep_zoom_between_pages">Manter o zoom entre as páginas?</string>
 
     <string name="config_system_language">Linguagem do sistema</string>
     <string name="config_system_format_date">Formato de data</string>
@@ -324,6 +325,7 @@
     <string name="menu_manga_reading_options">Opções de leitura</string>
     <string name="menu_manga_reading_show_clock_and_battery">Relógio e percentual de baterria</string>
     <string name="menu_manga_reading_use_magnifier_type">Zoom em lupa</string>
+    <string name="menu_manga_reading_keep_zoom_between_pages">Manter zoom</string>
     <string name="menu_manga_reading_view_touch">Funções touch</string>
     <string name="menu_manga_reading_color">Cor da página</string>
 

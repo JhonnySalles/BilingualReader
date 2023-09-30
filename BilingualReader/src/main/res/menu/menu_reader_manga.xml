@@ -62,25 +62,33 @@
                 app:showAsAction="never"/>
 
             <item
+                android:id="@+id/menu_item_reader_manga_show_clock_and_battery"
+                android:icon="@drawable/ic_show_clock_and_battery"
+                android:orderInCategory="102"
+                android:title="@string/menu_manga_reading_show_clock_and_battery"
+                android:checkable="true"
+                app:showAsAction="never"/>
+
+            <item
+                android:id="@+id/menu_item_reader_manga_keep_zoom_between_pages"
+                android:icon="@drawable/ic_keep_zoom_between_pages"
+                android:orderInCategory="103"
+                android:title="@string/menu_manga_reading_keep_zoom_between_pages"
+                android:checkable="true"
+                app:showAsAction="never"/>
+
+            <item
                 android:id="@+id/menu_item_reader_manga_popup_color"
                 android:icon="@drawable/ic_color_settings"
-                android:orderInCategory="102"
+                android:orderInCategory="104"
                 android:title="@string/menu_manga_reading_color"
                 app:showAsAction="never"/>
 
             <item
                 android:id="@+id/menu_item_reader_manga_view_touch_screen"
                 android:icon="@drawable/ic_view_touch_screen"
-                android:orderInCategory="103"
+                android:orderInCategory="105"
                 android:title="@string/menu_manga_reading_view_touch"
-                app:showAsAction="never"/>
-
-            <item
-                android:id="@+id/menu_item_reader_manga_show_clock_and_battery"
-                android:icon="@drawable/ic_show_clock_and_battery"
-                android:orderInCategory="104"
-                android:title="@string/menu_manga_reading_show_clock_and_battery"
-                android:checkable="true"
                 app:showAsAction="never"/>
         </menu>
     </item>
