@@ -19,7 +19,7 @@
 
     <item
         android:id="@+id/menu_manga_library_type"
-        android:icon="@drawable/ico_animated_type_grid_gridbig_to_gridmedium"
+        android:icon="@drawable/ico_animated_type_grid_gridbig_exit"
         android:orderInCategory="110"
         android:title="@string/menu_manga_library_type"
         android:visible="true"

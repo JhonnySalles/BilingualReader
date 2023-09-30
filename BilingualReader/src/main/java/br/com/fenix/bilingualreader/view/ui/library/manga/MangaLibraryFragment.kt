@@ -120,6 +120,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     companion object {
         var mSortType: Order = Order.Name
         var mSortDesc: Boolean = false
+        var mGridType: LibraryMangaType = LibraryMangaType.LINE
     }
 
     private val mUpdateHandler: Handler = UpdateHandler()
@@ -240,12 +241,13 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         enableSearchView(searchView, !mRefreshLayout.isRefreshing)
 
         val iconGrid: Int = when (mViewModel.libraryType.value) {
-            LibraryMangaType.GRID_SMALL -> R.drawable.ic_type_grid_small
-            LibraryMangaType.GRID_BIG -> R.drawable.ic_type_grid_big
-            LibraryMangaType.GRID_MEDIUM -> R.drawable.ic_type_grid_medium
-            LibraryMangaType.SEPARATOR_BIG -> R.drawable.ic_type_grid_medium
-            LibraryMangaType.SEPARATOR_MEDIUM -> R.drawable.ic_type_grid_small
-            else -> R.drawable.ic_type_list
+            LibraryMangaType.GRID_SMALL -> R.drawable.ico_animated_type_grid_gridsmall_exit
+            LibraryMangaType.GRID_BIG -> R.drawable.ico_animated_type_grid_gridbig_exit
+            LibraryMangaType.GRID_MEDIUM -> R.drawable.ico_animated_type_grid_gridmedium_exit
+            LibraryMangaType.SEPARATOR_BIG -> R.drawable.ico_animated_type_grid_gridbig_separator_exit
+            LibraryMangaType.SEPARATOR_MEDIUM -> R.drawable.ico_animated_type_grid_gridmedium_separator_exit
+            LibraryMangaType.LINE -> R.drawable.ico_animated_type_grid_list_exit
+            else -> R.drawable.ico_animated_type_grid_list_exit
         }
         miGridType.setIcon(iconGrid)
 
@@ -492,19 +494,30 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         if (!::miGridType.isInitialized)
             return
 
-        val icon: Int = when (type) {
-            LibraryMangaType.GRID_SMALL -> R.drawable.ico_animated_type_grid_gridmedium_to_gridsmall
-            LibraryMangaType.GRID_BIG -> R.drawable.ico_animated_type_grid_list_to_gridbig
-            LibraryMangaType.GRID_MEDIUM -> R.drawable.ico_animated_type_grid_gridbig_to_gridmedium
-            LibraryMangaType.SEPARATOR_BIG -> R.drawable.ico_animated_type_grid_gridbig_to_gridmedium // CRIAR ANIMAÇÃO
-            LibraryMangaType.SEPARATOR_MEDIUM -> R.drawable.ico_animated_type_grid_gridbig_to_gridmedium // CRIAR ANIMAÇÃO
-            else -> if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
-                R.drawable.ico_animated_type_grid_gridsmall_to_list
-            else
-                R.drawable.ico_animated_type_grid_gridmedium_to_list
+        val initial: Int? = when (mGridType) {
+            LibraryMangaType.GRID_SMALL -> R.drawable.ico_animated_type_grid_gridsmall_exit
+            LibraryMangaType.GRID_BIG -> R.drawable.ico_animated_type_grid_gridbig_exit
+            LibraryMangaType.GRID_MEDIUM -> R.drawable.ico_animated_type_grid_gridmedium_exit
+            LibraryMangaType.SEPARATOR_BIG -> R.drawable.ico_animated_type_grid_gridbig_separator_exit
+            LibraryMangaType.SEPARATOR_MEDIUM -> R.drawable.ico_animated_type_grid_gridmedium_separator_exit
+            LibraryMangaType.LINE -> R.drawable.ico_animated_type_grid_list_exit
+            else -> null
         }
-        miGridType.setIcon(icon)
-        (miGridType.icon as AnimatedVectorDrawable).start()
+
+        val final: Int? = when (type) {
+            LibraryMangaType.GRID_SMALL -> R.drawable.ico_animated_type_grid_gridsmall_enter
+            LibraryMangaType.GRID_BIG -> R.drawable.ico_animated_type_grid_gridbig_enter
+            LibraryMangaType.GRID_MEDIUM -> R.drawable.ico_animated_type_grid_gridmedium_enter
+            LibraryMangaType.SEPARATOR_BIG -> R.drawable.ico_animated_type_grid_gridbig_separator_enter
+            LibraryMangaType.SEPARATOR_MEDIUM -> R.drawable.ico_animated_type_grid_gridmedium_separator_enter
+            LibraryMangaType.LINE -> R.drawable.ico_animated_type_grid_list_enter
+            else -> null
+        }
+
+        if (initial != null && final != null)
+            MenuUtil.animatedSequenceDrawable(miGridType, initial, final)
+
+        mGridType = type
     }
 
     override fun onCreateView(
@@ -789,15 +802,14 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             ).toString()
         )
 
-        val type = LibraryMangaType.valueOf(
+        mGridType = LibraryMangaType.valueOf(
             sharedPreferences.getString(
                 GeneralConsts.KEYS.LIBRARY.MANGA_LIBRARY_TYPE,
                 LibraryMangaType.LINE.toString()
-            )
-                .toString()
+            ).toString()
         )
 
-        mViewModel.setLibraryType(type)
+        mViewModel.setLibraryType(mGridType)
         mViewModel.sorted(mSortType)
     }
 
