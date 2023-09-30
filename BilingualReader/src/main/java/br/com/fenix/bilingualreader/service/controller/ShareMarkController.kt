@@ -156,9 +156,9 @@ class ShareMarkController(var context: Context) {
         try {
             drive.files().delete(idFile).execute()
         } catch (e: GoogleJsonResponseException) {
-            mLOGGER.error("Error deleted share file from drive.", e)
+            mLOGGER.warn("Error deleted share file from drive.", e)
         } catch (e: Exception) {
-            mLOGGER.error("Error deleted share file from drive.", e)
+            mLOGGER.warn("Error deleted share file from drive.", e)
         }
     }
 
@@ -168,10 +168,10 @@ class ShareMarkController(var context: Context) {
             drive.files().get(idFile).executeMediaAndDownloadTo(outputStream)
             outputStream
         } catch (e: GoogleJsonResponseException) {
-            mLOGGER.error("Error download share file from drive.", e)
+            mLOGGER.warn("Error download share file from drive.", e)
             throw DriveDownloadException("")
         } catch (e: Exception) {
-            mLOGGER.error("Error download share file from drive.", e)
+            mLOGGER.warn("Error download share file from drive.", e)
             throw DriveDownloadException("")
         }
     }
@@ -189,10 +189,10 @@ class ShareMarkController(var context: Context) {
             val file = drive.Files().create(gfile, fileContent).setFields("id").execute()
             file.id
         } catch (e: GoogleJsonResponseException) {
-            mLOGGER.error("Error create share file from drive.", e)
+            mLOGGER.warn("Error create share file from drive.", e)
             throw DriveUploadException("")
         } catch (e: Exception) {
-            mLOGGER.error("Error create share file from drive.", e)
+            mLOGGER.warn("Error create share file from drive.", e)
             throw DriveUploadException("")
         }
     }

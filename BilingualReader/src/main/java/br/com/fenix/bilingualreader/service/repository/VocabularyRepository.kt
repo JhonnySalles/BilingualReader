@@ -307,12 +307,14 @@ class VocabularyRepository(var context: Context) {
                     }
                 } catch (e: Exception) {
                     mLOGGER.error("Error process manga vocabulary. ", e)
+                    withContext(Dispatchers.Main) {
+                        val msg = context.getString(R.string.vocabulary_import_error)
+                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                        notification.setContentText(msg).setOngoing(false)
 
-                    notification.setContentText(context.getString(R.string.vocabulary_import_error))
-                        .setOngoing(false)
-
-                    if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
-                        notificationManager.notify(notifyId, notification.build())
+                        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                            notificationManager.notify(notifyId, notification.build())
+                    }
                 }
             }
         }
@@ -379,6 +381,15 @@ class VocabularyRepository(var context: Context) {
                     Toast.makeText(context, mMsgImport, Toast.LENGTH_SHORT).show()
                 } catch (e: Exception) {
                     mLOGGER.error("Error process book vocabulary. ", e)
+
+                    withContext(Dispatchers.Main) {
+                        val msg = context.getString(R.string.vocabulary_import_error)
+                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                        notification.setContentText(msg).setOngoing(false)
+
+                        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                            notificationManager.notify(notifyId, notification.build())
+                    }
                 }
             }
         }

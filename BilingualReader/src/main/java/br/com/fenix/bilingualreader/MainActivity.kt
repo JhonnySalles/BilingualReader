@@ -395,8 +395,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onDestroy() {
-        clearCache()
         NotificationManagerCompat.from(this).cancelAll()
+        clearCache()
         super.onDestroy()
     }
 
