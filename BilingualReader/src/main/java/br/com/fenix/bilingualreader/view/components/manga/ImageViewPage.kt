@@ -353,6 +353,10 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : androi
         post(ZoomAnimation(e.x, e.y, scale))
     }
 
+    open fun zoomAnimated(scale: Float) {
+        post(ZoomAnimation(0f, 0f, scale))
+    }
+
     override fun computeScroll() {
         if (!mScroller.isFinished && mScroller.computeScrollOffset()) {
             val curX = mScroller.currX
@@ -482,7 +486,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : androi
                 mMagnifierMatrix.reset()
                 mMagnifierMatrix.postScale(mMagnifierScale, mMagnifierScale, mZoomPos.x, mZoomPos.y)
                 mPaint.shader.setLocalMatrix(mMagnifierMatrix)
-                canvas?.drawCircle(mZoomPos.x, mZoomPos.y, mMagnifierRadius, mPaint)
+                canvas.drawCircle(mZoomPos.x, mZoomPos.y, mMagnifierRadius, mPaint)
             } else {
                 val x = if (mZoomPos.x < (width / 2)) width.minus(mMagnifierSize) else 0F
 
@@ -498,7 +502,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : androi
                 mMagnifierMatrix.postTranslate(mLastZoomPos.x, mLastZoomPos.y)
                 mPaint.shader.setLocalMatrix(mMagnifierMatrix)
 
-                canvas?.drawRect(
+                canvas.drawRect(
                     mLastZoomPos.x - 1,
                     mLastZoomPos.y - 2,
                     mLastZoomPos.x + mMagnifierSize + 1,
@@ -506,7 +510,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : androi
                     mBorder
                 )
 
-                canvas?.drawRect(
+                canvas.drawRect(
                     mLastZoomPos.x,
                     mLastZoomPos.y,
                     mLastZoomPos.x + mMagnifierSize,
@@ -514,7 +518,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : androi
                     mBackground
                 )
 
-                canvas?.drawRect(
+                canvas.drawRect(
                     mLastZoomPos.x,
                     mLastZoomPos.y,
                     mLastZoomPos.x + mMagnifierSize,
@@ -553,10 +557,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : androi
                 // set exact scale
                 mMatrix.getValues(m)
                 mMatrix.setScale(mScale, mScale)
-                mMatrix.postTranslate(
-                    m[Matrix.MTRANS_X],
-                    m[Matrix.MTRANS_Y]
-                )
+                mMatrix.postTranslate(m[Matrix.MTRANS_X], m[Matrix.MTRANS_Y])
                 setImageMatrix(mMatrix)
             }
         }

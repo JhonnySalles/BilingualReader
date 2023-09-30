@@ -98,11 +98,13 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     var mReaderMode: ReaderMode = ReaderMode.FIT_WIDTH
     var mUseMagnifierType = false
     var mIsLeftToRight = false
+    var mKeepZoomBetweenPage = false
 
     var mParse: Parse? = null
     lateinit var mPicasso: Picasso
     private lateinit var mComicHandler: MangaHandler
     var mTargets = SparseArray<Target>()
+    private var mLastZoomScale = 0f
 
     private lateinit var mLibrary: Library
     private var mManga: Manga? = null
@@ -275,10 +277,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 ).toString()
             )
 
-            mUseMagnifierType = mPreferences.getBoolean(
-                GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE,
-                false
-            )
+            mUseMagnifierType = mPreferences.getBoolean(GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE, false)
+            mKeepZoomBetweenPage = mPreferences.getBoolean(GeneralConsts.KEYS.READER.MANGA_KEEP_ZOOM_BETWEEN_PAGES, false)
 
             mIsLeftToRight = PageMode.valueOf(
                 mPreferences.getString(
@@ -325,9 +325,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mPageSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    if (mIsLeftToRight) setCurrentPage(progress + 1) else setCurrentPage(
-                        mPageSeekBar.max - progress + 1
-                    )
+                    if (mIsLeftToRight)
+                        setCurrentPage(progress + 1)
+                    else
+                        setCurrentPage(mPageSeekBar.max - progress + 1)
                 }
             }
 
@@ -360,6 +361,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 if (mIsLeftToRight) hitEnding() else hitBeginning()
             }
         })
+
         if (mCurrentPage != -1)
             setCurrentPage(mCurrentPage)
 
@@ -393,6 +395,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             menu.findItem(R.id.reading_manga_right_to_left).isChecked = true
 
         menu.findItem(R.id.menu_item_reader_manga_use_magnifier_type).isChecked = mUseMagnifierType
+        menu.findItem(R.id.menu_item_reader_manga_keep_zoom_between_pages).isChecked = mKeepZoomBetweenPage
         menu.findItem(R.id.menu_item_reader_manga_show_clock_and_battery).isChecked = mPreferences.getBoolean(
             GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY,
             false
@@ -471,10 +474,16 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 }
 
                 with(mPreferences.edit()) {
-                    this.putBoolean(
-                        GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE,
-                        mUseMagnifierType
-                    )
+                    this.putBoolean(GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE, mUseMagnifierType)
+                    this.commit()
+                }
+            }
+            R.id.menu_item_reader_manga_keep_zoom_between_pages -> {
+                item.isChecked = !item.isChecked
+                mKeepZoomBetweenPage = item.isChecked
+
+                with(mPreferences.edit()) {
+                    this.putBoolean(GeneralConsts.KEYS.READER.MANGA_KEEP_ZOOM_BETWEEN_PAGES, mKeepZoomBetweenPage)
                     this.commit()
                 }
             }
@@ -520,11 +529,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         if (mManga != null)
             mSubtitleController.changeSubtitleInReader(mManga!!, mCurrentPage)
 
-        (requireActivity() as MangaReaderActivity).changePage(
-            mManga?.title ?: "",
-            mParse?.getPagePath(mCurrentPage) ?: "",
-            mCurrentPage + 1
-        )
+        (requireActivity() as MangaReaderActivity).changePage(mManga?.title ?: "", mParse?.getPagePath(mCurrentPage) ?: "", mCurrentPage + 1)
     }
 
     inner class ComicPagerAdapter : PagerAdapter() {
@@ -537,8 +542,16 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
 
         override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
-            if (mCurrentFragment !== `object`)
-                mCurrentFragment = `object` as FrameLayout
+            if (mCurrentFragment !== `object`) {
+                if ((`object` as FrameLayout).findViewById<View>(R.id.page_image_view) != null) {
+                    mLastZoomScale = getCurrencyImageView()?.getCurrentScale() ?: 0f
+
+                    mCurrentFragment = `object`
+
+                    if (mKeepZoomBetweenPage && mLastZoomScale != 0f)
+                        getCurrencyImageView()?.zoomAnimated(mLastZoomScale)
+                }
+            }
             super.setPrimaryItem(container, position, `object`)
         }
 
@@ -665,7 +678,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     inner class MyTouchListener : SimpleOnGestureListener() {
-
         override fun onLongPress(e: MotionEvent) {
             super.onLongPress(e)
             val view: ImageViewPage = getCurrencyImageView() ?: return
@@ -718,8 +730,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private fun getPosition(e: MotionEvent): Position {
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-        val horizontalSize =
-            resources.getDimensionPixelSize(R.dimen.reader_touch_demonstration_initial_horizontal)
+        val horizontalSize = resources.getDimensionPixelSize(R.dimen.reader_touch_demonstration_initial_horizontal)
         val horizontal = (if (isLandscape) horizontalSize * 1.2 else horizontalSize * 1.5).toFloat()
 
         val x = e.x
@@ -905,8 +916,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             })
     }
 
-    fun isFullscreen(): Boolean =
-        mIsFullscreen
+    fun isFullscreen(): Boolean = mIsFullscreen
 
     fun hitBeginning() {
         if (mManga != null) {
@@ -927,8 +937,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         var confirm = false
         mNewManga = newManga
         mNewMangaTitle = titleRes
-        val dialog: AlertDialog =
-            MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+        val dialog: AlertDialog = MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(titleRes)
                 .setMessage(newManga.fileName)
                 .setPositiveButton(
@@ -952,8 +961,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     private fun updateSeekBar() {
-        val seekRes: Int =
-            if (mIsLeftToRight) R.drawable.reader_nav_progress else R.drawable.reader_nav_progress_inverse
+        val seekRes: Int = if (mIsLeftToRight) R.drawable.reader_nav_progress else R.drawable.reader_nav_progress_inverse
         val d: Drawable? = ContextCompat.getDrawable(requireActivity(), seekRes)
         val bounds = mPageSeekBar.progressDrawable.bounds
         mPageSeekBar.progressDrawable = d

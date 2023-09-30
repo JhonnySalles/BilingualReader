@@ -123,6 +123,7 @@ class ConfigFragment : Fragment() {
     private lateinit var mMangaPageModeAutoComplete: AutoCompleteTextView
     private lateinit var mMangaShowClockAndBattery: SwitchMaterial
     private lateinit var mMangaUseMagnifierType: SwitchMaterial
+    private lateinit var mMangaKeepZoomBetweenPages: SwitchMaterial
 
     private lateinit var mMangaUseDualPageCalculate: SwitchMaterial
     private lateinit var mMangaUsePathNameForLinked: SwitchMaterial
@@ -204,6 +205,7 @@ class ConfigFragment : Fragment() {
         mMangaPageModeAutoComplete = view.findViewById(R.id.config_manga_menu_autocomplete_page_mode)
         mMangaShowClockAndBattery = view.findViewById(R.id.config_manga_switch_show_clock_and_battery)
         mMangaUseMagnifierType = view.findViewById(R.id.config_manga_switch_use_magnifier_type)
+        mMangaKeepZoomBetweenPages = view.findViewById(R.id.config_manga_switch_keep_zoom_between_pages)
 
         mConfigSystemFormatDate = view.findViewById(R.id.config_system_format_date)
         mConfigSystemFormatDateAutoComplete = view.findViewById(R.id.config_system_menu_autocomplete_format_date)
@@ -750,6 +752,11 @@ class ConfigFragment : Fragment() {
             )
 
             this.putBoolean(
+                GeneralConsts.KEYS.READER.MANGA_KEEP_ZOOM_BETWEEN_PAGES,
+                mMangaKeepZoomBetweenPages.isChecked
+            )
+
+            this.putBoolean(
                 GeneralConsts.KEYS.PAGE_LINK.USE_DUAL_PAGE_CALCULATE,
                 mMangaUseDualPageCalculate.isChecked
             )
@@ -890,6 +897,10 @@ class ConfigFragment : Fragment() {
         )
         mMangaUseMagnifierType.isChecked = sharedPreferences.getBoolean(
             GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE,
+            false
+        )
+        mMangaKeepZoomBetweenPages.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.READER.MANGA_KEEP_ZOOM_BETWEEN_PAGES,
             false
         )
         mMangaUseDualPageCalculate.isChecked = sharedPreferences.getBoolean(

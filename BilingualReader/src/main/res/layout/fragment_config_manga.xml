@@ -204,6 +204,13 @@
             android:layout_height="wrap_content"
             android:text="@string/config_manga_reading_use_magnifier_type" />
 
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/config_manga_switch_keep_zoom_between_pages"
+            style="@style/SwitchMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/config_manga_reading_keep_zoom_between_pages" />
+
         <com.google.android.material.divider.MaterialDivider
             style="@style/MaterialDivider"
             android:layout_width="match_parent"

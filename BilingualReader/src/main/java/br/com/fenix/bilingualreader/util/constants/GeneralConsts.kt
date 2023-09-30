@@ -181,6 +181,7 @@ class GeneralConsts private constructor() {
             const val MANGA_PAGE_MODE = "MANGA_READER_PAGE_MODE"
             const val MANGA_SHOW_CLOCK_AND_BATTERY = "MANGA_SHOW_CLOCK_AND_BATTERY"
             const val MANGA_USE_MAGNIFIER_TYPE = "MANGA_USE_MAGNIFIER_TYPE"
+            const val MANGA_KEEP_ZOOM_BETWEEN_PAGES = "MANGA_KEEP_ZOOM_BETWEEN_PAGES"
 
             const val BOOK_PAGE_ALIGNMENT = "BOOK_PAGE_ALIGNMENT"
             const val BOOK_PAGE_MARGIN = "BOOK_PAGE_MARGIN"

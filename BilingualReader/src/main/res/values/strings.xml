@@ -84,6 +84,7 @@
 
     <string name="config_manga_reading_show_clock_and_battery">Show clock and battery percent?</string>
     <string name="config_manga_reading_use_magnifier_type">Use zoom in magnifying mode?</string>
+    <string name="config_manga_reading_keep_zoom_between_pages">Keep zooming between pages?</string>
 
     <string name="config_system_format_date">Date format</string>
     <string name="config_system_language">System language</string>
@@ -350,6 +351,7 @@
     <string name="menu_manga_reading_options">Reading options</string>
     <string name="menu_manga_reading_show_clock_and_battery">Clock and battery percent</string>
     <string name="menu_manga_reading_use_magnifier_type">Magnifying zoom</string>
+    <string name="menu_manga_reading_keep_zoom_between_pages">Keep zooming</string>
     <string name="menu_manga_reading_view_touch">Touch functions</string>
     <string name="menu_manga_reading_color">Page color</string>
 
