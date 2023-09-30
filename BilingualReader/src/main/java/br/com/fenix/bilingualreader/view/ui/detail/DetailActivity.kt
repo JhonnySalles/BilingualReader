@@ -24,7 +24,7 @@ class DetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
 
-        ThemeUtil.statusBarTransparentTheme(window, resources.getBoolean(R.bool.isNight))
+        ThemeUtil.statusBarTransparentTheme(window, !resources.getBoolean(R.bool.isNight))
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar_detail)
         MenuUtil.tintToolbar(toolbar, theme)

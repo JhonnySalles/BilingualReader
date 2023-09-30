@@ -19,7 +19,7 @@
 
     <item
         android:id="@+id/menu_book_library_type"
-        android:icon="@drawable/ic_type_grid_big"
+        android:icon="@drawable/ico_animated_type_grid_gridbig_exit"
         android:orderInCategory="110"
         android:title="@string/menu_book_library_type"
         android:visible="true"

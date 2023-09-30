@@ -279,10 +279,11 @@ class MangaDetailFragment : Fragment() {
             mBackgroundImage.setImageBitmap(it)
             mImage.setImageBitmap(it)
 
-            ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, false, !resources.getBoolean(R.bool.isNight))
+            val isDark = resources.getBoolean(R.bool.isNight)
+            ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, false, isDark)
             if (it != null) {
-                ColorUtil.isLightColor(it) { l ->
-                    ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, l, !resources.getBoolean(R.bool.isNight))
+                ColorUtil.isDarkColor(it) { l ->
+                    ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, l, isDark)
                 }
             }
         }

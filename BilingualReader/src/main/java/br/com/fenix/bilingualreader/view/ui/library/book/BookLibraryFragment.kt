@@ -56,6 +56,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
+import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
@@ -74,6 +75,7 @@ import br.com.fenix.bilingualreader.view.adapter.library.BookLineCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.PopupOrderListener
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
+import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryFragment
 import br.com.fenix.bilingualreader.view.ui.popup.PopupTags
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -122,6 +124,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     companion object {
         var mSortType: Order = Order.Name
         var mSortDesc: Boolean = false
+        var mGridType: LibraryBookType = LibraryBookType.LINE
     }
 
     private val mUpdateHandler: Handler = UpdateHandler()
@@ -260,8 +263,9 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         enableSearchView(searchView, !mRefreshLayout.isRefreshing)
 
         val iconGrid: Int = when (mViewModel.libraryType.value) {
-            LibraryBookType.GRID -> R.drawable.ic_type_grid_big
-            else -> R.drawable.ic_type_list
+            LibraryBookType.GRID -> R.drawable.ico_animated_type_grid_gridbig_exit
+            LibraryBookType.LINE -> R.drawable.ico_animated_type_grid_list_exit
+            else -> R.drawable.ico_animated_type_grid_list_exit
         }
 
         miGridType.setIcon(iconGrid)
@@ -511,12 +515,22 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         if (!::miGridType.isInitialized)
             return
 
-        val icon: Int = when (type) {
-            LibraryBookType.GRID -> R.drawable.ico_animated_type_grid_list_to_gridbig
-            else -> R.drawable.ico_animated_type_grid_gridbig_to_list
+        val initial: Int? = when (mGridType) {
+            LibraryBookType.GRID -> R.drawable.ico_animated_type_grid_gridbig_exit
+            LibraryBookType.LINE -> R.drawable.ico_animated_type_grid_list_exit
+            else -> null
         }
-        miGridType.setIcon(icon)
-        (miGridType.icon as AnimatedVectorDrawable).start()
+
+        val final: Int? = when (type) {
+            LibraryBookType.GRID -> R.drawable.ico_animated_type_grid_gridbig_enter
+            LibraryBookType.LINE -> R.drawable.ico_animated_type_grid_list_enter
+            else -> null
+        }
+
+        if (initial != null && final != null)
+            MenuUtil.animatedSequenceDrawable(miGridType, initial, final)
+
+        mGridType = type
     }
 
     override fun onCreateView(
@@ -824,13 +838,13 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             ).toString()
         )
 
-        val type = LibraryBookType.valueOf(
+        mGridType = LibraryBookType.valueOf(
             sharedPreferences.getString(
                 GeneralConsts.KEYS.LIBRARY.BOOK_LIBRARY_TYPE,
                 LibraryBookType.LINE.toString()
             ).toString()
         )
-        mViewModel.setLibraryType(type)
+        mViewModel.setLibraryType(mGridType)
         mViewModel.sorted(mSortType)
     }
 
