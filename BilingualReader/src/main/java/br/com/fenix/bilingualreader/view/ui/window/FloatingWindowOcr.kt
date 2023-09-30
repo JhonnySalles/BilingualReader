@@ -330,6 +330,8 @@ class FloatingWindowOcr constructor(
     }
 
     fun processTesseractAsync() {
+        val language = (activity as OcrProcess).getLanguage() ?: return
+
         Toast.makeText(
             context,
             context.resources.getString(R.string.ocr_tesseract_get_request),
@@ -337,7 +339,6 @@ class FloatingWindowOcr constructor(
         ).show()
 
         try {
-            val language = (activity as OcrProcess).getLanguage()
             val location = IntArray(2)
             mFloatingView.getLocationOnScreen(location)
             val image = (activity as OcrProcess).getImage(

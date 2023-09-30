@@ -76,6 +76,10 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
         loadPreferences()
     }
 
+    fun clear() {
+        mLanguageOcr = null
+    }
+
     fun changeCustomFilter(value: Boolean) {
         mCustomFilter.value = value
         generateFilters()

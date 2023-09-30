@@ -31,12 +31,7 @@ class Tesseract(private val context: Context) {
                 inCopy = true
                 val deferredOne = async {
                     val mFileUtil = FileUtil(context)
-                    val tessData = Util.normalizeFilePath(
-                        File(
-                            GeneralConsts.getCacheDir(context),
-                            GeneralConsts.CACHE_FOLDER.TESSERACT
-                        ).absolutePath
-                    )
+                    val tessData = Util.normalizeFilePath(File(GeneralConsts.getCacheDir(context), GeneralConsts.CACHE_FOLDER.TESSERACT).absolutePath)
                     // Load language files from asset packs
                     exist = mFileUtil.copyAssetToFilesIfNotExist("tessdata/", "eng.traineddata", tessData)
                     exist = mFileUtil.copyAssetToFilesIfNotExist("tessdata/", "jpn.traineddata", tessData)

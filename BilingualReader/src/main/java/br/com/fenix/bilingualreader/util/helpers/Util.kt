@@ -15,7 +15,9 @@ import android.content.res.ColorStateList
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.ColorSpace.Rgb
 import android.graphics.PointF
+import android.graphics.Rect
 import android.graphics.drawable.Animatable2
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.ColorDrawable
@@ -33,6 +35,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
+import androidx.annotation.Px
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils
@@ -1254,6 +1257,26 @@ class ColorUtil {
                     }
                     isDark(dark)
                 }
+        }
+
+        fun getColorPalette(bitmap: Bitmap, position: Rect) : Int {
+            val palette = Palette.from(bitmap)
+                .maximumColorCount(3)
+                .clearFilters()
+                .setRegion(position.left, position.top, position.right, position.bottom)
+                .generate()
+
+            var mostPopulous: Swatch? = null
+            if (palette != null) {
+                for (swatch in palette.swatches) {
+                    if (mostPopulous == null || swatch.population > mostPopulous.population) {
+                        mostPopulous = swatch
+                    }
+                }
+            }
+
+            mostPopulous ?: return android.graphics.Color.WHITE
+            return mostPopulous.rgb
         }
 
     }

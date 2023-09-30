@@ -140,11 +140,9 @@ class Storage(context: Context) {
 
 
     // --------------------------------------------------------- Book ---------------------------------------------------------
-    fun listBook(library: Library): List<Book> =
-        mBookRepository.list(library)
+    fun listBook(library: Library): List<Book> = mBookRepository.list(library)
 
-    fun listBookDeleted(library: Library): List<Book> =
-        mBookRepository.listDeleted(library)
+    fun listBookDeleted(library: Library): List<Book> = mBookRepository.listDeleted(library)
 
     fun save(book: Book): Long {
         return if (book.id != null) {
@@ -182,14 +180,11 @@ class Storage(context: Context) {
         return next
     }
 
-    fun getBook(idBook: Long): Book? =
-        mBookRepository.get(idBook)
+    fun getBook(idBook: Long): Book? = mBookRepository.get(idBook)
 
-    fun findBookByName(name: String): Book? =
-        mBookRepository.findByFileName(name)
+    fun findBookByName(name: String): Book? = mBookRepository.findByFileName(name)
 
-    fun findBookByPath(name: String): Book? =
-        mBookRepository.findByFilePath(name)
+    fun findBookByPath(name: String): Book? = mBookRepository.findByFilePath(name)
 
     fun delete(book: Book) {
         mBookRepository.delete(book)
