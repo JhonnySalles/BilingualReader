@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Order
+import br.com.fenix.bilingualreader.service.scanner.ScannerManga
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.view.components.PopupOrderListener
 import br.com.fenix.bilingualreader.view.components.TriStateCheckBox
@@ -34,11 +35,14 @@ class LibraryMangaPopupOrder : Fragment() {
         mOrderAccess = root.findViewById(R.id.popup_library_order_manga_access)
         mOrderFavorite = root.findViewById(R.id.popup_library_order_manga_favorite)
 
-        setChecked(
-            getCheckList(),
-            listener.popupGetOrder()?.first ?: Order.Name,
-            listener.popupGetOrder()?.second ?: false
-        )
+        var order = Order.Name
+        var isDesc = false
+        if (::listener.isInitialized) {
+            order = listener.popupGetOrder()?.first ?: Order.Name
+            isDesc = listener.popupGetOrder()?.second ?: false
+        }
+
+        setChecked(getCheckList(), order,isDesc)
         addListener()
         observer()
         return root
