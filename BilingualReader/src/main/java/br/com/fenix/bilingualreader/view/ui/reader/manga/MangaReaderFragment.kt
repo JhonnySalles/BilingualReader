@@ -421,8 +421,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     override fun onDestroy() {
-        mSubtitleController.clearImageBackup()
-        mSubtitleController.mReaderFragment = null
+        mSubtitleController.clearControllers()
+        if (mSubtitleController.mReaderFragment == this)
+            mSubtitleController.mReaderFragment = null
         Util.destroyParse(mParse)
         if (::mPicasso.isInitialized)
             mPicasso.shutdown()
@@ -449,9 +450,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 item.isChecked = true
                 mReaderMode = mResourceViewMode[item.itemId] ?: ReaderMode.FIT_WIDTH
                 updatePageViews(mViewPager) {
-                    if (mReaderMode === ReaderMode.ASPECT_FILL) it.setTranslateToRightEdge(
-                        !mIsLeftToRight
-                    )
+                    if (mReaderMode === ReaderMode.ASPECT_FILL)
+                        it.setTranslateToRightEdge(!mIsLeftToRight)
                     it.setViewMode(mReaderMode)
                 }
             }
@@ -486,9 +486,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     fun changeAspect(toolbar: Toolbar, mode: ReaderMode) {
         mReaderMode = mode
         updatePageViews(mViewPager) {
-            if (mReaderMode === ReaderMode.ASPECT_FILL) it.setTranslateToRightEdge(
-                !mIsLeftToRight
-            )
+            if (mReaderMode === ReaderMode.ASPECT_FILL)
+                it.setTranslateToRightEdge(!mIsLeftToRight)
             it.setViewMode(mReaderMode)
         }
 
@@ -547,7 +546,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             val inflater = requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             val layout: View = inflater.inflate(R.layout.fragment_manga_page, container, false)
             val imageViewPage: ImageViewPage = layout.findViewById<View>(R.id.page_image_view) as ImageViewPage
-            if (mReaderMode === ReaderMode.ASPECT_FILL) imageViewPage.setTranslateToRightEdge(!mIsLeftToRight)
+            if (mReaderMode === ReaderMode.ASPECT_FILL)
+                imageViewPage.setTranslateToRightEdge(!mIsLeftToRight)
             imageViewPage.setViewMode(mReaderMode)
             imageViewPage.useMagnifierType = mUseMagnifierType
             imageViewPage.setOnTouchListener(this@MangaReaderFragment)

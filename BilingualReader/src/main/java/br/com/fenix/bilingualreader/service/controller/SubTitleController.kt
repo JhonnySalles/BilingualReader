@@ -14,7 +14,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.*
+import br.com.fenix.bilingualreader.model.enums.ImageLoadType
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.service.ocr.OcrProcess
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
@@ -22,11 +24,17 @@ import br.com.fenix.bilingualreader.service.repository.SubTitleRepository
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
+import br.com.fenix.bilingualreader.util.helpers.ColorUtil
+import br.com.fenix.bilingualreader.util.helpers.ColorUtil.ColorsUtils.isDark
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderFragment
 import com.google.gson.Gson
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 import kotlinx.coroutines.CoroutineScope
@@ -87,6 +95,8 @@ class SubTitleController private constructor(private val context: Context) {
 
     private var mUseFileLink: Boolean = false
     private var mLinkedFile: LinkedFile? = null
+
+    private var mOcrLang: Languages? = null
 
     var isSelected = false
     var isNotEmpty = false
@@ -324,8 +334,7 @@ class SubTitleController private constructor(private val context: Context) {
 
         if (chapterKey.isNotEmpty()) {
             mSelectedSubTitle.value?.chapterKey = chapterKey
-            mSelectedSubTitle.value?.pageKey =
-                if (mListPages.keys.contains(pageKey)) pageKey else ""
+            mSelectedSubTitle.value?.pageKey = if (mListPages.keys.contains(pageKey)) pageKey else ""
             updatePageSelect()
             initialize(chapterKey, pageKey)
 
@@ -654,79 +663,130 @@ class SubTitleController private constructor(private val context: Context) {
             return
 
         val view: ImageViewPage = mReaderFragment!!.getCurrencyImageView() ?: return
-        if (mImageBackup.containsKey(MangaReaderFragment.mCurrentPage)) {
-            val percentScroll = view.getScrollPercent()
-            view.setImageBitmap(mImageBackup.remove(MangaReaderFragment.mCurrentPage))
-            view.setScrollPercent(percentScroll)
-        } else {
-            target = MyTarget(view, true)
+        if (!clearDrawing()) {
+            target = MyTarget(view, ImageLoadType.TEXT)
             mReaderFragment!!.loadImage(target!!, MangaReaderFragment.mCurrentPage, false)
         }
     }
 
     private fun drawPageLinked(path: Uri) {
         val view: ImageViewPage = mReaderFragment?.getCurrencyImageView() ?: return
-        if (mImageBackup.containsKey(MangaReaderFragment.mCurrentPage)) {
-            val percentScroll = view.getScrollPercent()
-            view.setImageBitmap(mImageBackup.remove(MangaReaderFragment.mCurrentPage))
-            view.setScrollPercent(percentScroll)
-            return
-        }
 
-        target = MyTarget(view)
-        mReaderFragment!!.loadImage(target!!, path, false)
+        if (!clearDrawing()) {
+            target = MyTarget(view)
+            mReaderFragment!!.loadImage(target!!, path, false)
+        }
     }
 
-    fun clearImageBackup() = mImageBackup.clear()
+    fun clearControllers() {
+        mImageBackup.clear()
+        mOcrLang = null
+    }
+
     fun removeImageBackup(pageNumber: Int) = mImageBackup.remove(pageNumber)
 
-    inner class MyTarget(layout: View, private val isText: Boolean = false, private val isKeepScroll: Boolean = true) : Target {
+    inner class MyTarget(layout: View, private val type: ImageLoadType = ImageLoadType.RELOAD, private val isKeepScroll: Boolean = true) : Target {
         private val mLayout: WeakReference<View> = WeakReference(layout)
 
         override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
             val layout = mLayout.get() ?: return
             val iv = layout.findViewById<View>(R.id.page_image_view) as ImageViewPage
-            if (isText) {
-                mImageBackup[MangaReaderFragment.mCurrentPage] = bitmap
+            when (type) {
+                ImageLoadType.TEXT -> {
+                    mImageBackup[MangaReaderFragment.mCurrentPage] = bitmap
 
-                val image: Bitmap = bitmap.copy(bitmap.config, true)
-                val canvas = Canvas(image)
-                val paint = Paint()
-                paint.color = Color.RED
-                paint.strokeWidth = 3f
-                paint.textSize = 50f
-                for (text in subTitlePageSelected.value!!.subTitleTexts) {
-                    paint.style = Paint.Style.FILL
-                    canvas.drawText(
-                        text.sequence.toString(),
-                        text.x1.toFloat(),
-                        text.y1.toFloat(),
-                        paint
-                    )
-                    paint.style = Paint.Style.STROKE
-                    canvas.drawRect(
-                        text.x1.toFloat(),
-                        text.y1.toFloat(),
-                        text.x2.toFloat(),
-                        text.y2.toFloat(),
-                        paint
-                    )
+                    val image: Bitmap = bitmap.copy(bitmap.config, true)
+                    val canvas = Canvas(image)
+                    val paint = Paint()
+                    paint.color = Color.RED
+                    paint.strokeWidth = 3f
+                    paint.textSize = 50f
+                    for (text in subTitlePageSelected.value!!.subTitleTexts) {
+                        paint.style = Paint.Style.FILL
+                        canvas.drawText(
+                            text.sequence.toString(),
+                            text.x1.toFloat(),
+                            text.y1.toFloat(),
+                            paint
+                        )
+                        paint.style = Paint.Style.STROKE
+                        canvas.drawRect(
+                            text.x1.toFloat(),
+                            text.y1.toFloat(),
+                            text.x2.toFloat(),
+                            text.y2.toFloat(),
+                            paint
+                        )
+                    }
+                    if (isKeepScroll) {
+                        val percentScroll = iv.getScrollPercent()
+                        iv.setImageBitmap(image)
+                        iv.setScrollPercent(percentScroll)
+                    } else
+                        iv.setImageBitmap(image)
                 }
-                if (isKeepScroll) {
-                    val percentScroll = iv.getScrollPercent()
-                    iv.setImageBitmap(image)
-                    iv.setScrollPercent(percentScroll)
-                } else
-                    iv.setImageBitmap(image)
-            } else {
-                mImageBackup[MangaReaderFragment.mCurrentPage] = iv.drawable.toBitmap()
+                ImageLoadType.OCR,
+                ImageLoadType.TRANSLATE -> {
+                    val newBitmap = bitmap.copy(bitmap.config, true)
+                    val options = if (mOcrLang == Languages.JAPANESE) JapaneseTextRecognizerOptions.Builder().build() else TextRecognizerOptions.DEFAULT_OPTIONS
+                    val recognizer = TextRecognition.getClient(options)
+                    val input = InputImage.fromBitmap(newBitmap, 0)
 
-                if (isKeepScroll) {
-                    val percentScroll = iv.getScrollPercent()
-                    iv.setImageBitmap(bitmap)
-                    iv.setScrollPercent(percentScroll)
-                } else
-                    iv.setImageBitmap(bitmap)
+                    Toast.makeText(context, context.resources.getString(R.string.ocr_google_vision_get_request), Toast.LENGTH_SHORT).show()
+
+                    recognizer.process(input)
+                        .addOnSuccessListener {txts ->
+                            if (txts.textBlocks.size == 0 )
+                                Toast.makeText(context, context.resources.getString(R.string.ocr_google_vision_not_detected), Toast.LENGTH_SHORT).show()
+                            else {
+                                val canvas = Canvas(newBitmap)
+                                val paint = Paint()
+                                paint.strokeWidth = 3f
+                                paint.textSize = 12f
+
+                                txts.textBlocks.forEach { block ->
+                                    block.lines.forEach { line ->
+                                        line.elements.forEach { element ->
+                                            val pos = element.boundingBox!!
+                                            paint.color = ColorUtil.getColorPalette(bitmap, pos)
+                                            paint.style = Paint.Style.FILL_AND_STROKE
+                                            canvas.drawRect(pos, paint)
+
+                                            if (paint.color.isDark())
+                                                paint.color = Color.WHITE
+                                            else
+                                                paint.color = Color.BLACK
+
+                                            paint.style = Paint.Style.FILL
+                                            canvas.drawText(element.text, pos.left.toFloat(), pos.centerY().toFloat(), paint)
+                                        }
+                                    }
+                                }
+
+                                mImageBackup[MangaReaderFragment.mCurrentPage] = bitmap
+                                if (isKeepScroll) {
+                                    val percentScroll = iv.getScrollPercent()
+                                    iv.setImageBitmap(newBitmap)
+                                    iv.setScrollPercent(percentScroll)
+                                } else
+                                    iv.setImageBitmap(newBitmap)
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            mLOGGER.error("Error process ocr image", e)
+                            Toast.makeText(context, (context.resources.getString(R.string.ocr_google_vision_error) + " " + e.message).trim(), Toast.LENGTH_SHORT).show()
+                        }
+                }
+                else -> {
+                    mImageBackup[MangaReaderFragment.mCurrentPage] = iv.drawable.toBitmap()
+
+                    if (isKeepScroll) {
+                        val percentScroll = iv.getScrollPercent()
+                        iv.setImageBitmap(bitmap)
+                        iv.setScrollPercent(percentScroll)
+                    } else
+                        iv.setImageBitmap(bitmap)
+                }
             }
         }
 
@@ -774,9 +834,7 @@ class SubTitleController private constructor(private val context: Context) {
     }
 
     private fun getNextSelectSubtitle(): Boolean {
-        val index: Int = if (mChaptersKeys.value!!.isNotEmpty()
-        ) mChaptersKeys.value!!.indexOf(mSelectedSubTitle.value?.chapterKey!!)
-            .plus(1) else 0
+        val index: Int = if (mChaptersKeys.value!!.isNotEmpty()) mChaptersKeys.value!!.indexOf(mSelectedSubTitle.value?.chapterKey!!).plus(1) else 0
 
         return if (getSubtitle().keys.size >= index && getSubtitle().containsKey(mChaptersKeys.value!![index])) {
             setChapter(getSubtitle()[mChaptersKeys.value!![index]])
@@ -786,9 +844,7 @@ class SubTitleController private constructor(private val context: Context) {
     }
 
     private fun getBeforeSelectSubtitle(): Boolean {
-        val index: Int = if (mChaptersKeys.value!!.isNotEmpty()
-        ) mChaptersKeys.value!!.indexOf(mSelectedSubTitle.value?.chapterKey!!)
-            .minus(1) else 0
+        val index: Int = if (mChaptersKeys.value!!.isNotEmpty()) mChaptersKeys.value!!.indexOf(mSelectedSubTitle.value?.chapterKey!!).minus(1) else 0
 
         return if (index >= 0 && getSubtitle().containsKey(mChaptersKeys.value!![index])) {
             setChapter(getSubtitle()[mChaptersKeys.value!![index]])
@@ -843,10 +899,10 @@ class SubTitleController private constructor(private val context: Context) {
         if (subTitleChapterSelected.value == null)
             return true
 
-        val index: Int =
-            if (mSelectedSubTitle.value?.pageKey!!.isNotEmpty())
-                mPagesKeys.value!!.indexOf(mSelectedSubTitle.value?.pageKey!!)
-                    .plus(differ) else 0
+        val index: Int = if (mSelectedSubTitle.value?.pageKey!!.isNotEmpty())
+            mPagesKeys.value!!.indexOf(mSelectedSubTitle.value?.pageKey!!).plus(differ)
+        else
+            0
 
         return if (mListPages.size > index && mListPages.containsKey(mPagesKeys.value!![index])) {
             setPage(false, mListPages[mPagesKeys.value!![index]])
@@ -942,14 +998,27 @@ class SubTitleController private constructor(private val context: Context) {
 
     fun isDrawing() = mImageBackup.containsKey(MangaReaderFragment.mCurrentPage)
 
-    fun drawPageLinked() {
-        if (mImageBackup.containsKey(MangaReaderFragment.mCurrentPage)) {
-            val view: ImageViewPage = mReaderFragment!!.getCurrencyImageView() ?: return
+    private fun clearDrawing() : Boolean {
+        return if (isDrawing()) {
+            val view: ImageViewPage = mReaderFragment!!.getCurrencyImageView() ?: return false
             val percentScroll = view.getScrollPercent()
             view.setImageBitmap(mImageBackup.remove(MangaReaderFragment.mCurrentPage))
             view.setScrollPercent(percentScroll)
+            true
         } else
+            false
+    }
+
+    fun drawPageLinked() {
+        if (!clearDrawing())
             locateFileLink(MangaReaderFragment.mCurrentPage)
+    }
+
+    fun drawOcrPage(type: ImageLoadType, ocr: OcrProcess) {
+        val view: ImageViewPage = mReaderFragment?.getCurrencyImageView() ?: return
+        mOcrLang = ocr.getLanguage() ?: return
+        if (!clearDrawing())
+            mReaderFragment!!.loadImage(MyTarget(view, type), MangaReaderFragment.mCurrentPage, false)
     }
 
     fun setUseFileLink(useInSearchTranslate: Boolean) {
@@ -979,7 +1048,8 @@ class SubTitleController private constructor(private val context: Context) {
     }
 
     fun locateFileLink(page: Int) {
-        if (mLinkedFile == null) return
+        if (mLinkedFile == null)
+            return
 
         mLinkedFile!!.pagesLink!!.firstOrNull { it.mangaPage.compareTo(page) == 0 }.let {
             if (it != null && it.fileLinkLeftPage > -1) {

@@ -367,7 +367,8 @@
     <string name="ocr_tesseract_copy_data_done">Cópia de arquivos do Tesseract concluído.</string>
     <string name="ocr_tesseract_get_request">Processando a imagem, aguarde…</string>
     <string name="ocr_google_vision_get_request">Comunicando com a api do google vision, aguarde…</string>
-    <string name="ocr_google_vision_error">Não foi possível realizar o processamento. Tente novamente mais tarde.</string>
+    <string name="ocr_google_vision_error">Tente novamente mais tarde.</string>
+    <string name="ocr_google_vision_not_detected">Nenhum texto identificado na imagem.</string>
 
     <!-- READER POPUP TITLES -->
     <string name="popup_reading_manga_open">Abrir</string>

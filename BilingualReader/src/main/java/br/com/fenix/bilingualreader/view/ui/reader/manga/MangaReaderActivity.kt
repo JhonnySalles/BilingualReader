@@ -125,8 +125,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
     companion object {
         private lateinit var mPopupTranslateTab: TabLayout
-        fun selectTabReader() =
-            mPopupTranslateTab.selectTab(mPopupTranslateTab.getTabAt(0), true)
+        fun selectTabReader() = mPopupTranslateTab.selectTab(mPopupTranslateTab.getTabAt(0), true)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -492,8 +491,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
     fun setLanguage(language: Languages) {
         mViewModel.mLanguageOcr = language
-        mLanguageOcrDescription.text =
-            getString(R.string.languages_description, Util.languageToString(this, language))
+        mLanguageOcrDescription.text = getString(R.string.languages_description, Util.languageToString(this, language))
         mSubToolBar.visibility = View.VISIBLE
     }
 
@@ -519,6 +517,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
     private fun setManga(manga: Manga, isRestore: Boolean = false) {
         if (!isRestore) {
+            mViewModel.clear()
             SharedData.clearChapters()
             mManga = manga
             mRepository.updateLastAccess(manga)
@@ -537,6 +536,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 (parse as RarParse?)!!.setCacheDirectory(cacheDir)
             }
         } catch (e: Exception) {
+            mLOGGER.error("Error to set manga.", e)
         } finally {
             mReaderProgress.setDots(parse?.getChapters() ?: intArrayOf())
             Util.destroyParse(parse)
@@ -742,6 +742,8 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     override fun onDestroy() {
+        mViewModel.mLanguageOcr = null
+
         if (::mFloatingSubtitleReader.isInitialized)
             mFloatingSubtitleReader.destroy()
 
@@ -1268,8 +1270,12 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         return image
     }
 
-    override fun getLanguage(): Languages {
-        return mViewModel.mLanguageOcr ?: Languages.JAPANESE
+    override fun getLanguage(): Languages? {
+        if (mViewModel.mLanguageOcr == null)
+            choiceLanguage {
+                mViewModel.mLanguageOcr = it
+            }
+        return mViewModel.mLanguageOcr
     }
 
     override fun setText(text: String?) {

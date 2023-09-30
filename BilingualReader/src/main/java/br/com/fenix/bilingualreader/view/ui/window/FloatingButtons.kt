@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.view.ui.window
 
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.Bitmap
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.drawable.Drawable
@@ -18,7 +19,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatImageButton
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.enums.ImageLoadType
+import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
+import br.com.fenix.bilingualreader.service.ocr.OcrProcess
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import kotlin.math.abs
@@ -36,8 +40,7 @@ class FloatingButtons constructor(
             return field
         }
 
-    private var mFloatingView: View =
-        LayoutInflater.from(context).inflate(R.layout.floating_manga_buttons, null)
+    private var mFloatingView: View = LayoutInflater.from(context).inflate(R.layout.floating_manga_buttons, null)
 
     private lateinit var layoutParams: WindowManager.LayoutParams
 
@@ -82,6 +85,7 @@ class FloatingButtons constructor(
     private val mOnFlingDetector = GestureDetector(context, mOnFlingListener)
 
     private val onTouchListener = View.OnTouchListener { view, event ->
+        view.performClick()
         mOnFlingDetector.onTouchEvent(event)
         val totalDeltaX = lastX - firstX
         val totalDeltaY = lastY - firstY
@@ -142,6 +146,8 @@ class FloatingButtons constructor(
                 .setOnClickListener { dismiss() }
             this.findViewById<AppCompatImageButton>(R.id.floating_manga_buttons_page_linked)
                 .setOnClickListener { mSubTitleController.drawPageLinked() }
+            this.findViewById<AppCompatImageButton>(R.id.floating_manga_buttons_ocr_google_vision)
+                .setOnClickListener { mSubTitleController.drawOcrPage(ImageLoadType.OCR, activity as OcrProcess) }
             this.findViewById<AppCompatImageButton>(R.id.floating_manga_buttons_draw_text)
                 .setOnClickListener { mSubTitleController.drawSelectedText() }
             this.findViewById<AppCompatImageButton>(R.id.floating_manga_buttons_floating_window)
