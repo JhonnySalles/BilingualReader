@@ -28,7 +28,7 @@
     <string name="notifications_channel_name">Bilingual Reader</string>
     <string name="notifications_channel_description">Bilingual Reader</string>
     <string name="notifications_share_mark_drive_title">Sincronizando</string>
-    <string name="notifications_share_mark_drive_content">Sincronizando marcações para o Google drive.</string>
+    <string name="notifications_share_mark_drive_content">Sincronizando marcações no Google drive.</string>
 
     <!-- MENU -->
     <string name="menu_search">Procurar</string>
@@ -181,12 +181,12 @@
     </string-array>
 
     <!-- READER - BOOK -->
-    <string name="book_share_mark_drive_processed">Marcadores compartilhada no Google drive</string>
+    <string name="book_share_mark_drive_processed">Marcadores compartilhados no Google drive</string>
     <string name="book_share_mark_drive_processed_receive">Marcadores atualizados do Google drive</string>
     <string name="book_share_mark_drive_processed_send">Marcadores enviados ao Google drive</string>
-    <string name="book_share_mark_drive_unprocessed">Marcadores não compartilhada no Google drive</string>
+    <string name="book_share_mark_drive_unprocessed">Marcadores não compartilhados no Google drive</string>
     <string name="book_share_mark_drive_without_alteration">Nenhuma alteração em marcadores encontrada</string>
-    <string name="book_share_mark_drive_need_permission">Necessário permissão para o Google drive</string>
+    <string name="book_share_mark_drive_need_permission">Necessário permissão para acessar o Google drive</string>
     <string name="book_share_mark_drive_need_sign_in">Necessário logar na conta do Google</string>
     <string name="book_share_mark_drive_error_download">Ocorreu um erro no download do Google drive</string>
     <string name="book_share_mark_drive_error_upload">Ocorreu um erro no upload do Google drive</string>
