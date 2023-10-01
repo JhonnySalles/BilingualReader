@@ -23,6 +23,8 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import com.google.api.client.http.FileContent
+import com.google.api.client.http.HttpRequest
+import com.google.api.client.http.HttpRequestInitializer
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
@@ -136,17 +138,20 @@ class ShareMarkController(var context: Context) {
             share.marks = share.marks!!.filter { it != null }.toMutableSet()
     }
 
+    private fun setHttpTimeout(requestInitializer : HttpRequestInitializer) : HttpRequestInitializer {
+        return HttpRequestInitializer { request ->
+            requestInitializer.initialize(request);
+            request?.connectTimeout = 5 * 60000; // 5 minutes
+            request?.readTimeout = 3 * 60000; // 3 minutes
+        }
+    }
+
     private fun getDriveService(): Drive? {
         GoogleSignIn.getLastSignedInAccount(context)?.let { googleAccount ->
-            val credential = GoogleAccountCredential.usingOAuth2(
-                context, listOf(DriveScopes.DRIVE_FILE)
-            )
+            val credential = GoogleAccountCredential.usingOAuth2(context, listOf(DriveScopes.DRIVE_FILE))
             credential.selectedAccount = googleAccount.account
-            return Drive.Builder(
-                AndroidHttp.newCompatibleTransport(),
-                JacksonFactory.getDefaultInstance(),
-                credential
-            ).setApplicationName(context.getString(R.string.app_name))
+            return Drive.Builder(AndroidHttp.newCompatibleTransport(), JacksonFactory.getDefaultInstance(), setHttpTimeout(credential))
+                .setApplicationName(context.getString(R.string.app_name))
                 .build()
         }
         return null
