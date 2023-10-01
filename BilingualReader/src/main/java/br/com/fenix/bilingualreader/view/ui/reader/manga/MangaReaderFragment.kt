@@ -549,7 +549,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     mCurrentFragment = `object`
 
                     if (mKeepZoomBetweenPage && mLastZoomScale != 0f)
-                        getCurrencyImageView()?.zoomAnimated(mLastZoomScale)
+                        getCurrencyImageView()?.zoomAnimated(mLastZoomScale, mIsLeftToRight)
                 }
             }
             super.setPrimaryItem(container, position, `object`)
@@ -698,7 +698,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             if (position == Position.LEFT || position == Position.RIGHT) {
                 val view = getCurrencyImageView()
                 view?.let {
-                    if (it.autoScroll(position == Position.LEFT))
+                    val isBack = if (mIsLeftToRight) position == Position.LEFT else position == Position.RIGHT
+                    if (it.autoScroll(isBack))
                         return true
                 }
             }

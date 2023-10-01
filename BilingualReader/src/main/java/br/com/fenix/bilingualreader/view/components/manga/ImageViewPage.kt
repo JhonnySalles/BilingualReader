@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.view.components.manga
 
 import android.content.Context
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapShader
@@ -66,6 +67,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : androi
     private val mMagnifierCenter: Float
     private val mMagnifierSize: Float
     private val mMagnifierRadius: Float
+    private val mRightZoomScale: PointF
 
     fun setViewMode(viewMode: ReaderMode) {
         mViewMode = viewMode
@@ -115,12 +117,10 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : androi
         mViewMode = ReaderMode.FIT_WIDTH
 
         val isTablet = resources.getBoolean(R.bool.isTablet)
-        mMagnifierSize =
-            if (isTablet) resources.getDimension(R.dimen.reader_zoom_tablet_size) else resources.getDimension(
+        mMagnifierSize = if (isTablet) resources.getDimension(R.dimen.reader_zoom_tablet_size) else resources.getDimension(
                 R.dimen.reader_zoom_size
             )
-        mMagnifierRadius =
-            if (isTablet) resources.getDimension(R.dimen.reader_zoom_magnifier_tablet_size) else resources.getDimension(
+        mMagnifierRadius = if (isTablet) resources.getDimension(R.dimen.reader_zoom_magnifier_tablet_size) else resources.getDimension(
                 R.dimen.reader_zoom_magnifier_size
             )
         mMagnifierCenter = mMagnifierSize / 2
@@ -136,6 +136,10 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : androi
         mBackground = Paint()
         mBackground.color = context.getColorFromAttr(R.attr.colorOnSurface)
         mBackground.style = Paint.Style.FILL
+
+        val displayMetrics = Resources.getSystem().displayMetrics
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        mRightZoomScale = if (isLandscape) PointF(displayMetrics.widthPixels.toFloat() * displayMetrics.density, 0f)  else PointF(displayMetrics.heightPixels.toFloat(), 0f)
     }
 
     fun autoScroll(isBack: Boolean = false): Boolean {
@@ -353,8 +357,11 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : androi
         post(ZoomAnimation(e.x, e.y, scale))
     }
 
-    open fun zoomAnimated(scale: Float) {
-        post(ZoomAnimation(0f, 0f, scale))
+    open fun zoomAnimated(scale: Float, isLeftToRight: Boolean) {
+        if (!isLeftToRight)
+            post(ZoomAnimation(mRightZoomScale.x, mRightZoomScale.y, scale))
+        else
+            post(ZoomAnimation(0f, 0f, scale))
     }
 
     override fun computeScroll() {
