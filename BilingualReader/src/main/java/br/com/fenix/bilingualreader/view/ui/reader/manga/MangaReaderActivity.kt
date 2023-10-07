@@ -527,6 +527,9 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         mManga = manga
         changePage(manga.title, "", manga.bookMark)
 
+        val dots = mutableListOf<Int>()
+        val inverse = mutableListOf<Int>()
+
         var parse: Parse? = null
         try {
             parse = ParseFactory.create(manga.path)
@@ -535,10 +538,16 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 val cacheDir = File(GeneralConsts.getCacheDir(this), folder)
                 (parse as RarParse?)!!.setCacheDirectory(cacheDir)
             }
+
+            val pages = (parse?.numPages() ?: 2) - 1
+            for (chapter in parse?.getChapters() ?: intArrayOf()) {
+                inverse.add(pages - chapter)
+                dots.add(chapter)
+            }
         } catch (e: Exception) {
             mLOGGER.error("Error to set manga.", e)
         } finally {
-            mReaderProgress.setDots(parse?.getChapters() ?: intArrayOf())
+            mReaderProgress.setDots(dots.toIntArray(), inverse.toIntArray())
             Util.destroyParse(parse)
         }
     }

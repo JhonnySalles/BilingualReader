@@ -18,7 +18,10 @@ class DottedSeekBar : androidx.appcompat.widget.AppCompatSeekBar {
     private val MIN : Int = 0
 
     /** Int values which corresponds to dots  */
+    private var mDots: IntArray = intArrayOf()
+    private var mDotsInversed: IntArray = intArrayOf()
     private var mDotsPositions: IntArray = intArrayOf()
+    private var isInverse = false
 
     /** Drawable for dot  */
     private var mDotMark: Drawable? = null
@@ -45,10 +48,8 @@ class DottedSeekBar : androidx.appcompat.widget.AppCompatSeekBar {
      * @param attributeSet [AttributeSet]
      */
     private fun init(attributeSet: AttributeSet?) {
-        val attrsArray =
-            context.obtainStyledAttributes(attributeSet, R.styleable.DottedSeekBar, 0, 0)
-        val dotsArrayResource =
-            attrsArray.getResourceId(R.styleable.DottedSeekBar_dots_positions, 0)
+        val attrsArray = context.obtainStyledAttributes(attributeSet, R.styleable.DottedSeekBar, 0, 0)
+        val dotsArrayResource = attrsArray.getResourceId(R.styleable.DottedSeekBar_dots_positions, 0)
         if (0 != dotsArrayResource)
             mDotsPositions = resources.getIntArray(dotsArrayResource)
 
@@ -60,10 +61,28 @@ class DottedSeekBar : androidx.appcompat.widget.AppCompatSeekBar {
     /**
      * @param dots to be displayed on this SeekBar
      */
-    fun setDots(dots: IntArray) {
-        mDotsPositions = dots
+    fun setDots(dots: IntArray, inverse: IntArray) {
+        mDots = dots
+        mDotsInversed = inverse
+        mDotsPositions = mDots.clone()
+        isInverse = false
         invalidate()
     }
+
+    /**
+     * @param isInverse used in manga mode
+     */
+    fun setDotsMode(isInverse: Boolean) {
+        if (this.isInverse != isInverse) {
+            if (isInverse)
+                mDotsPositions = mDotsInversed.clone()
+            else
+                mDotsPositions = mDots.clone()
+            this.isInverse = isInverse
+            invalidate()
+        }
+    }
+
 
     /**
      * @param dotsResource resource id to be used for dots drawing
