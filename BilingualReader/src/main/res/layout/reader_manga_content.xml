@@ -98,9 +98,9 @@
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/title_small_size" />
 
+            <!-- Not use style, because progress color from drawable -->
             <br.com.fenix.bilingualreader.view.components.DottedSeekBar
                 android:id="@+id/reader_manga_bottom_progress"
-                style="@style/SeekBarDotted"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxHeight="2dp"

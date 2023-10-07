@@ -52,6 +52,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.view.components.DottedSeekBar
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPager
 import br.com.fenix.bilingualreader.view.managers.MangaHandler
@@ -84,7 +85,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mPopupSubtitle: FrameLayout
     private lateinit var mPopupColor: FrameLayout
     private lateinit var mToolbarBottom: LinearLayout
-    private lateinit var mPageSeekBar: SeekBar
+    private lateinit var mPageSeekBar: DottedSeekBar
     private lateinit var mPageNavTextView: TextView
     private lateinit var mPagerAdapter: ComicPagerAdapter
     private lateinit var mPreferences: SharedPreferences
@@ -314,7 +315,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             BottomSheetBehavior.from(mPopupColor).maxWidth = Util.dpToPx(requireContext(), 500)
         }
 
-        (mPageNavLayout.findViewById<View>(R.id.reader_manga_bottom_progress) as SeekBar).also {
+        (mPageNavLayout.findViewById<View>(R.id.reader_manga_bottom_progress) as DottedSeekBar).also {
             mPageSeekBar = it
         }
         mPageNavTextView =
@@ -973,6 +974,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         val bounds = mPageSeekBar.progressDrawable.bounds
         mPageSeekBar.progressDrawable = d
         mPageSeekBar.progressDrawable.bounds = bounds
+        mPageSeekBar.setDotsMode(!mIsLeftToRight)
     }
 
     private fun openPopupSaveShareImage() {
