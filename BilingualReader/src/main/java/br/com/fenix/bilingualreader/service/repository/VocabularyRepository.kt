@@ -293,7 +293,7 @@ class VocabularyRepository(var context: Context) {
 
                     val mMsgImport = "${context.getString(R.string.vocabulary_imported)}\n${manga.title}"
                     withContext(Dispatchers.Main) {
-                        mBase.getMangaDao().update(manga)
+                        mDataBaseDAO.updateImport(manga.id!!, manga.lastVocabImport!!, manga.fileAlteration)
 
                         notification.setContentText(mMsgImport)
                             .setProgress(list.size, list.size, false)
