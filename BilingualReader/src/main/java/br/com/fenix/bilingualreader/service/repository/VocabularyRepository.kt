@@ -302,7 +302,7 @@ class VocabularyRepository(var context: Context) {
 
                     val mMsgImport = "${context.getString(R.string.vocabulary_imported)}\n${manga.title}"
                     withContext(Dispatchers.Main) {
-                        updateMangaImport(manga.id!!, manga.lastVocabImport!!, manga.fileAlteration)
+                        updateImport(manga)
 
                         notification.setContentText(mMsgImport)
                             .setProgress(list.size, list.size, false)
@@ -334,8 +334,8 @@ class VocabularyRepository(var context: Context) {
         }
     }
 
-    fun updateMangaImport(id: Long, lastVocabImport: LocalDateTime, fileAlteration : Date) {
-        mDataBaseDAO.updateMangaImport(id, lastVocabImport, fileAlteration)
+    fun updateImport(manga: Manga) {
+        mDataBaseDAO.updateMangaImport(manga.id!!, manga.lastVocabImport!!, manga.fileAlteration)
     }
 
     fun processVocabulary(context: Context, idBook: Long?) {
@@ -386,7 +386,7 @@ class VocabularyRepository(var context: Context) {
                     val mMsgImport = "${context.getString(R.string.vocabulary_imported)}\n${book.title}"
 
                     withContext(Dispatchers.Main) {
-                        mBase.getBookDao().update(book)
+                        updateImport(book)
 
                         notification.setContentText(mMsgImport)
                             .setProgress(0, 0, false)
@@ -411,6 +411,10 @@ class VocabularyRepository(var context: Context) {
                 }
             }
         }
+    }
+
+    fun updateImport(book: Book) {
+        mDataBaseDAO.updateBookImport(book.id!!, book.lastVocabImport!!, book.fileAlteration)
     }
 
 }
