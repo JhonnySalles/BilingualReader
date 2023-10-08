@@ -664,7 +664,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             val layout = mLayout.get() ?: return
             setVisibility(View.GONE, View.GONE, View.VISIBLE)
             val ib = layout.findViewById<View>(R.id.reload_Button) as ImageButton
-            ib.setOnClickListener(this)
+            ib.setOnClickListener(this@MyTarget)
         }
 
         override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
