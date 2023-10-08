@@ -620,7 +620,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                                 manga.fileAlteration = Date(manga.file.lastModified())
 
                                 withContext(Dispatchers.Main) {
-                                    repository.updateMangaImport(manga.id!!, manga.lastVocabImport!!, manga.fileAlteration)
+                                    repository.updateImport(manga)
                                 }
                             }
                         } finally {
