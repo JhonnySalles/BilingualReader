@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.time.LocalDateTime
 import java.util.Collections
+import java.util.Date
 import java.util.Locale
 import java.util.Objects
 import java.util.regex.Pattern
@@ -614,6 +615,9 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                                         vocab.first.id = repository.save(vocab.first)
                                         vocab.first.id?.let { repository.insert(manga.id!!, it, vocab.second) }
                                     }
+
+                                manga.lastVocabImport = LocalDateTime.now()
+                                manga.fileAlteration = Date(manga.file.lastModified())
 
                                 withContext(Dispatchers.Main) {
                                     repository.updateMangaImport(manga.id!!, manga.lastVocabImport!!, manga.fileAlteration)
