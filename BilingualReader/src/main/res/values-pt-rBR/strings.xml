@@ -318,6 +318,7 @@
     <string name="menu_manga_reading_favorite">Favorito</string>
     <string name="menu_manga_reading_order">Ordem da lista</string>
     <string name="menu_manga_reading_order_change">Ordernado:</string>
+    <string name="menu_manga_vocabulary_import">Importar vocabulário</string>
 
     <string name="menu_manga_reading_floating">Popup flutuante</string>
     <string name="menu_manga_reading_floating_buttons">Botões flutuante</string>

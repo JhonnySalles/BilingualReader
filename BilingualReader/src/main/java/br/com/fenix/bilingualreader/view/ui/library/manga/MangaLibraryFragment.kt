@@ -148,6 +148,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         miGridOrder = menu.findItem(R.id.menu_manga_library_list_order)
         miSearch = menu.findItem(R.id.menu_manga_library_search)
 
+
         searchView = miSearch.actionView as SearchView
         searchView.imeOptions = EditorInfo.IME_ACTION_DONE
 
@@ -385,6 +386,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         when (menuItem.itemId) {
             R.id.menu_manga_library_type -> mViewModel.changeLibraryType()
             R.id.menu_manga_library_list_order -> onChangeSort()
+            R.id.menu_manga_library_import_vocab -> mViewModel.importVocabulary()
         }
         return super.onOptionsItemSelected(menuItem)
     }

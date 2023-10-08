@@ -24,4 +24,12 @@
         android:title="@string/menu_manga_library_type"
         android:visible="true"
         app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_manga_library_import_vocab"
+        android:icon="@drawable/ic_import_vocabulary"
+        android:orderInCategory="199"
+        android:title="@string/menu_manga_vocabulary_import"
+        android:visible="true"
+        app:showAsAction="never" />
 </menu>

@@ -1,26 +1,39 @@
 package br.com.fenix.bilingualreader.view.ui.library.manga
 
+import android.Manifest
 import android.app.Application
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.widget.Filter
 import android.widget.Filterable
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.entity.SubTitleChapter
+import br.com.fenix.bilingualreader.model.entity.SubTitleVolume
 import br.com.fenix.bilingualreader.model.enums.FileType
+import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.ShareMarkController
+import br.com.fenix.bilingualreader.service.controller.SubTitleController
+import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
+import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
+import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.Util
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -28,6 +41,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
+import java.io.File
+import java.time.LocalDateTime
+import java.util.Collections
 import java.util.Locale
 import java.util.Objects
 import java.util.regex.Pattern
@@ -536,6 +552,92 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                     processed(ShareMarkType.NOTIFY_DATA_SET)
                 else
                     processed(it)
+            }
+        }
+    }
+
+    var mImportingVocab = false
+    fun importVocabulary() {
+        if (mImportingVocab)
+            return
+
+        val list = mListMangasFull.value?.toList() ?: return
+        val cache = GeneralConsts.getCacheDir(app.applicationContext)
+
+        if (list.isEmpty())
+            return
+
+        val repository = VocabularyRepository(app.applicationContext)
+        mImportingVocab = true
+
+        val notifyId = Notifications.getID()
+        val notificationManager = NotificationManagerCompat.from(app.applicationContext)
+        val notification = Notifications.getNotification(app.applicationContext, app.getString(R.string.vocabulary_import_title), "")
+
+        if (ActivityCompat.checkSelfPermission(app.applicationContext, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+            notificationManager.notify(notifyId, notification.build())
+
+        CoroutineScope(newSingleThreadContext("VocabularyThread")).launch {
+            async {
+                try {
+                    val size = list.size
+                    for ((index, manga) in list.withIndex()) {
+                        if (manga.lastVocabImport != null && manga.lastVocabImport!!.isAfter(LocalDateTime.now().minusDays(1)))
+                            continue;
+
+                        withContext(Dispatchers.Main) {
+                            notification.setContentText(manga.name).setProgress(size, index, false).setOngoing(true)
+
+                            if (ActivityCompat.checkSelfPermission(app.applicationContext, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                                notificationManager.notify(notifyId, notification.build())
+                        }
+
+                        val parse = ParseFactory.create(manga.file) ?: continue
+
+                        try {
+                            if (parse is RarParse) {
+                                val folder = GeneralConsts.CACHE_FOLDER.RAR + '/' + Util.normalizeNameCache(manga.name)
+                                val cacheDir = File(cache, folder)
+                                (parse as RarParse?)!!.setCacheDirectory(cacheDir)
+                            }
+
+                            val listJson: List<String> = parse.getSubtitles()
+                            if (listJson.isNotEmpty()) {
+                                val listSubTitleChapter: MutableList<SubTitleChapter> = SubTitleController.getChapterFromJson(listJson)
+                                val chaptersList = Collections.synchronizedCollection(listSubTitleChapter.parallelStream()
+                                    .filter(Objects::nonNull)
+                                    .filter { it.language == Languages.JAPANESE && it.vocabulary.isNotEmpty() }
+                                    .collect(Collectors.toList()))
+                                val processed = repository.processVocabulary(chaptersList)
+                                for (vocab in processed)
+                                    withContext(Dispatchers.Main) {
+                                        vocab.first.id = repository.save(vocab.first)
+                                        vocab.first.id?.let { repository.insert(manga.id!!, it, vocab.second) }
+                                    }
+                            }
+                        } finally {
+                            Util.destroyParse(parse)
+                        }
+                    }
+                    withContext(Dispatchers.Main) {
+                        val mMsgImport = app.getString(R.string.vocabulary_imported)
+                        notification.setContentText(mMsgImport)
+                            .setProgress(list.size, list.size, false)
+
+                        if (ActivityCompat.checkSelfPermission(app.applicationContext, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                            notificationManager.notify(notifyId, notification.build())
+                    }
+                } catch (e: Exception) {
+                    mLOGGER.error("Error to import vocabulary", e)
+                } finally {
+                    withContext(Dispatchers.Main) {
+                        mImportingVocab = false
+                        notification.setOngoing(false)
+
+                        if (ActivityCompat.checkSelfPermission(app.applicationContext, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                            notificationManager.notify(notifyId, notification.build())
+                    }
+                }
             }
         }
     }
