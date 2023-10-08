@@ -334,7 +334,7 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
     abstract fun exists(vocabulary: String, basicForm: String): Vocabulary?
 
     @Query("UPDATE " + DataBaseConsts.MANGA.TABLE_NAME + " SET " + DataBaseConsts.MANGA.COLUMNS.LAST_VOCABULARY_IMPORT + " = :lastImport, " + DataBaseConsts.MANGA.COLUMNS.FILE_ALTERATION + " = :alteration WHERE " + DataBaseConsts.MANGA.COLUMNS.ID + " = :id")
-    abstract fun updateImport(id: Long, lastImport: LocalDateTime, alteration : Date)
+    abstract fun updateMangaImport(id: Long, lastImport: LocalDateTime, alteration : Date)
 
     // --------------------------------------------------------- Comic / Manga ---------------------------------------------------------
     @Query(

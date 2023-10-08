@@ -614,6 +614,10 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                                         vocab.first.id = repository.save(vocab.first)
                                         vocab.first.id?.let { repository.insert(manga.id!!, it, vocab.second) }
                                     }
+
+                                withContext(Dispatchers.Main) {
+                                    repository.updateMangaImport(manga.id!!, manga.lastVocabImport!!, manga.fileAlteration)
+                                }
                             }
                         } finally {
                             Util.destroyParse(parse)
