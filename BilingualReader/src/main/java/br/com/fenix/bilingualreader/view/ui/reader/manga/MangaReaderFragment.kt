@@ -250,7 +250,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     mSubtitleController.mReaderFragment = this
                     mFileName = file.name
                     mCurrentPage = max(1, min(mCurrentPage, mParse!!.numPages()))
-                    mComicHandler = MangaHandler(mParse)
+                    mComicHandler = MangaHandler(mParse!!)
                     mPicasso = Picasso.Builder(requireContext())
                         .addRequestHandler((mComicHandler as RequestHandler))
                         .build()
@@ -660,6 +660,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
 
         override fun onBitmapFailed(p0: Exception, errorDrawable: Drawable?) {
+            mLOGGER.error("Bitmap load fail: " + p0.message, p0)
             val layout = mLayout.get() ?: return
             setVisibility(View.GONE, View.GONE, View.VISIBLE)
             val ib = layout.findViewById<View>(R.id.reload_Button) as ImageButton
@@ -934,17 +935,20 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
     }
 
+    private var mDialog: AlertDialog? = null
     private fun confirmSwitch(newManga: Manga?, titleRes: Int) {
-        if (newManga == null) return
+        if (newManga == null || mDialog != null) return
         var confirm = false
         mNewManga = newManga
         mNewMangaTitle = titleRes
-        val dialog: AlertDialog = MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+        mDialog = MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(titleRes)
                 .setMessage(newManga.fileName)
                 .setPositiveButton(
                     R.string.switch_action_positive
                 ) { _, _ ->
+                    if (context == null) return@setPositiveButton
+
                     confirm = true
                     val activity = requireActivity() as MangaReaderActivity
                     activity.changeManga(mNewManga!!)
@@ -957,9 +961,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                         mNewManga = null
                         setFullscreen(fullscreen = true)
                     }
+                    mDialog = null
                 }
                 .create()
-        dialog.show()
+        mDialog!!.show()
     }
 
     private fun updateSeekBar() {

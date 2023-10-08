@@ -169,6 +169,7 @@ class SubTitleController private constructor(private val context: Context) {
                 }
 
                 val listSubTitleChapter = getChapterFromJson(listJson)
+                mVocabularyRepository.processVocabulary(mManga?.id, listSubTitleChapter)
 
                 withContext(Dispatchers.Main) {
                     setListChapter(listSubTitleChapter)
@@ -189,7 +190,6 @@ class SubTitleController private constructor(private val context: Context) {
         mPagesKeys.value = listOf()
         clearSubtitlesSelected()
     }
-
 
     fun getChapterFromJson(listJson: List<String>, isSelected: Boolean = false) : MutableList<SubTitleChapter>  {
         this.isSelected = isSelected
@@ -214,8 +214,6 @@ class SubTitleController private constructor(private val context: Context) {
                     }
                 }
             }
-
-            mVocabularyRepository.processVocabulary(mManga?.id, listSubTitleChapter)
         }
         return listSubTitleChapter;
     }
