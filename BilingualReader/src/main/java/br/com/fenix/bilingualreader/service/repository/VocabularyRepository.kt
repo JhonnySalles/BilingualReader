@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader.service.repository
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
@@ -234,6 +235,33 @@ class VocabularyRepository(var context: Context) {
         mDataBaseDAO.insert(mBase.openHelper, idMangaOrBook, idVocabulary, appears, isManga)
     }
 
+    fun processVocabulary(chaptersList: Collection<SubTitleChapter>) : List<Pair<Vocabulary, Int>> {
+        val list = mutableSetOf<Vocabulary?>()
+        val pages = mutableListOf<Vocabulary>()
+
+        //Not use parallel because error when add pages list
+        chaptersList.stream()
+            .forEach {
+                for (vocabulary in it.vocabulary)
+                    if (!list.contains(vocabulary))
+                        list.add(vocabulary)
+
+                it.subTitlePages.stream().forEach { p -> pages.addAll(p.vocabulary) }
+            }
+
+        val newList = mutableListOf<Pair<Vocabulary, Int>>()
+
+        for ((index, vocabulary) in list.withIndex()) {
+            if (vocabulary != null) {
+                var appears = 0
+                pages.parallelStream().forEach { v -> if (v == vocabulary) appears++ }
+                newList.add(Pair(vocabulary, appears))
+            }
+        }
+
+        return newList
+    }
+
     fun processVocabulary(idManga: Long?, subTitleChapters: List<SubTitleChapter>, forced : Boolean = false) {
         if (subTitleChapters.isEmpty() || idManga == null)
             return
@@ -258,35 +286,16 @@ class VocabularyRepository(var context: Context) {
         CoroutineScope(newSingleThreadContext("VocabularyThread")).launch {
             async {
                 try {
-                    val list = mutableSetOf<Vocabulary?>()
-                    val pages = mutableListOf<Vocabulary>()
+                    val processed = processVocabulary(chaptersList)
+                    for ((index, vocab) in processed.withIndex())
+                        withContext(Dispatchers.Main) {
+                            vocab.first.id = save(vocab.first)
+                            vocab.first.id?.let { insert(manga.id!!, it, vocab.second) }
 
-                    //Not use parallel because error when add pages list
-                    chaptersList.stream()
-                        .forEach {
-                            for (vocabulary in it.vocabulary)
-                                if (!list.contains(vocabulary))
-                                    list.add(vocabulary)
-
-                            it.subTitlePages.stream().forEach { p -> pages.addAll(p.vocabulary) }
+                            notification.setProgress(processed.size, index, false)
+                            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                                notificationManager.notify(notifyId, notification.build())
                         }
-
-                    for ((index, vocabulary) in list.withIndex()) {
-                        if (vocabulary != null) {
-                            var appears = 0
-
-                            pages.parallelStream().forEach { v -> if (v == vocabulary) appears++ }
-
-                            withContext(Dispatchers.Main) {
-                                vocabulary.id = save(vocabulary)
-                                vocabulary.id?.let { insert(manga.id!!, it, appears) }
-
-                                notification.setProgress(list.size, index, false)
-                                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
-                                    notificationManager.notify(notifyId, notification.build())
-                            }
-                        }
-                    }
 
                     manga.lastVocabImport = Date()
                     manga.fileAlteration = Date(manga.file.lastModified())
@@ -316,6 +325,9 @@ class VocabularyRepository(var context: Context) {
                 } finally {
                     withContext(Dispatchers.Main) {
                         notification.setOngoing(false)
+
+                        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                            notificationManager.notify(notifyId, notification.build())
                     }
                 }
             }

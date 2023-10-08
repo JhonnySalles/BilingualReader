@@ -13,6 +13,7 @@ import br.com.fenix.bilingualreader.model.entity.SubTitleChapter
 import br.com.fenix.bilingualreader.model.entity.SubTitleVolume
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
+import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.listener.ApiListener
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
@@ -224,27 +225,7 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
 
                     val listJson: List<String> = parse.getSubtitles()
                     if (listJson.isNotEmpty()) {
-                        val gson = Gson()
-                        val listSubTitleChapter: MutableList<SubTitleChapter> = arrayListOf()
-
-                        listJson.forEach {
-                            try {
-                                val subTitleVolume: SubTitleVolume = gson.fromJson(it, SubTitleVolume::class.java)
-                                for (chapter in subTitleVolume.subTitleChapters) {
-                                    chapter.manga = subTitleVolume.manga
-                                    chapter.volume = subTitleVolume.volume
-                                    chapter.language = subTitleVolume.language
-                                }
-                                listSubTitleChapter.addAll(subTitleVolume.subTitleChapters)
-                            } catch (volExcept: Exception) {
-                                try {
-                                    val subTitleChapter: SubTitleChapter = gson.fromJson(it, SubTitleChapter::class.java)
-                                    listSubTitleChapter.add(subTitleChapter)
-                                } catch (_: Exception) {
-                                }
-                            }
-                        }
-
+                        val listSubTitleChapter: MutableList<SubTitleChapter> = SubTitleController.getChapterFromJson(listJson)
                         mVocabularyRepository.processVocabulary(manga.id, listSubTitleChapter, true)
                     }
                 } finally {

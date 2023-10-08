@@ -133,6 +133,31 @@ class SubTitleController private constructor(private val context: Context) {
                 INSTANCE = SubTitleController(context)
             return INSTANCE
         }
+
+        fun getChapterFromJson(listJson: List<String>) : MutableList<SubTitleChapter>  {
+            val listSubTitleChapter: MutableList<SubTitleChapter> = arrayListOf()
+            if (listJson.isNotEmpty()) {
+                val gson = Gson()
+                listJson.forEach {
+                    try {
+                        val subTitleVolume: SubTitleVolume = gson.fromJson(it, SubTitleVolume::class.java)
+                        for (chapter in subTitleVolume.subTitleChapters) {
+                            chapter.manga = subTitleVolume.manga
+                            chapter.volume = subTitleVolume.volume
+                            chapter.language = subTitleVolume.language
+                        }
+                        listSubTitleChapter.addAll(subTitleVolume.subTitleChapters)
+                    } catch (volExcept: Exception) {
+                        try {
+                            val subTitleChapter: SubTitleChapter = gson.fromJson(it, SubTitleChapter::class.java)
+                            listSubTitleChapter.add(subTitleChapter)
+                        } catch (_: Exception) {
+                        }
+                    }
+                }
+            }
+            return listSubTitleChapter;
+        }
     }
 
     fun initialize(chapterKey: String, pageKey: String) {
@@ -162,7 +187,6 @@ class SubTitleController private constructor(private val context: Context) {
                 mManga = manga
                 mParse = parse
                 val listJson: List<String> = mParse.getSubtitles()
-                isSelected = false
 
                 withContext(Dispatchers.Main) {
                     clean()
@@ -194,28 +218,7 @@ class SubTitleController private constructor(private val context: Context) {
     fun getChapterFromJson(listJson: List<String>, isSelected: Boolean = false) : MutableList<SubTitleChapter>  {
         this.isSelected = isSelected
         isNotEmpty = listJson.isNotEmpty()
-        val listSubTitleChapter: MutableList<SubTitleChapter> = arrayListOf()
-        if (listJson.isNotEmpty()) {
-            val gson = Gson()
-            listJson.forEach {
-                try {
-                    val subTitleVolume: SubTitleVolume = gson.fromJson(it, SubTitleVolume::class.java)
-                    for (chapter in subTitleVolume.subTitleChapters) {
-                        chapter.manga = subTitleVolume.manga
-                        chapter.volume = subTitleVolume.volume
-                        chapter.language = subTitleVolume.language
-                    }
-                    listSubTitleChapter.addAll(subTitleVolume.subTitleChapters)
-                } catch (volExcept: Exception) {
-                    try {
-                        val subTitleChapter: SubTitleChapter = gson.fromJson(it, SubTitleChapter::class.java)
-                        listSubTitleChapter.add(subTitleChapter)
-                    } catch (_: Exception) {
-                    }
-                }
-            }
-        }
-        return listSubTitleChapter;
+        return SubTitleController.getChapterFromJson(listJson);
     }
 
     private fun setListChapter(subTitleChapters: MutableList<SubTitleChapter>) {

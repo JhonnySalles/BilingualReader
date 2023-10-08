@@ -344,6 +344,7 @@
     <string name="menu_manga_reading_favorite">Favorite</string>
     <string name="menu_manga_reading_order">List order</string>
     <string name="menu_manga_reading_order_change">Sort:</string>
+    <string name="menu_manga_vocabulary_import">Importing vocabulary</string>
 
     <string name="menu_manga_reading_floating">Floating popup</string>
     <string name="menu_manga_reading_floating_buttons">Floating buttons</string>
