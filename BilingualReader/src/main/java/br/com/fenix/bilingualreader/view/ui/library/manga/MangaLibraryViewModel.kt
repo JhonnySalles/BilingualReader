@@ -16,7 +16,6 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.SubTitleChapter
-import br.com.fenix.bilingualreader.model.entity.SubTitleVolume
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
@@ -33,7 +32,6 @@ import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -42,7 +40,7 @@ import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.io.File
-import java.time.LocalDateTime
+import java.util.Calendar
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
@@ -582,8 +580,10 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
             async {
                 try {
                     val size = list.size
+                    val calendar = Calendar.getInstance()
+                    calendar.add(Calendar.DATE, -1)
                     for ((index, manga) in list.withIndex()) {
-                        if (manga.lastVocabImport != null && manga.lastVocabImport!!.isAfter(LocalDateTime.now().minusDays(1)))
+                        if (manga.lastVocabImport != null && manga.lastVocabImport!!.after(calendar.time))
                             continue;
 
                         withContext(Dispatchers.Main) {
@@ -616,7 +616,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                                         vocab.first.id?.let { repository.insert(manga.id!!, it, vocab.second) }
                                     }
 
-                                manga.lastVocabImport = LocalDateTime.now()
+                                manga.lastVocabImport = Date()
                                 manga.fileAlteration = Date(manga.file.lastModified())
 
                                 withContext(Dispatchers.Main) {

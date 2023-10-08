@@ -6,7 +6,6 @@ import br.com.fenix.bilingualreader.model.entity.*
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
-import java.time.LocalDateTime
 import java.util.*
 
 
@@ -334,10 +333,10 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
     abstract fun exists(vocabulary: String, basicForm: String): Vocabulary?
 
     @Query("UPDATE " + DataBaseConsts.MANGA.TABLE_NAME + " SET " + DataBaseConsts.MANGA.COLUMNS.LAST_VOCABULARY_IMPORT + " = :lastImport, " + DataBaseConsts.MANGA.COLUMNS.FILE_ALTERATION + " = :alteration WHERE " + DataBaseConsts.MANGA.COLUMNS.ID + " = :id")
-    abstract fun updateMangaImport(id: Long, lastImport: LocalDateTime, alteration : Date)
+    abstract fun updateMangaImport(id: Long, lastImport: Date, alteration : Date)
 
     @Query("UPDATE " + DataBaseConsts.BOOK.TABLE_NAME + " SET " + DataBaseConsts.BOOK.COLUMNS.LAST_VOCABULARY_IMPORT + " = :lastImport, " + DataBaseConsts.BOOK.COLUMNS.FILE_ALTERATION + " = :alteration WHERE " + DataBaseConsts.BOOK.COLUMNS.ID + " = :id")
-    abstract fun updateBookImport(id: Long, lastImport: LocalDateTime, alteration : Date)
+    abstract fun updateBookImport(id: Long, lastImport: Date, alteration : Date)
 
     // --------------------------------------------------------- Comic / Manga ---------------------------------------------------------
     @Query(
