@@ -303,7 +303,7 @@ class VocabularyRepository(var context: Context) {
 
                     val mMsgImport = "${context.getString(R.string.vocabulary_imported)}\n${manga.title}"
                     withContext(Dispatchers.Main) {
-                        mDataBaseDAO.updateImport(manga.id!!, manga.lastVocabImport!!, manga.fileAlteration)
+                        updateMangaImport(manga.id!!, manga.lastVocabImport!!, manga.fileAlteration)
 
                         notification.setContentText(mMsgImport)
                             .setProgress(list.size, list.size, false)
@@ -333,6 +333,10 @@ class VocabularyRepository(var context: Context) {
                 }
             }
         }
+    }
+
+    fun updateMangaImport(id: Long, lastVocabImport: LocalDateTime, fileAlteration : Date) {
+        mDataBaseDAO.updateMangaImport(id, lastVocabImport, fileAlteration)
     }
 
     fun processVocabulary(context: Context, idBook: Long?) {
