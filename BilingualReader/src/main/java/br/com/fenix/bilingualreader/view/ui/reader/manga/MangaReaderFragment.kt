@@ -935,19 +935,18 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
     }
 
-    private var mDialog: AlertDialog? = null
     private fun confirmSwitch(newManga: Manga?, titleRes: Int) {
-        if (newManga == null || mDialog != null) return
+        if (newManga == null) return
         var confirm = false
         mNewManga = newManga
         mNewMangaTitle = titleRes
-        mDialog = MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+        val dialog = MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(titleRes)
                 .setMessage(newManga.fileName)
                 .setPositiveButton(
                     R.string.switch_action_positive
                 ) { _, _ ->
-                    if (context == null) return@setPositiveButton
+                    if (activity == null) return@setPositiveButton
 
                     confirm = true
                     val activity = requireActivity() as MangaReaderActivity
@@ -961,10 +960,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                         mNewManga = null
                         setFullscreen(fullscreen = true)
                     }
-                    mDialog = null
                 }
                 .create()
-        mDialog!!.show()
+        dialog.show()
     }
 
     private fun updateSeekBar() {
