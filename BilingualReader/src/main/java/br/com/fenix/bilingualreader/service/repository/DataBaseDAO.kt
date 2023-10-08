@@ -6,6 +6,7 @@ import br.com.fenix.bilingualreader.model.entity.*
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
+import java.time.LocalDateTime
 import java.util.*
 
 
@@ -331,6 +332,9 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
                 " AND CASE WHEN LENGTH(:basicForm) = 0 THEN " + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + " IS NULL ELSE " + DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM + " = :basicForm END LIMIT 1"
     )
     abstract fun exists(vocabulary: String, basicForm: String): Vocabulary?
+
+    @Query("UPDATE " + DataBaseConsts.MANGA.TABLE_NAME + " SET " + DataBaseConsts.MANGA.COLUMNS.LAST_VOCABULARY_IMPORT + " = :lastImport, " + DataBaseConsts.MANGA.COLUMNS.FILE_ALTERATION + " = :alteration WHERE " + DataBaseConsts.MANGA.COLUMNS.ID + " = :id")
+    abstract fun updateImport(id: Long, lastImport: LocalDateTime, alteration : Date)
 
     // --------------------------------------------------------- Comic / Manga ---------------------------------------------------------
     @Query(
