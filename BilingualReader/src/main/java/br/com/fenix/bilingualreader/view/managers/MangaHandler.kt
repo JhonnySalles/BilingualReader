@@ -7,7 +7,7 @@ import com.squareup.picasso.Picasso
 import com.squareup.picasso.Request
 import com.squareup.picasso.RequestHandler
 
-class MangaHandler(private var mParse: Parse?) : RequestHandler() {
+class MangaHandler(private var mParse: Parse) : RequestHandler() {
     private val HANDLER_URI = "localcomic"
 
     override fun canHandleRequest(request: Request): Boolean {
@@ -16,7 +16,7 @@ class MangaHandler(private var mParse: Parse?) : RequestHandler() {
 
     override fun load(request: Request, networkPolicy: Int): Result {
         val pageNum = request.uri.fragment!!.toInt()
-        return Result(BitmapFactory.decodeStream(mParse!!.getPage(pageNum)), Picasso.LoadedFrom.MEMORY)
+        return Result(BitmapFactory.decodeStream(mParse.getPage(pageNum)), Picasso.LoadedFrom.MEMORY)
     }
 
     fun getPageUri(pageNum: Int): Uri? {

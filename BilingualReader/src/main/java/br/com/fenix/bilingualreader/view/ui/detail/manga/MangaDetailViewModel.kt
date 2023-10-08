@@ -215,36 +215,40 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
                 val manga = manga.value ?: return@async
                 val parse = ParseFactory.create(manga.file) ?: return@async
 
-                if (parse is RarParse) {
-                    val folder = GeneralConsts.CACHE_FOLDER.RAR + '/' + Util.normalizeNameCache(manga.name)
-                    val cacheDir = File(cache, folder)
-                    (parse as RarParse?)!!.setCacheDirectory(cacheDir)
-                }
-
-                val listJson: List<String> = parse.getSubtitles()
-                if (listJson.isNotEmpty()) {
-                    val gson = Gson()
-                    val listSubTitleChapter: MutableList<SubTitleChapter> = arrayListOf()
-
-                    listJson.forEach {
-                        try {
-                            val subTitleVolume: SubTitleVolume = gson.fromJson(it, SubTitleVolume::class.java)
-                            for (chapter in subTitleVolume.subTitleChapters) {
-                                chapter.manga = subTitleVolume.manga
-                                chapter.volume = subTitleVolume.volume
-                                chapter.language = subTitleVolume.language
-                            }
-                            listSubTitleChapter.addAll(subTitleVolume.subTitleChapters)
-                        } catch (volExcept: Exception) {
-                            try {
-                                val subTitleChapter: SubTitleChapter = gson.fromJson(it, SubTitleChapter::class.java)
-                                listSubTitleChapter.add(subTitleChapter)
-                            } catch (_: Exception) {
-                            }
-                        }
+                try {
+                    if (parse is RarParse) {
+                        val folder = GeneralConsts.CACHE_FOLDER.RAR + '/' + Util.normalizeNameCache(manga.name)
+                        val cacheDir = File(cache, folder)
+                        (parse as RarParse?)!!.setCacheDirectory(cacheDir)
                     }
 
-                    mVocabularyRepository.processVocabulary(manga.id, listSubTitleChapter, true)
+                    val listJson: List<String> = parse.getSubtitles()
+                    if (listJson.isNotEmpty()) {
+                        val gson = Gson()
+                        val listSubTitleChapter: MutableList<SubTitleChapter> = arrayListOf()
+
+                        listJson.forEach {
+                            try {
+                                val subTitleVolume: SubTitleVolume = gson.fromJson(it, SubTitleVolume::class.java)
+                                for (chapter in subTitleVolume.subTitleChapters) {
+                                    chapter.manga = subTitleVolume.manga
+                                    chapter.volume = subTitleVolume.volume
+                                    chapter.language = subTitleVolume.language
+                                }
+                                listSubTitleChapter.addAll(subTitleVolume.subTitleChapters)
+                            } catch (volExcept: Exception) {
+                                try {
+                                    val subTitleChapter: SubTitleChapter = gson.fromJson(it, SubTitleChapter::class.java)
+                                    listSubTitleChapter.add(subTitleChapter)
+                                } catch (_: Exception) {
+                                }
+                            }
+                        }
+
+                        mVocabularyRepository.processVocabulary(manga.id, listSubTitleChapter, true)
+                    }
+                } finally {
+                    Util.destroyParse(parse)
                 }
             }
         }

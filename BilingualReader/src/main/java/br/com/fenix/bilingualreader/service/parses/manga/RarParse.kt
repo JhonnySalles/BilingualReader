@@ -156,18 +156,18 @@ class RarParse : Parse {
                         try {
                             mArchive!!.extractFile(header, os)
                         } catch (e: Exception) {
-                            os.close()
                             cacheFile.delete()
                             throw e
+                        } finally {
+                            os.close()
                         }
-                        os.close()
                     }
                 }
                 return FileInputStream(cacheFile)
             }
             mArchive!!.getInputStream(header)
         } catch (e: RarException) {
-            throw IOException("Unable to parse rar")
+            throw IOException("Unable to parse rar: " + e.message, e)
         }
     }
 
