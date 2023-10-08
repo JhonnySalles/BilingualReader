@@ -297,7 +297,6 @@ class VocabularyRepository(var context: Context) {
 
                         notification.setContentText(mMsgImport)
                             .setProgress(list.size, list.size, false)
-                            .setOngoing(false)
 
                         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
                             notificationManager.notify(notifyId, notification.build())
@@ -309,10 +308,14 @@ class VocabularyRepository(var context: Context) {
                     withContext(Dispatchers.Main) {
                         val msg = context.getString(R.string.vocabulary_import_error)
                         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-                        notification.setContentText(msg).setOngoing(false)
+                        notification.setContentText(msg)
 
                         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
                             notificationManager.notify(notifyId, notification.build())
+                    }
+                } finally {
+                    withContext(Dispatchers.Main) {
+                        notification.setOngoing(false)
                     }
                 }
             }
