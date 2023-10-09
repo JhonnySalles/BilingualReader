@@ -95,10 +95,8 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
 
     private val mSetQuery = Runnable {
-        mViewModel.setQuery(
-            mMangaNameEditText.text?.toString() ?: "",
-            searchView.query.toString()
-        )
+        val query = if (::searchView.isInitialized) searchView.query.toString() else ""
+        mViewModel.setQuery(mMangaNameEditText.text?.toString() ?: "", query)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -311,11 +309,6 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
 
         mPopupFilterOrderView.adapter = viewOrderPagerAdapter
 
-        mManga?.let {
-            mMangaNameEditText.setText(it.title)
-            mViewModel.setQuery(it.title, VocabularyActivity.mVocabularySelect)
-        }
-
         return root
     }
 
@@ -342,6 +335,11 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
             mViewModel.vocabularyPager().collectLatest {
                 adapter.submitData(it)
             }
+        }
+
+        mManga?.let {
+            mMangaNameEditText.setText(it.title)
+            mViewModel.setQuery(it.title, VocabularyActivity.mVocabularySelect)
         }
     }
 
