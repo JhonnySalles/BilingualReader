@@ -205,20 +205,20 @@ class MangaImageCoverController private constructor() {
         }
     }
 
-    fun setImageCoverAsync(context: Context, manga: Manga, imageView: ImageView, isCoverSize: Boolean = true) {
+    fun setImageCoverAsync(context: Context, manga: Manga, imageView: ImageView, notLocate: Bitmap?, isCoverSize: Boolean = true) {
         setImageCoverAsync(context, manga, isCoverSize) {
-            if (it != null)
-                imageView.setImageBitmap(it)
+            val image = it ?: notLocate
+            imageView.setImageBitmap(image)
         }
     }
 
-    fun setImageCoverAsync(context: Context, manga: Manga, imagesView: ArrayList<ImageView>, isCoverSize: Boolean = true, onFinish: (Bitmap?) -> (Unit)) {
+    fun setImageCoverAsync(context: Context, manga: Manga, imagesView: ArrayList<ImageView>, notLocate: Bitmap?, isCoverSize: Boolean = true, onFinish: (Bitmap?) -> (Unit)) {
         setImageCoverAsync(context, manga, isCoverSize) {
-            if (it != null)
-                for (imageView in imagesView)
-                    imageView.setImageBitmap(it)
+            val image = it ?: notLocate
+            for (imageView in imagesView)
+                imageView.setImageBitmap(image)
 
-            onFinish(it)
+            onFinish(image)
         }
     }
 
@@ -226,13 +226,14 @@ class MangaImageCoverController private constructor() {
         context: Context,
         manga: Manga,
         imageView: ImageView,
+        notLocate: Bitmap?,
         isCoverSize: Boolean = true,
         onFinish: (Bitmap?) -> (Unit)
     ) {
         setImageCoverAsync(context, manga, isCoverSize) {
-            if (it != null)
-                imageView.setImageBitmap(it)
-            onFinish(it)
+            val image = it ?: notLocate
+            imageView.setImageBitmap(image)
+            onFinish(image)
         }
     }
 

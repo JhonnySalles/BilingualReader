@@ -106,8 +106,8 @@ class MangaGridViewHolder(var type: LibraryMangaType, itemView: View, private va
             else -> mDefaultImageCover5
         }
 
-        mangaImage.setImageBitmap(image)
-        MangaImageCoverController.instance.setImageCoverAsync(itemView.context, manga, mangaImage)
+        mangaImage.setImageBitmap(null)
+        MangaImageCoverController.instance.setImageCoverAsync(itemView.context, manga, mangaImage, image)
 
         val isSmall = manga.lastAccess != null && manga.bookMark > 0 && type != LibraryMangaType.GRID_BIG
 
