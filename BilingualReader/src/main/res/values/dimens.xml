@@ -224,6 +224,9 @@
     <dimen name="reader_button_width">50dp</dimen>
     <dimen name="reader_change_comic_size">40dp</dimen>
 
+    <dimen name="reader_title_margin_negative">-80dp</dimen>
+    <dimen name="reader_title_margin_positive">80dp</dimen>
+
     <dimen name="reader_touch_demonstration_text_size">12sp</dimen>
     <dimen name="reader_touch_demonstration_initial_horizontal">50dp</dimen>
     <dimen name="reader_touch_demonstration_initial_vertical">120dp</dimen>
