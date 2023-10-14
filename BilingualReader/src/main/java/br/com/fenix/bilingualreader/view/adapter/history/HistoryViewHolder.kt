@@ -45,8 +45,8 @@ class HistoryViewHolder(itemView: View, private val listener: MangaCardListener)
             true
         }
 
-        mangaImage.setImageBitmap(mDefaultImageCover)
-        MangaImageCoverController.instance.setImageCoverAsync(itemView.context, manga, mangaImage)
+        mangaImage.setImageBitmap(null)
+        MangaImageCoverController.instance.setImageCoverAsync(itemView.context, manga, mangaImage, mDefaultImageCover)
 
         mangaTitle.text = manga.title
 

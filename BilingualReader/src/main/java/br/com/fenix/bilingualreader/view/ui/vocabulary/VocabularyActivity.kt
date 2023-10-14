@@ -85,12 +85,7 @@ class VocabularyActivity : AppCompatActivity() {
                     val frag = VocabularyBookFragment()
                     if (obj != null) {
                         frag.setObject(obj as Book)
-                        BookImageCoverController.instance.setImageCoverAsync(
-                            this,
-                            obj,
-                            mBackgroundImage,
-                            false
-                        ) {
+                        BookImageCoverController.instance.setImageCoverAsync(this, obj, mBackgroundImage, null, false) {
                             if (it != null)
                                 mBackgroundImage.visibility = View.VISIBLE
 
@@ -104,12 +99,7 @@ class VocabularyActivity : AppCompatActivity() {
                     val frag = VocabularyMangaFragment()
                     if (obj != null) {
                         frag.setObject(obj as Manga)
-                        MangaImageCoverController.instance.setImageCoverAsync(
-                            this,
-                            obj,
-                            mBackgroundImage,
-                            false
-                        ) {
+                        MangaImageCoverController.instance.setImageCoverAsync(this, obj, mBackgroundImage, null, false) {
                             if (it != null)
                                 mBackgroundImage.visibility = View.VISIBLE
 

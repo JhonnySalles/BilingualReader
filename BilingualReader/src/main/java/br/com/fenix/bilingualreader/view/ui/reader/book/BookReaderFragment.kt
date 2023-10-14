@@ -209,7 +209,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         mToolbarBottom = requireActivity().findViewById(R.id.reader_book_toolbar_bottom)
 
         if (mBook != null)
-            BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, false)
+            BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, false)
 
         mCoverContent.visibility = View.VISIBLE
         mCoverContent.alpha = 1f

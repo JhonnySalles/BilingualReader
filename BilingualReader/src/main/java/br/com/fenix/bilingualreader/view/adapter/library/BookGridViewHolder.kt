@@ -109,8 +109,8 @@ class BookGridViewHolder(itemView: View, private val listener: BookCardListener)
             else -> mDefaultImageCover5
         }
 
-        bookImage.setImageBitmap(image)
-        BookImageCoverController.instance.setImageCoverAsync(itemView.context, book, bookImage)
+        bookImage.setImageBitmap(null)
+        BookImageCoverController.instance.setImageCoverAsync(itemView.context, book, bookImage, image)
 
         bookTitle.text = book.title
         bookSubTitle.text = book.author

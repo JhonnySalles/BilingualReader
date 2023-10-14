@@ -62,24 +62,20 @@ class VocabularyBookListViewHolder(itemView: View) : RecyclerView.ViewHolder(ite
                 cover.setImageBitmap(it)
             }
         } else {
-            cover.setImageBitmap(image)
-            setCover(cover, vocabulary.book!!, mangaList)
+            cover.setImageBitmap(null)
+            setCover(cover, image, vocabulary.book!!, mangaList)
         }
     }
 
-    private fun setCover(cover: ImageView, book: Book, mangaList: MutableMap<Long, Bitmap?>) {
-        BookImageCoverController.instance.setImageCoverAsync(
-            itemView.context,
-            book,
-            cover,
-            true
-        ) { b ->
+    private fun setCover(cover: ImageView, notLocate: Bitmap?, book: Book, mangaList: MutableMap<Long, Bitmap?>) {
+        BookImageCoverController.instance.setImageCoverAsync(itemView.context, book, cover, null, true) { b ->
             if (b != null) {
                 mangaList[book.id!!] = b
                 // Limit 2k in size
                 if (mangaList.size > 2000)
                     mangaList.remove(mangaList.entries.first().key)
-            }
+            } else
+                cover.setImageBitmap(notLocate)
         }
     }
 

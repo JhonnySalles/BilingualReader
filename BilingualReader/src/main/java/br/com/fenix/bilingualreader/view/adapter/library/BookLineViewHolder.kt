@@ -42,8 +42,8 @@ class BookLineViewHolder(itemView: View, private val listener: BookCardListener)
         val favorite = itemView.findViewById<ImageView>(R.id.book_line_favorite)
         val config = itemView.findViewById<ImageView>(R.id.book_line_config)
 
-        bookImage.setImageBitmap(mDefaultImageCover)
-        BookImageCoverController.instance.setImageCoverAsync(itemView.context, book, bookImage)
+        bookImage.setImageBitmap(null)
+        BookImageCoverController.instance.setImageCoverAsync(itemView.context, book, bookImage, mDefaultImageCover)
 
         cardView.setOnClickListener { listener.onClick(book) }
         cardView.setOnLongClickListener {
@@ -60,8 +60,8 @@ class BookLineViewHolder(itemView: View, private val listener: BookCardListener)
 
         favorite.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
 
-        bookImage.setImageBitmap(mDefaultImageCover)
-        BookImageCoverController.instance.setImageCoverAsync(itemView.context, book, bookImage)
+        bookImage.setImageBitmap(null)
+        BookImageCoverController.instance.setImageCoverAsync(itemView.context, book, bookImage, mDefaultImageCover)
 
         bookTitle.text = book.title
         bookSubTitle.text = book.author

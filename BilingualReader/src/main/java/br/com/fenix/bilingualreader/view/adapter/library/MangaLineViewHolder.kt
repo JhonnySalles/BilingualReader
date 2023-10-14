@@ -57,8 +57,8 @@ class MangaLineViewHolder(itemView: View, private val listener: MangaCardListene
             true
         }
 
-        mangaImage.setImageBitmap(mDefaultImageCover)
-        MangaImageCoverController.instance.setImageCoverAsync(itemView.context, manga, mangaImage)
+        mangaImage.setImageBitmap(null)
+        MangaImageCoverController.instance.setImageCoverAsync(itemView.context, manga, mangaImage, mDefaultImageCover)
 
         mangaTitle.text = manga.title
         mangaLastAccess.text = if (manga.lastAccess != null) GeneralConsts.formatterDate(itemView.context, manga.lastAccess!!) else ""
