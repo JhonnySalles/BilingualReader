@@ -93,12 +93,12 @@
     </style>
 
     <style name="AppCompatAlertDialogTitle" parent="@style/MaterialAlertDialog.MaterialComponents.Title.Text">
-        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textColor">?attr/colorSecondary</item>
     </style>
 
     <style name="AppCompatAlertDialogContent" parent="@style/MaterialAlertDialog.MaterialComponents.Body.Text">
-        <item name="android:textColor">?attr/colorSecondary</item>
-        <item name="android:textColorPrimary">?attr/colorSecondary</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textColorPrimary">?attr/colorPrimary</item>
     </style>
 
     <style name="AppCompatAlertDialogList" parent="@style/MaterialAlertDialog.MaterialComponents.Body.Text">
