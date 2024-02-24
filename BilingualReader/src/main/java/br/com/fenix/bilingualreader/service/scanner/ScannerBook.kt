@@ -1,18 +1,24 @@
 package br.com.fenix.bilingualreader.service.scanner
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Message
 import android.os.Process
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationManagerCompat
 import br.com.ebook.foobnix.entity.FileMeta
 import br.com.ebook.foobnix.entity.FileMetaCore
 import br.com.ebook.foobnix.ext.CacheZipUtils
+import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.Notifications
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
@@ -49,8 +55,7 @@ class ScannerBook(private val context: Context) {
     }
 
     fun isRunning(library: Library): Boolean {
-        return mRunning.isNotEmpty() && mRunning.containsKey(library) && mRunning[library]!!.mThread.isAlive
-            mRunning[library]!!.mThread.state != Thread.State.TERMINATED && mRunning[library]!!.mThread.state != Thread.State.NEW
+        return mRunning.isNotEmpty() && mRunning.containsKey(library)
     }
 
     fun forceScanLibrary(library: Library) {
@@ -87,21 +92,6 @@ class ScannerBook(private val context: Context) {
         mRunning[library] = runnable
         mThreads[id] = runnable
         thread.start()
-    }
-
-    fun scanLibrariesSilent(libraries: List<Library>?) {
-        if (libraries == null || libraries.isEmpty())
-            return
-
-        for (library in libraries) {
-            val id = UUID.randomUUID()
-            val runnable = LibraryUpdateRunnable(id, library, isSilent = true)
-            val thread = Thread(runnable)
-            thread.priority = Process.THREAD_PRIORITY_DEFAULT + Process.THREAD_PRIORITY_LESS_FAVORABLE
-            runnable.mThread = thread
-            mThreads[id] = runnable
-            thread.start()
-        }
     }
 
     fun addUpdateHandler(handler: Handler) {
@@ -181,6 +171,14 @@ class ScannerBook(private val context: Context) {
                 val storageFiles: MutableMap<String, Book> = HashMap()
                 val storageDeletes: MutableMap<String, Book> = HashMap()
 
+                val notificationManager = NotificationManagerCompat.from(context)
+                val notification = Notifications.getNotification(context, context.getString(R.string.notifications_scanner_library), context.getString(
+                    R.string.notifications_scanner_library_content, mLibrary.title, context.getString(R.string.menu_books)))
+                val notifyId = Notifications.getID()
+
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                    notificationManager.notify(notifyId, notification.build())
+
                 // create list of files available in storage
                 for (c in storage.listBook(mLibrary))
                     storageFiles[c.path] = c
@@ -249,6 +247,13 @@ class ScannerBook(private val context: Context) {
                         if (!isSilent)
                             notifyMediaUpdatedRemove(missing)
                     }
+
+                notification.setContentText(context.getString(R.string.notifications_scanner_library_processed, mLibrary.title))
+                    .setProgress(0, 0, false)
+                    .setOngoing(false)
+
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                    notificationManager.notify(notifyId, notification.build())
             } catch (e: Exception) {
                 mLOGGER.error("Error to scanner manga.", e)
             } finally {

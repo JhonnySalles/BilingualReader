@@ -29,6 +29,9 @@
     <string name="notifications_channel_description">Bilingual Reader</string>
     <string name="notifications_share_mark_drive_title">Synchronization</string>
     <string name="notifications_share_mark_drive_content">Synchronization bookmarks to Google drive</string>
+    <string name="notifications_scanner_library">Scanning libraries</string>
+    <string name="notifications_scanner_library_content">Scanning files in %s library folders. (%s)</string>
+    <string name="notifications_scanner_library_processed">Scanning %s library completed successfully.</string>
 
     <!-- MENU -->
     <string name="menu_search">Search</string>

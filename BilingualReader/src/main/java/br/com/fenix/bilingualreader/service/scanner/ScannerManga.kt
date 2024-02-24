@@ -1,9 +1,14 @@
 package br.com.fenix.bilingualreader.service.scanner
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Message
 import android.os.Process
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationManagerCompat
+import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.FileType
@@ -13,6 +18,7 @@ import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.Util
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -50,8 +56,7 @@ class ScannerManga(private val context: Context) {
     }
 
     fun isRunning(library: Library): Boolean {
-        return mRunning.isNotEmpty() && mRunning.containsKey(library) && mRunning[library]!!.mThread.isAlive
-            mRunning[library]!!.mThread.state != Thread.State.TERMINATED && mRunning[library]!!.mThread.state != Thread.State.NEW
+        return mRunning.isNotEmpty() && mRunning.containsKey(library)
     }
 
     fun forceScanLibrary(library: Library) {
@@ -83,27 +88,11 @@ class ScannerManga(private val context: Context) {
         val id = UUID.randomUUID()
         val runnable = LibraryUpdateRunnable(id, library)
         val thread = Thread(runnable)
-        thread.priority = Process.THREAD_PRIORITY_DEFAULT + Process.THREAD_PRIORITY_LESS_FAVORABLE
+        thread.priority = Process.THREAD_PRIORITY_DEFAULT + Process.THREAD_PRIORITY_BACKGROUND
         runnable.mThread = thread
         mRunning[library] = runnable
         mThreads[id] = runnable
         thread.start()
-    }
-
-    fun scanLibrariesSilent(libraries: List<Library>?) {
-        if (libraries.isNullOrEmpty())
-            return
-
-        for (library in libraries) {
-            stopScan(library)
-            val id = UUID.randomUUID()
-            val runnable = LibraryUpdateRunnable(id, library, isSilent = true)
-            val thread = Thread(runnable)
-            thread.priority = Process.THREAD_PRIORITY_DEFAULT + Process.THREAD_PRIORITY_LESS_FAVORABLE
-            runnable.mThread = thread
-            mThreads[id] = runnable
-            thread.start()
-        }
     }
 
     fun addUpdateHandler(handler: Handler) {
@@ -182,6 +171,14 @@ class ScannerManga(private val context: Context) {
                 val storageFiles: MutableMap<String, Manga> = HashMap()
                 val storageDeletes: MutableMap<String, Manga> = HashMap()
 
+                val notificationManager = NotificationManagerCompat.from(context)
+                val notification = Notifications.getNotification(context, context.getString(R.string.notifications_scanner_library), context.getString(
+                    R.string.notifications_scanner_library_content, mLibrary.title, context.getString(R.string.menu_manga)))
+                val notifyId = Notifications.getID()
+
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                    notificationManager.notify(notifyId, notification.build())
+
                 // create list of files available in storage
                 for (c in storage.listMangas(mLibrary)!!)
                     storageFiles[c.path] = c
@@ -221,15 +218,18 @@ class ScannerManga(private val context: Context) {
                                                         deleted.path = it.path
                                                     notifyMediaUpdatedChange(deleted)
                                                     deleted
-                                                } else if (storage.findMangaByPath(it.path) != null)
-                                                    return
-                                                else
+                                                } else
                                                     Manga(mLibrary.id, null, it)
 
                                                 manga.path = it.path
                                                 manga.folder = it.parent
                                                 manga.excluded = false
                                                 manga.lastVerify = Date()
+
+                                                val exists = storage.findMangaByPath(it.path)
+                                                if (exists != null)
+                                                    manga.id = exists.id
+                                                
                                                 manga.id = storage.save(manga)
 
                                                 manga.update(parse)
@@ -261,6 +261,14 @@ class ScannerManga(private val context: Context) {
                         if (!isSilent)
                             notifyMediaUpdatedRemove(missing)
                     }
+
+                notification.setContentText(context.getString(R.string.notifications_scanner_library_processed, mLibrary.title))
+                    .setProgress(0, 0, false)
+                    .setOngoing(false)
+
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                    notificationManager.notify(notifyId, notification.build())
+
             } catch (e: Exception) {
                 mLOGGER.error("Error to scanner manga.", e)
             } finally {
