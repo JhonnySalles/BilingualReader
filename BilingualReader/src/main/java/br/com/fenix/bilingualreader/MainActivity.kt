@@ -221,28 +221,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         try {
             val repository = LibraryRepository(this)
             val libraries = repository.listEnabled()
-            if (libraries.isNotEmpty()) {
+            if (libraries.isNotEmpty())
                 setLibraries(libraries)
-                scanSilent(libraries)
-            }
         } catch (e: Exception) {
             mLOGGER.error("Error clearing cache folders.", e)
         }
-    }
-
-    private fun scanSilent(libraries: List<Library>) {
-        var scan = mutableListOf(LibraryUtil.getDefault(this, Type.MANGA))
-        scan.addAll(libraries.filter { it.type == Type.MANGA })
-        val idLibrary = GeneralConsts.getSharedPreferences(this)
-            .getLong(
-                GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY,
-                GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
-            )
-        ScannerManga(this).scanLibrariesSilent(scan.filter { it.id != idLibrary && idLibrary.compareTo(it.id!!) != 0 })
-
-        scan = mutableListOf(LibraryUtil.getDefault(this, Type.BOOK))
-        scan.addAll(libraries.filter { it.type == Type.BOOK })
-        ScannerBook(this).scanLibrariesSilent(scan.filter { it.id != idLibrary && idLibrary.compareTo(it.id!!) != 0 })
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
