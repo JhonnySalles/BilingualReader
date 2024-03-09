@@ -91,7 +91,7 @@ dependencies {
 
     //Rar and 7zip
     implementation 'org.tukaani:xz:1.9'
-    //implementation 'com.github.junrar:junrar:7.5.4' // Only > Android O
+    //implementation 'com.github.junrar:junrar:7.5.5' // Only > Android O
     implementation 'com.github.junrar:junrar:7.4.1' // Only < Android O
 
     implementation 'com.squareup.picasso:picasso:2.71828'
