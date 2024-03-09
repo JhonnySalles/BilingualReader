@@ -161,23 +161,26 @@ class ScannerManga(private val context: Context) {
         lateinit var mThread: Thread
 
         override fun run() {
+            val libraryPath = mLibrary.path
+            if (libraryPath == "" || !File(libraryPath).exists())
+                return
+
+            val notificationManager = NotificationManagerCompat.from(context)
+            val notification = Notifications.getNotification(context, context.getString(R.string.notifications_scanner_library), context.getString(
+                R.string.notifications_scanner_library_content, mLibrary.title, context.getString(R.string.menu_manga)))
+            val notifyId = Notifications.getID()
+
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                notificationManager.notify(notifyId, notification.build())
+
             var isProcess = false
             try {
-                val libraryPath = mLibrary.path
-                if (libraryPath == "" || !File(libraryPath).exists()) return
+
 
                 mIsStopped = false
                 val storage = Storage(context)
                 val storageFiles: MutableMap<String, Manga> = HashMap()
                 val storageDeletes: MutableMap<String, Manga> = HashMap()
-
-                val notificationManager = NotificationManagerCompat.from(context)
-                val notification = Notifications.getNotification(context, context.getString(R.string.notifications_scanner_library), context.getString(
-                    R.string.notifications_scanner_library_content, mLibrary.title, context.getString(R.string.menu_manga)))
-                val notifyId = Notifications.getID()
-
-                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
-                    notificationManager.notify(notifyId, notification.build())
 
                 // create list of files available in storage
                 for (c in storage.listMangas(mLibrary)!!)
@@ -262,13 +265,6 @@ class ScannerManga(private val context: Context) {
                             notifyMediaUpdatedRemove(missing)
                     }
 
-                notification.setContentText(context.getString(R.string.notifications_scanner_library_processed, mLibrary.title))
-                    .setProgress(0, 0, false)
-                    .setOngoing(false)
-
-                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
-                    notificationManager.notify(notifyId, notification.build())
-
             } catch (e: Exception) {
                 mLOGGER.error("Error to scanner manga.", e)
             } finally {
@@ -283,6 +279,15 @@ class ScannerManga(private val context: Context) {
                     mRestartHandler.sendEmptyMessageDelayed(1, 200)
                 } else if (!isSilent)
                     notifyLibraryUpdateFinished(isProcess)
+
+                notification.setContentText(context.getString(R.string.notifications_scanner_library_processed, mLibrary.title))
+                    .setProgress(0, 0, false)
+                    .setOngoing(false)
+
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                    notificationManager.notify(notifyId, notification.build())
+                    notificationManager.cancel(notifyId)
+                }
             }
         }
     }
