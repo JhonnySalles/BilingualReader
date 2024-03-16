@@ -313,6 +313,9 @@ class GeneralConsts private constructor() {
         const val B = "b"
         const val C = "c"
         const val D = "d"
+        const val E = "e"
+        const val F = "f"
+        const val G = "g"
     }
 
     object SCANNER {

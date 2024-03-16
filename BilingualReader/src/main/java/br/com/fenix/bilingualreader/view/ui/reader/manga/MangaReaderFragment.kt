@@ -127,11 +127,14 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             GeneralConsts.CACHE_FOLDER.A,
             GeneralConsts.CACHE_FOLDER.B,
             GeneralConsts.CACHE_FOLDER.C,
-            GeneralConsts.CACHE_FOLDER.D
+            GeneralConsts.CACHE_FOLDER.D,
+            GeneralConsts.CACHE_FOLDER.E,
+            GeneralConsts.CACHE_FOLDER.F,
+            GeneralConsts.CACHE_FOLDER.G
         )
 
         fun create(): MangaReaderFragment {
-            if (mCacheFolderIndex >= 2)
+            if (mCacheFolderIndex >= (mCacheFolder.size - 1))
                 mCacheFolderIndex = 0
             else
                 mCacheFolderIndex += 1
@@ -143,7 +146,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
 
         fun create(library: Library, path: File): MangaReaderFragment {
-            if (mCacheFolderIndex >= 2)
+            if (mCacheFolderIndex >= (mCacheFolder.size - 1))
                 mCacheFolderIndex = 0
             else
                 mCacheFolderIndex += 1
@@ -157,7 +160,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
 
         fun create(library: Library, manga: Manga): MangaReaderFragment {
-            if (mCacheFolderIndex >= 2)
+            if (mCacheFolderIndex >= (mCacheFolder.size - 1))
                 mCacheFolderIndex = 0
             else
                 mCacheFolderIndex += 1
