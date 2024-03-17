@@ -526,31 +526,10 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
         mManga = manga
         changePage(manga.title, "", manga.bookMark)
-
-        val dots = mutableListOf<Int>()
-        val inverse = mutableListOf<Int>()
-
-        var parse: Parse? = null
-        try {
-            parse = ParseFactory.create(manga.path)
-            if (parse is RarParse) {
-                val folder = GeneralConsts.FILE_LINK.FOLDER_MANGA + '/' + Util.normalizeNameCache(manga.name)
-                val cacheDir = File(GeneralConsts.getCacheDir(this), folder)
-                (parse as RarParse?)!!.setCacheDirectory(cacheDir)
-            }
-
-            val pages = (parse?.numPages() ?: 2) - 1
-            for (chapter in parse?.getChapters() ?: intArrayOf()) {
-                inverse.add(pages - chapter)
-                dots.add(chapter)
-            }
-        } catch (e: Exception) {
-            mLOGGER.error("Error to set manga.", e)
-        } finally {
-            mReaderProgress.setDots(dots.toIntArray(), inverse.toIntArray())
-            Util.destroyParse(parse)
-        }
+        setDots(mutableListOf(), mutableListOf())
     }
+
+    fun setDots(dots : MutableList<Int>, inverse : MutableList<Int>) = mReaderProgress.setDots(dots.toIntArray(), inverse.toIntArray())
 
     private fun setShortCutManga() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1)

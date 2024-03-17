@@ -56,9 +56,6 @@ class TriStateCheckBox : MaterialCheckBox {
             refreshDrawableState()
 
             isChangingState = false
-
-            println("change state " + state)
-
             onStateChanged?.let { it(this@TriStateCheckBox, value) }
         }
 

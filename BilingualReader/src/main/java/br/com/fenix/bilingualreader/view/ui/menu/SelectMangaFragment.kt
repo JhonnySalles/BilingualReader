@@ -294,7 +294,6 @@ class SelectMangaFragment : Fragment() {
         } + 1
 
         val spaceCount: Int = max(1, (Resources.getSystem().displayMetrics.widthPixels -3) / columnWidth)
-        println(spaceCount)
         return when (type) {
             LibraryMangaType.SEPARATOR_BIG,
             LibraryMangaType.SEPARATOR_MEDIUM -> StaggeredGridLayoutManager(spaceCount, StaggeredGridLayoutManager.VERTICAL)

@@ -143,25 +143,6 @@ class RarParse : Parse {
         return getPageStream(mHeaders[num])
     }
 
-    private fun extract(header: FileHeader, cacheFile : File, extract : Int = 0) {
-        if (!cacheFile.exists()) {
-            val os = FileOutputStream(cacheFile)
-            try {
-                mArchive!!.extractFile(header, os)
-            } catch (e: CrcErrorException) {
-                cacheFile.delete()
-                if (extract > 3)
-                    throw e
-                extract(header, cacheFile, extract+1);
-            } catch (e: Exception) {
-                cacheFile.delete()
-                throw e
-            } finally {
-                os.close()
-            }
-        }
-    }
-
     private fun getPageStream(header: FileHeader): InputStream {
         return try {
             if (mCacheDir != null) {
@@ -171,7 +152,16 @@ class RarParse : Parse {
                     return FileInputStream(cacheFile)
 
                 synchronized(this) {
-                    extract(header, cacheFile)
+                    val os = FileOutputStream(cacheFile)
+                    try {
+                        mArchive!!.extractFile(header, os)
+                    } catch (e: Exception) {
+                        cacheFile.delete()
+                        e.printStackTrace()
+                        throw e
+                    } finally {
+                        os.close()
+                    }
                 }
                 return FileInputStream(cacheFile)
             }

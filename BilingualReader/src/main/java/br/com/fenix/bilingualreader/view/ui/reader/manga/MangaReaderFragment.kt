@@ -250,6 +250,16 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     if (savedInstanceState == null)
                         mSubtitleController.getListChapter(mManga, mParse!!)
 
+                    val dots = mutableListOf<Int>()
+                    val inverse = mutableListOf<Int>()
+
+                    val pages = (mParse?.numPages() ?: 2) - 1
+                    for (chapter in mParse?.getChapters() ?: intArrayOf()) {
+                        inverse.add(pages - chapter)
+                        dots.add(chapter)
+                    }
+                    (requireActivity() as MangaReaderActivity).setDots(dots, inverse)
+
                     mSubtitleController.mReaderFragment = this
                     mFileName = file.name
                     mCurrentPage = max(1, min(mCurrentPage, mParse!!.numPages()))
@@ -260,6 +270,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 } else
                     mLOGGER.info("Error in open file.")
             } else {
+                (requireActivity() as MangaReaderActivity).setDots(mutableListOf(), mutableListOf())
                 mLOGGER.info("File not founded.")
                 MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                     .setTitle(getString(R.string.manga_excluded))
@@ -315,8 +326,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         (mPageNavLayout.findViewById<View>(R.id.reader_manga_bottom_progress) as DottedSeekBar).also {
             mPageSeekBar = it
         }
-        mPageNavTextView =
-            mPageNavLayout.findViewById<View>(R.id.reader_manga_bottom_progress_title) as TextView
+        mPageNavTextView = mPageNavLayout.findViewById<View>(R.id.reader_manga_bottom_progress_title) as TextView
 
         if (mParse == null) {
             view.findViewById<ImageView>(R.id.image_error).visibility = View.VISIBLE
