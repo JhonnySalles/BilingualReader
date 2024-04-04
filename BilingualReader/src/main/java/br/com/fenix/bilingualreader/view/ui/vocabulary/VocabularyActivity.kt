@@ -77,6 +77,9 @@ class VocabularyActivity : AppCompatActivity() {
         val shadow = findViewById<View>(R.id.vocabulary_background_image_shadow)
         shadow.visibility = View.GONE
 
+        val backgroundSupper = findViewById<View>(R.id.vocabulary_background_supper)
+        backgroundSupper.visibility = View.GONE
+
         val fragment = if (type == null)
             VocabularyFragment()
         else
@@ -90,6 +93,7 @@ class VocabularyActivity : AppCompatActivity() {
                                 mBackgroundImage.visibility = View.VISIBLE
 
                             shadow.visibility = mBackgroundImage.visibility
+                            backgroundSupper.visibility = shadow.visibility
                             window.decorView.systemUiVisibility = (window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
                         }
                     }
@@ -104,6 +108,7 @@ class VocabularyActivity : AppCompatActivity() {
                                 mBackgroundImage.visibility = View.VISIBLE
 
                             shadow.visibility = mBackgroundImage.visibility
+                            backgroundSupper.visibility = shadow.visibility
                             window.decorView.systemUiVisibility = (window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
                         }
                     }
