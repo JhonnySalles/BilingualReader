@@ -318,7 +318,7 @@ class Util {
             else
                 path
 
-            return if (folder.contains('/'))
+            folder = if (folder.contains('/'))
                 folder.replaceBeforeLast('/', "").replaceFirst("/", "")
             else if (folder.contains('\\'))
                 folder.replaceBeforeLast('\\', "").replaceFirst("/", "")
