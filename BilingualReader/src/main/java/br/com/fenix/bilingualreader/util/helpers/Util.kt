@@ -309,6 +309,8 @@ class Util {
 
         fun getFolderFromPath(path: String): String {
             // Two validations are needed, because the rar file only has the base values, with the beginning already in the folder when it exists
+            val isFolder = path.contains('/') || path.contains('\\')
+
             var folder = if (path.contains('/'))
                 path.replaceAfterLast('/', "").substring(0, path.lastIndexOf('/'))
             else if (path.contains('\\'))
@@ -323,7 +325,7 @@ class Util {
             else
                 folder
 
-            return if (folder.contains(".", true)) "" else folder
+            return if (!isFolder) "" else folder
         }
 
         private fun getNumberAtEnd(str: String): String {
