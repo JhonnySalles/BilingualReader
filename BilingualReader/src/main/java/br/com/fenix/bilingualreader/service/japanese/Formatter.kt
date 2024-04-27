@@ -78,8 +78,8 @@ class Formatter {
 
                         HTML_ANOTHER = "#b3b3b3"
                         HTML_N1 = "#ff4d4d"
-                        HTML_N2 = "#ffc266"
-                        HTML_N3 = "#66ff66"
+                        HTML_N2 = "#e6b800"
+                        HTML_N3 = "#00e600"
                         HTML_N4 = "#668cff"
                         HTML_N5 = "#b366ff"
                     } catch (e: Exception) {
