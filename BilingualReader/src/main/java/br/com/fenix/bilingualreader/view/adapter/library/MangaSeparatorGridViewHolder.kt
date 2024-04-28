@@ -67,7 +67,13 @@ class MangaSeparatorGridViewHolder(var type: LibraryMangaType, itemView: View, p
         else
             favorite.visibility = View.GONE
 
-        subtitle.visibility  = if (manga.hasSubtitle) View.VISIBLE else View.GONE
+        subtitle.visibility  = if (manga.hasSubtitle) {
+            if (manga.lastVocabImport != null)
+                subtitle.setImageResource(R.drawable.ic_subtitles_imported)
+            else
+                subtitle.setImageResource(R.drawable.ic_subtitles_exist)
+            View.VISIBLE
+        } else View.GONE
 
 
         cardView.layoutParams.height = mMangaCardHeight

@@ -53,10 +53,10 @@
 
                 <ImageView
                     android:id="@+id/manga_line_has_subtitle"
-                    style="@style/IconFavorite"
+                    style="@style/IconSubtitles"
                     android:layout_width="@dimen/manga_grid_subtitle"
                     android:layout_height="@dimen/manga_grid_subtitle"
-                    android:src="@drawable/ic_subtitles"
+                    android:src="@drawable/ic_subtitles_exist"
                     android:visibility="gone" />
             </LinearLayout>
 

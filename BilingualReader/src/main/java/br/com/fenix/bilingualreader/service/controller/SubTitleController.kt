@@ -201,7 +201,8 @@ class SubTitleController private constructor(private val context: Context) {
 
                 manga?.let {
                     if (it.hasSubtitle != parse.hasSubtitles()) {
-                        mSubtitleRepository.updateHasSubtitle(it.id, parse.hasSubtitles())
+                        mSubtitleRepository.updateHasSubtitle(it.id!!, parse.hasSubtitles())
+                        manga.lastVocabImport = null
                     }
                 }
             }

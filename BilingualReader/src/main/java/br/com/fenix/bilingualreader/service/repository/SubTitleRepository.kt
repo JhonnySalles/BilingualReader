@@ -40,9 +40,9 @@ class SubTitleRepository(context: Context) {
         }
     }
 
-    fun updateHasSubtitle(idManga: Long?, hasSubtitle: Boolean) {
+    fun updateHasSubtitle(idManga: Long, hasSubtitle: Boolean) {
         try {
-            mDataBase.updateHasSubtitle(idManga!!, hasSubtitle)
+            mDataBase.updateHasSubtitle(idManga, hasSubtitle)
         } catch (e: Exception) {
             mLOGGER.error("Error when update HasSubTitle by id manga: " + e.message, e)
         }

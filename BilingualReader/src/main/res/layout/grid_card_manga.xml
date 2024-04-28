@@ -125,14 +125,14 @@
 
     <ImageView
         android:id="@+id/manga_grid_has_subtitle"
-        style="@style/IconFavorite"
+        style="@style/IconSubtitles"
         android:layout_width="@dimen/manga_grid_subtitle"
         android:layout_height="@dimen/manga_grid_subtitle"
         android:layout_marginEnd="5dp"
         android:layout_marginTop="5dp"
         android:background="@drawable/ic_subtitles_border"
         android:layout_gravity="end"
-        android:src="@drawable/ic_subtitles"
+        android:src="@drawable/ic_subtitles_exist"
         android:visibility="gone"/>
 
 </com.google.android.material.card.MaterialCardView>

@@ -17,11 +17,12 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 
-class MangaLineViewHolder(itemView: View, private val listener: MangaCardListener) :
-    RecyclerView.ViewHolder(itemView) {
+class MangaLineViewHolder(itemView: View, private val listener: MangaCardListener) : RecyclerView.ViewHolder(itemView) {
 
     companion object {
         lateinit var mDefaultImageCover : Bitmap
+        lateinit var mIconSubtitleExists : Bitmap
+        lateinit var mIconSubtitleImported : Bitmap
     }
 
     init {
@@ -46,9 +47,13 @@ class MangaLineViewHolder(itemView: View, private val listener: MangaCardListene
         else
             favorite.visibility = View.GONE
 
-        subtitle.visibility  = if (manga.hasSubtitle)
+        subtitle.visibility  = if (manga.hasSubtitle) {
+            if (manga.lastVocabImport != null)
+                subtitle.setImageResource(R.drawable.ic_subtitles_imported)
+            else
+                subtitle.setImageResource(R.drawable.ic_subtitles_exist)
             View.VISIBLE
-        else
+        } else
             View.GONE
 
         cardView.setOnClickListener { listener.onClick(manga) }
