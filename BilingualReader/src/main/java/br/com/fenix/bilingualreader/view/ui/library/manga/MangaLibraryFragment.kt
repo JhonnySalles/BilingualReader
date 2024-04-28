@@ -302,6 +302,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                     notifyDataSet(indexes)
             }
 
+        mViewModel.isLaunch = false
         if (ScannerManga.getInstance(requireContext()).isRunning(mViewModel.getLibrary()))
             setIsRefreshing(true)
         else

@@ -16,7 +16,6 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.SubTitleChapter
-import br.com.fenix.bilingualreader.model.entity.SubTitleVolume
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
@@ -33,7 +32,6 @@ import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -55,6 +53,8 @@ import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filterable {
 
     private val mLOGGER = LoggerFactory.getLogger(MangaLibraryViewModel::class.java)
+
+    var isLaunch : Boolean = true
 
     private var mStackLibrary = mutableMapOf<String, Triple<Int, Library, MutableList<Manga>>>()
     private var mLibrary: Library = Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
