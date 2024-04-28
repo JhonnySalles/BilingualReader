@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -28,8 +29,6 @@ import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
-import br.com.fenix.bilingualreader.service.scanner.ScannerBook
-import br.com.fenix.bilingualreader.service.scanner.ScannerManga
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
@@ -129,9 +128,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mNavigationView.setNavigationItemSelectedListener(this)
 
         mMangaLibraryModel = ViewModelProvider(this)[MangaLibraryViewModel::class.java]
-        mMangaLibraryModel.setDefaultLibrary(LibraryUtil.getDefault(this, Type.MANGA))
-
         mBookLibraryModel = ViewModelProvider(this)[BookLibraryViewModel::class.java]
+
+        installSplashScreen().setKeepOnScreenCondition {
+            mMangaLibraryModel.isLaunch && mBookLibraryModel.isLaunch
+        }
+
+        mMangaLibraryModel.setDefaultLibrary(LibraryUtil.getDefault(this, Type.MANGA))
         mBookLibraryModel.setDefaultLibrary(LibraryUtil.getDefault(this, Type.BOOK))
 
         mFragmentManager = supportFragmentManager
@@ -139,17 +142,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         libraries()
 
         var fragment: Fragment
-        if (GeneralConsts.getSharedPreferences(this)
-                .getBoolean(GeneralConsts.KEYS.THEME.THEME_CHANGE, false)
-        ) {
+        if (GeneralConsts.getSharedPreferences(this).getBoolean(GeneralConsts.KEYS.THEME.THEME_CHANGE, false)) {
             with(GeneralConsts.getSharedPreferences(this).edit()) {
-                this.putBoolean(
-                    GeneralConsts.KEYS.THEME.THEME_CHANGE,
-                    false
-                )
+                this.putBoolean(GeneralConsts.KEYS.THEME.THEME_CHANGE, false)
                 this.commit()
             }
 
+            mMangaLibraryModel.isLaunch = false
+            mBookLibraryModel.isLaunch = false
             fragment = ConfigFragment()
         } else {
             val idLibrary = GeneralConsts.getSharedPreferences(this).getLong(
@@ -188,8 +188,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         // content_fragment use for receive fragments layout
-        mFragmentManager.beginTransaction().replace(R.id.main_content_root, fragment)
-            .commit()
+        mFragmentManager.beginTransaction().replace(R.id.main_content_root, fragment).commit()
     }
 
     private fun clearCache() {

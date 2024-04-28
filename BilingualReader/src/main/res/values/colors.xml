@@ -71,15 +71,18 @@
 
     <color name="magnifier_border">#000000</color>
 
-    <color name="defaultStatusBarColorLight">#FFFFFFFF</color>
-    <color name="defaultToolbarStartColorLight">#11FFFFFF</color>
-    <color name="defaultToolbarCenterColorLight">#99FFFFFF</color>
-    <color name="defaultToolbarEndColorLight">#FFFFFFFF</color>
+    <color name="default_status_bar_color_light">#FFFFFFFF</color>
+    <color name="default_toolbar_start_color_light">#11FFFFFF</color>
+    <color name="default_toolbar_center_color_light">#99FFFFFF</color>
+    <color name="default_toolbar_end_color_light">#FFFFFFFF</color>
 
-    <color name="defaultStatusBarColorNight">#FF000000</color>
-    <color name="defaultToolbarStartColorNight">#11000000</color>
-    <color name="defaultToolbarCenterColorNight">#99000000</color>
-    <color name="defaultToolbarEndColorNight">#FF000000</color>
+    <color name="default_status_bar_color_night">#FF000000</color>
+    <color name="default_toolbar_start_color_night">#11000000</color>
+    <color name="default_toolbar_center_color_night">#99000000</color>
+    <color name="default_toolbar_end_color_night">#FF000000</color>
+
+    <color name="manga_reader_splash_light_screen">#79f300</color>
+    <color name="manga_reader_splash_night_screen">#59b300</color>
 
     <!--
         colorPrimary, colorOnPrimary = Text color white/green

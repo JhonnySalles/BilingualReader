@@ -322,6 +322,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                     notifyDataSet(indexes)
             }
 
+        mViewModel.isLaunch = false
         if (ScannerBook.getInstance(requireContext()).isRunning(mViewModel.getLibrary()))
             setIsRefreshing(true)
         else
