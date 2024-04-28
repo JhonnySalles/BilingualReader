@@ -92,6 +92,9 @@ abstract class MangaDAO : DataBaseDAO<Manga> {
     @Query("UPDATE " + DataBaseConsts.MANGA.TABLE_NAME + " SET " + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " = :marker " + " WHERE " + DataBaseConsts.MANGA.COLUMNS.ID + " = :id ")
     abstract fun updateBookMark(id: Long, marker: Int)
 
+    @Query("UPDATE " + DataBaseConsts.MANGA.TABLE_NAME + " SET " + DataBaseConsts.MANGA.COLUMNS.HAS_SUBTITLE + " = :hasSubtitle, " + DataBaseConsts.MANGA.COLUMNS.LAST_VOCABULARY_IMPORT + " = null WHERE " + DataBaseConsts.MANGA.COLUMNS.ID + " = :idManga")
+    abstract fun updateHasSubtitle(idManga: Long, hasSubtitle: Boolean)
+
     @Query("UPDATE " + DataBaseConsts.MANGA.TABLE_NAME + " SET " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 1 WHERE " + DataBaseConsts.MANGA.COLUMNS.ID + " = :id")
     abstract fun delete(id: Long)
 
