@@ -38,6 +38,14 @@ class MangaRepository(context: Context) {
             mDataBase.update(obj)
     }
 
+    fun updateHasSubtitle(idManga: Long, hasSubtitle: Boolean) {
+        try {
+            mDataBase.updateHasSubtitle(idManga, hasSubtitle)
+        } catch (e: Exception) {
+            mLOGGER.error("Error when update HasSubTitle by id manga: " + e.message, e)
+        }
+    }
+
     fun delete(obj: Manga) {
         obj.lastAlteration = LocalDateTime.now()
         if (obj.id != null)
