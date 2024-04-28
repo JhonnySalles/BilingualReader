@@ -180,7 +180,7 @@ abstract class SubTitleDAO : DataBaseDAO<SubTitle> {
     @Query("DELETE FROM " + DataBaseConsts.SUBTITLES.TABLE_NAME + " WHERE " + DataBaseConsts.SUBTITLES.COLUMNS.FK_ID_MANGA + " = :idManga")
     abstract fun deleteAll(idManga: Long)
 
-    @Query("UPDATE " + DataBaseConsts.MANGA.TABLE_NAME + " SET " + DataBaseConsts.MANGA.COLUMNS.HAS_SUBTITLE + " = :hasSubtitle" + " WHERE " + DataBaseConsts.MANGA.COLUMNS.ID + " = :idManga")
+    @Query("UPDATE " + DataBaseConsts.MANGA.TABLE_NAME + " SET " + DataBaseConsts.MANGA.COLUMNS.HAS_SUBTITLE + " = :hasSubtitle, " + DataBaseConsts.MANGA.COLUMNS.LAST_VOCABULARY_IMPORT + " = null WHERE " + DataBaseConsts.MANGA.COLUMNS.ID + " = :idManga")
     abstract fun updateHasSubtitle(idManga: Long, hasSubtitle: Boolean)
 
 }

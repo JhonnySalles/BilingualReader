@@ -75,7 +75,13 @@ class MangaGridViewHolder(var type: LibraryMangaType, itemView: View, private va
         else
             favorite.visibility = View.GONE
 
-        subtitle.visibility  = if (manga.hasSubtitle) View.VISIBLE else View.GONE
+        subtitle.visibility  = if (manga.hasSubtitle) {
+            if (manga.lastVocabImport != null)
+                subtitle.setImageResource(R.drawable.ic_subtitles_imported)
+            else
+                subtitle.setImageResource(R.drawable.ic_subtitles_exist)
+            View.VISIBLE
+        } else View.GONE
 
         when (type) {
             LibraryMangaType.GRID_MEDIUM -> cardView.layoutParams.width = if (mIsLandscape) mMangaCardWidthLandscapeMedium else mMangaCardWidthMedium
