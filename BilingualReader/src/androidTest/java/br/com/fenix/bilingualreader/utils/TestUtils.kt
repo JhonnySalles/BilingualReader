@@ -35,11 +35,11 @@ class TestUtil {
             }
         }
 
-        fun getRandomLocalDate(): LocalDate {
+        fun getRandomDate(): LocalDate {
             return LocalDate.of((1990..2022).random(), (1..12).random(), (1..28).random())
         }
 
-        fun getRandomLocalDateTime(): LocalDateTime {
+        fun getRandomDateTime(): LocalDateTime {
             return LocalDateTime.of(
                 (1990..2022).random(),
                 (1..12).random(),
@@ -87,10 +87,10 @@ class MangaTestUtil {
                 "Séries",
                 "Publisher",
                 (1..15).random().toString(),
-                TestUtil.getRandomLocalDate(),
+                TestUtil.getRandomDate(),
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA,
                 (1..5).random() > 2,
-                TestUtil.getRandomLocalDateTime(),
+                TestUtil.getRandomDateTime(),
                 LocalDateTime.now(),
                 LocalDateTime.now(),
                 Date(),
@@ -136,10 +136,10 @@ class MangaTestUtil {
                 "Séries",
                 "Publisher",
                 (1..15).random().toString(),
-                TestUtil.getRandomLocalDate(),
+                TestUtil.getRandomDate(),
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA,
                 (1..5).random() > 2,
-                TestUtil.getRandomLocalDateTime(),
+                TestUtil.getRandomDateTime(),
                 LocalDateTime.now(),
                 LocalDateTime.now(),
                 Date(),
@@ -176,10 +176,10 @@ class MangaTestUtil {
                         "Séries",
                         "Publisher",
                         (1..15).random().toString(),
-                        TestUtil.getRandomLocalDate(),
+                        TestUtil.getRandomDate(),
                         GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA,
                         i in 4..6,
-                        TestUtil.getRandomLocalDateTime(),
+                        TestUtil.getRandomDateTime(),
                         LocalDateTime.now(),
                         LocalDateTime.now(),
                         Date(),
@@ -227,7 +227,7 @@ class BookTestUtil {
                 "Author",
                 "",
                 "Annotation",
-                TestUtil.getRandomLocalDateTime().format(
+                TestUtil.getRandomDateTime().format(
                     DateTimeFormatter.ofPattern("yyyy-MM-dd")
                 ),
                 "Genre",
@@ -247,7 +247,7 @@ class BookTestUtil {
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK,
                 mutableListOf(),
                 (1..5).random() > 4,
-                TestUtil.getRandomLocalDateTime(),
+                TestUtil.getRandomDateTime(),
                 LocalDateTime.now(),
                 LocalDateTime.now(),
                 Date(),
@@ -283,7 +283,7 @@ class BookTestUtil {
                 "Author",
                 "",
                 "Annotation",
-                TestUtil.getRandomLocalDateTime().format(
+                TestUtil.getRandomDateTime().format(
                     DateTimeFormatter.ofPattern("yyyy-MM-dd")
                 ),
                 "Genre",
@@ -303,7 +303,7 @@ class BookTestUtil {
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK,
                 mutableListOf(),
                 (1..5).random() > 4,
-                TestUtil.getRandomLocalDateTime(),
+                TestUtil.getRandomDateTime(),
                 LocalDateTime.now(),
                 LocalDateTime.now(),
                 Date(),
@@ -329,7 +329,7 @@ class BookTestUtil {
                         "Author",
                         "",
                         "Annotation",
-                        TestUtil.getRandomLocalDateTime().format(
+                        TestUtil.getRandomDateTime().format(
                             DateTimeFormatter.ofPattern("yyyy-MM-dd")
                         ),
                         "Genre",
@@ -349,7 +349,7 @@ class BookTestUtil {
                         GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK,
                         mutableListOf(),
                         (1..5).random() > 4,
-                        TestUtil.getRandomLocalDateTime(),
+                        TestUtil.getRandomDateTime(),
                         LocalDateTime.now(),
                         LocalDateTime.now(),
                         Date(),
