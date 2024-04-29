@@ -107,9 +107,9 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
                 }
 
                 if (manga.hasSubtitle != parse.hasSubtitles()) {
-                    mMangaRepository.updateHasSubtitle(manga.id!!, parse.hasSubtitles())
                     manga.hasSubtitle = parse.hasSubtitles()
                     manga.lastVocabImport = null
+                    mMangaRepository.update(manga)
                 }
 
                 val paths = parse.getPagePaths()
