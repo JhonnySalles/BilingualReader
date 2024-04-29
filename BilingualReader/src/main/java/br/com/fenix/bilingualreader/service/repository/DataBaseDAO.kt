@@ -181,7 +181,7 @@ abstract class SubTitleDAO : DataBaseDAO<SubTitle> {
 
     @Query("UPDATE " + DataBaseConsts.MANGA.TABLE_NAME + " SET " + DataBaseConsts.MANGA.COLUMNS.HAS_SUBTITLE + " = :hasSubtitle, " + DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION + " = :lastAlteration, " +
             DataBaseConsts.MANGA.COLUMNS.LAST_VOCABULARY_IMPORT + " = null WHERE " + DataBaseConsts.MANGA.COLUMNS.ID + " = :idManga")
-    abstract fun updateHasSubtitle(idManga: Long, hasSubtitle: Boolean, lastAlteration : LocalDateTime = LocalDateTime.now())
+    abstract fun updateHasSubtitle(idManga: Long, hasSubtitle: Boolean, lastAlteration : Date = Date())
 
 }
 

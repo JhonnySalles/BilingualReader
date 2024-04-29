@@ -14,10 +14,12 @@ import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
 import java.io.File
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
+import java.util.Locale
 
 
 class TestUtil {
@@ -35,19 +37,15 @@ class TestUtil {
             }
         }
 
-        fun getRandomLocalDate(): LocalDate {
-            return LocalDate.of((1990..2022).random(), (1..12).random(), (1..28).random())
+        val formatter = SimpleDateFormat("yyyy-MMM-dd hh:mm:ss", Locale.getDefault())
+        fun getRandomDate(): Date? {
+            val date = "${(1990..2022).random()}-${(1..12).random()}-${(1..28).random()} 00:00:00"
+            return formatter.parse(date)
         }
 
-        fun getRandomLocalDateTime(): LocalDateTime {
-            return LocalDateTime.of(
-                (1990..2022).random(),
-                (1..12).random(),
-                (1..28).random(),
-                (0..23).random(),
-                (0..59).random(),
-                (0..59).random()
-            )
+        fun getRandomDateTime(): Date? {
+            val date = "${(1990..2022).random()}-${(1..12).random()}-${(1..28).random()} ${(0..23).random()}:${(0..59).random()}:${(0..59).random()}"
+            return formatter.parse(date)
         }
     }
 }
@@ -87,15 +85,15 @@ class MangaTestUtil {
                 "Séries",
                 "Publisher",
                 (1..15).random().toString(),
-                TestUtil.getRandomLocalDate(),
+                TestUtil.getRandomDate(),
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA,
                 (1..5).random() > 2,
-                TestUtil.getRandomLocalDateTime(),
+                TestUtil.getRandomDateTime(),
                 Date(),
                 Date(),
                 Date(),
-                if ((1..2).random() > 1) LocalDateTime.now() else null,
-                if ((1..2).random() > 1) LocalDate.now() else null
+                if ((1..2).random() > 1) Date() else null,
+                if ((1..2).random() > 1) Date() else null
             )
 
             if (filePath.isNotEmpty()) {
@@ -136,15 +134,15 @@ class MangaTestUtil {
                 "Séries",
                 "Publisher",
                 (1..15).random().toString(),
-                TestUtil.getRandomLocalDate(),
+                TestUtil.getRandomDate(),
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA,
                 (1..5).random() > 2,
-                TestUtil.getRandomLocalDateTime(),
+                TestUtil.getRandomDateTime(),
                 Date(),
                 Date(),
                 Date(),
-                if ((1..5).random() > 2) LocalDateTime.now() else null,
-                if ((1..2).random() > 1) LocalDate.now() else null
+                if ((1..5).random() > 2) Date() else null,
+                if ((1..2).random() > 1) Date() else null
             )
         }
 
@@ -176,15 +174,15 @@ class MangaTestUtil {
                         "Séries",
                         "Publisher",
                         (1..15).random().toString(),
-                        TestUtil.getRandomLocalDate(),
+                        TestUtil.getRandomDate(),
                         GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA,
                         i in 4..6,
-                        TestUtil.getRandomLocalDateTime(),
+                        TestUtil.getRandomDateTime(),
                         Date(),
                         Date(),
                         Date(),
-                        if (i in 4..6) LocalDateTime.now() else null,
-                        if ((1..2).random() > 1) LocalDate.now() else null
+                        if (i in 4..6) Date() else null,
+                        if ((1..2).random() > 1) Date() else null
                     )
                 )
 
@@ -221,15 +219,14 @@ class BookTestUtil {
 
         fun getBook(context: Context, filePath: String = ""): Book {
             val bookPath = filePath.ifEmpty { BOOK_TEST_FILE_PATH }
+            val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             val book = Book(
                 1,
                 Util.getNameWithoutExtensionFromPath(bookPath),
                 "Author",
                 "",
                 "Annotation",
-                TestUtil.getRandomLocalDateTime().format(
-                    DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                ),
+                formatter.format(TestUtil.getRandomDateTime()!!),
                 "Genre",
                 "Publisher",
                 "Isbn",
@@ -247,12 +244,12 @@ class BookTestUtil {
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK,
                 mutableListOf(),
                 (1..5).random() > 4,
-                TestUtil.getRandomLocalDateTime(),
+                TestUtil.getRandomDateTime(),
                 Date(),
                 Date(),
                 Date(),
-                if ((1..2).random() > 1) LocalDateTime.now() else null,
-                if ((1..2).random() > 1) LocalDate.now() else null
+                if ((1..2).random() > 1) Date() else null,
+                if ((1..2).random() > 1) Date() else null
             )
 
             /*if (filePath.isNotEmpty()) {
@@ -277,15 +274,14 @@ class BookTestUtil {
         }
 
         fun getBook(): Book {
+            val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             return Book(
                 1,
                 Util.getNameWithoutExtensionFromPath(BOOK_TEST_FILE_PATH),
                 "Author",
                 "",
                 "Annotation",
-                TestUtil.getRandomLocalDateTime().format(
-                    DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                ),
+                formatter.format(TestUtil.getRandomDateTime()!!),
                 "Genre",
                 "Publisher",
                 "Isbn",
@@ -303,12 +299,12 @@ class BookTestUtil {
                 GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK,
                 mutableListOf(),
                 (1..5).random() > 4,
-                TestUtil.getRandomLocalDateTime(),
+                TestUtil.getRandomDateTime(),
                 Date(),
                 Date(),
                 Date(),
-                if ((1..2).random() > 1) LocalDateTime.now() else null,
-                if ((1..2).random() > 1) LocalDate.now() else null
+                if ((1..2).random() > 1) Date() else null,
+                if ((1..2).random() > 1) Date() else null
             )
         }
 
@@ -321,6 +317,8 @@ class BookTestUtil {
         fun getArrayBooks(): ArrayList<Book> {
             val array = arrayListOf<Book>()
 
+            val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
             for (i in 0 until 10)
                 array.add(
                     Book(
@@ -329,9 +327,7 @@ class BookTestUtil {
                         "Author",
                         "",
                         "Annotation",
-                        TestUtil.getRandomLocalDateTime().format(
-                            DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                        ),
+                        formatter.format(TestUtil.getRandomDateTime()!!),
                         "Genre",
                         "Publisher",
                         "Isbn",
@@ -349,12 +345,12 @@ class BookTestUtil {
                         GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK,
                         mutableListOf(),
                         (1..5).random() > 4,
-                        TestUtil.getRandomLocalDateTime(),
+                        TestUtil.getRandomDateTime(),
                         Date(),
                         Date(),
                         Date(),
-                        if ((1..2).random() > 1) LocalDateTime.now() else null,
-                        if ((1..2).random() > 1) LocalDate.now() else null
+                        if ((1..2).random() > 1) Date() else null,
+                        if ((1..2).random() > 1) Date() else null
                     )
                 )
 
