@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.service.controller
+package br.com.fenix.bilingualreader.service.sharemark
 
 import android.accounts.NetworkErrorException
 import android.content.Context
@@ -14,6 +14,7 @@ import br.com.fenix.bilingualreader.model.enums.ShareMarkType
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.exceptions.DriveDownloadException
 import br.com.fenix.bilingualreader.model.exceptions.DriveUploadException
+import br.com.fenix.bilingualreader.model.exceptions.ShareMarkNotConnectCloudException
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -23,7 +24,6 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import com.google.api.client.http.FileContent
-import com.google.api.client.http.HttpRequest
 import com.google.api.client.http.HttpRequestInitializer
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
@@ -47,39 +47,13 @@ import java.util.Date
 import java.util.Locale
 
 
-class ShareMarkController(var context: Context) {
+class ShareMarkGDriveController(override var context: Context) : ShareMarkFirebaseBase(context)  {
 
-    private val mLOGGER = LoggerFactory.getLogger(ShareMarkController::class.java)
-
-    companion object {
-        const val INITIAL_SYNC_DATE_TIME = "2000-01-01T01:01:01.001-0300"
-    }
+    private val mLOGGER = LoggerFactory.getLogger(ShareMarkGDriveController::class.java)
 
     private var mIdFolder: String = ""
     private var mIdManga: String = ""
     private var mIdBook: String = ""
-
-    private fun isOnline(): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
-        if (connectivityManager != null) {
-            val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-            if (capabilities != null) {
-                return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-                        capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
-            }
-        }
-        return false
-    }
-
-    private fun getDeviceName(): String {
-        val manufacturer: String = Build.MANUFACTURER
-        val model: String = Build.MODEL
-        return if (model.startsWith(manufacturer))
-            model
-        else
-            "$manufacturer $model"
-    }
-
 
     private fun getFile(name: String, isDelete: Boolean = false): File {
         val file = File(GeneralConsts.getCacheDir(context), name)
@@ -116,14 +90,15 @@ class ShareMarkController(var context: Context) {
         return file
     }
 
-    fun clearLastSync() {
-        val prefs = GeneralConsts.getSharedPreferences(context)
-        with(prefs.edit()) {
-            this.remove(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA)
-            this.remove(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK)
-            this.commit()
+    @Throws(ShareMarkNotConnectCloudException::class)
+    override fun initialize() {
+        getShareFiles { access ->
+            if (access != ShareMarkType.SUCCESS)
+                throw ShareMarkNotConnectCloudException("Not connect to google drive")
         }
     }
+
+    override val mNotConnetErrorType: ShareMarkType get() = ShareMarkType.NOT_CONNECT_DRIVE
 
     // --------------------------------------------------------- Google Drive ---------------------------------------------------------
     private fun ajusts(share: ShareMark, type: Type) {
@@ -390,22 +365,7 @@ class ShareMarkController(var context: Context) {
     }
 
     // --------------------------------------------------------- Manga ---------------------------------------------------------
-    private fun compare(item: ShareItem, manga: Manga): Boolean {
-        return if (manga.lastAccess == null || item.lastAccess.after(manga.lastAccess!!)) {
-            manga.bookMark = item.bookMark
-            manga.lastAccess = item.lastAccess
-            manga.favorite = item.favorite
-            true
-        } else {
-            //Differ 10 seconds
-            val diff: Long = item.lastAccess.time - manga.lastAccess!!.time
-            if (diff > 10000 || diff < -10000)
-                item.merge(manga)
-            false
-        }
-    }
-
-    private fun processManga(update: (manga: Manga) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
+    override fun processManga(update: (manga: Manga) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
         CoroutineScope(Dispatchers.IO).launch {
             async {
                 val gson = GsonBuilder()
@@ -474,48 +434,8 @@ class ShareMarkController(var context: Context) {
         }
     }
 
-    /**
-     * @param update  Function call when object is updated
-     * @param ending  Function call when process finish, parameter make a process results
-     *
-     */
-    fun mangaShareMark(update: (manga: Manga) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
-        ShareMarkType.clear()
-        if (!isOnline()) {
-            ending(ShareMarkType.ERROR_NETWORK)
-            return
-        }
-
-        try {
-            getShareFiles { access ->
-                if (access == ShareMarkType.SUCCESS)
-                    processManga(update, ending)
-                else
-                    ending(access)
-            }
-        } catch (e: Exception) {
-            mLOGGER.error(e.message, e)
-            ending(ShareMarkType.ERROR)
-        }
-    }
-
     // --------------------------------------------------------- Book ---------------------------------------------------------
-    private fun compare(item: ShareItem, book: Book): Boolean {
-        return if (book.lastAccess == null || item.lastAccess.after(book.lastAccess!!)) {
-            book.bookMark = item.bookMark
-            book.lastAccess = item.lastAccess
-            book.favorite = item.favorite
-            true
-        } else {
-            //Differ 10 seconds
-            val diff: Long = item.lastAccess.time - book.lastAccess!!.time
-            if (diff > 10000 || diff < -10000)
-                item.merge(book)
-            false
-        }
-    }
-
-    private fun processBook(update: (book: Book) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
+    override fun processBook(update: (book: Book) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
         CoroutineScope(Dispatchers.IO).launch {
             async {
 
@@ -577,29 +497,5 @@ class ShareMarkController(var context: Context) {
         }
     }
 
-    /**
-     * @param update  Function call when object is updated
-     * @param ending  Function call when process finish, parameter is true if can processed list
-     *
-     */
-    fun bookShareMark(update: (book: Book) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
-        ShareMarkType.clear()
-        if (!isOnline()) {
-            ending(ShareMarkType.ERROR_NETWORK)
-            return
-        }
-
-        try {
-            getShareFiles { access ->
-                if (access == ShareMarkType.SUCCESS)
-                    processBook(update, ending)
-                else
-                    ending(access)
-            }
-        } catch (e: Exception) {
-            mLOGGER.error(e.message, e)
-            ending(ShareMarkType.ERROR)
-        }
-    }
 
 }

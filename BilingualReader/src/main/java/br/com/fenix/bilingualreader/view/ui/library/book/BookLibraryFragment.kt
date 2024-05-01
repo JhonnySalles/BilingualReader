@@ -9,7 +9,6 @@ import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.database.Cursor
 import android.database.MatrixCursor
-import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -56,7 +55,6 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
-import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
@@ -75,7 +73,6 @@ import br.com.fenix.bilingualreader.view.adapter.library.BookLineCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.PopupOrderListener
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
-import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryFragment
 import br.com.fenix.bilingualreader.view.ui.popup.PopupTags
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -940,7 +937,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
     private fun shareMarkToDrive() {
         GeneralConsts.getSharedPreferences(requireContext()).let { share ->
-            if (share.getBoolean(GeneralConsts.KEYS.SYSTEM.SHARE_MARK_DRIVE, false)) {
+            if (share.getBoolean(GeneralConsts.KEYS.SYSTEM.SHARE_MARK_ENABLED, false)) {
                 val notification = Notifications.getNotification(
                     requireContext(),
                     getString(R.string.notifications_share_mark_drive_title),
@@ -959,14 +956,14 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                                 sortList()
 
                             if (ShareMarkType.receive && !ShareMarkType.send)
-                                getString(R.string.book_share_mark_drive_processed_receive)
+                                getString(R.string.book_share_mark_processed_receive)
                             else if (!ShareMarkType.receive && ShareMarkType.send)
-                                getString(R.string.book_share_mark_drive_processed_send)
+                                getString(R.string.book_share_mark_processed_send)
                             else
-                                getString(R.string.book_share_mark_drive_processed)
+                                getString(R.string.book_share_mark_processed)
                         }
 
-                        ShareMarkType.NOT_ALTERATION -> getString(R.string.book_share_mark_drive_without_alteration)
+                        ShareMarkType.NOT_ALTERATION -> getString(R.string.book_share_mark_without_alteration)
                         ShareMarkType.NEED_PERMISSION_DRIVE -> {
                             startActivityForResult(
                                 result.intent,
@@ -975,11 +972,12 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                             getString(R.string.book_share_mark_drive_need_permission)
                         }
 
+                        ShareMarkType.NOT_CONNECT_FIREBASE -> getString(R.string.book_share_mark_firebase_not_connected)
                         ShareMarkType.NOT_CONNECT_DRIVE -> getString(R.string.book_share_mark_drive_need_sign_in)
-                        ShareMarkType.ERROR_DOWNLOAD -> getString(R.string.book_share_mark_drive_error_download)
-                        ShareMarkType.ERROR_UPLOAD -> getString(R.string.book_share_mark_drive_error_upload)
-                        ShareMarkType.ERROR_NETWORK -> getString(R.string.book_share_mark_drive_error_network)
-                        else -> getString(R.string.book_share_mark_drive_unprocessed)
+                        ShareMarkType.ERROR_DOWNLOAD -> getString(R.string.book_share_mark_error_download)
+                        ShareMarkType.ERROR_UPLOAD -> getString(R.string.book_share_mark_error_upload)
+                        ShareMarkType.ERROR_NETWORK -> getString(R.string.book_share_mark_error_network)
+                        else -> getString(R.string.book_share_mark_unprocessed)
                     }
 
                     Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()

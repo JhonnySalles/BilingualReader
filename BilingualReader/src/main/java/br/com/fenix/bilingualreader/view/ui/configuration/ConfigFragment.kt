@@ -26,10 +26,11 @@ import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.PageMode
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
+import br.com.fenix.bilingualreader.model.enums.ShareMarkCloud
 import br.com.fenix.bilingualreader.model.enums.ThemeMode
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.Type
-import br.com.fenix.bilingualreader.service.controller.ShareMarkController
+import br.com.fenix.bilingualreader.service.sharemark.ShareMarkFirebaseController
 import br.com.fenix.bilingualreader.service.listener.FontsListener
 import br.com.fenix.bilingualreader.service.listener.ThemesListener
 import br.com.fenix.bilingualreader.service.repository.DataBase
@@ -37,7 +38,6 @@ import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.BackupError
 import br.com.fenix.bilingualreader.util.helpers.ErrorRestoreDatabase
-import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.InvalidDatabase
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MsgUtil
@@ -87,7 +87,9 @@ class ConfigFragment : Fragment() {
     private lateinit var mConfigSystemFormatDate: TextInputLayout
     private lateinit var mConfigSystemFormatDateAutoComplete: AutoCompleteTextView
 
-    private lateinit var mConfigSystemShareMarkDrive: SwitchMaterial
+    private lateinit var mConfigSystemShareMarkEnabled: SwitchMaterial
+    private lateinit var mConfigSystemShareMarkType: TextInputLayout
+    private lateinit var mConfigSystemShareMarkTypeAutoComplete: AutoCompleteTextView
     private lateinit var mConfigSystemShareMarkAccount: Button
     private lateinit var mConfigSystemShareMarkSignIn: SignInButton
     private lateinit var mConfigSystemShareMarkLastSync: Button
@@ -104,6 +106,9 @@ class ConfigFragment : Fragment() {
     private var mConfigSystemDateSmall: String = GeneralConsts.CONFIG.DATA_FORMAT_SMALL[0]
     private val mConfigSystemDatePattern = GeneralConsts.CONFIG.DATA_FORMAT
     private val mConfigSystemDateSmallPattern = GeneralConsts.CONFIG.DATA_FORMAT
+
+    private lateinit var mConfigSystemShareMarkCloudMap: HashMap<String, ShareMarkCloud>
+    private var mConfigSystemShareMarkCloudSelect = ShareMarkCloud.GOOGLE_DRIVE
 
     // --------------------------------------------------------- Manga / Comic ---------------------------------------------------------
     private lateinit var mMangaLibraryPath: TextInputLayout
@@ -209,7 +214,9 @@ class ConfigFragment : Fragment() {
 
         mConfigSystemFormatDate = view.findViewById(R.id.config_system_format_date)
         mConfigSystemFormatDateAutoComplete = view.findViewById(R.id.config_system_menu_autocomplete_format_date)
-        mConfigSystemShareMarkDrive = view.findViewById(R.id.config_system_share_mark_drive)
+        mConfigSystemShareMarkEnabled = view.findViewById(R.id.config_system_share_mark_enabled)
+        mConfigSystemShareMarkType = view.findViewById(R.id.config_system_share_mark_cloud)
+        mConfigSystemShareMarkTypeAutoComplete = view.findViewById(R.id.config_system_menu_autocomplete_share_mark_type)
         mConfigSystemShareMarkAccount = view.findViewById(R.id.config_system_share_mark_signed_account)
         mConfigSystemShareMarkSignIn = view.findViewById(R.id.config_system_share_mark_sign_in_button)
         mConfigSystemShareMarkLastSync = view.findViewById(R.id.config_system_share_mark_last_sync)
@@ -483,6 +490,30 @@ class ConfigFragment : Fragment() {
                 .create().show()
         }
 
+        mConfigSystemShareMarkCloudMap = hashMapOf(
+            getString(R.string.share_mark_firestore) to ShareMarkCloud.FIRESTORE,
+            getString(R.string.share_mark_google_drive) to ShareMarkCloud.GOOGLE_DRIVE
+        )
+
+        val adapterShareMark = ArrayAdapter(requireContext(), R.layout.list_item, mConfigSystemShareMarkCloudMap.keys.toTypedArray())
+        mConfigSystemShareMarkTypeAutoComplete.setAdapter(adapterShareMark)
+        mConfigSystemShareMarkTypeAutoComplete.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                mConfigSystemShareMarkCloudSelect = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                    mConfigSystemShareMarkCloudMap.containsKey(parent.getItemAtPosition(position).toString()))
+                    mConfigSystemShareMarkCloudMap[parent.getItemAtPosition(position).toString()]!!
+                else
+                    ShareMarkCloud.GOOGLE_DRIVE
+
+                when (mConfigSystemShareMarkCloudSelect) {
+                    ShareMarkCloud.GOOGLE_DRIVE -> googleSigIn(GoogleSignIn.getLastSignedInAccount(requireContext()))
+                    ShareMarkCloud.FIRESTORE -> {
+                        mConfigSystemShareMarkAccount.visibility = View.GONE
+                        mConfigSystemShareMarkSignIn.visibility = View.GONE
+                    }
+                }
+            }
+
         prepareThemes()
         prepareFonts()
         loadConfig()
@@ -507,7 +538,7 @@ class ConfigFragment : Fragment() {
                 .setTitle(getString(R.string.config_system_share_mark_clear_last_sync_title))
                 .setMessage(getString(R.string.config_system_share_mark_clear_last_sync))
                 .setPositiveButton(R.string.action_confirm) { _, _ ->
-                    ShareMarkController(requireContext()).clearLastSync()
+                    ShareMarkFirebaseController(requireContext()).clearLastSync()
                     mConfigSystemShareMarkLastSync.visibility = View.GONE
                 }
                 .setNegativeButton(R.string.action_cancel) { _, _ -> }
@@ -520,7 +551,13 @@ class ConfigFragment : Fragment() {
             startActivityForResult(googleSignInClient.signInIntent, GeneralConsts.REQUEST.GOOGLE_SIGN_IN)
         }
 
-        googleSigIn(GoogleSignIn.getLastSignedInAccount(requireContext()))
+        when (mConfigSystemShareMarkCloudSelect) {
+            ShareMarkCloud.GOOGLE_DRIVE -> googleSigIn(GoogleSignIn.getLastSignedInAccount(requireContext()))
+            ShareMarkCloud.FIRESTORE -> {
+                mConfigSystemShareMarkAccount.visibility = View.GONE
+                mConfigSystemShareMarkSignIn.visibility = View.GONE
+            }
+        }
 
         mViewModel.loadLibrary(null)
     }
@@ -797,8 +834,13 @@ class ConfigFragment : Fragment() {
             )
 
             this.putBoolean(
-                GeneralConsts.KEYS.SYSTEM.SHARE_MARK_DRIVE,
-                mConfigSystemShareMarkDrive.isChecked
+                GeneralConsts.KEYS.SYSTEM.SHARE_MARK_ENABLED,
+                mConfigSystemShareMarkEnabled.isChecked
+            )
+
+            this.putString(
+                GeneralConsts.KEYS.SYSTEM.SHARE_MARK_CLOUD,
+                mConfigSystemShareMarkCloudSelect.toString()
             )
 
             this.putString(
@@ -966,8 +1008,20 @@ class ConfigFragment : Fragment() {
             GeneralConsts.CONFIG.DATA_FORMAT_SMALL[0]
         )!!
 
-        mConfigSystemShareMarkDrive.isChecked = sharedPreferences.getBoolean(
-            GeneralConsts.KEYS.SYSTEM.SHARE_MARK_DRIVE,
+        mConfigSystemShareMarkEnabled.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.SYSTEM.SHARE_MARK_ENABLED,
+            false
+        )
+
+        mConfigSystemShareMarkCloudSelect = ShareMarkCloud.valueOf(
+            sharedPreferences.getString(
+                GeneralConsts.KEYS.SYSTEM.SHARE_MARK_CLOUD,
+                ShareMarkCloud.GOOGLE_DRIVE.toString()
+            )!!
+        )
+
+        mConfigSystemShareMarkTypeAutoComplete.setText(
+            mConfigSystemShareMarkCloudMap.filterValues { it == mConfigSystemShareMarkCloudSelect }.keys.first(),
             false
         )
 

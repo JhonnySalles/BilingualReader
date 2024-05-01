@@ -124,12 +124,29 @@
             android:text="@string/config_system_share_mark" />
 
         <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/config_system_share_mark_drive"
+            android:id="@+id/config_system_share_mark_enabled"
             style="@style/SwitchMaterial"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
-            android:text="@string/config_system_share_mark_drive" />
+            android:text="@string/config_system_share_mark_enabled" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_system_share_mark_cloud"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_system_share_mark_cloud"
+            app:startIconDrawable="@drawable/ic_share_mark_cloud">
+
+            <AutoCompleteTextView
+                android:id="@+id/config_system_menu_autocomplete_share_mark_type"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/config_system_share_mark_signed_account"

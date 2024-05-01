@@ -94,7 +94,8 @@
     <string name="config_system_language">System language</string>
 
     <string name="config_system_share_mark">Share marks</string>
-    <string name="config_system_share_mark_drive">Share marks to Google drive</string>
+    <string name="config_system_share_mark_enabled">Share marks to cloud</string>
+    <string name="config_system_share_mark_cloud">Sharing type</string>
     <string name="config_system_share_mark_account">Google account: %s</string>
     <string name="config_system_share_mark_sign_in_error">Sig in error!</string>
     <string name="config_system_share_mark_sign_out_title">Sign out</string>
@@ -185,16 +186,18 @@
     </string-array>
 
     <!-- READER - BOOK -->
-    <string name="book_share_mark_drive_processed">Bookmarks shared to Google drive</string>
-    <string name="book_share_mark_drive_processed_receive">Bookmarks updated from Google drive</string>
-    <string name="book_share_mark_drive_processed_send">Bookmarks uploaded to Google drive</string>
-    <string name="book_share_mark_drive_unprocessed">Bookmarks not shared to Google drive</string>
-    <string name="book_share_mark_drive_without_alteration">No changes to bookmarks found</string>
+    <string name="book_share_mark_processed">Bookmarks shared to cloud</string>
+    <string name="book_share_mark_processed_receive">Bookmarks updated from cloud</string>
+    <string name="book_share_mark_processed_send">Bookmarks uploaded to cloud</string>
+    <string name="book_share_mark_unprocessed">Bookmarks not shared to cloud</string>
+    <string name="book_share_mark_without_alteration">No changes to bookmarks found</string>
+    <string name="book_share_mark_error_download">An error occurred when download bookmarks from cloud</string>
+    <string name="book_share_mark_error_upload">An error occurred when upload bookmarks to cloud</string>
+    <string name="book_share_mark_error_network">Unable to connect to cloud, check your internet</string>
+
     <string name="book_share_mark_drive_need_permission">Need permission to Google drive</string>
     <string name="book_share_mark_drive_need_sign_in">Need sign in to Google Account</string>
-    <string name="book_share_mark_drive_error_download">An error occurred when download from Google drive</string>
-    <string name="book_share_mark_drive_error_upload">An error occurred when upload to Google drive</string>
-    <string name="book_share_mark_drive_error_network">Unable to connect to Google drive, check your internet</string>
+    <string name="book_share_mark_firebase_not_connected">Unable to connect to firebase</string>
 
     <string name="menu_reading_book_favorite">Favorite</string>
     <string name="menu_book_reading_order">List order</string>
@@ -296,16 +299,18 @@
     <string name="reader_not_found">Not found</string>
     <string name="file_not_found">File not found</string>
 
-    <string name="manga_share_mark_drive_processed">Bookmarks shared to Google drive</string>
-    <string name="manga_share_mark_drive_processed_receive">Bookmarks updated from Google drive</string>
-    <string name="manga_share_mark_drive_processed_send">Bookmarks uploaded to Google drive</string>
-    <string name="manga_share_mark_drive_unprocessed">Bookmarks not shared to Google drive</string>
-    <string name="manga_share_mark_drive_without_alteration">No changes to bookmarks found</string>
+    <string name="manga_share_mark_processed">Bookmarks shared to cloud</string>
+    <string name="manga_share_mark_processed_receive">Bookmarks updated from cloud</string>
+    <string name="manga_share_mark_processed_send">Bookmarks uploaded to cloud</string>
+    <string name="manga_share_mark_unprocessed">Bookmarks not shared to cloud</string>
+    <string name="manga_share_mark_without_alteration">No changes to bookmarks found</string>
+    <string name="manga_share_mark_error_download">An error occurred when download from cloud</string>
+    <string name="manga_share_mark_error_upload">An error occurred when upload to cloud</string>
+    <string name="manga_share_mark_error_network">Unable to connect to cloud, check your internet</string>
+
     <string name="manga_share_mark_drive_need_permission">Need permission to Google drive</string>
     <string name="manga_share_mark_drive_need_sign_in">Need sign in to Google Account</string>
-    <string name="manga_share_mark_drive_error_download">An error occurred when download from Google drive</string>
-    <string name="manga_share_mark_drive_error_upload">An error occurred when upload to Google drive</string>
-    <string name="manga_share_mark_drive_error_network">Unable to connect to Google drive, check your internet</string>
+    <string name="manga_share_mark_firebase_not_connected">Unable to connect to firebase</string>
 
     <string name="menu_manga_view_mode">View Mode</string>
     <string name="menu_manga_view_mode_aspect_fill">Aspect Fill</string>

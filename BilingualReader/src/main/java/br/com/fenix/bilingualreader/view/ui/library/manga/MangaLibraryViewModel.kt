@@ -23,12 +23,12 @@ import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
 import br.com.fenix.bilingualreader.model.enums.Type
-import br.com.fenix.bilingualreader.service.controller.ShareMarkController
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
+import br.com.fenix.bilingualreader.service.sharemark.ShareMarkFirebaseBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.Util
@@ -535,7 +535,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     fun processShareMarks(context: Context, processed: (result: ShareMarkType) -> (Unit)) {
         if (!mProcessShareMark) {
             mProcessShareMark = true
-            val share = ShareMarkController(context)
+            val share = ShareMarkFirebaseBase.getInstance(context)
             var notify = false
             val process: (manga: Manga) -> (Unit) = { item ->
                 if (mLibrary.id == item.fkLibrary) {
