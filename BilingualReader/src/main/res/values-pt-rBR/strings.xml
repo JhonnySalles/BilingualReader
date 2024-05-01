@@ -94,7 +94,8 @@
     <string name="config_system_format_date">Formato de data</string>
 
     <string name="config_system_share_mark">Compartilhar marcadores</string>
-    <string name="config_system_share_mark_drive">Compartilhar marcações no Google Drive</string>
+    <string name="config_system_share_mark_enabled">Compartilhar marcações com a cloud</string>
+    <string name="config_system_share_mark_cloud">Tipo de compartilhamento</string>
     <string name="config_system_share_mark_account">Conta Google: %s</string>
     <string name="config_system_share_mark_sign_in_error">Erro ao logar!</string>
     <string name="config_system_share_mark_sign_out_title">Deslogar</string>
@@ -185,16 +186,18 @@
     </string-array>
 
     <!-- READER - BOOK -->
-    <string name="book_share_mark_drive_processed">Marcadores compartilhados no Google drive</string>
-    <string name="book_share_mark_drive_processed_receive">Marcadores atualizados do Google drive</string>
-    <string name="book_share_mark_drive_processed_send">Marcadores enviados ao Google drive</string>
-    <string name="book_share_mark_drive_unprocessed">Marcadores não compartilhados no Google drive</string>
-    <string name="book_share_mark_drive_without_alteration">Nenhuma alteração em marcadores encontrada</string>
+    <string name="book_share_mark_processed">Marcadores compartilhados com a cloud</string>
+    <string name="book_share_mark_processed_receive">Marcadores atualizados da cloud</string>
+    <string name="book_share_mark_processed_send">Marcadores enviados para cloud</string>
+    <string name="book_share_mark_unprocessed">Marcadores não compartilhados</string>
+    <string name="book_share_mark_without_alteration">Nenhuma alteração em marcadores encontrada</string>
+    <string name="book_share_mark_error_download">Ocorreu um erro no download dos marcadores</string>
+    <string name="book_share_mark_error_upload">Ocorreu um erro no upload dos marcadores</string>
+    <string name="book_share_mark_error_network">Não foi possível conectar a cloud, verifique sua internet</string>
+
     <string name="book_share_mark_drive_need_permission">Necessário permissão para acessar o Google drive</string>
     <string name="book_share_mark_drive_need_sign_in">Necessário logar na conta do Google</string>
-    <string name="book_share_mark_drive_error_download">Ocorreu um erro no download do Google drive</string>
-    <string name="book_share_mark_drive_error_upload">Ocorreu um erro no upload do Google drive</string>
-    <string name="book_share_mark_drive_error_network">Não foi possível conectar ao Google drive, verifique sua internet</string>
+    <string name="book_share_mark_firebase_not_connected">Não foi possível conectar no firebase</string>
 
     <string name="menu_reading_book_favorite">Favorito</string>
     <string name="menu_book_reading_order">Ordem da lista</string>
@@ -296,16 +299,18 @@
     <string name="reader_not_found">Não encontrado</string>
     <string name="file_not_found">Arquivo não encontrado</string>
 
-    <string name="manga_share_mark_drive_processed">Marcadores compartilhados no Google drive</string>
-    <string name="manga_share_mark_drive_processed_receive">Marcadores atualizados do Google drive</string>
-    <string name="manga_share_mark_drive_processed_send">Marcadores enviados ao Google drive</string>
-    <string name="manga_share_mark_drive_unprocessed">Marcadores não compartilhados no Google drive</string>
-    <string name="manga_share_mark_drive_without_alteration">Nenhuma alteração em marcadores encontrada</string>
+    <string name="manga_share_mark_processed">Marcadores compartilhados a cloud</string>
+    <string name="manga_share_mark_processed_receive">Marcadores atualizados da cloud</string>
+    <string name="manga_share_mark_processed_send">Marcadores enviados para cloud</string>
+    <string name="manga_share_mark_unprocessed">Marcadores não compartilhados na cloud</string>
+    <string name="manga_share_mark_without_alteration">Nenhuma alteração em marcadores encontrada</string>
+    <string name="manga_share_mark_error_download">Ocorreu um erro no download dos marcadores</string>
+    <string name="manga_share_mark_error_upload">Ocorreu um erro no upload dos marcadores</string>
+    <string name="manga_share_mark_error_network">Não foi possível conectar a cloud, verifique sua internet</string>
+
     <string name="manga_share_mark_drive_need_permission">Necessário permissão para o Google drive</string>
     <string name="manga_share_mark_drive_need_sign_in">Necessário logar na conta do Google</string>
-    <string name="manga_share_mark_drive_error_download">Ocorreu um erro no download do Google drive</string>
-    <string name="manga_share_mark_drive_error_upload">Ocorreu um erro no upload do Google drive</string>
-    <string name="manga_share_mark_drive_error_network">Não foi possível conectar ao Google drive, verifique sua internet</string>
+    <string name="manga_share_mark_firebase_not_connected">Não foi possível conectar no firebase</string>
 
     <string name="menu_manga_view_mode">Modo de preenchimento</string>
     <string name="menu_manga_view_mode_aspect_fill">Aspecto preencher</string>

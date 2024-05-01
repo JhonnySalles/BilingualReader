@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.enums.*
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts.PATTERNS.DATE_PATTERN
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts.PATTERNS.DATE_PATTERN_SMALL
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts.PATTERNS.TIME_PATTERN
@@ -200,7 +199,8 @@ class GeneralConsts private constructor() {
             const val LANGUAGE = "SYSTEM_LANGUAGE"
             const val FORMAT_DATA = "SYSTEM_FORMAT_DATA"
             const val FORMAT_DATA_SMALL = "FORMAT_DATA_SMALL"
-            const val SHARE_MARK_DRIVE = "SHARE_MARK_DRIVE"
+            const val SHARE_MARK_ENABLED = "SHARE_MARK_ENABLED"
+            const val SHARE_MARK_CLOUD = "SHARE_MARK_CLOUD"
         }
 
         object MANGA {

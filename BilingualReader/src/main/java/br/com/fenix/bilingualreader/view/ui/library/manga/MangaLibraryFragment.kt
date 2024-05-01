@@ -918,7 +918,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     private fun shareMarkToDrive() {
         GeneralConsts.getSharedPreferences(requireContext()).let { share ->
-            if (share.getBoolean(GeneralConsts.KEYS.SYSTEM.SHARE_MARK_DRIVE, false)) {
+            if (share.getBoolean(GeneralConsts.KEYS.SYSTEM.SHARE_MARK_ENABLED, false)) {
                 val notificationManager = NotificationManagerCompat.from(requireContext())
                 val notification = Notifications.getNotification(requireContext(), getString(R.string.notifications_share_mark_drive_title), getString(R.string.notifications_share_mark_drive_content))
                 val notifyId = Notifications.getID()
@@ -933,13 +933,13 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                                 sortList()
 
                             if (ShareMarkType.receive && !ShareMarkType.send)
-                                getString(R.string.manga_share_mark_drive_processed_receive)
+                                getString(R.string.manga_share_mark_processed_receive)
                             else if (!ShareMarkType.receive && ShareMarkType.send)
-                                getString(R.string.manga_share_mark_drive_processed_send)
+                                getString(R.string.manga_share_mark_processed_send)
                            else
-                               getString(R.string.manga_share_mark_drive_processed)
+                               getString(R.string.manga_share_mark_processed)
                         }
-                        ShareMarkType.NOT_ALTERATION -> getString(R.string.manga_share_mark_drive_without_alteration)
+                        ShareMarkType.NOT_ALTERATION -> getString(R.string.manga_share_mark_without_alteration)
                         ShareMarkType.NEED_PERMISSION_DRIVE -> {
                             startActivityForResult(
                                 result.intent,
@@ -947,11 +947,12 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                             )
                             getString(R.string.manga_share_mark_drive_need_permission)
                         }
+                        ShareMarkType.NOT_CONNECT_FIREBASE -> getString(R.string.manga_share_mark_firebase_not_connected)
                         ShareMarkType.NOT_CONNECT_DRIVE -> getString(R.string.manga_share_mark_drive_need_sign_in)
-                        ShareMarkType.ERROR_DOWNLOAD -> getString(R.string.manga_share_mark_drive_error_download)
-                        ShareMarkType.ERROR_UPLOAD -> getString(R.string.manga_share_mark_drive_error_upload)
-                        ShareMarkType.ERROR_NETWORK -> getString(R.string.manga_share_mark_drive_error_network)
-                        else -> getString(R.string.manga_share_mark_drive_unprocessed)
+                        ShareMarkType.ERROR_DOWNLOAD -> getString(R.string.manga_share_mark_error_download)
+                        ShareMarkType.ERROR_UPLOAD -> getString(R.string.manga_share_mark_error_upload)
+                        ShareMarkType.ERROR_NETWORK -> getString(R.string.manga_share_mark_error_network)
+                        else -> getString(R.string.manga_share_mark_unprocessed)
                     }
 
                     Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()

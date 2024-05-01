@@ -17,9 +17,9 @@ import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
 import br.com.fenix.bilingualreader.model.enums.Type
-import br.com.fenix.bilingualreader.service.controller.ShareMarkController
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.TagsRepository
+import br.com.fenix.bilingualreader.service.sharemark.ShareMarkFirebaseBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
 import kotlinx.coroutines.CoroutineScope
@@ -515,7 +515,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     fun processShareMarks(context: Context, processed: (result: ShareMarkType) -> (Unit)) {
         if (!mProcessShareMark) {
             mProcessShareMark = true
-            val share = ShareMarkController(context)
+            val share = ShareMarkFirebaseBase.getInstance(context)
             var notify = false
             val process: (book: Book) -> (Unit) = { item ->
                 if (mLibrary.id == item.fkLibrary) {

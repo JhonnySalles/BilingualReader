@@ -24,9 +24,13 @@ data class ShareItem(
     @SerializedName("ultimoAcesso")
     var lastAccess: Date,
     @Expose
-    @SerializedName("sincronizado")
+    @SerializedName(ShareItem.FIELD_SYNC)
     var sync: Date
 ) : Serializable {
+
+    companion object {
+        const val FIELD_SYNC = "sincronizado"
+    }
 
     @Expose(serialize = false, deserialize = false)
     var alter : Boolean = false

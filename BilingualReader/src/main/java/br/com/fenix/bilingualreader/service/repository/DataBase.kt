@@ -85,6 +85,11 @@ abstract class DataBase : RoomDatabase() {
             return INSTANCE
         }
 
+        fun close() {
+            if (::INSTANCE.isInitialized)
+                INSTANCE.close()
+        }
+
         private var rdc: Callback = object : Callback() {
             override fun onCreate(database: SupportSQLiteDatabase) {
                 mLOGGER.info("Create initial database data....")
