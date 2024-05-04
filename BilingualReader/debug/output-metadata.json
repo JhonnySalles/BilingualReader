@@ -11,9 +11,9 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 1,
-      "versionName": "1.0.1 (Nougat)",
-      "outputFile": "BilingualReader_1.0.1 (Nougat)-debug.apk"
+      "versionCode": 2,
+      "versionName": "1.0.2 - Nougat",
+      "outputFile": "BilingualReader_1.0.2 - Nougat-debug.apk"
     }
   ],
   "elementType": "File"
