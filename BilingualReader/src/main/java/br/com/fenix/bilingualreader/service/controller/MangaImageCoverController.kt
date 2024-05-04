@@ -18,6 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -30,6 +31,7 @@ class MangaImageCoverController private constructor() {
 
     companion object {
         val instance: MangaImageCoverController by lazy { HOLDER.INSTANCE }
+        val thread = newSingleThreadContext("MangaCovers")
     }
 
     private val mLOGGER = LoggerFactory.getLogger(MangaImageCoverController::class.java)
@@ -182,7 +184,7 @@ class MangaImageCoverController private constructor() {
         isCoverSize: Boolean = true,
         function: (Bitmap?) -> (Unit)
     ) {
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(thread).launch {
             try {
                 var image: Bitmap? = null
                 val deferred = async {
