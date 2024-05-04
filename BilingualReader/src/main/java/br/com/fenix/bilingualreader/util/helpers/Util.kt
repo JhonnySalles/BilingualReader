@@ -24,6 +24,7 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Handler
+import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.*
@@ -54,6 +55,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.delay
 import java.io.*
 import java.lang.Math.abs
 import java.math.BigInteger
@@ -955,12 +957,12 @@ class MenuUtil {
         }
 
         fun longClick(activity: Activity, menuItem: Int, longCLick: () -> (Unit)) {
-            Handler().post {
-                activity.findViewById<View?>(menuItem)?.setOnLongClickListener {
+            Handler(Looper.getMainLooper()).postDelayed({
+                activity.findViewById<View>(menuItem)?.setOnLongClickListener {
                     longCLick()
                     true
                 }
-            }
+            }, 1000)
         }
 
         fun animatedSequenceDrawable(menu: MenuItem, vararg id: Int) {

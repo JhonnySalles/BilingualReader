@@ -1085,6 +1085,18 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
+
+        MenuUtil.longClick(requireActivity(), R.id.menu_manga_library_list_order) {
+            if (!mRefreshLayout.isRefreshing)
+                onOpenMenuLibrary(1)
+
+        }
+
+        MenuUtil.longClick(requireActivity(), R.id.menu_manga_library_type) {
+            if (!mRefreshLayout.isRefreshing)
+                onOpenMenuLibrary(0)
+        }
+
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE || newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             if (mViewModel.libraryType.value != LibraryMangaType.LINE) {
                 if (mViewModel.libraryType.value == LibraryMangaType.GRID_SMALL && resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE)

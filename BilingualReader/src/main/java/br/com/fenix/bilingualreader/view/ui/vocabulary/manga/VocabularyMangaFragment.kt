@@ -460,6 +460,12 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
+
+        MenuUtil.longClick(requireActivity(), R.id.menu_vocabulary_list_order) {
+            if (!mRefreshLayout.isRefreshing)
+                onOpenMenuSort()
+        }
+
         val myAdapter = mRecyclerView.adapter
         mRecyclerView.adapter = myAdapter
     }
