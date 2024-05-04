@@ -92,6 +92,8 @@
             android:orientation="vertical"
             android:paddingTop="1dp"
             android:layout_alignParentBottom="true"
+            android:layout_gravity="center_horizontal"
+            android:maxWidth="600dp"
             android:visibility="gone"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
