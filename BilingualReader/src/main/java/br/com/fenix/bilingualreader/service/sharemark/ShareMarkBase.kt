@@ -69,14 +69,14 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
 
     // --------------------------------------------------------- Manga ---------------------------------------------------------
     protected fun compare(item: ShareItem, manga: Manga): Boolean {
-        return if (manga.lastAccess == null || item.lastAccess.after(GeneralConsts.dateTimeToDate(manga.lastAccess!!))) {
+        return if (manga.lastAccess == null || item.lastAccess.after(manga.lastAccess!!)) {
             manga.bookMark = item.bookMark
-            manga.lastAccess = GeneralConsts.dateToDateTime(item.lastAccess)
+            manga.lastAccess = item.lastAccess
             manga.favorite = item.favorite
             true
         } else {
             //Differ 10 seconds
-            val diff: Long = item.lastAccess.time - GeneralConsts.dateTimeToDate(manga.lastAccess!!).time
+            val diff: Long = item.lastAccess.time - manga.lastAccess!!.time
             if (diff > 10000 || diff < -10000)
                 item.merge(manga)
             false
@@ -115,14 +115,14 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
 
     // --------------------------------------------------------- Book ---------------------------------------------------------
     protected fun compare(item: ShareItem, book: Book): Boolean {
-        return if (book.lastAccess == null || item.lastAccess.after(GeneralConsts.dateTimeToDate(book.lastAccess!!))) {
+        return if (book.lastAccess == null || item.lastAccess.after(book.lastAccess!!)) {
             book.bookMark = item.bookMark
-            book.lastAccess = GeneralConsts.dateToDateTime(item.lastAccess)
+            book.lastAccess = item.lastAccess
             book.favorite = item.favorite
             true
         } else {
             //Differ 10 seconds
-            val diff: Long = item.lastAccess.time - GeneralConsts.dateTimeToDate(book.lastAccess!!).time
+            val diff: Long = item.lastAccess.time - book.lastAccess!!.time
             if (diff > 10000 || diff < -10000)
                 item.merge(book)
             false
