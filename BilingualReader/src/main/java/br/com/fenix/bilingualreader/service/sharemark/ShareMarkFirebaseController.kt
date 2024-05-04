@@ -95,10 +95,9 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                     val documents = snapshot.data ?: mapOf()
                     for (key in documents.keys) {
                         val item = documents[key] as Map<String, *>
+                        cloud[key] = item
                         if (lastSync.before((item[ShareItem.FIELD_SYNC] as Timestamp).toDate()))
                             share.add(ShareItem(item))
-                        else
-                            cloud[key] = item
                     }
                 } catch (e: Exception) {
                     mLOGGER.error(e.message, e)
