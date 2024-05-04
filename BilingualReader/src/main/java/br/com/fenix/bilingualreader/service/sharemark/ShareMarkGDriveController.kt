@@ -2,9 +2,6 @@ package br.com.fenix.bilingualreader.service.sharemark
 
 import android.accounts.NetworkErrorException
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import android.os.Build
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Manga
@@ -49,7 +46,7 @@ import java.util.Date
 import java.util.Locale
 
 
-class ShareMarkGDriveController(override var context: Context) : ShareMarkFirebaseBase(context)  {
+class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(context)  {
 
     private val mLOGGER = LoggerFactory.getLogger(ShareMarkGDriveController::class.java)
 

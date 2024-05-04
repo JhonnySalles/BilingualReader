@@ -6,7 +6,6 @@ import br.com.fenix.bilingualreader.model.enums.ShareMarkType
 
 
 interface ShareMark {
-    fun clearLastSync()
 
     /**
      * @param update  Function call when object is updated

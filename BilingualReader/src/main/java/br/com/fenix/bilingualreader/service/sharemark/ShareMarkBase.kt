@@ -14,9 +14,9 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import org.slf4j.LoggerFactory
 
 
-abstract class ShareMarkFirebaseBase(open var context: Context) : ShareMark {
+abstract class ShareMarkBase(open var context: Context) : ShareMark {
 
-    private val mLOGGER = LoggerFactory.getLogger(ShareMarkFirebaseBase::class.java)
+    private val mLOGGER = LoggerFactory.getLogger(ShareMarkBase::class.java)
 
     companion object {
         const val INITIAL_SYNC_DATE_TIME = "2000-01-01T01:01:01.001-0300"
@@ -28,6 +28,15 @@ abstract class ShareMarkFirebaseBase(open var context: Context) : ShareMark {
             return when (type) {
                 ShareMarkCloud.GOOGLE_DRIVE -> ShareMarkGDriveController(context)
                 ShareMarkCloud.FIRESTORE -> ShareMarkFirebaseController(context)
+            }
+        }
+
+        fun clearLastSync(context: Context) {
+            val prefs = GeneralConsts.getSharedPreferences(context)
+            with(prefs.edit()) {
+                this.remove(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA)
+                this.remove(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK)
+                this.commit()
             }
         }
     }
@@ -56,16 +65,6 @@ abstract class ShareMarkFirebaseBase(open var context: Context) : ShareMark {
             model
         else
             "$manufacturer $model"
-    }
-
-
-    override fun clearLastSync() {
-        val prefs = GeneralConsts.getSharedPreferences(context)
-        with(prefs.edit()) {
-            this.remove(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA)
-            this.remove(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK)
-            this.commit()
-        }
     }
 
     // --------------------------------------------------------- Manga ---------------------------------------------------------
