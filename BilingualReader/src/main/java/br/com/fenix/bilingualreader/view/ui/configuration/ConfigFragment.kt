@@ -30,11 +30,11 @@ import br.com.fenix.bilingualreader.model.enums.ShareMarkCloud
 import br.com.fenix.bilingualreader.model.enums.ThemeMode
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.Type
-import br.com.fenix.bilingualreader.service.sharemark.ShareMarkFirebaseController
 import br.com.fenix.bilingualreader.service.listener.FontsListener
 import br.com.fenix.bilingualreader.service.listener.ThemesListener
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.service.repository.Storage
+import br.com.fenix.bilingualreader.service.sharemark.ShareMarkBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.BackupError
 import br.com.fenix.bilingualreader.util.helpers.ErrorRestoreDatabase
@@ -504,14 +504,6 @@ class ConfigFragment : Fragment() {
                     mConfigSystemShareMarkCloudMap[parent.getItemAtPosition(position).toString()]!!
                 else
                     ShareMarkCloud.GOOGLE_DRIVE
-
-                when (mConfigSystemShareMarkCloudSelect) {
-                    ShareMarkCloud.GOOGLE_DRIVE -> googleSigIn(GoogleSignIn.getLastSignedInAccount(requireContext()))
-                    ShareMarkCloud.FIRESTORE -> {
-                        mConfigSystemShareMarkAccount.visibility = View.GONE
-                        mConfigSystemShareMarkSignIn.visibility = View.GONE
-                    }
-                }
             }
 
         prepareThemes()
@@ -538,7 +530,7 @@ class ConfigFragment : Fragment() {
                 .setTitle(getString(R.string.config_system_share_mark_clear_last_sync_title))
                 .setMessage(getString(R.string.config_system_share_mark_clear_last_sync))
                 .setPositiveButton(R.string.action_confirm) { _, _ ->
-                    ShareMarkFirebaseController(requireContext()).clearLastSync()
+                    ShareMarkBase.clearLastSync(requireContext())
                     mConfigSystemShareMarkLastSync.visibility = View.GONE
                 }
                 .setNegativeButton(R.string.action_cancel) { _, _ -> }
@@ -551,13 +543,7 @@ class ConfigFragment : Fragment() {
             startActivityForResult(googleSignInClient.signInIntent, GeneralConsts.REQUEST.GOOGLE_SIGN_IN)
         }
 
-        when (mConfigSystemShareMarkCloudSelect) {
-            ShareMarkCloud.GOOGLE_DRIVE -> googleSigIn(GoogleSignIn.getLastSignedInAccount(requireContext()))
-            ShareMarkCloud.FIRESTORE -> {
-                mConfigSystemShareMarkAccount.visibility = View.GONE
-                mConfigSystemShareMarkSignIn.visibility = View.GONE
-            }
-        }
+        googleSigIn(GoogleSignIn.getLastSignedInAccount(requireContext()))
 
         mViewModel.loadLibrary(null)
     }
@@ -750,8 +736,7 @@ class ConfigFragment : Fragment() {
         mViewModel.saveDefault(Type.MANGA, mMangaLibraryPath.editText?.text.toString())
         mViewModel.saveDefault(Type.BOOK, mBookLibraryPath.editText?.text.toString())
 
-        val sharedPreferences =
-            GeneralConsts.getSharedPreferences(requireContext())
+        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         with(sharedPreferences.edit()) {
             this.putString(
                 GeneralConsts.KEYS.LIBRARY.MANGA_ORDER,
@@ -838,9 +823,15 @@ class ConfigFragment : Fragment() {
                 mConfigSystemShareMarkEnabled.isChecked
             )
 
+            val share = mConfigSystemShareMarkCloudSelect.toString()
+            if (share != sharedPreferences.getString(GeneralConsts.KEYS.SYSTEM.SHARE_MARK_CLOUD, ShareMarkCloud.GOOGLE_DRIVE.toString())) {
+                this.remove(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA)
+                this.remove(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK)
+            }
+
             this.putString(
                 GeneralConsts.KEYS.SYSTEM.SHARE_MARK_CLOUD,
-                mConfigSystemShareMarkCloudSelect.toString()
+                share
             )
 
             this.putString(

@@ -1,8 +1,6 @@
 package br.com.fenix.bilingualreader.service.sharemark
 
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.ShareItem
@@ -10,9 +8,14 @@ import br.com.fenix.bilingualreader.model.enums.ShareMarkType
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseApp
+import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.CoroutineScope
@@ -27,7 +30,7 @@ import java.util.Date
 import java.util.Locale
 
 
-class ShareMarkFirebaseController(override var context: Context) : ShareMarkFirebaseBase(context) {
+class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase(context) {
 
     private val mLOGGER = LoggerFactory.getLogger(ShareMarkFirebaseController::class.java)
 
@@ -42,6 +45,11 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkFire
     override fun initialize() {
         if (!::mDB.isInitialized) {
             try {
+                val auth = FirebaseAuth.getInstance()
+                val credential = GoogleSignIn.getLastSignedInAccount(context)
+                val firebaseCredential = GoogleAuthProvider.getCredential(credential!!.idToken, null)
+                auth.signInWithCredential(firebaseCredential)
+
                 FirebaseApp.initializeApp(context)
                 mDB = FirebaseFirestore.getInstance()
             } catch (e: Exception) {
@@ -64,13 +72,13 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkFire
                 val lastSync = simpleDate.parse(dateSync)!!
 
                 val collection: CollectionReference
-                val query: Task<QuerySnapshot>
-                val querySnapshot: QuerySnapshot
+                val query: Task<DocumentSnapshot>
+                val snapshot: DocumentSnapshot
 
                 try {
                     collection = mDB.collection(DATABASE_NAME)
-                    query = collection.whereEqualTo(MANGA, true).whereGreaterThan(ShareItem.FIELD_SYNC, dateSync).orderBy(ShareItem.FIELD_SYNC).get()
-                    querySnapshot = query.await()
+                    query = collection.document(MANGA).get()
+                    snapshot = query.await()
                 } catch (e: Exception) {
                     mLOGGER.error(e.message, e)
                     withContext(Dispatchers.Main) {
@@ -80,13 +88,24 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkFire
                 }
 
                 val repository = MangaRepository(context)
-
                 val share = mutableListOf<ShareItem>()
+                val cloud: MutableMap<String, Any> = mutableMapOf()
 
-                val documents = querySnapshot.documents
-                for (document in documents) {
-                    for (key in document.data!!.keys)
-                        document.get(key, ShareItem::class.java)?.let { share.add(it) }
+                try {
+                    val documents = snapshot.data ?: mapOf()
+                    for (key in documents.keys) {
+                        val item = documents[key] as Map<String, *>
+                        if (lastSync.before((item[ShareItem.FIELD_SYNC] as Timestamp).toDate()))
+                            share.add(ShareItem(item))
+                        else
+                            cloud[key] = item
+                    }
+                } catch (e: Exception) {
+                    mLOGGER.error(e.message, e)
+                    withContext(Dispatchers.Main) {
+                        ending(ShareMarkType.ERROR)
+                    }
+                    return@async
                 }
 
                 repository.listSync(lastSync).apply {
@@ -119,15 +138,13 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkFire
 
                 val shared = if (isUpdate) {
                     try {
-                        val data: MutableMap<String, Any> = mutableMapOf()
-
                         share.filter { it.alter }.forEach {
                             it.sync = Date()
-                            data[it.file] = it
+                            cloud[it.file] = it
                         }
 
-                        val result = collection.document(MANGA).set(data)
-                        result.result
+                        val result = collection.document(MANGA).set(cloud)
+                        result.await()
                         ShareMarkType.SUCCESS
                     } catch (e: Exception) {
                         mLOGGER.error(e.message, e)
@@ -160,13 +177,13 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkFire
                 val lastSync = simpleDate.parse(dateSync)!!
 
                 val collection: CollectionReference
-                val query: Task<QuerySnapshot>
-                val querySnapshot: QuerySnapshot
+                val query: Task<DocumentSnapshot>
+                val snapshot: DocumentSnapshot
 
                 try {
                     collection = mDB.collection(DATABASE_NAME)
-                    query = collection.whereEqualTo(BOOK, true).whereGreaterThan(ShareItem.FIELD_SYNC, dateSync).orderBy(ShareItem.FIELD_SYNC).get()
-                    querySnapshot = query.await()
+                    query = collection.document(BOOK).get()
+                    snapshot = query.await()
                 } catch (e: Exception) {
                     mLOGGER.error(e.message, e)
                     withContext(Dispatchers.Main) {
@@ -176,13 +193,24 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkFire
                 }
 
                 val repository = BookRepository(context)
-
                 val share = mutableListOf<ShareItem>()
+                val cloud: MutableMap<String, Any> = mutableMapOf()
 
-                val documents = querySnapshot.documents
-                for (document in documents) {
-                    for (key in document.data!!.keys)
-                        document.get(key, ShareItem::class.java)?.let { share.add(it) }
+                try {
+                    val documents = snapshot.data ?: mapOf()
+                    for (key in documents.keys) {
+                        val item = documents[key] as Map<String, *>
+                        if (lastSync.before((item[ShareItem.FIELD_SYNC] as Timestamp).toDate()))
+                            share.add(ShareItem(item))
+                        else
+                            cloud[key] = item
+                    }
+                } catch (e: Exception) {
+                    mLOGGER.error(e.message, e)
+                    withContext(Dispatchers.Main) {
+                        ending(ShareMarkType.ERROR)
+                    }
+                    return@async
                 }
 
                 repository.listSync(lastSync).apply {
