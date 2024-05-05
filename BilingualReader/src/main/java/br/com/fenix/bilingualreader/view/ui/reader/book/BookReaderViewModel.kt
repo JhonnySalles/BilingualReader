@@ -10,8 +10,14 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.*
-import br.com.fenix.bilingualreader.model.enums.*
+import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.BookConfiguration
+import br.com.fenix.bilingualreader.model.enums.AlignmentLayoutType
+import br.com.fenix.bilingualreader.model.enums.FontType
+import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.model.enums.MarginLayoutType
+import br.com.fenix.bilingualreader.model.enums.ScrollingType
+import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
 import br.com.fenix.bilingualreader.service.controller.WebInterface
 import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
@@ -20,7 +26,6 @@ import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FontUtil
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
-import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
 
 class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {

@@ -3,7 +3,7 @@ package br.com.fenix.bilingualreader.service.tracker.mal
 import com.google.gson.annotations.SerializedName
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
 
 data class MalMangaList(
     @SerializedName("data")

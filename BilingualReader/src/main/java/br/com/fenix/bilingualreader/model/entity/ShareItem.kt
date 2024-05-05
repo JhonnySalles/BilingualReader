@@ -1,7 +1,6 @@
 package br.com.fenix.bilingualreader.model.entity
 
 
-import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.PropertyName
