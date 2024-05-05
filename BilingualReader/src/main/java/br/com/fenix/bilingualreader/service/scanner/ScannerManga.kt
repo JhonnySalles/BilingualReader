@@ -160,10 +160,26 @@ class ScannerManga(private val context: Context) {
         var mIsRestarted = false
         lateinit var mThread: Thread
 
+        private fun endingUpdate(isProcessed : Boolean) {
+            mThreads.remove(mId)
+            if (mRunning.containsKey(mLibrary))
+                mRunning.remove(mLibrary)
+
+            mIsStopped = false
+            if (mIsRestarted) {
+                mIsRestarted = false
+                val mRestartHandler: Handler = RestartHandler(this@ScannerManga, mLibrary)
+                mRestartHandler.sendEmptyMessageDelayed(1, 200)
+            } else if (!isSilent)
+                notifyLibraryUpdateFinished(isProcessed)
+        }
+
         override fun run() {
             val libraryPath = mLibrary.path
-            if (libraryPath == "" || !File(libraryPath).exists())
+            if (libraryPath == "" || !File(libraryPath).exists()) {
+                endingUpdate(true)
                 return
+            }
 
             val notificationManager = NotificationManagerCompat.from(context)
             val notification = Notifications.getNotification(context, context.getString(R.string.notifications_scanner_library), context.getString(
@@ -268,17 +284,7 @@ class ScannerManga(private val context: Context) {
             } catch (e: Exception) {
                 mLOGGER.error("Error to scanner manga.", e)
             } finally {
-                mThreads.remove(mId)
-                if (mRunning.containsKey(mLibrary))
-                    mRunning.remove(mLibrary)
-
-                mIsStopped = false
-                if (mIsRestarted) {
-                    mIsRestarted = false
-                    val mRestartHandler: Handler = RestartHandler(this@ScannerManga, mLibrary)
-                    mRestartHandler.sendEmptyMessageDelayed(1, 200)
-                } else if (!isSilent)
-                    notifyLibraryUpdateFinished(isProcess)
+                endingUpdate(isProcess)
 
                 notification.setContentText(context.getString(R.string.notifications_scanner_library_processed, mLibrary.title))
                     .setProgress(0, 0, false)

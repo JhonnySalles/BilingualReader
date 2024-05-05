@@ -160,14 +160,33 @@ class ScannerBook(private val context: Context) {
         var mIsRestarted = false
         lateinit var mThread: Thread
 
+        private fun endingUpdate(isProcessed: Boolean) {
+            mThreads.remove(mId)
+            if (mRunning.containsKey(mLibrary))
+                mRunning.remove(mLibrary)
+
+            mIsStopped = false
+            if (mIsRestarted) {
+                mIsRestarted = false
+                val mRestartHandler: Handler = RestartHandler(this@ScannerBook, mLibrary)
+                mRestartHandler.sendEmptyMessageDelayed(1, 200)
+            } else if (!isSilent)
+                notifyLibraryUpdateFinished(isProcessed)
+        }
+
         override fun run() {
             val libraryPath = mLibrary.path
-            if (libraryPath == "" || !File(libraryPath).exists())
+            if (libraryPath == "" || !File(libraryPath).exists()) {
+                endingUpdate(true)
                 return
+            }
 
             val notificationManager = NotificationManagerCompat.from(context)
-            val notification = Notifications.getNotification(context, context.getString(R.string.notifications_scanner_library), context.getString(
-                R.string.notifications_scanner_library_content, mLibrary.title, context.getString(R.string.menu_books)))
+            val notification = Notifications.getNotification(
+                context, context.getString(R.string.notifications_scanner_library), context.getString(
+                    R.string.notifications_scanner_library_content, mLibrary.title, context.getString(R.string.menu_books)
+                )
+            )
             val notifyId = Notifications.getID()
 
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
@@ -213,7 +232,7 @@ class ScannerBook(private val context: Context) {
                                     } else if (storage.findBookByPath(it.path) != null)
                                         return
                                     else
-                                        Book(mLibrary.id,null,  it)
+                                        Book(mLibrary.id, null, it)
 
                                     book.path = it.path
                                     book.folder = it.parent
@@ -253,17 +272,7 @@ class ScannerBook(private val context: Context) {
             } catch (e: Exception) {
                 mLOGGER.error("Error to scanner manga.", e)
             } finally {
-                mThreads.remove(mId)
-                if (mRunning.containsKey(mLibrary))
-                    mRunning.remove(mLibrary)
-
-                mIsStopped = false
-                if (mIsRestarted) {
-                    mIsRestarted = false
-                    val mRestartHandler: Handler = RestartHandler(this@ScannerBook, mLibrary)
-                    mRestartHandler.sendEmptyMessageDelayed(1, 200)
-                } else if (!isSilent)
-                    notifyLibraryUpdateFinished(isProcess)
+                endingUpdate(isProcess)
 
                 notification.setContentText(context.getString(R.string.notifications_scanner_library_processed, mLibrary.title))
                     .setProgress(0, 0, false)
