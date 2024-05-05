@@ -1,12 +1,31 @@
 package br.com.fenix.bilingualreader.service.repository
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.RoomWarnings
+import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteOpenHelper
-import br.com.fenix.bilingualreader.model.entity.*
+import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.BookAnnotation
+import br.com.fenix.bilingualreader.model.entity.BookConfiguration
+import br.com.fenix.bilingualreader.model.entity.BookSearch
+import br.com.fenix.bilingualreader.model.entity.Kanjax
+import br.com.fenix.bilingualreader.model.entity.KanjiJLPT
+import br.com.fenix.bilingualreader.model.entity.Library
+import br.com.fenix.bilingualreader.model.entity.LinkedFile
+import br.com.fenix.bilingualreader.model.entity.LinkedPage
+import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.entity.SubTitle
+import br.com.fenix.bilingualreader.model.entity.Tags
+import br.com.fenix.bilingualreader.model.entity.Vocabulary
+import br.com.fenix.bilingualreader.model.entity.VocabularyBook
+import br.com.fenix.bilingualreader.model.entity.VocabularyManga
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
-import java.util.*
+import java.util.Date
 
 
 interface DataBaseDAO<T> {

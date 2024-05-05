@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.view.ui.window
 
 import android.content.Context
 import android.content.res.Resources
-import android.graphics.Bitmap
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.drawable.Drawable
@@ -20,7 +19,6 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatImageButton
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.ImageLoadType
-import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil

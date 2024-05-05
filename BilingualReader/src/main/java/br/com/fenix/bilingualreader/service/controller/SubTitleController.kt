@@ -2,7 +2,12 @@ package br.com.fenix.bilingualreader.service.controller
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.view.View
@@ -13,7 +18,14 @@ import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.*
+import br.com.fenix.bilingualreader.model.entity.LinkedFile
+import br.com.fenix.bilingualreader.model.entity.LinkedPage
+import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.entity.SubTitle
+import br.com.fenix.bilingualreader.model.entity.SubTitleChapter
+import br.com.fenix.bilingualreader.model.entity.SubTitlePage
+import br.com.fenix.bilingualreader.model.entity.SubTitleText
+import br.com.fenix.bilingualreader.model.entity.SubTitleVolume
 import br.com.fenix.bilingualreader.model.enums.ImageLoadType
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess

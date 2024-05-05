@@ -3,7 +3,10 @@ package br.com.fenix.bilingualreader.service.japanese
 import android.annotation.TargetApi
 import android.content.Context
 import android.os.Build
-import android.text.*
+import android.text.SpannableString
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.TextPaint
 import android.text.style.ClickableSpan
 import android.text.style.RelativeSizeSpan
 import android.view.View
