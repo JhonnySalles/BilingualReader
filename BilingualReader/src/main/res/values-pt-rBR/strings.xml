@@ -28,7 +28,7 @@
     <string name="notifications_channel_name">Bilingual Reader</string>
     <string name="notifications_channel_description">Bilingual Reader</string>
     <string name="notifications_share_mark_drive_title">Sincronizando</string>
-    <string name="notifications_share_mark_drive_content">Sincronizando marcações no Google drive.</string>
+    <string name="notifications_share_mark_drive_content">Sincronizando marcações com a cloud.</string>
     <string name="notifications_scanner_library">Escaneando bibliotecas</string>
     <string name="notifications_scanner_library_content">Escaneando arquivos nas pastas da biblioteca %s. (%s)</string>
     <string name="notifications_scanner_library_processed">Escaneamento da biblioteca %s concluído com sucesso.</string>
