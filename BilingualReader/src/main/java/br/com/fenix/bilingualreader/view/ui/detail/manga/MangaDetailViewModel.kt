@@ -10,8 +10,6 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.LinkedFile
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.SubTitleChapter
-import br.com.fenix.bilingualreader.model.entity.SubTitleVolume
-import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.listener.ApiListener
@@ -25,7 +23,6 @@ import br.com.fenix.bilingualreader.service.tracker.mal.MalMangaDetail
 import br.com.fenix.bilingualreader.service.tracker.mal.MyAnimeListTracker
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -33,8 +30,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.io.File
-import java.io.FileNotFoundException
-import java.io.IOException
 
 class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
 

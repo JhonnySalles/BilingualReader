@@ -4,7 +4,6 @@ import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import com.github.junrar.Archive
-import com.github.junrar.exception.CrcErrorException
 import com.github.junrar.exception.RarException
 import com.github.junrar.rarfile.FileHeader
 import org.simpleframework.xml.Serializer

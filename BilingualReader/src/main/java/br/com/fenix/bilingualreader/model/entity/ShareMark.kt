@@ -4,7 +4,7 @@ import br.com.fenix.bilingualreader.model.enums.Type
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
-import java.util.*
+import java.util.Date
 
 data class ShareMark(
     @Expose
