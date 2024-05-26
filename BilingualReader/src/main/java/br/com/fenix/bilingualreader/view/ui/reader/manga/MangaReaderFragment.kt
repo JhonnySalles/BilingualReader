@@ -271,7 +271,21 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                         inverse.add(pages - chapter)
                         dots.add(chapter)
                     }
-                    (requireActivity() as MangaReaderActivity).setDots(dots, inverse)
+
+                    var times = 0
+                    val handler = Handler()
+                    var setDot: () -> Unit = {}
+                    setDot = {
+                        try {
+                            (requireActivity() as MangaReaderActivity).setDots(dots, inverse)
+                        } catch (e: Exception) {
+                            mLOGGER.error("Error to set dots", e)
+                            times++
+                            if (times < 3)
+                                handler.postDelayed(setDot, 1000)
+                        }
+                    }
+                    handler.postDelayed(setDot, 1000)
 
                     mSubtitleController.mReaderFragment = this
                     mFileName = file.name
@@ -485,6 +499,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     it.setViewMode(mReaderMode)
                 }
             }
+
             R.id.reading_manga_left_to_right, R.id.reading_manga_right_to_left -> {
                 item.isChecked = true
                 val page = getCurrentPage()
@@ -493,6 +508,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 mViewPager.adapter?.notifyDataSetChanged()
                 updateSeekBar()
             }
+
             R.id.menu_item_reader_manga_use_magnifier_type -> {
                 item.isChecked = !item.isChecked
                 mUseMagnifierType = item.isChecked
@@ -505,6 +521,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     this.commit()
                 }
             }
+
             R.id.menu_item_reader_manga_keep_zoom_between_pages -> {
                 item.isChecked = !item.isChecked
                 mKeepZoomBetweenPage = item.isChecked
@@ -514,6 +531,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     this.commit()
                 }
             }
+
             R.id.menu_item_reader_manga_save_share_image -> openPopupSaveShareImage()
         }
         return super.onOptionsItemSelected(item)
@@ -741,6 +759,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                         if (getCurrentPage() == mViewPager.adapter!!.count) hitEnding() else setCurrentPage(getCurrentPage() + 1)
                     }
                 }
+
                 Position.RIGHT -> {
                     if (mIsLeftToRight) {
                         if (getCurrentPage() == mViewPager.adapter!!.count) hitEnding() else setCurrentPage(getCurrentPage() + 1)
@@ -748,6 +767,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                         if (getCurrentPage() == 1) hitBeginning() else setCurrentPage(getCurrentPage() - 1)
                     }
                 }
+
                 Position.CENTER -> setFullscreen(fullscreen = false)
                 else -> setFullscreen(fullscreen = false)
             }
@@ -967,27 +987,27 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mNewManga = newManga
         mNewMangaTitle = titleRes
         val dialog = MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
-                .setTitle(titleRes)
-                .setMessage(newManga.fileName)
-                .setPositiveButton(
-                    R.string.switch_action_positive
-                ) { _, _ ->
-                    if (activity == null) return@setPositiveButton
+            .setTitle(titleRes)
+            .setMessage(newManga.fileName)
+            .setPositiveButton(
+                R.string.switch_action_positive
+            ) { _, _ ->
+                if (activity == null) return@setPositiveButton
 
-                    confirm = true
-                    val activity = requireActivity() as MangaReaderActivity
-                    activity.changeManga(mNewManga!!)
+                confirm = true
+                val activity = requireActivity() as MangaReaderActivity
+                activity.changeManga(mNewManga!!)
+            }
+            .setNegativeButton(
+                R.string.switch_action_negative
+            ) { _, _ -> }
+            .setOnDismissListener {
+                if (!confirm) {
+                    mNewManga = null
+                    setFullscreen(fullscreen = true)
                 }
-                .setNegativeButton(
-                    R.string.switch_action_negative
-                ) { _, _ -> }
-                .setOnDismissListener {
-                    if (!confirm) {
-                        mNewManga = null
-                        setFullscreen(fullscreen = true)
-                    }
-                }
-                .create()
+            }
+            .create()
         dialog.show()
     }
 
@@ -1011,15 +1031,17 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             .setIcon(R.drawable.ic_save_share_image)
             .setItems(items) { _, selectItem ->
                 val language = items[selectItem]
-                shareImage(language.equals(
-                    requireContext().getString(R.string.reading_manga_choice_share_image),
-                    true
-                ))
+                shareImage(
+                    language.equals(
+                        requireContext().getString(R.string.reading_manga_choice_share_image),
+                        true
+                    )
+                )
             }
             .show()
     }
 
-    private fun shareImage(isShare : Boolean) {
+    private fun shareImage(isShare: Boolean) {
         mParse?.getPage(mCurrentPage)?.let {
             val os: OutputStream
             try {
