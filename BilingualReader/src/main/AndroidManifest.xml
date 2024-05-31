@@ -79,6 +79,9 @@
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
             android:value="ocr,ocr_japanese" />
+
+        <receiver android:name=".service.services.NotificationActionService"/>
+        <service android:name=".service.services.OnClearFromRecentService"/>
     </application>
 
 </manifest>

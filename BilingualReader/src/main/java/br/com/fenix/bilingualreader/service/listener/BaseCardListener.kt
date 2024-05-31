@@ -1,3 +1,3 @@
 package br.com.fenix.bilingualreader.service.listener
 
-sealed interface BaseCardListenner
+sealed interface BaseCardListener

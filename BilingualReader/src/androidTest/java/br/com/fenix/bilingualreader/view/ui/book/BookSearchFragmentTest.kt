@@ -46,8 +46,7 @@ class BookSearchFragmentTest {
 
     private val awaitProcess = 2L
     private val fontSize = GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT
-    private val fontSizeDips =
-        FontUtil.pixelToDips(ApplicationProvider.getApplicationContext(), fontSize)
+    private val fontSizeDips = FontUtil.pixelToDips(ApplicationProvider.getApplicationContext(), fontSize)
 
     init {
         intent = Intent(ApplicationProvider.getApplicationContext(), MenuActivity::class.java)

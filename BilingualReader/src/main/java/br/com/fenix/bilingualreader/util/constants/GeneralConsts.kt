@@ -310,6 +310,7 @@ class GeneralConsts private constructor() {
         const val BOOKS = "Books"
         const val LINKED = "Linked"
         const val IMAGE = "Image"
+        const val AUDIO = "Audio"
         const val THREAD = "Thread"
         const val A = "a"
         const val B = "b"

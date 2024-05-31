@@ -283,6 +283,16 @@
 
     <string name="book_search_menu_item_add_annotation">Add book mark</string>
 
+    <!-- BOOK - TTS -->
+    <string name="book_tts_voice_gender_masculine">Masculine</string>
+    <string name="book_tts_voice_gender_feminine">Feminine</string>
+
+    <string name="book_tts_voice_required">A voice type must be selected.</string>
+
+    <string name="book_tts_idiom_en">English (United States)</string>
+    <string name="book_tts_idiom_jp">Japanese (Japan)</string>
+    <string name="book_tts_idiom_pt">Portuguese (Brazil)</string>
+
     <!-- BOOK - TAGS -->
     <string name="book_tags_title">Tag</string>
     <string name="book_tags_new">New tag</string>
@@ -770,5 +780,10 @@
     <string name="text_inker">Inker</string>
     <string name="text_cover_artist">Cover Artist</string>
     <string name="text_colorist">Colorist</string>
+
+    <string name="button_tts_previous">Previous</string>
+    <string name="button_tts_play">Play</string>
+    <string name="button_tts_next">Next</string>
+    <string name="button_tts_close">Close</string>
 
 </resources>

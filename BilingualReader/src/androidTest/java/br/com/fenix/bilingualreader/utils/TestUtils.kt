@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.utils
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
@@ -196,6 +197,7 @@ class MangaTestUtil {
 
 class BookTestUtil {
     companion object BookTestUtils {
+        const val mBookLocation = "/storage/1CFF-100F/Livros/" + "ReZero - Starting Life in Another World - Volume 01 [Yen Press][Kobo_Kitzoku].pdf"
         private val BOOK_TEST_FILE_PATH = "storage/emulated/0/Book/Book of test.cbr"
         fun clearCache(context: Context) {
             val cache = File(
@@ -208,14 +210,18 @@ class BookTestUtil {
                     file.deleteRecursively()
         }
 
+        fun getCover(context: Context, index: Int = 0) : Bitmap {
+            val minMap = TestUtil.getCoverMipmap(index)
+            return BitmapFactory.decodeResource(context.resources, minMap)
+        }
+
         fun generateCovers(context: Context, books: ArrayList<Book>) {
             for ((index, book) in books.withIndex())
                 generateCovers(context, book, index)
         }
 
         fun generateCovers(context: Context, book: Book, index: Int = 0) {
-            val minMap = TestUtil.getCoverMipmap(index)
-            val cover = BitmapFactory.decodeResource(context.resources, minMap)
+            val cover = getCover(context, index)
             BookImageCoverController.instance.saveCoverToCache(context, book, cover)
         }
 

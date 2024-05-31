@@ -39,7 +39,6 @@ class WebViewPager(
     }
 
     inner class WebViewPagerHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val webViewPage: WebViewPage =
-            itemView.findViewById<View>(R.id.page_web_view) as WebViewPage
+        val webViewPage: WebViewPage = itemView.findViewById<View>(R.id.page_web_view) as WebViewPage
     }
 }

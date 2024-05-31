@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.drawable.AnimatedVectorDrawable
+import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -21,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -42,9 +44,11 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
+import br.com.fenix.bilingualreader.model.enums.TextSpeech
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.exceptions.BookLoadException
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
+import br.com.fenix.bilingualreader.service.controller.TextToSpeechController
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.service.repository.Storage
@@ -199,8 +203,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
 
         setHasOptionsMenu(true)
     }
-
-
+    
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

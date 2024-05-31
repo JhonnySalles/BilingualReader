@@ -150,6 +150,9 @@ dependencies {
     / ** BOOK **/
     implementation project(':ebook')
 
+    //Edge TTS
+    implementation 'io.github.whitemagic2014:tts-edge-java:1.2.0'
+
     / ** TEST **/
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation "androidx.test:core:1.5.0"

@@ -309,6 +309,36 @@
 
     <string name="book_search_menu_item_add_annotation">Add book mark</string>
 
+    <!-- BOOK - TTS -->
+    <string name="book_tts_description" translatable="false">%s - %s</string>
+    <string name="book_tts_description_neural" translatable="false">%s (Neural) - %s</string>
+
+    <string name="book_tts_region_en" translatable="false">en-US</string>
+    <string name="book_tts_region_jp" translatable="false">ja-JP</string>
+    <string name="book_tts_region_pt" translatable="false">pt-BR</string>
+
+    <string name="book_tts_voice_aria" translatable="false">Aria</string>
+    <string name="book_tts_voice_davis" translatable="false">Davis</string>
+    <string name="book_tts_voice_guy" translatable="false">Guy</string>
+    <string name="book_tts_voice_jane" translatable="false">Jane</string>
+    <string name="book_tts_voice_jason" translatable="false">Jason</string>
+    <string name="book_tts_voice_jenny" translatable="false">Jenny</string>
+    <string name="book_tts_voice_nancy" translatable="false">Nancy</string>
+    <string name="book_tts_voice_sara" translatable="false">Sara</string>
+    <string name="book_tts_voice_tony" translatable="false">Tony</string>
+    <string name="book_tts_voice_nanami" translatable="false">Nanami</string>
+    <string name="book_tts_voice_francisca" translatable="false">Francisca</string>
+
+    <string name="book_tts_voice_neural" translatable="false">Neural</string>
+    <string name="book_tts_voice_required">A voice type must be selected.</string>
+
+    <string name="book_tts_voice_gender_masculine">Masculine</string>
+    <string name="book_tts_voice_gender_feminine">Feminine</string>
+
+    <string name="book_tts_idiom_en">English (United States)</string>
+    <string name="book_tts_idiom_jp">Japanese (Japan)</string>
+    <string name="book_tts_idiom_pt">Portuguese (Brazil)</string>
+
     <!-- BOOK - TAGS -->
     <string name="book_tags_title">Tag</string>
     <string name="book_tags_new">New tag</string>
@@ -825,4 +855,9 @@
     <string name="text_inker">Inker</string>
     <string name="text_cover_artist">Cover Artist</string>
     <string name="text_colorist">Colorist</string>
+
+    <string name="button_tts_previous">Previous</string>
+    <string name="button_tts_play">Play</string>
+    <string name="button_tts_next">Next</string>
+    <string name="button_tts_close">Close</string>
 </resources>

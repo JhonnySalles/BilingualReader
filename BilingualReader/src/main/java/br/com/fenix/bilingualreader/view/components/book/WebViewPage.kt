@@ -5,8 +5,7 @@ import android.util.AttributeSet
 import android.webkit.WebView
 
 
-open class WebViewPage(context: Context, attributeSet: AttributeSet?) :
-    WebView(context, attributeSet) {
+open class WebViewPage(context: Context, attributeSet: AttributeSet?) : WebView(context, attributeSet) {
 
     constructor(context: Context) : this(context, null)
 
