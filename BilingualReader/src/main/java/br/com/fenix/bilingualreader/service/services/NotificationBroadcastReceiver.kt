@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 
 
-class NotificationActionService : BroadcastReceiver() {
+class NotificationBroadcastReceiver : BroadcastReceiver() {
 
     companion object {
         const val mIntentAction = "READING_BOOK"

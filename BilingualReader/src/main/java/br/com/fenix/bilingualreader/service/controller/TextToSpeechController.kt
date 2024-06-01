@@ -2,11 +2,9 @@ package br.com.fenix.bilingualreader.service.controller
 
 import android.Manifest
 import android.app.Notification
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.media.MediaPlayer
@@ -14,7 +12,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
@@ -25,8 +22,7 @@ import br.com.fenix.bilingualreader.model.enums.TextSpeech
 import br.com.fenix.bilingualreader.model.exceptions.TTSException
 import br.com.fenix.bilingualreader.service.listener.TTSListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
-import br.com.fenix.bilingualreader.service.services.NotificationActionService
-import br.com.fenix.bilingualreader.service.services.OnClearFromRecentService
+import br.com.fenix.bilingualreader.service.services.NotificationBroadcastReceiver
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import io.github.whitemagic2014.tts.TTS
@@ -197,51 +193,13 @@ class TextToSpeechController(val context: Context, listener: TTSListener?, book:
     private fun createNotification() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationManager = NotificationManagerCompat.from(context)
-            val mediaSessionCompat = MediaSessionCompat(context, "tag")
-
-            context.registerReceiver(broadcastReceiver, IntentFilter(NotificationActionService.mIntentAction), Context.RECEIVER_NOT_EXPORTED)
-            context.startService(Intent(context, OnClearFromRecentService::class.java))
-
-            val intentPlay = Intent(context, NotificationActionService::class.java)
-                .setAction(Notifications.TTS_ACTION_PLAY)
-            val pendingIntentPlay = PendingIntent.getBroadcast(
-                context, 0,
-                intentPlay, PendingIntent.FLAG_UPDATE_CURRENT
-            )
-
-            val intentStop = Intent(context, NotificationActionService::class.java)
-                .setAction(Notifications.TTS_ACTION_STOP)
-            val pendingIntentStop = PendingIntent.getBroadcast(
-                context, 0,
-                intentStop, PendingIntent.FLAG_UPDATE_CURRENT
-            )
-
-            val pendingIntentPrevious: PendingIntent? = if (mPage == 0 && mLine == 0)
-                null
-            else {
-                val intentPrevious = Intent(context, NotificationActionService::class.java)
-                    .setAction(Notifications.TTS_ACTION_PREVIUOS)
-                PendingIntent.getBroadcast(
-                    context, 0,
-                    intentPrevious, PendingIntent.FLAG_UPDATE_CURRENT
-                )
-            }
-
-            val pendingIntentNext: PendingIntent? = if (mPage == mParse!!.pageCount && mLine == (mLines.size -1))
-                null
-            else {
-                val intentNext = Intent(context, NotificationActionService::class.java)
-                    .setAction(Notifications.TTS_ACTION_NEXT)
-                PendingIntent.getBroadcast(
-                    context, 0,
-                    intentNext, PendingIntent.FLAG_UPDATE_CURRENT
-                )
-            }
 
             val notifyId = Notifications.getID()
 
             val notificationManager = NotificationManagerCompat.from(context)
-            val notification = Notifications.getTTSNotification(context, mBook, mFileName, mCover, pendingIntentPlay, pendingIntentPrevious, pendingIntentNext, pendingIntentStop)
+            val hastPrevious = (mPage > 0 || mLine > 0)
+            val hastNext = !(mPage == mParse!!.pageCount && mLine == (mLines.size -1))
+            val notification = Notifications.getTTSNotification(context, mBook, mFileName, mCover, hastPrevious, hastNext, broadcastReceiver)
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
                 notificationManager.notify(notifyId, notification)
         }
@@ -249,7 +207,7 @@ class TextToSpeechController(val context: Context, listener: TTSListener?, book:
 
     private var broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val action = intent.extras!!.getString(NotificationActionService.mIntentExtra)
+            val action = intent.extras!!.getString(NotificationBroadcastReceiver.mIntentExtra)
             when (action) {
                 Notifications.TTS_ACTION_PREVIUOS -> back()
                 Notifications.TTS_ACTION_PLAY -> pause()
