@@ -1,7 +1,5 @@
 package br.com.ebook.fitz
 
-import br.com.ebook.fitz.Context.init
-
 class Rect {
     @JvmField
 	var x0: Float
@@ -29,7 +27,6 @@ class Rect {
     constructor(r: Rect) : this(r.x0, r.y0, r.x1, r.y1) {}
     constructor(r: RectI) : this(r.x0.toFloat(), r.y0.toFloat(), r.x1.toFloat(), r.y1.toFloat()) {}
 
-    external fun adjustForStroke(state: StrokeState?, ctm: Matrix?)
     override fun toString(): String {
         return "[$x0 $y0 $x1 $y1]"
     }
@@ -100,8 +97,6 @@ class Rect {
     }
 
     companion object {
-        init {
-            init()
-        }
+
     }
 }
