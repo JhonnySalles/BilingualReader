@@ -6,6 +6,8 @@ class ReaderConsts {
         const val MAX_PAGE_HEIGHT = 2400
         const val MAX_PAGE_WIDTH = 3000
         const val MANGA_OFF_SCREEN_PAGE_LIMIT = 6
+        const val BOOK_OFF_SCREEN_PAGE_LIMIT = 6
+        const val BOOK_WEB_VIEW_MODE = false
     }
 
     object COVER {

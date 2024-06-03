@@ -4,8 +4,11 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.SharedPreferences
 import android.graphics.Color
+import android.text.Html
+import android.view.MotionEvent
 import android.view.View
 import android.webkit.WebView
+import android.widget.TextView
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -27,6 +30,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FontUtil
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import org.slf4j.LoggerFactory
+
 
 class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
@@ -62,7 +66,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     val fontCss: LiveData<String> = mFontCss
 
     private var mFontsLocation: String = FontType.getCssFont()
-    private var mDefaultCss : String = ""
+    private var mDefaultCss: String = ""
     var mWebFontSize = FontUtil.pixelToDips(app.applicationContext, fontSize.value!!)
     var isJapanese = true
     private var isProcessJapaneseText = mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT, true)
@@ -72,14 +76,14 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         loadPreferences(false)
     }
 
-    fun getDefaultCSS() : String {
+    fun getDefaultCSS(): String {
         if (mDefaultCss.isEmpty())
             mDefaultCss = generateCSS()
         return mDefaultCss
     }
 
     private fun generateCSS(): String {
-        val fontColor = if(app.resources.getBoolean(R.bool.isNight)) "#ffffff" else "#000000"
+        val fontColor = if (app.resources.getBoolean(R.bool.isNight)) "#ffffff" else "#000000"
 
         val fontType = fontType.value?.name ?: FontType.TimesNewRoman.name
         val fontSize = FontUtil.pixelToDips(app.applicationContext, fontSize.value!!).toString() + "px"
@@ -111,7 +115,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 "  max-height: 100%;" +
                 "}"
 
-        val meta = "<meta name=\"viewport\" content=\"height=device-height, width=device-width, initial-scale=1, maximum-scale=2, user-scalable=yes\" >"
+        val meta =
+            "<meta name=\"viewport\" content=\"height=device-height, width=device-width, initial-scale=1, maximum-scale=2, user-scalable=yes\" >"
         val style = "<style type=\"text/css\"> " +
                 mFontsLocation +
                 "body { " +
@@ -121,7 +126,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 "  line-height: $spacing; " +
                 "  text-align: $alignment; " +
                 "  margin: $margin $margin $margin $margin; " +
-               // (if (isJapanese) " -webkit-text-orientation: upright; -webkit-writing-mode: vertical-rl;" else "") + // Not working
+                // (if (isJapanese) " -webkit-text-orientation: upright; -webkit-writing-mode: vertical-rl;" else "") + // Not working
                 "} " +
                 img +
                 Formatter.getCss() +
@@ -132,7 +137,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
     fun loadConfiguration(book: Book?) {
         isJapanese = book?.language == Languages.JAPANESE
-        val config : BookConfiguration? = if (book?.id != null) mRepository.findConfiguration(book.id!!) else null
+        val config: BookConfiguration? = if (book?.id != null) mRepository.findConfiguration(book.id!!) else null
         loadConfiguration(config)
 
         if (book?.id != null) {
@@ -238,7 +243,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         mListFonts.value = FontType.values().map { Pair(it, it == mFontType.value) }.toMutableList()
     }
 
-    fun getSelectedFontTypeIndex(): Int  {
+    fun getSelectedFontTypeIndex(): Int {
         val index = mListFonts.value?.indexOfFirst { it.second } ?: 0
         return if (index == -1) 0 else index
     }
@@ -250,7 +255,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         mDefaultCss = generateCSS()
     }
 
-    fun changeFontSize(value : Float) {
+    fun changeFontSize(value: Float) {
         mFontSize.value = value
         mDefaultCss = generateCSS()
     }
@@ -271,7 +276,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     }
 
     @SuppressLint("JavascriptInterface")
-    fun prepareHtml(parse: DocumentParse?, page: Int, web: WebView, listener : View.OnTouchListener? = null, javascript: WebInterface? = null) {
+    fun prepareHtml(parse: DocumentParse?, page: Int, web: WebView, listener: View.OnTouchListener? = null, javascript: WebInterface? = null) {
         var text = parse?.getPage(page)?.pageHTMLWithImages.orEmpty()
 
         if (text.contains("<image-begin>image"))
@@ -310,6 +315,32 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         // Use variable android in javascript to call functions java
         if (javascript != null)
             web.addJavascriptInterface(javascript, "bilingualapp")
+    }
+
+    fun prepareHtml(parse: DocumentParse?, page: Int, textView: TextView, listener: View.OnTouchListener? = null) {
+        var text = parse?.getPage(page)?.pageHTMLWithImages.orEmpty()
+
+        if (text.contains("<image-begin>image"))
+            text = text.replace("<image-begin>", "<img src=\"data:")
+                .replace("<image-end>", "\" />")
+
+        text = TextUtil.formatHtml(text)
+
+        if (isProcessJapaneseText && isJapanese)
+            text = Formatter.generateHtmlText(text, isFurigana)
+
+        val html = "<body>$text</body>"
+
+        parse?.getPage(page)?.recycle()
+
+        textView.text = Html.fromHtml(html)
+
+        if (listener != null)
+            textView.setOnTouchListener(listener)
+
+        textView.setLayerType(WebView.LAYER_TYPE_NONE, null)
+
+        textView.setBackgroundColor(Color.TRANSPARENT)
     }
 
 }

@@ -2,10 +2,10 @@ package br.com.fenix.bilingualreader.view.components.book
 
 import android.content.Context
 import android.util.AttributeSet
-import android.webkit.WebView
+import androidx.appcompat.widget.AppCompatTextView
 
 
-open class WebViewPage(context: Context, attributeSet: AttributeSet?) : WebView(context, attributeSet) {
+open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppCompatTextView(context, attributeSet) {
 
     constructor(context: Context) : this(context, null)
 

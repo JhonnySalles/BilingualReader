@@ -38,6 +38,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.viewpager2.widget.ViewPager2
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
@@ -56,6 +58,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.FontUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
+import br.com.fenix.bilingualreader.view.components.book.TextViewPager
 import br.com.fenix.bilingualreader.view.components.book.WebViewPage
 import br.com.fenix.bilingualreader.view.components.book.WebViewPager
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
@@ -84,7 +87,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var miMarkPage: MenuItem
     private lateinit var miSearch: MenuItem
     private lateinit var mViewPager: ViewPager2
-    private lateinit var mPagerAdapter: WebViewPager
+    private lateinit var mPagerAdapter: Adapter<RecyclerView.ViewHolder>
 
     private lateinit var mCoverContent: ConstraintLayout
     private lateinit var mCoverImage: ImageView
@@ -156,7 +159,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         super.onCreate(savedInstanceState)
         mCurrentPage = 1
         mStorage = Storage(requireContext())
-        mLibrary = LibraryUtil.getDefault(requireContext(), Type.MANGA)
+        mLibrary = LibraryUtil.getDefault(requireContext(), Type.BOOK)
 
         val bundle: Bundle? = arguments
         if (bundle != null && !bundle.isEmpty) {
@@ -203,7 +206,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
 
         setHasOptionsMenu(true)
     }
-    
+
+    lateinit var mTest : TextToSpeechController
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -222,6 +226,14 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
 
         mToolbarTop = requireActivity().findViewById(R.id.reader_book_toolbar_top)
         mToolbarBottom = requireActivity().findViewById(R.id.reader_book_toolbar_bottom)
+
+        val test = view.findViewById<Button>(R.id.btntest)
+        test.setOnClickListener {
+            mTest = TextToSpeechController(requireContext(), null, mBook!!, mParse, (mCoverImage.drawable as BitmapDrawable).bitmap)
+            mTest.setVoice(TextSpeech.FRANCISCA)
+            //speech.start()
+            //mTest.createNotification()
+        }
 
         if (mBook != null)
             BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, false)
@@ -244,7 +256,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                     setCurrentPage((mPageSlider.valueTo - value).roundToInt())
         }
 
-        mPagerAdapter = WebViewPager(requireActivity(), requireContext(), mViewModel, mParse, this@BookReaderFragment)
+        mPagerAdapter = if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
+            WebViewPager(requireActivity(), requireContext(), mViewModel, mParse, this@BookReaderFragment) as Adapter<RecyclerView.ViewHolder>
+        else
+            TextViewPager(requireActivity(), requireContext(), mViewModel, mParse, this@BookReaderFragment) as Adapter<RecyclerView.ViewHolder>
         mGestureDetector = GestureDetector(requireActivity(), MyTouchListener())
 
         val preferences = GeneralConsts.getSharedPreferences(requireContext())
@@ -388,10 +403,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
     private fun getPosition(e: MotionEvent): Position {
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-        val horizontalSize =
-            resources.getDimensionPixelSize(R.dimen.reader_touch_demonstration_initial_horizontal)
-        val horizontal =
-            (if (isLandscape) horizontalSize * 1.2 else horizontalSize * 1.5).toFloat()
+        val horizontalSize = resources.getDimensionPixelSize(R.dimen.reader_touch_demonstration_initial_horizontal)
+        val horizontal = (if (isLandscape) horizontalSize * 1.2 else horizontalSize * 1.5).toFloat()
 
         val x = e.x
         val y = e.y
@@ -444,34 +457,30 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     private fun observer() {
-        mViewModel.fontCss.observe(viewLifecycleOwner) {
-            try {
-                val inputStream = ByteArrayInputStream(
-                    mViewModel.fontCss.value!!.toByteArray(
-                        StandardCharsets.UTF_8
+        if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
+            mViewModel.fontCss.observe(viewLifecycleOwner) {
+                try {
+                    val inputStream = ByteArrayInputStream(
+                        mViewModel.fontCss.value!!.toByteArray(
+                            StandardCharsets.UTF_8
+                        )
                     )
-                )
-                val buffer = ByteArray(inputStream.available())
-                inputStream.read(buffer)
-                inputStream.close()
-                val encoded = Base64.encodeToString(buffer, Base64.NO_WRAP)
-                updateCssOnPageViews(mViewPager, encoded)
-                mPagerAdapter.notifyDataSetChanged()
-            } catch (e: Exception) {
-                mLOGGER.error("Error generator css for book page: " + e.message, e)
+                    val buffer = ByteArray(inputStream.available())
+                    inputStream.read(buffer)
+                    inputStream.close()
+                    val encoded = Base64.encodeToString(buffer, Base64.NO_WRAP)
+                    updateCssOnPageViews(mViewPager, encoded)
+                    mPagerAdapter.notifyDataSetChanged()
+                } catch (e: Exception) {
+                    mLOGGER.error("Error generator css for book page: " + e.message, e)
+                }
             }
-        }
     }
 
-    private fun getActionBar(): ActionBar? {
-        return (requireActivity() as AppCompatActivity).supportActionBar
-    }
+    private fun getActionBar(): ActionBar? = (requireActivity() as AppCompatActivity).supportActionBar
 
     private val windowInsetsController by lazy {
-        WindowInsetsControllerCompat(
-            requireActivity().window,
-            mViewPager
-        )
+        WindowInsetsControllerCompat(requireActivity().window, mViewPager)
     }
 
     fun setFullscreen(fullscreen: Boolean) {
@@ -682,6 +691,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     inner class MyTouchListener : GestureDetector.SimpleOnGestureListener() {
+        override fun onLongPress(e: MotionEvent) {
+            super.onLongPress(e)
+        }
+
         override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
             if (!isFullscreen()) {
                 setFullscreen(fullscreen = true)

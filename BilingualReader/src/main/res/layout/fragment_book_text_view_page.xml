@@ -6,9 +6,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <br.com.fenix.bilingualreader.view.components.book.WebViewPage
-        android:id="@+id/page_web_view"
+    <br.com.fenix.bilingualreader.view.components.book.TextViewPage
+        android:id="@+id/page_text_view"
+        android:clickable="true"
+        android:background="@color/transparent"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"/>
+        android:layout_height="fill_parent"
+        android:layout_margin="5dp"/>
 
 </FrameLayout>

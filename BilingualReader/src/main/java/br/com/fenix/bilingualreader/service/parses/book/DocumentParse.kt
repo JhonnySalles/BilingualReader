@@ -22,9 +22,13 @@ import org.ebookdroid.core.codec.OutlineLink
 import org.slf4j.LoggerFactory
 import java.io.File
 
+
 class DocumentParse(var path: String, var password: String = "", var fontSizeDips: Int, var isLandscape: Boolean) : CodecDocument {
 
     private val mLOGGER = LoggerFactory.getLogger(DocumentParse::class.java)
+
+    private var mWidth: Int = Resources.getSystem().displayMetrics.widthPixels - Dips.dpToPx(5)
+    private var mHeight: Int = Resources.getSystem().displayMetrics.heightPixels - Dips.dpToPx(100)
 
     init {
         System.loadLibrary("mypdf")
@@ -50,41 +54,17 @@ class DocumentParse(var path: String, var password: String = "", var fontSizeDip
         }
     }
 
-
-    private var mWidth: Int = Resources.getSystem().displayMetrics.widthPixels
-    private var mHeight: Int = Resources.getSystem().displayMetrics.heightPixels
-
     private var isLoading = false
     private var isLoaded = false
     private var mCodecDocument: CodecDocument? = null
 
 
-    fun getPageCount(fontSize: Int) : Int = mCodecDocument?.getPageCount(
-        mWidth,
-        mHeight,
-        fontSize
-    ) ?: 1
+    fun getPageCount(fontSize: Int) : Int = mCodecDocument?.getPageCount(mWidth, mHeight, fontSize) ?: 1
 
     fun openBook(path: String, password: String = "", fontSizeDips: Int, isLandscape: Boolean) : DocumentParse {
         try {
             clear()
-            val metrics = Resources.getSystem().displayMetrics
-
-            if (isLandscape) {
-                mWidth = metrics.widthPixels
-                mHeight = metrics.heightPixels - 6
-            } else {
-                mWidth = metrics.widthPixels - 2
-                mHeight = metrics.heightPixels
-            }
-
-            mCodecDocument = ImageExtractor.getNewCodecContext(
-                path,
-                password,
-                mWidth,
-                mHeight,
-                fontSizeDips
-            )
+            mCodecDocument = ImageExtractor.getNewCodecContext(path, password, mWidth, mHeight, fontSizeDips)
             isLoaded = mCodecDocument != null
             return this
         } catch (e : Exception) {
@@ -126,7 +106,7 @@ class DocumentParse(var path: String, var password: String = "", var fontSizeDip
     }
 
     fun getChapters() : List<Pair<Int, String>> {
-        var chapter : MutableList<Pair<Int, String>> = mutableListOf()
+        val chapter : MutableList<Pair<Int, String>> = mutableListOf()
         if (mCodecDocument != null && mCodecDocument?.outline != null && mCodecDocument?.outline!!.isNotEmpty())
             for (link in mCodecDocument!!.outline!!) {
                 val number = link.link.replace(Regex("[^\\d+]"), "")
