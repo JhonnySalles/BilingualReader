@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 
 
-class DocumentParse(var path: String, var password: String = "", var fontSizeDips: Int, var isLandscape: Boolean) : CodecDocument {
+class DocumentParse(var path: String, var password: String = "", var fontSize: Float, var isLandscape: Boolean) : CodecDocument {
 
     private val mLOGGER = LoggerFactory.getLogger(DocumentParse::class.java)
 
@@ -34,7 +34,7 @@ class DocumentParse(var path: String, var password: String = "", var fontSizeDip
         System.loadLibrary("mypdf")
         System.loadLibrary("mobi")
 
-        openBook(path, password, fontSizeDips, isLandscape)
+        openBook(path, password, fontSize, isLandscape)
 
         if (!isLoaded())
             throw BookLoadException("Could not open selected book: " + path)
@@ -59,12 +59,16 @@ class DocumentParse(var path: String, var password: String = "", var fontSizeDip
     private var mCodecDocument: CodecDocument? = null
 
 
-    fun getPageCount(fontSize: Int) : Int = mCodecDocument?.getPageCount(mWidth, mHeight, fontSize) ?: 1
+    fun changeFontSize(fontSize: Float) : Int {
+        openBook(path, password, fontSize, isLandscape)
+        return mCodecDocument?.getPageCount(mWidth, mHeight, fontSize.toInt()) ?: 1
+    }
+    fun getPageCount(fontSize: Float) : Int = mCodecDocument?.getPageCount(mWidth, mHeight, fontSize.toInt()) ?: 1
 
-    fun openBook(path: String, password: String = "", fontSizeDips: Int, isLandscape: Boolean) : DocumentParse {
+    fun openBook(path: String, password: String = "", fontSize: Float, isLandscape: Boolean) : DocumentParse {
         try {
             clear()
-            mCodecDocument = ImageExtractor.getNewCodecContext(path, password, mWidth, mHeight, fontSizeDips)
+            mCodecDocument = ImageExtractor.getNewCodecContext(path, password, mWidth, mHeight, fontSize.toInt())
             isLoaded = mCodecDocument != null
             return this
         } catch (e : Exception) {

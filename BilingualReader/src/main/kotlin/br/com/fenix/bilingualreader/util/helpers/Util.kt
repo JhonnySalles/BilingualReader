@@ -1299,5 +1299,7 @@ class ColorUtil {
             return mostPopulous.rgb
         }
 
+        fun getColor(exadecimal: String) : Int = android.graphics.Color.parseColor(exadecimal)
+
     }
 }

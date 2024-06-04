@@ -4,11 +4,16 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.SharedPreferences
 import android.graphics.Color
+import android.graphics.text.LineBreaker.JUSTIFICATION_MODE_INTER_WORD
+import android.os.Build
 import android.text.Html
-import android.view.MotionEvent
+import android.text.method.ScrollingMovementMethod
+import android.util.TypedValue
 import android.view.View
 import android.webkit.WebView
+import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -27,8 +32,10 @@ import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.util.helpers.FontUtil
+import br.com.fenix.bilingualreader.util.constants.ReaderConsts
+import br.com.fenix.bilingualreader.util.helpers.ColorUtil
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
+import br.com.fenix.bilingualreader.view.components.book.TextViewPage
 import org.slf4j.LoggerFactory
 
 
@@ -65,12 +72,15 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private var mFontCss: MutableLiveData<String> = MutableLiveData("")
     val fontCss: LiveData<String> = mFontCss
 
+    private var mFontUpdate: MutableLiveData<String> = MutableLiveData("")
+    val fontUpdate: LiveData<String> = mFontUpdate
+
     private var mFontsLocation: String = FontType.getCssFont()
     private var mDefaultCss: String = ""
-    var mWebFontSize = FontUtil.pixelToDips(app.applicationContext, fontSize.value!!)
     var isJapanese = true
     private var isProcessJapaneseText = mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT, true)
     private var isFurigana = mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT, true)
+    private var mConfiguration: BookConfiguration? = null
 
     init {
         loadPreferences(false)
@@ -82,11 +92,15 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         return mDefaultCss
     }
 
-    private fun generateCSS(): String {
-        val fontColor = if (app.resources.getBoolean(R.bool.isNight)) "#ffffff" else "#000000"
+    fun getFontColor(): String = if (app.resources.getBoolean(R.bool.isNight)) "#ffffff" else "#000000"
+    fun getFontType(): String = fontType.value?.name ?: FontType.TimesNewRoman.name
+    fun getFontSize(isBook: Boolean = false): Float = (if (isBook) fontSize.value!! + 1 else fontSize.value!!)
 
-        val fontType = fontType.value?.name ?: FontType.TimesNewRoman.name
-        val fontSize = FontUtil.pixelToDips(app.applicationContext, fontSize.value!!).toString() + "px"
+    private fun generateCSS(): String {
+        val fontColor = getFontColor()
+
+        val fontType = getFontType()
+        val fontSize = getFontSize().toString() + "dp"
 
         val margin = when (marginType.value) {
             MarginLayoutType.Small -> "10px"
@@ -132,16 +146,90 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 Formatter.getCss() +
                 "</style>"
         mFontCss.value = style
+        mConfiguration?.let { saveBookConfiguration(it) }
         return "<head>$meta$style</head>"
+    }
+
+
+    private fun fontUpdate() {
+        val fontColor = getFontColor()
+
+        val fontType = getFontType()
+        val fontSize = getFontSize().toString() + "dp"
+
+        val margin = when (marginType.value) {
+            MarginLayoutType.Small -> "10px"
+            MarginLayoutType.Medium -> "25px"
+            MarginLayoutType.Big -> "40px"
+            else -> "10px"
+        }
+
+        val spacing = when (spacingType.value) {
+            SpacingLayoutType.Small -> "140%"
+            SpacingLayoutType.Medium -> "160%"
+            SpacingLayoutType.Big -> "180%"
+            else -> "140%"
+        }
+
+        val alignment = when (alignmentType.value) {
+            AlignmentLayoutType.Justify -> "justify"
+            AlignmentLayoutType.Right -> "right"
+            AlignmentLayoutType.Left -> "left"
+            AlignmentLayoutType.Center -> "center"
+            else -> "justify"
+        }
+
+        mFontUpdate.value = fontColor + fontType + fontSize + margin + spacing + alignment
+        mConfiguration?.let { saveBookConfiguration(it) }
+    }
+
+    fun changeTextStyle(textView: TextViewPage) {
+        textView.setTextColor(ColorUtil.getColor(getFontColor()))
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getFontSize())
+        textView.typeface = ResourcesCompat.getFont(app.applicationContext, fontType.value!!.getFont())
+
+        val margin = when (marginType.value) {
+            MarginLayoutType.Small -> 10
+            MarginLayoutType.Medium -> 20
+            MarginLayoutType.Big -> 30
+            else -> 10
+        }
+
+        val params: FrameLayout.LayoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
+        params.setMargins(margin, margin, margin, margin)
+        textView.layoutParams = params
+
+        val spacing = when (spacingType.value) {
+            SpacingLayoutType.Small -> 0f
+            SpacingLayoutType.Medium -> 15f
+            SpacingLayoutType.Big -> 30f
+            else -> 0f
+        }
+        textView.setLineSpacing(spacing, 1f)
+
+        textView.textAlignment = when (alignmentType.value) {
+            AlignmentLayoutType.Justify -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                    textView.justificationMode = JUSTIFICATION_MODE_INTER_WORD
+
+                View.TEXT_ALIGNMENT_INHERIT
+            }
+            AlignmentLayoutType.Right -> View.TEXT_ALIGNMENT_TEXT_END
+            AlignmentLayoutType.Left -> View.TEXT_ALIGNMENT_TEXT_START
+            AlignmentLayoutType.Center -> View.TEXT_ALIGNMENT_CENTER
+            else -> View.TEXT_ALIGNMENT_TEXT_START
+        }
+
+        textView.movementMethod = ScrollingMovementMethod()
     }
 
     fun loadConfiguration(book: Book?) {
         isJapanese = book?.language == Languages.JAPANESE
-        val config: BookConfiguration? = if (book?.id != null) mRepository.findConfiguration(book.id!!) else null
-        loadConfiguration(config)
+        mConfiguration = if (book?.id != null) mRepository.findConfiguration(book.id!!) else null
+        loadConfiguration(mConfiguration)
 
         if (book?.id != null) {
-            if (config == null)
+            if (mConfiguration == null)
                 saveBookConfiguration(book.id!!)
             mVocabularyRepository.processVocabulary(app.applicationContext, book.id!!)
         }
@@ -193,7 +281,10 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT
         )
 
-        mDefaultCss = generateCSS()
+        if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
+            mDefaultCss = generateCSS()
+        else
+            fontUpdate()
     }
 
     fun loadConfiguration(configuration: BookConfiguration?) {
@@ -206,13 +297,16 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             mSpacingType.value = configuration.spacing
             mFontType.value = configuration.fontType
             mFontSize.value = configuration.fontSize
-            mDefaultCss = generateCSS()
+            if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
+                mDefaultCss = generateCSS()
+            else
+                fontUpdate()
         }
     }
 
 
     fun saveBookConfiguration(idBook: Long) {
-        val config = mRepository.findConfiguration(idBook) ?: BookConfiguration(
+        mConfiguration = mRepository.findConfiguration(idBook) ?: BookConfiguration(
             null,
             idBook,
             AlignmentLayoutType.Justify,
@@ -222,7 +316,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT,
             ScrollingType.Pagination
         )
-        saveBookConfiguration(config)
+        saveBookConfiguration(mConfiguration!!)
     }
 
     fun saveBookConfiguration(configuration: BookConfiguration) {
@@ -252,27 +346,42 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         mFontType.value = font
         if (mListFonts.value != null)
             mListFonts.value = mListFonts.value!!.map { Pair(it.first, it.first == font) }.toMutableList()
-        mDefaultCss = generateCSS()
+        if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
+            mDefaultCss = generateCSS()
+        else
+            fontUpdate()
     }
 
     fun changeFontSize(value: Float) {
         mFontSize.value = value
-        mDefaultCss = generateCSS()
+        if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
+            mDefaultCss = generateCSS()
+        else
+            fontUpdate()
     }
 
     fun setSelectAlignment(alignment: AlignmentLayoutType) {
         mAlignmentType.value = alignment
-        mDefaultCss = generateCSS()
+        if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
+            mDefaultCss = generateCSS()
+        else
+            fontUpdate()
     }
 
     fun setSelectSpacing(spacing: SpacingLayoutType) {
         mSpacingType.value = spacing
-        mDefaultCss = generateCSS()
+        if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
+            mDefaultCss = generateCSS()
+        else
+            fontUpdate()
     }
 
     fun setSelectMargin(margin: MarginLayoutType) {
         mMarginType.value = margin
-        mDefaultCss = generateCSS()
+        if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
+            mDefaultCss = generateCSS()
+        else
+            fontUpdate()
     }
 
     @SuppressLint("JavascriptInterface")
@@ -302,7 +411,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             web.setOnTouchListener(listener)
 
         web.settings.javaScriptEnabled = true
-        web.settings.defaultFontSize = mWebFontSize
+        web.settings.defaultFontSize = getFontSize().toInt()
         web.setLayerType(WebView.LAYER_TYPE_NONE, null)
 
         web.settings.setSupportZoom(true)
@@ -342,5 +451,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
         textView.setBackgroundColor(Color.TRANSPARENT)
     }
+
+    fun update(book: Book) = mRepository.update(book)
 
 }

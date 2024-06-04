@@ -62,7 +62,6 @@ class BookParsesTest {
 
     private val awaitProcessSeconds = 2L
     private val fontSize = GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT
-    private val fontSizeDips = FontUtil.pixelToDips(ApplicationProvider.getApplicationContext(), fontSize)
 
     @Test
     fun `1_test_book_cover`() {
@@ -86,16 +85,14 @@ class BookParsesTest {
         val waiter = CountDownLatch(1)
 
         for (book in books) {
-            val parse = DocumentParse(book.path, book.password, fontSizeDips, false)
+            val parse = DocumentParse(book.path, book.password, fontSize, false)
 
             TestCase.assertTrue(
                 "Book " + book.name + " (" + book.extension + ") not loaded. Please verify in " + BookParsesTest::class.java.name,
                 parse.isLoaded()
             )
 
-            parse.getPageCount(
-                FontUtil.pixelToDips(ApplicationProvider.getApplicationContext(), fontSize)
-            )
+            parse.getPageCount(fontSize)
 
             TestCase.assertFalse(
                 "Book " + book.name + " (" + book.extension + ") not has first page. Please verify in " + BookParsesTest::class.java.name,

@@ -58,6 +58,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.FontUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
+import br.com.fenix.bilingualreader.view.components.book.TextViewPage
 import br.com.fenix.bilingualreader.view.components.book.TextViewPager
 import br.com.fenix.bilingualreader.view.components.book.WebViewPage
 import br.com.fenix.bilingualreader.view.components.book.WebViewPager
@@ -178,7 +179,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                 mViewModel.loadConfiguration(mBook)
 
                 mParse = try {
-                    DocumentParse(file.path, mBook?.password ?: "", FontUtil.pixelToDips(requireContext(), mViewModel.fontSize.value!!), resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
+                    DocumentParse(file.path, mBook?.password ?: "", mViewModel.fontSize.value!!, resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
                 } catch (e: BookLoadException) {
                     null
                 }
@@ -186,9 +187,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                 if (mParse != null && mBook != null) {
                     mFileName = file.name
                     mCurrentPage = mBook!!.bookMark
-                    mBook!!.pages = mParse!!.getPageCount(
-                        FontUtil.pixelToDips(requireContext(), mViewModel.fontSize.value!!)
-                    )
+                    mBook!!.pages = mParse!!.getPageCount(mViewModel.fontSize.value!!)
                     mStorage.updateLastAccess(mBook!!)
                 }
             } else {
@@ -243,9 +242,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         mCoverMessage.text = ""
         mHandler.postDelayed(mCoverDelay, 2000)
 
-        mPageSlider.valueTo = mParse?.getPageCount(
-            FontUtil.pixelToDips(requireContext(), mViewModel.fontSize.value!!)
-        )?.toFloat() ?: 2f
+        mPageSlider.valueTo = mParse?.getPageCount(mViewModel.getFontSize(isBook = true))?.toFloat() ?: 2f
 
         mPageSlider.valueFrom = 1F
         mPageSlider.addOnChangeListener { _, value, fromUser ->
@@ -259,7 +256,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         mPagerAdapter = if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
             WebViewPager(requireActivity(), requireContext(), mViewModel, mParse, this@BookReaderFragment) as Adapter<RecyclerView.ViewHolder>
         else
-            TextViewPager(requireActivity(), requireContext(), mViewModel, mParse, this@BookReaderFragment) as Adapter<RecyclerView.ViewHolder>
+            TextViewPager(requireContext(), mViewModel, mParse, this@BookReaderFragment) as Adapter<RecyclerView.ViewHolder>
         mGestureDetector = GestureDetector(requireActivity(), MyTouchListener())
 
         val preferences = GeneralConsts.getSharedPreferences(requireContext())
@@ -437,22 +434,24 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         }
     }
 
-    private fun updateCssOnPageViews(parentView: ViewGroup, css: String) {
+    private fun updatePagesViews(parentView: ViewGroup, css: String) {
         for (i in 0 until parentView.childCount) {
-            val child = parentView.getChildAt(i)
-            if (child is WebViewPage) {
-                child.loadUrl(
-                    "javascript:(function() {" +
-                            "var parent = document.getElementsByTagName('head').item(0);" +
-                            "var style = document.createElement('style');" +
-                            "style.type = 'text/css';" +
-                            "style.innerHTML = window.atob('" + css + "');" +
-                            "parent.removeChild(parent.firstChild);" +
-                            "parent.appendChild(style);" +
-                            "})()"
-                )
-            } else if (child is ViewGroup)
-                updateCssOnPageViews(child, css)
+            when (val child = parentView.getChildAt(i)) {
+                is WebViewPage -> {
+                    child.loadUrl(
+                        "javascript:(function() {" +
+                                "var parent = document.getElementsByTagName('head').item(0);" +
+                                "var style = document.createElement('style');" +
+                                "style.type = 'text/css';" +
+                                "style.innerHTML = window.atob('" + css + "');" +
+                                "parent.removeChild(parent.firstChild);" +
+                                "parent.appendChild(style);" +
+                                "})()"
+                    )
+                }
+                is TextViewPage -> mViewModel.changeTextStyle(child)
+                is ViewGroup -> updatePagesViews(child, css)
+            }
         }
     }
 
@@ -469,12 +468,28 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                     inputStream.read(buffer)
                     inputStream.close()
                     val encoded = Base64.encodeToString(buffer, Base64.NO_WRAP)
-                    updateCssOnPageViews(mViewPager, encoded)
+                    updatePagesViews(mViewPager, encoded)
                     mPagerAdapter.notifyDataSetChanged()
                 } catch (e: Exception) {
                     mLOGGER.error("Error generator css for book page: " + e.message, e)
                 }
             }
+        else
+            mViewModel.fontUpdate.observeForever {
+                updatePagesViews(mViewPager, "")
+                mPagerAdapter.notifyDataSetChanged()
+            }
+
+        mViewModel.fontSize.observeForever {
+            val pages = mParse?.changeFontSize(mViewModel.getFontSize(isBook = true)) ?: 1
+            mPageSlider.valueTo = if (pages > 1) pages.toFloat() else 2f
+            mPagerAdapter.notifyDataSetChanged()
+            mBook?.let {
+                (requireActivity() as BookReaderActivity).changePageDescription(it.chapter, it.chapterDescription, mCurrentPage, mViewPager.adapter!!.itemCount)
+                it.pages = pages
+                mViewModel.update(it)
+            }
+        }
     }
 
     private fun getActionBar(): ActionBar? = (requireActivity() as AppCompatActivity).supportActionBar
@@ -600,12 +615,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         mCurrentPage = mViewPager.currentItem + 1
         mPageSlider.value = mCurrentPage.toFloat()
 
-        (requireActivity() as BookReaderActivity).changePageDescription(
-            mBook!!.chapter,
-            mBook!!.chapterDescription,
-            mCurrentPage,
-            mViewPager.adapter!!.itemCount
-        )
+        (requireActivity() as BookReaderActivity).changePageDescription(mBook!!.chapter, mBook!!.chapterDescription, mCurrentPage, mViewPager.adapter!!.itemCount)
     }
 
     fun isFullscreen(): Boolean = mIsFullscreen
@@ -675,7 +685,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, mBook)
         bundle.putString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PATH, mParse!!.path)
         bundle.putString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PASSWORD, mParse!!.password)
-        bundle.putInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE, mParse!!.fontSizeDips)
+        bundle.putFloat(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE, mParse!!.fontSize)
 
         intent.putExtras(bundle)
         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)

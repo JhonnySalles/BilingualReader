@@ -10,8 +10,12 @@
         android:id="@+id/page_text_view"
         android:clickable="true"
         android:background="@color/transparent"
+        android:scrollbars = "vertical"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_margin="5dp"/>
+        android:layout_marginTop="@dimen/book_reader_text_margin"
+        android:layout_marginBottom="@dimen/book_reader_text_margin_bottom"
+        android:layout_marginStart="@dimen/book_reader_text_margin"
+        android:layout_marginEnd="@dimen/book_reader_text_margin"/>
 
 </FrameLayout>

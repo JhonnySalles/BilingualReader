@@ -32,7 +32,7 @@ class WebViewPager(
     }
 
     override fun getItemCount(): Int {
-        return mParse?.getPageCount(mViewModel.mWebFontSize) ?: 1
+        return mParse?.getPageCount(mViewModel.getFontSize(isBook = true)) ?: 1
     }
 
     override fun onBindViewHolder(holder: WebViewPagerHolder, position: Int) {
