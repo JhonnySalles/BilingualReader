@@ -9,10 +9,10 @@ import android.os.Build
 import android.text.Html
 import android.text.method.ScrollingMovementMethod
 import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
 import android.webkit.WebView
 import android.widget.FrameLayout
-import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -35,7 +35,9 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.ColorUtil
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
+import br.com.fenix.bilingualreader.view.components.ImageGetter
 import br.com.fenix.bilingualreader.view.components.book.TextViewPage
+import br.com.fenix.bilingualreader.view.components.book.TextViewPager
 import org.slf4j.LoggerFactory
 
 
@@ -197,6 +199,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
         val params: FrameLayout.LayoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
         params.setMargins(margin, margin, margin, margin)
+        params.gravity = Gravity.CENTER_VERTICAL
         textView.layoutParams = params
 
         val spacing = when (spacingType.value) {
@@ -214,6 +217,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
                 View.TEXT_ALIGNMENT_INHERIT
             }
+
             AlignmentLayoutType.Right -> View.TEXT_ALIGNMENT_TEXT_END
             AlignmentLayoutType.Left -> View.TEXT_ALIGNMENT_TEXT_START
             AlignmentLayoutType.Center -> View.TEXT_ALIGNMENT_CENTER
@@ -426,7 +430,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             web.addJavascriptInterface(javascript, "bilingualapp")
     }
 
-    fun prepareHtml(parse: DocumentParse?, page: Int, textView: TextView, listener: View.OnTouchListener? = null) {
+    fun prepareHtml(parse: DocumentParse?, page: Int, holder: TextViewPager.TextViewPagerHolder, listener: View.OnTouchListener? = null) {
         var text = parse?.getPage(page)?.pageHTMLWithImages.orEmpty()
 
         if (text.contains("<image-begin>image"))
@@ -442,14 +446,24 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
         parse?.getPage(page)?.recycle()
 
-        textView.text = Html.fromHtml(html)
+        holder.textView.text = if (html.contains("<img"))
+            Html.fromHtml(
+                html,
+                Html.FROM_HTML_MODE_LEGACY,
+                ImageGetter(app.applicationContext, holder.textView, text.endsWith(" /><br/>") || text.endsWith(" />")),
+                null
+            )
+        else
+            Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
 
-        if (listener != null)
-            textView.setOnTouchListener(listener)
+        if (listener != null) {
+            holder.textView.setOnTouchListener(listener)
+            holder.background.setOnTouchListener(listener)
+        }
 
-        textView.setLayerType(WebView.LAYER_TYPE_NONE, null)
+        holder.textView.setLayerType(WebView.LAYER_TYPE_NONE, null)
 
-        textView.setBackgroundColor(Color.TRANSPARENT)
+        holder.textView.setBackgroundColor(Color.TRANSPARENT)
     }
 
     fun update(book: Book) = mRepository.update(book)

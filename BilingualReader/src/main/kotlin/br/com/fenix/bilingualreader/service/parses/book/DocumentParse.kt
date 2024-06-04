@@ -13,7 +13,15 @@ import br.com.ebook.foobnix.pdf.info.wrapper.AppState
 import br.com.ebook.foobnix.sys.ImageExtractor
 import br.com.ebook.foobnix.sys.TempHolder
 import br.com.fenix.bilingualreader.model.exceptions.BookLoadException
+import br.com.fenix.bilingualreader.service.listener.BookParseListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.withContext
 import org.ebookdroid.common.cache.CacheManager
 import org.ebookdroid.core.codec.CodecDocument
 import org.ebookdroid.core.codec.CodecPage
@@ -21,9 +29,11 @@ import org.ebookdroid.core.codec.CodecPageInfo
 import org.ebookdroid.core.codec.OutlineLink
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.util.Date
+import java.util.concurrent.TimeUnit
 
 
-class DocumentParse(var path: String, var password: String = "", var fontSize: Float, var isLandscape: Boolean) : CodecDocument {
+class DocumentParse(var path: String, var password: String = "", var fontSize: Float, var isLandscape: Boolean, var listener: BookParseListener? = null) : CodecDocument {
 
     private val mLOGGER = LoggerFactory.getLogger(DocumentParse::class.java)
 
@@ -34,10 +44,7 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: F
         System.loadLibrary("mypdf")
         System.loadLibrary("mobi")
 
-        openBook(path, password, fontSize, isLandscape)
-
-        if (!isLoaded())
-            throw BookLoadException("Could not open selected book: " + path)
+        openBook(path, password, fontSize, isLandscape) { }
     }
 
     companion object {
@@ -59,21 +66,33 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: F
     private var mCodecDocument: CodecDocument? = null
 
 
-    fun changeFontSize(fontSize: Float) : Int {
-        openBook(path, password, fontSize, isLandscape)
-        return mCodecDocument?.getPageCount(mWidth, mHeight, fontSize.toInt()) ?: 1
-    }
+    fun changeFontSize(fontSize: Float, onEnding: (Boolean) -> (Unit))  = openBook(path, password, fontSize, isLandscape, onEnding)
     fun getPageCount(fontSize: Float) : Int = mCodecDocument?.getPageCount(mWidth, mHeight, fontSize.toInt()) ?: 1
 
-    fun openBook(path: String, password: String = "", fontSize: Float, isLandscape: Boolean) : DocumentParse {
-        try {
-            clear()
-            mCodecDocument = ImageExtractor.getNewCodecContext(path, password, mWidth, mHeight, fontSize.toInt())
-            isLoaded = mCodecDocument != null
-            return this
-        } catch (e : Exception) {
-            mLOGGER.error(e.message, e)
-            throw BookLoadException("Could not open selected book: $path")
+    fun openBook(path: String, password: String = "", fontSize: Float, isLandscape: Boolean, onEnding: (Boolean) -> (Unit)) {
+        listener?.onLoading(false)
+        CoroutineScope(newSingleThreadContext("BookThread")).launch {
+            async {
+                try {
+                    val start = Date()
+                    clear()
+                    mCodecDocument = ImageExtractor.getNewCodecContext(path, password, mWidth, mHeight, fontSize.toInt())
+                    isLoaded = mCodecDocument != null
+
+                    val diff = Date().time - start.time
+
+                    if (diff < 2000)
+                        delay(2000 - diff)
+                } catch (e : Exception) {
+                    mLOGGER.error(e.message, e)
+                    throw BookLoadException("Could not open selected book: $path")
+                } finally {
+                    withContext(Dispatchers.Main) {
+                        listener?.onLoading(true, isLoaded)
+                        onEnding(isLoaded)
+                    }
+                }
+            }
         }
     }
 
@@ -92,6 +111,8 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: F
     fun isConverting() : Boolean = TempHolder.isConverting
 
     fun cancelOpen() {
+        if (isLoading)
+            listener?.onLoading(true)
         TempHolder.get().loadingCancelled
     }
 

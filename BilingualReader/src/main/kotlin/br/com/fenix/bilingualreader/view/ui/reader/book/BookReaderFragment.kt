@@ -48,15 +48,14 @@ import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.TextSpeech
 import br.com.fenix.bilingualreader.model.enums.Type
-import br.com.fenix.bilingualreader.model.exceptions.BookLoadException
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.TextToSpeechController
+import br.com.fenix.bilingualreader.service.listener.BookParseListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
-import br.com.fenix.bilingualreader.util.helpers.FontUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.view.components.book.TextViewPage
 import br.com.fenix.bilingualreader.view.components.book.TextViewPager
@@ -73,7 +72,7 @@ import java.nio.charset.StandardCharsets
 import kotlin.math.roundToInt
 
 
-class BookReaderFragment : Fragment(), View.OnTouchListener {
+class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener {
 
     private val mLOGGER = LoggerFactory.getLogger(BookReaderFragment::class.java)
 
@@ -111,22 +110,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
     private var mIsLeftToRight = true
 
     var mParse: DocumentParse? = null
-
-    private var mHandler = Handler(Looper.getMainLooper())
-    private val mCoverDelay = Runnable {
-        if (mParse == null) {
-            mCoverImage.setImageResource(R.mipmap.book_cover_not_found)
-            mCoverMessage.text = getString(R.string.reading_book_open_exception)
-        } else {
-            mCoverContent.animate().alpha(0.0f)
-                .setDuration(400L).setListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator) {
-                        super.onAnimationEnd(animation)
-                        mCoverContent.visibility = View.GONE
-                    }
-                })
-        }
-    }
 
     companion object {
         var mCurrentPage = 1
@@ -178,17 +161,17 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
 
                 mViewModel.loadConfiguration(mBook)
 
-                mParse = try {
-                    DocumentParse(file.path, mBook?.password ?: "", mViewModel.fontSize.value!!, resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
-                } catch (e: BookLoadException) {
-                    null
-                }
+                mParse = DocumentParse(
+                    file.path,
+                    mBook?.password ?: "",
+                    mViewModel.fontSize.value!!,
+                    resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE,
+                    this
+                )
 
-                if (mParse != null && mBook != null) {
+                if (mBook != null) {
                     mFileName = file.name
                     mCurrentPage = mBook!!.bookMark
-                    mBook!!.pages = mParse!!.getPageCount(mViewModel.fontSize.value!!)
-                    mStorage.updateLastAccess(mBook!!)
                 }
             } else {
                 mLOGGER.info("File not founded.")
@@ -206,7 +189,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         setHasOptionsMenu(true)
     }
 
-    lateinit var mTest : TextToSpeechController
+    lateinit var mTest: TextToSpeechController
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -237,13 +220,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         if (mBook != null)
             BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, false)
 
-        mCoverContent.visibility = View.VISIBLE
-        mCoverContent.alpha = 1f
-        mCoverMessage.text = ""
-        mHandler.postDelayed(mCoverDelay, 2000)
+        onLoading(false, false)
 
-        mPageSlider.valueTo = mParse?.getPageCount(mViewModel.getFontSize(isBook = true))?.toFloat() ?: 2f
-
+        mPageSlider.isEnabled = false
+        mPageSlider.valueTo = 2f
         mPageSlider.valueFrom = 1F
         mPageSlider.addOnChangeListener { _, value, fromUser ->
             if (fromUser)
@@ -253,55 +233,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                     setCurrentPage((mPageSlider.valueTo - value).roundToInt())
         }
 
-        mPagerAdapter = if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
-            WebViewPager(requireActivity(), requireContext(), mViewModel, mParse, this@BookReaderFragment) as Adapter<RecyclerView.ViewHolder>
-        else
-            TextViewPager(requireContext(), mViewModel, mParse, this@BookReaderFragment) as Adapter<RecyclerView.ViewHolder>
         mGestureDetector = GestureDetector(requireActivity(), MyTouchListener())
-
-        val preferences = GeneralConsts.getSharedPreferences(requireContext())
-        val scrolling = ScrollingType.valueOf(
-            preferences.getString(
-                GeneralConsts.KEYS.READER.BOOK_PAGE_SCROLLING_MODE,
-                ScrollingType.Pagination.toString()
-            )!!
-        )
-
-        mViewPager.orientation = if (scrolling == ScrollingType.Scrolling) ViewPager2.ORIENTATION_VERTICAL else ViewPager2.ORIENTATION_HORIZONTAL
-
-        mViewPager.isSaveEnabled = false
-        mViewPager.isSaveFromParentEnabled = false
-        mViewPager.setOnTouchListener(this)
-        mViewPager.adapter = mPagerAdapter
-        mViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                if (mIsLeftToRight)
-                    setCurrentPage(position + 1,false)
-                else
-                    setCurrentPage(mViewPager.adapter!!.itemCount - position,false)
-            }
-        })
-
-        var startX = 0f
-        mViewPager.setOnTouchListener { _, motionEvent ->
-            if (motionEvent.action == MotionEvent.ACTION_DOWN)
-                startX = motionEvent.x
-            else if (motionEvent.action == MotionEvent.ACTION_UP) {
-                val diff = motionEvent.x - startX
-                if (diff > 0 && mViewPager.currentItem == 0) {
-                    if (mIsLeftToRight) hitBeginning() else hitEnding()
-                } else if (diff < 0 && mViewPager.currentItem == mViewPager.adapter!!.itemCount - 1) {
-                    if (mIsLeftToRight) hitEnding() else hitBeginning()
-                }
-            }
-            false
-        }
-
         requireActivity().title = "" // Title beside to the icons
-
-        if (mBook != null)
-            setCurrentPage(mCurrentPage, isAnimated = false)
 
         if (savedInstanceState != null) {
             val fullscreen = savedInstanceState.getBoolean(ReaderConsts.STATES.STATE_FULLSCREEN)
@@ -311,8 +244,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
             confirmSwitch(mStorage.getBook(newBookId), titleRes)
         } else
             setFullscreen(true)
-
-        observer()
         return view
     }
 
@@ -350,15 +281,93 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
 
     override fun onDestroy() {
         SharedData.setDocumentParse(null)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (mHandler.hasCallbacks(mCoverDelay))
-                mHandler.removeCallbacks(mCoverDelay)
-        } else {
-            mHandler.removeCallbacks(mCoverDelay)
-        }
-
         super.onDestroy()
+    }
+
+    override fun onLoading(isFinished: Boolean, isLoaded: Boolean) {
+        if (isFinished) {
+            if (isLoaded) {
+                mPageSlider.valueTo = mParse?.getPageCount(mViewModel.getFontSize(isBook = true))?.toFloat() ?: 2f
+                mCoverContent.animate().alpha(0.0f)
+                    .setDuration(400L).setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            super.onAnimationEnd(animation)
+                            mCoverContent.visibility = View.GONE
+                        }
+                    })
+                if (mBook != null) {
+                    mBook!!.pages = mPageSlider.valueTo.toInt()
+                    mStorage.updateLastAccess(mBook!!)
+                }
+                preparePager()
+            } else {
+                mParse = null
+                mCoverImage.setImageResource(R.mipmap.book_cover_not_found)
+                mCoverMessage.text = getString(R.string.reading_book_open_exception)
+            }
+        } else {
+            if (::mCoverContent.isInitialized) {
+                mCoverContent.visibility = View.VISIBLE
+                mCoverContent.alpha = 1f
+                mCoverMessage.text = ""
+            }
+        }
+    }
+
+    override fun onSearching(isSearching: Boolean) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onConverting(isConverting: Boolean) {
+        TODO("Not yet implemented")
+    }
+
+    private fun preparePager() {
+        mPageSlider.isEnabled = true
+
+        mPagerAdapter = if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
+            WebViewPager(requireActivity(), requireContext(), mViewModel, mParse, this@BookReaderFragment) as Adapter<RecyclerView.ViewHolder>
+        else
+            TextViewPager(requireContext(), mViewModel, mParse, this@BookReaderFragment) as Adapter<RecyclerView.ViewHolder>
+
+        mViewPager.adapter = mPagerAdapter
+
+        val preferences = GeneralConsts.getSharedPreferences(requireContext())
+        val scrolling =
+            ScrollingType.valueOf(preferences.getString(GeneralConsts.KEYS.READER.BOOK_PAGE_SCROLLING_MODE, ScrollingType.Pagination.toString())!!)
+        mViewPager.orientation = if (scrolling == ScrollingType.Scrolling) ViewPager2.ORIENTATION_VERTICAL else ViewPager2.ORIENTATION_HORIZONTAL
+
+        mViewPager.isSaveEnabled = false
+        mViewPager.isSaveFromParentEnabled = false
+        mViewPager.setOnTouchListener(this)
+        mViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                if (mIsLeftToRight)
+                    setCurrentPage(position + 1, false)
+                else
+                    setCurrentPage(mViewPager.adapter!!.itemCount - position, false)
+            }
+        })
+
+        var startX = 0f
+        mViewPager.setOnTouchListener { _, motionEvent ->
+            if (motionEvent.action == MotionEvent.ACTION_DOWN)
+                startX = motionEvent.x
+            else if (motionEvent.action == MotionEvent.ACTION_UP) {
+                val diff = motionEvent.x - startX
+                if (diff > 0 && mViewPager.currentItem == 0) {
+                    if (mIsLeftToRight) hitBeginning() else hitEnding()
+                } else if (diff < 0 && mViewPager.currentItem == mViewPager.adapter!!.itemCount - 1) {
+                    if (mIsLeftToRight) hitEnding() else hitBeginning()
+                }
+            }
+            false
+        }
+        if (mBook != null)
+            setCurrentPage(mCurrentPage, isAnimated = false)
+
+        observer()
     }
 
     override fun onTouch(v: View, event: MotionEvent): Boolean {
@@ -382,10 +391,12 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                 markCurrentPage()
                 (miMarkPage.icon as AnimatedVectorDrawable).start()
             }
+
             R.id.menu_item_reader_book_annotation -> {
                 (miAnnotation.icon as AnimatedVectorDrawable).start()
                 openBookAnnotation()
             }
+
             R.id.menu_item_reader_book_search -> {
                 (miSearch.icon as AnimatedVectorDrawable).start()
                 openBookSearch()
@@ -394,7 +405,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
 
         return super.onOptionsItemSelected(menuItem)
     }
-
 
 
     private fun getPosition(e: MotionEvent): Position {
@@ -449,6 +459,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                                 "})()"
                     )
                 }
+
                 is TextViewPage -> mViewModel.changeTextStyle(child)
                 is ViewGroup -> updatePagesViews(child, css)
             }
@@ -481,13 +492,23 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
             }
 
         mViewModel.fontSize.observeForever {
-            val pages = mParse?.changeFontSize(mViewModel.getFontSize(isBook = true)) ?: 1
-            mPageSlider.valueTo = if (pages > 1) pages.toFloat() else 2f
-            mPagerAdapter.notifyDataSetChanged()
-            mBook?.let {
-                (requireActivity() as BookReaderActivity).changePageDescription(it.chapter, it.chapterDescription, mCurrentPage, mViewPager.adapter!!.itemCount)
-                it.pages = pages
-                mViewModel.update(it)
+            mParse?.let { parse ->
+                if (!parse.isLoaded())
+                    parse.changeFontSize(mViewModel.getFontSize(isBook = true)) {
+                        val pages = mParse?.pageCount ?: 1
+                        mPageSlider.valueTo = if (pages > 1) pages.toFloat() else 2f
+                        mPagerAdapter.notifyDataSetChanged()
+                        mBook?.let { book ->
+                            (requireActivity() as BookReaderActivity).changePageDescription(
+                                book.chapter,
+                                book.chapterDescription,
+                                mCurrentPage,
+                                mViewPager.adapter!!.itemCount
+                            )
+                            book.pages = pages
+                            mViewModel.update(book)
+                        }
+                    }
             }
         }
     }
@@ -615,7 +636,12 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         mCurrentPage = mViewPager.currentItem + 1
         mPageSlider.value = mCurrentPage.toFloat()
 
-        (requireActivity() as BookReaderActivity).changePageDescription(mBook!!.chapter, mBook!!.chapterDescription, mCurrentPage, mViewPager.adapter!!.itemCount)
+        (requireActivity() as BookReaderActivity).changePageDescription(
+            mBook!!.chapter,
+            mBook!!.chapterDescription,
+            mCurrentPage,
+            mViewPager.adapter!!.itemCount
+        )
     }
 
     fun isFullscreen(): Boolean = mIsFullscreen
@@ -672,6 +698,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
         startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_ANNOTATION, null)
     }
+
     private fun openBookSearch() {
         if (mParse == null)
             return
@@ -723,6 +750,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                         if (getCurrentPage() == mViewPager.adapter!!.itemCount) hitEnding() else setCurrentPage(getCurrentPage() + 1)
                     }
                 }
+
                 Position.RIGHT -> {
                     if (mIsLeftToRight) {
                         if (getCurrentPage() == mViewPager.adapter!!.itemCount) hitEnding() else setCurrentPage(getCurrentPage() + 1)
@@ -730,6 +758,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener {
                         if (getCurrentPage() == 1) hitBeginning() else setCurrentPage(getCurrentPage() - 1)
                     }
                 }
+
                 Position.CENTER -> setFullscreen(fullscreen = false)
                 else -> setFullscreen(fullscreen = false)
             }

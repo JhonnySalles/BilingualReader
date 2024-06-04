@@ -6,6 +6,7 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
@@ -36,10 +37,11 @@ class TextViewPager(
     }
 
     override fun onBindViewHolder(holder: TextViewPagerHolder, position: Int) {
-        mViewModel.prepareHtml(mParse, position, holder.textView, mListener)
+        mViewModel.prepareHtml(mParse, position, holder, mListener)
     }
 
     inner class TextViewPagerHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val background = itemView.findViewById<View>(R.id.page_back_view)
         val textView = itemView.findViewById<TextViewPage>(R.id.page_text_view)
     }
 
