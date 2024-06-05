@@ -491,24 +491,23 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener {
                 mPagerAdapter.notifyDataSetChanged()
             }
 
-        mViewModel.fontSize.observeForever {
+        mViewModel.fontSize.observeForever { font ->
             mParse?.let { parse ->
-                if (!parse.isLoaded())
-                    parse.changeFontSize(mViewModel.getFontSize(isBook = true)) {
-                        val pages = mParse?.pageCount ?: 1
-                        mPageSlider.valueTo = if (pages > 1) pages.toFloat() else 2f
-                        mPagerAdapter.notifyDataSetChanged()
-                        mBook?.let { book ->
-                            (requireActivity() as BookReaderActivity).changePageDescription(
-                                book.chapter,
-                                book.chapterDescription,
-                                mCurrentPage,
-                                mViewPager.adapter!!.itemCount
-                            )
-                            book.pages = pages
-                            mViewModel.update(book)
-                        }
-                    }
+                val pages = parse.getPageCount(font + DocumentParse.BOOK_FONT_SIZE_DIFFER)
+                mPageSlider.valueTo = if (pages > 1) pages.toFloat() else 2f
+                mPagerAdapter.notifyDataSetChanged()
+
+                mBook?.let { book ->
+                    (requireActivity() as BookReaderActivity).changePageDescription(
+                        book.chapter,
+                        book.chapterDescription,
+                        mCurrentPage,
+                        pages
+                    )
+                    book.pages = pages
+                    mViewModel.update(book)
+                }
+
             }
         }
     }

@@ -30,7 +30,6 @@ import org.ebookdroid.core.codec.OutlineLink
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.util.Date
-import java.util.concurrent.TimeUnit
 
 
 class DocumentParse(var path: String, var password: String = "", var fontSize: Float, var isLandscape: Boolean, var listener: BookParseListener? = null) : CodecDocument {
@@ -48,6 +47,8 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: F
     }
 
     companion object {
+        const val BOOK_FONT_SIZE_DIFFER = -1f
+
         fun init(context: Context) {
             val cacheDir = File(GeneralConsts.getCacheDir(context), GeneralConsts.CACHE_FOLDER.BOOKS + '/')
 

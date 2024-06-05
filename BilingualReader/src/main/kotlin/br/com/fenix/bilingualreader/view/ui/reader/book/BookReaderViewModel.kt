@@ -96,7 +96,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
     fun getFontColor(): String = if (app.resources.getBoolean(R.bool.isNight)) "#ffffff" else "#000000"
     fun getFontType(): String = fontType.value?.name ?: FontType.TimesNewRoman.name
-    fun getFontSize(isBook: Boolean = false): Float = (if (isBook) fontSize.value!! + 1 else fontSize.value!!)
+    fun getFontSize(isBook: Boolean = false): Float = (if (isBook) fontSize.value!! + DocumentParse.BOOK_FONT_SIZE_DIFFER else fontSize.value!!)
 
     private fun generateCSS(): String {
         val fontColor = getFontColor()

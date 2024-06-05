@@ -24,6 +24,7 @@ class WebViewPager(
     private val mViewModel = model
     private val mListener = listener
     private val mInterface = WebInterface(activity, context)
+    private var mPages = mParse?.getPageCount(mViewModel.getFontSize(isBook = true)) ?: 1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WebViewPagerHolder {
         return WebViewPagerHolder(
@@ -31,12 +32,15 @@ class WebViewPager(
         )
     }
 
-    override fun getItemCount(): Int {
-        return mParse?.getPageCount(mViewModel.getFontSize(isBook = true)) ?: 1
-    }
+    override fun getItemCount(): Int = mPages
 
     override fun onBindViewHolder(holder: WebViewPagerHolder, position: Int) {
         mViewModel.prepareHtml(mParse, position, holder.webViewPage, mListener, mInterface)
+    }
+
+    fun changePages() {
+        mPages = mParse?.getPageCount(mViewModel.getFontSize(isBook = true)) ?: 1
+        notifyDataSetChanged()
     }
 
     inner class WebViewPagerHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

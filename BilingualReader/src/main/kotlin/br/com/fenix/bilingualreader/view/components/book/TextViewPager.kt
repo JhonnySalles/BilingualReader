@@ -25,6 +25,7 @@ class TextViewPager(
     private val mParse = parse
     private val mViewModel = model
     private val mListener = listener
+    private val mPages = mParse?.getPageCount(mViewModel.getFontSize(isBook = true)) ?: 1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TextViewPagerHolder {
         val holder =  TextViewPagerHolder(LayoutInflater.from(parent.context).inflate(R.layout.fragment_book_text_view_page, parent, false))
@@ -32,9 +33,7 @@ class TextViewPager(
         return holder
     }
 
-    override fun getItemCount(): Int {
-        return mParse?.getPageCount(mViewModel.getFontSize(isBook = true)) ?: 1
-    }
+    override fun getItemCount(): Int = mParse?.getPageCount(mViewModel.getFontSize(isBook = true)) ?: 1
 
     override fun onBindViewHolder(holder: TextViewPagerHolder, position: Int) {
         mViewModel.prepareHtml(mParse, position, holder, mListener)
