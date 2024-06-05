@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/reader_book_tts"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_gravity="center_horizontal"
+    android:background="@drawable/book_reader_tts_background">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/reader_book_tts_previous"
+        style="@style/Button.IconOnly"
+        android:layout_width="@dimen/vocabulary_manga_content_favorite_button_size"
+        android:layout_height="@dimen/vocabulary_manga_content_favorite_button_size"
+        android:textColor="?attr/colorSecondary"
+        android:contentDescription="@string/button_tts_previous"
+        app:iconSize="22dp"
+        app:iconTint="?attr/colorSecondary"
+        app:icon="@drawable/ic_tts_previous"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/reader_book_tts_play"
+        style="@style/Button.IconOnly"
+        android:layout_width="@dimen/vocabulary_manga_content_favorite_button_size"
+        android:layout_height="@dimen/vocabulary_manga_content_favorite_button_size"
+        android:textColor="?attr/colorSecondary"
+        android:contentDescription="@string/button_tts_play"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        app:iconSize="25dp"
+        app:iconTint="?attr/colorSecondary"
+        app:icon="@drawable/ic_tts_play"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/reader_book_tts_next"
+        style="@style/Button.IconOnly"
+        android:layout_width="@dimen/vocabulary_manga_content_favorite_button_size"
+        android:layout_height="@dimen/vocabulary_manga_content_favorite_button_size"
+        android:textColor="?attr/colorSecondary"
+        android:contentDescription="@string/button_tts_next"
+        app:iconSize="22dp"
+        app:iconTint="?attr/colorSecondary"
+        app:icon="@drawable/ic_tts_next"/>
+
+</LinearLayout>
