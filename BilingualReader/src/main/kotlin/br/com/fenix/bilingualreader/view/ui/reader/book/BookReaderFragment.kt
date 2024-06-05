@@ -44,6 +44,8 @@ import androidx.viewpager2.widget.ViewPager2
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
+import br.com.fenix.bilingualreader.model.entity.Speech
+import br.com.fenix.bilingualreader.model.enums.AudioStatus
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.TextSpeech
@@ -51,6 +53,7 @@ import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.TextToSpeechController
 import br.com.fenix.bilingualreader.service.listener.BookParseListener
+import br.com.fenix.bilingualreader.service.listener.TTSListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.service.repository.Storage
@@ -72,7 +75,7 @@ import java.nio.charset.StandardCharsets
 import kotlin.math.roundToInt
 
 
-class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener {
+class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, TTSListener {
 
     private val mLOGGER = LoggerFactory.getLogger(BookReaderFragment::class.java)
 
@@ -108,6 +111,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener {
     private lateinit var mStorage: Storage
 
     private var mIsLeftToRight = true
+
+    private var mTextToSpeech: TextToSpeechController? = null
 
     var mParse: DocumentParse? = null
 
@@ -189,7 +194,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener {
         setHasOptionsMenu(true)
     }
 
-    lateinit var mTest: TextToSpeechController
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -208,14 +212,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener {
 
         mToolbarTop = requireActivity().findViewById(R.id.reader_book_toolbar_top)
         mToolbarBottom = requireActivity().findViewById(R.id.reader_book_toolbar_bottom)
-
-        val test = view.findViewById<Button>(R.id.btntest)
-        test.setOnClickListener {
-            mTest = TextToSpeechController(requireContext(), null, mBook!!, mParse, (mCoverImage.drawable as BitmapDrawable).bitmap)
-            mTest.setVoice(TextSpeech.FRANCISCA)
-            //speech.start()
-            //mTest.createNotification()
-        }
 
         if (mBook != null)
             BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, false)
@@ -385,6 +381,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener {
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
+            R.id.menu_item_reader_book_tts -> executeTTS()
             R.id.menu_item_reader_book_chapter -> (miChapter.icon as AnimatedVectorDrawable).start()
             R.id.menu_item_reader_book_font_style -> (miFontStyle.icon as AnimatedVectorDrawable).start()
             R.id.menu_item_reader_book_mark_page -> {
@@ -716,6 +713,27 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener {
         intent.putExtras(bundle)
         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
         startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_SEARCH, null)
+    }
+
+
+    private fun executeTTS() {
+        if (mTextToSpeech == null) {
+            mTextToSpeech = TextToSpeechController(requireContext(), mBook!!, mParse, (mCoverImage.drawable as BitmapDrawable).bitmap)
+            mTextToSpeech!!.addListener(this)
+            mTextToSpeech!!.addListener(mPagerAdapter as TTSListener)
+            mTextToSpeech!!.setVoice(TextSpeech.FRANCISCA)
+        } else
+            mTextToSpeech?.stop()
+    }
+
+    override fun status(status: AudioStatus) {
+        TODO("Not yet implemented")
+    }
+
+    override fun readingLine(line: Speech) { }
+
+    override fun stop() {
+        mTextToSpeech = null
     }
 
     private fun markCurrentPage() {

@@ -7,7 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.Speech
+import br.com.fenix.bilingualreader.model.enums.AudioStatus
 import br.com.fenix.bilingualreader.service.controller.WebInterface
+import br.com.fenix.bilingualreader.service.listener.TTSListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderViewModel
 
@@ -18,7 +21,7 @@ class WebViewPager(
     model: BookReaderViewModel,
     parse: DocumentParse?,
     listener: View.OnTouchListener? = null
-) : RecyclerView.Adapter<WebViewPager.WebViewPagerHolder>() {
+) : RecyclerView.Adapter<WebViewPager.WebViewPagerHolder>(), TTSListener {
 
     private val mParse = parse
     private val mViewModel = model
@@ -45,5 +48,17 @@ class WebViewPager(
 
     inner class WebViewPagerHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val webViewPage: WebViewPage = itemView.findViewById<View>(R.id.page_web_view) as WebViewPage
+    }
+
+    override fun status(status: AudioStatus) {
+        TODO("Not yet implemented")
+    }
+
+    override fun readingLine(line: Speech) {
+        TODO("Not yet implemented")
+    }
+
+    override fun stop() {
+        TODO("Not yet implemented")
     }
 }

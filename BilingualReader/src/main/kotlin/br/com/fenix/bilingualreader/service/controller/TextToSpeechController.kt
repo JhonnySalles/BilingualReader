@@ -38,7 +38,7 @@ import java.time.format.DateTimeFormatter
 import java.util.stream.Collectors
 
 
-class TextToSpeechController(val context: Context, listener: TTSListener?, book: Book,  parse: DocumentParse?, cover: Bitmap?) {
+class TextToSpeechController(val context: Context, book: Book,  parse: DocumentParse?, cover: Bitmap?) {
 
     companion object {
         const val mLIMITCACHE = 3
@@ -46,7 +46,7 @@ class TextToSpeechController(val context: Context, listener: TTSListener?, book:
         private val thread = newSingleThreadContext("TTSAudio")
     }
 
-    private var mListener: TTSListener? = listener
+    private var mListener = mutableListOf<TTSListener>()
 
     private val mLOGGER = LoggerFactory.getLogger(TextToSpeechController::class.java)
 
@@ -62,6 +62,10 @@ class TextToSpeechController(val context: Context, listener: TTSListener?, book:
     private lateinit var mVoice: Voice
     private var mVoiceRate = "+0%"
     private var mVoiceVolume = "+0%"
+
+    fun addListener(listener: TTSListener) = mListener.add(listener)
+
+    fun removeListener(listener: TTSListener) = mListener.remove(listener)
 
     fun test() {
         mPage = 0
@@ -185,7 +189,7 @@ class TextToSpeechController(val context: Context, listener: TTSListener?, book:
     private var mStatus = AudioStatus.ENDING
     private fun setStatus(status: AudioStatus) {
         mStatus = status
-        mListener?.status(status)
+        mListener.forEach { it.status(status) }
     }
 
     private lateinit var notificationManager : NotificationManagerCompat
@@ -265,7 +269,7 @@ class TextToSpeechController(val context: Context, listener: TTSListener?, book:
             processNotification(isPageChange)
             mMedia = MediaPlayer.create(context, speech.audio)
             mMedia!!.prepareAsync()
-            mListener?.readingLine(speech)
+            mListener.forEach { it.readingLine(speech) }
             mMedia!!.start()
             mMedia!!.setOnCompletionListener {
                 mPlayAudio = false
@@ -363,6 +367,7 @@ class TextToSpeechController(val context: Context, listener: TTSListener?, book:
                 mLOGGER.error("Error to reading page on tts.", e)
             } finally {
                 setStatus(AudioStatus.STOP)
+                mListener.forEach { it.stop() }
             }
         }.start()
     }

@@ -404,6 +404,7 @@ class BookReaderActivity : AppCompatActivity() {
                 finish()
                 return true
             }
+            R.id.menu_item_reader_book_tts -> {}
             R.id.menu_item_reader_book_chapter -> { dialogPageIndex() }
             R.id.menu_item_reader_book_search -> {}
             R.id.menu_item_reader_book_annotation -> {}

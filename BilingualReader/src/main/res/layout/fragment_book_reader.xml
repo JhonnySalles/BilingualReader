@@ -46,13 +46,4 @@
             app:layout_constraintTop_toTopOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <Button
-        android:id="@+id/btntest"
-        style="@style/Button"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="150dp"
-        android:textSize="@dimen/about_button_text_size_tablet"
-        app:icon="@drawable/ic_suggestion" />
-
 </FrameLayout>

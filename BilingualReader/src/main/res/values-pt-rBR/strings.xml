@@ -202,6 +202,7 @@
     <string name="menu_reading_book_favorite">Favorito</string>
     <string name="menu_book_reading_order">Ordem da lista</string>
     <string name="menu_reading_book_order_change">Ordernado: %s</string>
+    <string name="menu_book_reading_tts">Texto para fala</string>
     <string name="menu_book_reading_chapter">Capítulos</string>
     <string name="menu_book_reading_annotation">Anotações</string>
     <string name="menu_book_reading_font_and_page">Fonte e página</string>
