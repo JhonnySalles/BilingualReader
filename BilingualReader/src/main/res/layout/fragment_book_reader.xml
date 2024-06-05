@@ -27,7 +27,7 @@
             android:layout_marginTop="@dimen/book_reader_cover_margin_top_bottom"
             android:layout_marginBottom="@dimen/book_reader_cover_margin_top_bottom"
             android:adjustViewBounds="true"
-            android:scaleType="center"
+            android:scaleType="fitCenter"
             android:clipToOutline="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

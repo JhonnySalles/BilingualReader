@@ -157,7 +157,6 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         val fontColor = getFontColor()
 
         val fontType = getFontType()
-        val fontSize = getFontSize().toString() + "dp"
 
         val margin = when (marginType.value) {
             MarginLayoutType.Small -> "10px"
@@ -181,7 +180,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             else -> "justify"
         }
 
-        mFontUpdate.value = fontColor + fontType + fontSize + margin + spacing + alignment
+        mFontUpdate.value = fontColor + fontType + margin + spacing + alignment
         mConfiguration?.let { saveBookConfiguration(it) }
     }
 

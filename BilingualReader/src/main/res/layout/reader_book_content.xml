@@ -23,6 +23,14 @@
             android:layout_alignParentBottom="true"
             layout="@layout/reader_book_progress"/>
 
+        <include
+            android:id="@+id/container_book_tts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:visibility="gone"
+            layout="@layout/reader_book_tts"/>
+
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/reader_book_toolbar_top"
             android:layout_width="match_parent"

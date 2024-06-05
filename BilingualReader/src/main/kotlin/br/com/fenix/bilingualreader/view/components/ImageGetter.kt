@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.view.components
 
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -20,20 +21,20 @@ class ImageGetter(val context: Context, val textView: TextView, val isOnlyImage 
         try {
             val image = text.substringAfter("<img").substringBefore("/>")
             val bytes: ByteArray = Base64.decode(image.substringAfter(",").trim(), Base64.DEFAULT)
-            val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-            drawable = BitmapDrawable(context.resources, bmp)
-            drawable.mutate();
-            if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                val width = if (bmp.width <= context.resources.displayMetrics.heightPixels) bmp.width else context.resources.displayMetrics.heightPixels
-                val height = if (bmp.height <= context.resources.displayMetrics.widthPixels) bmp.height else context.resources.displayMetrics.widthPixels
-                val start = if (isOnlyImage) (context.resources.displayMetrics.heightPixels / 2) - (width / 2) else 0
-                drawable.setBounds(start, 0, start + width, height)
-            } else {
-                val width = if (bmp.width <= context.resources.displayMetrics.widthPixels) bmp.width else context.resources.displayMetrics.widthPixels
-                val height = if (bmp.height <= context.resources.displayMetrics.heightPixels) bmp.height else context.resources.displayMetrics.heightPixels
-                val start = if (isOnlyImage) (context.resources.displayMetrics.widthPixels / 2) - (width / 2) else 0
-                drawable.setBounds(start, 0, start + width, height)
+            var bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+
+            val screenWith = if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) context.resources.displayMetrics.heightPixels else context.resources.displayMetrics.widthPixels
+
+            if (bmp.width > screenWith) {
+                val height = bmp.height * (screenWith.toFloat() / bmp.width)
+                bmp = Bitmap.createScaledBitmap(bmp, screenWith, height.toInt(), false)
             }
+
+            drawable = BitmapDrawable(context.resources, bmp)
+            drawable.mutate()
+
+            val start = (if (isOnlyImage) (screenWith / 2f) - (bmp.width / 2f) else 0).toInt()
+            drawable.setBounds(start, 0, start + bmp.width, bmp.height)
         } catch (e: Exception) {
             mLOGGER.error("Error to load image", e)
         }

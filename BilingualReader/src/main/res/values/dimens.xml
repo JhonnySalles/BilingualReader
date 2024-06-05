@@ -274,6 +274,9 @@
     <dimen name="config_theme_height">200dp</dimen>
     <dimen name="config_theme_selected_stroke">3dp</dimen>
     <dimen name="config_book_font_type_height">100dp</dimen>
+    <dimen name="config_book_font_size_min">8</dimen>
+    <dimen name="config_book_font_size_max">45</dimen>
+    <dimen name="config_book_font_default">12</dimen>
 
     <dimen name="about_app_name">18sp</dimen>
     <dimen name="about_title_size">16sp</dimen>

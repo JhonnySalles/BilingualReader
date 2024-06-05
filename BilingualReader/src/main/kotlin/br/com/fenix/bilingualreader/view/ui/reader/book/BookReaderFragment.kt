@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.view.ui.reader.book
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Resources
@@ -66,6 +67,7 @@ import br.com.fenix.bilingualreader.view.components.book.WebViewPage
 import br.com.fenix.bilingualreader.view.components.book.WebViewPager
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import org.slf4j.LoggerFactory
@@ -91,6 +93,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private lateinit var miSearch: MenuItem
     private lateinit var mViewPager: ViewPager2
     private lateinit var mPagerAdapter: Adapter<RecyclerView.ViewHolder>
+    private lateinit var mReaderTTSContainer: LinearLayout
+    private lateinit var mReaderTTSPlay: MaterialButton
 
     private lateinit var mCoverContent: ConstraintLayout
     private lateinit var mCoverImage: ImageView
@@ -102,17 +106,17 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private lateinit var mGestureDetector: GestureDetector
 
     private var mIsFullscreen = false
-    private var mFileName: String? = null
+    private var mIsLeftToRight = true
 
+    private var mFileName: String? = null
     private lateinit var mLibrary: Library
     private var mBook: Book? = null
     private var mNewBook: Book? = null
     private var mNewBookTitle = 0
     private lateinit var mStorage: Storage
-
-    private var mIsLeftToRight = true
-
     private var mTextToSpeech: TextToSpeechController? = null
+
+    private var mHandler = Handler(Looper.getMainLooper())
 
     var mParse: DocumentParse? = null
 
@@ -213,8 +217,13 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         mToolbarTop = requireActivity().findViewById(R.id.reader_book_toolbar_top)
         mToolbarBottom = requireActivity().findViewById(R.id.reader_book_toolbar_bottom)
 
-        if (mBook != null)
+        mReaderTTSContainer = requireActivity().findViewById(R.id.container_book_tts)
+        mReaderTTSPlay = requireActivity().findViewById(R.id.reader_book_tts_play)
+
+        if (mBook != null) {
+            BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, true)
             BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, false)
+        }
 
         onLoading(false, false)
 
@@ -231,6 +240,18 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         mGestureDetector = GestureDetector(requireActivity(), MyTouchListener())
         requireActivity().title = "" // Title beside to the icons
+        mReaderTTSContainer.visibility = View.GONE
+
+        mReaderTTSPlay.setOnClickListener { mTextToSpeech?.pause() }
+        mReaderTTSPlay.setOnLongClickListener {
+            mTextToSpeech?.stop()
+            true
+        }
+        val btnPrevious = requireActivity().findViewById<MaterialButton>(R.id.reader_book_tts_previous)
+        val btnNext = requireActivity().findViewById<MaterialButton>(R.id.reader_book_tts_next)
+
+        btnPrevious.setOnClickListener { mTextToSpeech?.previous()  }
+        btnNext.setOnClickListener { mTextToSpeech?.next()  }
 
         if (savedInstanceState != null) {
             val fullscreen = savedInstanceState.getBoolean(ReaderConsts.STATES.STATE_FULLSCREEN)
@@ -277,6 +298,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
     override fun onDestroy() {
         SharedData.setDocumentParse(null)
+        removeRefreshSizeDelay()
         super.onDestroy()
     }
 
@@ -318,6 +340,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         TODO("Not yet implemented")
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun preparePager() {
         mPageSlider.isEnabled = true
 
@@ -329,8 +352,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         mViewPager.adapter = mPagerAdapter
 
         val preferences = GeneralConsts.getSharedPreferences(requireContext())
-        val scrolling =
-            ScrollingType.valueOf(preferences.getString(GeneralConsts.KEYS.READER.BOOK_PAGE_SCROLLING_MODE, ScrollingType.Pagination.toString())!!)
+        val scrolling = ScrollingType.valueOf(preferences.getString(GeneralConsts.KEYS.READER.BOOK_PAGE_SCROLLING_MODE, ScrollingType.Pagination.toString())!!)
         mViewPager.orientation = if (scrolling == ScrollingType.Scrolling) ViewPager2.ORIENTATION_VERTICAL else ViewPager2.ORIENTATION_HORIZONTAL
 
         mViewPager.isSaveEnabled = false
@@ -463,6 +485,17 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         }
     }
 
+    private val mRefreshSizeDelay = Runnable { mPagerAdapter.notifyDataSetChanged() }
+
+    private fun removeRefreshSizeDelay() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (mHandler.hasCallbacks(mRefreshSizeDelay))
+                mHandler.removeCallbacks(mRefreshSizeDelay)
+            else
+                mHandler.removeCallbacks(mRefreshSizeDelay)
+        }
+    }
+
     private fun observer() {
         if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
             mViewModel.fontCss.observe(viewLifecycleOwner) {
@@ -484,23 +517,21 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             }
         else
             mViewModel.fontUpdate.observeForever {
-                updatePagesViews(mViewPager, "")
-                mPagerAdapter.notifyDataSetChanged()
+                removeRefreshSizeDelay()
+                mHandler.postDelayed(mRefreshSizeDelay, 1000)
             }
 
         mViewModel.fontSize.observeForever { font ->
             mParse?.let { parse ->
                 val pages = parse.getPageCount(font + DocumentParse.BOOK_FONT_SIZE_DIFFER)
                 mPageSlider.valueTo = if (pages > 1) pages.toFloat() else 2f
-                mPagerAdapter.notifyDataSetChanged()
+                mPagerAdapter.notifyItemChanged(mViewPager.currentItem)
+
+                removeRefreshSizeDelay()
+                mHandler.postDelayed(mRefreshSizeDelay, 1000)
 
                 mBook?.let { book ->
-                    (requireActivity() as BookReaderActivity).changePageDescription(
-                        book.chapter,
-                        book.chapterDescription,
-                        mCurrentPage,
-                        pages
-                    )
+                    (requireActivity() as BookReaderActivity).changePageDescription(book.chapter, book.chapterDescription, mCurrentPage, pages)
                     book.pages = pages
                     mViewModel.update(book)
                 }
@@ -586,10 +617,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         if (!isFullScreen) {
             mToolbarBottom.visibility = View.VISIBLE
-            mToolbarTop.visibility = View.VISIBLE
+            mToolbarBottom.translationY = initialTranslation
             mToolbarBottom.alpha = initialAlpha
-            mToolbarTop.alpha = initialAlpha
+            mToolbarTop.visibility = View.VISIBLE
             mToolbarTop.translationY = initialTranslation
+            mToolbarTop.alpha = initialAlpha
         }
 
         mToolbarBottom.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
@@ -632,12 +664,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         mCurrentPage = mViewPager.currentItem + 1
         mPageSlider.value = mCurrentPage.toFloat()
 
-        (requireActivity() as BookReaderActivity).changePageDescription(
-            mBook!!.chapter,
-            mBook!!.chapterDescription,
-            mCurrentPage,
-            mViewPager.adapter!!.itemCount
-        )
+        (requireActivity() as BookReaderActivity).changePageDescription(mBook!!.chapter, mBook!!.chapterDescription, mCurrentPage, mViewPager.adapter!!.itemCount)
     }
 
     fun isFullscreen(): Boolean = mIsFullscreen
@@ -715,19 +742,44 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_SEARCH, null)
     }
 
-
     private fun executeTTS() {
         if (mTextToSpeech == null) {
             mTextToSpeech = TextToSpeechController(requireContext(), mBook!!, mParse, (mCoverImage.drawable as BitmapDrawable).bitmap)
             mTextToSpeech!!.addListener(this)
             mTextToSpeech!!.addListener(mPagerAdapter as TTSListener)
-            mTextToSpeech!!.setVoice(TextSpeech.FRANCISCA)
+            mTextToSpeech!!.start(mCurrentPage)
         } else
             mTextToSpeech?.stop()
     }
 
     override fun status(status: AudioStatus) {
-        TODO("Not yet implemented")
+        when (status) {
+            AudioStatus.PREPARE, AudioStatus.ENDING -> {
+                val visibility = if (status == AudioStatus.ENDING) View.GONE else View.VISIBLE
+                val finalAlpha = if (status == AudioStatus.ENDING) 0.0f else 1.0f
+                val initialAlpha = if (status == AudioStatus.ENDING) 1.0f else 0.0f
+                val initialTranslation = if (status == AudioStatus.ENDING) 0f else -20f
+                val finalTranslation = if (status == AudioStatus.ENDING) -20f else 0f
+
+                if (status == AudioStatus.PREPARE) {
+                    mReaderTTSPlay.setIconResource(R.drawable.ic_tts_play)
+                    mReaderTTSContainer.visibility = View.VISIBLE
+                    mReaderTTSContainer.alpha = initialAlpha
+                    mReaderTTSContainer.translationY = initialTranslation
+                }
+
+                mReaderTTSContainer.animate().alpha(finalAlpha).translationY(finalTranslation)
+                    .setDuration(duration).setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            super.onAnimationEnd(animation)
+                            mReaderTTSContainer.visibility = visibility
+                        }
+                    })
+            }
+            AudioStatus.PLAY -> mReaderTTSPlay.setIconResource(R.drawable.ic_tts_play)
+            AudioStatus.PAUSE -> mReaderTTSPlay.setIconResource(R.drawable.ic_tts_pause)
+            AudioStatus.STOP -> mReaderTTSPlay.setIconResource(R.drawable.ic_tts_close)
+        }
     }
 
     override fun readingLine(line: Speech) { }

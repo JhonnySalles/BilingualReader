@@ -27,6 +27,7 @@ import br.com.fenix.bilingualreader.model.enums.PageMode
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.ShareMarkCloud
+import br.com.fenix.bilingualreader.model.enums.TextSpeech
 import br.com.fenix.bilingualreader.model.enums.ThemeMode
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.Type
@@ -156,6 +157,9 @@ class ConfigFragment : Fragment() {
     private lateinit var mBookScrollingMode: TextInputLayout
     private lateinit var mBookScrollingModeAutoComplete: AutoCompleteTextView
 
+    private lateinit var mBookReadingTTS: TextInputLayout
+    private lateinit var mBookReadingTTSAutoComplete: AutoCompleteTextView
+
     private lateinit var mBookFontTypeNormal: TwoWayView
     private lateinit var mBookFontTypeJapanese: TwoWayView
     private lateinit var mBookFontSize: Slider
@@ -166,9 +170,11 @@ class ConfigFragment : Fragment() {
 
     private var mBookOrderSelect: Order = Order.Name
     private var mBookScrollingModeSelect: ScrollingType = ScrollingType.Pagination
+    private var mBookReadingTTSSelect: TextSpeech = TextSpeech.getDefault()
 
     private lateinit var mBookMapOrder: HashMap<String, Order>
     private lateinit var mBookMapScrollingMode: HashMap<String, ScrollingType>
+    private lateinit var mBookMapReadingTTS: Map<String, TextSpeech>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -186,6 +192,9 @@ class ConfigFragment : Fragment() {
         mBookLibraryOrderAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_library_order)
         mBookScrollingMode = view.findViewById(R.id.config_book_scrolling_mode)
         mBookScrollingModeAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_scrolling_mode)
+
+        mBookReadingTTS = view.findViewById(R.id.config_book_tts_voice)
+        mBookReadingTTSAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_tts_voice)
 
         mBookFontTypeNormal = view.findViewById(R.id.config_book_list_fonts_normal)
         mBookFontTypeJapanese = view.findViewById(R.id.config_book_list_fonts_japanese)
@@ -278,6 +287,8 @@ class ConfigFragment : Fragment() {
             getString(R.string.config_book_scrolling_Infinity_Scrolling) to ScrollingType.Scrolling,
             getString(R.string.config_book_scrolling_Pagination) to ScrollingType.Pagination
         )
+
+        mBookMapReadingTTS = TextSpeech.getByDescriptions(requireContext())
 
         val themeMode = requireContext().resources.getStringArray(R.array.theme_mode)
         mMangaMapThemeMode = hashMapOf(
@@ -376,6 +387,18 @@ class ConfigFragment : Fragment() {
                     mBookMapScrollingMode[parent.getItemAtPosition(position).toString()]!!
                 else
                     ScrollingType.Pagination
+            }
+
+        val adapterBookReadingTTS = ArrayAdapter(requireContext(), R.layout.list_item, mBookMapReadingTTS.keys.toTypedArray())
+        mBookReadingTTSAutoComplete.setAdapter(adapterBookReadingTTS)
+        mBookReadingTTSAutoComplete.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                mBookReadingTTSSelect = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                    mBookMapReadingTTS.containsKey(parent.getItemAtPosition(position).toString())
+                )
+                    mBookMapReadingTTS[parent.getItemAtPosition(position).toString()]!!
+                else
+                    TextSpeech.getDefault()
             }
 
         val themesMode = ArrayAdapter(requireContext(), R.layout.list_item, mMangaMapThemeMode.keys.toTypedArray())
@@ -798,6 +821,11 @@ class ConfigFragment : Fragment() {
                 mBookScrollingModeSelect.toString()
             )
 
+            this.putString(
+                GeneralConsts.KEYS.READER.BOOK_READER_TTS,
+                mBookReadingTTSSelect.toString()
+            )
+
             this.putBoolean(
                 GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT,
                 mBookProcessJapaneseText.isChecked
@@ -965,6 +993,13 @@ class ConfigFragment : Fragment() {
             )!!
         )
 
+        mBookReadingTTSSelect = TextSpeech.valueOf(
+            sharedPreferences.getString(
+                GeneralConsts.KEYS.READER.BOOK_READER_TTS,
+                TextSpeech.getDefault().toString()
+            )!!
+        )
+
         mBookLibraryOrderAutoComplete.setText(
             mBookMapOrder.filterValues { it == mBookOrderSelect }.keys.first(),
             false
@@ -972,6 +1007,11 @@ class ConfigFragment : Fragment() {
 
         mBookScrollingModeAutoComplete.setText(
             mBookMapScrollingMode.filterValues { it == mBookScrollingModeSelect }.keys.first(),
+            false
+        )
+
+        mBookReadingTTSAutoComplete.setText(
+            mBookMapReadingTTS.filterValues { it == mBookReadingTTSSelect }.keys.first(),
             false
         )
 

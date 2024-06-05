@@ -195,6 +195,7 @@ class GeneralConsts private constructor() {
             const val BOOK_PROCESS_JAPANESE_TEXT = "BOOK_PROCESS_JAPANESE_TEXT"
             const val BOOK_GENERATE_FURIGANA_ON_TEXT = "BOOK_GENERATE_FURIGANA_ON_TEXT"
             const val BOOK_PROCESS_VOCABULARY = "BOOK_PROCESS_VOCABULARY"
+            const val BOOK_READER_TTS = "BOOK_READER_TTS"
         }
 
         object SYSTEM {

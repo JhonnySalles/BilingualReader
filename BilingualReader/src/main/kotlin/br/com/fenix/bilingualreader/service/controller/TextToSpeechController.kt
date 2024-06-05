@@ -19,7 +19,6 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Speech
 import br.com.fenix.bilingualreader.model.enums.AudioStatus
 import br.com.fenix.bilingualreader.model.enums.TextSpeech
-import br.com.fenix.bilingualreader.model.exceptions.TTSException
 import br.com.fenix.bilingualreader.service.listener.TTSListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.services.NotificationBroadcastReceiver
@@ -28,9 +27,6 @@ import br.com.fenix.bilingualreader.util.helpers.Notifications
 import io.github.whitemagic2014.tts.TTS
 import io.github.whitemagic2014.tts.TTSVoice
 import io.github.whitemagic2014.tts.bean.Voice
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.time.LocalDate
@@ -38,12 +34,10 @@ import java.time.format.DateTimeFormatter
 import java.util.stream.Collectors
 
 
-class TextToSpeechController(val context: Context, book: Book,  parse: DocumentParse?, cover: Bitmap?) {
+class TextToSpeechController(val context: Context, book: Book, parse: DocumentParse?, cover: Bitmap?) {
 
     companion object {
         const val mLIMITCACHE = 3
-
-        private val thread = newSingleThreadContext("TTSAudio")
     }
 
     private var mListener = mutableListOf<TTSListener>()
@@ -59,9 +53,16 @@ class TextToSpeechController(val context: Context, book: Book,  parse: DocumentP
     private var mFileName: String = book.fileName
     private var mDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
-    private lateinit var mVoice: Voice
+    private var mVoice: Voice
     private var mVoiceRate = "+0%"
     private var mVoiceVolume = "+0%"
+
+    init {
+        val sharedPreferences = GeneralConsts.getSharedPreferences(context)
+        val language: TextSpeech =
+            TextSpeech.valueOf(sharedPreferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS, TextSpeech.getDefault().toString())!!)
+        mVoice = TTSVoice.provides().stream().filter { v: Voice -> v.shortName == language.getNameAzure() }.collect(Collectors.toList())[0]
+    }
 
     fun addListener(listener: TTSListener) = mListener.add(listener)
 
@@ -79,12 +80,7 @@ class TextToSpeechController(val context: Context, book: Book,  parse: DocumentP
         mVoiceVolume = "+$volume%"
     }
 
-    fun start(page: Int = 0, initial: String = "") {
-        if (!::mVoice.isInitialized)
-            throw TTSException("Not initialize a voice Type")
-
-        execute(page, initial)
-    }
+    fun start(page: Int = 0, initial: String = "") = execute(page, initial)
 
     fun pause() {
         mPause = !mPause
@@ -113,7 +109,7 @@ class TextToSpeechController(val context: Context, book: Book,  parse: DocumentP
         mHandler.postDelayed(mLastDelay!!, 2000)
     }
 
-    fun back() {
+    fun previous() {
         val pause = mPause
         try {
             mPause = true
@@ -124,7 +120,7 @@ class TextToSpeechController(val context: Context, book: Book,  parse: DocumentP
                 mPage--
                 mLines.clear()
                 mLines.addAll(readHtml(mPage, mParse!!.getPage(mPage).pageHTMLWithImages))
-                mLine = (mLines.size -1)
+                mLine = (mLines.size - 1)
                 preparePlay(true)
             }
         } finally {
@@ -192,8 +188,8 @@ class TextToSpeechController(val context: Context, book: Book,  parse: DocumentP
         mListener.forEach { it.status(status) }
     }
 
-    private lateinit var notificationManager : NotificationManagerCompat
-    private lateinit var notification : Notification
+    private lateinit var notificationManager: NotificationManagerCompat
+    private lateinit var notification: Notification
     private fun createNotification() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationManager = NotificationManagerCompat.from(context)
@@ -202,7 +198,7 @@ class TextToSpeechController(val context: Context, book: Book,  parse: DocumentP
 
             val notificationManager = NotificationManagerCompat.from(context)
             val hastPrevious = (mPage > 0 || mLine > 0)
-            val hastNext = !(mPage == mParse!!.pageCount && mLine == (mLines.size -1))
+            val hastNext = !(mPage == mParse!!.pageCount && mLine == (mLines.size - 1))
             val notification = Notifications.getTTSNotification(context, mBook, mFileName, mCover, hastPrevious, hastNext, broadcastReceiver)
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
                 notificationManager.notify(notifyId, notification)
@@ -213,7 +209,7 @@ class TextToSpeechController(val context: Context, book: Book,  parse: DocumentP
         override fun onReceive(context: Context, intent: Intent) {
             val action = intent.extras!!.getString(NotificationBroadcastReceiver.mIntentExtra)
             when (action) {
-                Notifications.TTS_ACTION_PREVIUOS -> back()
+                Notifications.TTS_ACTION_PREVIUOS -> previous()
                 Notifications.TTS_ACTION_PLAY -> pause()
                 Notifications.TTS_ACTION_NEXT -> next()
                 Notifications.TTS_ACTION_STOP -> stop()
@@ -238,19 +234,17 @@ class TextToSpeechController(val context: Context, book: Book,  parse: DocumentP
             return
         }
 
-        CoroutineScope(thread).launch {
-            speach.audio = null
-            try {
-                val file = mBook + String.format("%05d", ++mSequence)
-                val audio = TTS(mVoice, speach.text).fileName(file).formatMp3().voiceRate(mVoiceRate).voiceVolume(mVoiceVolume)
-                    //.voicePitch()
-                    .storage(mCache.absolutePath).trans()
-                speach.audio = File(mCache, file).toUri()
-            } catch (e: Exception) {
-                mLOGGER.error("Generate TTS error", e)
-            } finally {
-                loaded(speach.audio)
-            }
+        speach.audio = null
+        try {
+            val file = mBook + String.format("%05d", ++mSequence)
+            val audio = TTS(mVoice, speach.text).fileName(file).formatMp3().voiceRate(mVoiceRate).voiceVolume(mVoiceVolume)
+                //.voicePitch()
+                .storage(mCache.absolutePath).trans()
+            speach.audio = File(mCache, file).toUri()
+        } catch (e: Exception) {
+            mLOGGER.error("Generate TTS error", e)
+        } finally {
+            loaded(speach.audio)
         }
     }
 

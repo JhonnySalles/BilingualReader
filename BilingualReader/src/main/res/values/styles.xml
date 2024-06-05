@@ -669,9 +669,9 @@
     </style>
 
     <style name="Slider.FontSize" parent="Slider" >
-        <item name="android:valueFrom">8</item>
-        <item name="android:valueTo">45</item>
-        <item name="android:value">12</item>
+        <item name="android:valueFrom">@dimen/config_book_font_size_min</item>
+        <item name="android:valueTo">@dimen/config_book_font_size_max</item>
+        <item name="android:value">@dimen/config_book_font_default</item>
         <item name="android:stepSize">1</item>
     </style>
 

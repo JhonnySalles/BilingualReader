@@ -15,8 +15,10 @@ import br.com.fenix.bilingualreader.model.entity.Speech
 import br.com.fenix.bilingualreader.model.enums.AudioStatus
 import br.com.fenix.bilingualreader.service.listener.TTSListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
+import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderViewModel
+import org.slf4j.LoggerFactory
 
 
 class TextViewPager(
@@ -25,6 +27,8 @@ class TextViewPager(
     parse: DocumentParse?,
     listener: View.OnTouchListener? = null
 ) : RecyclerView.Adapter<TextViewPager.TextViewPagerHolder>(), TTSListener {
+
+    private val mLOGGER = LoggerFactory.getLogger(TextViewPager::class.java)
 
     private val mParse = parse
     private val mViewModel = model
@@ -36,6 +40,7 @@ class TextViewPager(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TextViewPagerHolder {
         val holder =  TextViewPagerHolder(LayoutInflater.from(parent.context).inflate(R.layout.fragment_book_text_view_page, parent, false))
         mViewModel.changeTextStyle(holder.textView)
+        holder.style = mViewModel.fontUpdate.value + mViewModel.fontSize.value
         return holder
     }
 
@@ -43,6 +48,13 @@ class TextViewPager(
 
     override fun onBindViewHolder(holder: TextViewPagerHolder, position: Int) {
         mViewModel.prepareHtml(mParse, position, holder, mListener)
+
+        val font = mViewModel.fontUpdate.value + mViewModel.fontSize.value
+        if (font != holder.style) {
+            holder.style = font
+            mViewModel.changeTextStyle(holder.textView)
+        }
+
         mHolders[position] = holder
         if (mSpeech != null && mSpeech!!.page == position)
             drawLineSpeech(holder.textView, mSpeech!!)
@@ -56,6 +68,7 @@ class TextViewPager(
     inner class TextViewPagerHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val background = itemView.findViewById<View>(R.id.page_back_view)
         val textView = itemView.findViewById<TextViewPage>(R.id.page_text_view)
+        var style : String = ""
     }
 
     private fun drawLineSpeech(textViewPage: TextViewPage, speech: Speech) {

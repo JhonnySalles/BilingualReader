@@ -145,12 +145,7 @@ class BookImageCoverController private constructor() {
         return image
     }
 
-    fun setImageCoverAsync(
-        context: Context,
-        book: Book,
-        isCoverSize: Boolean = true,
-        function: (Bitmap?) -> (Unit)
-    ) {
+    fun setImageCoverAsync(context: Context, book: Book, isCoverSize: Boolean = true, function: (Bitmap?) -> (Unit)) {
         CoroutineScope(thread).launch {
             try {
                 var image: Bitmap? = null
