@@ -230,8 +230,6 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             AlignmentLayoutType.Center -> View.TEXT_ALIGNMENT_CENTER
             else -> View.TEXT_ALIGNMENT_TEXT_START
         }
-
-        textView.movementMethod = ScrollingMovementMethod()
     }
 
     fun loadConfiguration(book: Book?) {

@@ -7,6 +7,8 @@ import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver.OnScrollChangedListener
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.text.clearSpans
 import androidx.recyclerview.widget.RecyclerView
@@ -22,7 +24,11 @@ import org.slf4j.LoggerFactory
 
 
 class TextViewPager(
-    var context: Context, model: BookReaderViewModel, parse: DocumentParse?, listener: View.OnTouchListener? = null, textSelectCallback: TextSelectCallbackListener? = null
+    var context: Context,
+    model: BookReaderViewModel,
+    parse: DocumentParse?,
+    listener: View.OnTouchListener? = null,
+    textSelectCallback: TextSelectCallbackListener? = null
 ) : RecyclerView.Adapter<TextViewPager.TextViewPagerHolder>(), TTSListener {
 
     private val mLOGGER = LoggerFactory.getLogger(TextViewPager::class.java)
@@ -60,9 +66,20 @@ class TextViewPager(
         } else
             holder.textView.setTextIsSelectable(false)
 
-        if (mListener != null) {
-            holder.textView.setOnTouchListener(mListener)
-            holder.background.setOnTouchListener(mListener)
+        if (mListener != null)
+            holder.scrollView.setOnTouchListener(mListener)
+
+        holder.scrollView.parent.requestDisallowInterceptTouchEvent(false)
+        holder.scrollView.viewTreeObserver.addOnScrollChangedListener(OnScrollChangedListener {
+            if (holder.scrollView.getChildAt(0).bottom <= (holder.scrollView.height + holder.scrollView.scrollY) || holder.scrollView.scrollY == 0)
+                holder.textView.parent.requestDisallowInterceptTouchEvent(false)
+            else
+                holder.textView.parent.requestDisallowInterceptTouchEvent(true)
+        })
+        holder.textView.setOnTouchListener { view, motionEvent ->
+            view.performClick()
+            mListener?.onTouch(view, motionEvent)
+            false
         }
 
         mHolders[position] = holder
@@ -76,7 +93,7 @@ class TextViewPager(
     }
 
     inner class TextViewPagerHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val background = itemView.findViewById<View>(R.id.page_back_view)
+        val scrollView = itemView.findViewById<ScrollView>(R.id.page_scroll_view)
         val textView = itemView.findViewById<TextViewPage>(R.id.page_text_view)
         var style: String = ""
     }
@@ -89,7 +106,12 @@ class TextViewPager(
 
         val span = SpannableString(textViewPage.text)
         span.clearSpans()
-        span.setSpan(ForegroundColorSpan(context.getColorFromAttr(R.attr.colorOnSurfaceVariant)), i, i + speech.text.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        span.setSpan(
+            ForegroundColorSpan(context.getColorFromAttr(R.attr.colorOnSurfaceVariant)),
+            i,
+            i + speech.text.length,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
         textViewPage.text = span
     }
 

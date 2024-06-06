@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.AttributeSet
+import androidx.appcompat.widget.AppCompatSeekBar
 import androidx.core.graphics.drawable.toBitmap
 import br.com.fenix.bilingualreader.R
 
@@ -12,10 +13,10 @@ import br.com.fenix.bilingualreader.R
 /**
  * Seek bar with dots on it on specific time / percent
  */
-class DottedSeekBar : androidx.appcompat.widget.AppCompatSeekBar {
+class DottedSeekBar : AppCompatSeekBar {
 
     //Used only android < Oreo
-    private val MIN : Int = 0
+    private val MIN: Int = 0
 
     /** Int values which corresponds to dots  */
     private var mDots: IntArray = intArrayOf()
@@ -34,11 +35,7 @@ class DottedSeekBar : androidx.appcompat.widget.AppCompatSeekBar {
         init(attrs)
     }
 
-    constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(
-        context,
-        attrs,
-        defStyle
-    ) {
+    constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle) {
         init(attrs)
     }
 
@@ -102,18 +99,18 @@ class DottedSeekBar : androidx.appcompat.widget.AppCompatSeekBar {
             val halfH = if (h >= 0) h / 2 else 1
             mDotMark!!.setBounds(-halfW, -halfH, halfW, halfH)
 
-            val top = paddingTop + (measuredHeight - paddingTop - paddingBottom) /2 - (h / 2f)
+            val top = paddingTop + (measuredHeight - paddingTop - paddingBottom) / 2 - (h / 2f)
             val padding = paddingLeft - (thumb.intrinsicWidth / 4f)
 
             val range = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                    (max - min).toFloat()
+                (max - min).toFloat()
             else
-                    (max - MIN).toFloat()
+                (max - MIN).toFloat()
 
             val available = (measuredWidth - paddingLeft - paddingRight)
             val image = mDotMark!!.toBitmap()
             for (position in mDotsPositions) {
-                val scale : Float = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                val scale: Float = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                     if (range > 0) (position - min) / range else 0f
                 else
                     if (range > 0) (position - MIN) / range else 0f
