@@ -37,11 +37,7 @@ class PopupTags(var context: Context) : TagsListener {
         mPopupTags.show()
     }
 
-    private fun createTagsPopup(
-        context: Context,
-        inflater: LayoutInflater,
-        tags: MutableList<Long>
-    ): View? {
+    private fun createTagsPopup(context: Context, inflater: LayoutInflater, tags: MutableList<Long>): View? {
         val root = inflater.inflate(R.layout.popup_tags, null, false)
 
         mTags = mRepository.list()
@@ -64,15 +60,15 @@ class PopupTags(var context: Context) : TagsListener {
             .setPositiveButton(R.string.book_tags_add, null)
             .setOnDismissListener { mPopupTags.show() }
             .create()
+
         mPopupNew.show()
-        mPopupNew.getButton(DialogInterface.BUTTON_POSITIVE).setOnTouchListener { _, _ ->
+        mPopupNew.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener {
             if (validate()) {
                 save(Tags(null, mNewTag.editText!!.text!!.toString()))
                 mNewTag.isErrorEnabled = false
                 mNewTag.error = ""
                 mNewTag.editText?.setText("")
             }
-            true
         }
     }
 
@@ -81,9 +77,7 @@ class PopupTags(var context: Context) : TagsListener {
         inflater: LayoutInflater
     ): View? {
         val root = inflater.inflate(R.layout.popup_tag, null, false)
-
         mNewTag = root.findViewById(R.id.popup_tag_text)
-
         return root
     }
 
@@ -115,7 +109,7 @@ class PopupTags(var context: Context) : TagsListener {
     override fun onDelete(tag: Tags, view: View, position: Int) {
         mTags.remove(tag)
         mRepository.delete(tag)
-        (mList.adapter as TagsAdapter).remove(tag)
+        mList.adapter = TagsAdapter(context, R.layout.list_line_tag, mTags.toList(), this)
         (mList.adapter as TagsAdapter).notifyDataSetChanged()
     }
 
@@ -126,7 +120,7 @@ class PopupTags(var context: Context) : TagsListener {
     override fun save(tag: Tags) {
         tag.id = mRepository.save(tag)
         mTags.add(tag)
-        (mList.adapter as TagsAdapter).add(tag)
+        mList.adapter = TagsAdapter(context, R.layout.list_line_tag, mTags.toList(), this)
         (mList.adapter as TagsAdapter).notifyDataSetChanged()
     }
 }

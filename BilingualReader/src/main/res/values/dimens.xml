@@ -160,8 +160,7 @@
 
     <dimen name="book_detail_information_title_size">14sp</dimen>
     <dimen name="book_detail_information_synopsis_size">12sp</dimen>
-    <dimen name="book_detail_information_texts_size">10sp</dimen>
-    <dimen name="book_detail_information_origin_size">8sp</dimen>
+    <dimen name="book_detail_information_texts_size">12sp</dimen>
     <dimen name="book_detail_information_related_image_max_size">200dp</dimen>
     <dimen name="book_detail_information_related_image_size">100dp</dimen>
     <dimen name="book_detail_information_related_title_size">14sp</dimen>

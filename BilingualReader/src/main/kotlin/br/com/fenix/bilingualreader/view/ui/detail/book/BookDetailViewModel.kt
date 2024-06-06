@@ -10,10 +10,12 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.LinkedFile
+import br.com.fenix.bilingualreader.model.entity.Tags
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.FileLinkRepository
+import br.com.fenix.bilingualreader.service.repository.TagsRepository
 import org.slf4j.LoggerFactory
 
 class BookDetailViewModel(application: Application) : AndroidViewModel(application) {
@@ -22,6 +24,7 @@ class BookDetailViewModel(application: Application) : AndroidViewModel(applicati
 
     private val mBookRepository: BookRepository = BookRepository(application.applicationContext)
     private val mFileLinkRepository: FileLinkRepository = FileLinkRepository(application.applicationContext)
+    private val mTagsRepository: TagsRepository = TagsRepository(application.applicationContext)
 
     var library: Library? = null
     private var mBook = MutableLiveData<Book?>(null)
@@ -44,11 +47,16 @@ class BookDetailViewModel(application: Application) : AndroidViewModel(applicati
     private var mInformation = MutableLiveData<Information?>(null)
     val information: LiveData<Information?> = mInformation
 
+    private var mTags = MutableLiveData<List<Tags>>(listOf())
+    val tags: LiveData<List<Tags>> = mTags
+
     fun setBook(context: Context, book: Book) {
         mBook.value = book
 
         mListLinkedFileLinks.value = if (book.id != null) mFileLinkRepository.findAllByManga(book.id!!)?.toMutableList() else mutableListOf()
         mInformation.value = Information(context, book)
+        mTags.value = mTagsRepository.list().filter { t -> book.tags.any { b -> b.compareTo(t.id!!) == 0 } }
+
         BookImageCoverController.instance.setImageCoverAsync(context, book,  false) { mCover.value = it }
     }
 

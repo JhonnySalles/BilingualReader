@@ -76,6 +76,7 @@ class BookDetailFragment : Fragment() {
     private lateinit var mInformationIsbn: TextView
     private lateinit var mInformationGenres: TextView
     private lateinit var mInformationFile: TextView
+    private lateinit var mTagsList: ListView
 
     private lateinit var mBookLanguage: TextInputLayout
     private lateinit var mBookLanguageAutoComplete: AutoCompleteTextView
@@ -85,6 +86,7 @@ class BookDetailFragment : Fragment() {
     private var mSubtitles: MutableList<String> = mutableListOf()
     private var mChapters: MutableList<String> = mutableListOf()
     private var mFileLinks: MutableList<String> = mutableListOf()
+    private var mTags: MutableList<String> = mutableListOf()
     private var mMapLanguage: HashMap<String, Languages> = hashMapOf()
 
     override fun onCreateView(
@@ -125,13 +127,13 @@ class BookDetailFragment : Fragment() {
         mInformationContent = root.findViewById(R.id.book_detail_information)
         mInformationImage = root.findViewById(R.id.book_detail_information_image)
         mInformationSynopsis = root.findViewById(R.id.book_detail_information_synopsis)
-        mInformationAnnotation =
-            root.findViewById(R.id.book_detail_information_annotation)
+        mInformationAnnotation = root.findViewById(R.id.book_detail_information_annotation)
         mInformationPublish = root.findViewById(R.id.book_detail_information_publish)
         mInformationYear = root.findViewById(R.id.book_detail_information_year)
         mInformationIsbn = root.findViewById(R.id.book_detail_information_isbn)
         mInformationGenres = root.findViewById(R.id.book_detail_information_genres)
         mInformationFile = root.findViewById(R.id.book_detail_information_file)
+        mTagsList = root.findViewById(R.id.book_detail_information_tags_list)
 
         val languages = resources.getStringArray(R.array.languages)
         mMapLanguage = hashMapOf(
@@ -171,10 +173,9 @@ class BookDetailFragment : Fragment() {
             openVocabulary()
         }
 
-        mFileLinksList.adapter =
-            ArrayAdapter(requireContext(), R.layout.list_item_all_text, mFileLinks)
-        mChaptersList.adapter =
-            ArrayAdapter(requireContext(), R.layout.list_item_all_text, mChapters)
+        mFileLinksList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mFileLinks)
+        mChaptersList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mChapters)
+        mTagsList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mTags)
 
         mTitle.setOnLongClickListener {
             mViewModel.book.value?.let { bk -> FileUtil(requireContext()).copyName(bk) }
@@ -308,6 +309,12 @@ class BookDetailFragment : Fragment() {
                 View.VISIBLE
             else
                 View.GONE
+        }
+
+        mViewModel.tags.observe(viewLifecycleOwner) {
+            mTags.clear()
+            mTags.addAll(it.map { t -> t.name })
+            (mTagsList.adapter as ArrayAdapter<*>).notifyDataSetChanged()
         }
 
         mViewModel.information.observe(viewLifecycleOwner) {

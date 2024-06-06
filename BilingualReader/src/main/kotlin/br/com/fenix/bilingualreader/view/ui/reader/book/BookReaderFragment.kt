@@ -539,6 +539,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             }
 
         mViewModel.fontSize.observeForever { font ->
+            if (!isAdded)
+                return@observeForever
+
             mParse?.let { parse ->
                 val pages = parse.getPageCount((font + DocumentParse.BOOK_FONT_SIZE_DIFFER).toInt())
                 mPageSlider.valueTo = if (pages > 1) pages.toFloat() else 2f
