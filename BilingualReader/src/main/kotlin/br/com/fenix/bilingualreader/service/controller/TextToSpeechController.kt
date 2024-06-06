@@ -1,7 +1,6 @@
 package br.com.fenix.bilingualreader.service.controller
 
 import android.Manifest
-import android.app.Activity
 import android.app.Notification
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -30,12 +29,10 @@ import io.github.whitemagic2014.tts.TTSVoice
 import io.github.whitemagic2014.tts.bean.Voice
 import org.slf4j.LoggerFactory
 import java.io.File
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.stream.Collectors
 
 
-class TextToSpeechController(val context: Context, book: Book, parse: DocumentParse?, cover: Bitmap?) {
+class TextToSpeechController(val context: Context, book: Book, parse: DocumentParse?, cover: Bitmap?, val fontSize: Int) {
 
     companion object {
         const val mLIMITCACHE = 3
@@ -51,7 +48,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
     private var mBook: String = book.title.replace("[^\\w ]".toRegex(), "")
     private var mFileName: String = book.fileName
-    private var mDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+    private var mMainHandler = Handler(Looper.getMainLooper())
 
     private var mVoice: Voice
     private var mVoiceRate = "+0%"
@@ -68,12 +65,6 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
     fun removeListener(listener: TTSListener) = mListener.remove(listener)
 
-    fun test() {
-        mPage = 0
-        mLine = 0
-        mLines.addAll(readHtml(0, mParse!!.getPage(0).pageHTMLWithImages))
-    }
-
     fun setVoice(language: TextSpeech, rate: Float = 0f, volume: Int = 0) {
         mVoice = TTSVoice.provides().stream().filter { v: Voice -> v.shortName == language.getNameAzure() }.collect(Collectors.toList())[0]
         mVoiceRate = "+$rate%"
@@ -88,9 +79,9 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
     fun stop() {
         mStop = true
+        setStatus(AudioStatus.STOP)
     }
 
-    private var mMainHandler = Handler(Looper.getMainLooper())
     private var mLastDelay: Runnable? = null
 
     private fun preparePlay(isPageChange: Boolean = false) {
@@ -120,10 +111,14 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 mLine--
                 preparePlay()
             } else if (mPage > 0) {
+                val old = mPage
                 mPage--
                 mLines.clear()
                 mLines.addAll(readHtml(mPage, mParse!!.getPage(mPage).pageHTMLWithImages))
                 mLine = (mLines.size - 1)
+                mMainHandler.post {
+                    mListener.forEach { it.changePageTTS(old, mPage) }
+                }
                 preparePlay(true)
             }
         } finally {
@@ -138,11 +133,15 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
             if (mLine < mLines.size) {
                 mLine++
                 preparePlay()
-            } else if (mPage < mParse!!.pageCount) {
+            } else if (mPage < mParse!!.getPageCount(fontSize)) {
+                val old = mPage
                 mPage++
                 mLine = 0
                 mLines.clear()
                 mLines.addAll(readHtml(mPage, mParse!!.getPage(mPage).pageHTMLWithImages))
+                mMainHandler.post {
+                    mListener.forEach { it.changePageTTS(old, mPage) }
+                }
                 preparePlay(true)
             }
         } finally {
@@ -154,11 +153,17 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
         try {
             mPause = true
 
+            val oldPage = mPage
+
             if (mPage != page) {
                 mPage = page
                 mLine = 0
                 mLines.clear()
                 mLines.addAll(readHtml(mPage, mParse!!.getPage(mPage).pageHTMLWithImages))
+            }
+
+            mMainHandler.post {
+                mListener.forEach { it.changePageTTS(oldPage, mPage) }
             }
 
             if (isBefore) {
@@ -188,24 +193,29 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
     private var mStatus = AudioStatus.ENDING
     private fun setStatus(status: AudioStatus) {
         mStatus = status
-        mMainHandler.post { mListener.forEach { it.status(status) }  }
+        mMainHandler.post { mListener.forEach { it.statusTTS(status) }  }
+
+        if (status == AudioStatus.PLAY || status == AudioStatus.PAUSE)
+            changeNotification()
     }
 
-    private lateinit var notificationManager: NotificationManagerCompat
-    private lateinit var notification: Notification
+    private lateinit var mNotificationManager: NotificationManagerCompat
+    private lateinit var mNotification: Notification
+    private val mNotifyId = Notifications.getID()
+
     private fun createNotification() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManager = NotificationManagerCompat.from(context)
-
-            val notifyId = Notifications.getID()
-
-            val notificationManager = NotificationManagerCompat.from(context)
-            val hastPrevious = (mPage > 0 || mLine > 0)
-            val hastNext = !(mPage == mParse!!.pageCount && mLine == (mLines.size - 1))
-            val notification = Notifications.getTTSNotification(context, mBook, mFileName, mCover, hastPrevious, hastNext, broadcastReceiver)
-            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
-                notificationManager.notify(notifyId, notification)
+            mNotificationManager = NotificationManagerCompat.from(context)
+            changeNotification()
         }
+    }
+
+    private fun changeNotification() {
+        val hastPrevious = (mPage > 0 || mLine > 0)
+        val hastNext = !(mPage == mParse!!.getPageCount(fontSize) && mLine == (mLines.size - 1))
+        val notification = Notifications.getTTSNotification(context, mBook, mFileName, mCover, hastPrevious, hastNext, mPause, broadcastReceiver)
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+            mNotificationManager.notify(mNotifyId, notification)
     }
 
     private var broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -221,11 +231,11 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
     }
 
     private fun processNotification(isPageChange: Boolean = false) {
-        if ((mLine <= 1 && mPage == 0) || (mLine >= (mLines.size - 1) && mPage >= (mParse!!.pageCount - 1)))
+        if ((mLine <= 1 && mPage == 0) || (mLine >= (mLines.size - 1) && mPage >= (mParse!!.getPageCount(fontSize) - 1)))
             createNotification()
 
         if (isPageChange) {
-            /*notification.setProgress(mParse.pageCount, mPage, false)
+            /*notification.setProgress(mParse.getPageCount(fontSize), mPage, false)
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
                 notificationManager.notify(notifyId, notification.build())*/
         }
@@ -305,7 +315,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
             try {
                 mPage = page
-                mLine = 0
+                mLine = -1
                 mLines.addAll(readHtml(page, mParse!!.getPage(page).pageHTMLWithImages))
                 if (initial.isNotEmpty())
                     for ((index, line) in mLines.withIndex()) {
@@ -334,18 +344,28 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
                         mLine++
                         val isPageChange = if (mLine >= mLines.size || mLines.isEmpty()) {
+                            val old = mPage
                             mPage++
-                            if (mPage >= mParse!!.pageCount) {
+                            if (mPage >= mParse!!.getPageCount(fontSize)) {
                                 mStop = true
                                 break
                             }
 
+                            mMainHandler.post {
+                                mListener.forEach { it.changePageTTS(old, mPage) }
+                            }
+
                             mLine = 0
                             mLines.clear()
-                            mLines.addAll(readHtml(mPage, mParse!!.getPage(mPage).pageHTMLWithImages).filter { it.text != "" })
+                            mLines.addAll(readHtml(mPage, mParse!!.getPage(mPage).pageHTMLWithImages))
                             true
                         } else
                             false
+
+                        if (mLines.isEmpty()) {
+                            Thread.sleep(500)
+                            continue
+                        }
 
                         mReading = mLines[mLine]
                         if (mReading.audio != null)
@@ -369,9 +389,9 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
             } catch (e: Exception) {
                 mLOGGER.error("Error to reading page on tts.", e)
             } finally {
-                setStatus(AudioStatus.STOP)
+                setStatus(AudioStatus.ENDING)
                 mMainHandler.post {
-                    mListener.forEach { it.stop() }
+                    mListener.forEach { it.stopTTS() }
                 }
             }
         }.start()
@@ -379,21 +399,27 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
     private fun readHtml(page: Int, html: String): MutableList<Speech> {
         val separator = if (html.contains("<end-line>")) "<end-line>" else "<br>"
+
+        val html = if (html.contains("<image-begin>image"))
+            html.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
+        else
+            html
+
         val newLine = "|||"
         var sequence = 0
         val lines = html.replace(separator, newLine).split(newLine).map { Speech(page, ++sequence, it.replace("<[^>]*>".toRegex(), ""), it) }
-        return lines.toMutableList()
+        return lines.filter { it.text.trim().isNotEmpty() }.toMutableList()
     }
 
 
     fun onDestroy() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && ::notificationManager.isInitialized) {
-            notificationManager.cancelAll()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && ::mNotificationManager.isInitialized) {
+            mNotificationManager.cancelAll()
             context.unregisterReceiver(broadcastReceiver)
         }
 
-        mParse = null
         mStop = true
+        mParse = null
     }
 
 }

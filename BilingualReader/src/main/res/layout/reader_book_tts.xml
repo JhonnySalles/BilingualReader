@@ -25,15 +25,16 @@
         android:layout_marginStart="5dp"
         android:layout_marginEnd="5dp">
 
-        <ProgressBar
-            android:id="@+id/reader_book_tts_loading"
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/reader_book_tts_progress"
             style="@style/RoundedProgressBar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="3dp"
-            android:transitionName="transition_progress_bar"
-            android:indeterminateOnly="true"
-            android:visibility="gone"
+            android:indeterminate="true"
+            android:min="1"
+            android:max="100"
+            android:progress="1"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"

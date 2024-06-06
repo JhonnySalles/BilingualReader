@@ -61,7 +61,7 @@ class BookParsesTest {
 
 
     private val awaitProcessSeconds = 2L
-    private val fontSize = GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT
+    private val fontSize = GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT.toInt()
 
     @Test
     fun `1_test_book_cover`() {

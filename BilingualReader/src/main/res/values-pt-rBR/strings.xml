@@ -218,6 +218,17 @@
     <string name="reading_book_page_empty">Arquivo não contem capítulos</string>
     <string name="reading_book_open_exception">Não foi possível abrir o livro selecionado</string>
 
+    <string name="reading_book_menu_text_functions_read_from">Ler a partir daqui</string>
+    <string name="reading_book_menu_text_functions_find">Encontrar</string>
+    <string name="reading_book_menu_text_functions_translate">Traduzir</string>
+
+    <string name="reading_book_menu_text_colors_greed">Verde</string>
+    <string name="reading_book_menu_text_colors_blue">Azul</string>
+    <string name="reading_book_menu_text_colors_red">Vermelho</string>
+    <string name="reading_book_menu_text_colors_yellow">Amarelo</string>
+    <string name="reading_book_menu_text_colors_erase">Apagar</string>
+
+
     <!-- READER POPUP TITLES -->
     <string name="popup_reading_book_open">Abrir</string>
     <string name="popup_reading_book_close">Fechar</string>
@@ -788,6 +799,7 @@
     <string name="text_colorist">Colorista</string>
 
     <string name="button_tts_previous">Anterior</string>
+    <string name="button_tts_pause">Pause</string>
     <string name="button_tts_play">Play</string>
     <string name="button_tts_next">Próximo</string>
     <string name="button_tts_close">Fechar</string>

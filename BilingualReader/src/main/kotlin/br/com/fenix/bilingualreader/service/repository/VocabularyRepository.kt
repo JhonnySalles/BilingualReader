@@ -361,7 +361,7 @@ class VocabularyRepository(var context: Context) {
                 try {
                     Formatter.initializeAsync(context)
 
-                    val document = DocumentParse(book.path, book.password, GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT, false)
+                    val document = DocumentParse(book.path, book.password, GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT.toInt(), false)
                     val list = mutableListOf<Vocabulary>()
 
                     for (i in 0 until document.pageCount) {

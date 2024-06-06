@@ -4,7 +4,8 @@ import br.com.fenix.bilingualreader.model.entity.Speech
 import br.com.fenix.bilingualreader.model.enums.AudioStatus
 
 interface TTSListener {
-    fun status(status: AudioStatus)
+    fun statusTTS(status: AudioStatus)
     fun readingLine(line: Speech)
-    fun stop()
+    fun changePageTTS(old:Int, new:Int)
+    fun stopTTS()
 }

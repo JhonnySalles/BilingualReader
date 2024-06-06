@@ -218,6 +218,17 @@
     <string name="reading_book_page_empty">File has no folders</string>
     <string name="reading_book_open_exception">Could not open selected book</string>
 
+    <string name="reading_book_menu_text_functions_read_from">Read from here</string>
+    <string name="reading_book_menu_text_functions_find">Find</string>
+    <string name="reading_book_menu_text_functions_translate">Translate</string>
+
+    <string name="reading_book_menu_text_colors_greed">Green</string>
+    <string name="reading_book_menu_text_colors_blue">Blue</string>
+    <string name="reading_book_menu_text_colors_red">Red</string>
+    <string name="reading_book_menu_text_colors_yellow">Yellow</string>
+    <string name="reading_book_menu_text_colors_erase">Erase</string>
+
+
     <!-- READER POPUP TITLES -->
     <string name="popup_reading_book_open">Open</string>
     <string name="popup_reading_book_close">Close</string>
@@ -786,6 +797,7 @@
     <string name="text_colorist">Colorist</string>
 
     <string name="button_tts_previous">Previous</string>
+    <string name="button_tts_pause">Pause</string>
     <string name="button_tts_play">Play</string>
     <string name="button_tts_next">Next</string>
     <string name="button_tts_close">Close</string>

@@ -55,7 +55,7 @@ class BookSearchFragmentTest {
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
         bundle.putString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PATH, book.path)
         bundle.putString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PASSWORD, book.password)
-        bundle.putFloat(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE, fontSize)
+        bundle.putInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE, fontSize.toInt())
 
         intent?.putExtras(bundle)
     }

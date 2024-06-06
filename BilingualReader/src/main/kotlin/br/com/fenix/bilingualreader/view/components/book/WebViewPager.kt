@@ -16,18 +16,14 @@ import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderViewModel
 
 
 class WebViewPager(
-    activity: Activity,
-    context: Context,
-    model: BookReaderViewModel,
-    parse: DocumentParse?,
-    listener: View.OnTouchListener? = null
+    activity: Activity, context: Context, model: BookReaderViewModel, parse: DocumentParse?, listener: View.OnTouchListener? = null
 ) : RecyclerView.Adapter<WebViewPager.WebViewPagerHolder>(), TTSListener {
 
     private val mParse = parse
     private val mViewModel = model
     private val mListener = listener
     private val mInterface = WebInterface(activity, context)
-    private var mPages = mParse?.getPageCount(mViewModel.getFontSize(isBook = true)) ?: 1
+    private var mPages = mParse?.getPageCount(mViewModel.getFontSize(isBook = true).toInt()) ?: 1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WebViewPagerHolder {
         return WebViewPagerHolder(
@@ -42,7 +38,7 @@ class WebViewPager(
     }
 
     fun changePages() {
-        mPages = mParse?.getPageCount(mViewModel.getFontSize(isBook = true)) ?: 1
+        mPages = mParse?.getPageCount(mViewModel.getFontSize(isBook = true).toInt()) ?: 1
         notifyDataSetChanged()
     }
 
@@ -50,7 +46,7 @@ class WebViewPager(
         val webViewPage: WebViewPage = itemView.findViewById<View>(R.id.page_web_view) as WebViewPage
     }
 
-    override fun status(status: AudioStatus) {
+    override fun statusTTS(status: AudioStatus) {
         TODO("Not yet implemented")
     }
 
@@ -58,7 +54,11 @@ class WebViewPager(
         TODO("Not yet implemented")
     }
 
-    override fun stop() {
+    override fun changePageTTS(old: Int, new: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun stopTTS() {
         TODO("Not yet implemented")
     }
 }

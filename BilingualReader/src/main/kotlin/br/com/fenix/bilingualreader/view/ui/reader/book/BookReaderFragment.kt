@@ -23,7 +23,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
-import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -48,14 +47,15 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Speech
 import br.com.fenix.bilingualreader.model.enums.AudioStatus
+import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
-import br.com.fenix.bilingualreader.model.enums.TextSpeech
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.TextToSpeechController
 import br.com.fenix.bilingualreader.service.listener.BookParseListener
 import br.com.fenix.bilingualreader.service.listener.TTSListener
+import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.service.repository.Storage
@@ -70,6 +70,7 @@ import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.slider.Slider
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
@@ -78,7 +79,7 @@ import java.nio.charset.StandardCharsets
 import kotlin.math.roundToInt
 
 
-class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, TTSListener {
+class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, TTSListener, TextSelectCallbackListener {
 
     private val mLOGGER = LoggerFactory.getLogger(BookReaderFragment::class.java)
 
@@ -96,7 +97,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private lateinit var mPagerAdapter: Adapter<RecyclerView.ViewHolder>
     private lateinit var mReaderTTSContainer: LinearLayout
     private lateinit var mReaderTTSPlay: MaterialButton
-    private lateinit var mReaderTTSLoading: ProgressBar
+    private lateinit var mReaderTTSProgrss: CircularProgressIndicator
 
     private lateinit var mCoverContent: ConstraintLayout
     private lateinit var mCoverImage: ImageView
@@ -175,7 +176,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 mParse = DocumentParse(
                     file.path,
                     mBook?.password ?: "",
-                    mViewModel.fontSize.value!!,
+                    mViewModel.fontSize.value!!.toInt(),
                     resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE,
                     this
                 )
@@ -221,7 +222,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         mReaderTTSContainer = requireActivity().findViewById(R.id.container_book_tts)
         mReaderTTSPlay = requireActivity().findViewById(R.id.reader_book_tts_play)
-        mReaderTTSLoading = requireActivity().findViewById(R.id.reader_book_tts_loading)
+        mReaderTTSProgrss = requireActivity().findViewById(R.id.reader_book_tts_progress)
 
         if (mBook != null) {
             BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, true)
@@ -309,7 +310,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     override fun onLoading(isFinished: Boolean, isLoaded: Boolean) {
         if (isFinished) {
             if (isLoaded) {
-                mPageSlider.valueTo = mParse?.getPageCount(mViewModel.getFontSize(isBook = true))?.toFloat() ?: 2f
+                mPageSlider.valueTo = mParse?.getPageCount(mViewModel.getFontSize(isBook = true).toInt())?.toFloat() ?: 2f
                 mCoverContent.animate().alpha(0.0f)
                     .setDuration(400L).setListener(object : AnimatorListenerAdapter() {
                         override fun onAnimationEnd(animation: Animator) {
@@ -409,7 +410,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         when (menuItem.itemId) {
             R.id.menu_item_reader_book_tts -> executeTTS()
             R.id.menu_item_reader_book_chapter -> (miChapter.icon as AnimatedVectorDrawable).start()
-            R.id.menu_item_reader_book_font_style -> (miFontStyle.icon as AnimatedVectorDrawable).start()
+            R.id.menu_item_reader_book_font_style -> {
+                (miFontStyle.icon as AnimatedVectorDrawable).start()
+                if (mTextToSpeech != null)
+                    mTextToSpeech?.stop()
+            }
             R.id.menu_item_reader_book_mark_page -> {
                 markCurrentPage()
                 (miMarkPage.icon as AnimatedVectorDrawable).start()
@@ -527,7 +532,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         mViewModel.fontSize.observeForever { font ->
             mParse?.let { parse ->
-                val pages = parse.getPageCount(font + DocumentParse.BOOK_FONT_SIZE_DIFFER)
+                val pages = parse.getPageCount((font + DocumentParse.BOOK_FONT_SIZE_DIFFER).toInt())
                 mPageSlider.valueTo = if (pages > 1) pages.toFloat() else 2f
                 mPagerAdapter.notifyItemChanged(mViewPager.currentItem)
 
@@ -717,6 +722,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     private fun openBookAnnotation() {
+        if (mTextToSpeech != null)
+            mTextToSpeech?.stop()
+
         val intent = Intent(requireContext(), MenuActivity::class.java)
         val bundle = Bundle()
         bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_book_annotation)
@@ -730,6 +738,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         if (mParse == null)
             return
 
+        if (mTextToSpeech != null)
+            mTextToSpeech?.stop()
+
         SharedData.setDocumentParse(mParse)
 
         val intent = Intent(requireContext(), MenuActivity::class.java)
@@ -739,7 +750,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, mBook)
         bundle.putString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PATH, mParse!!.path)
         bundle.putString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PASSWORD, mParse!!.password)
-        bundle.putFloat(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE, mParse!!.fontSize)
+        bundle.putInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE, mParse!!.fontSize)
 
         intent.putExtras(bundle)
         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
@@ -749,15 +760,15 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private fun executeTTS() {
         if (mTextToSpeech == null) {
             setFullscreen(fullscreen = true)
-            mTextToSpeech = TextToSpeechController(requireContext(), mBook!!, mParse, (mCoverImage.drawable as BitmapDrawable).bitmap)
+            mTextToSpeech = TextToSpeechController(requireContext(), mBook!!, mParse, (mCoverImage.drawable as BitmapDrawable).bitmap, mViewModel.getFontSize(true).toInt())
             mTextToSpeech!!.addListener(this)
             mTextToSpeech!!.addListener(mPagerAdapter as TTSListener)
-            mTextToSpeech!!.start(mCurrentPage)
+            mTextToSpeech!!.start(mViewPager.currentItem)
         } else
             mTextToSpeech?.stop()
     }
 
-    override fun status(status: AudioStatus) {
+    override fun statusTTS(status: AudioStatus) {
         when (status) {
             AudioStatus.PREPARE, AudioStatus.ENDING -> {
                 val visibility = if (status == AudioStatus.ENDING) View.GONE else View.VISIBLE
@@ -767,11 +778,15 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 val initialTranslation = if (status == AudioStatus.ENDING) 0f else -20f
 
                 if (status == AudioStatus.PREPARE) {
-                    mReaderTTSLoading.visibility = View.VISIBLE
                     mReaderTTSPlay.setIconResource(R.drawable.ic_tts_play)
-                    mReaderTTSContainer.visibility = View.GONE
                     mReaderTTSContainer.alpha = initialAlpha
                     mReaderTTSContainer.translationY = initialTranslation
+
+                    mReaderTTSProgrss.progress = mCurrentPage
+                    mReaderTTSProgrss.max = mViewPager.adapter!!.itemCount
+                    mReaderTTSProgrss.isIndeterminate = true
+
+                    mReaderTTSContainer.visibility = View.VISIBLE
                 }
 
                 mReaderTTSContainer.animate().alpha(finalAlpha).translationY(finalTranslation)
@@ -783,8 +798,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     })
             }
             AudioStatus.PLAY ->  {
-                if (mReaderTTSLoading.visibility == View.VISIBLE)
-                    mReaderTTSLoading.visibility = View.GONE
+                if (mReaderTTSProgrss.isIndeterminate) {
+                    mReaderTTSProgrss.isIndeterminate = false
+                    mReaderTTSProgrss.progress = mCurrentPage
+                    mReaderTTSProgrss.max = mViewPager.adapter!!.itemCount
+                }
 
                 mReaderTTSPlay.setIconResource(R.drawable.ic_tts_pause)
             }
@@ -793,10 +811,35 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         }
     }
 
-    override fun readingLine(line: Speech) { }
+    override fun readingLine(speech: Speech) { }
 
-    override fun stop() {
+    override fun changePageTTS(old: Int, new: Int) {
+        mReaderTTSProgrss.progress = new
+        setCurrentPage(new + 1, isAnimated = true)
+    }
+
+    override fun stopTTS() {
         mTextToSpeech = null
+    }
+
+    override fun textSelectReadingFrom(page: Int, text: String) {
+        TODO("Not yet implemented")
+    }
+
+    override fun textSelectAddMark(page: Int, text: String, color: Color, start: Int, end: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun textSelectRemoveMark(page: Int, start: Int, end: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun textSelectTranslate(text: String, page: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun textSelectFind(text: String, page: Int) {
+        TODO("Not yet implemented")
     }
 
     private fun markCurrentPage() {

@@ -77,7 +77,7 @@ class BookSearchFragment : Fragment() {
             val book = it.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK) as Book
             val path = it.getString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PATH)
             val password = it.getString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PASSWORD)
-            val fontSize = it.getFloat(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE)
+            val fontSize = it.getInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE)
             val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
             mViewModel.initialize(book, SharedData.getDocumentParse() ?: DocumentParse(path!!, password!!, fontSize, isLandscape))
         }

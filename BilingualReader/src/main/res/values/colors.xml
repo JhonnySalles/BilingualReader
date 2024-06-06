@@ -9,6 +9,12 @@
     <color name="JLPT5">#b366ff</color>
     <color name="VOCABULARY">#00ff00</color>
 
+    <!-- - - - - - - - - - - - - - - - - - - - -  Text View Select Colors  - - - - - - - - - - - - - - - - - - - - -->
+    <color name="text_view_select_red">#ff4d4d</color>
+    <color name="text_view_select_yellow">#e6b800</color>
+    <color name="text_view_select_green">#00e600</color>
+    <color name="text_view_select_blue">#668cff</color>
+
     <!-- - - - - - - - - - - - - - - - - - - - -  Used  - - - - - - - - - - - - - - - - - - - - -->
     <color name="file_link_buttons">#55000000</color>
     <color name="file_link_buttons_expanded">#AA000000</color>

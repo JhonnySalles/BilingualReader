@@ -32,7 +32,7 @@ import java.io.File
 import java.util.Date
 
 
-class DocumentParse(var path: String, var password: String = "", var fontSize: Float, var isLandscape: Boolean, var listener: BookParseListener? = null) : CodecDocument {
+class DocumentParse(var path: String, var password: String = "", var fontSize: Int, var isLandscape: Boolean, var listener: BookParseListener? = null) : CodecDocument {
 
     private val mLOGGER = LoggerFactory.getLogger(DocumentParse::class.java)
 
@@ -43,7 +43,7 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: F
         System.loadLibrary("mypdf")
         System.loadLibrary("mobi")
 
-        openBook(path, password, fontSize, isLandscape) { }
+        openBook(path, password, fontSize) { }
     }
 
     companion object {
@@ -67,17 +67,21 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: F
     private var mCodecDocument: CodecDocument? = null
 
 
-    fun changeFontSize(fontSize: Float, onEnding: (Boolean) -> (Unit))  = openBook(path, password, fontSize, isLandscape, onEnding)
-    fun getPageCount(fontSize: Float) : Int = mCodecDocument?.getPageCount(mWidth, mHeight, fontSize.toInt()) ?: 1
+    fun changeFontSize(fontSize: Int, onEnding: (Boolean) -> (Unit))  = openBook(path, password, fontSize, onEnding)
+    fun getPageCount(fontSize: Int) : Int {
+        this.fontSize = fontSize
+        return mCodecDocument?.getPageCount(mWidth, mHeight, fontSize) ?: 1
+    }
 
-    fun openBook(path: String, password: String = "", fontSize: Float, isLandscape: Boolean, onEnding: (Boolean) -> (Unit)) {
+    fun openBook(path: String, password: String = "", fontSize: Int, onEnding: (Boolean) -> (Unit)) {
         listener?.onLoading(false)
         CoroutineScope(newSingleThreadContext("BookThread")).launch {
             async {
                 try {
                     val start = Date()
                     clear()
-                    mCodecDocument = ImageExtractor.getNewCodecContext(path, password, mWidth, mHeight, fontSize.toInt())
+                    mCodecDocument = ImageExtractor.getNewCodecContext(path, password, mWidth, mHeight, fontSize)
+                    this@DocumentParse.fontSize = fontSize
                     isLoaded = mCodecDocument != null
 
                     val diff = Date().time - start.time
@@ -149,11 +153,16 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: F
     }
 
     override fun getPageCount(): Int {
+        return mCodecDocument!!.getPageCount(mWidth, mHeight, fontSize)
+    }
+
+    fun getOriginalPageCount(): Int {
         return mCodecDocument!!.pageCount
     }
 
-    override fun getPageCount(w: Int, h: Int, fsize: Int): Int {
-        return mCodecDocument!!.getPageCount(w, h, fsize)
+    override fun getPageCount(width: Int, height: Int, fontSize: Int): Int {
+        this.fontSize = fontSize
+        return mCodecDocument!!.getPageCount(width, height, fontSize)
     }
 
     override fun getPage(pageNuber: Int): CodecPage {

@@ -39,7 +39,7 @@ class Notifications {
             .setProgress(1, 0, true)
 
         @TargetApi(Build.VERSION_CODES.O)
-        fun getTTSNotification(context: Context, title: String, content: String, icon: Bitmap?, hasPrevious: Boolean, hasNext: Boolean, receiver: BroadcastReceiver): Notification {
+        fun getTTSNotification(context: Context, title: String, content: String, icon: Bitmap?, hasPrevious: Boolean, hasNext: Boolean, isPaused: Boolean, receiver: BroadcastReceiver): Notification {
             context.registerReceiver(receiver, IntentFilter(NotificationBroadcastReceiver.mIntentAction), Context.RECEIVER_NOT_EXPORTED)
             context.startService(Intent(context, OnClearFromRecentService::class.java))
 
@@ -77,12 +77,13 @@ class Notifications {
                 intentStop, PendingIntent.FLAG_UPDATE_CURRENT
             )
 
-            val btnPlay = R.drawable.ic_tts_play
+            val descriptionPlay = if (isPaused) R.string.button_tts_play else R.string.button_tts_pause
+            val btnPlay = if (isPaused) R.drawable.ic_tts_play else R.drawable.ic_tts_pause
             val btnPrevious = if (pendingIntentPrevious != null) R.drawable.ic_tts_previous else 0
             val btnNext = if (pendingIntentNext != null) R.drawable.ic_tts_next else 0
             val btnStop = R.drawable.ic_tts_close
 
-            val mediaSession = MediaSessionCompat(context, "TtsReading")
+            //val mediaSession = MediaSessionCompat(context, "TtsReading")
 
             val notification = NotificationCompat.Builder(context, NOTIFICATIONS_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_tts_audio)
@@ -91,7 +92,7 @@ class Notifications {
                 .setOnlyAlertOnce(true)
                 .setShowWhen(true)
                 .addAction(btnPrevious, context.getString(R.string.button_tts_previous), pendingIntentPrevious)
-                .addAction(btnPlay, context.getString(R.string.button_tts_play), pendingIntentPlay)
+                .addAction(btnPlay, context.getString(descriptionPlay), pendingIntentPlay)
                 .addAction(btnNext, context.getString(R.string.button_tts_next), pendingIntentNext)
                 .addAction(btnStop, context.getString(R.string.button_tts_close), pendingIntentStop)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
