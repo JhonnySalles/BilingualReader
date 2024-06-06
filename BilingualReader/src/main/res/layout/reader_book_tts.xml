@@ -19,18 +19,42 @@
         app:iconTint="?attr/colorSecondary"
         app:icon="@drawable/ic_tts_previous"/>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/reader_book_tts_play"
-        style="@style/Button.IconOnly"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="@dimen/vocabulary_manga_content_favorite_button_size"
         android:layout_height="@dimen/vocabulary_manga_content_favorite_button_size"
-        android:textColor="?attr/colorSecondary"
-        android:contentDescription="@string/button_tts_play"
         android:layout_marginStart="5dp"
-        android:layout_marginEnd="5dp"
-        app:iconSize="25dp"
-        app:iconTint="?attr/colorSecondary"
-        app:icon="@drawable/ic_tts_play"/>
+        android:layout_marginEnd="5dp">
+
+        <ProgressBar
+            android:id="@+id/reader_book_tts_loading"
+            style="@style/RoundedProgressBar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="3dp"
+            android:transitionName="transition_progress_bar"
+            android:indeterminateOnly="true"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/reader_book_tts_play"
+            style="@style/Button.IconOnly"
+            android:layout_width="@dimen/vocabulary_manga_content_favorite_button_size"
+            android:layout_height="@dimen/vocabulary_manga_content_favorite_button_size"
+            android:textColor="?attr/colorSecondary"
+            android:contentDescription="@string/button_tts_play"
+            app:iconSize="25dp"
+            app:iconTint="?attr/colorSecondary"
+            app:icon="@drawable/ic_tts_play"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/reader_book_tts_next"

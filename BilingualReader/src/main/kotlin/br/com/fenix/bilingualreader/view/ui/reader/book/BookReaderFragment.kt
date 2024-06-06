@@ -27,6 +27,7 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
@@ -95,6 +96,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private lateinit var mPagerAdapter: Adapter<RecyclerView.ViewHolder>
     private lateinit var mReaderTTSContainer: LinearLayout
     private lateinit var mReaderTTSPlay: MaterialButton
+    private lateinit var mReaderTTSLoading: ProgressBar
 
     private lateinit var mCoverContent: ConstraintLayout
     private lateinit var mCoverImage: ImageView
@@ -219,6 +221,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         mReaderTTSContainer = requireActivity().findViewById(R.id.container_book_tts)
         mReaderTTSPlay = requireActivity().findViewById(R.id.reader_book_tts_play)
+        mReaderTTSLoading = requireActivity().findViewById(R.id.reader_book_tts_loading)
 
         if (mBook != null) {
             BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, true)
@@ -247,6 +250,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             mTextToSpeech?.stop()
             true
         }
+
         val btnPrevious = requireActivity().findViewById<MaterialButton>(R.id.reader_book_tts_previous)
         val btnNext = requireActivity().findViewById<MaterialButton>(R.id.reader_book_tts_next)
 
@@ -617,7 +621,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         if (!isFullScreen) {
             mToolbarBottom.visibility = View.VISIBLE
-            mToolbarBottom.translationY = initialTranslation
+            mToolbarBottom.translationY = initialTranslation * -1
             mToolbarBottom.alpha = initialAlpha
             mToolbarTop.visibility = View.VISIBLE
             mToolbarTop.translationY = initialTranslation
@@ -744,6 +748,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
     private fun executeTTS() {
         if (mTextToSpeech == null) {
+            setFullscreen(fullscreen = true)
             mTextToSpeech = TextToSpeechController(requireContext(), mBook!!, mParse, (mCoverImage.drawable as BitmapDrawable).bitmap)
             mTextToSpeech!!.addListener(this)
             mTextToSpeech!!.addListener(mPagerAdapter as TTSListener)
@@ -757,13 +762,14 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             AudioStatus.PREPARE, AudioStatus.ENDING -> {
                 val visibility = if (status == AudioStatus.ENDING) View.GONE else View.VISIBLE
                 val finalAlpha = if (status == AudioStatus.ENDING) 0.0f else 1.0f
+                val finalTranslation = if (status == AudioStatus.ENDING) -20f else 0f
                 val initialAlpha = if (status == AudioStatus.ENDING) 1.0f else 0.0f
                 val initialTranslation = if (status == AudioStatus.ENDING) 0f else -20f
-                val finalTranslation = if (status == AudioStatus.ENDING) -20f else 0f
 
                 if (status == AudioStatus.PREPARE) {
+                    mReaderTTSLoading.visibility = View.VISIBLE
                     mReaderTTSPlay.setIconResource(R.drawable.ic_tts_play)
-                    mReaderTTSContainer.visibility = View.VISIBLE
+                    mReaderTTSContainer.visibility = View.GONE
                     mReaderTTSContainer.alpha = initialAlpha
                     mReaderTTSContainer.translationY = initialTranslation
                 }
@@ -776,8 +782,13 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                         }
                     })
             }
-            AudioStatus.PLAY -> mReaderTTSPlay.setIconResource(R.drawable.ic_tts_play)
-            AudioStatus.PAUSE -> mReaderTTSPlay.setIconResource(R.drawable.ic_tts_pause)
+            AudioStatus.PLAY ->  {
+                if (mReaderTTSLoading.visibility == View.VISIBLE)
+                    mReaderTTSLoading.visibility = View.GONE
+
+                mReaderTTSPlay.setIconResource(R.drawable.ic_tts_pause)
+            }
+            AudioStatus.PAUSE -> mReaderTTSPlay.setIconResource(R.drawable.ic_tts_play)
             AudioStatus.STOP -> mReaderTTSPlay.setIconResource(R.drawable.ic_tts_close)
         }
     }

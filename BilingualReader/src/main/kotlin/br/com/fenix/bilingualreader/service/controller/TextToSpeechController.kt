@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.service.controller
 
 import android.Manifest
+import android.app.Activity
 import android.app.Notification
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -48,8 +49,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
     private var mCover: Bitmap? = cover
     private var mParse: DocumentParse? = parse
 
-    private var mSequence: Int = 0
-    private var mBook: String = book.title
+    private var mBook: String = book.title.replace("[^\\w ]".toRegex(), "")
     private var mFileName: String = book.fileName
     private var mDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
@@ -87,26 +87,29 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
     }
 
     fun stop() {
-        mStop = false
+        mStop = true
     }
 
-    private var mHandler = Handler(Looper.getMainLooper())
+    private var mMainHandler = Handler(Looper.getMainLooper())
     private var mLastDelay: Runnable? = null
 
     private fun preparePlay(isPageChange: Boolean = false) {
+        if (!::mThreadHandler.isInitialized)
+            return
+
         if (mLastDelay != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                if (mHandler.hasCallbacks(mLastDelay!!))
-                    mHandler.removeCallbacks(mLastDelay!!)
+                if (mThreadHandler.hasCallbacks(mLastDelay!!))
+                    mThreadHandler.removeCallbacks(mLastDelay!!)
             } else
-                mHandler.removeCallbacks(mLastDelay!!)
+                mThreadHandler.removeCallbacks(mLastDelay!!)
         }
 
         mLastDelay = Runnable {
             mLastDelay = null
             play(mLines[mLine], isPageChange, isChange = true)
         }
-        mHandler.postDelayed(mLastDelay!!, 2000)
+        mThreadHandler.postDelayed(mLastDelay!!, 2000)
     }
 
     fun previous() {
@@ -185,7 +188,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
     private var mStatus = AudioStatus.ENDING
     private fun setStatus(status: AudioStatus) {
         mStatus = status
-        mListener.forEach { it.status(status) }
+        mMainHandler.post { mListener.forEach { it.status(status) }  }
     }
 
     private lateinit var notificationManager: NotificationManagerCompat
@@ -228,7 +231,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
         }
     }
 
-    private fun generateTss(speach: Speech, loaded: (Uri?) -> (Unit)) {
+    private fun generateTTS(speach: Speech, loaded: (Uri?) -> (Unit)) {
         if (speach.audio != null) {
             loaded(speach.audio)
             return
@@ -236,13 +239,13 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
         speach.audio = null
         try {
-            val file = mBook + String.format("%05d", ++mSequence)
+            val file = mBook.replace(" ", "_") + '_' + String.format("%03d", speach.page) + "__" + String.format("%05d", speach.sequence)
             val audio = TTS(mVoice, speach.text).fileName(file).formatMp3().voiceRate(mVoiceRate).voiceVolume(mVoiceVolume)
                 //.voicePitch()
                 .storage(mCache.absolutePath).trans()
-            speach.audio = File(mCache, file).toUri()
+            speach.audio = File(mCache, audio).toUri()
         } catch (e: Exception) {
-            mLOGGER.error("Generate TTS error", e)
+            mLOGGER.error("Error to generate TTS.", e)
         } finally {
             loaded(speach.audio)
         }
@@ -260,17 +263,19 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
             mReading = speech
             speech.isRead = true
             mPlayAudio = true
-            processNotification(isPageChange)
             mMedia = MediaPlayer.create(context, speech.audio)
-            mMedia!!.prepareAsync()
-            mListener.forEach { it.readingLine(speech) }
+            mMainHandler.post {
+                processNotification(isPageChange)
+                mListener.forEach { it.readingLine(speech) }
+            }
+            mMedia!!.isLooping = false
             mMedia!!.start()
             mMedia!!.setOnCompletionListener {
                 mPlayAudio = false
                 mMedia = null
             }
         } catch (e: Exception) {
-            mLOGGER.error("Error to reproduce audio: ${speech.audio}", e)
+            mLOGGER.error("Error to playing audio tts: ${speech.audio}", e)
             mPlayAudio = false
         }
     }
@@ -284,12 +289,17 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
     private var mLine: Int = 0
     private lateinit var mReading: Speech
     private val mLines: MutableList<Speech> = mutableListOf()
+    private lateinit var mThreadHandler : Handler
 
     private fun execute(page: Int, initial: String) {
+        setStatus(AudioStatus.PREPARE)
+
         Thread {
+            Looper.prepare()
+
+            mThreadHandler = Handler(Looper.myLooper()!!)
             mPause = false
             mStop = false
-            setStatus(AudioStatus.PREPARE)
 
             mLines.clear()
 
@@ -300,11 +310,10 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 if (initial.isNotEmpty())
                     for ((index, line) in mLines.withIndex()) {
                         if (line.html.contains(initial)) {
-                            mLine = index
+                            mLine = index - 1
                             break
                         }
                     }
-
 
                 createNotification()
 
@@ -333,26 +342,26 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
                             mLine = 0
                             mLines.clear()
-                            mLines.addAll(readHtml(mPage, mParse!!.getPage(mPage).pageHTMLWithImages))
+                            mLines.addAll(readHtml(mPage, mParse!!.getPage(mPage).pageHTMLWithImages).filter { it.text != "" })
                             true
                         } else
                             false
 
-                        val speech = mLines[mLine]
+                        mReading = mLines[mLine]
                         if (mReading.audio != null)
-                            play(speech, isPageChange)
+                            play(mReading, isPageChange)
                         else {
                             mPrepare = true
-                            generateTss(speech) { uri ->
+                            generateTTS(mReading) { uri ->
                                 mPrepare = false
-                                play(speech, isPageChange)
+                                play(mReading, isPageChange)
                             }
                         }
 
                         val limit = if (mLines.size > mLIMITCACHE) mLIMITCACHE else mLines.size
                         if (limit > 1)
                             for (i in 1 until mLIMITCACHE)
-                                generateTss(mLines[i]) { }
+                                generateTTS(mLines[i]) { }
                     } finally {
                         Thread.sleep(1000)
                     }
@@ -361,7 +370,9 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 mLOGGER.error("Error to reading page on tts.", e)
             } finally {
                 setStatus(AudioStatus.STOP)
-                mListener.forEach { it.stop() }
+                mMainHandler.post {
+                    mListener.forEach { it.stop() }
+                }
             }
         }.start()
     }
