@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.components
+package br.com.fenix.bilingualreader.service.listener
 
 import androidx.lifecycle.LiveData
 import br.com.fenix.bilingualreader.model.enums.Order

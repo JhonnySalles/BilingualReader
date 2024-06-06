@@ -7,11 +7,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
 
-class ZoomLayout @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : FrameLayout(context, attrs, defStyleAttr),
+
+class ZoomLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : FrameLayout(context, attrs, defStyleAttr),
     ZoomGestureDetector.Listener {
 
     private val gestureDetector = ZoomGestureDetector(this)

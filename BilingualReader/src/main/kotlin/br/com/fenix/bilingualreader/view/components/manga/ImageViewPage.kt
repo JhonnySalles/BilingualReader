@@ -23,6 +23,7 @@ import android.view.ViewConfiguration
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.Interpolator
 import android.widget.OverScroller
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.ViewCompat
 import androidx.core.view.drawToBitmap
 import br.com.fenix.bilingualreader.R
@@ -33,7 +34,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 
-open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : androidx.appcompat.widget.AppCompatImageView(context, attributeSet) {
+open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCompatImageView(context, attributeSet) {
 
     constructor(context: Context) : this(context, null)
 

@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Speech
 import br.com.fenix.bilingualreader.model.enums.AudioStatus
-import br.com.fenix.bilingualreader.service.callbacks.TextViewSelectCallback
 import br.com.fenix.bilingualreader.service.listener.TTSListener
 import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
@@ -45,7 +44,7 @@ class TextViewPager(
     override fun getItemCount(): Int = mParse?.getPageCount(mViewModel.getFontSize(isBook = true).toInt()) ?: 1
 
     override fun onBindViewHolder(holder: TextViewPagerHolder, position: Int) {
-        mViewModel.prepareHtml(mParse, position, holder, mListener)
+        mViewModel.prepareHtml(mParse, position, holder)
 
         val font = mViewModel.fontUpdate.value + mViewModel.fontSize.value
         if (font != holder.style) {
@@ -53,8 +52,18 @@ class TextViewPager(
             mViewModel.changeTextStyle(holder.textView)
         }
 
-        holder.textView.fixTextSelection()
-        holder.textView.customSelectionActionModeCallback = TextViewSelectCallback(context, holder.textView, position, mTextSelectCallback)
+        holder.textView.resetZoom()
+
+        if (!holder.textView.isOnlyImage) {
+            holder.textView.fixTextSelection()
+            holder.textView.customSelectionActionModeCallback = TextViewSelectCallback(context, holder.textView, position, mTextSelectCallback)
+        } else
+            holder.textView.setTextIsSelectable(false)
+
+        if (mListener != null) {
+            holder.textView.setOnTouchListener(mListener)
+            holder.background.setOnTouchListener(mListener)
+        }
 
         mHolders[position] = holder
         if (mSpeech != null && mSpeech!!.page == position)

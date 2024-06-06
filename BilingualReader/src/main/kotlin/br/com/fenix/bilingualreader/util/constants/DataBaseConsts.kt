@@ -299,4 +299,23 @@ class DataBaseConsts private constructor() {
         }
     }
 
+    object HISTORY {
+        const val TABLE_NAME = "History"
+
+        object COLUMNS {
+            const val ID = "id"
+            const val FK_ID_REFERENCE = "id_reference"
+            const val FK_ID_LIBRARY = "id_library"
+            const val TYPE = "type"
+            const val PAGE_START = "page_start"
+            const val PAGE_END = "page_end"
+            const val PAGES = "pages"
+            const val VOLUME = "volume"
+            const val CHAPTERS_READ = "chapters_READ"
+            const val DATE_TIME_START = "date_time_start"
+            const val DATE_TIME_END = "date_time_end"
+            const val USE_TTS = "use_tts"
+        }
+    }
+
 }

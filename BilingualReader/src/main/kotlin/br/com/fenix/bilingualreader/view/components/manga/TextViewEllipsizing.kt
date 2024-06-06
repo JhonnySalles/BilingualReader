@@ -13,6 +13,7 @@ import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatTextView
 import java.util.regex.Pattern
 
+
 /*
  * Copyright (C) 2011 Micah Hainline
  * Copyright (C) 2012 Triposo

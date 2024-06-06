@@ -24,7 +24,7 @@ import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess
 import br.com.fenix.bilingualreader.service.ocr.Tesseract
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
-import br.com.fenix.bilingualreader.view.components.WindowListener
+import br.com.fenix.bilingualreader.service.listener.WindowListener
 import br.com.fenix.bilingualreader.view.components.WindowView
 import br.com.fenix.bilingualreader.view.components.manga.ResizeView
 import org.slf4j.LoggerFactory

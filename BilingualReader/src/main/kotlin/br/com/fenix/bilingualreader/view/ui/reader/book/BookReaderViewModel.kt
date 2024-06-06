@@ -432,7 +432,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             web.addJavascriptInterface(javascript, "bilingualapp")
     }
 
-    fun prepareHtml(parse: DocumentParse?, page: Int, holder: TextViewPager.TextViewPagerHolder, listener: View.OnTouchListener? = null) {
+    fun prepareHtml(parse: DocumentParse?, page: Int, holder: TextViewPager.TextViewPagerHolder) {
         var text = parse?.getPage(page)?.pageHTMLWithImages.orEmpty()
 
         if (text.contains("<image-begin>image"))
@@ -448,20 +448,17 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
         parse?.getPage(page)?.recycle()
 
+        holder.textView.isOnlyImage = html.contains("<img") && (text.endsWith(" /><br/>") || text.endsWith(" />"))
+
         holder.textView.text = if (html.contains("<img"))
             Html.fromHtml(
                 html,
                 Html.FROM_HTML_MODE_LEGACY,
-                ImageGetter(app.applicationContext, holder.textView, text.endsWith(" /><br/>") || text.endsWith(" />")),
+                ImageGetter(app.applicationContext, holder.textView, holder.textView.isOnlyImage),
                 null
             )
         else
             Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
-
-        if (listener != null) {
-            holder.textView.setOnTouchListener(listener)
-            holder.background.setOnTouchListener(listener)
-        }
 
         holder.textView.setLayerType(WebView.LAYER_TYPE_NONE, null)
 

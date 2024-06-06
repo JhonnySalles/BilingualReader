@@ -11,6 +11,7 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
 
+
 class ZoomGestureDetector(private val listener: Listener) {
 
     companion object {
@@ -254,10 +255,7 @@ class ZoomGestureDetector(private val listener: Listener) {
         return focusX to focusY
     }
 
-    private fun MotionEvent.touchSpan(
-        currentFocusX: Float,
-        currentFocusY: Float
-    ): Float {
+    private fun MotionEvent.touchSpan(currentFocusX: Float, currentFocusY: Float): Float {
         var spanSumX = 0f
         var spanSumY = 0f
         var sumCount = 0
@@ -280,10 +278,7 @@ class ZoomGestureDetector(private val listener: Listener) {
         return currentTouchSpan / mPreviousTouchSpan
     }
 
-    private fun MotionEvent.rotation(
-        currentFocusX: Float,
-        currentFocusY: Float
-    ): Float {
+    private fun MotionEvent.rotation(currentFocusX: Float, currentFocusY: Float): Float {
         var rotationSum = 0f
         var weightSum = 0f
         for (pointerIndex in 0 until pointerCount) {
@@ -312,10 +307,7 @@ class ZoomGestureDetector(private val listener: Listener) {
         return 0f
     }
 
-    private fun translation(
-        currentFocusX: Float,
-        currentFocusY: Float
-    ): Pair<Float, Float> {
+    private fun translation(currentFocusX: Float, currentFocusY: Float): Pair<Float, Float> {
         return (currentFocusX - mPreviousFocusX) to (currentFocusY - mPreviousFocusY)
     }
 

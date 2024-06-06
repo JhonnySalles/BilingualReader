@@ -11,6 +11,7 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.BookConfiguration
 import br.com.fenix.bilingualreader.model.entity.BookSearch
+import br.com.fenix.bilingualreader.model.entity.History
 import br.com.fenix.bilingualreader.model.entity.Kanjax
 import br.com.fenix.bilingualreader.model.entity.KanjiJLPT
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -669,4 +670,11 @@ abstract class TagsDAO : DataBaseDAO<Tags> {
     @Query("SELECT * FROM " + DataBaseConsts.TAGS.TABLE_NAME + " WHERE " + DataBaseConsts.TAGS.COLUMNS.EXCLUDED + " = 0 ORDER BY " + DataBaseConsts.TAGS.COLUMNS.NAME)
     abstract fun list(): MutableList<Tags>?
 }
+
+
+@Dao
+abstract class HistoryDAO : DataBaseDAO<History> {
+
+}
+
 

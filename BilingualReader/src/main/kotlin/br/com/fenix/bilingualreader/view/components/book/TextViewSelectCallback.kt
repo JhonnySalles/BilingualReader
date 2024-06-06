@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.service.callbacks
+package br.com.fenix.bilingualreader.view.components.book
 
 import android.content.ClipData
 import android.content.ClipboardManager

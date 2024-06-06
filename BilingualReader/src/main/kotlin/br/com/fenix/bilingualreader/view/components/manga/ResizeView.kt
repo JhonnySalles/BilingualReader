@@ -6,11 +6,10 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.widget.LinearLayout
 import androidx.core.view.GestureDetectorCompat
-import br.com.fenix.bilingualreader.view.components.WindowListener
+import br.com.fenix.bilingualreader.service.listener.WindowListener
 
 
-class ResizeView @JvmOverloads constructor(context: Context, attributeSet: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attributeSet, defStyleAttr),
-    GestureDetector.OnGestureListener {
+class ResizeView @JvmOverloads constructor(context: Context, attributeSet: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attributeSet, defStyleAttr), GestureDetector.OnGestureListener {
 
     var mWindowListener: WindowListener? = null
     var mDetector: GestureDetectorCompat? = null

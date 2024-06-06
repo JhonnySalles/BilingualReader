@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.RelativeLayout
 import androidx.core.view.GestureDetectorCompat
+import br.com.fenix.bilingualreader.service.listener.WindowListener
 
 class WindowView @JvmOverloads constructor(context: Context, attrs:AttributeSet? = null, defStyleAttr: Int =0): RelativeLayout(context, attrs, defStyleAttr) {
 

@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.components
+package br.com.fenix.bilingualreader.service.listener
 
 import android.view.GestureDetector
 import android.view.MotionEvent
