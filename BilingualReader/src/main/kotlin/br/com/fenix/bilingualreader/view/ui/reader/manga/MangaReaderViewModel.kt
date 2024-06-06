@@ -9,6 +9,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.model.entity.Chapters
+import br.com.fenix.bilingualreader.model.entity.History
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
@@ -66,6 +67,8 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
     private var mOcrItem: MutableLiveData<ArrayList<String>> = MutableLiveData(arrayListOf())
     var ocrItem: LiveData<ArrayList<String>> = mOcrItem
+
+    var history: History? = null
 
     var mLanguageOcr: Languages? = null
     var mIsAlertSubtitle = false

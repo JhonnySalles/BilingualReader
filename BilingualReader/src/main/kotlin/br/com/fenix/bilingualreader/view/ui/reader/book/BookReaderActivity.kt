@@ -33,13 +33,16 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.History
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.PageMode
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
 import br.com.fenix.bilingualreader.model.enums.Themes
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.repository.BookRepository
+import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
 import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.service.repository.Storage
@@ -53,6 +56,7 @@ import com.google.android.material.slider.Slider
 import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.time.LocalDateTime
 
 
 class BookReaderActivity : AppCompatActivity() {
@@ -93,6 +97,7 @@ class BookReaderActivity : AppCompatActivity() {
     private lateinit var mStorage: Storage
     private lateinit var mRepository: BookRepository
     private lateinit var mLibrary: Library
+    private lateinit var mHistoryRepository : HistoryRepository
     private var mFragment: BookReaderFragment? = null
     private var mBook: Book? = null
 
@@ -109,6 +114,7 @@ class BookReaderActivity : AppCompatActivity() {
         Formatter.initializeAsync(applicationContext)
 
         mRepository = BookRepository(applicationContext)
+        mHistoryRepository = HistoryRepository(applicationContext)
 
         mToolBarTop = findViewById(R.id.toolbar_book_reader)
         MenuUtil.tintToolbar(mToolBarTop, theme)
@@ -179,8 +185,7 @@ class BookReaderActivity : AppCompatActivity() {
                 if (extras != null)
                     mLibrary = extras.getSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY) as Library
 
-                val book =
-                    if (extras != null) (extras.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK) as Book?) else null
+                val book = if (extras != null) (extras.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK) as Book?) else null
                 book?.let {
                     it.bookMark = extras?.getInt(GeneralConsts.KEYS.BOOK.MARK) ?: 0
                 }
@@ -259,10 +264,8 @@ class BookReaderActivity : AppCompatActivity() {
     }
 
     fun changePageDescription(chapter: Int, description: String, page: Int, pages: Int) {
-        mToolBarBottomProgressTitle.text =
-            if (page > 0) getString(R.string.reading_book_title_position, page, pages, Util.formatDecimal(page.toFloat() / pages * 100)) else ""
-        mToolBarChapter.text =
-            if (chapter > 0) getString(R.string.reading_book_title_chapter, chapter, description) else description
+        mToolBarBottomProgressTitle.text = if (page > 0) getString(R.string.reading_book_title_position, page, pages, Util.formatDecimal(page.toFloat() / pages * 100)) else ""
+        mToolBarChapter.text = if (chapter > 0) getString(R.string.reading_book_title_chapter, chapter, description) else description
         mBackgroundProgress.progress = page
         mBackgroundProgress.max = pages
         mBackgroundTitle.text = if (description.isNotEmpty())
@@ -271,6 +274,10 @@ class BookReaderActivity : AppCompatActivity() {
             getString(R.string.progress, page, pages)
 
         SharedData.selectPage(page)
+        mViewModel.history?.let {
+            it.pageEnd = page
+            it.end = LocalDateTime.now()
+        }
     }
 
     private fun setBook(book: Book) {
@@ -281,6 +288,8 @@ class BookReaderActivity : AppCompatActivity() {
 
         mToolBarTitle.text = book.name
         mToolBarBottomAuthor.text = book.author
+
+        generateHistory(book)
     }
 
     private fun dialogPageIndex() {
@@ -359,6 +368,8 @@ class BookReaderActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        mViewModel.history?.let { mHistoryRepository.save(it) }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (mHandler.hasCallbacks(mMonitoringBattery))
                 mHandler.removeCallbacks(mMonitoringBattery)
@@ -473,12 +484,22 @@ class BookReaderActivity : AppCompatActivity() {
 
     private fun getBatteryPercent() {
         try {
-            val percent =
-                (getSystemService(BATTERY_SERVICE) as BatteryManager).getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+            val percent = (getSystemService(BATTERY_SERVICE) as BatteryManager).getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
             mBackgroundBattery.text = getString(R.string.percent, percent)
         } finally {
             mHandler.postDelayed(mMonitoringBattery, 60000)
         }
+    }
+
+    private fun generateHistory(book: Book) {
+        if (mViewModel.history != null) {
+            if (mViewModel.history!!.fkLibrary != book.fkLibrary || mViewModel.history!!.fkReference != book.id) {
+                mViewModel.history!!.end = LocalDateTime.now()
+                mHistoryRepository.save(mViewModel.history!!)
+                mViewModel.history = History(book.fkLibrary!!, book.id!!, Type.BOOK, book.bookMark, book.pages, 0)
+            }
+        } else
+            mViewModel.history = History(book.fkLibrary!!, book.id!!, Type.BOOK, book.bookMark, book.pages, 0)
     }
 
 }

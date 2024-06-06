@@ -53,6 +53,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Chapters
+import br.com.fenix.bilingualreader.model.entity.History
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Languages
@@ -68,6 +69,7 @@ import br.com.fenix.bilingualreader.service.listener.ChapterCardListener
 import br.com.fenix.bilingualreader.service.listener.ChapterLoadListener
 import br.com.fenix.bilingualreader.service.ocr.GoogleVision
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess
+import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.service.repository.SharedData
@@ -96,6 +98,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.time.LocalDateTime
 
 
 class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener {
@@ -142,6 +145,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     private lateinit var mStorage: Storage
     private lateinit var mRepository: MangaRepository
     private lateinit var mSubtitleController: SubTitleController
+    private lateinit var mHistoryRepository: HistoryRepository
     private lateinit var mLibrary: Library
     private var mFragment: MangaReaderFragment? = null
     private var mManga: Manga? = null
@@ -365,6 +369,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         mPopupColorView.adapter = viewColorPagerAdapter
 
         mRepository = MangaRepository(applicationContext)
+        mHistoryRepository = HistoryRepository(applicationContext)
 
         mPreferences = GeneralConsts.getSharedPreferences(this)
         mClockAndBattery.visibility = if (mPreferences.getBoolean(
@@ -537,6 +542,10 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         mToolBar.title = title
         mToolBar.subtitle = text
         SharedData.selectPage(page)
+        mViewModel.history?.let {
+            it.pageEnd = page
+            it.end = LocalDateTime.now()
+        }
     }
 
     private fun setManga(manga: Manga, isRestore: Boolean = false) {
@@ -551,9 +560,10 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         mManga = manga
         changePage(manga.title, "", manga.bookMark)
         setDots(mutableListOf(), mutableListOf())
+        generateHistory(manga)
     }
 
-    fun setDots(dots : MutableList<Int>, inverse : MutableList<Int>) = mReaderProgress.setDots(dots.toIntArray(), inverse.toIntArray())
+    fun setDots(dots: MutableList<Int>, inverse: MutableList<Int>) = mReaderProgress.setDots(dots.toIntArray(), inverse.toIntArray())
 
     private fun setShortCutManga() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1)
@@ -754,6 +764,8 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     override fun onDestroy() {
+        mViewModel.history?.let { mHistoryRepository.save(it) }
+
         mViewModel.mLanguageOcr = null
 
         if (::mFloatingSubtitleReader.isInitialized)
@@ -1314,8 +1326,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
     private fun getBatteryPercent() {
         try {
-            val percent =
-                (getSystemService(BATTERY_SERVICE) as BatteryManager).getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+            val percent = (getSystemService(BATTERY_SERVICE) as BatteryManager).getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
             mBattery.text = getString(R.string.percent, percent)
         } finally {
             mHandler.postDelayed(mMonitoringBattery, 60000)
@@ -1325,6 +1336,17 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     override fun onLoading(page: Int) {
         if (!mChapterList.isComputingLayout)
             mChapterList.adapter?.notifyItemChanged(page)
+    }
+
+    private fun generateHistory(manga: Manga) {
+        if (mViewModel.history != null) {
+            if (mViewModel.history!!.fkLibrary != manga.fkLibrary || mViewModel.history!!.fkReference != manga.id) {
+                mViewModel.history!!.end = LocalDateTime.now()
+                mHistoryRepository.save(mViewModel.history!!)
+                mViewModel.history = History(manga.fkLibrary!!, manga.id!!, Type.MANGA, manga.bookMark, manga.pages, 0)
+            }
+        } else
+            mViewModel.history = History(manga.fkLibrary!!, manga.id!!, Type.MANGA, manga.bookMark, manga.pages, 0)
     }
 
 }

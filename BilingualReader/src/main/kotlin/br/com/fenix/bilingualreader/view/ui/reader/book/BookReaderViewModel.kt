@@ -21,6 +21,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.BookConfiguration
+import br.com.fenix.bilingualreader.model.entity.History
 import br.com.fenix.bilingualreader.model.enums.AlignmentLayoutType
 import br.com.fenix.bilingualreader.model.enums.FontType
 import br.com.fenix.bilingualreader.model.enums.Languages
@@ -32,6 +33,7 @@ import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.BookAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.BookRepository
+import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
@@ -41,6 +43,7 @@ import br.com.fenix.bilingualreader.view.components.ImageGetter
 import br.com.fenix.bilingualreader.view.components.book.TextViewPage
 import br.com.fenix.bilingualreader.view.components.book.TextViewPager
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 
 
 class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
@@ -79,6 +82,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
     private var mFontUpdate: MutableLiveData<String> = MutableLiveData("")
     val fontUpdate: LiveData<String> = mFontUpdate
+
+    var history: History? = null
 
     private var mFontsLocation: String = FontType.getCssFont()
     private var mDefaultCss: String = ""
