@@ -256,6 +256,7 @@
 
     <string name="book_annotation_type_annotation">Destaque</string>
     <string name="book_annotation_type_book_mark">Marcador</string>
+    <string name="book_annotation_type_page_mark">Página marcada</string>
 
     <string name="book_annotation_delete">Apagar</string>
     <string name="book_annotation_delete_description">Deseja realmente apagar o %s?</string>

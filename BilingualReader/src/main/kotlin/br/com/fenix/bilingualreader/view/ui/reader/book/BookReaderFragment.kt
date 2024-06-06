@@ -26,7 +26,6 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
@@ -44,10 +43,12 @@ import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.viewpager2.widget.ViewPager2
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Speech
 import br.com.fenix.bilingualreader.model.enums.AudioStatus
 import br.com.fenix.bilingualreader.model.enums.Color
+import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.Type
@@ -255,8 +256,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         val btnPrevious = requireActivity().findViewById<MaterialButton>(R.id.reader_book_tts_previous)
         val btnNext = requireActivity().findViewById<MaterialButton>(R.id.reader_book_tts_next)
 
-        btnPrevious.setOnClickListener { mTextToSpeech?.previous()  }
-        btnNext.setOnClickListener { mTextToSpeech?.next()  }
+        btnPrevious.setOnClickListener { mTextToSpeech?.previous() }
+        btnNext.setOnClickListener { mTextToSpeech?.next() }
 
         if (savedInstanceState != null) {
             val fullscreen = savedInstanceState.getBoolean(ReaderConsts.STATES.STATE_FULLSCREEN)
@@ -352,7 +353,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         mPagerAdapter = if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
             WebViewPager(requireActivity(), requireContext(), mViewModel, mParse, this@BookReaderFragment) as Adapter<RecyclerView.ViewHolder>
         else
-            TextViewPager(requireContext(), mViewModel, mParse, this@BookReaderFragment) as Adapter<RecyclerView.ViewHolder>
+            TextViewPager(requireContext(), mViewModel, mParse, this@BookReaderFragment, this@BookReaderFragment) as Adapter<RecyclerView.ViewHolder>
 
         mViewPager.adapter = mPagerAdapter
 
@@ -408,13 +409,20 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
-            R.id.menu_item_reader_book_tts -> executeTTS()
+            R.id.menu_item_reader_book_tts -> {
+                if (mTextToSpeech == null)
+                    executeTTS(mViewPager.currentItem)
+                else
+                    mTextToSpeech?.stop()
+            }
+
             R.id.menu_item_reader_book_chapter -> (miChapter.icon as AnimatedVectorDrawable).start()
             R.id.menu_item_reader_book_font_style -> {
                 (miFontStyle.icon as AnimatedVectorDrawable).start()
                 if (mTextToSpeech != null)
                     mTextToSpeech?.stop()
             }
+
             R.id.menu_item_reader_book_mark_page -> {
                 markCurrentPage()
                 (miMarkPage.icon as AnimatedVectorDrawable).start()
@@ -544,7 +552,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     book.pages = pages
                     mViewModel.update(book)
                 }
-
             }
         }
     }
@@ -757,15 +764,15 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_SEARCH, null)
     }
 
-    private fun executeTTS() {
+    private fun executeTTS(page: Int, initial: String = "") {
         if (mTextToSpeech == null) {
             setFullscreen(fullscreen = true)
             mTextToSpeech = TextToSpeechController(requireContext(), mBook!!, mParse, (mCoverImage.drawable as BitmapDrawable).bitmap, mViewModel.getFontSize(true).toInt())
             mTextToSpeech!!.addListener(this)
             mTextToSpeech!!.addListener(mPagerAdapter as TTSListener)
-            mTextToSpeech!!.start(mViewPager.currentItem)
+            mTextToSpeech!!.start(page, initial)
         } else
-            mTextToSpeech?.stop()
+            mTextToSpeech?.find(page, initial)
     }
 
     override fun statusTTS(status: AudioStatus) {
@@ -797,7 +804,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                         }
                     })
             }
-            AudioStatus.PLAY ->  {
+
+            AudioStatus.PLAY -> {
                 if (mReaderTTSProgrss.isIndeterminate) {
                     mReaderTTSProgrss.isIndeterminate = false
                     mReaderTTSProgrss.progress = mCurrentPage
@@ -806,12 +814,13 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
                 mReaderTTSPlay.setIconResource(R.drawable.ic_tts_pause)
             }
+
             AudioStatus.PAUSE -> mReaderTTSPlay.setIconResource(R.drawable.ic_tts_play)
             AudioStatus.STOP -> mReaderTTSPlay.setIconResource(R.drawable.ic_tts_close)
         }
     }
 
-    override fun readingLine(speech: Speech) { }
+    override fun readingLine(speech: Speech) {}
 
     override fun changePageTTS(old: Int, new: Int) {
         mReaderTTSProgrss.progress = new
@@ -822,32 +831,50 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         mTextToSpeech = null
     }
 
-    override fun textSelectReadingFrom(page: Int, text: String) {
-        TODO("Not yet implemented")
-    }
+    override fun textSelectReadingFrom(page: Int, text: String) = executeTTS(page, text)
 
     override fun textSelectAddMark(page: Int, text: String, color: Color, start: Int, end: Int) {
-        TODO("Not yet implemented")
+        val chapter = mParse!!.getChapter(page) ?: Pair(0, "")
+        val annotation = BookAnnotation(
+            mBook!!.id!!, page, mParse!!.pageCount, MarkType.BookMark, chapter.first.toFloat(), chapter.second, text,
+            intArrayOf(start, end), "", color = color
+        )
+        mViewModel.save(annotation)
     }
 
     override fun textSelectRemoveMark(page: Int, start: Int, end: Int) {
-        TODO("Not yet implemented")
+        val annotations = mViewModel.findByPage(mBook!!, page)
+        if (annotations.isNotEmpty()) {
+            for (annotation in annotations) {
+                if (annotation.range[0] == start && annotation.range[1] == end)
+                    mViewModel.delete(annotation)
+                else if ((start >= annotation.range[0] && start <= annotation.range[1]) ||
+                    (end >= annotation.range[0] && end <= annotation.range[1]) ||
+                    (start <= annotation.range[0] && end >= annotation.range[1])) {
+                    mViewModel.delete(annotation)
+                }
+            }
+        }
     }
 
-    override fun textSelectTranslate(text: String, page: Int) {
-        TODO("Not yet implemented")
-    }
-
-    override fun textSelectFind(text: String, page: Int) {
-        TODO("Not yet implemented")
-    }
 
     private fun markCurrentPage() {
+        val chapter = mParse!!.getChapter(mCurrentPage) ?: Pair(0, "")
 
-    }
+        val html = mParse!!.getPage(mCurrentPage).pageHTMLWithImages.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
 
-    private fun setPageMark(marked: Boolean) {
+        val separator = if (html.contains("<end-line>")) "<end-line>" else "<br>"
+        val texts = html.split(separator).map { it.replace("<[^>]*>".toRegex(), "") }
 
+        var text = ""
+        for ( (index, itm) in texts.withIndex()) {
+            text += itm
+            if (index >= 3)
+                break;
+        }
+
+        val annotation = BookAnnotation(mBook!!.id!!, mCurrentPage, mParse!!.pageCount, MarkType.PageMark, chapter.first.toFloat(), chapter.second, text, intArrayOf(), "")
+        mViewModel.save(annotation)
     }
 
     inner class MyTouchListener : GestureDetector.SimpleOnGestureListener() {

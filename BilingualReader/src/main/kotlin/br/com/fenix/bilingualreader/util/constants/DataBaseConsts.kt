@@ -199,6 +199,7 @@ class DataBaseConsts private constructor() {
             const val ANNOTATION = "annotation"
             const val FAVORITE = "favorite"
             const val COLOR = "color"
+            const val RANGE = "range"
             const val ALTERATION = "alteration"
             const val CREATED = "created"
             const val COUNT = "count"

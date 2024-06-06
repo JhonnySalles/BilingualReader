@@ -149,11 +149,13 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
         }
     }
 
-    fun find(page: Int, text: String, isBefore: Boolean = false) {
+    fun find(page: Int, text: String) {
         try {
             mPause = true
 
             val oldPage = mPage
+
+            val isBefore = page < mPage
 
             if (mPage != page) {
                 mPage = page
@@ -368,6 +370,17 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                         }
 
                         mReading = mLines[mLine]
+                        mLOGGER.error("Page $mPage - Line $mLine - size ${mLines.size}:: " + mReading.text)
+
+                        mMainHandler.post {
+                            processNotification(false)
+                            mListener.forEach { it.readingLine(mReading) }
+                        }
+
+                        Thread.sleep(2000)
+                        if (true)
+                            continue
+
                         if (mReading.audio != null)
                             play(mReading, isPageChange)
                         else {

@@ -161,7 +161,5 @@ class Migrations {
                 mLOGGER.info("Completed migration 14 - 15.")
             }
         }
-
-
     }
 }

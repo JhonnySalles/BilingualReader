@@ -29,7 +29,7 @@ class BookAnnotationRepository(context: Context) {
         return try {
             mDataBase.findAll(idBook)
         } catch (e: Exception) {
-            mLOGGER.error("Error when list Book Annotations: " + e.message, e)
+            mLOGGER.error("Error when list annotation of Book: " + e.message, e)
             arrayListOf()
         }
     }
@@ -38,7 +38,16 @@ class BookAnnotationRepository(context: Context) {
         return try {
             mDataBase.list(idBook)
         } catch (e: Exception) {
-            mLOGGER.error("Error when list Book: " + e.message, e)
+            mLOGGER.error("Error when list annotation of Book: " + e.message, e)
+            arrayListOf()
+        }
+    }
+
+    fun findByPage(idBook: Long, page: Int): List<BookAnnotation> {
+        return try {
+            mDataBase.findByPage(idBook, page)
+        } catch (e: Exception) {
+            mLOGGER.error("Error when find annotation by page: " + e.message, e)
             arrayListOf()
         }
     }

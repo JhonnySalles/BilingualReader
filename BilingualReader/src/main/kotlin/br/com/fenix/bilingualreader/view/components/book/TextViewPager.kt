@@ -7,6 +7,7 @@ import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.text.clearSpans
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
@@ -52,11 +53,17 @@ class TextViewPager(
             mViewModel.changeTextStyle(holder.textView)
         }
 
+        holder.textView.fixTextSelection()
         holder.textView.customSelectionActionModeCallback = TextViewSelectCallback(context, holder.textView, position, mTextSelectCallback)
 
         mHolders[position] = holder
         if (mSpeech != null && mSpeech!!.page == position)
             drawLineSpeech(holder.textView, mSpeech!!)
+    }
+
+    private fun TextView.fixTextSelection() {
+        setTextIsSelectable(false)
+        post { setTextIsSelectable(true) }
     }
 
     inner class TextViewPagerHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

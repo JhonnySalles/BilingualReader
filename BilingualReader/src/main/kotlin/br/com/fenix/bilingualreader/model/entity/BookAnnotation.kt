@@ -33,6 +33,8 @@ data class BookAnnotation(
     val chapter: String,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TEXT)
     var text: String,
+    @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.RANGE)
+    var range: IntArray,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ANNOTATION)
     var annotation: String,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FAVORITE)
@@ -42,22 +44,23 @@ data class BookAnnotation(
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION)
     var alteration: LocalDateTime,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CREATED)
-    var created: LocalDateTime,
+    var created: LocalDateTime
 ) : Serializable {
+
     @Ignore
     constructor(
         id_book: Long, page: Int, pages: Int, type: MarkType, chapterNumber: Float, chapter: String, text: String,
-        annotation: String, favorite: Boolean = false, color: Color = Color.None,
+        range: IntArray, annotation: String, favorite: Boolean = false, color: Color = Color.None
     ) : this(
-        null, id_book, page, pages, type, chapterNumber, chapter, text, annotation, favorite,
+        null, id_book, page, pages, type, chapterNumber, chapter, text, range, annotation, favorite,
         color, LocalDateTime.now(), LocalDateTime.now()
     )
 
     constructor(
-        id: Long?, id_book: Long, page: Int, pages: Int, type: MarkType, chapterNumber: Float, chapter: String, text: String,
-        annotation: String, favorite: Boolean, color: Color, alteration: LocalDateTime, created: LocalDateTime, count: Int
+        id: Long?, id_book: Long, page: Int, pages: Int, type: MarkType, chapterNumber: Float, chapter: String, text: String, range: IntArray,
+        annotation: String, favorite: Boolean,  color: Color, alteration: LocalDateTime, created: LocalDateTime, count: Int
     ) : this(
-        id, id_book, page, pages, type, chapterNumber, chapter, text, annotation, favorite,
+        id, id_book, page, pages, type, chapterNumber, chapter, text, range, annotation, favorite,
         color, alteration, created
     ) {
         this.count = count
@@ -66,4 +69,36 @@ data class BookAnnotation(
     @Ignore
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COUNT)
     var count: Int = 0
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as BookAnnotation
+
+        if (id != other.id) return false
+        if (id_book != other.id_book) return false
+        if (page != other.page) return false
+        if (pages != other.pages) return false
+        if (type != other.type) return false
+        if (text != other.text) return false
+        if (annotation != other.annotation) return false
+        if (favorite != other.favorite) return false
+        if (color != other.color) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id?.hashCode() ?: 0
+        result = 31 * result + id_book.hashCode()
+        result = 31 * result + page
+        result = 31 * result + pages
+        result = 31 * result + type.hashCode()
+        result = 31 * result + text.hashCode()
+        result = 31 * result + annotation.hashCode()
+        result = 31 * result + favorite.hashCode()
+        result = 31 * result + color.hashCode()
+        return result
+    }
 }

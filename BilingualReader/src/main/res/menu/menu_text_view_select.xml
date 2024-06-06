@@ -1,41 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:id="@+id/menu_text_select_functions">
-        <item
-            android:id="@+id/menu_text_select_functions_translate"
-            android:icon="@drawable/ic_translate"
-            android:title="@string/reading_book_menu_text_functions_translate" />
-        <item
-            android:id="@+id/menu_text_select_functions_find"
-            android:icon="@drawable/ic_text_find"
-            android:title="@string/reading_book_menu_text_functions_find"/>
-        <item
-            android:id="@+id/menu_text_select_functions_tts"
-            android:icon="@drawable/ic_tts_audio"
-            android:title="@string/reading_book_menu_text_functions_read_from"/>
-    </group>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <group android:id="@+id/menu_text_select_colors">
+    <item
+        android:id="@+id/menu_text_select_functions_tts"
+        android:icon="@drawable/ic_tts_audio"
+        android:title="@string/reading_book_menu_text_functions_read_from"
+        android:orderInCategory="100"
+        app:showAsAction="always" />
+
+
+    <group
+        android:id="@+id/menu_text_select_colors"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/menu_text_select_colors_yellow"
             android:icon="@drawable/ic_text_view_select_yellow"
-            android:title="@string/reading_book_menu_text_colors_yellow"/>
+            android:title="@string/reading_book_menu_text_colors_yellow"
+            android:orderInCategory="111"
+            app:showAsAction="always" />
         <item
             android:id="@+id/menu_text_select_colors_green"
             android:icon="@drawable/ic_text_view_select_green"
-            android:title="@string/reading_book_menu_text_colors_greed"/>
+            android:title="@string/reading_book_menu_text_colors_greed"
+            android:orderInCategory="112"
+            app:showAsAction="always" />
         <item
             android:id="@+id/menu_text_select_colors_blue"
             android:icon="@drawable/ic_text_view_select_blue"
-            android:title="@string/reading_book_menu_text_colors_blue"/>
+            android:title="@string/reading_book_menu_text_colors_blue"
+            android:orderInCategory="113"
+            app:showAsAction="always" />
         <item
             android:id="@+id/menu_text_select_colors_red"
             android:icon="@drawable/ic_text_view_select_red"
-            android:title="@string/reading_book_menu_text_colors_red"/>
+            android:title="@string/reading_book_menu_text_colors_red"
+            android:orderInCategory="114"
+            app:showAsAction="always" />
         <item
             android:id="@+id/menu_text_select_colors_erase"
             android:icon="@drawable/ic_text_view_select_erase"
-            android:title="@string/reading_book_menu_text_colors_erase"/>
+            android:title="@string/reading_book_menu_text_colors_erase"
+            android:orderInCategory="120"
+            app:showAsAction="always" />
     </group>
 
 </menu>

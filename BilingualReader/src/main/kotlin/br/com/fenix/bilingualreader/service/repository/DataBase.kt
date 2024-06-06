@@ -38,7 +38,7 @@ import java.io.File
 
 
 @Database(
-    version = 1, exportSchema = true,
+    version = 2, exportSchema = true,
     entities = [Manga::class, Library::class, SubTitle::class, KanjiJLPT::class, Kanjax::class,
         LinkedFile::class, LinkedPage::class, Vocabulary::class, VocabularyManga::class, VocabularyBook::class,
         Book::class, BookAnnotation::class, BookConfiguration::class, BookSearch::class, Tags::class]

@@ -256,6 +256,7 @@
 
     <string name="book_annotation_type_annotation">Annotation</string>
     <string name="book_annotation_type_book_mark">Book Mark</string>
+    <string name="book_annotation_type_page_mark">Page Mark</string>
 
     <string name="book_annotation_delete">Delete</string>
     <string name="book_annotation_delete_description">Do you really want to delete this %s?</string>

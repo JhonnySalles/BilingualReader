@@ -19,6 +19,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.BookConfiguration
 import br.com.fenix.bilingualreader.model.enums.AlignmentLayoutType
 import br.com.fenix.bilingualreader.model.enums.FontType
@@ -29,6 +30,7 @@ import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
 import br.com.fenix.bilingualreader.service.controller.WebInterface
 import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
+import br.com.fenix.bilingualreader.service.repository.BookAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -46,6 +48,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private var mPreferences: SharedPreferences = GeneralConsts.getSharedPreferences(app.applicationContext)
     private val mRepository: BookRepository = BookRepository(app.applicationContext)
     private val mVocabularyRepository = VocabularyRepository(app.applicationContext)
+    private val mAnnotationRepository = BookAnnotationRepository(app.applicationContext)
 
     private val mLOGGER = LoggerFactory.getLogger(BookReaderViewModel::class.java)
 
@@ -465,6 +468,26 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         holder.textView.setBackgroundColor(Color.TRANSPARENT)
     }
 
+
+    // --------------------------------------------------------- Book ---------------------------------------------------------
+
     fun update(book: Book) = mRepository.update(book)
+
+
+    // --------------------------------------------------------- Book - Annottation ---------------------------------------------------------
+
+    fun save(annotation: BookAnnotation) {
+        if (annotation.id == null)
+            mAnnotationRepository.save(annotation)
+        else
+            mAnnotationRepository.update(annotation)
+    }
+
+    fun delete(annotation: BookAnnotation) {
+        if (annotation.id != null)
+            mAnnotationRepository.delete(annotation)
+    }
+
+    fun findByPage(book: Book, page: Int) = mAnnotationRepository.findByPage(book.id!!, page)
 
 }

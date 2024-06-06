@@ -19,16 +19,18 @@ import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
 
 
 class TextViewSelectCallback(val context: Context, val textView: TextView, val page: Int, val listener: TextSelectCallbackListener?) : ActionMode.Callback {
+
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
         //mode?.title = "Menu action"
         mode?.menu?.setGroupDividerEnabled(true)
-        mode?.menuInflater?.inflate(R.menu.menu_text_view_select, menu);
+        mode?.menuInflater?.inflate(R.menu.menu_text_view_select, menu)
         return true;
     }
 
     override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
         menu?.removeItem(android.R.id.cut)
+        menu?.removeItem(android.R.id.shareText)
         return true;
     }
 
@@ -42,16 +44,19 @@ class TextViewSelectCallback(val context: Context, val textView: TextView, val p
             when (item.itemId) {
                 android.R.id.copy -> {
                     copyText(textView.text.substring(start, end))
-                    mode?.finish();
+                    mode?.finish()
                 }
 
                 android.R.id.selectAll -> selectAllText()
-                R.id.menu_text_select_functions_tts -> listener?.textSelectReadingFrom(page, textView.text.substring(start, end))
+                R.id.menu_text_select_functions_tts -> {
+                    listener?.textSelectReadingFrom(page, textView.text.substring(start, end))
+                    mode?.finish()
+                }
 
                 R.id.menu_text_select_colors_green -> {
                     val color = Color.Green
                     wordtoSpan.setSpan(
-                        BackgroundColorSpan(color.getColor()), start, end,
+                        BackgroundColorSpan(context.getColor(color.getColor())), start, end,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                     )
                     listener?.textSelectAddMark(page, textView.text.substring(start, end), color, start, end)
@@ -61,7 +66,7 @@ class TextViewSelectCallback(val context: Context, val textView: TextView, val p
                 R.id.menu_text_select_colors_red -> {
                     val color = Color.Red
                     wordtoSpan.setSpan(
-                        BackgroundColorSpan(color.getColor()), start, end,
+                        BackgroundColorSpan(context.getColor(color.getColor())), start, end,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                     )
                     listener?.textSelectAddMark(page, textView.text.substring(start, end), color, start, end)
@@ -71,7 +76,7 @@ class TextViewSelectCallback(val context: Context, val textView: TextView, val p
                 R.id.menu_text_select_colors_yellow -> {
                     val color = Color.Yellow
                     wordtoSpan.setSpan(
-                        BackgroundColorSpan(color.getColor()), start, end,
+                        BackgroundColorSpan(context.getColor(color.getColor())), start, end,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                     )
                     listener?.textSelectAddMark(page, textView.text.substring(start, end), color, start, end)
@@ -81,7 +86,7 @@ class TextViewSelectCallback(val context: Context, val textView: TextView, val p
                 R.id.menu_text_select_colors_blue -> {
                     val color = Color.Blue
                     wordtoSpan.setSpan(
-                        BackgroundColorSpan(color.getColor()), start, end,
+                        BackgroundColorSpan(context.getColor(color.getColor())), start, end,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                     )
                     listener?.textSelectAddMark(page, textView.text.substring(start, end), color, start, end)
