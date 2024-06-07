@@ -98,12 +98,8 @@ class HistoryFragment : Fragment() {
         mViewModel.filterLibrary(library)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        mViewModel = ViewModelProvider(this).get(HistoryViewModel::class.java)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        mViewModel = ViewModelProvider(this)[HistoryViewModel::class.java]
         val root = inflater.inflate(R.layout.fragment_manga_history, container, false)
         mRecyclerView = root.findViewById(R.id.history_list)
         ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecyclerView)
@@ -202,10 +198,7 @@ class HistoryFragment : Fragment() {
 
     private var itemTouchHelperCallback =
         object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder
-            ): Boolean {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
                 return false
             }
 

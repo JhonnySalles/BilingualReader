@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.view.ui.book
 
+import android.content.res.Resources
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Build
 import android.os.Bundle
@@ -12,8 +13,10 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
+import android.view.inputmethod.EditorInfo
+import android.widget.AutoCompleteTextView
 import android.widget.PopupMenu
+import android.widget.SearchView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -31,6 +34,7 @@ import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.book.BookAnnotationLineAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaListCardAdapter
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
+import br.com.fenix.bilingualreader.view.ui.popup.PopupAnnotations
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.slf4j.LoggerFactory
@@ -44,6 +48,9 @@ class BookAnnotationFragment : Fragment() {
 
     private lateinit var mScrollUp: FloatingActionButton
     private lateinit var mScrollDown: FloatingActionButton
+    private lateinit var miSearch: MenuItem
+    private lateinit var searchView: SearchView
+
     private lateinit var mRecyclerView: RecyclerView
 
     private lateinit var mListener: BookAnnotationListener
@@ -60,27 +67,39 @@ class BookAnnotationFragment : Fragment() {
 
         arguments?.let {
             mBook = it.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK) as Book
+            mViewModel.search(mBook.id!!)
         }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_book_mark, menu)
+        inflater.inflate(R.menu.menu_book_annotation, menu)
         super.onCreateOptionsMenu(menu, inflater)
 
+        miSearch = menu.findItem(R.id.menu_history_manga_search)
+        searchView = miSearch.actionView as SearchView
+        searchView.imeOptions = EditorInfo.IME_ACTION_DONE
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return false
+            }
+        })
+
+        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
+        searchSrcTextView.setTextAppearance(R.style.SearchShadow)
     }
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
-            R.id.menu_history_manga_library -> {}
+            R.id.menu_book_mark_filters -> {}
         }
         return super.onOptionsItemSelected(menuItem)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_book_annotation, container, false)
 
         mRecyclerView = root.findViewById(R.id.book_annotation_recycler_view)
@@ -149,6 +168,8 @@ class BookAnnotationFragment : Fragment() {
 
         mListener = object : BookAnnotationListener {
             override fun onClick(annotation: BookAnnotation) {
+                if (true)
+                    return
                 val bundle = Bundle()
                 bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK_ANNOTATION, annotation)
                 (requireActivity() as MenuActivity).onBack(bundle)
@@ -180,16 +201,9 @@ class BookAnnotationFragment : Fragment() {
                             val colors = Util.getColors(requireContext())
                             val items = colors.keys.toTypedArray()
 
-                            MaterialAlertDialogBuilder(
-                                requireActivity(),
-                                R.style.AppCompatAlertDialogStyle
-                            )
+                            MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                                 .setTitle(getString(R.string.book_annotation_change_detach_title))
-                                .setMessage(
-                                    getString(
-                                        R.string.book_annotation_change_detach_description
-                                    )
-                                )
+                                .setMessage(getString(R.string.book_annotation_change_detach_description))
                                 .setItems(items) { _, selected ->
                                     val color = colors[items[selected]]
                                     if (color != null) {
@@ -197,8 +211,7 @@ class BookAnnotationFragment : Fragment() {
                                         mViewModel.save(annotation)
                                         notifyDataSet(position)
                                     }
-                                }
-                                .show()
+                                }.show()
                         }
                     }
                     true
@@ -207,21 +220,14 @@ class BookAnnotationFragment : Fragment() {
                 popup.show()
             }
 
-            override fun onClickNote(annotation: BookAnnotation) {
-                MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
-                    .setTitle(getString(R.string.book_annotation_note))
-                    .setView(R.layout.dialog_add_note)
-                    .setPositiveButton(getString(R.string.action_confirm)) { dialog, _ ->
-                        (dialog as? AlertDialog)?.findViewById<EditText>(R.id.book_note_text)?.let {
-                            annotation.annotation = it.text.toString()
-                            mViewModel.save(annotation)
-                        }
-                        dialog.dismiss()
-                    }
-                    .setNegativeButton(getString(R.string.action_cancel)) { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .show()
+            override fun onClickNote(annotation: BookAnnotation, position: Int) {
+                val onDelete = { obj: BookAnnotation ->
+                    mViewModel.delete(obj)
+                }
+                PopupAnnotations(requireContext()).popup(annotation, onDelete) { alter ->
+                    if (alter)
+                        notifyDataSet(position)
+                }
             }
 
         }
@@ -256,12 +262,7 @@ class BookAnnotationFragment : Fragment() {
         }
     }
 
-    private fun notifyDataSet(
-        index: Int,
-        range: Int = 0,
-        insert: Boolean = false,
-        removed: Boolean = false
-    ) {
+    private fun notifyDataSet(index: Int, range: Int = 0, insert: Boolean = false, removed: Boolean = false) {
         if (insert)
             mRecyclerView.adapter?.notifyItemInserted(index)
         else if (removed)
@@ -273,8 +274,6 @@ class BookAnnotationFragment : Fragment() {
     }
 
     override fun onDestroy() {
-        VocabularyMangaListCardAdapter.clearVocabularyMangaList()
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (mHandler.hasCallbacks(mDismissUpButton))
                 mHandler.removeCallbacks(mDismissUpButton)
@@ -289,18 +288,13 @@ class BookAnnotationFragment : Fragment() {
     }
 
 
-    private var itemTouchHelperCallback =
-        object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder
-            ): Boolean {
+    private var itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
                 return false
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val annotation =
-                    mViewModel.getAndRemove(viewHolder.bindingAdapterPosition) ?: return
+                val annotation = mViewModel.getAndRemove(viewHolder.bindingAdapterPosition) ?: return
                 val position = viewHolder.bindingAdapterPosition
                 deleteAnnotation(annotation, position)
             }

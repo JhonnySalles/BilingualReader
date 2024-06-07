@@ -449,18 +449,11 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             web.addJavascriptInterface(javascript, "bilingualapp")
     }
 
-    fun prepareHtml(
-        context: Context,
-        parse: DocumentParse?,
-        page: Int,
-        holder: TextViewPager.TextViewPagerHolder,
-        listener: TextSelectCallbackListener?
-    ) {
+    fun prepareHtml(context: Context, parse: DocumentParse?, page: Int, holder: TextViewPager.TextViewPagerHolder, listener: TextSelectCallbackListener?) {
         var text = parse?.getPage(page)?.pageHTMLWithImages.orEmpty()
 
         if (text.contains("<image-begin>image"))
-            text = text.replace("<image-begin>", "<img src=\"data:")
-                .replace("<image-end>", "\" />")
+            text = text.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
 
         text = TextUtil.formatHtml(text)
 
@@ -525,15 +518,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         }
     }
 
-    private fun createSpan(
-        context: Context,
-        textView: TextViewPage,
-        page: Int,
-        annotation: BookAnnotation,
-        span: SpannableString,
-        start: Int,
-        end: Int
-    ) {
+    private fun createSpan(context: Context, textView: TextViewPage, page: Int, annotation: BookAnnotation, span: SpannableString, start: Int, end: Int) {
         var click: ClickableSpan? = null
         val delete = { delete: BookAnnotation ->
             mAnnotation.remove(delete)

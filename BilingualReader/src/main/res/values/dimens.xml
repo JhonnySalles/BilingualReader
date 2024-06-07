@@ -167,7 +167,7 @@
     <dimen name="book_detail_information_related_synopsis_size">12sp</dimen>
     <dimen name="book_detail_information_related_texts_size">10sp</dimen>
 
-    <dimen name="book_annotation_icon_size">25dp</dimen>
+    <dimen name="book_annotation_icon_size">22dp</dimen>
     <dimen name="book_annotation_button_size">20dp</dimen>
     <dimen name="book_annotation_note_icon_size">20dp</dimen>
     <dimen name="book_annotation_note_text_size">11sp</dimen>

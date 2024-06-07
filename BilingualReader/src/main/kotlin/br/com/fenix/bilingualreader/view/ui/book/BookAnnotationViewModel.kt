@@ -22,7 +22,10 @@ class BookAnnotationViewModel(var app: Application) : AndroidViewModel(app) {
     val annotation: LiveData<MutableList<BookAnnotation>> = mAnnotation
 
     fun save(obj: BookAnnotation) {
-        mRepository.save(obj)
+        if (obj.id != null)
+            mRepository.update(obj)
+        else
+            mRepository.save(obj)
     }
 
     fun delete(obj: BookAnnotation) {

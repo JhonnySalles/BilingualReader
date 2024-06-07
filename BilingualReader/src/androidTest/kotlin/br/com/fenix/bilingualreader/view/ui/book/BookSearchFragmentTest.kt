@@ -21,14 +21,12 @@ import org.junit.runners.MethodSorters
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
+
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(AndroidJUnit4::class)
 class BookSearchFragmentTest {
 
-    private val book: Book = BookTestUtil.getBook(
-        ApplicationProvider.getApplicationContext(),
-        "/storage/1D01-1E06/Livros/" + "Russian-Roulette-epub.epub"
-    )
+    private val book: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), "/storage/1D01-1E06/Livros/" + "Russian-Roulette-epub.epub")
     private var intent: Intent? = null
 
     init {

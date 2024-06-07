@@ -7,5 +7,5 @@ interface BookAnnotationListener {
     fun onClick(annotation: BookAnnotation)
     fun onClickFavorite(annotation: BookAnnotation)
     fun onClickOptions(annotation: BookAnnotation, view: View, position: Int)
-    fun onClickNote(annotation: BookAnnotation)
+    fun onClickNote(annotation: BookAnnotation, position: Int)
 }

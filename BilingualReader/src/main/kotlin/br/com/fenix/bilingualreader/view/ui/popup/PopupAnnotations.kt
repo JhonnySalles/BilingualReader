@@ -71,8 +71,7 @@ class PopupAnnotations(var context: Context) {
 
     private fun createPopup(context: Context, inflater: LayoutInflater, annotation: BookAnnotation): View? {
         val root = inflater.inflate(R.layout.popup_annotations, null, false)
-        root.findViewById<TextView>(R.id.popup_annotation_title).text =
-            context.getString(R.string.book_annotation_popup_title, annotation.page, context.getString(annotation.type.getDescription()))
+        root.findViewById<TextView>(R.id.popup_annotation_title).text = context.getString(R.string.book_annotation_popup_title, annotation.page, context.getString(annotation.type.getDescription()))
         mEdit = root.findViewById(R.id.popup_annotation_edit)
         mEdit.setText(annotation.annotation)
 

@@ -11,8 +11,7 @@ import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.service.listener.BookAnnotationListener
 import com.google.android.material.button.MaterialButton
 
-class BookAnnotationViewHolder(itemView: View, private val listener: BookAnnotationListener) :
-    RecyclerView.ViewHolder(itemView) {
+class BookAnnotationViewHolder(itemView: View, private val listener: BookAnnotationListener) : RecyclerView.ViewHolder(itemView) {
 
     fun bind(mark: BookAnnotation, position: Int) {
         val root = itemView.findViewById<LinearLayout>(R.id.book_annotation_root)
@@ -29,8 +28,8 @@ class BookAnnotationViewHolder(itemView: View, private val listener: BookAnnotat
         val note = itemView.findViewById<TextView>(R.id.book_annotation_note)
 
         root.setOnClickListener { listener.onClick(mark) }
-        addNote.setOnClickListener { listener.onClickNote(mark) }
-        note.setOnClickListener { listener.onClickNote(mark) }
+        addNote.setOnClickListener { listener.onClickNote(mark, position) }
+        note.setOnClickListener { listener.onClickNote(mark, position) }
         options.setOnClickListener {
             (options.icon as AnimatedVectorDrawable).start()
             listener.onClickOptions(mark, options.rootView, position)
@@ -48,18 +47,16 @@ class BookAnnotationViewHolder(itemView: View, private val listener: BookAnnotat
 
         text.text = mark.text
 
-        if (mark.type == MarkType.BookMark) {
+        if (mark.type == MarkType.PageMark) {
             title.text = itemView.context.getString(R.string.book_annotation_list_title_mark, mark.page)
-
             note.text = ""
-
             color.visibility = View.GONE
             noteContent.visibility = View.GONE
         } else {
             title.text = itemView.context.getString(R.string.book_annotation_list_title_detach, mark.page)
 
             color.visibility = View.VISIBLE
-            color.setBackgroundColor(mark.color.getColor())
+            color.setBackgroundColor(itemView.context.getColor(mark.color.getColor()))
 
             noteContent.visibility = View.VISIBLE
             note.text = mark.annotation

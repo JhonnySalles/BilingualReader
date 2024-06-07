@@ -1,12 +1,15 @@
 package br.com.fenix.bilingualreader.view.components.book
 
 import android.content.Context
+import android.text.Spannable
+import android.text.style.ClickableSpan
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.widget.AppCompatTextView
+import kotlin.math.abs
 import kotlin.math.sqrt
 
 
@@ -37,12 +40,15 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
         mOriginalSize = textSize
 
         mGestureDetector = GestureDetector(context, MyTouchListener())
-        super.setOnTouchListener { v, event ->
-            v.performClick()
+        super.setOnTouchListener { view, event ->
+            view.performClick()
+
+            if (hasClickSpan(event))
+                return@setOnTouchListener false
 
             if (event.pointerCount > 1) {
                 setTextIsSelectable(false)
-                zoom(v, event)
+                zoom(view, event)
                 parent.requestDisallowInterceptTouchEvent(true)
             } else
                 setTextIsSelectable(true)
@@ -51,8 +57,7 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
                 parent.requestDisallowInterceptTouchEvent(true)
 
             mGestureDetector.onTouchEvent(event)
-            mOuterTouchListener?.onTouch(v, event)
-            onTouchEvent(event)
+            mOuterTouchListener?.onTouch(view, event)
             false
         }
     }
@@ -71,6 +76,33 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
 
     override fun setOnTouchListener(listenner: OnTouchListener?) {
         mOuterTouchListener = listenner
+    }
+
+    private var pressedCoordinate: FloatArray? = null
+    private fun hasClickSpan(event: MotionEvent): Boolean {
+        var consume = false
+        if (text is Spannable && (event.action == MotionEvent.ACTION_DOWN || event.action == MotionEvent.ACTION_UP)) {
+            var x = event.x.toInt()
+            var y = event.y.toInt()
+
+
+            x -= totalPaddingLeft
+            y -= totalPaddingTop
+
+            val off: Int = layout.getOffsetForHorizontal(layout.getLineForVertical(y), x.toFloat())
+
+            val links = (text as Spannable).getSpans(off, off, ClickableSpan::class.java)
+            if (event.action == MotionEvent.ACTION_UP) {
+                if (pressedCoordinate != null) {
+                    if (abs((pressedCoordinate!![0] - event.x).toDouble()) < 10 && abs((pressedCoordinate!![1] - event.y).toDouble()) < 10)
+                        consume = true
+                    else
+                        pressedCoordinate = null
+                }
+            } else if (links.isNotEmpty())
+                pressedCoordinate = floatArrayOf(event.x, event.y)
+        }
+        return consume
     }
 
     private var mBaseDistZoomIn = 0

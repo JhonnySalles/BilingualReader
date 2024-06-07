@@ -258,13 +258,16 @@
     <string name="book_annotation_type_book_mark">Marcador</string>
     <string name="book_annotation_type_page_mark">Página marcada</string>
 
+    <string name="book_annotation_page_marked">Página %d marcada.</string>
+    <string name="book_annotation_page_unmarked">Página %d desmarcada.</string>
+
     <string name="book_annotation_delete">Apagar</string>
     <string name="book_annotation_delete_description">Deseja realmente apagar o %s?</string>
 
     <string name="book_annotation_note">Nota</string>
 
-    <string name="book_annotation_list_title_detach">Página %f • Destaque</string>
-    <string name="book_annotation_list_title_mark">Página %f • Marcador</string>
+    <string name="book_annotation_list_title_detach">Página %d • Destaque</string>
+    <string name="book_annotation_list_title_mark">Página %d • Marcador</string>
     <string name="book_annotation_list_add_note">Adicionar nota</string>
     <string name="book_annotation_list_favorite">Favorito</string>
     <string name="book_annotation_list_options">Opções</string>

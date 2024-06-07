@@ -27,6 +27,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -843,7 +844,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     override fun textSelectAddMark(page: Int, text: String, color: Color, start: Int, end: Int): BookAnnotation {
         val chapter = mParse!!.getChapter(page) ?: Pair(0, "")
         val annotation = BookAnnotation(
-            mBook!!.id!!, page, mParse!!.pageCount, MarkType.BookMark, chapter.first.toFloat(), chapter.second, text,
+            mBook!!.id!!, page, mParse!!.pageCount, MarkType.Annotation, chapter.first.toFloat(), chapter.second, text,
             intArrayOf(start, end), "", color = color
         )
         mViewModel.save(annotation)
@@ -874,22 +875,34 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
 
     private fun markCurrentPage() {
-        val chapter = mParse!!.getChapter(mCurrentPage) ?: Pair(0, "")
+        var msg = ""
 
-        val html = mParse!!.getPage(mCurrentPage).pageHTMLWithImages.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
+        val mark = mViewModel.findAnnotationByPage(mBook!!, mCurrentPage).find { it.type == MarkType.PageMark }
+        if (mark != null) {
+            mViewModel.delete(mark)
+            msg = getString(R.string.book_annotation_page_unmarked, mCurrentPage)
+        } else {
 
-        val separator = if (html.contains("<end-line>")) "<end-line>" else "<br>"
-        val texts = html.split(separator).map { it.replace("<[^>]*>".toRegex(), "") }
+            val chapter = mParse!!.getChapter(mCurrentPage) ?: Pair(0, "")
 
-        var text = ""
-        for ( (index, itm) in texts.withIndex()) {
-            text += itm
-            if (index >= 3)
-                break;
+            val html = mParse!!.getPage(mCurrentPage).pageHTMLWithImages.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
+
+            val separator = if (html.contains("<end-line>")) "<end-line>" else "<br>"
+            val texts = html.split(separator).map { it.replace("<[^>]*>".toRegex(), "") }
+
+            var text = ""
+            for ((index, itm) in texts.withIndex()) {
+                text += itm
+                if (index >= 3)
+                    break;
+            }
+
+            val annotation = BookAnnotation(mBook!!.id!!, mCurrentPage, mParse!!.pageCount, MarkType.PageMark, chapter.first.toFloat(), chapter.second, text, intArrayOf(), "")
+            mViewModel.save(annotation)
+            msg = getString(R.string.book_annotation_page_marked, mCurrentPage)
         }
 
-        val annotation = BookAnnotation(mBook!!.id!!, mCurrentPage, mParse!!.pageCount, MarkType.PageMark, chapter.first.toFloat(), chapter.second, text, intArrayOf(), "")
-        mViewModel.save(annotation)
+        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
     }
 
     inner class MyTouchListener : GestureDetector.SimpleOnGestureListener() {

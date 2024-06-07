@@ -15,6 +15,6 @@
         android:icon="@drawable/ic_library_filter"
         android:orderInCategory="101"
         app:showAsAction="always">
-        <menu></menu>
+        <menu/>
     </item>
 </menu>
