@@ -9,6 +9,7 @@ import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.time.LocalDateTime
 
+
 @Entity(
     tableName = DataBaseConsts.HISTORY.TABLE_NAME,
     indices = [Index(value = [DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE, DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY])]

@@ -10,6 +10,7 @@ import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import br.com.fenix.bilingualreader.util.constants.PageLinkConsts
 import java.io.Serializable
 
+
 @Entity(
     tableName = DataBaseConsts.PAGESLINK.TABLE_NAME,
     indices = [Index(value = [DataBaseConsts.PAGESLINK.COLUMNS.FK_ID_FILE])]

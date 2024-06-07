@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.util.constants
 
+
 class DataBaseConsts private constructor() {
     object MANGA {
         const val TABLE_NAME = "Manga"
@@ -233,7 +234,7 @@ class DataBaseConsts private constructor() {
     }
 
     object TAGS {
-        const val TABLE_NAME = "tags"
+        const val TABLE_NAME = "Tags"
 
         object COLUMNS {
             const val ID = "id"

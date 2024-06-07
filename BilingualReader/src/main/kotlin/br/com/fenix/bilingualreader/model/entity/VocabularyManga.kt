@@ -8,6 +8,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 
+
 @Entity(
     tableName = DataBaseConsts.MANGA_VOCABULARY.TABLE_NAME,
     foreignKeys = [ForeignKey(

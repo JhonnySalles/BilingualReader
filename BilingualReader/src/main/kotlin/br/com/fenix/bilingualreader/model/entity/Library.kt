@@ -11,6 +11,7 @@ import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.File
 import java.io.Serializable
 
+
 @Entity(
     tableName = DataBaseConsts.LIBRARIES.TABLE_NAME,
     indices = [Index(value = [DataBaseConsts.LIBRARIES.COLUMNS.TITLE])]

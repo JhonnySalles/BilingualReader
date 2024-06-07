@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.model.entity
 
 import com.google.gson.annotations.SerializedName
 
+
 data class SubTitleText(
     @SerializedName("texto")
     val text: String,

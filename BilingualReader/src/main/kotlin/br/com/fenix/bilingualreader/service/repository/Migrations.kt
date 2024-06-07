@@ -5,6 +5,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import org.slf4j.LoggerFactory
 
+
 class Migrations {
     object SQLINITIAL {
         const val KANJI: String = "INSERT INTO " + DataBaseConsts.JLPT.TABLE_NAME +

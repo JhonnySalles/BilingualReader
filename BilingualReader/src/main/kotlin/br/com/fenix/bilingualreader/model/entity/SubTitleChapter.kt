@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader.model.entity
 import br.com.fenix.bilingualreader.model.enums.Languages
 import com.google.gson.annotations.SerializedName
 
+
 data class SubTitleChapter(
     @SerializedName("manga")
     var manga: String,

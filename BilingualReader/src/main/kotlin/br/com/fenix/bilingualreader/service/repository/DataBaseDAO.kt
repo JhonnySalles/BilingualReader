@@ -634,6 +634,9 @@ abstract class BookAnnotationDAO : DataBaseDAO<BookAnnotation> {
     )
     abstract fun list(idBook: Long): List<BookAnnotation>
 
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook")
+    abstract fun findByBook(idBook: Long): List<BookAnnotation>
+
     @Query("SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook AND " + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGE + " = :page")
     abstract fun findByPage(idBook: Long, page: Int): List<BookAnnotation>
 

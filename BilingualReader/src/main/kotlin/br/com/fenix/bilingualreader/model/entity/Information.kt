@@ -10,6 +10,7 @@ import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import java.time.LocalDate
 
+
 class Information() {
     companion object {
         const val MY_ANIME_LIST = "MyAnimeList"

@@ -10,6 +10,7 @@ import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.Serializable
 import java.time.LocalDateTime
 
+
 @Entity(
     tableName = DataBaseConsts.BOOK_SEARCH_HISTORY.TABLE_NAME,
     indices = [Index(value = [DataBaseConsts.BOOK_SEARCH_HISTORY.COLUMNS.FK_ID_BOOK])]

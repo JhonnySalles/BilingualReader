@@ -69,8 +69,8 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
             mOriginalSize = textSize
     }
 
-    override fun setOnTouchListener(l: OnTouchListener?) {
-        mOuterTouchListener = l
+    override fun setOnTouchListener(listenner: OnTouchListener?) {
+        mOuterTouchListener = listenner
     }
 
     private var mBaseDistZoomIn = 0

@@ -13,6 +13,7 @@ import android.widget.TextView
 import androidx.core.text.clearSpans
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.Speech
 import br.com.fenix.bilingualreader.model.enums.AudioStatus
 import br.com.fenix.bilingualreader.service.listener.TTSListener
@@ -108,8 +109,7 @@ class TextViewPager(
         span.clearSpans()
         span.setSpan(
             ForegroundColorSpan(context.getColorFromAttr(R.attr.colorOnSurfaceVariant)),
-            i,
-            i + speech.text.length,
+            i, i + speech.text.length,
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
         )
         textViewPage.text = span

@@ -11,6 +11,7 @@ import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.Serializable
 import java.time.LocalDateTime
 
+
 @Entity(
     tableName = DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME,
     indices = [Index(value = [DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK, DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER])]

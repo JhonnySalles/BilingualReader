@@ -7,13 +7,15 @@ import android.graphics.Color
 import android.graphics.text.LineBreaker.JUSTIFICATION_MODE_INTER_WORD
 import android.os.Build
 import android.text.Html
-import android.text.method.ScrollingMovementMethod
+import android.text.Spannable
+import android.text.SpannableString
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.webkit.WebView
 import android.widget.FrameLayout
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.text.clearSpans
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -33,7 +35,6 @@ import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.BookAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.BookRepository
-import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
@@ -42,8 +43,8 @@ import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import br.com.fenix.bilingualreader.view.components.ImageGetter
 import br.com.fenix.bilingualreader.view.components.book.TextViewPage
 import br.com.fenix.bilingualreader.view.components.book.TextViewPager
+import br.com.fenix.bilingualreader.view.ui.popup.PopupBookAnnotations
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
 
 
 class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
@@ -91,6 +92,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private var isProcessJapaneseText = mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT, true)
     private var isFurigana = mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT, true)
     private var mConfiguration: BookConfiguration? = null
+    private val mAnnotation = mutableListOf<BookAnnotation>()
 
     init {
         loadPreferences(false)
@@ -139,8 +141,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 "  max-height: 100%;" +
                 "}"
 
-        val meta =
-            "<meta name=\"viewport\" content=\"height=device-height, width=device-width, initial-scale=1, maximum-scale=2, user-scalable=yes\" >"
+        val meta = "<meta name=\"viewport\" content=\"height=device-height, width=device-width, initial-scale=1, maximum-scale=2, user-scalable=yes\" >"
         val style = "<style type=\"text/css\"> " +
                 mFontsLocation +
                 "body { " +
@@ -233,6 +234,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     }
 
     fun loadConfiguration(book: Book?) {
+        mAnnotation.clear()
         isJapanese = book?.language == Languages.JAPANESE
         mConfiguration = if (book?.id != null) mRepository.findConfiguration(book.id!!) else null
         loadConfiguration(mConfiguration)
@@ -241,6 +243,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             if (mConfiguration == null)
                 saveBookConfiguration(book.id!!)
             mVocabularyRepository.processVocabulary(app.applicationContext, book.id!!)
+            mAnnotation.addAll(findAnnotationByBook(book))
         }
     }
 
@@ -463,6 +466,29 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         else
             Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
 
+        val marks = mAnnotation.filter { it.page == page }
+        if (marks.isNotEmpty()) {
+            var isSpan = false
+            val span = SpannableString(holder.textView.text)
+            span.clearSpans()
+
+            for (mark in marks) {
+                val i: Int = holder.textView.text.indexOf(mark.text)
+
+                if (i < 0)
+                    continue
+
+                isSpan = true
+                val cs = PopupBookAnnotations.generateClick(mark, app.getColor(mark.color.getColor())) {
+
+                }
+                span.setSpan(cs, i, i + mark.text.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+
+            if (isSpan)
+                holder.textView.text = span
+        }
+
         holder.textView.setLayerType(WebView.LAYER_TYPE_NONE, null)
 
         holder.textView.setBackgroundColor(Color.TRANSPARENT)
@@ -488,6 +514,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             mAnnotationRepository.delete(annotation)
     }
 
-    fun findByPage(book: Book, page: Int) = mAnnotationRepository.findByPage(book.id!!, page)
+    fun findAnnotationByBook(book: Book) = mAnnotationRepository.findByBook(book.id!!)
+
+    fun findAnnotationByPage(book: Book, page: Int) = mAnnotationRepository.findByPage(book.id!!, page)
 
 }

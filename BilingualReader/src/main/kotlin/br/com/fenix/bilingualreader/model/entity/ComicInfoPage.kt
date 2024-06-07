@@ -4,6 +4,7 @@ import br.com.fenix.bilingualreader.model.enums.ComicInfoPageType
 import org.simpleframework.xml.Attribute
 import org.simpleframework.xml.Root
 
+
 @Root(name = "Page", strict = false)
 data class ComicInfoPage @JvmOverloads constructor(
     @field: Attribute(name = "Bookmark", required = false) @param:Attribute(name = "Bookmark")

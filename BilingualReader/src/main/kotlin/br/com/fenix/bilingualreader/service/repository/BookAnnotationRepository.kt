@@ -43,6 +43,15 @@ class BookAnnotationRepository(context: Context) {
         }
     }
 
+    fun findByBook(idBook: Long): List<BookAnnotation> {
+        return try {
+            mDataBase.findByBook(idBook)
+        } catch (e: Exception) {
+            mLOGGER.error("Error when find annotation by book: " + e.message, e)
+            arrayListOf()
+        }
+    }
+
     fun findByPage(idBook: Long, page: Int): List<BookAnnotation> {
         return try {
             mDataBase.findByPage(idBook, page)

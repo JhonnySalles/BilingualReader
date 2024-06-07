@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.model.entity
 
+
 data class Separator(
     var title: String,
     var items: Int = 0

@@ -12,6 +12,7 @@ import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.Serializable
 
+
 @Entity(
     tableName = DataBaseConsts.BOOK_CONFIGURATION.TABLE_NAME,
     indices = [Index(value = [DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK])]

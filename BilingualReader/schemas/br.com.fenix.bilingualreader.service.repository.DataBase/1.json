@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "98f8c1d542537ce01c392927e5c5d2a1",
+    "identityHash": "18cc14c9e2491fcdad914d55e455f199",
     "entities": [
       {
         "tableName": "Manga",
@@ -1439,7 +1439,7 @@
         "foreignKeys": []
       },
       {
-        "tableName": "tags",
+        "tableName": "Tags",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `excluded` INTEGER NOT NULL, `isSelected` INTEGER NOT NULL)",
         "fields": [
           {
@@ -1475,13 +1475,13 @@
         },
         "indices": [
           {
-            "name": "index_tags_name",
+            "name": "index_Tags_name",
             "unique": false,
             "columnNames": [
               "name"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_tags_name` ON `${TABLE_NAME}` (`name`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Tags_name` ON `${TABLE_NAME}` (`name`)"
           }
         ],
         "foreignKeys": []
@@ -1587,7 +1587,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '98f8c1d542537ce01c392927e5c5d2a1')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '18cc14c9e2491fcdad914d55e455f199')"
     ]
   }
 }

@@ -12,6 +12,7 @@ import java.io.File
 import java.io.Serializable
 import java.time.LocalDateTime
 
+
 @Entity(
     tableName = DataBaseConsts.FILELINK.TABLE_NAME,
     indices = [Index(value = [DataBaseConsts.FILELINK.COLUMNS.FK_ID_MANGA, DataBaseConsts.FILELINK.COLUMNS.FILE_NAME])]

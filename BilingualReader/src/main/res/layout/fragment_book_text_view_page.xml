@@ -19,7 +19,7 @@
             android:background="@color/transparent"
             android:scrollbars = "vertical"
             android:textIsSelectable="true"
-            android:layout_gravity="center_vertical"
+            android:gravity="center"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/book_reader_text_margin"

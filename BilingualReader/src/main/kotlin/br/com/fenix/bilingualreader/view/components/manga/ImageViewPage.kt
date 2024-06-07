@@ -220,8 +220,8 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
         postInvalidate()
     }
 
-    override fun setOnTouchListener(l: OnTouchListener?) {
-        mOuterTouchListener = l
+    override fun setOnTouchListener(listenner: OnTouchListener?) {
+        mOuterTouchListener = listenner
     }
 
     fun setTranslateToRightEdge(translate: Boolean) {

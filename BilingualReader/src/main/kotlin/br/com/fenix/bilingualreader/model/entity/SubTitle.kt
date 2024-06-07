@@ -10,6 +10,7 @@ import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.File
 import java.time.LocalDateTime
 
+
 @Entity(
     tableName = DataBaseConsts.SUBTITLES.TABLE_NAME,
     indices = [Index(value = [DataBaseConsts.SUBTITLES.COLUMNS.LANGUAGE, DataBaseConsts.SUBTITLES.COLUMNS.FK_ID_MANGA])]

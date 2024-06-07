@@ -6,6 +6,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 
+
 @Entity(
     tableName = DataBaseConsts.JLPT.TABLE_NAME,
     indices = [Index(value = [DataBaseConsts.JLPT.COLUMNS.KANJI, DataBaseConsts.JLPT.COLUMNS.LEVEL])]

@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import com.google.gson.annotations.SerializedName
 
+
 @Entity(
     tableName = DataBaseConsts.VOCABULARY.TABLE_NAME,
     indices = [Index(value = [DataBaseConsts.VOCABULARY.COLUMNS.WORD, DataBaseConsts.VOCABULARY.COLUMNS.BASIC_FORM])]

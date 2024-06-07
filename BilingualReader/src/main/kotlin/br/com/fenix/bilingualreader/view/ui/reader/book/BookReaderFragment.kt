@@ -98,7 +98,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private lateinit var mPagerAdapter: Adapter<RecyclerView.ViewHolder>
     private lateinit var mReaderTTSContainer: LinearLayout
     private lateinit var mReaderTTSPlay: MaterialButton
-    private lateinit var mReaderTTSProgrss: CircularProgressIndicator
+    private lateinit var mReaderTTSProgress: CircularProgressIndicator
 
     private lateinit var mCoverContent: ConstraintLayout
     private lateinit var mCoverImage: ImageView
@@ -223,7 +223,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         mReaderTTSContainer = requireActivity().findViewById(R.id.container_book_tts)
         mReaderTTSPlay = requireActivity().findViewById(R.id.reader_book_tts_play)
-        mReaderTTSProgrss = requireActivity().findViewById(R.id.reader_book_tts_progress)
+        mReaderTTSProgress = requireActivity().findViewById(R.id.reader_book_tts_progress)
 
         if (mBook != null) {
             BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, true)
@@ -792,9 +792,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     mReaderTTSContainer.alpha = initialAlpha
                     mReaderTTSContainer.translationY = initialTranslation
 
-                    mReaderTTSProgrss.progress = mCurrentPage
-                    mReaderTTSProgrss.max = mViewPager.adapter!!.itemCount
-                    mReaderTTSProgrss.isIndeterminate = true
+                    mReaderTTSProgress.progress = mCurrentPage
+                    mReaderTTSProgress.max = mViewPager.adapter!!.itemCount
+                    mReaderTTSProgress.isIndeterminate = true
 
                     mReaderTTSContainer.visibility = View.VISIBLE
                 }
@@ -809,10 +809,14 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             }
 
             AudioStatus.PLAY -> {
-                if (mReaderTTSProgrss.isIndeterminate) {
-                    mReaderTTSProgrss.isIndeterminate = false
-                    mReaderTTSProgrss.progress = mCurrentPage
-                    mReaderTTSProgrss.max = mViewPager.adapter!!.itemCount
+                if (mReaderTTSProgress.isIndeterminate) {
+                    mReaderTTSProgress.isIndeterminate = false
+                    mReaderTTSProgress.progress = mCurrentPage
+                    mReaderTTSProgress.max = mViewPager.adapter!!.itemCount
+
+                    mViewModel.history?.let {
+                        it.useTTS = true
+                    }
                 }
 
                 mReaderTTSPlay.setIconResource(R.drawable.ic_tts_pause)
@@ -826,7 +830,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     override fun readingLine(speech: Speech) {}
 
     override fun changePageTTS(old: Int, new: Int) {
-        mReaderTTSProgrss.progress = new
+        mReaderTTSProgress.progress = new
         setCurrentPage(new + 1, isAnimated = true)
     }
 
@@ -846,7 +850,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     override fun textSelectRemoveMark(page: Int, start: Int, end: Int) {
-        val annotations = mViewModel.findByPage(mBook!!, page)
+        val annotations = mViewModel.findAnnotationByPage(mBook!!, page)
         if (annotations.isNotEmpty()) {
             for (annotation in annotations) {
                 if (annotation.range[0] == start && annotation.range[1] == end)

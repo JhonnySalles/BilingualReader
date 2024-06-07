@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.model.entity
 
 import android.net.Uri
 
+
 data class Speech(
     val page: Int,
     val sequence: Int,

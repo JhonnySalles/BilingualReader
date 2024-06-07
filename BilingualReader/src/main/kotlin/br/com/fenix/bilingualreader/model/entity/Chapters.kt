@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.model.entity
 
 import android.graphics.Bitmap
 
+
 data class Chapters(
     var title: String,
     val number: Int,
