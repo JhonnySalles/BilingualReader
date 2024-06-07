@@ -12,6 +12,7 @@ class BookAnnotationRepository(context: Context) {
 
     // --------------------------------------------------------- BOOK ANNOTATION ---------------------------------------------------------
     fun save(obj: BookAnnotation) {
+        obj.alteration = LocalDateTime.now()
         mDataBase.save(obj)
     }
 

@@ -184,6 +184,9 @@
     <dimen name="book_annotation_button_margin">5dp</dimen>
     <dimen name="book_annotation_list_padding">10dp</dimen>
 
+    <dimen name="book_annotation_popup_size">100dp</dimen>
+    <dimen name="book_annotation_popup_buttons_margin">20dp</dimen>
+
     <dimen name="book_search_divider_title">14sp</dimen>
     <dimen name="book_search_text">12sp</dimen>
     <dimen name="book_search_page">10sp</dimen>

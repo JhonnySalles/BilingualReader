@@ -22,7 +22,7 @@
         <item
             android:id="@+id/menu_text_select_colors_green"
             android:icon="@drawable/ic_text_view_select_green"
-            android:title="@string/reading_book_menu_text_colors_greed"
+            android:title="@string/reading_book_menu_text_colors_green"
             android:orderInCategory="112"
             app:showAsAction="always" />
         <item

@@ -840,27 +840,35 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
     override fun textSelectReadingFrom(page: Int, text: String) = executeTTS(page, text)
 
-    override fun textSelectAddMark(page: Int, text: String, color: Color, start: Int, end: Int) {
+    override fun textSelectAddMark(page: Int, text: String, color: Color, start: Int, end: Int): BookAnnotation {
         val chapter = mParse!!.getChapter(page) ?: Pair(0, "")
         val annotation = BookAnnotation(
             mBook!!.id!!, page, mParse!!.pageCount, MarkType.BookMark, chapter.first.toFloat(), chapter.second, text,
             intArrayOf(start, end), "", color = color
         )
         mViewModel.save(annotation)
+        return annotation
     }
 
     override fun textSelectRemoveMark(page: Int, start: Int, end: Int) {
+        var refresh = false
         val annotations = mViewModel.findAnnotationByPage(mBook!!, page)
         if (annotations.isNotEmpty()) {
             for (annotation in annotations) {
-                if (annotation.range[0] == start && annotation.range[1] == end)
+                if (annotation.range[0] == start && annotation.range[1] == end) {
                     mViewModel.delete(annotation)
-                else if ((start >= annotation.range[0] && start <= annotation.range[1]) ||
+                    refresh = true
+                } else if ((start >= annotation.range[0] && start <= annotation.range[1]) ||
                     (end >= annotation.range[0] && end <= annotation.range[1]) ||
                     (start <= annotation.range[0] && end >= annotation.range[1])) {
                     mViewModel.delete(annotation)
+                    refresh = true
                 }
             }
+        }
+        if (refresh) {
+            mViewModel.refreshAnnotations(mBook)
+            mViewPager.adapter!!.notifyItemChanged(page)
         }
     }
 

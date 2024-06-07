@@ -6,7 +6,9 @@ import android.content.Context
 import android.os.Build
 import android.text.Selection
 import android.text.Spannable
+import android.text.SpannableString
 import android.text.style.BackgroundColorSpan
+import android.text.style.StyleSpan
 import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
@@ -14,11 +16,12 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
 
 
-class TextViewSelectCallback(val context: Context, val textView: TextView, val page: Int, val listener: TextSelectCallbackListener?) : ActionMode.Callback {
+class TextViewSelectCallback(val context: Context, val textView: TextView, val page: Int, val createSpan: (annotation: BookAnnotation, start: Int, end: Int) -> (Unit),  val listener: TextSelectCallbackListener?) : ActionMode.Callback {
 
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
@@ -38,7 +41,6 @@ class TextViewSelectCallback(val context: Context, val textView: TextView, val p
 
         val start: Int = textView.selectionStart
         val end: Int = textView.selectionEnd
-        val wordtoSpan = textView.text as Spannable
 
         if (item != null)
             when (item.itemId) {
@@ -54,47 +56,34 @@ class TextViewSelectCallback(val context: Context, val textView: TextView, val p
                 }
 
                 R.id.menu_text_select_colors_green -> {
-                    val color = Color.Green
-                    wordtoSpan.setSpan(
-                        BackgroundColorSpan(context.getColor(color.getColor())), start, end,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    listener?.textSelectAddMark(page, textView.text.substring(start, end), color, start, end)
+                    listener?.textSelectAddMark(page, textView.text.substring(start, end), Color.Green, start, end)?.let {
+                        createSpan(it, start, end)
+                    }
                     return true
                 }
 
                 R.id.menu_text_select_colors_red -> {
-                    val color = Color.Red
-                    wordtoSpan.setSpan(
-                        BackgroundColorSpan(context.getColor(color.getColor())), start, end,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    listener?.textSelectAddMark(page, textView.text.substring(start, end), color, start, end)
+                    listener?.textSelectAddMark(page, textView.text.substring(start, end), Color.Red, start, end)?.let {
+                        createSpan(it, start, end)
+                    }
                     return true
                 }
 
                 R.id.menu_text_select_colors_yellow -> {
-                    val color = Color.Yellow
-                    wordtoSpan.setSpan(
-                        BackgroundColorSpan(context.getColor(color.getColor())), start, end,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    listener?.textSelectAddMark(page, textView.text.substring(start, end), color, start, end)
+                    listener?.textSelectAddMark(page, textView.text.substring(start, end), Color.Yellow, start, end)?.let {
+                        createSpan(it, start, end)
+                    }
                     return true
                 }
 
                 R.id.menu_text_select_colors_blue -> {
-                    val color = Color.Blue
-                    wordtoSpan.setSpan(
-                        BackgroundColorSpan(context.getColor(color.getColor())), start, end,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    listener?.textSelectAddMark(page, textView.text.substring(start, end), color, start, end)
+                    listener?.textSelectAddMark(page, textView.text.substring(start, end), Color.Blue, start, end)?.let {
+                        createSpan(it, start, end)
+                    }
                     return true
                 }
 
                 R.id.menu_text_select_colors_erase -> {
-                    wordtoSpan.setSpan(BackgroundColorSpan(android.graphics.Color.TRANSPARENT), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                     listener?.textSelectRemoveMark(page, start, end)
                     return true
                 }

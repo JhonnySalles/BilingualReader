@@ -59,7 +59,7 @@ data class BookAnnotation(
 
     constructor(
         id: Long?, id_book: Long, page: Int, pages: Int, type: MarkType, chapterNumber: Float, chapter: String, text: String, range: IntArray,
-        annotation: String, favorite: Boolean,  color: Color, alteration: LocalDateTime, created: LocalDateTime, count: Int
+        annotation: String, favorite: Boolean, color: Color, alteration: LocalDateTime, created: LocalDateTime, count: Int
     ) : this(
         id, id_book, page, pages, type, chapterNumber, chapter, text, range, annotation, favorite,
         color, alteration, created
@@ -68,8 +68,28 @@ data class BookAnnotation(
     }
 
     @Ignore
+    constructor(other: BookAnnotation) : this(
+        other.id, other.id_book, other.page, other.pages, other.type, other.chapterNumber, other.chapter, other.text, other.range, other.annotation,
+        other.favorite, other.color, other.alteration, other.created, other.count
+    )
+
+    @Ignore
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COUNT)
     var count: Int = 0
+
+    fun update(other: BookAnnotation) {
+        this.id = other.id
+        this.page = other.page
+        this.pages = other.pages
+        this.text = other.text
+        this.range = other.range
+        this.annotation = other.annotation
+        this.favorite = other.favorite
+        this.color = other.color
+        this.alteration = other.alteration
+        this.created = other.created
+        this.count = other.count
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

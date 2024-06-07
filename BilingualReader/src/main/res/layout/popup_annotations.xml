@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/frame_popup_tag_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/margin"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/popup_annotation_title"
+            style="@style/TextTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/book_annotation_popup_title" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/popup_annotation_text"
+            style="@style/TextInputEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            app:hintEnabled="false">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/popup_annotation_edit"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/book_annotation_popup_size"
+                android:inputType="textMultiLine"
+                android:gravity="top|start"
+                android:scrollbars="vertical"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/popup_annotation_yellow"
+                style="@style/Button.IconOnly"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:contentDescription="@string/reading_book_menu_text_colors_yellow"
+                app:iconTint="@color/text_view_select_yellow"
+                app:iconSize="20dp"
+                app:icon="@drawable/ic_text_view_select_yellow"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/popup_annotation_green"
+                style="@style/Button.IconOnly"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:contentDescription="@string/reading_book_menu_text_colors_green"
+                android:layout_marginStart="@dimen/book_annotation_popup_buttons_margin"
+                app:iconTint="@color/text_view_select_green"
+                app:iconSize="20dp"
+                app:icon="@drawable/ic_text_view_select_green"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/popup_annotation_blue"
+                style="@style/Button.IconOnly"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:contentDescription="@string/reading_book_menu_text_colors_blue"
+                android:layout_marginStart="@dimen/book_annotation_popup_buttons_margin"
+                app:iconTint="@color/text_view_select_blue"
+                app:iconSize="20dp"
+                app:icon="@drawable/ic_text_view_select_blue"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/popup_annotation_red"
+                style="@style/Button.IconOnly"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:contentDescription="@string/reading_book_menu_text_colors_red"
+                android:layout_marginStart="@dimen/book_annotation_popup_buttons_margin"
+                app:iconTint="@color/text_view_select_red"
+                app:iconSize="20dp"
+                app:icon="@drawable/ic_text_view_select_red"/>
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

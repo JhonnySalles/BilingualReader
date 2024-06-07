@@ -13,7 +13,6 @@ import android.widget.TextView
 import androidx.core.text.clearSpans
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.Speech
 import br.com.fenix.bilingualreader.model.enums.AudioStatus
 import br.com.fenix.bilingualreader.service.listener.TTSListener
@@ -25,10 +24,7 @@ import org.slf4j.LoggerFactory
 
 
 class TextViewPager(
-    var context: Context,
-    model: BookReaderViewModel,
-    parse: DocumentParse?,
-    listener: View.OnTouchListener? = null,
+    var context: Context, model: BookReaderViewModel, parse: DocumentParse?, listener: View.OnTouchListener? = null,
     textSelectCallback: TextSelectCallbackListener? = null
 ) : RecyclerView.Adapter<TextViewPager.TextViewPagerHolder>(), TTSListener {
 
@@ -51,7 +47,7 @@ class TextViewPager(
     override fun getItemCount(): Int = mParse?.getPageCount(mViewModel.getFontSize(isBook = true).toInt()) ?: 1
 
     override fun onBindViewHolder(holder: TextViewPagerHolder, position: Int) {
-        mViewModel.prepareHtml(mParse, position, holder)
+        mViewModel.prepareHtml(context, mParse, position, holder, mTextSelectCallback)
 
         val font = mViewModel.fontUpdate.value + mViewModel.fontSize.value
         if (font != holder.style) {
@@ -61,10 +57,9 @@ class TextViewPager(
 
         holder.textView.resetZoom()
 
-        if (!holder.textView.isOnlyImage) {
+        if (!holder.textView.isOnlyImage)
             holder.textView.fixTextSelection()
-            holder.textView.customSelectionActionModeCallback = TextViewSelectCallback(context, holder.textView, position, mTextSelectCallback)
-        } else
+        else
             holder.textView.setTextIsSelectable(false)
 
         if (mListener != null)
@@ -77,6 +72,7 @@ class TextViewPager(
             else
                 holder.textView.parent.requestDisallowInterceptTouchEvent(true)
         })
+
         holder.textView.setOnTouchListener { view, motionEvent ->
             view.performClick()
             mListener?.onTouch(view, motionEvent)

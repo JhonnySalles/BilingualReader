@@ -222,7 +222,7 @@
     <string name="reading_book_menu_text_functions_find">Encontrar</string>
     <string name="reading_book_menu_text_functions_translate">Traduzir</string>
 
-    <string name="reading_book_menu_text_colors_greed">Verde</string>
+    <string name="reading_book_menu_text_colors_green">Verde</string>
     <string name="reading_book_menu_text_colors_blue">Azul</string>
     <string name="reading_book_menu_text_colors_red">Vermelho</string>
     <string name="reading_book_menu_text_colors_yellow">Amarelo</string>
@@ -289,6 +289,12 @@
     <string name="book_annotation_color_green">Verde</string>
     <string name="book_annotation_color_red">Vermelho</string>
     <string name="book_annotation_color_yellow">Amarelo</string>
+
+    <!-- BOOK POPUP ANNOTATION LAYOUT -->
+    <string name="book_annotation_popup_title">Página %d - %s</string>
+    <string name="book_annotation_popup_delete">Deletar</string>
+    <string name="book_annotation_popup_cancel">Cancelar</string>
+    <string name="book_annotation_popup_confirm">Confirmar</string>
 
     <!-- BOOK SEARCH -->
     <string name="book_search_menu">Pesquisa</string>
