@@ -19,7 +19,7 @@ class BookSearchRepository(context: Context) {
     }
 
     fun delete(idBook: Long) {
-        val list = mDataBase.findAll(idBook)
+        val list = mDataBase.findAllByBook(idBook)
         for (obj in list)
             mDataBase.delete(obj)
     }
@@ -30,7 +30,7 @@ class BookSearchRepository(context: Context) {
     }
 
     fun findAll(idBook: Long): List<BookSearch> {
-        return mDataBase.findAll(idBook)
+        return mDataBase.findAllByBook(idBook)
     }
 
 }

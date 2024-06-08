@@ -11,6 +11,9 @@ class BookAnnotationRepository(context: Context) {
     private var mDataBase = DataBase.getDataBase(context).getBookAnnotation()
 
     // --------------------------------------------------------- BOOK ANNOTATION ---------------------------------------------------------
+
+    fun find(id: Long): BookAnnotation? = mDataBase.find(id)
+
     fun save(obj: BookAnnotation) {
         obj.alteration = LocalDateTime.now()
         mDataBase.save(obj)
@@ -28,7 +31,7 @@ class BookAnnotationRepository(context: Context) {
 
     fun findAll(idBook: Long): List<BookAnnotation> {
         return try {
-            mDataBase.findAll(idBook)
+            mDataBase.findAllByBook(idBook)
         } catch (e: Exception) {
             mLOGGER.error("Error when list annotation of Book: " + e.message, e)
             arrayListOf()

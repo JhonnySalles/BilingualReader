@@ -13,6 +13,7 @@ import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.BookAnnotationRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import br.com.fenix.bilingualreader.utils.BookTestUtil
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import junit.framework.TestCase
@@ -30,7 +31,9 @@ import java.util.concurrent.TimeUnit
 @RunWith(AndroidJUnit4::class)
 class BookAnnotationFragmentTest {
 
-    private val book: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), "/storage/1F0A-291F/Livros/" + "The Irregular at Magic High School - Volume 01 - Enrollment Chapter (I) [Yen Press][Kobo_LNWNCentral].pdf")
+    private val path = "/storage/1CFF-100F/Livros/The Irregular at Magic High School - Volume 01 [Yen Press] [Darkmeep].epub"
+
+    private val book: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(),path)
     private var intent: Intent? = null
 
     init {
@@ -48,6 +51,7 @@ class BookAnnotationFragmentTest {
 
     private val awaitProcess = 2L
     private val fontSize = GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT
+
     companion object {
         private val annotations = mutableListOf<BookAnnotation>()
 
@@ -62,16 +66,12 @@ class BookAnnotationFragmentTest {
 
     init {
         val repository = BookAnnotationRepository(ApplicationProvider.getApplicationContext())
-        annotations.add(BookAnnotation(book.id!!, 1, book.pages, MarkType.Annotation, 1f, "Chapter 1", "Text annotation", intArrayOf(1, 5), "Annotation 1", true, Color.Yellow))
-        annotations.add(BookAnnotation(book.id!!, 2, book.pages, MarkType.Annotation, 2f, "Chapter 2", "Text annotation chapter 2", intArrayOf(2, 6), "Annotation 2", false, Color.Red))
-        annotations.add(BookAnnotation(book.id!!, 2, book.pages, MarkType.Annotation, 2f, "Chapter 2", "Text annotation chapter 2", intArrayOf(2, 6), "Annotation 3", false, Color.Red))
-        annotations.add(BookAnnotation(book.id!!, 2, book.pages, MarkType.Annotation, 2f, "Chapter 2", "Text annotation chapter 2", intArrayOf(9, 15), "Annotation 4", true, Color.Green))
-        annotations.add(BookAnnotation(book.id!!, 3, book.pages, MarkType.PageMark, 3f, "Chapter 3", "Text page mark", intArrayOf(9, 15), "Page mark 1", false, Color.None))
-        annotations.add(BookAnnotation(book.id!!, 4, book.pages, MarkType.PageMark, 5f, "Chapter 5", "Text page mark", intArrayOf(), "Page mark 2", true, Color.None))
-        annotations.add(BookAnnotation(book.id!!, 4, book.pages, MarkType.Annotation, 5f, "Chapter 5", "Text annotation chapter 5", intArrayOf(9, 15), "Annotation 5", false, Color.Blue))
-
-        for (annotation in annotations)
+        annotations.clear()
+        annotations.addAll(BookTestUtil.getAnnotations(book))
+        for (annotation in annotations) {
+            repository.find(annotation.id!!)?.let { repository.delete(it) }
             repository.save(annotation)
+        }
     }
 
     init {

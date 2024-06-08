@@ -4,9 +4,12 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.RawQuery
 import androidx.room.RoomWarnings
 import androidx.room.Update
+import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteOpenHelper
+import androidx.sqlite.db.SupportSQLiteQuery
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.BookConfiguration
@@ -38,20 +41,55 @@ interface DataBaseDAO<T> {
     @Insert
     fun save(entities: List<T>)
 
+    @Insert
+    fun saveAll(vararg entities: T)
+
     @Update
     fun update(obj: T): Int
 
     @Update
     fun update(entities: List<T>)
 
+    @Update
+    fun update(vararg entities: T)
+
     @Delete
     fun delete(obj: T)
+
+
+    @RawQuery
+    fun list(query: SupportSQLiteQuery): List<T>
+
+    @RawQuery
+    fun query(query: SupportSQLiteQuery): T?
+
+}
+
+@Dao
+abstract class BaseDAO<T, ID>(private val mTABLE: String, private val mCOLUMN_ID : String) : DataBaseDAO<T> {
+
+    open fun exist(id: ID): Boolean = query(SimpleSQLiteQuery("SELECT * FROM $mTABLE WHERE $mCOLUMN_ID = ${id.toString()}")) != null
+
+    open fun find(id: ID): T? = query(SimpleSQLiteQuery("SELECT * FROM $mTABLE WHERE $mCOLUMN_ID = ${id.toString()}"))
+
+    open fun findAll(vararg id : ID) : List<T> = findAll(id.toList())
+
+    open fun findAll(ids: List<ID>): List<T> {
+        val where = StringBuilder()
+        for ((index, id)  in ids.withIndex()) {
+            if (index != 0)
+                where.append(",")
+
+            where.append("'").append(id).append("'")
+        }
+        return list(SimpleSQLiteQuery("SELECT * FROM $mTABLE WHERE $mCOLUMN_ID IN ($where)"))
+    }
 
 }
 
 
 @Dao
-abstract class MangaDAO : DataBaseDAO<Manga> {
+abstract class MangaDAO : BaseDAO<Manga, Long>(DataBaseConsts.MANGA.TABLE_NAME, DataBaseConsts.MANGA.COLUMNS.ID) {
     @Query("SELECT count(*) FROM " + DataBaseConsts.MANGA.TABLE_NAME)
     abstract fun getMangaCount(): Int
 
@@ -135,7 +173,7 @@ abstract class MangaDAO : DataBaseDAO<Manga> {
 
 
 @Dao
-abstract class BookDAO : DataBaseDAO<Book> {
+abstract class BookDAO : BaseDAO<Book, Long>(DataBaseConsts.BOOK.TABLE_NAME, DataBaseConsts.BOOK.COLUMNS.ID) {
 
     @Query("SELECT count(*) FROM " + DataBaseConsts.BOOK.TABLE_NAME)
     abstract fun getCount(): Int
@@ -186,7 +224,7 @@ abstract class BookDAO : DataBaseDAO<Book> {
 
 
 @Dao
-abstract class SubTitleDAO : DataBaseDAO<SubTitle> {
+abstract class SubTitleDAO : BaseDAO<SubTitle, Long>(DataBaseConsts.SUBTITLES.TABLE_NAME, DataBaseConsts.SUBTITLES.COLUMNS.ID) {
 
     @Query("SELECT * FROM " + DataBaseConsts.SUBTITLES.TABLE_NAME + " WHERE " + DataBaseConsts.SUBTITLES.COLUMNS.FK_ID_MANGA + " = :idManga AND " + DataBaseConsts.SUBTITLES.COLUMNS.ID + " = :Id")
     abstract fun get(idManga: Long, Id: Long): SubTitle
@@ -208,7 +246,7 @@ abstract class SubTitleDAO : DataBaseDAO<SubTitle> {
 
 
 @Dao
-abstract class KanjiJLPTDAO : DataBaseDAO<KanjiJLPT> {
+abstract class KanjiJLPTDAO : BaseDAO<KanjiJLPT, Long>(DataBaseConsts.JLPT.TABLE_NAME, DataBaseConsts.JLPT.COLUMNS.ID) {
 
     @Query("SELECT * FROM " + DataBaseConsts.JLPT.TABLE_NAME + " WHERE " + DataBaseConsts.JLPT.COLUMNS.ID + " = :id")
     abstract fun get(id: Long): KanjiJLPT
@@ -220,7 +258,7 @@ abstract class KanjiJLPTDAO : DataBaseDAO<KanjiJLPT> {
 
 
 @Dao
-abstract class KanjaxDAO : DataBaseDAO<Kanjax> {
+abstract class KanjaxDAO : BaseDAO<Kanjax, Long>(DataBaseConsts.KANJAX.TABLE_NAME, DataBaseConsts.KANJAX.COLUMNS.ID) {
 
     @Query("SELECT * FROM " + DataBaseConsts.KANJAX.TABLE_NAME + " WHERE " + DataBaseConsts.KANJAX.COLUMNS.ID + " = :id")
     abstract fun get(id: Long): Kanjax
@@ -235,7 +273,7 @@ abstract class KanjaxDAO : DataBaseDAO<Kanjax> {
 
 
 @Dao
-abstract class FileLinkDAO : DataBaseDAO<LinkedFile> {
+abstract class FileLinkDAO : BaseDAO<LinkedFile, Long>(DataBaseConsts.FILELINK.TABLE_NAME, DataBaseConsts.FILELINK.COLUMNS.ID) {
 
     @Query("SELECT * FROM " + DataBaseConsts.FILELINK.TABLE_NAME + " WHERE " + DataBaseConsts.FILELINK.COLUMNS.FK_ID_MANGA + " = :idManga AND " + DataBaseConsts.FILELINK.COLUMNS.FILE_NAME + " = :fileName AND " + DataBaseConsts.FILELINK.COLUMNS.PAGES + " = :pages")
     abstract fun get(idManga: Long, fileName: String, pages: Int): LinkedFile?
@@ -259,7 +297,7 @@ abstract class FileLinkDAO : DataBaseDAO<LinkedFile> {
 
 
 @Dao
-abstract class PageLinkDAO : DataBaseDAO<LinkedPage> {
+abstract class PageLinkDAO : BaseDAO<LinkedPage, Long>(DataBaseConsts.PAGESLINK.TABLE_NAME, DataBaseConsts.PAGESLINK.COLUMNS.ID) {
 
     @Query("SELECT * FROM " + DataBaseConsts.PAGESLINK.TABLE_NAME + " WHERE " + DataBaseConsts.PAGESLINK.COLUMNS.NOT_LINKED + " = 0 AND " + DataBaseConsts.PAGESLINK.COLUMNS.FK_ID_FILE + " = :idFile")
     abstract fun getPageLink(idFile: Long): List<LinkedPage>
@@ -277,7 +315,7 @@ abstract class PageLinkDAO : DataBaseDAO<LinkedPage> {
 
 
 @Dao
-abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
+abstract class VocabularyDAO : BaseDAO<Vocabulary, Long>(DataBaseConsts.VOCABULARY.TABLE_NAME, DataBaseConsts.VOCABULARY.COLUMNS.ID) {
 
     @Query(
         "SELECT V.* " +
@@ -298,13 +336,7 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
                 "     ELSE '' END  " +
                 " ELSE '' END DESC," + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
     )
-    abstract fun list(
-        favorite: Boolean,
-        orderType: String,
-        orderInverse: Boolean,
-        padding: Int,
-        size: Int
-    ): List<Vocabulary>
+    abstract fun list(favorite: Boolean, orderType: String, orderInverse: Boolean, padding: Int, size: Int): List<Vocabulary>
 
     @Query(
         "SELECT V.* " +
@@ -326,15 +358,7 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
                 "     ELSE '' END  " +
                 " ELSE '' END DESC," + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
     )
-    abstract fun list(
-        vocabulary: String,
-        basicForm: String,
-        favorite: Boolean,
-        orderType: String,
-        orderInverse: Boolean,
-        padding: Int,
-        size: Int
-    ): List<Vocabulary>
+    abstract fun list(vocabulary: String, basicForm: String, favorite: Boolean, orderType: String, orderInverse: Boolean, padding: Int, size: Int): List<Vocabulary>
 
     @Query("SELECT * FROM " + DataBaseConsts.VOCABULARY.TABLE_NAME + " WHERE " + DataBaseConsts.VOCABULARY.COLUMNS.ID + " = :id")
     abstract fun get(id: Long): Vocabulary
@@ -383,14 +407,7 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
                 "     ELSE '' END  " +
                 " ELSE '' END DESC," + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
     )
-    abstract fun listByManga(
-        manga: String,
-        favorite: Boolean,
-        orderType: String,
-        orderInverse: Boolean,
-        padding: Int,
-        size: Int
-    ): List<Vocabulary>
+    abstract fun listByManga(manga: String, favorite: Boolean, orderType: String, orderInverse: Boolean, padding: Int, size: Int): List<Vocabulary>
 
     @Query(
         "SELECT V.* " +
@@ -415,16 +432,7 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
                 "     ELSE '' END  " +
                 " ELSE '' END DESC," + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
     )
-    abstract fun listByManga(
-        manga: String,
-        vocabulary: String,
-        basicForm: String,
-        favorite: Boolean,
-        orderType: String,
-        orderInverse: Boolean,
-        padding: Int,
-        size: Int
-    ): List<Vocabulary>
+    abstract fun listByManga(manga: String, vocabulary: String, basicForm: String, favorite: Boolean, orderType: String, orderInverse: Boolean, padding: Int, size: Int): List<Vocabulary>
 
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
@@ -466,14 +474,7 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
                 "     ELSE '' END  " +
                 " ELSE '' END DESC," + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
     )
-    abstract fun listByBook(
-        book: String,
-        favorite: Boolean,
-        orderType: String,
-        orderInverse: Boolean,
-        padding: Int,
-        size: Int
-    ): List<Vocabulary>
+    abstract fun listByBook(book: String, favorite: Boolean, orderType: String, orderInverse: Boolean, padding: Int, size: Int): List<Vocabulary>
 
     @Query(
         "SELECT V.* " +
@@ -498,16 +499,7 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
                 "     ELSE '' END  " +
                 " ELSE '' END DESC," + DataBaseConsts.VOCABULARY.COLUMNS.WORD + " LIMIT :size OFFSET :padding"
     )
-    abstract fun listByBook(
-        book: String,
-        vocabulary: String,
-        basicForm: String,
-        favorite: Boolean,
-        orderType: String,
-        orderInverse: Boolean,
-        padding: Int,
-        size: Int
-    ): List<Vocabulary>
+    abstract fun listByBook(book: String, vocabulary: String, basicForm: String, favorite: Boolean, orderType: String, orderInverse: Boolean, padding: Int, size: Int): List<Vocabulary>
 
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
@@ -527,13 +519,7 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
     abstract fun getBook(id: Long): Book
 
     // --------------------------------------------------------- Subtitle ---------------------------------------------------------
-    fun insert(
-        dbHelper: SupportSQLiteOpenHelper,
-        idMangaOrBook: Long,
-        idVocabulary: Long,
-        appears: Int,
-        isManga: Boolean = true
-    ) {
+    fun insert(dbHelper: SupportSQLiteOpenHelper, idMangaOrBook: Long, idVocabulary: Long, appears: Int, isManga: Boolean = true) {
         val database = dbHelper.readableDatabase
 
         val sql = if (isManga)
@@ -565,7 +551,7 @@ abstract class VocabularyDAO : DataBaseDAO<Vocabulary> {
 
 
 @Dao
-abstract class LibrariesDAO : DataBaseDAO<Library> {
+abstract class LibrariesDAO : BaseDAO<Library, Long>(DataBaseConsts.LIBRARIES.TABLE_NAME, DataBaseConsts.LIBRARIES.COLUMNS.ID) {
 
     @Query("SELECT * FROM " + DataBaseConsts.LIBRARIES.TABLE_NAME + " WHERE " + DataBaseConsts.LIBRARIES.COLUMNS.EXCLUDED + " = 0")
     abstract fun list(): List<Library>
@@ -604,10 +590,10 @@ abstract class LibrariesDAO : DataBaseDAO<Library> {
 
 
 @Dao
-abstract class BookAnnotationDAO : DataBaseDAO<BookAnnotation> {
+abstract class BookAnnotationDAO : BaseDAO<BookAnnotation, Long>(DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME, DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ID) {
 
     @Query("SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook")
-    abstract fun findAll(idBook: Long): List<BookAnnotation>
+    abstract fun findAllByBook(idBook: Long): List<BookAnnotation>
 
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
@@ -644,23 +630,24 @@ abstract class BookAnnotationDAO : DataBaseDAO<BookAnnotation> {
 
 
 @Dao
-abstract class BookConfigurationDAO : DataBaseDAO<BookConfiguration> {
+abstract class BookConfigurationDAO : BaseDAO<BookConfiguration, Long>(DataBaseConsts.BOOK_CONFIGURATION.TABLE_NAME, DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.ID)  {
 
     @Query("SELECT * FROM " + DataBaseConsts.BOOK_CONFIGURATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook")
-    abstract fun find(idBook: Long): BookConfiguration?
+    abstract fun findByBook(idBook: Long): BookConfiguration?
 
 }
 
 @Dao
-abstract class BookSearchDAO : DataBaseDAO<BookSearch> {
+abstract class BookSearchDAO : BaseDAO<BookSearch, Long>(DataBaseConsts.BOOK_SEARCH_HISTORY.TABLE_NAME, DataBaseConsts.BOOK_SEARCH_HISTORY.COLUMNS.ID) {
 
     @Query("SELECT * FROM " + DataBaseConsts.BOOK_SEARCH_HISTORY.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_SEARCH_HISTORY.COLUMNS.FK_ID_BOOK + " = :idBook")
-    abstract fun findAll(idBook: Long): List<BookSearch>
+    abstract fun findAllByBook(idBook: Long): List<BookSearch>
 
 }
 
+
 @Dao
-abstract class TagsDAO : DataBaseDAO<Tags> {
+abstract class TagsDAO : BaseDAO<Tags, Long>(DataBaseConsts.TAGS.TABLE_NAME, DataBaseConsts.TAGS.COLUMNS.ID) {
     @Query("SELECT * FROM " + DataBaseConsts.TAGS.TABLE_NAME + " WHERE " + DataBaseConsts.TAGS.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.TAGS.COLUMNS.ID + " = :id")
     abstract fun get(id: Long): Tags?
 
@@ -676,7 +663,7 @@ abstract class TagsDAO : DataBaseDAO<Tags> {
 
 
 @Dao
-abstract class HistoryDAO : DataBaseDAO<History> {
+abstract class HistoryDAO :  BaseDAO<History, Long>(DataBaseConsts.HISTORY.TABLE_NAME, DataBaseConsts.HISTORY.COLUMNS.ID) {
 
 }
 

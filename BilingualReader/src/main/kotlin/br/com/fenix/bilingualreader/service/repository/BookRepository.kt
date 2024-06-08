@@ -197,7 +197,7 @@ class BookRepository(context: Context) {
 
     fun findConfiguration(idBook: Long): BookConfiguration? {
         return try {
-            mConfiguration.find(idBook)
+            mConfiguration.findByBook(idBook)
         } catch (e: Exception) {
             mLOGGER.error("Error when find Book Configuration: " + e.message, e)
             null

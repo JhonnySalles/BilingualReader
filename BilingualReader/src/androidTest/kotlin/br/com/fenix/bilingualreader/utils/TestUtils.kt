@@ -5,15 +5,19 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.view.ui.book.BookAnnotationFragmentTest
 import java.io.File
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -330,7 +334,7 @@ class BookTestUtil {
             for (i in 0 until 10)
                 array.add(
                     Book(
-                        1,
+                        i.toLong(),
                         Util.getNameWithoutExtensionFromPath(BOOK_TEST_FILE_PATH),
                         "Author",
                         "",
@@ -365,6 +369,54 @@ class BookTestUtil {
                 )
 
             return array
+        }
+
+        fun getAnnotations(book: Book) : List<BookAnnotation> {
+            val annotations = mutableListOf<BookAnnotation>()
+            val chapters = mapOf(1 to 1f, 2 to 1f, 3 to 1f, 4 to 1f, 5 to 3f, 6 to 4f, 7 to 50f, 8 to 90f, 9 to 90f, 10 to 90f)
+            val pages = mapOf(1 to 1, 2 to 3, 3 to 3, 4 to 3, 5 to 4, 6 to 5, 7 to 5, 8 to 6, 9 to 6, 10 to 6)
+            val types = mapOf(1 to MarkType.Annotation, 2 to MarkType.Annotation, 3 to MarkType.Annotation, 4 to MarkType.Annotation, 5 to MarkType.BookMark, 6 to MarkType.PageMark, 7 to MarkType.Annotation, 8 to MarkType.BookMark, 9 to MarkType.PageMark, 10 to MarkType.Annotation)
+            val colors = mapOf(1 to Color.Yellow, 2 to Color.Green, 3 to Color.Blue, 4 to Color.Red, 5 to Color.None, 6 to Color.None, 7 to Color.Green, 8 to Color.None, 9 to Color.None, 10 to Color.Blue)
+
+            var annotationsCount = 0
+            var marksCount = 0
+
+            for (i in 1 until 11) {
+                val type = types[i]
+                val text : String
+                val annotation : String
+
+                if (type != MarkType.Annotation) {
+                    annotationsCount++
+                    text = "Text Annotation $i"
+                    annotation = "Text Annotation $annotationsCount"
+                } else {
+                    marksCount++
+                    text = "Text mark $i"
+                    annotation = "Text Annotation $marksCount"
+                }
+
+                annotations.add(
+                    BookAnnotation(
+                        i.toLong(),
+                        book.id!!,
+                        pages[i]!!,
+                        book.pages,
+                        type!!,
+                        chapters[i]!!,
+                        "Chapter ${chapters[i]}",
+                        text,
+                        intArrayOf((1..5).random(), (6..10).random()),
+                        annotation,
+                        (1..3).random() < 2,
+                        colors[i]!!,
+                        LocalDateTime.now(),
+                        LocalDateTime.now(),
+                        i
+                    )
+                )
+            }
+            return annotations
         }
     }
 }
