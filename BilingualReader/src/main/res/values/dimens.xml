@@ -186,6 +186,8 @@
 
     <dimen name="book_annotation_popup_size">100dp</dimen>
     <dimen name="book_annotation_popup_buttons_margin">20dp</dimen>
+    <dimen name="book_annotation_popup_chapter_list_padding">20dp</dimen>
+    <dimen name="book_annotation_popup_chapter_list_min_height">100dp</dimen>
 
     <dimen name="book_search_divider_title">14sp</dimen>
     <dimen name="book_search_text">12sp</dimen>
@@ -200,6 +202,7 @@
     <dimen name="book_search_down_width">40dp</dimen>
     <dimen name="book_search_down_image_width">30dp</dimen>
     <dimen name="book_search_list_padding">20dp</dimen>
+    <dimen name="book_search_list_min_height">100dp</dimen>
 
     <dimen name="book_chapters_list_padding">20dp</dimen>
 

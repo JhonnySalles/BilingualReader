@@ -12,6 +12,7 @@ import br.com.fenix.bilingualreader.service.listener.PopupOrderListener
 import br.com.fenix.bilingualreader.view.components.TriStateCheckBox
 import org.slf4j.LoggerFactory
 
+
 class LibraryMangaPopupOrder : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(LibraryMangaPopupOrder::class.java)
@@ -22,17 +23,17 @@ class LibraryMangaPopupOrder : Fragment() {
     private lateinit var mOrderFavorite: TriStateCheckBox
     private lateinit var listener: PopupOrderListener
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    private lateinit var mCheckList: ArrayList<TriStateCheckBox>
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.popup_library_order_manga, container, false)
 
         mOrderName = root.findViewById(R.id.popup_library_order_manga_name)
         mOrderDate = root.findViewById(R.id.popup_library_order_manga_date)
         mOrderAccess = root.findViewById(R.id.popup_library_order_manga_access)
         mOrderFavorite = root.findViewById(R.id.popup_library_order_manga_favorite)
+
+        mCheckList = arrayListOf(mOrderName, mOrderDate, mOrderAccess, mOrderFavorite)
 
         var order = Order.Name
         var isDesc = false
@@ -41,7 +42,7 @@ class LibraryMangaPopupOrder : Fragment() {
             isDesc = listener.popupGetOrder()?.second ?: false
         }
 
-        setChecked(getCheckList(), order,isDesc)
+        setChecked(mCheckList, order,isDesc)
         addListener()
         observer()
         return root
@@ -77,13 +78,9 @@ class LibraryMangaPopupOrder : Fragment() {
         }
     }
 
-    private fun getCheckList() = arrayListOf(mOrderName, mOrderDate, mOrderAccess, mOrderFavorite)
-
     private fun addListener() {
-        val listCheck = getCheckList()
-
         mOrderName.setOnCheckedChangeListener { _, _ ->
-            removeListener(listCheck)
+            removeListener(mCheckList)
 
             mOrderName.state = getNextState(mOrderName)
             when (mOrderName.state) {
@@ -101,7 +98,7 @@ class LibraryMangaPopupOrder : Fragment() {
         }
 
         mOrderDate.setOnCheckedChangeListener { _, _ ->
-            removeListener(listCheck)
+            removeListener(mCheckList)
 
             mOrderDate.state = getNextState(mOrderDate)
             when (mOrderDate.state) {
@@ -119,7 +116,7 @@ class LibraryMangaPopupOrder : Fragment() {
         }
 
         mOrderAccess.setOnCheckedChangeListener { _, _ ->
-            removeListener(listCheck)
+            removeListener(mCheckList)
 
             mOrderAccess.state = getNextState(mOrderAccess)
             when (mOrderAccess.state) {
@@ -137,7 +134,7 @@ class LibraryMangaPopupOrder : Fragment() {
         }
 
         mOrderFavorite.setOnCheckedChangeListener { _, _ ->
-            removeListener(listCheck)
+            removeListener(mCheckList)
 
             mOrderFavorite.state = getNextState(mOrderFavorite)
             when (mOrderFavorite.state) {
@@ -161,10 +158,9 @@ class LibraryMangaPopupOrder : Fragment() {
     }
 
     private fun observer() {
-        val listCheck = getCheckList()
         listener.popupGetObserver().observe(viewLifecycleOwner) {
-            removeListener(listCheck)
-            setChecked(getCheckList(), it.first, it.second)
+            removeListener(mCheckList)
+            setChecked(mCheckList, it.first, it.second)
             addListener()
             save(it.first)
         }

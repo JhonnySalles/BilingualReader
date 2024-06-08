@@ -12,6 +12,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import org.slf4j.LoggerFactory
 
+
 class LibraryMangaPopupType : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(LibraryMangaPopupType::class.java)
@@ -25,16 +26,14 @@ class LibraryMangaPopupType : Fragment() {
     private lateinit var mTypeSeparatorSmall: CheckBox
     private lateinit var mTypeLine: CheckBox
 
+    private lateinit var mCheckMap : Map<LibraryMangaType, CheckBox>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mViewModel = ViewModelProvider(requireActivity()).get(MangaLibraryViewModel::class.java)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.popup_library_type_manga, container, false)
 
         mTypeGridBig = root.findViewById(R.id.popup_library_manga_type_grid_big)
@@ -46,21 +45,21 @@ class LibraryMangaPopupType : Fragment() {
 
         mTypeGridSmall.visibility = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) View.VISIBLE else View.GONE
 
-        setChecked(getCheckList(), mViewModel.libraryType.value ?: LibraryMangaType.GRID_BIG)
+        mCheckMap = mapOf(
+            Pair(LibraryMangaType.GRID_BIG, mTypeGridBig),
+            Pair(LibraryMangaType.GRID_MEDIUM, mTypeGridMedium),
+            Pair(LibraryMangaType.GRID_SMALL, mTypeGridSmall),
+            Pair(LibraryMangaType.SEPARATOR_BIG, mTypeSeparatorMedium),
+            Pair(LibraryMangaType.SEPARATOR_MEDIUM, mTypeSeparatorSmall),
+            Pair(LibraryMangaType.LINE, mTypeLine)
+        )
+
+        setChecked(mCheckMap, mViewModel.libraryType.value ?: LibraryMangaType.GRID_BIG)
         observer()
-        addListener(getCheckList())
+        addListener(mCheckMap)
 
         return root
     }
-
-    private fun getCheckList() = mapOf(
-        Pair(LibraryMangaType.GRID_BIG, mTypeGridBig),
-        Pair(LibraryMangaType.GRID_MEDIUM, mTypeGridMedium),
-        Pair(LibraryMangaType.GRID_SMALL, mTypeGridSmall),
-        Pair(LibraryMangaType.SEPARATOR_BIG, mTypeSeparatorMedium),
-        Pair(LibraryMangaType.SEPARATOR_MEDIUM, mTypeSeparatorSmall),
-        Pair(LibraryMangaType.LINE, mTypeLine)
-    )
 
     private fun setChecked(checkboxes: Map<LibraryMangaType, CheckBox>, type: LibraryMangaType) {
         for (check in checkboxes)
@@ -68,18 +67,16 @@ class LibraryMangaPopupType : Fragment() {
     }
 
     private fun addListener(checkboxes: Map<LibraryMangaType, CheckBox>) {
-        val list = getCheckList()
-
         for (check in checkboxes)
             check.value.setOnCheckedChangeListener { _, isChecked ->
-                removeListener(list)
+                removeListener(mCheckMap)
                 if (isChecked)
                     mViewModel.setLibraryType(check.key)
                 else if (check.key == LibraryMangaType.GRID_BIG)
                     mViewModel.setLibraryType(LibraryMangaType.LINE)
                 else
                     mViewModel.setLibraryType(LibraryMangaType.GRID_BIG)
-                addListener(list)
+                addListener(mCheckMap)
             }
     }
 
@@ -90,9 +87,9 @@ class LibraryMangaPopupType : Fragment() {
 
     private fun observer() {
         mViewModel.libraryType.observe(viewLifecycleOwner) {
-            removeListener(getCheckList())
-            setChecked(getCheckList(), it)
-            addListener(getCheckList())
+            removeListener(mCheckMap)
+            setChecked(mCheckMap, it)
+            addListener(mCheckMap)
         }
     }
 

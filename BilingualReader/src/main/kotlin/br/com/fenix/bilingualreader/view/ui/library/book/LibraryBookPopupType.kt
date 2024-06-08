@@ -11,6 +11,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import org.slf4j.LoggerFactory
 
+
 class LibraryBookPopupType : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(LibraryBookPopupType::class.java)
@@ -20,22 +21,22 @@ class LibraryBookPopupType : Fragment() {
     private lateinit var mTypeGrid: CheckBox
     private lateinit var mTypeLine: CheckBox
 
+    private lateinit var mCheckList : ArrayList<CheckBox>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mViewModel = ViewModelProvider(requireActivity()).get(BookLibraryViewModel::class.java)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.popup_library_type_book, container, false)
 
         mTypeGrid = root.findViewById(R.id.popup_library_book_type_grid)
         mTypeLine = root.findViewById(R.id.popup_library_book_type_line)
 
-        setChecked(getCheckList(), mViewModel.libraryType.value ?: LibraryBookType.GRID)
+        mCheckList = arrayListOf(mTypeGrid, mTypeLine)
+
+        setChecked(mCheckList, mViewModel.libraryType.value ?: LibraryBookType.GRID)
         observer()
         addListener()
 
@@ -53,13 +54,9 @@ class LibraryBookPopupType : Fragment() {
         }
     }
 
-    private fun getCheckList() = arrayListOf(mTypeGrid, mTypeLine)
-
     private fun addListener() {
-        val list = getCheckList()
-
         mTypeGrid.setOnCheckedChangeListener { _, isChecked ->
-            removeListener(list)
+            removeListener(mCheckList)
             if (isChecked) {
                 mTypeLine.isChecked = false
                 mViewModel.setLibraryType(LibraryBookType.GRID)
@@ -72,7 +69,7 @@ class LibraryBookPopupType : Fragment() {
         }
 
         mTypeLine.setOnCheckedChangeListener { _, isChecked ->
-            removeListener(list)
+            removeListener(mCheckList)
             if (isChecked)
                 mViewModel.setLibraryType(LibraryBookType.LINE)
             else
@@ -89,8 +86,8 @@ class LibraryBookPopupType : Fragment() {
 
     private fun observer() {
         mViewModel.libraryType.observe(viewLifecycleOwner) {
-            removeListener(getCheckList())
-            setChecked(getCheckList(), it)
+            removeListener(mCheckList)
+            setChecked(mCheckList, it)
             addListener()
         }
     }

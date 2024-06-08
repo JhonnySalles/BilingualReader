@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/AppBackground.Accent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.ui.book.BookAnnotationPopupFilterType">
+
+    <ListView
+        android:id="@+id/popup_annotation_filter_chapter_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="5dp"
+        android:dividerHeight="0dp"
+        android:divider="@null"
+        android:choiceMode="multipleChoice"
+        android:paddingBottom="@dimen/book_annotation_popup_chapter_list_padding"
+        android:minHeight="@dimen/book_annotation_popup_chapter_list_min_height"/>
+
+</LinearLayout>
+

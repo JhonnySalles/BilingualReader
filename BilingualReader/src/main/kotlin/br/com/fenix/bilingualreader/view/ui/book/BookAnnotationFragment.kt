@@ -72,6 +72,7 @@ class BookAnnotationFragment : Fragment() {
     private lateinit var mPopupChaptersTab: TabLayout
     private lateinit var mPopupFilterTypeFragment: BookAnnotationPopupFilterType
     private lateinit var mPopupFilterColorFragment: BookAnnotationPopupFilterColor
+    private lateinit var mPopupFilterChapterFragment: BookAnnotationPopupFilterChapter
     private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
 
     private lateinit var mRecyclerView: RecyclerView
@@ -213,10 +214,12 @@ class BookAnnotationFragment : Fragment() {
 
         mPopupFilterTypeFragment = BookAnnotationPopupFilterType()
         mPopupFilterColorFragment = BookAnnotationPopupFilterColor()
+        mPopupFilterChapterFragment = BookAnnotationPopupFilterChapter()
 
         val viewOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
         viewOrderPagerAdapter.addFragment(mPopupFilterTypeFragment, resources.getString(R.string.book_annotation_tab_item_filter))
         viewOrderPagerAdapter.addFragment(mPopupFilterColorFragment, resources.getString(R.string.book_annotation_tab_item_color))
+        viewOrderPagerAdapter.addFragment(mPopupFilterChapterFragment, resources.getString(R.string.book_annotation_tab_item_chapters))
 
         mPopupFilterView.adapter = viewOrderPagerAdapter
 

@@ -276,11 +276,7 @@ class Util {
                 path
         }
 
-        fun normalizeNameCache(
-            name: String,
-            prefix: String = "",
-            isRandom: Boolean = true
-        ): String {
+        fun normalizeNameCache(name: String, prefix: String = "", isRandom: Boolean = true): String {
             val normalize = if (name.contains("-"))
                 name.substringBefore("-")
             else if (name.contains(" "))
@@ -478,12 +474,7 @@ class Util {
                 ""
         }
 
-        fun choiceLanguage(
-            context: Context,
-            theme: Int = R.style.AppCompatMaterialAlertList,
-            ignoreGoogle: Boolean = true,
-            setLanguage: (language: Languages) -> (Unit)
-        ) {
+        fun choiceLanguage(context: Context, theme: Int = R.style.AppCompatMaterialAlertList, ignoreGoogle: Boolean = true, setLanguage: (language: Languages) -> (Unit)) {
             val mapLanguage = getLanguages(context)
             val items = if (ignoreGoogle)
                 mapLanguage.keys.filterNot { it == googleLang }.toTypedArray()
@@ -515,11 +506,7 @@ class Util {
             return vertical
         }
 
-        fun getDivideStrings(
-            text: String,
-            delimiter: Char = '\n',
-            occurrences: Int = 10
-        ): Pair<String, String> {
+        fun getDivideStrings(text: String, delimiter: Char = '\n', occurrences: Int = 10): Pair<String, String> {
             var postion = text.length
             var occurence = 0
             for ((i, c) in text.withIndex()) {
@@ -1300,6 +1287,13 @@ class ColorUtil {
         }
 
         fun getColor(exadecimal: String) : Int = android.graphics.Color.parseColor(exadecimal)
+
+    }
+}
+
+class ListUtil {
+    companion object ListUtils {
+        inline fun <T, R> Iterable<T>.mapToSet(transform: (T) -> R): Set<R> = mapTo(HashSet(), transform)
 
     }
 }

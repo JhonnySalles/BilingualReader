@@ -23,6 +23,8 @@ class BookAnnotationPopupFilterType : Fragment() {
     private lateinit var mFilterPageMarker: CheckBox
     private lateinit var mFilterBookMarker: CheckBox
 
+    private lateinit var mCheckMap: Map<CheckBox, Filter>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mViewModel = ViewModelProvider(requireActivity())[BookAnnotationViewModel::class.java]
@@ -36,7 +38,9 @@ class BookAnnotationPopupFilterType : Fragment() {
         mFilterPageMarker = root.findViewById(R.id.popup_annotation_filter_type_page_marker)
         mFilterBookMarker = root.findViewById(R.id.popup_annotation_filter_type_book_marker)
 
-        setChecked(getCheckMap(), mViewModel.typeFilter.value ?: setOf())
+        mCheckMap = mapOf(mFilterFavorite to Filter.Favorite, mFilterDetach to Filter.Detach, mFilterPageMarker to Filter.PageMark, mFilterBookMarker to Filter.BookMark)
+
+        setChecked(mCheckMap, mViewModel.typeFilter.value ?: setOf())
         observer()
         addListener()
 
@@ -51,10 +55,8 @@ class BookAnnotationPopupFilterType : Fragment() {
         }
     }
 
-    private fun getCheckMap() = mapOf(mFilterFavorite to Filter.Favorite, mFilterDetach to Filter.Detach, mFilterPageMarker to Filter.PageMark, mFilterBookMarker to Filter.BookMark)
-
     private fun addListener() {
-        val list = getCheckMap()
+        val list = mCheckMap
 
         for (check in list.keys)
             check.setOnCheckedChangeListener { _, isChecked ->
@@ -72,9 +74,8 @@ class BookAnnotationPopupFilterType : Fragment() {
 
     private fun observer() {
         mViewModel.typeFilter.observe(viewLifecycleOwner) {
-            val list = getCheckMap()
-            removeListener(list.keys)
-            setChecked(list, it)
+            removeListener(mCheckMap.keys)
+            setChecked(mCheckMap, it)
             addListener()
         }
     }

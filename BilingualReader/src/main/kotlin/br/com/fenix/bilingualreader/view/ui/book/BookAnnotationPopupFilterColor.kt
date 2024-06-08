@@ -25,6 +25,9 @@ class BookAnnotationPopupFilterColor : Fragment() {
     private lateinit var mFilterGreen: CheckBox
     private lateinit var mFilterBlue: CheckBox
 
+    private lateinit var mCheckMap: Map<CheckBox, Color>
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mViewModel = ViewModelProvider(requireActivity())[BookAnnotationViewModel::class.java]
@@ -39,7 +42,9 @@ class BookAnnotationPopupFilterColor : Fragment() {
         mFilterGreen = root.findViewById(R.id.popup_annotation_filter_color_green)
         mFilterBlue = root.findViewById(R.id.popup_annotation_filter_color_blue)
 
-        setChecked(getCheckMap(), mViewModel.colorFilter.value ?: setOf())
+        mCheckMap = mapOf(mFilterNone to Color.None, mFilterYellow to Color.Yellow, mFilterRed to Color.Red, mFilterGreen to Color.Green, mFilterBlue to Color.Blue)
+
+        setChecked(mCheckMap, mViewModel.colorFilter.value ?: setOf())
         observer()
         addListener()
 
@@ -54,15 +59,11 @@ class BookAnnotationPopupFilterColor : Fragment() {
         }
     }
 
-    private fun getCheckMap() = mapOf(mFilterNone to Color.None, mFilterYellow to Color.Yellow, mFilterRed to Color.Red, mFilterGreen to Color.Green, mFilterBlue to Color.Blue)
-
     private fun addListener() {
-        val list = getCheckMap()
-
-        for (check in list.keys)
+        for (check in mCheckMap.keys)
             check.setOnCheckedChangeListener { _, isChecked ->
-                removeListener(list.keys)
-                mViewModel.filterColor(list[check]!!, !isChecked)
+                removeListener(mCheckMap.keys)
+                mViewModel.filterColor(mCheckMap[check]!!, !isChecked)
                 addListener()
             }
 
@@ -75,9 +76,8 @@ class BookAnnotationPopupFilterColor : Fragment() {
 
     private fun observer() {
         mViewModel.colorFilter.observe(viewLifecycleOwner) {
-            val list = getCheckMap()
-            removeListener(list.keys)
-            setChecked(list, it)
+            removeListener(mCheckMap.keys)
+            setChecked(mCheckMap, it)
             addListener()
         }
     }

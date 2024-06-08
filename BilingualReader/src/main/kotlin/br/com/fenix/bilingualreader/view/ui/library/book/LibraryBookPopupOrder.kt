@@ -12,6 +12,7 @@ import br.com.fenix.bilingualreader.service.listener.PopupOrderListener
 import br.com.fenix.bilingualreader.view.components.TriStateCheckBox
 import org.slf4j.LoggerFactory
 
+
 class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(LibraryBookPopupOrder::class.java)
@@ -23,11 +24,9 @@ class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
     private lateinit var mOrderGenre: TriStateCheckBox
     private lateinit var mOrderAuthor: TriStateCheckBox
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    private lateinit var mCheckList : ArrayList<TriStateCheckBox>
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.popup_library_order_book, container, false)
 
         mOrderName = root.findViewById(R.id.popup_library_order_book_name)
@@ -37,11 +36,9 @@ class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
         mOrderGenre = root.findViewById(R.id.popup_library_order_book_genre)
         mOrderAuthor = root.findViewById(R.id.popup_library_order_book_author)
 
-        setChecked(
-            getCheckList(),
-            listener.popupGetOrder()?.first ?: Order.Name,
-            listener.popupGetOrder()?.second ?: false
-        )
+        mCheckList = arrayListOf(mOrderName, mOrderDate, mOrderAccess, mOrderFavorite, mOrderGenre, mOrderAuthor)
+
+        setChecked(mCheckList, listener.popupGetOrder()?.first ?: Order.Name, listener.popupGetOrder()?.second ?: false)
         addListener()
         observer()
         return root
@@ -77,13 +74,9 @@ class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
         }
     }
 
-    private fun getCheckList() = arrayListOf(mOrderName, mOrderDate, mOrderAccess, mOrderFavorite, mOrderGenre, mOrderAuthor)
-
     private fun addListener() {
-        val listCheck = getCheckList()
-
         mOrderName.setOnCheckedChangeListener { _, _ ->
-            removeListener(listCheck)
+            removeListener(mCheckList)
 
             mOrderName.state = getNextState(mOrderName)
             when (mOrderName.state) {
@@ -101,7 +94,7 @@ class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
         }
 
         mOrderDate.setOnCheckedChangeListener { _, _ ->
-            removeListener(listCheck)
+            removeListener(mCheckList)
 
             mOrderDate.state = getNextState(mOrderDate)
             when (mOrderDate.state) {
@@ -119,7 +112,7 @@ class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
         }
 
         mOrderAccess.setOnCheckedChangeListener { _, _ ->
-            removeListener(listCheck)
+            removeListener(mCheckList)
 
             mOrderAccess.state = getNextState(mOrderAccess)
             when (mOrderAccess.state) {
@@ -137,7 +130,7 @@ class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
         }
 
         mOrderFavorite.setOnCheckedChangeListener { _, _ ->
-            removeListener(listCheck)
+            removeListener(mCheckList)
 
             mOrderFavorite.state = getNextState(mOrderFavorite)
             when (mOrderFavorite.state) {
@@ -155,7 +148,7 @@ class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
         }
 
         mOrderGenre.setOnCheckedChangeListener { _, _ ->
-            removeListener(listCheck)
+            removeListener(mCheckList)
 
             mOrderGenre.state = getNextState(mOrderGenre)
             when (mOrderGenre.state) {
@@ -173,7 +166,7 @@ class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
         }
 
         mOrderAuthor.setOnCheckedChangeListener { _, _ ->
-            removeListener(listCheck)
+            removeListener(mCheckList)
 
             mOrderAuthor.state = getNextState(mOrderAuthor)
             when (mOrderAuthor.state) {
@@ -197,10 +190,9 @@ class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
     }
 
     private fun observer() {
-        val listCheck = getCheckList()
         listener.popupGetObserver().observe(viewLifecycleOwner) {
-            removeListener(listCheck)
-            setChecked(getCheckList(), it.first, it.second)
+            removeListener(mCheckList)
+            setChecked(mCheckList, it.first, it.second)
             addListener()
             save(it.first)
         }

@@ -201,6 +201,7 @@
 
     <style name="CheckBox" parent="Widget.MaterialComponents.CompoundButton.CheckBox">
         <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textAppearance">?attr/textAppearanceSubtitle1</item>
     </style>
 
     <style name="CheckBox.Color" parent="CheckBox">
@@ -572,6 +573,11 @@
         <item name="android:padding">10dp</item>
         <item name="android:textAppearance">?attr/textAppearanceSubtitle2</item>
         <item name="android:background">@drawable/list_item_suggestion_background</item>
+    </style>
+
+    <style name="TextNormal.ListMultipleChoice" parent="TextNormal">
+        <item name="android:textAppearance">?attr/textAppearanceSubtitle1</item>
+        <item name="android:background">@color/transparent</item>
     </style>
 
     <style name="TextNormal.History" parent="TextNormal">

@@ -394,8 +394,7 @@ class MangaDetailFragment : Fragment() {
 
             val manga = mViewModel.manga.value
             if (manga != null)
-                mBookMark.text =
-                    "${manga.bookMark} / ${manga.pages} - " + mViewModel.getChapterFolder(manga.bookMark)
+                mBookMark.text = "${manga.bookMark} / ${manga.pages} - " + mViewModel.getChapterFolder(manga.bookMark)
         }
 
         mViewModel.listSubtitles.observe(viewLifecycleOwner) {

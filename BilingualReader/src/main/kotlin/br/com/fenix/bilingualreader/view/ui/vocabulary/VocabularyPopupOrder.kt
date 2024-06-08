@@ -20,6 +20,9 @@ class VocabularyPopupOrder(var listener: PopupOrderListener) : Fragment() {
     private lateinit var mOrderFrequency: TriStateCheckBox
     private lateinit var mOrderFavorite: TriStateCheckBox
 
+    private lateinit var mCheckList : ArrayList<TriStateCheckBox>
+
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.popup_vocabulary_order, container, false)
 
@@ -27,11 +30,9 @@ class VocabularyPopupOrder(var listener: PopupOrderListener) : Fragment() {
         mOrderFrequency = root.findViewById(R.id.popup_vocabulary_order_frequency)
         mOrderFavorite = root.findViewById(R.id.popup_vocabulary_order_favorite)
 
-        setChecked(
-            getCheckList(),
-            listener.popupGetOrder()?.first ?: Order.Description,
-            listener.popupGetOrder()?.second ?: false
-        )
+        mCheckList = arrayListOf(mOrderDescription, mOrderFrequency, mOrderFavorite)
+
+        setChecked(mCheckList, listener.popupGetOrder()?.first ?: Order.Description, listener.popupGetOrder()?.second ?: false)
         addListener()
         observer()
         return root
@@ -69,15 +70,11 @@ class VocabularyPopupOrder(var listener: PopupOrderListener) : Fragment() {
             }
     }
 
-    private fun getCheckList() = arrayListOf(mOrderDescription, mOrderFrequency, mOrderFavorite)
-
     private fun addListener() {
-        val listCheck = getCheckList()
-
         mOrderDescription.setOnCheckedChangeListener { _, _ ->
-            removeListener(listCheck)
+            removeListener(mCheckList)
 
-            for (check in listCheck)
+            for (check in mCheckList)
                 if (check != mOrderDescription)
                     check.state = TriStateCheckBox.STATE_UNCHECKED
 
@@ -99,9 +96,9 @@ class VocabularyPopupOrder(var listener: PopupOrderListener) : Fragment() {
         }
 
         mOrderFrequency.setOnCheckedChangeListener { _, _ ->
-            removeListener(listCheck)
+            removeListener(mCheckList)
 
-            for (check in listCheck)
+            for (check in mCheckList)
                 if (check != mOrderFrequency)
                     check.state = TriStateCheckBox.STATE_UNCHECKED
 
@@ -120,9 +117,9 @@ class VocabularyPopupOrder(var listener: PopupOrderListener) : Fragment() {
         }
 
         mOrderFavorite.setOnCheckedChangeListener { _, _ ->
-            removeListener(listCheck)
+            removeListener(mCheckList)
 
-            for (check in listCheck)
+            for (check in mCheckList)
                 if (check != mOrderFavorite)
                     check.state = TriStateCheckBox.STATE_UNCHECKED
 
@@ -147,10 +144,9 @@ class VocabularyPopupOrder(var listener: PopupOrderListener) : Fragment() {
     }
 
     private fun observer() {
-        val listCheck = getCheckList()
         listener.popupGetObserver().observe(viewLifecycleOwner) {
-            removeListener(listCheck)
-            setChecked(getCheckList(), it.first, it.second)
+            removeListener(mCheckList)
+            setChecked(mCheckList, it.first, it.second)
             addListener()
         }
     }

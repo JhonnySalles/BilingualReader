@@ -11,6 +11,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Filter
 import org.slf4j.LoggerFactory
 
+
 class LibraryMangaPopupFilter : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(LibraryMangaPopupFilter::class.java)
@@ -19,6 +20,8 @@ class LibraryMangaPopupFilter : Fragment() {
 
     private lateinit var mFilterFavorite: CheckBox
     private lateinit var mFilterReading: CheckBox
+
+    private lateinit var mCheckList: ArrayList<CheckBox>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +34,9 @@ class LibraryMangaPopupFilter : Fragment() {
         mFilterFavorite = root.findViewById(R.id.popup_library_filter_favorite)
         mFilterReading = root.findViewById(R.id.popup_library_filter_reading)
 
-        setChecked(getCheckList(), mViewModel.typeFilter.value ?: Filter.None)
+        mCheckList = arrayListOf(mFilterFavorite, mFilterReading)
+
+        setChecked(mCheckList, mViewModel.typeFilter.value ?: Filter.None)
         observer()
         addListener()
 
@@ -49,13 +54,9 @@ class LibraryMangaPopupFilter : Fragment() {
         }
     }
 
-    private fun getCheckList() = arrayListOf(mFilterFavorite, mFilterReading)
-
     private fun addListener() {
-        val list = getCheckList()
-
         mFilterFavorite.setOnCheckedChangeListener { _, isChecked ->
-            removeListener(list)
+            removeListener(mCheckList)
             if (isChecked)
                 mViewModel.filterType(Filter.Favorite)
             else
@@ -64,7 +65,7 @@ class LibraryMangaPopupFilter : Fragment() {
         }
 
         mFilterReading.setOnCheckedChangeListener { _, isChecked ->
-            removeListener(list)
+            removeListener(mCheckList)
             if (isChecked)
                 mViewModel.filterType(Filter.Reading)
             else
@@ -80,8 +81,8 @@ class LibraryMangaPopupFilter : Fragment() {
 
     private fun observer() {
         mViewModel.typeFilter.observe(viewLifecycleOwner) {
-            removeListener(getCheckList())
-            setChecked(getCheckList(), it)
+            removeListener(mCheckList)
+            setChecked(mCheckList, it)
             addListener()
         }
     }
