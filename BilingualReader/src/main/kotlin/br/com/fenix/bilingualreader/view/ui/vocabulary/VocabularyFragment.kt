@@ -144,8 +144,10 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
             onChangeIconSort(it.first, it.second, isChange)
         }
 
-        if (VocabularyActivity.mVocabularySelect.isNotEmpty())
+        if (VocabularyActivity.mVocabularySelect.isNotEmpty()) {
             searchView.setQuery(VocabularyActivity.mVocabularySelect, true)
+            searchView.isIconified = false
+        }
     }
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {

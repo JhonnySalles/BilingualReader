@@ -45,6 +45,7 @@ import androidx.viewpager2.widget.ViewPager2
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
+import br.com.fenix.bilingualreader.model.entity.BookSearch
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Speech
 import br.com.fenix.bilingualreader.model.enums.AudioStatus
@@ -745,7 +746,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_ANNOTATION, null)
     }
 
-    private fun openBookSearch() {
+    private fun openBookSearch(search: BookSearch? = null) {
         if (mParse == null)
             return
 
@@ -762,6 +763,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         bundle.putString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PATH, mParse!!.path)
         bundle.putString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PASSWORD, mParse!!.password)
         bundle.putInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE, mParse!!.fontSize)
+
+        if (search != null)
+            bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH, search)
 
         intent.putExtras(bundle)
         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
@@ -872,6 +876,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             mViewPager.adapter!!.notifyItemChanged(page)
         }
     }
+
+    override fun textSearch(page: Int, text: String) = openBookSearch(BookSearch(mBook!!.id!!, text, page))
 
 
     private fun markCurrentPage() {

@@ -55,6 +55,11 @@ data class BookSearch(
         id_book: Long, search: String, page: Int, chapter: Float, parent: BookSearch? = null
     ) : this(null, id_book, search, LocalDateTime.now(), page, chapter, false, parent)
 
+    @Ignore
+    constructor( // Search by text select or initial data
+        id_book: Long, search: String, page: Int
+    ) : this(null, id_book, search, LocalDateTime.now(), page, 0f, false, null)
+
     constructor(
         id: Long?, id_book: Long, search: String, date: LocalDateTime,
     ) : this(id, id_book, search, date, 0, 0F, true, null)

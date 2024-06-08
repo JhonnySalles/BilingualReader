@@ -15,6 +15,7 @@
     <string name="action_disconnect">Desconectar</string>
     <string name="action_copy_name">Copiado: %s</string>
 
+    <string name="alert_error_call_google_translate">Descuple, Nenhum Google Translation está instalado.</string>
     <string name="alert_permission_files_access_denied_title">Acesso negado</string>
     <string name="alert_permission_files_access_denied">Não foi possível obter a permissão de acesso a pasta informada, por favor libere o acesso na configuração do android.</string>
 

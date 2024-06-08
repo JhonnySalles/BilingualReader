@@ -483,7 +483,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 createSpan(context, holder.textView, page, annotation, span, start, end)
                 holder.textView.text = span
             }
-            holder.textView.customSelectionActionModeCallback = TextViewSelectCallback(context, holder.textView, page, changeSelect, listener)
+            holder.textView.customSelectionActionModeCallback = TextViewSelectCallback(context, holder, page, changeSelect, listener)
             prepareSpan(context, holder.textView, page)
             holder.textView.movementMethod = LinkMovementMethod.getInstance()
             holder.textView.isClickable = true
@@ -491,6 +491,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         } else {
             holder.textView.linksClickable = false
             holder.textView.movementMethod = null
+            holder.textView.customSelectionActionModeCallback = null
         }
 
         holder.textView.setBackgroundColor(Color.TRANSPARENT)

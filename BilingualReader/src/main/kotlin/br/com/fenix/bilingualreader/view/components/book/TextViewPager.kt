@@ -57,8 +57,14 @@ class TextViewPager(
         mViewModel.changeTextStyle(holder.textView)
         holder.style = mViewModel.fontUpdate.value + mViewModel.fontSize.value
 
-        if (!ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT)
-            holder.createPopup(inflater.inflate(R.layout.popup_text_select, null))
+        if (!ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT) {
+            holder.popupTextSelect.contentView = inflater.inflate(R.layout.popup_text_select, null)
+            holder.popupTextSelect.width = FrameLayout.LayoutParams.WRAP_CONTENT
+            holder.popupTextSelect.height = FrameLayout.LayoutParams.WRAP_CONTENT
+
+            holder.scrollView.setScrollChangeListener(holder)
+            holder.textView.setSelectionChangeListener(holder)
+        }
 
         return holder
     }
@@ -121,18 +127,6 @@ class TextViewPager(
         private val mDefaultWidth = -1
         private val mDefaultHeight = -1
 
-
-        fun createPopup(content: View) {
-            popupTextSelect.contentView = content
-            popupTextSelect.width = FrameLayout.LayoutParams.WRAP_CONTENT
-            popupTextSelect.height = FrameLayout.LayoutParams.WRAP_CONTENT
-
-            PopupTextSelect(content, this)
-
-            scrollView.setScrollChangeListener(this)
-            textView.setSelectionChangeListener(this)
-        }
-
         override fun onScrollChanged() {
             if (ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT)
                 return
@@ -163,12 +157,12 @@ class TextViewPager(
                         popupContent.getLocalVisibleRect(mBounds)
                         popupContent.getWindowVisibleDisplayFrame(cframe)
 
-                        val scrollY: Int = (textView.getParent() as View).getScrollY()
+                        val scrollY = (textView.parent as View).scrollY
                         val tloc = IntArray(2)
                         textView.getLocationInWindow(tloc)
 
-                        val startX: Int = cloc[0] + mBounds.centerX()
-                        val startY: Int = cloc[1] + mBounds.centerY() - (tloc[1] - cframe.top) - scrollY
+                        val startX = cloc[0] + mBounds.centerX()
+                        val startY = cloc[1] + mBounds.centerY() - (tloc[1] - cframe.top) - scrollY
                         mStartLocation.set(startX, startY)
 
                         val ploc: Point = calculatePopupLocation()
@@ -194,8 +188,8 @@ class TextViewPager(
             // Calculate the selection start and end offset
             val selStart: Int = textView.selectionStart
             val selEnd: Int = textView.selectionEnd
-            val min = max(0.0, min(selStart.toDouble(), selEnd.toDouble())).toInt()
-            val max = max(0.0, max(selStart.toDouble(), selEnd.toDouble())).toInt()
+            val min = max(0, min(selStart, selEnd))
+            val max = max(0, max(selStart, selEnd))
 
             // Calculate the selection bounds
             val selBounds = RectF()
@@ -204,8 +198,8 @@ class TextViewPager(
             selection.computeBounds(selBounds, true)
 
             // Retrieve the center x/y of the popup content
-            val cx: Int = mStartLocation.x
-            val cy: Int = mStartLocation.y
+            val cx = mStartLocation.x
+            val cy = mStartLocation.y
 
             // Calculate the top and bottom offset of the popup relative to the selection bounds
             val popupHeight: Int = mBounds.height()
@@ -216,7 +210,7 @@ class TextViewPager(
             // Calculate the x/y coordinates for the popup relative to the selection bounds
             val scrollY = parent.scrollY
             val x = Math.round(selBounds.centerX() + textPadding - cx)
-            val y = Math.round((if (selBounds.top - scrollY < cy) btmOffset else topOffset).toFloat())
+            val y = Math.round((if ((selBounds.top - scrollY) < cy) btmOffset else topOffset).toFloat())
             mCurrentLocation.set(x, y - scrollY)
             return mCurrentLocation
         }

@@ -1,8 +1,11 @@
 package br.com.fenix.bilingualreader.view.components.book
 
+import android.content.ActivityNotFoundException
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.text.Selection
 import android.text.Spannable
@@ -12,22 +15,30 @@ import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat.startActivity
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
+import br.com.fenix.bilingualreader.util.helpers.PopupUtil
+import br.com.fenix.bilingualreader.view.ui.popup.PopupTextSelect
 
 
-class TextViewSelectCallback(val context: Context, val textView: TextView, val page: Int, val createSpan: (annotation: BookAnnotation, start: Int, end: Int) -> (Unit),  val listener: TextSelectCallbackListener?) : ActionMode.Callback {
+class TextViewSelectCallback(val context: Context, val holder: TextViewPager.TextViewPagerHolder, val page: Int, val createSpan: (annotation: BookAnnotation, start: Int, end: Int) -> (Unit), val listener: TextSelectCallbackListener?) : ActionMode.Callback {
 
+    private val mTextView: TextView = holder.textView
+    private val mMenuCustom : PopupTextSelect = PopupTextSelect(holder.popupTextSelect, this)
+    
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
         if (ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT) {
             //mode?.title = "Menu action"
             mode?.menu?.setGroupDividerEnabled(true)
             mode?.menuInflater?.inflate(R.menu.menu_text_view_select, menu)
-        }
+        } else
+            mMenuCustom.setAction(mode)
+        
         return true;
     }
 
@@ -42,61 +53,77 @@ class TextViewSelectCallback(val context: Context, val textView: TextView, val p
 
     override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
 
-        val start: Int = textView.selectionStart
-        val end: Int = textView.selectionEnd
+        var start: Int = mTextView.selectionStart
+        var end: Int = mTextView.selectionEnd
+
+        if (mTextView.selectionEnd < mTextView.selectionStart) {
+            start = mTextView.selectionEnd
+            end = mTextView.selectionStart
+        }
 
         if (item != null)
             when (item.itemId) {
-                android.R.id.copy -> {
-                    copyText(textView.text.substring(start, end))
+                R.id.popup_text_select_functions_copy, android.R.id.copy -> {
+                    copyText(mTextView.text.substring(start, end))
                     mode?.finish()
                 }
 
                 R.id.popup_text_select_functions_select_all, android.R.id.selectAll -> selectAllText()
 
-                R.id.menu_text_select_functions_tts -> {
-                    listener?.textSelectReadingFrom(page, textView.text.substring(start, end))
+                R.id.popup_text_select_functions_tts, R.id.menu_text_select_functions_tts -> {
+                    listener?.textSelectReadingFrom(page, mTextView.text.substring(start, end))
                     mode?.finish()
                 }
 
-                R.id.menu_text_select_colors_green -> {
-                    listener?.textSelectAddMark(page, textView.text.substring(start, end), Color.Green, start, end)?.let {
+                R.id.popup_text_select_green, R.id.menu_text_select_colors_green -> {
+                    listener?.textSelectAddMark(page, mTextView.text.substring(start, end), Color.Green, start, end)?.let {
                         createSpan(it, start, end)
                     }
                     return true
                 }
 
-                R.id.menu_text_select_colors_red -> {
-                    listener?.textSelectAddMark(page, textView.text.substring(start, end), Color.Red, start, end)?.let {
+                R.id.popup_text_select_red, R.id.menu_text_select_colors_red -> {
+                    listener?.textSelectAddMark(page, mTextView.text.substring(start, end), Color.Red, start, end)?.let {
                         createSpan(it, start, end)
                     }
                     return true
                 }
 
-                R.id.menu_text_select_colors_yellow -> {
-                    listener?.textSelectAddMark(page, textView.text.substring(start, end), Color.Yellow, start, end)?.let {
+                R.id.popup_text_select_yellow, R.id.menu_text_select_colors_yellow -> {
+                    listener?.textSelectAddMark(page, mTextView.text.substring(start, end), Color.Yellow, start, end)?.let {
                         createSpan(it, start, end)
                     }
                     return true
                 }
 
-                R.id.menu_text_select_colors_blue -> {
-                    listener?.textSelectAddMark(page, textView.text.substring(start, end), Color.Blue, start, end)?.let {
+                R.id.popup_text_select_blue, R.id.menu_text_select_colors_blue -> {
+                    listener?.textSelectAddMark(page, mTextView.text.substring(start, end), Color.Blue, start, end)?.let {
                         createSpan(it, start, end)
                     }
                     return true
                 }
 
-                R.id.menu_text_select_colors_erase -> {
+                R.id.popup_text_select_erase, R.id.menu_text_select_colors_erase -> {
                     listener?.textSelectRemoveMark(page, start, end)
+                    mode?.finish()
                     return true
+                }
+
+                R.id.popup_text_select_functions_search -> {
+                    listener?.textSearch(page, mTextView.text.substring(start, end))
+                    mode?.finish()
+                }
+
+                R.id.popup_text_select_functions_translate -> {
+                    translateText(mTextView.text.substring(start, end))
+                    mode?.finish()
                 }
             }
         return false
     }
 
     private fun selectAllText() {
-        Selection.setSelection(textView.getText() as Spannable, 0, textView.length())
+        Selection.setSelection(mTextView.getText() as Spannable, 0, mTextView.length())
     }
 
     private fun copyText(text: String) {
@@ -107,7 +134,10 @@ class TextViewSelectCallback(val context: Context, val textView: TextView, val p
         Toast.makeText(context, context.getString(R.string.action_copy, text), Toast.LENGTH_LONG).show()
     }
 
+    private fun translateText(text: String) = PopupUtil.googleTranslate(context, text)
+
     override fun onDestroyActionMode(mode: ActionMode?) {
+
     }
 
 }

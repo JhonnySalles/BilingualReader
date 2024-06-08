@@ -70,6 +70,8 @@ class BookSearchFragment : Fragment() {
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
 
+    private var mInitialSearch: BookSearch? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -81,6 +83,11 @@ class BookSearchFragment : Fragment() {
             val fontSize = it.getInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE)
             val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
             mViewModel.initialize(book, SharedData.getDocumentParse() ?: DocumentParse(path!!, password!!, fontSize, isLandscape))
+
+            if (it.containsKey(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH)) {
+                mInitialSearch = it.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH) as BookSearch
+                it.remove(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH)
+            }
         }
     }
 
@@ -112,6 +119,12 @@ class BookSearchFragment : Fragment() {
         searchView.setOnCloseListener {
             mViewModel.clearSearch()
             false
+        }
+
+        if (mInitialSearch != null) {
+            searchView.setQuery(mInitialSearch!!.search, true)
+            mInitialSearch = null
+            searchView.isIconified = false
         }
     }
 

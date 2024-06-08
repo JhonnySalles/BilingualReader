@@ -2,30 +2,48 @@ package br.com.fenix.bilingualreader.view.ui.popup
 
 import android.content.Intent
 import android.graphics.drawable.Drawable
+import android.view.ActionMode
 import android.view.ActionProvider
 import android.view.ContextMenu
 import android.view.MenuItem
 import android.view.SubMenu
 import android.view.View
+import android.widget.PopupWindow
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.view.components.book.TextViewPager
 import br.com.fenix.bilingualreader.view.components.book.TextViewSelectCallback
 import com.google.android.material.button.MaterialButton
 
 
-class PopupTextSelect(private var content: View, private val holder: TextViewPager.TextViewPagerHolder) {
+class PopupTextSelect(popup: PopupWindow, callback: ActionMode.Callback) {
+
+    private var mActionMode: ActionMode? = null
 
     init {
-        val callback = holder.textView.customSelectionActionModeCallback
-        if (callback is TextViewSelectCallback) {
+        if (!ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT) {
+            val content = popup.contentView
             generateClick(content.findViewById(R.id.popup_text_select_functions_select_all), callback)
             generateClick(content.findViewById(R.id.popup_text_select_functions_copy), callback)
+            generateClick(content.findViewById(R.id.popup_text_select_functions_search), callback)
+            generateClick(content.findViewById(R.id.popup_text_select_functions_translate), callback)
+            generateClick(content.findViewById(R.id.popup_text_select_functions_tts), callback)
+
+            generateClick(content.findViewById(R.id.popup_text_select_erase), callback)
+            generateClick(content.findViewById(R.id.popup_text_select_red), callback)
+            generateClick(content.findViewById(R.id.popup_text_select_blue), callback)
+            generateClick(content.findViewById(R.id.popup_text_select_green), callback)
+            generateClick(content.findViewById(R.id.popup_text_select_yellow), callback)
         }
     }
 
-    private fun generateClick(button: MaterialButton, callback: TextViewSelectCallback) {
+    fun setAction(action: ActionMode?) {
+        mActionMode = action
+    }
+
+    private fun generateClick(button: MaterialButton, callback: ActionMode.Callback) {
         button.setOnClickListener {
-            callback.onActionItemClicked(null, PopupTextSelectMenuItem(button.id))
+            callback.onActionItemClicked(mActionMode, PopupTextSelectMenuItem(button.id))
         }
     }
 

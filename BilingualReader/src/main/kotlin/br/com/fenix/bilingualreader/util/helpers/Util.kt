@@ -5,10 +5,13 @@ import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.ActivityManager
+import android.content.ActivityNotFoundException
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -1301,6 +1304,29 @@ class PopupUtil {
                 }
             }
             view.viewTreeObserver.addOnGlobalLayoutListener(listener)
+        }
+
+        fun googleTranslate(context: Context, text: String) {
+            try {
+                val intent = Intent()
+                intent.setAction(Intent.ACTION_SEND)
+                intent.putExtra(Intent.EXTRA_TEXT, text)
+                intent.putExtra("key_text_input", text)
+                intent.putExtra("key_text_output", "")
+                intent.putExtra("key_language_from", "en")
+                intent.putExtra("key_language_to", "")
+                intent.putExtra("key_suggest_translation", "")
+                intent.putExtra("key_from_floating_window", false)
+                intent.setComponent(
+                    ComponentName(
+                        "com.google.android.apps.translate",
+                        "com.google.android.apps.translate.TranslateActivity"
+                    )
+                )
+                context.startActivity(intent)
+            } catch (e: ActivityNotFoundException) {
+                Toast.makeText(context, context.getString(R.string.alert_error_call_google_translate), Toast.LENGTH_SHORT).show()
+            }
         }
 
     }

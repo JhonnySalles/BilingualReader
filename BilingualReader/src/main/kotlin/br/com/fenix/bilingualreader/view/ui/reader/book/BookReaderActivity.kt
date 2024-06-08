@@ -187,7 +187,10 @@ class BookReaderActivity : AppCompatActivity() {
 
                 val book = if (extras != null) (extras.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK) as Book?) else null
                 book?.let {
-                    it.bookMark = extras?.getInt(GeneralConsts.KEYS.BOOK.MARK) ?: 0
+                    it.bookMark = if (extras!!.containsKey(GeneralConsts.KEYS.BOOK.PAGE_NUMBER))
+                        extras.getInt(GeneralConsts.KEYS.BOOK.PAGE_NUMBER)
+                    else
+                        extras.getInt(GeneralConsts.KEYS.BOOK.MARK)
                 }
 
                 initialize(book)
