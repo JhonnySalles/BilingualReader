@@ -8,20 +8,22 @@ import android.widget.CheckBox
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.Filter
 import org.slf4j.LoggerFactory
 
 
-class BookAnnotationPopupFilter : Fragment() {
+class BookAnnotationPopupFilterColor : Fragment() {
 
-    private val mLOGGER = LoggerFactory.getLogger(BookAnnotationPopupFilter::class.java)
+    private val mLOGGER = LoggerFactory.getLogger(BookAnnotationPopupFilterColor::class.java)
 
     private lateinit var mViewModel: BookAnnotationViewModel
 
-    private lateinit var mFilterFavorite: CheckBox
-    private lateinit var mFilterDetach: CheckBox
-    private lateinit var mFilterPageMarker: CheckBox
-    private lateinit var mFilterBookMarker: CheckBox
+    private lateinit var mFilterNone: CheckBox
+    private lateinit var mFilterYellow: CheckBox
+    private lateinit var mFilterRed: CheckBox
+    private lateinit var mFilterGreen: CheckBox
+    private lateinit var mFilterBlue: CheckBox
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,21 +31,22 @@ class BookAnnotationPopupFilter : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val root = inflater.inflate(R.layout.popup_annotation_filter, container, false)
+        val root = inflater.inflate(R.layout.popup_annotation_filter_color, container, false)
 
-        mFilterFavorite = root.findViewById(R.id.popup_annotation_filter_favorite)
-        mFilterDetach = root.findViewById(R.id.popup_annotation_filter_detach)
-        mFilterPageMarker = root.findViewById(R.id.popup_annotation_filter_page_marker)
-        mFilterBookMarker = root.findViewById(R.id.popup_annotation_filter_book_marker)
+        mFilterNone = root.findViewById(R.id.popup_annotation_filter_color_none)
+        mFilterYellow = root.findViewById(R.id.popup_annotation_filter_color_yellow)
+        mFilterRed = root.findViewById(R.id.popup_annotation_filter_color_red)
+        mFilterGreen = root.findViewById(R.id.popup_annotation_filter_color_green)
+        mFilterBlue = root.findViewById(R.id.popup_annotation_filter_color_blue)
 
-        setChecked(getCheckMap(), mViewModel.typeFilter.value ?: setOf())
+        setChecked(getCheckMap(), mViewModel.colorFilter.value ?: setOf())
         observer()
         addListener()
 
         return root
     }
 
-    private fun setChecked(map: Map<CheckBox, Filter>, filter: Set<Filter>) {
+    private fun setChecked(map: Map<CheckBox, Color>, filter: Set<Color>) {
         for (check in map.keys) {
             val selected = filter.any { it == map[check] }
             if (selected != check.isChecked)
@@ -51,7 +54,7 @@ class BookAnnotationPopupFilter : Fragment() {
         }
     }
 
-    private fun getCheckMap() = mapOf(mFilterFavorite to Filter.Favorite, mFilterDetach to Filter.Detach, mFilterPageMarker to Filter.PageMark, mFilterBookMarker to Filter.BookMark)
+    private fun getCheckMap() = mapOf(mFilterNone to Color.None, mFilterYellow to Color.Yellow, mFilterRed to Color.Red, mFilterGreen to Color.Green, mFilterBlue to Color.Blue)
 
     private fun addListener() {
         val list = getCheckMap()
@@ -59,7 +62,7 @@ class BookAnnotationPopupFilter : Fragment() {
         for (check in list.keys)
             check.setOnCheckedChangeListener { _, isChecked ->
                 removeListener(list.keys)
-                mViewModel.filterType(list[check]!!, !isChecked)
+                mViewModel.filterColor(list[check]!!, !isChecked)
                 addListener()
             }
 
@@ -71,7 +74,7 @@ class BookAnnotationPopupFilter : Fragment() {
     }
 
     private fun observer() {
-        mViewModel.typeFilter.observe(viewLifecycleOwner) {
+        mViewModel.colorFilter.observe(viewLifecycleOwner) {
             val list = getCheckMap()
             removeListener(list.keys)
             setChecked(list, it)

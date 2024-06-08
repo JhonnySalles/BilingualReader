@@ -49,8 +49,8 @@
                 style="@style/Button.IconOnly"
                 android:layout_width="18dp"
                 android:layout_height="18dp"
-                android:contentDescription="@string/reading_book_menu_text_colors_yellow"
-                app:iconTint="@color/text_view_select_yellow"
+                android:contentDescription="@string/annotation_colors_yellow"
+                app:iconTint="@color/text_select_yellow"
                 app:iconSize="20dp"
                 app:icon="@drawable/ic_text_view_select_yellow"/>
 
@@ -59,9 +59,9 @@
                 style="@style/Button.IconOnly"
                 android:layout_width="18dp"
                 android:layout_height="18dp"
-                android:contentDescription="@string/reading_book_menu_text_colors_green"
+                android:contentDescription="@string/annotation_colors_green"
                 android:layout_marginStart="@dimen/book_annotation_popup_buttons_margin"
-                app:iconTint="@color/text_view_select_green"
+                app:iconTint="@color/text_select_green"
                 app:iconSize="20dp"
                 app:icon="@drawable/ic_text_view_select_green"/>
 
@@ -70,9 +70,9 @@
                 style="@style/Button.IconOnly"
                 android:layout_width="18dp"
                 android:layout_height="18dp"
-                android:contentDescription="@string/reading_book_menu_text_colors_blue"
+                android:contentDescription="@string/annotation_colors_blue"
                 android:layout_marginStart="@dimen/book_annotation_popup_buttons_margin"
-                app:iconTint="@color/text_view_select_blue"
+                app:iconTint="@color/text_select_blue"
                 app:iconSize="20dp"
                 app:icon="@drawable/ic_text_view_select_blue"/>
 
@@ -81,9 +81,9 @@
                 style="@style/Button.IconOnly"
                 android:layout_width="18dp"
                 android:layout_height="18dp"
-                android:contentDescription="@string/reading_book_menu_text_colors_red"
+                android:contentDescription="@string/annotation_colors_red"
                 android:layout_marginStart="@dimen/book_annotation_popup_buttons_margin"
-                app:iconTint="@color/text_view_select_red"
+                app:iconTint="@color/text_select_red"
                 app:iconSize="20dp"
                 app:icon="@drawable/ic_text_view_select_red"/>
         </LinearLayout>

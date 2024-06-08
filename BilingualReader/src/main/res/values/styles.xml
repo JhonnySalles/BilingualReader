@@ -203,6 +203,12 @@
         <item name="android:textColor">?attr/colorPrimary</item>
     </style>
 
+    <style name="CheckBox.Color" parent="CheckBox">
+        <item name="buttonTint">?attr/colorPrimary</item>
+        <item name="buttonIconTint">?attr/colorOnSurface</item>
+    </style>
+
+
     <style name="Button" parent="Widget.MaterialComponents.Button.OutlinedButton.Icon">
         <item name="android:textColor">?attr/colorOnPrimaryContainer</item>
         <item name="android:singleLine">true</item>

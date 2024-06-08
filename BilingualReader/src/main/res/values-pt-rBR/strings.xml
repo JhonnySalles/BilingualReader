@@ -222,13 +222,6 @@
     <string name="reading_book_menu_text_functions_find">Encontrar</string>
     <string name="reading_book_menu_text_functions_translate">Traduzir</string>
 
-    <string name="reading_book_menu_text_colors_green">Verde</string>
-    <string name="reading_book_menu_text_colors_blue">Azul</string>
-    <string name="reading_book_menu_text_colors_red">Vermelho</string>
-    <string name="reading_book_menu_text_colors_yellow">Amarelo</string>
-    <string name="reading_book_menu_text_colors_erase">Apagar</string>
-
-
     <!-- READER POPUP TITLES -->
     <string name="popup_reading_book_open">Abrir</string>
     <string name="popup_reading_book_close">Fechar</string>
@@ -281,6 +274,7 @@
     <string name="book_annotation_popup_filter_open">Abrir</string>
     <string name="book_annotation_popup_filter_close">Fechar</string>
     <string name="book_annotation_tab_item_filter">Filtros</string>
+    <string name="book_annotation_tab_item_color">Cores</string>
     <string name="book_annotation_tab_item_chapters">Capítulos</string>
 
     <string name="book_annotation_popup_filter_favorite">Favoritos</string>
@@ -291,12 +285,6 @@
     <!-- BOOK ANNOTATION DETACH -->
     <string name="book_annotation_change_detach_title">Destaque</string>
     <string name="book_annotation_change_detach_description">Selecione a cor de destaque:</string>
-
-    <string name="book_annotation_color_none">Nenhum</string>
-    <string name="book_annotation_color_blue">Azul</string>
-    <string name="book_annotation_color_green">Verde</string>
-    <string name="book_annotation_color_red">Vermelho</string>
-    <string name="book_annotation_color_yellow">Amarelo</string>
 
     <!-- BOOK POPUP ANNOTATION LAYOUT -->
     <string name="book_annotation_popup_title">Página %d - %s</string>
@@ -818,5 +806,12 @@
     <string name="button_tts_play">Play</string>
     <string name="button_tts_next">Próximo</string>
     <string name="button_tts_close">Fechar</string>
+
+    <string name="annotation_colors_none">Nenhum</string>
+    <string name="annotation_colors_green">Verde</string>
+    <string name="annotation_colors_blue">Azul</string>
+    <string name="annotation_colors_red">Vermelho</string>
+    <string name="annotation_colors_yellow">Amarelo</string>
+    <string name="annotation_colors_erase">Apagar</string>
 
 </resources>

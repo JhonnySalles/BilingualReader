@@ -59,6 +59,8 @@ class BookAnnotationViewHolder(itemView: View, private val listener: BookAnnotat
             color.visibility = View.VISIBLE
             if (mark.color != Color.None)
                 color.setBackgroundColor(itemView.context.getColor(mark.color.getColor()))
+            else
+                color.setBackgroundColor(itemView.context.getColor(R.color.transparent))
 
             noteContent.visibility = View.VISIBLE
             note.text = mark.annotation

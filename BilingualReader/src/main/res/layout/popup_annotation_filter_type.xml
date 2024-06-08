@@ -4,7 +4,7 @@
     style="@style/AppBackground.Accent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.ui.book.BookAnnotationPopupFilter">
+    tools:context=".view.ui.book.BookAnnotationPopupFilterType">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,28 +13,28 @@
         android:paddingTop="@dimen/margin"
         android:paddingBottom="@dimen/margin_bottom">
         <CheckBox
-            android:id="@+id/popup_annotation_filter_favorite"
+            android:id="@+id/popup_annotation_filter_type_favorite"
             style="@style/CheckBox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="@string/book_annotation_popup_filter_favorite"/>
 
         <CheckBox
-            android:id="@+id/popup_annotation_filter_detach"
+            android:id="@+id/popup_annotation_filter_type_detach"
             style="@style/CheckBox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="@string/book_annotation_popup_filter_detach"/>
 
         <CheckBox
-            android:id="@+id/popup_annotation_filter_page_marker"
+            android:id="@+id/popup_annotation_filter_type_page_marker"
             style="@style/CheckBox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="@string/book_annotation_popup_filter_page_marker"/>
 
         <CheckBox
-            android:id="@+id/popup_annotation_filter_book_marker"
+            android:id="@+id/popup_annotation_filter_type_book_marker"
             style="@style/CheckBox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

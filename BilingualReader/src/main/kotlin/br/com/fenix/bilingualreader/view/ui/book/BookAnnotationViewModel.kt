@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 import br.com.fenix.bilingualreader.model.enums.Type
@@ -35,6 +36,9 @@ class BookAnnotationViewModel(var app: Application) : AndroidViewModel(app), Fil
 
     private var mTypeFilter = MutableLiveData(setOf<FilterType>())
     val typeFilter: LiveData<Set<FilterType>> = mTypeFilter
+
+    private var mColorFilter = MutableLiveData(setOf<Color>())
+    val colorFilter: LiveData<Set<Color>> = mColorFilter
 
     fun save(obj: BookAnnotation) {
         if (obj.id != null)
@@ -93,6 +97,21 @@ class BookAnnotationViewModel(var app: Application) : AndroidViewModel(app), Fil
         getFilter().filter(mWordFilter)
     }
 
+    fun filterColor(filter: Color, isRemove : Boolean = false) {
+        val types = mColorFilter.value!!.toMutableSet()
+        if (isRemove)
+            types.remove(filter)
+        else
+            types.add(filter)
+        mColorFilter.value = types.toSet()
+        getFilter().filter(mWordFilter)
+    }
+
+    fun clearFilterColor() {
+        mColorFilter.value = setOf()
+        getFilter().filter(mWordFilter)
+    }
+
     override fun getFilter(): Filter {
         return mAnnotationFilter
     }
@@ -129,6 +148,17 @@ class BookAnnotationViewModel(var app: Application) : AndroidViewModel(app), Fil
                 return false
         }
 
+        if (mColorFilter.value!!.isNotEmpty()) {
+            var condition = false
+            mColorFilter.value!!.forEach {
+                if (annotation.color == it)
+                    condition = true
+            }
+
+            if (!condition)
+                return false
+        }
+
         val text = annotation.text.lowercase(Locale.getDefault()).contains(filterPattern) || annotation.annotation.lowercase(Locale.getDefault()).contains(filterPattern)
         return filterPattern.isEmpty() || text
     }
@@ -138,7 +168,7 @@ class BookAnnotationViewModel(var app: Application) : AndroidViewModel(app), Fil
             mWordFilter = constraint.toString()
             val filteredList: MutableList<BookAnnotation> = mutableListOf()
 
-            if (constraint.isNullOrEmpty() && mTypeFilter.value!!.isEmpty()) {
+            if (constraint.isNullOrEmpty() && mTypeFilter.value!!.isEmpty() && mColorFilter.value!!.isEmpty()) {
                 filteredList.addAll(mAnnotationFull.value!!.filter(Objects::nonNull))
             } else {
                 filteredList.addAll(mAnnotationFull.value!!.filter {

@@ -222,12 +222,6 @@
     <string name="reading_book_menu_text_functions_find">Find</string>
     <string name="reading_book_menu_text_functions_translate">Translate</string>
 
-    <string name="reading_book_menu_text_colors_green">Green</string>
-    <string name="reading_book_menu_text_colors_blue">Blue</string>
-    <string name="reading_book_menu_text_colors_red">Red</string>
-    <string name="reading_book_menu_text_colors_yellow">Yellow</string>
-    <string name="reading_book_menu_text_colors_erase">Erase</string>
-
 
     <!-- READER POPUP TITLES -->
     <string name="popup_reading_book_open">Open</string>
@@ -281,6 +275,7 @@
     <string name="book_annotation_popup_filter_open">Open</string>
     <string name="book_annotation_popup_filter_close">Close</string>
     <string name="book_annotation_tab_item_filter">Filter</string>
+    <string name="book_annotation_tab_item_color">Color</string>
     <string name="book_annotation_tab_item_chapters">Chapters</string>
 
     <string name="book_annotation_popup_filter_favorite">Favorite</string>
@@ -291,12 +286,6 @@
     <!-- BOOK ANNOTATION DETACH -->
     <string name="book_annotation_change_detach_title">Detach</string>
     <string name="book_annotation_change_detach_description">Select detach color:</string>
-
-    <string name="book_annotation_color_none">None</string>
-    <string name="book_annotation_color_blue">Blue</string>
-    <string name="book_annotation_color_green">Green</string>
-    <string name="book_annotation_color_red">Red</string>
-    <string name="book_annotation_color_yellow">Yellow</string>
 
     <!-- BOOK POPUP ANNOTATION LAYOUT -->
     <string name="book_annotation_popup_title">Page %d - %s</string>
@@ -816,5 +805,12 @@
     <string name="button_tts_play">Play</string>
     <string name="button_tts_next">Next</string>
     <string name="button_tts_close">Close</string>
+
+    <string name="annotation_colors_none">None</string>
+    <string name="annotation_colors_green">Green</string>
+    <string name="annotation_colors_blue">Blue</string>
+    <string name="annotation_colors_red">Red</string>
+    <string name="annotation_colors_yellow">Yellow</string>
+    <string name="annotation_colors_erase">Erase</string>
 
 </resources>

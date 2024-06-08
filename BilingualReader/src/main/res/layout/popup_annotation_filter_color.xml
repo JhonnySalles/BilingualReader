@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/AppBackground.Accent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.ui.book.BookAnnotationPopupFilterType">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/margin"
+        android:paddingBottom="@dimen/margin_bottom">
+        <CheckBox
+            android:id="@+id/popup_annotation_filter_color_none"
+            style="@style/CheckBox.Color"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/annotation_colors_none"/>
+
+        <CheckBox
+            android:id="@+id/popup_annotation_filter_color_yellow"
+            style="@style/CheckBox.Color"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/annotation_colors_yellow"
+            android:textColor="@color/text_select_yellow"
+            app:buttonTint="@drawable/checkbox_select_color_yellow"/>
+
+        <CheckBox
+            android:id="@+id/popup_annotation_filter_color_green"
+            style="@style/CheckBox.Color"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/annotation_colors_green"
+            android:textColor="@color/text_select_green"
+            app:buttonTint="@drawable/checkbox_select_color_green"/>
+
+        <CheckBox
+            android:id="@+id/popup_annotation_filter_color_blue"
+            style="@style/CheckBox.Color"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/annotation_colors_blue"
+            android:textColor="@color/text_select_blue"
+            app:buttonTint="@drawable/checkbox_select_color_blue"/>
+
+        <CheckBox
+            android:id="@+id/popup_annotation_filter_color_red"
+            style="@style/CheckBox.Color"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/annotation_colors_red"
+            android:textColor="@color/text_select_red"
+            app:buttonTint="@drawable/checkbox_select_color_red"/>
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>
+

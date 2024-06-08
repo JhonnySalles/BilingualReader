@@ -46,7 +46,6 @@ import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.book.BookAnnotationLineAdapter
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupAnnotations
-import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyPopupOrder
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -71,7 +70,8 @@ class BookAnnotationFragment : Fragment() {
     private lateinit var mPopupFilterView: ViewPager
     private lateinit var mPopupFilterTab: TabLayout
     private lateinit var mPopupChaptersTab: TabLayout
-    private lateinit var mPopupFilterFragment: BookAnnotationPopupFilter
+    private lateinit var mPopupFilterTypeFragment: BookAnnotationPopupFilterType
+    private lateinit var mPopupFilterColorFragment: BookAnnotationPopupFilterColor
     private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
 
     private lateinit var mRecyclerView: RecyclerView
@@ -195,7 +195,6 @@ class BookAnnotationFragment : Fragment() {
             }
 
         mPopupFilterTab.setupWithViewPager(mPopupFilterView)
-        mPopupFilterFragment = BookAnnotationPopupFilter()
 
         BottomSheetBehavior.from(mMenuPopupFilter).apply {
             peekHeight = 195
@@ -212,8 +211,12 @@ class BookAnnotationFragment : Fragment() {
                     mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
             }
 
+        mPopupFilterTypeFragment = BookAnnotationPopupFilterType()
+        mPopupFilterColorFragment = BookAnnotationPopupFilterColor()
+
         val viewOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
-        viewOrderPagerAdapter.addFragment(mPopupFilterFragment, resources.getString(R.string.book_annotation_tab_item_filter))
+        viewOrderPagerAdapter.addFragment(mPopupFilterTypeFragment, resources.getString(R.string.book_annotation_tab_item_filter))
+        viewOrderPagerAdapter.addFragment(mPopupFilterColorFragment, resources.getString(R.string.book_annotation_tab_item_color))
 
         mPopupFilterView.adapter = viewOrderPagerAdapter
 
