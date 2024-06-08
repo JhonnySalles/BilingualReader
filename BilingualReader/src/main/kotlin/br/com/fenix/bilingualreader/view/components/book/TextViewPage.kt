@@ -9,6 +9,7 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.widget.AppCompatTextView
+import br.com.fenix.bilingualreader.service.listener.SelectionChangeListener
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -31,6 +32,7 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
 
     private lateinit var mGestureDetector: GestureDetector
     private var mOuterTouchListener: OnTouchListener? = null
+    private var mSelectionListener: SelectionChangeListener? = null
     private var mIsChangeSize: Boolean = true
     private var mOriginalSize: Float
     private var mZooming = false
@@ -76,6 +78,18 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
 
     override fun setOnTouchListener(listenner: OnTouchListener?) {
         mOuterTouchListener = listenner
+    }
+
+    fun setSelectionChangeListener(listener: SelectionChangeListener) {
+        mSelectionListener = listener
+    }
+
+    override fun onSelectionChanged(selStart: Int, selEnd: Int) {
+        super.onSelectionChanged(selStart, selEnd)
+        if (hasSelection())
+            mSelectionListener?.onTextSelected()
+        else
+            mSelectionListener?.onTextUnselected()
     }
 
     private var pressedCoordinate: FloatArray? = null

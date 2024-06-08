@@ -1,13 +1,20 @@
 package br.com.fenix.bilingualreader.view.components.book
 
 import android.content.Context
+import android.graphics.Path
+import android.graphics.Point
+import android.graphics.Rect
+import android.graphics.RectF
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver.OnScrollChangedListener
+import android.widget.FrameLayout
+import android.widget.PopupWindow
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.text.clearSpans
@@ -15,12 +22,19 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Speech
 import br.com.fenix.bilingualreader.model.enums.AudioStatus
+import br.com.fenix.bilingualreader.service.listener.ScrollChangeListener
+import br.com.fenix.bilingualreader.service.listener.SelectionChangeListener
 import br.com.fenix.bilingualreader.service.listener.TTSListener
 import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
+import br.com.fenix.bilingualreader.util.constants.ReaderConsts
+import br.com.fenix.bilingualreader.util.helpers.PopupUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
+import br.com.fenix.bilingualreader.view.ui.popup.PopupTextSelect
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderViewModel
 import org.slf4j.LoggerFactory
+import kotlin.math.max
+import kotlin.math.min
 
 
 class TextViewPager(
@@ -38,9 +52,14 @@ class TextViewPager(
     private var mSpeech: Speech? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TextViewPagerHolder {
-        val holder = TextViewPagerHolder(LayoutInflater.from(parent.context).inflate(R.layout.fragment_book_text_view_page, parent, false))
+        val inflater = LayoutInflater.from(parent.context)
+        val holder = TextViewPagerHolder(inflater.inflate(R.layout.fragment_book_text_view_page, parent, false))
         mViewModel.changeTextStyle(holder.textView)
         holder.style = mViewModel.fontUpdate.value + mViewModel.fontSize.value
+
+        if (!ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT)
+            holder.createPopup(inflater.inflate(R.layout.popup_text_select, null))
+
         return holder
     }
 
@@ -89,10 +108,118 @@ class TextViewPager(
         post { setTextIsSelectable(true) }
     }
 
-    inner class TextViewPagerHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val scrollView = itemView.findViewById<ScrollView>(R.id.page_scroll_view)
+    inner class TextViewPagerHolder(itemView: View) : RecyclerView.ViewHolder(itemView), ScrollChangeListener, SelectionChangeListener {
+        val scrollView = itemView.findViewById<NotifyingScrollView>(R.id.page_scroll_view)
         val textView = itemView.findViewById<TextViewPage>(R.id.page_text_view)
         var style: String = ""
+
+        val popupTextSelect: PopupWindow = PopupWindow()
+        private val mCurrentLocation = Point()
+        private val mStartLocation = Point()
+        private val mBounds = Rect()
+
+        private val mDefaultWidth = -1
+        private val mDefaultHeight = -1
+
+
+        fun createPopup(content: View) {
+            popupTextSelect.contentView = content
+            popupTextSelect.width = FrameLayout.LayoutParams.WRAP_CONTENT
+            popupTextSelect.height = FrameLayout.LayoutParams.WRAP_CONTENT
+
+            PopupTextSelect(content, this)
+
+            scrollView.setScrollChangeListener(this)
+            textView.setSelectionChangeListener(this)
+        }
+
+        override fun onScrollChanged() {
+            if (ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT)
+                return
+
+            if (popupTextSelect.isShowing) {
+                val location = calculatePopupLocation()
+                popupTextSelect.update(location.x, location.y, mDefaultWidth, mDefaultHeight)
+            }
+        }
+
+        override fun onTextSelected() {
+            if (ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT)
+                return
+
+            val popupContent: View = popupTextSelect.contentView
+            if (popupTextSelect.isShowing) {
+                val location = calculatePopupLocation()
+                popupTextSelect.update(location.x, location.y, mDefaultWidth, mDefaultHeight)
+            } else {
+                // Add the popup to the Window and position it relative to the selected text bounds
+                PopupUtil.onGlobalLayout(textView) {
+                    popupTextSelect.showAtLocation(textView, Gravity.TOP, 0, 0)
+                    // Wait for the popup content to be laid out
+                    PopupUtil.onGlobalLayout(popupContent) {
+                        val cframe: Rect = Rect()
+                        val cloc = IntArray(2)
+                        popupContent.getLocationOnScreen(cloc)
+                        popupContent.getLocalVisibleRect(mBounds)
+                        popupContent.getWindowVisibleDisplayFrame(cframe)
+
+                        val scrollY: Int = (textView.getParent() as View).getScrollY()
+                        val tloc = IntArray(2)
+                        textView.getLocationInWindow(tloc)
+
+                        val startX: Int = cloc[0] + mBounds.centerX()
+                        val startY: Int = cloc[1] + mBounds.centerY() - (tloc[1] - cframe.top) - scrollY
+                        mStartLocation.set(startX, startY)
+
+                        val ploc: Point = calculatePopupLocation()
+                        popupTextSelect.update(
+                            ploc.x,
+                            ploc.y,
+                            mDefaultWidth,
+                            mDefaultHeight
+                        )
+                    }
+                }
+            }
+        }
+
+        override fun onTextUnselected() {
+            if (!ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT)
+                popupTextSelect.dismiss()
+        }
+
+        private fun calculatePopupLocation(): Point {
+            val parent = textView.parent as ScrollView
+
+            // Calculate the selection start and end offset
+            val selStart: Int = textView.selectionStart
+            val selEnd: Int = textView.selectionEnd
+            val min = max(0.0, min(selStart.toDouble(), selEnd.toDouble())).toInt()
+            val max = max(0.0, max(selStart.toDouble(), selEnd.toDouble())).toInt()
+
+            // Calculate the selection bounds
+            val selBounds = RectF()
+            val selection = Path()
+            textView.layout.getSelectionPath(min, max, selection)
+            selection.computeBounds(selBounds, true)
+
+            // Retrieve the center x/y of the popup content
+            val cx: Int = mStartLocation.x
+            val cy: Int = mStartLocation.y
+
+            // Calculate the top and bottom offset of the popup relative to the selection bounds
+            val popupHeight: Int = mBounds.height()
+            val textPadding: Int = textView.paddingLeft
+            val topOffset = Math.round(selBounds.top - cy)
+            val btmOffset = Math.round(selBounds.bottom - (cy - popupHeight))
+
+            // Calculate the x/y coordinates for the popup relative to the selection bounds
+            val scrollY = parent.scrollY
+            val x = Math.round(selBounds.centerX() + textPadding - cx)
+            val y = Math.round((if (selBounds.top - scrollY < cy) btmOffset else topOffset).toFloat())
+            mCurrentLocation.set(x, y - scrollY)
+            return mCurrentLocation
+        }
     }
 
     private fun drawLineSpeech(textViewPage: TextViewPage, speech: Speech) {

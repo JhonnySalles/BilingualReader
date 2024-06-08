@@ -249,6 +249,15 @@
     <dimen name="popup_reader_color_filter_padding">16dp</dimen>
     <dimen name="popup_reader_blue_light_padding">10dp</dimen>
 
+    <dimen name="popup_annotation_colors_margin">20dp</dimen>
+    <dimen name="popup_annotation_colors_size">20dp</dimen>
+    <dimen name="popup_annotation_colors_icon_size">22dp</dimen>
+
+    <dimen name="popup_text_select_width">170dp</dimen>
+    <dimen name="popup_text_select_colors_margin">20dp</dimen>
+    <dimen name="popup_text_select_colors_size">16dp</dimen>
+    <dimen name="popup_text_select_colors_icon_size">18dp</dimen>
+
     <dimen name="floating_reader_min_size">100dp</dimen>
     <dimen name="floating_reader_initial_top_padding">25dp</dimen>
     <dimen name="floating_manga_subtitle_reader_height">230dp</dimen>

@@ -8,12 +8,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
-import br.com.fenix.bilingualreader.model.enums.Color
-import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.BookAnnotationRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import br.com.fenix.bilingualreader.utils.BookTestUtil
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import junit.framework.TestCase
@@ -31,9 +28,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(AndroidJUnit4::class)
 class BookAnnotationFragmentTest {
 
-    private val path = "/storage/1CFF-100F/Livros/The Irregular at Magic High School - Volume 01 [Yen Press] [Darkmeep].epub"
-
-    private val book: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(),path)
+    private val book: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), BookTestUtil.mBookPath)
     private var intent: Intent? = null
 
     init {
@@ -43,7 +38,7 @@ class BookAnnotationFragmentTest {
         BookTestUtil.clearCache(ApplicationProvider.getApplicationContext())
 
         TestCase.assertTrue(
-            "Book informed not found, please verify book in " + BookAnnotationFragmentTest::class.java.name,
+            "Book file informed not found, please verify declared 'mBookLocation' in " + BookTestUtil.BookTestUtils::class.java.name,
             book.file.exists()
         )
     }

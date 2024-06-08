@@ -17,7 +17,6 @@ import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
-import br.com.fenix.bilingualreader.view.ui.book.BookAnnotationFragmentTest
 import java.io.File
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -201,7 +200,8 @@ class MangaTestUtil {
 
 class BookTestUtil {
     companion object BookTestUtils {
-        const val mBookLocation = "/storage/1CFF-100F/Livros/" + "ReZero - Starting Life in Another World - Volume 01 [Yen Press][Kobo_Kitzoku].pdf"
+        const val mBookPage = 16
+        const val mBookPath = "/storage/1CFF-100F/Livros/The Irregular at Magic High School - Volume 01 [Yen Press] [Darkmeep].epub"
         private val BOOK_TEST_FILE_PATH = "storage/emulated/0/Book/Book of test.cbr"
         fun clearCache(context: Context) {
             val cache = File(

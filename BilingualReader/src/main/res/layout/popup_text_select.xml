@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/frame_popup_tag_root"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/margin_small"
+    android:background="@drawable/popup_text_select_background"
+    android:elevation="5dp">
+
+    <LinearLayout
+        android:layout_width="@dimen/popup_text_select_width"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_small"
+        android:layout_marginBottom="@dimen/margin_small"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/popup_text_select_functions_select_all"
+                style="@style/Button.IconOnly"
+                android:layout_width="@dimen/popup_text_select_colors_size"
+                android:layout_height="@dimen/popup_text_select_colors_size"
+                android:contentDescription="@string/annotation_colors_yellow"
+                app:iconSize="@dimen/popup_text_select_colors_icon_size"
+                app:icon="@drawable/ic_text_view_select_all"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/popup_text_select_functions_copy"
+                style="@style/Button.IconOnly"
+                android:layout_width="@dimen/popup_text_select_colors_size"
+                android:layout_height="@dimen/popup_text_select_colors_size"
+                android:contentDescription="@string/annotation_colors_yellow"
+                android:layout_marginStart="@dimen/popup_text_select_colors_margin"
+                app:iconSize="@dimen/popup_text_select_colors_icon_size"
+                app:icon="@drawable/ic_text_view_copy"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/popup_text_select_functions_search"
+                style="@style/Button.IconOnly"
+                android:layout_width="@dimen/popup_text_select_colors_size"
+                android:layout_height="@dimen/popup_text_select_colors_size"
+                android:contentDescription="@string/annotation_colors_blue"
+                android:layout_marginStart="@dimen/popup_text_select_colors_margin"
+                app:iconSize="@dimen/popup_text_select_colors_icon_size"
+                app:icon="@drawable/ic_text_view_find"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/popup_text_select_functions_translate"
+                style="@style/Button.IconOnly"
+                android:layout_width="@dimen/popup_text_select_colors_size"
+                android:layout_height="@dimen/popup_text_select_colors_size"
+                android:contentDescription="@string/annotation_colors_green"
+                android:layout_marginStart="@dimen/popup_text_select_colors_margin"
+                app:iconSize="@dimen/popup_text_select_colors_icon_size"
+                app:icon="@drawable/ic_text_view_translate"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/popup_text_select_functions_tts"
+                style="@style/Button.IconOnly"
+                android:layout_width="@dimen/popup_text_select_colors_size"
+                android:layout_height="@dimen/popup_text_select_colors_size"
+                android:contentDescription="@string/annotation_colors_red"
+                android:layout_marginStart="@dimen/popup_text_select_colors_margin"
+                app:iconSize="@dimen/popup_text_select_colors_icon_size"
+                app:icon="@drawable/ic_text_view_tts"/>
+        </LinearLayout>
+
+        <com.google.android.material.divider.MaterialDivider
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin_small"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/popup_text_select_yellow"
+                style="@style/Button.IconOnly"
+                android:layout_width="@dimen/popup_text_select_colors_size"
+                android:layout_height="@dimen/popup_text_select_colors_size"
+                android:contentDescription="@string/annotation_colors_yellow"
+                app:iconTint="@color/text_select_yellow"
+                app:iconSize="@dimen/popup_text_select_colors_icon_size"
+                app:icon="@drawable/ic_text_view_select_yellow"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/popup_text_select_green"
+                style="@style/Button.IconOnly"
+                android:layout_width="@dimen/popup_text_select_colors_size"
+                android:layout_height="@dimen/popup_text_select_colors_size"
+                android:contentDescription="@string/annotation_colors_green"
+                android:layout_marginStart="@dimen/popup_text_select_colors_margin"
+                app:iconTint="@color/text_select_green"
+                app:iconSize="@dimen/popup_text_select_colors_icon_size"
+                app:icon="@drawable/ic_text_view_select_green"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/popup_text_select_blue"
+                style="@style/Button.IconOnly"
+                android:layout_width="@dimen/popup_text_select_colors_size"
+                android:layout_height="@dimen/popup_text_select_colors_size"
+                android:contentDescription="@string/annotation_colors_blue"
+                android:layout_marginStart="@dimen/popup_text_select_colors_margin"
+                app:iconTint="@color/text_select_blue"
+                app:iconSize="@dimen/popup_text_select_colors_icon_size"
+                app:icon="@drawable/ic_text_view_select_blue"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/popup_text_select_red"
+                style="@style/Button.IconOnly"
+                android:layout_width="@dimen/popup_text_select_colors_size"
+                android:layout_height="@dimen/popup_text_select_colors_size"
+                android:contentDescription="@string/annotation_colors_red"
+                android:layout_marginStart="@dimen/popup_text_select_colors_margin"
+                app:iconTint="@color/text_select_red"
+                app:iconSize="@dimen/popup_text_select_colors_icon_size"
+                app:icon="@drawable/ic_text_view_select_red"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/popup_text_select_erase"
+                style="@style/Button.IconOnly"
+                android:layout_width="@dimen/popup_text_select_colors_size"
+                android:layout_height="@dimen/popup_text_select_colors_size"
+                android:contentDescription="@string/annotation_colors_red"
+                android:layout_marginStart="@dimen/popup_text_select_colors_margin"
+                app:iconSize="@dimen/popup_text_select_colors_icon_size"
+                app:icon="@drawable/ic_text_view_select_erase"/>
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

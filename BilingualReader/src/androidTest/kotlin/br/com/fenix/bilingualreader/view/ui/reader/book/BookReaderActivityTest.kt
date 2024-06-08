@@ -12,7 +12,6 @@ import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.utils.BookTestUtil
-import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import org.junit.FixMethodOrder
 import org.junit.Rule
@@ -27,9 +26,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(AndroidJUnit4::class)
 class BookReaderActivityTest {
 
-    // Inform a file test here
-    private val filePath = "/storage/1D01-1E06/Livros/Russian-Roulette-epub.epub"
-    private val book: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), filePath)
+    private val book: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), BookTestUtil.mBookPath)
     private var intent: Intent? = null
 
     init {
@@ -38,14 +35,12 @@ class BookReaderActivityTest {
         //Clear cache
         BookTestUtil.clearCache(ApplicationProvider.getApplicationContext())
 
-        assertFalse(
-            "Not informed book file, please declare 'filePath' in " + BookReaderActivityTest::class.java.name,
-            filePath.isEmpty()
-        )
         assertTrue(
-            "Book file informed not found, please verify declared 'filePath' in " + BookReaderActivityTest::class.java.name,
+            "Book file informed not found, please verify declared 'mBookLocation' in " + BookTestUtil.BookTestUtils::class.java.name,
             book.file.exists()
         )
+
+        book.bookMark = BookTestUtil.mBookPage
 
         intent = Intent(ApplicationProvider.getApplicationContext(), BookReaderActivity::class.java)
 
@@ -56,7 +51,7 @@ class BookReaderActivityTest {
         )
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
         bundle.putString(GeneralConsts.KEYS.BOOK.NAME, book.title)
-        bundle.putInt(GeneralConsts.KEYS.BOOK.PAGE_NUMBER, 0)
+        bundle.putInt(GeneralConsts.KEYS.BOOK.PAGE_NUMBER, BookTestUtil.mBookPage)
         bundle.putInt(GeneralConsts.KEYS.BOOK.MARK, 0)
         intent?.putExtras(bundle)
     }

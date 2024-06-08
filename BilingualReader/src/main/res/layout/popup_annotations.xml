@@ -47,44 +47,44 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_annotation_yellow"
                 style="@style/Button.IconOnly"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="@dimen/popup_annotation_colors_size"
+                android:layout_height="@dimen/popup_annotation_colors_size"
                 android:contentDescription="@string/annotation_colors_yellow"
                 app:iconTint="@color/text_select_yellow"
-                app:iconSize="20dp"
+                app:iconSize="@dimen/popup_annotation_colors_icon_size"
                 app:icon="@drawable/ic_text_view_select_yellow"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_annotation_green"
                 style="@style/Button.IconOnly"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="@dimen/popup_annotation_colors_size"
+                android:layout_height="@dimen/popup_annotation_colors_size"
                 android:contentDescription="@string/annotation_colors_green"
-                android:layout_marginStart="@dimen/book_annotation_popup_buttons_margin"
+                android:layout_marginStart="@dimen/popup_annotation_colors_margin"
                 app:iconTint="@color/text_select_green"
-                app:iconSize="20dp"
+                app:iconSize="@dimen/popup_annotation_colors_icon_size"
                 app:icon="@drawable/ic_text_view_select_green"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_annotation_blue"
                 style="@style/Button.IconOnly"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="@dimen/popup_annotation_colors_size"
+                android:layout_height="@dimen/popup_annotation_colors_size"
                 android:contentDescription="@string/annotation_colors_blue"
-                android:layout_marginStart="@dimen/book_annotation_popup_buttons_margin"
+                android:layout_marginStart="@dimen/popup_annotation_colors_margin"
                 app:iconTint="@color/text_select_blue"
-                app:iconSize="20dp"
+                app:iconSize="@dimen/popup_annotation_colors_icon_size"
                 app:icon="@drawable/ic_text_view_select_blue"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_annotation_red"
                 style="@style/Button.IconOnly"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="@dimen/popup_annotation_colors_size"
+                android:layout_height="@dimen/popup_annotation_colors_size"
                 android:contentDescription="@string/annotation_colors_red"
-                android:layout_marginStart="@dimen/book_annotation_popup_buttons_margin"
+                android:layout_marginStart="@dimen/popup_annotation_colors_margin"
                 app:iconTint="@color/text_select_red"
-                app:iconSize="20dp"
+                app:iconSize="@dimen/popup_annotation_colors_icon_size"
                 app:icon="@drawable/ic_text_view_select_red"/>
         </LinearLayout>
     </LinearLayout>

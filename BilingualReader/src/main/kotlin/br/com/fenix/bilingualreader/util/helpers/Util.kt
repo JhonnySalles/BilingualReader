@@ -32,6 +32,7 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
 import android.view.View
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.view.Window
 import android.view.WindowManager
 import android.widget.FrameLayout
@@ -636,7 +637,6 @@ class FileUtil(val context: Context) {
             Toast.LENGTH_LONG
         ).show()
     }
-
 
 }
 
@@ -1287,6 +1287,21 @@ class ColorUtil {
         }
 
         fun getColor(exadecimal: String) : Int = android.graphics.Color.parseColor(exadecimal)
+
+    }
+}
+
+class PopupUtil {
+    companion object PopupUtils {
+        fun onGlobalLayout(view: View, runnable: Runnable) {
+            val listener: OnGlobalLayoutListener = object : OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+                    view.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                    runnable.run()
+                }
+            }
+            view.viewTreeObserver.addOnGlobalLayoutListener(listener)
+        }
 
     }
 }

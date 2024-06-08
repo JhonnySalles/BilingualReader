@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <ScrollView
+    <br.com.fenix.bilingualreader.view.components.book.NotifyingScrollView
         android:id="@+id/page_scroll_view"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -27,6 +27,6 @@
             android:layout_marginBottom="@dimen/book_reader_text_margin_bottom"
             android:layout_marginStart="@dimen/book_reader_text_margin"
             android:layout_marginEnd="@dimen/book_reader_text_margin"/>
-    </ScrollView>
+    </br.com.fenix.bilingualreader.view.components.book.NotifyingScrollView>
 
 </FrameLayout>

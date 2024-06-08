@@ -6,9 +6,6 @@ import android.content.Context
 import android.os.Build
 import android.text.Selection
 import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.BackgroundColorSpan
-import android.text.style.StyleSpan
 import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
@@ -19,21 +16,27 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
+import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 
 
 class TextViewSelectCallback(val context: Context, val textView: TextView, val page: Int, val createSpan: (annotation: BookAnnotation, start: Int, end: Int) -> (Unit),  val listener: TextSelectCallbackListener?) : ActionMode.Callback {
 
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
-        //mode?.title = "Menu action"
-        mode?.menu?.setGroupDividerEnabled(true)
-        mode?.menuInflater?.inflate(R.menu.menu_text_view_select, menu)
+        if (ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT) {
+            //mode?.title = "Menu action"
+            mode?.menu?.setGroupDividerEnabled(true)
+            mode?.menuInflater?.inflate(R.menu.menu_text_view_select, menu)
+        }
         return true;
     }
 
     override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
-        menu?.removeItem(android.R.id.cut)
-        menu?.removeItem(android.R.id.shareText)
+        if (ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT) {
+            menu?.removeItem(android.R.id.cut)
+            menu?.removeItem(android.R.id.shareText)
+        } else
+            menu?.clear()
         return true;
     }
 
@@ -49,7 +52,8 @@ class TextViewSelectCallback(val context: Context, val textView: TextView, val p
                     mode?.finish()
                 }
 
-                android.R.id.selectAll -> selectAllText()
+                R.id.popup_text_select_functions_select_all, android.R.id.selectAll -> selectAllText()
+
                 R.id.menu_text_select_functions_tts -> {
                     listener?.textSelectReadingFrom(page, textView.text.substring(start, end))
                     mode?.finish()
