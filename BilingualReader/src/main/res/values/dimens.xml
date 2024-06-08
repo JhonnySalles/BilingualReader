@@ -214,6 +214,7 @@
     <dimen name="title_small_size">12sp</dimen>
     <dimen name="title_index_dialog_size">20sp</dimen>
     <dimen name="title_small_index_dialog_size">16sp</dimen>
+    <dimen name="title_index_dialog_padding">15dp</dimen>
 
     <dimen name="clock_and_battery">10sp</dimen>
     <dimen name="clock_and_battery_tablet">12sp</dimen>

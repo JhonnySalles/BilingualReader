@@ -54,11 +54,11 @@ class HistoryFragment : Fragment() {
 
         val miLibrary = menu.findItem(R.id.menu_history_manga_library)
         miLibrary.subMenu?.clear()
-        miLibrary.subMenu?.add(requireContext().getString(R.string.history_menu_choice_library_all))
-            ?.setOnMenuItemClickListener { _: MenuItem? ->
+        miLibrary.subMenu?.add(requireContext().getString(R.string.history_menu_choice_library_all))?.setOnMenuItemClickListener { _: MenuItem? ->
                 filterLibrary(null)
                 true
             }
+
         for (library in mViewModel.getLibraryList())
             miLibrary.subMenu?.add(library.title)?.setOnMenuItemClickListener { _: MenuItem? ->
                 filterLibrary(library)

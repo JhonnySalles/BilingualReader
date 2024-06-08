@@ -21,6 +21,7 @@ import android.widget.ListView
 import android.widget.PopupMenu
 import android.widget.ProgressBar
 import android.widget.SearchView
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -49,7 +50,7 @@ class BookSearchFragment : Fragment() {
     private val mViewModel: BookSearchViewModel by activityViewModels()
     private val mAnnotations: BookAnnotationViewModel by activityViewModels()
 
-    private lateinit var mToolbar: androidx.appcompat.widget.Toolbar
+    private lateinit var mToolbar: Toolbar
     private lateinit var miSearch: MenuItem
     private lateinit var searchView: SearchView
 
@@ -114,11 +115,7 @@ class BookSearchFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_book_search, container, false)
 
         mRecyclerView = root.findViewById(R.id.book_search_recycler_view)

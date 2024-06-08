@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
+import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.service.listener.BookAnnotationListener
 import com.google.android.material.button.MaterialButton
@@ -32,7 +33,7 @@ class BookAnnotationViewHolder(itemView: View, private val listener: BookAnnotat
         note.setOnClickListener { listener.onClickNote(mark, position) }
         options.setOnClickListener {
             (options.icon as AnimatedVectorDrawable).start()
-            listener.onClickOptions(mark, options.rootView, position)
+            listener.onClickOptions(mark, options, position)
         }
 
         favorite.setOnClickListener {
@@ -56,7 +57,8 @@ class BookAnnotationViewHolder(itemView: View, private val listener: BookAnnotat
             title.text = itemView.context.getString(R.string.book_annotation_list_title_detach, mark.page)
 
             color.visibility = View.VISIBLE
-            color.setBackgroundColor(itemView.context.getColor(mark.color.getColor()))
+            if (mark.color != Color.None)
+                color.setBackgroundColor(itemView.context.getColor(mark.color.getColor()))
 
             noteContent.visibility = View.VISIBLE
             note.text = mark.annotation

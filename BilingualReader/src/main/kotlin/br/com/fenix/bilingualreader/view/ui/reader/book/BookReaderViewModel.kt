@@ -506,7 +506,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             for (mark in marks) {
                 val i: Int = textView.text.indexOf(mark.text)
 
-                if (i < 0)
+                if (i < 0 || mark.color == br.com.fenix.bilingualreader.model.enums.Color.None)
                     continue
 
                 isSpan = true

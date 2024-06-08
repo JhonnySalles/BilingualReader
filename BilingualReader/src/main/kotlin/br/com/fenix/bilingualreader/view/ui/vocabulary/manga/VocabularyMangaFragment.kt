@@ -197,8 +197,7 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
 
         mMenuPopupFilterOrder = root.findViewById(R.id.vocabulary_manga_popup_menu_order_filter)
         mPopupFilterOrderTab = root.findViewById(R.id.vocabulary_manga_popup_order_filter_tab)
-        mPopupFilterOrderView =
-            root.findViewById(R.id.vocabulary_manga_popup_order_filter_view_pager)
+        mPopupFilterOrderView = root.findViewById(R.id.vocabulary_manga_popup_order_filter_view_pager)
 
         root.findViewById<ImageView>(R.id.vocabulary_manga_popup_menu_order_filter_close)
             .setOnClickListener {

@@ -416,7 +416,7 @@ class Util {
         }
 
         fun getColors(context: Context): Map<String, Color> {
-            return Color.getColors().associateBy { context.getString(it.getDescription()) }
+            return Color.getColors().filter { it != Color.None }.associateBy { context.getString(it.getDescription()) }
         }
 
 

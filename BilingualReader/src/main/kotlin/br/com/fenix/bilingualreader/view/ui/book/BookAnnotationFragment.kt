@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.TypedValue
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.Menu
@@ -15,14 +16,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.AutoCompleteTextView
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.SearchView
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
@@ -30,13 +40,17 @@ import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.service.listener.BookAnnotationListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.book.BookAnnotationLineAdapter
-import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaListCardAdapter
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupAnnotations
+import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyPopupOrder
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
 
 
@@ -46,13 +60,21 @@ class BookAnnotationFragment : Fragment() {
 
     private val mViewModel: BookAnnotationViewModel by activityViewModels()
 
+    private lateinit var mToolbar: Toolbar
+
     private lateinit var mScrollUp: FloatingActionButton
     private lateinit var mScrollDown: FloatingActionButton
     private lateinit var miSearch: MenuItem
     private lateinit var searchView: SearchView
 
-    private lateinit var mRecyclerView: RecyclerView
+    private lateinit var mMenuPopupFilter: FrameLayout
+    private lateinit var mPopupFilterView: ViewPager
+    private lateinit var mPopupFilterTab: TabLayout
+    private lateinit var mPopupChaptersTab: TabLayout
+    private lateinit var mPopupFilterFragment: BookAnnotationPopupFilter
+    private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
 
+    private lateinit var mRecyclerView: RecyclerView
     private lateinit var mListener: BookAnnotationListener
 
     private lateinit var mBook: Book
@@ -75,7 +97,7 @@ class BookAnnotationFragment : Fragment() {
         inflater.inflate(R.menu.menu_book_annotation, menu)
         super.onCreateOptionsMenu(menu, inflater)
 
-        miSearch = menu.findItem(R.id.menu_history_manga_search)
+        miSearch = menu.findItem(R.id.menu_book_annotation_search)
         searchView = miSearch.actionView as SearchView
         searchView.imeOptions = EditorInfo.IME_ACTION_DONE
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -94,7 +116,7 @@ class BookAnnotationFragment : Fragment() {
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
-            R.id.menu_book_mark_filters -> {}
+            R.id.menu_book_annotation_filters -> onOpenMenuFilter()
         }
         return super.onOptionsItemSelected(menuItem)
     }
@@ -107,8 +129,12 @@ class BookAnnotationFragment : Fragment() {
         mScrollUp = root.findViewById(R.id.book_annotation_scroll_up)
         mScrollDown = root.findViewById(R.id.book_annotation_scroll_down)
 
+        mToolbar = root.findViewById(R.id.toolbar_book_annotation)
+
         mScrollUp.visibility = View.GONE
         mScrollDown.visibility = View.GONE
+
+        (requireActivity() as MenuActivity).setActionBar(mToolbar)
 
         mScrollUp.setOnClickListener {
             (mScrollUp.drawable as AnimatedVectorDrawable).start()
@@ -159,7 +185,44 @@ class BookAnnotationFragment : Fragment() {
             }
         }
 
+        mMenuPopupFilter = root.findViewById(R.id.book_annotation_popup_filter)
+        mPopupFilterTab = root.findViewById(R.id.book_annotation_popup_filter_tab)
+        mPopupFilterView = root.findViewById(R.id.book_annotation_popup_order_filter_view_pager)
+
+        root.findViewById<ImageView>(R.id.book_annotation_popup_filter_close)
+            .setOnClickListener {
+                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupFilter)
+            }
+
+        mPopupFilterTab.setupWithViewPager(mPopupFilterView)
+        mPopupFilterFragment = BookAnnotationPopupFilter()
+
+        BottomSheetBehavior.from(mMenuPopupFilter).apply {
+            peekHeight = 195
+            this.state = BottomSheetBehavior.STATE_COLLAPSED
+            mBottomSheet = this
+        }
+        mBottomSheet.isDraggable = true
+
+        root.findViewById<ImageView>(R.id.book_annotation_popup_filter_touch)
+            .setOnClickListener {
+                if (mBottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED)
+                    mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
+                else
+                    mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+
+        val viewOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
+        viewOrderPagerAdapter.addFragment(mPopupFilterFragment, resources.getString(R.string.book_annotation_tab_item_filter))
+
+        mPopupFilterView.adapter = viewOrderPagerAdapter
+
         return root
+    }
+
+    private fun onOpenMenuFilter() {
+        mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
+        AnimationUtil.animatePopupOpen(requireActivity(), mMenuPopupFilter)
     }
 
 
@@ -168,8 +231,6 @@ class BookAnnotationFragment : Fragment() {
 
         mListener = object : BookAnnotationListener {
             override fun onClick(annotation: BookAnnotation) {
-                if (true)
-                    return
                 val bundle = Bundle()
                 bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK_ANNOTATION, annotation)
                 (requireActivity() as MenuActivity).onBack(bundle)
@@ -201,9 +262,22 @@ class BookAnnotationFragment : Fragment() {
                             val colors = Util.getColors(requireContext())
                             val items = colors.keys.toTypedArray()
 
+                            val title = LinearLayout(requireContext())
+                            title.orientation = LinearLayout.VERTICAL
+                            title.setPadding(resources.getDimensionPixelOffset(R.dimen.title_index_dialog_padding))
+                            val name = TextView(requireContext())
+                            name.text = getString(R.string.book_annotation_change_detach_title)
+                            name.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_index_dialog_size))
+                            name.setTextColor(requireContext().getColorFromAttr(R.attr.colorPrimary))
+                            title.addView(name)
+                            val index = TextView(requireContext())
+                            index.text = getString(R.string.book_annotation_change_detach_description)
+                            index.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_small_index_dialog_size))
+                            index.setTextColor(requireContext().getColorFromAttr(R.attr.colorSecondary))
+                            title.addView(index)
+
                             MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
-                                .setTitle(getString(R.string.book_annotation_change_detach_title))
-                                .setMessage(getString(R.string.book_annotation_change_detach_description))
+                                .setCustomTitle(title)
                                 .setItems(items) { _, selected ->
                                     val color = colors[items[selected]]
                                     if (color != null) {
@@ -325,6 +399,28 @@ class BookAnnotationFragment : Fragment() {
                 }
                 .create()
         dialog.show()
+    }
+
+    inner class ViewPagerAdapter(fm: FragmentManager, behavior: Int) :
+        FragmentPagerAdapter(fm, behavior) {
+        private val fragments: MutableList<Fragment> = ArrayList()
+        private val fragmentTitle: MutableList<String> = ArrayList()
+        fun addFragment(fragment: Fragment, title: String) {
+            fragments.add(fragment)
+            fragmentTitle.add(title)
+        }
+
+        override fun getItem(position: Int): Fragment {
+            return fragments[position]
+        }
+
+        override fun getCount(): Int {
+            return fragments.size
+        }
+
+        override fun getPageTitle(position: Int): CharSequence {
+            return fragmentTitle[position]
+        }
     }
 
 }

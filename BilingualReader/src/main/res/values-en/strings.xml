@@ -283,6 +283,11 @@
     <string name="book_annotation_tab_item_filter">Filter</string>
     <string name="book_annotation_tab_item_chapters">Chapters</string>
 
+    <string name="book_annotation_popup_filter_favorite">Favorite</string>
+    <string name="book_annotation_popup_filter_detach">Detach</string>
+    <string name="book_annotation_popup_filter_page_marker">Page marker</string>
+    <string name="book_annotation_popup_filter_book_marker">Book marker</string>
+
     <!-- BOOK ANNOTATION DETACH -->
     <string name="book_annotation_change_detach_title">Detach</string>
     <string name="book_annotation_change_detach_description">Select detach color:</string>

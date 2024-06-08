@@ -283,6 +283,11 @@
     <string name="book_annotation_tab_item_filter">Filtros</string>
     <string name="book_annotation_tab_item_chapters">Capítulos</string>
 
+    <string name="book_annotation_popup_filter_favorite">Favoritos</string>
+    <string name="book_annotation_popup_filter_detach">Destaque</string>
+    <string name="book_annotation_popup_filter_page_marker">Marcador de página</string>
+    <string name="book_annotation_popup_filter_book_marker">Marcador de livro</string>
+
     <!-- BOOK ANNOTATION DETACH -->
     <string name="book_annotation_change_detach_title">Destaque</string>
     <string name="book_annotation_change_detach_description">Selecione a cor de destaque:</string>

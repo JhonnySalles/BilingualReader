@@ -25,11 +25,7 @@ class LibraryMangaPopupFilter : Fragment() {
         mViewModel = ViewModelProvider(requireActivity()).get(MangaLibraryViewModel::class.java)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.popup_library_filter, container, false)
 
         mFilterFavorite = root.findViewById(R.id.popup_library_filter_favorite)

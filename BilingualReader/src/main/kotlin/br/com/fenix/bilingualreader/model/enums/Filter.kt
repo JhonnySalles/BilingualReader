@@ -5,12 +5,18 @@ enum class Filter {
     Favorite,
     Reading,
 
+    //Mangas
     Manga,
     Author,
     Tag,
     Type,
     Publisher,
     Series,
-    Volume;
+    Volume,
+
+    //Annotation
+    Detach,
+    PageMark,
+    BookMark;
 
 }

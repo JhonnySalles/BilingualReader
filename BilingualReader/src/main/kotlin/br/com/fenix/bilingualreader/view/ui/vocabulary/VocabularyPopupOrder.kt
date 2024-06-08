@@ -11,6 +11,7 @@ import br.com.fenix.bilingualreader.service.listener.PopupOrderListener
 import br.com.fenix.bilingualreader.view.components.TriStateCheckBox
 import org.slf4j.LoggerFactory
 
+
 class VocabularyPopupOrder(var listener: PopupOrderListener) : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(VocabularyPopupOrder::class.java)
@@ -19,11 +20,7 @@ class VocabularyPopupOrder(var listener: PopupOrderListener) : Fragment() {
     private lateinit var mOrderFrequency: TriStateCheckBox
     private lateinit var mOrderFavorite: TriStateCheckBox
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.popup_vocabulary_order, container, false)
 
         mOrderDescription = root.findViewById(R.id.popup_vocabulary_order_description)

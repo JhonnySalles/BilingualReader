@@ -479,8 +479,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                 return false
         }
 
-        return filterPattern.isEmpty() || manga.name.lowercase(Locale.getDefault())
-            .contains(filterPattern) || manga.type.compareExtension(filterPattern)
+        return filterPattern.isEmpty() || manga.name.lowercase(Locale.getDefault()).contains(filterPattern) || manga.type.compareExtension(filterPattern)
     }
 
     private val mMangaFilter = object : Filter() {
