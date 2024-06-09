@@ -19,6 +19,9 @@ import br.com.fenix.bilingualreader.service.repository.KanjiRepository
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.helpers.JapaneseCharacter
 import br.com.fenix.bilingualreader.view.ui.popup.PopupKanji
+import br.com.fenix.bilingualreader.view.ui.popup.PopupVocabulary
+import com.pedromassango.doubleclick.DoubleClick
+import com.pedromassango.doubleclick.DoubleClickListener
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
@@ -422,6 +425,122 @@ class Formatter {
                 sudachiTokenizerHtml(text, withFurigana)
             else
                 kuromojiTokenizerHtml(text, withFurigana)
+        }
+
+        // --------------------------------------------------------- Text Book ---------------------------------------------------------
+
+        private fun generateClickKanji(context: Context, span: SpannableString, kanji: String, index: Int, vocab: Vocabulary?) {
+            if (kanji.matches(mPatternKanji)) {
+                val color = when (JLPT?.get(kanji)) {
+                    1 -> COLOR_N1
+                    2 -> COLOR_N2
+                    3 -> COLOR_N3
+                    4 -> COLOR_N4
+                    5 -> COLOR_N5
+                    else -> COLOR_ANOTHER
+                }
+
+                if (vocab != null) {
+                    val click = DoubleClick(object : DoubleClickListener {
+                        override fun onSingleClick(view: View?) {
+                            PopupKanji(context, false).getPopupKanji(kanji)
+                        }
+                        override fun onDoubleClick(view: View?) {
+                            PopupVocabulary(context, false).getPopupVocabulary(vocab!!.id!!)
+                        }
+                    }, 500)
+
+                    val cs = object : ClickableSpan() {
+                        override fun onClick(view: View) {
+                            click.onClick(view)
+                        }
+
+                        override fun updateDrawState(ds: TextPaint) {
+                            super.updateDrawState(ds)
+                            ds.isUnderlineText = false
+                            ds.color = color
+                        }
+                    }
+                    span.setSpan(cs, index, index + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                } else {
+                    val cs = object : ClickableSpan() {
+                        override fun onClick(view: View) {
+                            PopupKanji(context, false).getPopupKanji(kanji)
+                        }
+
+                        override fun updateDrawState(ds: TextPaint) {
+                            super.updateDrawState(ds)
+                            ds.isUnderlineText = false
+                            ds.color = color
+                        }
+                    }
+                    span.setSpan(cs, index, index + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+        }
+        private fun kuromojiTokenizerText(context: Context, span: SpannableString, withFurigana: Boolean) {
+            for (t in mKuromojiTokenizer!!.tokenize(span.toString())) {
+                if (t.surface.isNotEmpty() && t.surface.matches(mPatternKanji)) {
+                    if (withFurigana) {
+                        var furigana = ""
+                        for (c in t.reading)
+                            furigana += JapaneseCharacter.toHiragana(c)
+
+                        span.setSpan(
+                            SuperRubySpan(
+                                generateFurigana(furigana),
+                                SuperReplacementSpan.Alignment.CENTER,
+                                SuperReplacementSpan.Alignment.CENTER
+                            ),
+                            t.position, t.position + t.surface.length,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
+
+                    val vocab = mVocabularyRepository!!.find(t.baseForm)
+                    for ((index, char) in span.substring(t.position, t.position + t.surface.length).withIndex())
+                        generateClickKanji(context, span, char.toString(), t.position + index, vocab)
+                }
+            }
+        }
+
+        @TargetApi(26)
+        private fun sudachiTokenizerText(context: Context, span: SpannableString, withFurigana: Boolean) {
+            if (mSudachiTokenizer != null) {
+                for (t in mSudachiTokenizer!!.tokenize(com.worksap.nlp.sudachi.Tokenizer.SplitMode.C, span.toString())) {
+                    if (t.readingForm().isNotEmpty() && t.surface().matches(mPatternKanji)) {
+                        if (withFurigana) {
+                            var furigana = ""
+                            for (c in t.readingForm())
+                                furigana += JapaneseCharacter.toHiragana(c)
+
+                            span.setSpan(
+                                SuperRubySpan(
+                                    generateFurigana(furigana),
+                                    SuperReplacementSpan.Alignment.CENTER,
+                                    SuperReplacementSpan.Alignment.CENTER
+                                ),
+                                t.begin(), t.end(),
+                                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                            )
+                        }
+
+                        val vocab = mVocabularyRepository!!.find(t.dictionaryForm())
+                        for ((index, char) in span.substring(t.begin(), t.end()).withIndex())
+                            generateClickKanji(context, span, char.toString(), t.begin() + index, vocab)
+                    }
+                }
+            }
+        }
+
+        fun generateTextView(context: Context, span: SpannableString, withFurigana: Boolean) {
+            if (span.isEmpty() || !span.contains(mPatternJapanese))
+                return
+
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                sudachiTokenizerText(context, span, withFurigana)
+            else
+                kuromojiTokenizerText(context, span, withFurigana)
         }
 
         // --------------------------------------------------------- Vocabulary ---------------------------------------------------------

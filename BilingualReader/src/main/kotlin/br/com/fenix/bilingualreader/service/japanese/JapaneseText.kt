@@ -24,10 +24,7 @@ import java.util.regex.Pattern
 object JapaneseText {
     private val m_examplePattern: Pattern = Pattern.compile("\\{([^\\};]+);([^\\};]+)\\}")
 
-    fun spannify(
-        aSpannableStringBuilder: SpannableStringBuilder,
-        aString: String
-    ) {
+    fun spannify(aSpannableStringBuilder: SpannableStringBuilder, aString: String) {
         var offset = 0
         var insertPos = aSpannableStringBuilder.length
         while (offset < aString.length) {
@@ -45,11 +42,7 @@ object JapaneseText {
         }
     }
 
-    fun spannifyWithFurigana(
-        aSpannableStringBuilder: SpannableStringBuilder,
-        aString: String,
-        aRelativeSize: Float
-    ) {
+    fun spannifyWithFurigana(aSpannableStringBuilder: SpannableStringBuilder, aString: String, aRelativeSize: Float) {
         val matcher = m_examplePattern.matcher(aString)
         var previousMatchEnd = 0
         while (matcher.find()) {

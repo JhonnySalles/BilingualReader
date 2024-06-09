@@ -1,6 +1,5 @@
 package br.com.fenix.bilingualreader.view.ui.reader.book
 
-import android.R.attr.editable
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
@@ -14,7 +13,6 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
-import android.text.style.StyleSpan
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -473,7 +471,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             processed = SpannableString(processed)
 
             if (!holder.textView.isOnlyImage && isProcessJapaneseText && isJapanese)
-                Formatter.generateKanjiColor(context, processed) { }
+                Formatter.generateTextView(context, processed, isFurigana)
 
             if (!holder.textView.isOnlyImage) {
                 val createSpanSelect = { annotation: BookAnnotation, start: Int, end: Int ->

@@ -30,11 +30,7 @@ class PopupVocabulary(val context: Context, isFormatterInitialize: Boolean = tru
             .show()
     }
 
-    private fun createVocabularyPopup(
-        context: Context,
-        inflater: LayoutInflater,
-        vocabulary: Vocabulary?
-    ): View? {
+    private fun createVocabularyPopup(context: Context, inflater: LayoutInflater, vocabulary: Vocabulary?): View? {
         val root = inflater.inflate(R.layout.popup_vocabulary, null, false)
 
         vocabulary?.let {

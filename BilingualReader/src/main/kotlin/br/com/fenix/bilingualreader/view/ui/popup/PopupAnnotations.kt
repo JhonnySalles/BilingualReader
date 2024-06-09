@@ -13,6 +13,7 @@ import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.Tags
 import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.service.repository.BookAnnotationRepository
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
@@ -34,6 +35,7 @@ class PopupAnnotations(var context: Context) {
                     super.updateDrawState(ds)
                     ds.isUnderlineText = false
                     ds.bgColor = color
+                    ds.color = context.getColorFromAttr(R.attr.colorPrimary)
                 }
             }
         }

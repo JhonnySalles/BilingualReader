@@ -11,6 +11,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:scrollbars="vertical"
+        android:clipToPadding="false"
         android:fillViewport="true">
 
         <br.com.fenix.bilingualreader.view.components.book.TextViewPage
@@ -23,8 +24,8 @@
             android:gravity="center"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/book_reader_text_margin"
-            android:layout_marginBottom="@dimen/book_reader_text_margin_bottom"
+            android:layout_marginTop="@dimen/book_reader_text_margin_top_bottom"
+            android:layout_marginBottom="@dimen/book_reader_text_margin_top_bottom"
             android:layout_marginStart="@dimen/book_reader_text_margin"
             android:layout_marginEnd="@dimen/book_reader_text_margin"/>
     </br.com.fenix.bilingualreader.view.components.book.NotifyingScrollView>
