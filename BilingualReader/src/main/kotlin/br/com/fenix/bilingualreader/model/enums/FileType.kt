@@ -48,7 +48,7 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
     MHT(1, arrayOf("mht", "mhtml", "shtml"), arrayOf("message/rfc822"), "MHT"),
 
     // Comic file
-    CBZ(0, arrayOf("cbz"), arrayOf("application/cbz", "application/x-cbz", "application/comicbook+zip"), "CBZ("),
+    CBZ(0, arrayOf("cbz"), arrayOf("application/cbz", "application/x-cbz", "application/comicbook+zip"), "CBZ"),
     CBR(0, arrayOf("cbr"), arrayOf("application/cbr", "application/x-cbr", "application/comicbook+rar"), "CBR"),
     CB7(0, arrayOf("cb7"), arrayOf("application/cb7", "application/x-cb7", "application/comicbook+7z"), "CB7"),
     CBT(0, arrayOf("cbt"), arrayOf("application/cbt", "application/x-cbt", "application/comicbook+tar"), "CBT"),
