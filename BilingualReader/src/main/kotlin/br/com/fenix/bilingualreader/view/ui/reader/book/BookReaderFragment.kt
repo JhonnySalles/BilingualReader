@@ -37,6 +37,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
@@ -65,6 +66,7 @@ import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
+import br.com.fenix.bilingualreader.view.components.AutoScroll
 import br.com.fenix.bilingualreader.view.components.book.TextViewPage
 import br.com.fenix.bilingualreader.view.components.book.TextViewPager
 import br.com.fenix.bilingualreader.view.components.book.WebViewPage
@@ -204,11 +206,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view: View = inflater.inflate(R.layout.fragment_book_reader, container, false)
 
         mRoot = requireActivity().findViewById(R.id.root_activity_book_reader)
@@ -232,7 +230,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, false)
         }
 
-        onLoading(false, false)
+        onLoading(isFinished = false, isLoaded = false)
 
         mPageSlider.isEnabled = false
         mPageSlider.valueTo = 2f
@@ -348,7 +346,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         TODO("Not yet implemented")
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility", "UncheckCast")
     private fun preparePager() {
         mPageSlider.isEnabled = true
 
@@ -599,9 +597,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             mRoot.fitsSystemWindows = false
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                windowInsetsController.let {
-                    it.show(WindowInsetsCompat.Type.systemBars())
-                }
+                windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
                 WindowCompat.setDecorFitsSystemWindows(w, false)
             } else {
                 getActionBar()?.show()
@@ -616,11 +612,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 }, 300)
             }
 
-            w.statusBarColor = resources.getColor(R.color.status_bar_color)
+            w.statusBarColor = requireContext().getColor(R.color.status_bar_color)
             w.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             w.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
             w.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            w.navigationBarColor = resources.getColor(R.color.status_bar_color)
+            w.navigationBarColor = requireContext().getColor(R.color.status_bar_color)
 
             //mRoot.fitsSystemWindows = true
         }
@@ -865,7 +861,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     refresh = true
                 } else if ((start >= annotation.range[0] && start <= annotation.range[1]) ||
                     (end >= annotation.range[0] && end <= annotation.range[1]) ||
-                    (start <= annotation.range[0] && end >= annotation.range[1])) {
+                    (start <= annotation.range[0] && end >= annotation.range[1])
+                ) {
                     mViewModel.delete(annotation)
                     refresh = true
                 }
@@ -881,7 +878,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
 
     private fun markCurrentPage() {
-        var msg = ""
+        val msg: String
 
         val mark = mViewModel.findAnnotationByPage(mBook!!, mCurrentPage).find { it.type == MarkType.PageMark }
         if (mark != null) {
@@ -900,7 +897,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             for ((index, itm) in texts.withIndex()) {
                 text += itm
                 if (index >= 3)
-                    break;
+                    break
             }
 
             val annotation = BookAnnotation(mBook!!.id!!, mCurrentPage, mParse!!.pageCount, MarkType.PageMark, chapter.first.toFloat(), chapter.second, text, intArrayOf(), "")
@@ -912,10 +909,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     inner class MyTouchListener : GestureDetector.SimpleOnGestureListener() {
-        override fun onLongPress(e: MotionEvent) {
-            super.onLongPress(e)
-        }
-
         override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
             if (!isFullscreen()) {
                 setFullscreen(fullscreen = true)
@@ -925,6 +918,16 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             val position = getPosition(e)
             if ((requireActivity() as BookReaderActivity).touchPosition(position))
                 return true
+
+            if (position == Position.LEFT || position == Position.RIGHT) {
+                val id = if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE) R.id.page_web_view else R.id.page_scroll_view
+                val view: AutoScroll? = (mViewPager[0] as RecyclerView).layoutManager?.findViewByPosition(mViewPager.currentItem)?.findViewById(id)
+                view?.let {
+                    val isBack = if (mIsLeftToRight) position == Position.LEFT else position == Position.RIGHT
+                    if (it.autoScroll(isBack))
+                        return true
+                }
+            }
 
             when (position) {
                 Position.LEFT -> {

@@ -12,12 +12,13 @@ import br.com.fenix.bilingualreader.model.enums.AudioStatus
 import br.com.fenix.bilingualreader.service.controller.WebInterface
 import br.com.fenix.bilingualreader.service.listener.TTSListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
+import br.com.fenix.bilingualreader.view.components.AutoScroll
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderViewModel
 
 
 class WebViewPager(
     activity: Activity, context: Context, model: BookReaderViewModel, parse: DocumentParse?, listener: View.OnTouchListener? = null
-) : RecyclerView.Adapter<WebViewPager.WebViewPagerHolder>(), TTSListener {
+) : RecyclerView.Adapter<WebViewPager.WebViewPagerHolder>(), TTSListener, AutoScroll {
 
     private val mParse = parse
     private val mViewModel = model
@@ -59,6 +60,10 @@ class WebViewPager(
     }
 
     override fun stopTTS() {
+        TODO("Not yet implemented")
+    }
+
+    override fun autoScroll(isBack: Boolean): Boolean {
         TODO("Not yet implemented")
     }
 }

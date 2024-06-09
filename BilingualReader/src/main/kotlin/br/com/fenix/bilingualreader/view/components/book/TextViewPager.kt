@@ -12,7 +12,6 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver.OnScrollChangedListener
 import android.widget.FrameLayout
 import android.widget.PopupWindow
 import android.widget.ScrollView
@@ -30,7 +29,6 @@ import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
-import br.com.fenix.bilingualreader.view.ui.popup.PopupTextSelect
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderViewModel
 import org.slf4j.LoggerFactory
 import kotlin.math.max
@@ -91,12 +89,12 @@ class TextViewPager(
             holder.scrollView.setOnTouchListener(mListener)
 
         holder.scrollView.parent.requestDisallowInterceptTouchEvent(false)
-        holder.scrollView.viewTreeObserver.addOnScrollChangedListener(OnScrollChangedListener {
+        holder.scrollView.viewTreeObserver.addOnScrollChangedListener {
             if (holder.scrollView.getChildAt(0).bottom <= (holder.scrollView.height + holder.scrollView.scrollY) || holder.scrollView.scrollY == 0)
                 holder.textView.parent.requestDisallowInterceptTouchEvent(false)
             else
                 holder.textView.parent.requestDisallowInterceptTouchEvent(true)
-        })
+        }
 
         holder.textView.setOnTouchListener { view, motionEvent ->
             view.performClick()
@@ -115,8 +113,8 @@ class TextViewPager(
     }
 
     inner class TextViewPagerHolder(itemView: View) : RecyclerView.ViewHolder(itemView), ScrollChangeListener, SelectionChangeListener {
-        val scrollView = itemView.findViewById<NotifyingScrollView>(R.id.page_scroll_view)
-        val textView = itemView.findViewById<TextViewPage>(R.id.page_text_view)
+        val scrollView: NotifyingScrollView = itemView.findViewById(R.id.page_scroll_view)
+        val textView: TextViewPage = itemView.findViewById(R.id.page_text_view)
         var style: String = ""
 
         val popupTextSelect: PopupWindow = PopupWindow()
@@ -151,7 +149,7 @@ class TextViewPager(
                     popupTextSelect.showAtLocation(textView, Gravity.TOP, 0, 0)
                     // Wait for the popup content to be laid out
                     PopupUtil.onGlobalLayout(popupContent) {
-                        val cframe: Rect = Rect()
+                        val cframe = Rect()
                         val cloc = IntArray(2)
                         popupContent.getLocationOnScreen(cloc)
                         popupContent.getLocalVisibleRect(mBounds)

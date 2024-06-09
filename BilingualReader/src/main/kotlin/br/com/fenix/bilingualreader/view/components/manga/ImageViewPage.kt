@@ -29,12 +29,13 @@ import androidx.core.view.drawToBitmap
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
+import br.com.fenix.bilingualreader.view.components.AutoScroll
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
 
-open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCompatImageView(context, attributeSet) {
+open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCompatImageView(context, attributeSet), AutoScroll {
 
     constructor(context: Context) : this(context, null)
 
@@ -143,7 +144,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
         mRightZoomScale = if (isLandscape) PointF(displayMetrics.widthPixels.toFloat() * displayMetrics.density, 0f)  else PointF(displayMetrics.heightPixels.toFloat(), 0f)
     }
 
-    fun autoScroll(isBack: Boolean = false): Boolean {
+    override fun autoScroll(isBack: Boolean): Boolean {
         val displayMetrics = Resources.getSystem().displayMetrics
 
         val distance = if (isBack)
