@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.view.ui.reader.book
 
+import android.R.attr.editable
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
@@ -10,15 +11,16 @@ import android.os.Build
 import android.text.Html
 import android.text.Spannable
 import android.text.SpannableString
+import android.text.Spanned
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
+import android.text.style.StyleSpan
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.webkit.WebView
 import android.widget.FrameLayout
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.text.clearSpans
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -93,7 +95,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
     private var mFontsLocation: String = FontType.getCssFont()
     private var mDefaultCss: String = ""
-    var isJapanese = true
+    var isJapanese = false
     private var isProcessJapaneseText = mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT, true)
     private var isFurigana = mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT, true)
     private var mConfiguration: BookConfiguration? = null
@@ -111,7 +113,9 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
     fun getFontColor(): String = if (app.resources.getBoolean(R.bool.isNight)) "#ffffff" else "#000000"
     fun getFontType(): String = fontType.value?.name ?: FontType.TimesNewRoman.name
-    fun getFontSize(isBook: Boolean = false): Float = (if (isBook) fontSize.value!! + DocumentParse.BOOK_FONT_SIZE_DIFFER else fontSize.value!!)
+
+    private fun getDiffer() : Float = if (isJapanese) DocumentParse.BOOK_FONT_JAPANESE_SIZE_DIFFER else DocumentParse.BOOK_FONT_SIZE_DIFFER
+    fun getFontSize(isBook: Boolean = false): Float = (if (isBook) fontSize.value!! + getDiffer() else fontSize.value!!)
 
     private fun generateCSS(): String {
         val fontColor = getFontColor()
@@ -401,12 +405,6 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             fontUpdate()
     }
 
-    fun refreshAnnotations(book: Book?) {
-        mAnnotation.clear()
-        if (book?.id != null)
-            mAnnotation.addAll(findAnnotationByBook(book))
-    }
-
     @SuppressLint("JavascriptInterface")
     fun prepareHtml(parse: DocumentParse?, page: Int, web: WebView, listener: View.OnTouchListener? = null, javascript: WebInterface? = null) {
         var text = parse?.getPage(page)?.pageHTMLWithImages.orEmpty()
@@ -455,81 +453,92 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         if (text.contains("<image-begin>image"))
             text = text.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
 
-        text = TextUtil.formatHtml(text)
 
-        if (isProcessJapaneseText && isJapanese)
-            text = Formatter.generateHtmlText(text, isFurigana)
-
-        val html = "<body>$text</body>"
-
-        parse?.getPage(page)?.recycle()
+        val html = "<body>${TextUtil.formatHtml(text)}</body>"
 
         holder.textView.isOnlyImage = html.contains("<img") && (text.endsWith(" /><br/>") || text.endsWith(" />"))
 
-        holder.textView.text = if (html.contains("<img"))
-            Html.fromHtml(
-                html,
-                Html.FROM_HTML_MODE_LEGACY,
-                ImageGetter(context, holder.textView, holder.textView.isOnlyImage),
-                null
-            )
-        else
-            Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
+        var processed : Spanned = SpannableString("")
+        try {
+            processed = if (html.contains("<img"))
+                Html.fromHtml(
+                    html,
+                    Html.FROM_HTML_MODE_LEGACY,
+                    ImageGetter(context, holder.textView, holder.textView.isOnlyImage),
+                    null
+                )
+            else
+                Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
 
+            processed = SpannableString(processed)
 
-        if (!holder.textView.isOnlyImage) {
-            val changeSelect = { annotation: BookAnnotation, start: Int, end: Int ->
-                val span = SpannableString(holder.textView.text)
-                createSpan(context, holder.textView, page, annotation, span, start, end)
-                holder.textView.text = span
+            if (!holder.textView.isOnlyImage && isProcessJapaneseText && isJapanese)
+                Formatter.generateKanjiColor(context, processed) { }
+
+            if (!holder.textView.isOnlyImage) {
+                val createSpanSelect = { annotation: BookAnnotation, start: Int, end: Int ->
+                    val span = SpannableString(holder.textView.text)
+                    createSpan(context, span, annotation, listener)
+                    holder.textView.text = span
+                }
+                holder.textView.customSelectionActionModeCallback = TextViewSelectCallback(context, holder, page, createSpanSelect, listener)
+                processed = prepareSpan(context, processed, page, listener)
+                holder.textView.movementMethod = LinkMovementMethod.getInstance()
+                holder.textView.isClickable = true
+                holder.textView.linksClickable = true
+            } else {
+                holder.textView.linksClickable = false
+                holder.textView.movementMethod = null
+                holder.textView.customSelectionActionModeCallback = null
             }
-            holder.textView.customSelectionActionModeCallback = TextViewSelectCallback(context, holder, page, changeSelect, listener)
-            prepareSpan(context, holder.textView, page)
-            holder.textView.movementMethod = LinkMovementMethod.getInstance()
-            holder.textView.isClickable = true
-            holder.textView.linksClickable = true
-        } else {
-            holder.textView.linksClickable = false
-            holder.textView.movementMethod = null
-            holder.textView.customSelectionActionModeCallback = null
-        }
 
+        } finally {
+            holder.textView.text = processed
+        }
+        parse?.getPage(page)?.recycle()
         holder.textView.setBackgroundColor(Color.TRANSPARENT)
     }
 
-    private fun prepareSpan(context: Context, textView: TextViewPage, page: Int) {
+    private fun prepareSpan(context: Context, span: SpannableString, page: Int, listener: TextSelectCallbackListener?) : SpannableString {
+        var spanned = span
         val marks = mAnnotation.filter { it.page == page }
         if (marks.isNotEmpty()) {
+            val process = SpannableString(spanned)
             var isSpan = false
-            val span = SpannableString(textView.text)
-            span.clearSpans()
 
             for (mark in marks) {
-                val i: Int = textView.text.indexOf(mark.text)
-
-                if (i < 0 || mark.color == br.com.fenix.bilingualreader.model.enums.Color.None)
+                if (mark.color == br.com.fenix.bilingualreader.model.enums.Color.None || mark.range[1] > span.length || mark.range[0] > span.length)
                     continue
 
                 isSpan = true
-                createSpan(context, textView, page, mark, span, i, i + mark.text.length)
+                createSpan(context, process, mark, listener)
             }
 
             if (isSpan)
-                textView.text = span
+                spanned = process
         }
+        return spanned
     }
 
-    private fun createSpan(context: Context, textView: TextViewPage, page: Int, annotation: BookAnnotation, span: SpannableString, start: Int, end: Int) {
+    private fun createSpan(context: Context, span: SpannableString, annotation: BookAnnotation, listener: TextSelectCallbackListener?) {
         var click: ClickableSpan? = null
         val delete = { delete: BookAnnotation ->
             mAnnotation.remove(delete)
-            prepareSpan(context, textView, page)
+            listener?.textSelectRemoveMark(annotation)
+            true
         }
         click = PopupAnnotations.generateClick(context, annotation, app.getColor(annotation.color.getColor()), delete) { alter ->
             if (alter)
-                prepareSpan(context, textView, page)
+                listener?.textSelectRemoveMark(annotation)
         }
-        span.setSpan(click, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+        val spannable = span.getSpans(annotation.range[0], annotation.range[1], ClickableSpan::class.java)
+        if (spannable != null && spannable.isNotEmpty()) {
+            for (i in spannable.indices)
+                span.removeSpan(spannable[i])
+        }
+
+        span.setSpan(click, annotation.range[0], annotation.range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
 
 
@@ -545,11 +554,20 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             mAnnotationRepository.save(annotation)
         else
             mAnnotationRepository.update(annotation)
+
+        if (!mAnnotation.contains(annotation))
+            mAnnotation.add(annotation)
     }
 
     fun delete(annotation: BookAnnotation) {
         if (annotation.id != null)
             mAnnotationRepository.delete(annotation)
+    }
+
+    fun refreshAnnotations(book: Book?) {
+        mAnnotation.clear()
+        if (book?.id != null)
+            mAnnotation.addAll(findAnnotationByBook(book))
     }
 
     fun findAnnotationByBook(book: Book) = mAnnotationRepository.findByBook(book.id!!)

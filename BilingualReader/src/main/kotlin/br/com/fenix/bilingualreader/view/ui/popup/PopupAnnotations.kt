@@ -24,7 +24,7 @@ class PopupAnnotations(var context: Context) {
     companion object {
         private val mLOGGER = LoggerFactory.getLogger(PopupAnnotations::class.java)
 
-        fun generateClick(context: Context, annotation: BookAnnotation, color: Int, onDelete: (BookAnnotation) -> (Unit), onClose: (Boolean) -> (Unit)): ClickableSpan {
+        fun generateClick(context: Context, annotation: BookAnnotation, color: Int, onDelete: (BookAnnotation) -> (Boolean), onClose: (Boolean) -> (Unit)): ClickableSpan {
             return object : ClickableSpan() {
                 override fun onClick(p0: View) {
                     PopupAnnotations(context).popup(annotation, onDelete, onClose)
@@ -33,7 +33,7 @@ class PopupAnnotations(var context: Context) {
                 override fun updateDrawState(ds: TextPaint) {
                     super.updateDrawState(ds)
                     ds.isUnderlineText = false
-                    ds.color = color
+                    ds.bgColor = color
                 }
             }
         }
@@ -45,7 +45,7 @@ class PopupAnnotations(var context: Context) {
     private lateinit var mPopup: AlertDialog
     private lateinit var mAnnotation: BookAnnotation
 
-    fun popup(annotation: BookAnnotation, onDelete: (BookAnnotation) -> (Unit), onClose: (Boolean) -> (Unit)) {
+    fun popup(annotation: BookAnnotation, onDelete: (BookAnnotation) -> (Boolean), onClose: (Boolean) -> (Unit)) {
         mAnnotation = BookAnnotation(annotation)
         mPopup = MaterialAlertDialogBuilder(context, R.style.AppCompatMaterialAlertDialog)
             .setView(createPopup(context, LayoutInflater.from(context), annotation))

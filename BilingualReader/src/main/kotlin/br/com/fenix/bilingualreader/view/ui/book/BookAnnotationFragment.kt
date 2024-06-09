@@ -303,6 +303,7 @@ class BookAnnotationFragment : Fragment() {
             override fun onClickNote(annotation: BookAnnotation, position: Int) {
                 val onDelete = { obj: BookAnnotation ->
                     mViewModel.delete(obj)
+                    true
                 }
                 PopupAnnotations(requireContext()).popup(annotation, onDelete) { alter ->
                     if (alter)

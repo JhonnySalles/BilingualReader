@@ -874,6 +874,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         }
     }
 
+    override fun textSelectRemoveMark(annotation: BookAnnotation) = mViewPager.adapter!!.notifyItemChanged(annotation.page)
+
+    override fun textSelectChangeMark(annotation: BookAnnotation) = mViewPager.adapter!!.notifyItemChanged(annotation.page)
+
     override fun textSearch(page: Int, text: String) = openBookSearch(BookSearch(mBook!!.id!!, text, page))
 
 

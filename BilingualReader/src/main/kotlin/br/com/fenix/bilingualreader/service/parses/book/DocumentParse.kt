@@ -37,7 +37,7 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
     private val mLOGGER = LoggerFactory.getLogger(DocumentParse::class.java)
 
     private var mWidth: Int = Resources.getSystem().displayMetrics.widthPixels - Dips.dpToPx(5)
-    private var mHeight: Int = Resources.getSystem().displayMetrics.heightPixels - Dips.dpToPx(100)
+    private var mHeight: Int = Resources.getSystem().displayMetrics.heightPixels - Dips.dpToPx(5)
 
     init {
         System.loadLibrary("mypdf")
@@ -48,6 +48,7 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
 
     companion object {
         const val BOOK_FONT_SIZE_DIFFER = -1f
+        const val BOOK_FONT_JAPANESE_SIZE_DIFFER = 1f
 
         fun init(context: Context) {
             val cacheDir = File(GeneralConsts.getCacheDir(context), GeneralConsts.CACHE_FOLDER.BOOKS + '/')

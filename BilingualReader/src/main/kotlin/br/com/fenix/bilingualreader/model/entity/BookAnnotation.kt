@@ -102,10 +102,6 @@ data class BookAnnotation(
         if (page != other.page) return false
         if (pages != other.pages) return false
         if (type != other.type) return false
-        if (text != other.text) return false
-        if (annotation != other.annotation) return false
-        if (favorite != other.favorite) return false
-        if (color != other.color) return false
 
         return true
     }
@@ -116,10 +112,7 @@ data class BookAnnotation(
         result = 31 * result + page
         result = 31 * result + pages
         result = 31 * result + type.hashCode()
-        result = 31 * result + text.hashCode()
-        result = 31 * result + annotation.hashCode()
-        result = 31 * result + favorite.hashCode()
-        result = 31 * result + color.hashCode()
         return result
     }
+
 }

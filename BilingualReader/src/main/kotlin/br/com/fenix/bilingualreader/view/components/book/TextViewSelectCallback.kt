@@ -79,6 +79,7 @@ class TextViewSelectCallback(val context: Context, val holder: TextViewPager.Tex
                     listener?.textSelectAddMark(page, mTextView.text.substring(start, end), Color.Green, start, end)?.let {
                         createSpan(it, start, end)
                     }
+                    mode?.finish()
                     return true
                 }
 
@@ -86,6 +87,7 @@ class TextViewSelectCallback(val context: Context, val holder: TextViewPager.Tex
                     listener?.textSelectAddMark(page, mTextView.text.substring(start, end), Color.Red, start, end)?.let {
                         createSpan(it, start, end)
                     }
+                    mode?.finish()
                     return true
                 }
 
@@ -93,6 +95,7 @@ class TextViewSelectCallback(val context: Context, val holder: TextViewPager.Tex
                     listener?.textSelectAddMark(page, mTextView.text.substring(start, end), Color.Yellow, start, end)?.let {
                         createSpan(it, start, end)
                     }
+                    mode?.finish()
                     return true
                 }
 
@@ -100,6 +103,7 @@ class TextViewSelectCallback(val context: Context, val holder: TextViewPager.Tex
                     listener?.textSelectAddMark(page, mTextView.text.substring(start, end), Color.Blue, start, end)?.let {
                         createSpan(it, start, end)
                     }
+                    mode?.finish()
                     return true
                 }
 

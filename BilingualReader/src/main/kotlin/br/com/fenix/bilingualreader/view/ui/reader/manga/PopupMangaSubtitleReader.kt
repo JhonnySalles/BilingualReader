@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Bundle
+import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
@@ -152,7 +153,7 @@ class PopupMangaSubtitleReader : Fragment() {
                 title =
                     "$mLabelChapter ${mSubTitleController.subTitleChapterSelected.value?.chapter.toString()} - $mLabelText $index/${mSubTitleController.subTitlePageSelected.value?.subTitleTexts?.size}"
 
-                Formatter.generateKanjiColor(requireContext(), it.text) { kanji ->
+                Formatter.generateKanjiColor(requireContext(), SpannableString(it.text)) { kanji ->
                     mSubtitleContent.text = kanji
                 }
             } else if (mSubTitleController.subTitleChapterSelected.value != null && mSubTitleController.subTitlePageSelected.value != null)

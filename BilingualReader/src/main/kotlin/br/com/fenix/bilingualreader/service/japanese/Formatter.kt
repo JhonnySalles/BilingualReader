@@ -6,6 +6,7 @@ import android.os.Build
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.Spanned
+import android.text.SpannedString
 import android.text.TextPaint
 import android.text.style.ClickableSpan
 import android.text.style.RelativeSizeSpan
@@ -229,16 +230,12 @@ class Formatter {
         fun generateKanjiColor(context: Context, texts: ArrayList<String>): ArrayList<SpannableString> {
             val array = arrayListOf<SpannableString>()
             for (text in texts)
-                generateKanjiColor(context, text) { array.add(it) }
+                generateKanjiColor(context, SpannableString(text)) { array.add(it) }
 
             return array
         }
 
-        fun generateKanjiColor(
-            text: String,
-            function: (SpannableString) -> (Unit),
-            callAlert: (SpannableString, SpannableString) -> (Unit)
-        ) {
+        fun generateKanjiColor(text: String, function: (SpannableString) -> (Unit), callAlert: (SpannableString, SpannableString) -> (Unit)) {
             if (text.isEmpty()) {
                 function(SpannableString(text))
                 return
@@ -275,18 +272,13 @@ class Formatter {
             function(ss)
         }
 
-        fun generateKanjiColor(
-            context: Context,
-            text: String,
-            function: (SpannableString) -> (Unit)
-        ) {
-            if (text.isEmpty()) {
-                function(SpannableString(text))
+        fun generateKanjiColor(context: Context, span: SpannableString, function: (SpannableString) -> (Unit)) {
+            if (span.isEmpty()) {
+                function(span)
                 return
             }
 
-            val ss = SpannableString(text)
-            ss.forEachIndexed { index, element ->
+            span.forEachIndexed { index, element ->
                 val kanji = element.toString()
                 if (kanji.matches(mPatternKanji)) {
                     val color = when (JLPT?.get(kanji)) {
@@ -309,11 +301,11 @@ class Formatter {
                             ds.color = color
                         }
                     }
-                    ss.setSpan(cs, index, index + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    span.setSpan(cs, index, index + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
             }
 
-            function(ss)
+            function(span)
         }
 
         // --------------------------------------------------------- Html Book ---------------------------------------------------------
@@ -379,10 +371,7 @@ class Formatter {
         private fun sudachiTokenizerHtml(text: String, withFurigana: Boolean): String {
             if (mSudachiTokenizer != null) {
                 var textBuilder = ""
-                for (t in mSudachiTokenizer!!.tokenize(
-                    com.worksap.nlp.sudachi.Tokenizer.SplitMode.C,
-                    text
-                )) {
+                for (t in mSudachiTokenizer!!.tokenize(com.worksap.nlp.sudachi.Tokenizer.SplitMode.C, text)) {
                     if (t.readingForm().isNotEmpty() && t.surface().matches(mPatternKanji)) {
                         if (withFurigana) {
                             var furigana = ""
