@@ -16,6 +16,7 @@ import android.widget.FrameLayout
 import android.widget.PopupWindow
 import android.widget.ScrollView
 import android.widget.TextView
+import androidx.core.graphics.toRectF
 import androidx.core.text.clearSpans
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
@@ -33,6 +34,7 @@ import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderViewModel
 import org.slf4j.LoggerFactory
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 
 class TextViewPager(
@@ -164,12 +166,7 @@ class TextViewPager(
                         mStartLocation.set(startX, startY)
 
                         val ploc: Point = calculatePopupLocation()
-                        popupTextSelect.update(
-                            ploc.x,
-                            ploc.y,
-                            mDefaultWidth,
-                            mDefaultHeight
-                        )
+                        popupTextSelect.update(ploc.x, ploc.y, mDefaultWidth, mDefaultHeight)
                     }
                 }
             }
@@ -196,19 +193,19 @@ class TextViewPager(
             selection.computeBounds(selBounds, true)
 
             // Retrieve the center x/y of the popup content
-            val cx = mStartLocation.x
-            val cy = mStartLocation.y
+            val cx = mStartLocation.x.toFloat()
+            val cy = mStartLocation.y.toFloat()
 
             // Calculate the top and bottom offset of the popup relative to the selection bounds
-            val popupHeight: Int = mBounds.height()
+            val popupHeight = mBounds.toRectF().height()
             val textPadding: Int = textView.paddingLeft
-            val topOffset = Math.round(selBounds.top - cy)
-            val btmOffset = Math.round(selBounds.bottom - (cy - popupHeight))
+            val topOffset = (selBounds.top - cy)
+            val btmOffset = (selBounds.bottom - (cy - popupHeight))
 
             // Calculate the x/y coordinates for the popup relative to the selection bounds
             val scrollY = parent.scrollY
-            val x = Math.round(selBounds.centerX() + textPadding - cx)
-            val y = Math.round((if ((selBounds.top - scrollY) < cy) btmOffset else topOffset).toFloat())
+            val x = (selBounds.centerX() + (textPadding - cx).toFloat()).roundToInt()
+            val y = (if (selBounds.top - scrollY < popupHeight) btmOffset else topOffset).roundToInt()
             mCurrentLocation.set(x, y - scrollY)
             return mCurrentLocation
         }
