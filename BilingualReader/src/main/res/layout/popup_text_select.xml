@@ -10,7 +10,7 @@
 
     <LinearLayout
         android:layout_width="@dimen/popup_text_select_width"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/popup_text_select_height"
         android:layout_marginTop="@dimen/margin_small"
         android:layout_marginBottom="@dimen/margin_small"
         android:orientation="vertical">

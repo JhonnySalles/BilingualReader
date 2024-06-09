@@ -194,13 +194,12 @@ class TextViewPager(
 
             // Retrieve the center x/y of the popup content
             val cx = mStartLocation.x.toFloat()
-            val cy = mStartLocation.y.toFloat()
 
             // Calculate the top and bottom offset of the popup relative to the selection bounds
-            val popupHeight = mBounds.toRectF().height()
+            val popupHeight = mBounds.height()
             val textPadding: Int = textView.paddingLeft
-            val topOffset = (selBounds.top - cy)
-            val btmOffset = (selBounds.bottom - (cy - popupHeight))
+            val topOffset = (selBounds.top - popupHeight)
+            val btmOffset = (selBounds.bottom + popupHeight)
 
             // Calculate the x/y coordinates for the popup relative to the selection bounds
             val scrollY = parent.scrollY

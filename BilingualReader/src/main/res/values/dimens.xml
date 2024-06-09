@@ -254,6 +254,7 @@
     <dimen name="popup_annotation_colors_icon_size">22dp</dimen>
 
     <dimen name="popup_text_select_width">170dp</dimen>
+    <dimen name="popup_text_select_height">70dp</dimen>
     <dimen name="popup_text_select_colors_margin">20dp</dimen>
     <dimen name="popup_text_select_colors_size">16dp</dimen>
     <dimen name="popup_text_select_colors_icon_size">18dp</dimen>
