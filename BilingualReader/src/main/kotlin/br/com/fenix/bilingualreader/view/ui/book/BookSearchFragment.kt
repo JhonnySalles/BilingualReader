@@ -218,12 +218,7 @@ class BookSearchFragment : Fragment() {
             }
         }
 
-        mHistoryListView.adapter = BookSearchHistoryAdapter(
-            requireContext(),
-            R.layout.line_card_book_search_history,
-            mHistoryList,
-            mHistoryListener
-        )
+        mHistoryListView.adapter = BookSearchHistoryAdapter(requireContext(), R.layout.line_card_book_search_history, mHistoryList, mHistoryListener)
 
         mSearchListener = object : BookSearchListener {
             override fun onClick(search: BookSearch) {

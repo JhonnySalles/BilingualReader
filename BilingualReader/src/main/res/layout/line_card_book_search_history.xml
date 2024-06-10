@@ -4,10 +4,14 @@
     android:id="@+id/book_search_history"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="10dp"
+    android:layout_marginStart="@dimen/margin"
+    android:layout_marginEnd="@dimen/margin"
+    android:layout_marginTop="@dimen/margin_big"
+    android:layout_marginBottom="@dimen/margin_big"
     android:background="@drawable/book_search_history_custom_ripple"
     android:clickable="true"
     android:focusable="true"
+    android:gravity="center_vertical"
     android:orientation="horizontal">
 
     <TextView
@@ -16,7 +20,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:layout_marginStart="5dp"
+        android:layout_marginStart="@dimen/margin_small"
+        android:text="asdfasdfas d"
         android:textAppearance="?attr/textAppearanceLabelSmall"/>
 
     <TextView
@@ -24,18 +29,18 @@
         style="@style/TextNormal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
+        android:layout_marginStart="@dimen/margin_small"
         android:textAppearance="?attr/textAppearanceLabelSmall"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/book_search_history_delete"
         style="@style/Button.IconOnly"
-        android:layout_width="18dp"
-        android:layout_height="18dp"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:textColor="?attr/colorPrimary"
         android:contentDescription="@string/book_search_history_delete"
-        android:layout_marginStart="5dp"
-        app:iconSize="20dp"
+        android:layout_marginStart="@dimen/margin_small"
+        app:iconSize="@dimen/book_search_list_icon_size"
         app:iconTint="?attr/colorPrimary"
         app:icon="@drawable/ico_animated_delete_history"/>
 

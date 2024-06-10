@@ -204,6 +204,8 @@
     <dimen name="book_search_list_padding">20dp</dimen>
     <dimen name="book_search_list_min_height">100dp</dimen>
 
+    <dimen name="book_search_list_icon_size">20dp</dimen>
+
     <dimen name="book_chapters_list_padding">20dp</dimen>
 
     <dimen name="chapters_grid_card_layout_width">100dp</dimen>

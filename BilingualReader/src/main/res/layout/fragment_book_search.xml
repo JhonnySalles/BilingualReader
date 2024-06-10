@@ -23,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
-            android:padding="10dp"
+            android:padding="@dimen/margin"
             android:orientation="horizontal"
             app:layout_constrainedHeight="true"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -47,7 +47,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_marginStart="5dp"
+                        android:layout_marginStart="@dimen/margin_small"
                         android:textAllCaps="true"
                         android:textSize="16sp"
                         android:textAppearance="?attr/textAppearanceHeadline6"
@@ -73,7 +73,9 @@
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="10dp"
                     android:paddingBottom="@dimen/book_search_list_padding"
-                    android:minHeight="@dimen/book_search_list_min_height"/>
+                    android:minHeight="@dimen/book_search_list_min_height"
+                    android:divider="@drawable/book_search_list_divider"
+                    android:dividerHeight="1dp"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -100,7 +102,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
-            android:background="@color/transparent"
             android:theme="@style/MainToolbarContentTheme.NoElevation"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
