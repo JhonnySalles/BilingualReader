@@ -11,7 +11,6 @@ import android.text.Html
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned
-import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.Gravity
@@ -126,7 +125,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     fun getFontColor(): String = if (app.resources.getBoolean(R.bool.isNight)) "#ffffff" else "#000000"
     fun getFontType(): String = fontType.value?.name ?: FontType.TimesNewRoman.name
 
-    private fun getDiffer() : Float = if (isJapanese) DocumentParse.BOOK_FONT_JAPANESE_SIZE_DIFFER else DocumentParse.BOOK_FONT_SIZE_DIFFER
+    private fun getDiffer(): Float = if (isJapanese) DocumentParse.BOOK_FONT_JAPANESE_SIZE_DIFFER else DocumentParse.BOOK_FONT_SIZE_DIFFER
     fun getFontSize(isBook: Boolean = false): Float = (if (isBook) fontSize.value!! + getDiffer() else fontSize.value!!)
 
     private fun generateCSS(): String {
@@ -229,7 +228,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
         val params: FrameLayout.LayoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
         params.setMargins(margin, margin, margin, margin)
-        params.gravity = Gravity.CENTER
+        params.gravity = if (isJapanese && isFurigana) Gravity.CENTER_HORIZONTAL else Gravity.CENTER
         textView.layoutParams = params
 
         val spacing = when (spacingType.value) {
@@ -524,7 +523,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
         holder.textView.isOnlyImage = html.contains("<img") && (text.endsWith(" /><br/>") || text.endsWith(" />"))
 
-        var processed : Spanned = SpannableString("")
+        var processed: Spanned = SpannableString("")
         try {
             processed = if (html.contains("<img"))
                 Html.fromHtml(
@@ -565,7 +564,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         holder.textView.setBackgroundColor(Color.TRANSPARENT)
     }
 
-    private fun prepareSpan(context: Context, span: SpannableString, page: Int, listener: TextSelectCallbackListener?) : SpannableString {
+    private fun prepareSpan(context: Context, span: SpannableString, page: Int, listener: TextSelectCallbackListener?): SpannableString {
         var spanned = span
         val marks = mAnnotation.filter { it.page == page }
         if (marks.isNotEmpty()) {
