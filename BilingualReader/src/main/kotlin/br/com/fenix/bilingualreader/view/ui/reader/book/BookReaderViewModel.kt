@@ -46,6 +46,7 @@ import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.ColorUtil
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import br.com.fenix.bilingualreader.view.components.ImageGetter
+import br.com.fenix.bilingualreader.view.components.book.TextViewClickMovement
 import br.com.fenix.bilingualreader.view.components.book.TextViewPage
 import br.com.fenix.bilingualreader.view.components.book.TextViewPager
 import br.com.fenix.bilingualreader.view.components.book.TextViewSelectCallback
@@ -548,9 +549,9 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 }
                 holder.textView.customSelectionActionModeCallback = TextViewSelectCallback(context, holder, page, createSpanSelect, listener)
                 processed = prepareSpan(context, processed, page, listener)
-                holder.textView.movementMethod = LinkMovementMethod.getInstance()
                 holder.textView.isClickable = true
                 holder.textView.linksClickable = true
+                holder.textView.setCustomMovement(TextViewClickMovement.getInstance())
             } else {
                 holder.textView.linksClickable = false
                 holder.textView.movementMethod = null

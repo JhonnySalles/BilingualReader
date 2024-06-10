@@ -74,6 +74,12 @@ class TextViewPager(
     override fun getItemCount(): Int = mParse?.getPageCount(mViewModel.getFontSize(isBook = true).toInt()) ?: 1
 
     override fun onBindViewHolder(holder: TextViewPagerHolder, position: Int) {
+        if (!ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT) {
+            //Prevent poupup not dimiss in change page
+            for (holder in mHolders.values)
+                holder.popupTextSelect.dismiss()
+        }
+
         mViewModel.prepareHtml(context, mParse, position, holder, mTextSelectCallback)
 
         val font = mViewModel.fontUpdate.value + mViewModel.fontSize.value
@@ -100,11 +106,7 @@ class TextViewPager(
                 holder.textView.parent.requestDisallowInterceptTouchEvent(true)
         }
 
-        holder.textView.setOnTouchListener { view, motionEvent ->
-            view.performClick()
-            mListener?.onTouch(view, motionEvent)
-            false
-        }
+        holder.textView.setOnTouchListener(mListener)
 
         mHolders[position] = holder
         if (mSpeech != null && mSpeech!!.page == position)

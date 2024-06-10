@@ -18,6 +18,7 @@ import br.com.fenix.bilingualreader.service.repository.KanjaxRepository
 import br.com.fenix.bilingualreader.service.repository.KanjiRepository
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.helpers.JapaneseCharacter
+import br.com.fenix.bilingualreader.view.components.LongClickableSpan
 import br.com.fenix.bilingualreader.view.ui.popup.PopupKanji
 import br.com.fenix.bilingualreader.view.ui.popup.PopupVocabulary
 import com.pedromassango.doubleclick.DoubleClick
@@ -440,42 +441,23 @@ class Formatter {
                     else -> COLOR_ANOTHER
                 }
 
-                if (vocab != null) {
-                    val click = DoubleClick(object : DoubleClickListener {
-                        override fun onSingleClick(view: View?) {
-                            PopupKanji(context, false).getPopupKanji(kanji)
-                        }
-                        override fun onDoubleClick(view: View?) {
-                            PopupVocabulary(context, false).getPopupVocabulary(vocab!!.id!!)
-                        }
-                    }, 500)
-
-                    val cs = object : ClickableSpan() {
-                        override fun onClick(view: View) {
-                            click.onClick(view)
-                        }
-
-                        override fun updateDrawState(ds: TextPaint) {
-                            super.updateDrawState(ds)
-                            ds.isUnderlineText = false
-                            ds.color = color
-                        }
+                val cs = object : LongClickableSpan() {
+                    override fun onClick(view: View) {
+                        PopupKanji(context, false).getPopupKanji(kanji)
                     }
-                    span.setSpan(cs, index, index + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                } else {
-                    val cs = object : ClickableSpan() {
-                        override fun onClick(view: View) {
-                            PopupKanji(context, false).getPopupKanji(kanji)
-                        }
 
-                        override fun updateDrawState(ds: TextPaint) {
-                            super.updateDrawState(ds)
-                            ds.isUnderlineText = false
-                            ds.color = color
-                        }
+                    override fun onLongClick(view: View?) {
+                        if (vocab != null)
+                            PopupVocabulary(context, false).getPopupVocabulary(vocab.id!!)
                     }
-                    span.setSpan(cs, index, index + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                    override fun updateDrawState(ds: TextPaint) {
+                        super.updateDrawState(ds)
+                        ds.isUnderlineText = false
+                        ds.color = color
+                    }
                 }
+                span.setSpan(cs, index, index + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
         private fun kuromojiTokenizerText(context: Context, span: SpannableString, withFurigana: Boolean) {
