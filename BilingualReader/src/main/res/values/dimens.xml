@@ -456,5 +456,6 @@
 
     <dimen name="book_reader_text_margin">10dp</dimen>
     <dimen name="book_reader_text_margin_top_bottom">20dp</dimen>
+    <dimen name="book_reader_text_padding_top_bottom">20dp</dimen>
 
 </resources>

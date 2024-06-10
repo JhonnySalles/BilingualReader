@@ -33,6 +33,7 @@ import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.MarginLayoutType
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
+import br.com.fenix.bilingualreader.model.enums.TextSpeech
 import br.com.fenix.bilingualreader.service.controller.WebInterface
 import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
@@ -60,6 +61,19 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private val mAnnotationRepository = BookAnnotationRepository(app.applicationContext)
 
     private val mLOGGER = LoggerFactory.getLogger(BookReaderViewModel::class.java)
+
+    // --------------------------------------------------------- Book ---------------------------------------------------------
+    private var mBook: MutableLiveData<Book?> = MutableLiveData(null)
+    val book: LiveData<Book?> = mBook
+
+    private var mConfiguration: MutableLiveData<BookConfiguration?> = MutableLiveData(null)
+    val configuration: LiveData<BookConfiguration?> = mConfiguration
+
+    private var mLanguage: MutableLiveData<Languages> = MutableLiveData(Languages.ENGLISH)
+    val language: LiveData<Languages> = mLanguage
+
+    private var mTTSVoice: MutableLiveData<TextSpeech> = MutableLiveData(TextSpeech.getDefault())
+    val ttsVoice: LiveData<TextSpeech> = mTTSVoice
 
     // --------------------------------------------------------- Fonts / Layout ---------------------------------------------------------
     private var mListFonts: MutableLiveData<MutableList<Pair<FontType, Boolean>>> = MutableLiveData(arrayListOf())
@@ -96,7 +110,6 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     var isJapanese = false
     private var isProcessJapaneseText = mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT, true)
     private var isFurigana = mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT, true)
-    private var mConfiguration: BookConfiguration? = null
     private val mAnnotation = mutableListOf<BookAnnotation>()
 
     init {
@@ -165,7 +178,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 Formatter.getCss() +
                 "</style>"
         mFontCss.value = style
-        mConfiguration?.let { saveBookConfiguration(it) }
+        mConfiguration.value?.let { saveBookConfiguration(it) }
         return "<head>$meta$style</head>"
     }
 
@@ -197,8 +210,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             else -> "justify"
         }
 
-        mFontUpdate.value = fontColor + fontType + margin + spacing + alignment
-        mConfiguration?.let { saveBookConfiguration(it) }
+        mFontUpdate.value = fontColor + fontType + margin + spacing + alignment + isJapanese.toString() + isFurigana.toString()
+        mConfiguration.value?.let { saveBookConfiguration(it) }
     }
 
     fun changeTextStyle(textView: TextViewPage) {
@@ -215,7 +228,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
         val params: FrameLayout.LayoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
         params.setMargins(margin, margin, margin, margin)
-        params.gravity = Gravity.CENTER_VERTICAL
+        params.gravity = Gravity.CENTER
         textView.layoutParams = params
 
         val spacing = when (spacingType.value) {
@@ -241,13 +254,56 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun changeScrolling(scrolling: ScrollingType) {
+        mScrollingType.value = scrolling
+        mConfiguration.value?.let { saveBookConfiguration(it) }
+    }
+
+    fun changeLanguage(language: Languages) {
+        mLanguage.value = language
+
+        val isJapanese = language == Languages.JAPANESE
+        if (isJapanese != this.isJapanese) {
+            this.isJapanese = isJapanese
+
+            val typeKey = if (isJapanese) GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE_JAPANESE else GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_TYPE_NORMAL
+            val typeDefault = if (isJapanese) FontType.BabelStoneErjian1.toString() else FontType.TimesNewRoman.toString()
+            loadFonts(isJapanese)
+            setSelectFont(FontType.valueOf(mPreferences.getString(typeKey, typeDefault)!!))
+        }
+    }
+
+    fun changeTTSVoice(textSpeech: TextSpeech) {
+        mTTSVoice.value = textSpeech
+
+        with(GeneralConsts.getSharedPreferences(app.applicationContext).edit()) {
+            this.putString(
+                GeneralConsts.KEYS.READER.BOOK_READER_TTS,
+                textSpeech.toString()
+            )
+            this.commit()
+        }
+    }
+
+    fun changeJapanese(process: Boolean, furigana: Boolean) {
+        if (process == isProcessJapaneseText && furigana == isFurigana)
+            return
+
+        isProcessJapaneseText = process
+        isFurigana = furigana
+        fontUpdate()
+    }
+
     fun loadConfiguration(book: Book?) {
-        isJapanese = book?.language == Languages.JAPANESE
-        mConfiguration = if (book?.id != null) mRepository.findConfiguration(book.id!!) else null
-        loadConfiguration(mConfiguration)
+        mBook.value = book
+
+        changeLanguage(book?.language ?: Languages.ENGLISH)
+
+        mConfiguration.value = if (book?.id != null) mRepository.findConfiguration(book.id!!) else null
+        loadConfiguration(mConfiguration.value)
 
         if (book?.id != null) {
-            if (mConfiguration == null)
+            if (mConfiguration.value == null)
                 saveBookConfiguration(book.id!!)
             mVocabularyRepository.processVocabulary(app.applicationContext, book.id!!)
         }
@@ -300,6 +356,13 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT
         )
 
+        mScrollingType.value = ScrollingType.valueOf(
+            mPreferences.getString(
+                GeneralConsts.KEYS.READER.BOOK_PAGE_SCROLLING_MODE,
+                ScrollingType.Pagination.toString()
+            )!!
+        )
+
         if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
             mDefaultCss = generateCSS()
         else
@@ -325,7 +388,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
 
     fun saveBookConfiguration(idBook: Long) {
-        mConfiguration = mRepository.findConfiguration(idBook) ?: BookConfiguration(
+        mConfiguration.value = mRepository.findConfiguration(idBook) ?: BookConfiguration(
             null,
             idBook,
             AlignmentLayoutType.Justify,
@@ -335,7 +398,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT,
             ScrollingType.Pagination
         )
-        saveBookConfiguration(mConfiguration!!)
+        saveBookConfiguration(mConfiguration.value!!)
     }
 
     fun saveBookConfiguration(configuration: BookConfiguration) {
@@ -352,8 +415,11 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             mRepository.updateConfiguration(configuration)
     }
 
-    fun loadFonts() {
-        mListFonts.value = FontType.values().map { Pair(it, it == mFontType.value) }.toMutableList()
+    fun loadFonts() = loadFonts(isJapanese)
+
+    private fun loadFonts(isJapanese: Boolean) {
+        val fonts = FontType.values().sortedWith(compareBy({ if (isJapanese) it.isJapanese() else !it.isJapanese() }, { it == FontType.TimesNewRoman }, { it.name }))
+        mListFonts.value = fonts.map { Pair(it, it == mFontType.value) }.toMutableList()
     }
 
     fun getSelectedFontTypeIndex(): Int {
@@ -365,6 +431,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         mFontType.value = font
         if (mListFonts.value != null)
             mListFonts.value = mListFonts.value!!.map { Pair(it.first, it.first == font) }.toMutableList()
+
         if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
             mDefaultCss = generateCSS()
         else

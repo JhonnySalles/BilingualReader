@@ -14,6 +14,7 @@ import com.google.android.material.slider.Slider
 import org.lucasr.twowayview.TwoWayView
 import org.slf4j.LoggerFactory
 
+
 class PopupBookFont : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(PopupBookFont::class.java)
@@ -23,11 +24,7 @@ class PopupBookFont : Fragment() {
     private lateinit var mFontType: TwoWayView
     private lateinit var mFontSize: Slider
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.popup_book_font, container, false)
 
         mFontType = root.findViewById(R.id.popup_book_font_type)
@@ -52,6 +49,11 @@ class PopupBookFont : Fragment() {
                 mFontSize.valueTo
             else
                 it.toFloat()
+        }
+
+        mViewModel.fontType.observe(viewLifecycleOwner) {
+            (mFontType.adapter as FontsCardAdapter).notifyDataSetChanged()
+            mFontType.scrollBy(mViewModel.getSelectedFontTypeIndex())
         }
     }
 

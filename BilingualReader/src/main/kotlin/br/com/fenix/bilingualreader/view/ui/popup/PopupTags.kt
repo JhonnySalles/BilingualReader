@@ -15,6 +15,7 @@ import br.com.fenix.bilingualreader.view.adapter.popup.TagsAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 
+
 class PopupTags(var context: Context) : TagsListener {
 
     private val mRepository = TagsRepository(context)
@@ -73,9 +74,7 @@ class PopupTags(var context: Context) : TagsListener {
     }
 
     private lateinit var mNewTag: TextInputLayout
-    private fun createTagPopup(
-        inflater: LayoutInflater
-    ): View? {
+    private fun createTagPopup(inflater: LayoutInflater): View? {
         val root = inflater.inflate(R.layout.popup_tag, null, false)
         mNewTag = root.findViewById(R.id.popup_tag_text)
         return root

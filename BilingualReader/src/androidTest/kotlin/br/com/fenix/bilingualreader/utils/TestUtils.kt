@@ -201,7 +201,7 @@ class MangaTestUtil {
 class BookTestUtil {
     companion object BookTestUtils {
         const val mBookPage = 21
-        const val mBookPath = "/storage/1CF6-3F0F/Livro/[Novel] Mahoka Koko no Rettosei Shiba Tatsuya Ansatsu Keikaku 01.epub"
+        const val mBookPath = "/storage/1F0A-291F/Livros/[Novel] Mahoka Koko no Rettosei Shiba Tatsuya Ansatsu Keikaku 01.epub"
         private val BOOK_TEST_FILE_PATH = "storage/emulated/0/Book/Book of test.cbr"
         fun clearCache(context: Context) {
             val cache = File(

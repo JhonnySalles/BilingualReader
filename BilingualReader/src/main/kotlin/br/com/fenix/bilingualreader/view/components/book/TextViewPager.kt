@@ -7,6 +7,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.text.Spannable
 import android.text.SpannableString
+import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -27,6 +28,7 @@ import br.com.fenix.bilingualreader.service.listener.SelectionChangeListener
 import br.com.fenix.bilingualreader.service.listener.TTSListener
 import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
+import br.com.fenix.bilingualreader.service.tts.TTSTextColorSpan
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
@@ -217,9 +219,15 @@ class TextViewPager(
             return
 
         val span = SpannableString(textViewPage.text)
-        span.clearSpans()
+
+        val spannable = span.getSpans(0, span.length, TTSTextColorSpan::class.java)
+        if (spannable != null && spannable.isNotEmpty()) {
+            for (t in spannable.indices)
+                span.removeSpan(spannable[t])
+        }
+
         span.setSpan(
-            ForegroundColorSpan(context.getColorFromAttr(R.attr.colorOnSurfaceVariant)),
+            TTSTextColorSpan(context.getColorFromAttr(R.attr.colorOnSurfaceVariant)),
             i, i + speech.text.length,
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
         )

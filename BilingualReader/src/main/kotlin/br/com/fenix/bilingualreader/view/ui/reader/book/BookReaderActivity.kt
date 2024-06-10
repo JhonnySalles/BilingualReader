@@ -86,6 +86,7 @@ class BookReaderActivity : AppCompatActivity() {
 
     private lateinit var mPopupReaderFont: PopupBookFont
     private lateinit var mPopupReaderLayout: PopupBookLayout
+    private lateinit var mPopupReaderLanguage: PopupBookLanguage
 
     private lateinit var mTouchView: ConstraintLayout
 
@@ -148,6 +149,7 @@ class BookReaderActivity : AppCompatActivity() {
 
         mPopupReaderFont = PopupBookFont()
         mPopupReaderLayout = PopupBookLayout()
+        mPopupReaderLanguage = PopupBookLanguage()
 
         mConfigurationTab.setupWithViewPager(mConfigurationView)
 
@@ -159,6 +161,10 @@ class BookReaderActivity : AppCompatActivity() {
         viewPagerAdapter.addFragment(
             mPopupReaderLayout,
             resources.getString(R.string.popup_reading_book_tab_item_layout)
+        )
+        viewPagerAdapter.addFragment(
+            mPopupReaderLanguage,
+            resources.getString(R.string.popup_reading_book_tab_item_language)
         )
 
         mConfigurationView.adapter = viewPagerAdapter

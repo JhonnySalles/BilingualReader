@@ -228,6 +228,11 @@
     <string name="popup_reading_book_close">Fechar</string>
     <string name="popup_reading_book_tab_item_font">Fonte</string>
     <string name="popup_reading_book_tab_item_layout">Layout</string>
+    <string name="popup_reading_book_tab_item_language">Linguagem</string>
+
+    <!-- READER POPUP LANGUAGE -->
+    <string name="popup_reading_language_book">Linguagem do livro</string>
+    <string name="popup_reading_language_tts_voice">Voz</string>
 
     <!-- READER POPUP LAYOUT -->
     <string name="popup_reading_layout_scrolling_type">Tipo de rolagem</string>

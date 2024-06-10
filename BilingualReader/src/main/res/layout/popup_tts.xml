@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/frame_popup_tts_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/popup_tts_voice"
+        style="@style/TextInputDropMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_small"
+        android:hint="@string/popup_reading_language_tts_voice"
+        app:startIconDrawable="@drawable/ic_book_tts">
+
+        <AutoCompleteTextView
+            android:id="@+id/popup_menu_autocomplete_tts_voice"
+            style="@style/AutoCompleteDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+</FrameLayout>

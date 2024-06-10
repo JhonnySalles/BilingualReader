@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -12,7 +14,9 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.AlignmentLayoutType
 import br.com.fenix.bilingualreader.model.enums.BookLayoutType
 import br.com.fenix.bilingualreader.model.enums.MarginLayoutType
+import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
 import org.slf4j.LoggerFactory
@@ -38,16 +42,13 @@ class PopupBookLayout : Fragment() {
     private lateinit var mAlignmentCenter: MaterialButton
     private lateinit var mAlignmentRight: MaterialButton
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    private lateinit var mBookMapScrollingMode: HashMap<String, ScrollingType>
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.popup_book_layout, container, false)
 
         mScrollingType = root.findViewById(R.id.popup_book_layout_scrolling_type)
-        mScrollingTypeAutoComplete =
-            root.findViewById(R.id.popup_book_layout_scrolling_type_menu_autocomplete)
+        mScrollingTypeAutoComplete = root.findViewById(R.id.popup_book_layout_scrolling_type_menu_autocomplete)
 
         mMarginSmall = root.findViewById(R.id.popup_book_layout_margin_small)
         mMarginMedium = root.findViewById(R.id.popup_book_layout_margin_medium)
@@ -60,45 +61,72 @@ class PopupBookLayout : Fragment() {
         mAlignmentLeft = root.findViewById(R.id.popup_book_layout_alignment_left)
         mAlignmentRight = root.findViewById(R.id.popup_book_layout_alignment_right)
 
+        mBookMapScrollingMode = hashMapOf(
+            getString(R.string.config_book_scrolling_Infinity_Scrolling) to ScrollingType.Scrolling,
+            getString(R.string.config_book_scrolling_Pagination) to ScrollingType.Pagination
+        )
+
+        val adapterBookScrollingMode = ArrayAdapter(requireContext(), R.layout.list_item, mBookMapScrollingMode.keys.toTypedArray())
+        mScrollingTypeAutoComplete.setAdapter(adapterBookScrollingMode)
+        mScrollingTypeAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
+                val scrolling = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                    mBookMapScrollingMode.containsKey(parent.getItemAtPosition(position).toString())
+                )
+                    mBookMapScrollingMode[parent.getItemAtPosition(position).toString()]!!
+                else
+                    ScrollingType.Pagination
+
+                mViewModel.changeScrolling(scrolling)
+            }
+
 
         mMarginSmall.setOnClickListener {
             (mMarginSmall.icon as AnimatedVectorDrawable).start()
             mViewModel.setSelectMargin(MarginLayoutType.Small)
         }
+
         mMarginMedium.setOnClickListener {
             (mMarginMedium.icon as AnimatedVectorDrawable).start()
             mViewModel.setSelectMargin(MarginLayoutType.Medium)
         }
+
         mMarginBig.setOnClickListener {
             (mMarginBig.icon as AnimatedVectorDrawable).start()
             mViewModel.setSelectMargin(MarginLayoutType.Big)
         }
 
+
         mSpacingSmall.setOnClickListener {
             (mSpacingSmall.icon as AnimatedVectorDrawable).start()
             mViewModel.setSelectSpacing(SpacingLayoutType.Small)
         }
+
         mSpacingMedium.setOnClickListener {
             (mSpacingMedium.icon as AnimatedVectorDrawable).start()
             mViewModel.setSelectSpacing(SpacingLayoutType.Medium)
         }
+
         mSpacingBig.setOnClickListener {
             (mSpacingBig.icon as AnimatedVectorDrawable).start()
             mViewModel.setSelectSpacing(SpacingLayoutType.Big)
         }
 
+
         mAlignmentJustify.setOnClickListener {
             (mAlignmentJustify.icon as AnimatedVectorDrawable).start()
             mViewModel.setSelectAlignment(AlignmentLayoutType.Justify)
         }
+
         mAlignmentCenter.setOnClickListener {
             (mAlignmentCenter.icon as AnimatedVectorDrawable).start()
             mViewModel.setSelectAlignment(AlignmentLayoutType.Center)
         }
+
         mAlignmentLeft.setOnClickListener {
             (mAlignmentLeft.icon as AnimatedVectorDrawable).start()
             mViewModel.setSelectAlignment(AlignmentLayoutType.Left)
         }
+
         mAlignmentRight.setOnClickListener {
             (mAlignmentRight.icon as AnimatedVectorDrawable).start()
             mViewModel.setSelectAlignment(AlignmentLayoutType.Right)
@@ -108,12 +136,13 @@ class PopupBookLayout : Fragment() {
         setButtonMarked(getMarginsButton(), getSelected(mViewModel.marginType.value ?: MarginLayoutType.Small))
         setButtonMarked(getSpacingsButton(), getSelected(mViewModel.spacingType.value ?: SpacingLayoutType.Small))
 
+        mScrollingTypeAutoComplete.setText(mBookMapScrollingMode.filterValues { s -> s == mViewModel.scrollingType.value }.keys.first(), false)
+
         observer()
         return root
     }
 
-    private fun getAlignmentsButton() =
-        arrayListOf(mAlignmentJustify, mAlignmentCenter, mAlignmentLeft, mAlignmentRight)
+    private fun getAlignmentsButton() = arrayListOf(mAlignmentJustify, mAlignmentCenter, mAlignmentLeft, mAlignmentRight)
 
     private fun getSpacingsButton() = arrayListOf(mSpacingSmall, mSpacingMedium, mSpacingBig)
     private fun getMarginsButton() = arrayListOf(mMarginSmall, mMarginMedium, mMarginBig)
@@ -155,6 +184,10 @@ class PopupBookLayout : Fragment() {
     }
 
     private fun observer() {
+        mViewModel.scrollingType.observe(viewLifecycleOwner) {
+            mScrollingTypeAutoComplete.setText(mBookMapScrollingMode.filterValues { s -> s == it }.keys.first(), false)
+        }
+
         mViewModel.alignmentType.observe(viewLifecycleOwner) {
             setButtonMarked(getAlignmentsButton(), getSelected(it))
         }

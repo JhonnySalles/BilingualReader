@@ -8,8 +8,8 @@
 
     <br.com.fenix.bilingualreader.view.components.book.NotifyingScrollView
         android:id="@+id/page_scroll_view"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:scrollbars="vertical"
         android:clipToPadding="false"
         android:fillViewport="true">
@@ -22,8 +22,10 @@
             android:autoLink="all"
             android:linksClickable="true"
             android:gravity="center"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingTop="@dimen/book_reader_text_padding_top_bottom"
+            android:paddingBottom="@dimen/book_reader_text_padding_top_bottom"
             android:layout_marginTop="@dimen/book_reader_text_margin_top_bottom"
             android:layout_marginBottom="@dimen/book_reader_text_margin_top_bottom"
             android:layout_marginStart="@dimen/book_reader_text_margin"

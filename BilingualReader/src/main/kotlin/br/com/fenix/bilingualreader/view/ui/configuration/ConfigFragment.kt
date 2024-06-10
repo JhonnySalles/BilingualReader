@@ -328,8 +328,7 @@ class ConfigFragment : Fragment() {
         mMangaDefaultSubtitleLanguageAutoComplete.setAdapter(adapterLanguage)
         mMangaDefaultSubtitleLanguageAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
-                mMangaDefaultSubtitleLanguageSelect =
-                    if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                mMangaDefaultSubtitleLanguageSelect = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
                         mMangaMapLanguage.containsKey(parent.getItemAtPosition(position).toString())
                     )
                         mMangaMapLanguage[parent.getItemAtPosition(position).toString()]!!

@@ -89,11 +89,7 @@ class BookDetailFragment : Fragment() {
     private var mTags: MutableList<String> = mutableListOf()
     private var mMapLanguage: HashMap<String, Languages> = hashMapOf()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_book_detail, container, false)
 
         mRootScroll = root.findViewById(R.id.book_detail_scroll)

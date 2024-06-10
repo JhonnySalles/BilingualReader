@@ -66,12 +66,14 @@ import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
+import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.view.components.AutoScroll
 import br.com.fenix.bilingualreader.view.components.book.TextViewPage
 import br.com.fenix.bilingualreader.view.components.book.TextViewPager
 import br.com.fenix.bilingualreader.view.components.book.WebViewPage
 import br.com.fenix.bilingualreader.view.components.book.WebViewPager
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
+import br.com.fenix.bilingualreader.view.ui.popup.PopupTTS
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -98,6 +100,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private lateinit var miFontStyle: MenuItem
     private lateinit var miMarkPage: MenuItem
     private lateinit var miSearch: MenuItem
+    private lateinit var miReaderTTS: MenuItem
     private lateinit var mViewPager: ViewPager2
     private lateinit var mPagerAdapter: Adapter<RecyclerView.ViewHolder>
     private lateinit var mReaderTTSContainer: LinearLayout
@@ -279,6 +282,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         miFontStyle = menu.findItem(R.id.menu_item_reader_book_font_style)
         miMarkPage = menu.findItem(R.id.menu_item_reader_book_mark_page)
         miSearch = menu.findItem(R.id.menu_item_reader_book_search)
+        miReaderTTS = menu.findItem(R.id.menu_item_reader_book_tts)
+
+        MenuUtil.longClick(requireActivity(), R.id.menu_item_reader_book_tts) {
+            openMenuTTS()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -357,8 +365,15 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         mViewPager.adapter = mPagerAdapter
 
-        val preferences = GeneralConsts.getSharedPreferences(requireContext())
-        val scrolling = ScrollingType.valueOf(preferences.getString(GeneralConsts.KEYS.READER.BOOK_PAGE_SCROLLING_MODE, ScrollingType.Pagination.toString())!!)
+
+        var scrolling = mViewModel.scrollingType.value
+
+        if (scrolling == null) {
+            val preferences = GeneralConsts.getSharedPreferences(requireContext())
+            scrolling = ScrollingType.valueOf(preferences.getString(GeneralConsts.KEYS.READER.BOOK_PAGE_SCROLLING_MODE, ScrollingType.Pagination.toString())!!)
+            mViewModel.changeScrolling(scrolling)
+        }
+
         mViewPager.orientation = if (scrolling == ScrollingType.Scrolling) ViewPager2.ORIENTATION_VERTICAL else ViewPager2.ORIENTATION_HORIZONTAL
 
         mViewPager.isSaveEnabled = false
@@ -514,14 +529,21 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     private fun observer() {
+        mViewModel.scrollingType.observe(viewLifecycleOwner) {
+            mViewPager.orientation = if (it == ScrollingType.Scrolling)
+                ViewPager2.ORIENTATION_VERTICAL
+            else
+                ViewPager2.ORIENTATION_HORIZONTAL
+        }
+
+        mViewModel.ttsVoice.observe(viewLifecycleOwner) {
+            mTextToSpeech?.setVoice(mViewModel.ttsVoice.value!!)
+        }
+
         if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
             mViewModel.fontCss.observe(viewLifecycleOwner) {
                 try {
-                    val inputStream = ByteArrayInputStream(
-                        mViewModel.fontCss.value!!.toByteArray(
-                            StandardCharsets.UTF_8
-                        )
-                    )
+                    val inputStream = ByteArrayInputStream(mViewModel.fontCss.value!!.toByteArray(StandardCharsets.UTF_8))
                     val buffer = ByteArray(inputStream.available())
                     inputStream.read(buffer)
                     inputStream.close()
@@ -774,6 +796,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             mTextToSpeech = TextToSpeechController(requireContext(), mBook!!, mParse, (mCoverImage.drawable as BitmapDrawable).bitmap, mViewModel.getFontSize(true).toInt())
             mTextToSpeech!!.addListener(this)
             mTextToSpeech!!.addListener(mPagerAdapter as TTSListener)
+            mTextToSpeech!!.setVoice(mViewModel.ttsVoice.value!!)
             mTextToSpeech!!.start(page, initial)
         } else
             mTextToSpeech?.find(page, initial)
@@ -837,6 +860,16 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
     override fun stopTTS() {
         mTextToSpeech = null
+    }
+
+    private fun openMenuTTS() {
+        val old = mViewModel.ttsVoice.value
+        PopupTTS(requireContext()).getPopupTTS(old!!) {
+            if (old != it) {
+                mViewModel.changeTTSVoice(it)
+                mTextToSpeech?.setVoice(it)
+            }
+        }
     }
 
     override fun textSelectReadingFrom(page: Int, text: String) = executeTTS(page, text)
