@@ -10,10 +10,10 @@
     <color name="VOCABULARY">#00ff00</color>
 
     <!-- - - - - - - - - - - - - - - - - - - - -  Text Select Colors  - - - - - - - - - - - - - - - - - - - - -->
-    <color name="text_select_red">#cc0000</color>
-    <color name="text_select_yellow">#cc7a00</color>
-    <color name="text_select_green">#00b300</color>
-    <color name="text_select_blue">#002db3</color>
+    <color name="text_select_red">#ff4d4d</color>
+    <color name="text_select_yellow">#e6b800</color>
+    <color name="text_select_green">#00e600</color>
+    <color name="text_select_blue">#668cff</color>
 
     <!-- - - - - - - - - - - - - - - - - - - - -  Used  - - - - - - - - - - - - - - - - - - - - -->
     <color name="file_link_buttons">#55000000</color>
