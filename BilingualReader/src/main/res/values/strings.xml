@@ -350,7 +350,10 @@
     <string name="book_tts_voice_sara" translatable="false">Sara</string>
     <string name="book_tts_voice_tony" translatable="false">Tony</string>
     <string name="book_tts_voice_nanami" translatable="false">Nanami</string>
+    <string name="book_tts_voice_keita" translatable="false">Keita</string>
     <string name="book_tts_voice_francisca" translatable="false">Francisca</string>
+    <string name="book_tts_voice_thalita" translatable="false">Thalita</string>
+    <string name="book_tts_voice_antonio" translatable="false">Antonio</string>
 
     <string name="book_tts_voice_neural" translatable="false">Neural</string>
     <string name="book_tts_voice_required">A voice type must be selected.</string>
@@ -884,6 +887,8 @@
     <string name="text_inker">Inker</string>
     <string name="text_cover_artist">Cover Artist</string>
     <string name="text_colorist">Colorist</string>
+
+    <string name="tts_title">Text to speech</string>
 
     <string name="button_tts_previous">Previous</string>
     <string name="button_tts_pause">Pause</string>

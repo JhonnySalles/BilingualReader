@@ -812,6 +812,8 @@
     <string name="text_cover_artist">Artista de capa</string>
     <string name="text_colorist">Colorista</string>
 
+    <string name="tts_title">Texto para fala</string>
+
     <string name="button_tts_previous">Anterior</string>
     <string name="button_tts_pause">Pause</string>
     <string name="button_tts_play">Play</string>

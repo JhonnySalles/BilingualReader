@@ -9,6 +9,7 @@ import android.widget.AutoCompleteTextView
 import androidx.appcompat.app.AlertDialog
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.TextSpeech
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 
@@ -52,6 +53,8 @@ class PopupTTS(var context: Context) {
             else
                 TextSpeech.getDefault()
         }
+
+        readingTTSAutoComplete.setText(mMapReadingTTS.filterValues { it == mNewTTS }.keys.first(), false)
 
         return root
     }

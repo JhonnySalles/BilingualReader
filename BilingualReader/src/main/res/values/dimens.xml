@@ -239,6 +239,14 @@
     <dimen name="reader_touch_demonstration_initial_horizontal">50dp</dimen>
     <dimen name="reader_touch_demonstration_initial_vertical">120dp</dimen>
 
+    <dimen name="reader_tts_button_center_size">45dp</dimen>
+    <dimen name="reader_tts_button_center_icon_size">25dp</dimen>
+    <dimen name="reader_tts_button_size">30dp</dimen>
+    <dimen name="reader_tts_button_icon_size">24dp</dimen>
+    <dimen name="reader_tts_button_border_size">22dp</dimen>
+    <dimen name="reader_tts_button_border_icon_size">19dp</dimen>
+    <dimen name="reader_tts_button_margin_size">5dp</dimen>
+
     <dimen name="popup_reader_title">15sp</dimen>
     <dimen name="popup_reader_file_page_name">10sp</dimen>
     <dimen name="popup_reader_text">20sp</dimen>

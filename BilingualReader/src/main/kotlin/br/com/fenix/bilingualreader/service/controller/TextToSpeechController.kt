@@ -1,7 +1,6 @@
 package br.com.fenix.bilingualreader.service.controller
 
 import android.Manifest
-import android.app.Notification
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -13,8 +12,10 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
+import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Speech
 import br.com.fenix.bilingualreader.model.enums.AudioStatus
@@ -202,7 +203,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
     }
 
     private lateinit var mNotificationManager: NotificationManagerCompat
-    private lateinit var mNotification: Notification
+    private lateinit var mNotification: NotificationCompat.Builder
     private val mNotifyId = Notifications.getID()
 
     private fun createNotification() {
@@ -214,10 +215,14 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
     private fun changeNotification() {
         val hastPrevious = (mPage > 0 || mLine > 0)
-        val hastNext = !(mPage == mParse!!.getPageCount(fontSize) && mLine == (mLines.size - 1))
-        val notification = Notifications.getTTSNotification(context, mBook, mFileName, mCover, hastPrevious, hastNext, mPause, broadcastReceiver)
+        val pages = mParse!!.getPageCount(fontSize)
+        val hastNext = !(mPage == pages && mLine == (mLines.size - 1))
+
+        mNotification = Notifications.getTTSNotification(context, context.getString(R.string.tts_title), mFileName, mCover, hastPrevious, hastNext, mPause, broadcastReceiver)
+        mNotification.setProgress(pages, mPage, false)
+
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
-            mNotificationManager.notify(mNotifyId, notification)
+            mNotificationManager.notify(mNotifyId, mNotification.build())
     }
 
     private var broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -237,9 +242,9 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
             createNotification()
 
         if (isPageChange) {
-            /*notification.setProgress(mParse.getPageCount(fontSize), mPage, false)
+            mNotification.setProgress(mParse!!.getPageCount(fontSize), mPage, false)
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
-                notificationManager.notify(notifyId, notification.build())*/
+                mNotificationManager.notify(mNotifyId, mNotification.build())
         }
     }
 
@@ -368,18 +373,6 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                             Thread.sleep(500)
                             continue
                         }
-
-                        mReading = mLines[mLine]
-                        mLOGGER.error("Page $mPage - Line $mLine - size ${mLines.size}:: " + mReading.text)
-
-                        mMainHandler.post {
-                            processNotification(false)
-                            mListener.forEach { it.readingLine(mReading) }
-                        }
-
-                        Thread.sleep(2000)
-                        if (true)
-                            continue
 
                         if (mReading.audio != null)
                             play(mReading, isPageChange)

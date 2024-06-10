@@ -256,11 +256,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             true
         }
 
-        val btnPrevious = requireActivity().findViewById<MaterialButton>(R.id.reader_book_tts_previous)
-        val btnNext = requireActivity().findViewById<MaterialButton>(R.id.reader_book_tts_next)
+        requireActivity().findViewById<MaterialButton>(R.id.reader_book_tts_previous).setOnClickListener { mTextToSpeech?.previous() }
+        requireActivity().findViewById<MaterialButton>(R.id.reader_book_tts_next).setOnClickListener { mTextToSpeech?.next() }
 
-        btnPrevious.setOnClickListener { mTextToSpeech?.previous() }
-        btnNext.setOnClickListener { mTextToSpeech?.next() }
+        requireActivity().findViewById<MaterialButton>(R.id.reader_book_tts_config).setOnClickListener { openMenuTTS() }
+        requireActivity().findViewById<MaterialButton>(R.id.reader_book_tts_close).setOnClickListener { mTextToSpeech?.stop() }
 
         if (savedInstanceState != null) {
             val fullscreen = savedInstanceState.getBoolean(ReaderConsts.STATES.STATE_FULLSCREEN)

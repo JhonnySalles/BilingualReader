@@ -9,21 +9,31 @@
     android:background="@drawable/book_reader_tts_background">
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/reader_book_tts_previous"
+        android:id="@+id/reader_book_tts_config"
         style="@style/Button.IconOnly"
-        android:layout_width="@dimen/vocabulary_manga_content_favorite_button_size"
-        android:layout_height="@dimen/vocabulary_manga_content_favorite_button_size"
+        android:layout_width="@dimen/reader_tts_button_border_size"
+        android:layout_height="@dimen/reader_tts_button_border_size"
         android:textColor="?attr/colorSecondary"
         android:contentDescription="@string/button_tts_previous"
-        app:iconSize="22dp"
+        android:layout_marginStart="@dimen/reader_tts_button_margin_size"
+        app:iconSize="@dimen/reader_tts_button_border_icon_size"
+        app:iconTint="?attr/colorSecondary"
+        app:icon="@drawable/ic_tts_config"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/reader_book_tts_previous"
+        style="@style/Button.IconOnly"
+        android:layout_width="@dimen/reader_tts_button_size"
+        android:layout_height="@dimen/reader_tts_button_size"
+        android:textColor="?attr/colorSecondary"
+        android:contentDescription="@string/button_tts_previous"
+        app:iconSize="@dimen/reader_tts_button_icon_size"
         app:iconTint="?attr/colorSecondary"
         app:icon="@drawable/ic_tts_previous"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="@dimen/vocabulary_manga_content_favorite_button_size"
-        android:layout_height="@dimen/vocabulary_manga_content_favorite_button_size"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="5dp">
+        android:layout_width="@dimen/reader_tts_button_center_size"
+        android:layout_height="@dimen/reader_tts_button_center_size">
 
         <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/reader_book_tts_progress"
@@ -43,11 +53,11 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/reader_book_tts_play"
             style="@style/Button.IconOnly"
-            android:layout_width="@dimen/vocabulary_manga_content_favorite_button_size"
-            android:layout_height="@dimen/vocabulary_manga_content_favorite_button_size"
+            android:layout_width="@dimen/reader_tts_button_center_size"
+            android:layout_height="@dimen/reader_tts_button_center_size"
             android:textColor="?attr/colorSecondary"
             android:contentDescription="@string/button_tts_play"
-            app:iconSize="25dp"
+            app:iconSize="@dimen/reader_tts_button_center_icon_size"
             app:iconTint="?attr/colorSecondary"
             app:icon="@drawable/ic_tts_play"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -60,12 +70,24 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/reader_book_tts_next"
         style="@style/Button.IconOnly"
-        android:layout_width="@dimen/vocabulary_manga_content_favorite_button_size"
-        android:layout_height="@dimen/vocabulary_manga_content_favorite_button_size"
+        android:layout_width="@dimen/reader_tts_button_size"
+        android:layout_height="@dimen/reader_tts_button_size"
         android:textColor="?attr/colorSecondary"
         android:contentDescription="@string/button_tts_next"
-        app:iconSize="22dp"
+        app:iconSize="@dimen/reader_tts_button_icon_size"
         app:iconTint="?attr/colorSecondary"
         app:icon="@drawable/ic_tts_next"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/reader_book_tts_close"
+        style="@style/Button.IconOnly"
+        android:layout_width="@dimen/reader_tts_button_border_size"
+        android:layout_height="@dimen/reader_tts_button_border_size"
+        android:textColor="?attr/colorSecondary"
+        android:contentDescription="@string/button_tts_next"
+        android:layout_marginEnd="@dimen/reader_tts_button_margin_size"
+        app:iconSize="@dimen/reader_tts_button_border_icon_size"
+        app:iconTint="?attr/colorSecondary"
+        app:icon="@drawable/ic_tts_close"/>
 
 </LinearLayout>

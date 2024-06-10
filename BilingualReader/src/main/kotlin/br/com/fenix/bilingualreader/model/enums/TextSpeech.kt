@@ -21,14 +21,14 @@ enum class TextSpeech(
         R.string.book_tts_voice_aria,
         R.string.book_tts_region_en,
         R.string.book_tts_idiom_en,
-        R.string.book_tts_voice_gender_masculine,
+        R.string.book_tts_voice_gender_feminine,
         true
     ),
     DAVIS(
         1,
         "en-US-DavisNeural",
         Languages.ENGLISH,
-        R.string.book_tts_voice_aria,
+        R.string.book_tts_voice_davis,
         R.string.book_tts_region_en,
         R.string.book_tts_idiom_en,
         R.string.book_tts_voice_gender_masculine,
@@ -38,7 +38,7 @@ enum class TextSpeech(
         2,
         "en-US-GuyNeural",
         Languages.ENGLISH,
-        R.string.book_tts_voice_aria,
+        R.string.book_tts_voice_guy,
         R.string.book_tts_region_en,
         R.string.book_tts_idiom_en,
         R.string.book_tts_voice_gender_masculine,
@@ -48,17 +48,17 @@ enum class TextSpeech(
         3,
         "en-US-JaneNeural",
         Languages.ENGLISH,
-        R.string.book_tts_voice_aria,
+        R.string.book_tts_voice_jane,
         R.string.book_tts_region_en,
         R.string.book_tts_idiom_en,
-        R.string.book_tts_voice_gender_masculine,
+        R.string.book_tts_voice_gender_feminine,
         true
     ),
     JASON(
         4,
         "en-US-JasonNeural",
         Languages.ENGLISH,
-        R.string.book_tts_voice_aria,
+        R.string.book_tts_voice_jason,
         R.string.book_tts_region_en,
         R.string.book_tts_idiom_en,
         R.string.book_tts_voice_gender_masculine,
@@ -68,27 +68,27 @@ enum class TextSpeech(
         5,
         "en-US-JennyNeural",
         Languages.ENGLISH,
-        R.string.book_tts_voice_aria,
+        R.string.book_tts_voice_jenny,
         R.string.book_tts_region_en,
         R.string.book_tts_idiom_en,
-        R.string.book_tts_voice_gender_masculine,
+        R.string.book_tts_voice_gender_feminine,
         true
     ),
     NANCY(
         6,
         "en-US-NancyNeural",
         Languages.ENGLISH,
-        R.string.book_tts_voice_aria,
+        R.string.book_tts_voice_nancy,
         R.string.book_tts_region_en,
         R.string.book_tts_idiom_en,
-        R.string.book_tts_voice_gender_masculine,
+        R.string.book_tts_voice_gender_feminine,
         true
     ),
     SARA(
         7,
         "en-US-SaraNeural",
         Languages.ENGLISH,
-        R.string.book_tts_voice_aria,
+        R.string.book_tts_voice_sara,
         R.string.book_tts_region_en,
         R.string.book_tts_idiom_en,
         R.string.book_tts_voice_gender_masculine,
@@ -98,7 +98,7 @@ enum class TextSpeech(
         8,
         "en-US-TonyNeural",
         Languages.ENGLISH,
-        R.string.book_tts_voice_aria,
+        R.string.book_tts_voice_tony,
         R.string.book_tts_region_en,
         R.string.book_tts_idiom_en,
         R.string.book_tts_voice_gender_masculine,
@@ -107,21 +107,51 @@ enum class TextSpeech(
     NANAMI(
         9,
         "ja-JP-NanamiNeural",
-        Languages.ENGLISH,
-        R.string.book_tts_voice_aria,
-        R.string.book_tts_region_en,
-        R.string.book_tts_idiom_en,
+        Languages.JAPANESE,
+        R.string.book_tts_voice_nanami,
+        R.string.book_tts_region_jp,
+        R.string.book_tts_idiom_jp,
+        R.string.book_tts_voice_gender_feminine,
+        true
+    ),
+    KEITA(
+        10,
+        "ja-JP-KeitaNeural",
+        Languages.JAPANESE,
+        R.string.book_tts_voice_keita,
+        R.string.book_tts_region_jp,
+        R.string.book_tts_idiom_jp,
         R.string.book_tts_voice_gender_masculine,
         true
     ),
     FRANCISCA(
-        10,
+        11,
         "pt-BR-FranciscaNeural",
-        Languages.ENGLISH,
-        R.string.book_tts_voice_aria,
-        R.string.book_tts_region_en,
-        R.string.book_tts_idiom_en,
+        Languages.PORTUGUESE,
+        R.string.book_tts_voice_francisca,
+        R.string.book_tts_region_pt,
+        R.string.book_tts_idiom_pt,
+        R.string.book_tts_voice_gender_feminine,
+        true
+    ),
+    ANTONIO(
+        12,
+        "pt-BR-AntonioNeural",
+        Languages.PORTUGUESE,
+        R.string.book_tts_voice_antonio,
+        R.string.book_tts_region_pt,
+        R.string.book_tts_idiom_pt,
         R.string.book_tts_voice_gender_masculine,
+        true
+    ),
+    THALITA(
+        13,
+        "pt-BR-ThalitaNeural1",
+        Languages.PORTUGUESE,
+        R.string.book_tts_voice_thalita,
+        R.string.book_tts_region_pt,
+        R.string.book_tts_idiom_pt,
+        R.string.book_tts_voice_gender_feminine,
         true
     );
 
@@ -141,14 +171,11 @@ enum class TextSpeech(
 
         fun getDefault(): TextSpeech = TextSpeech.FRANCISCA
         fun getByDescriptions(context: Context): Map<String, TextSpeech> {
-            val map = mutableMapOf<String, TextSpeech>()
-            for (item in values())
-                map[item.getDescription(context)] = item
-            return map.toMap()
+            return TextSpeech.values().sortedWith(compareBy({ it.language }, { it.name })).associateBy { it.getDescription(context) }
         }
 
         fun getTextSpeech(context: Context, description: String): TextSpeech {
-            for (item in values())
+            for (item in TextSpeech.values())
                 if (item.getDescription(context).equals(description, ignoreCase = true))
                     return item
 
