@@ -11,8 +11,12 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Kanjax
 import br.com.fenix.bilingualreader.service.japanese.Formatter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.slf4j.LoggerFactory
 
 class PopupKanji(val context: Context, isFormatterInitialize: Boolean = true) {
+
+    private val mLOGGER = LoggerFactory.getLogger(PopupKanji::class.java)
+
     init {
         if (isFormatterInitialize)
             Formatter.initializeAsync(context)
@@ -29,11 +33,7 @@ class PopupKanji(val context: Context, isFormatterInitialize: Boolean = true) {
             .show()
     }
 
-    private fun createKanjiPopup(
-        context: Context,
-        inflater: LayoutInflater,
-        kanjax: Kanjax?
-    ): View? {
+    private fun createKanjiPopup(context: Context, inflater: LayoutInflater, kanjax: Kanjax?): View? {
         val root = inflater.inflate(R.layout.popup_kanji, null, false)
 
         kanjax?.let {

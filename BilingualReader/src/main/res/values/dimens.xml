@@ -439,6 +439,7 @@
     <dimen name="popup_vocabulary_title_size">40sp</dimen>
     <dimen name="popup_vocabulary_sub_title_size">16sp</dimen>
     <dimen name="popup_vocabulary_reading_size">20sp</dimen>
+    <dimen name="popup_vocabulary_content_size">14sp</dimen>
     <dimen name="popup_vocabulary_list_height">175dp</dimen>
     <dimen name="popup_vocabulary_list_padding">20dp</dimen>
 

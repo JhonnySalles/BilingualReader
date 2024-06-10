@@ -760,6 +760,12 @@
     <string name="popup_vocabulary_order_favorite">For favorite</string>
     <string name="popup_vocabulary_order_frequency">For frequency</string>
 
+    <string name="popup_vocabulary_jlpt"><b><i>jlpt:</i></b> N%d</string>
+    <string name="popup_vocabulary_appears"><b><i>Appears:</i></b> %d</string>
+    <string name="popup_vocabulary_reading"><b><i>Reading:</i></b> %s</string>
+    <string name="popup_vocabulary_basic_form"><b><i>Basic form:</i></b> %s</string>
+
+
     <!-- KANJI -->
     <string name="kanji_jlpt"><b><i>jlpt:</i></b> N%d</string>
     <string name="kanji_grade"><b><i>grade:</i></b> %d</string>

@@ -715,6 +715,11 @@
     <string name="popup_vocabulary_order_favorite">Por favoritos</string>
     <string name="popup_vocabulary_order_frequency">Por frequência</string>
 
+    <string name="popup_vocabulary_jlpt"><b><i>jlpt:</i></b> N%d</string>
+    <string name="popup_vocabulary_appears"><b><i>Aparece:</i></b> %d</string>
+    <string name="popup_vocabulary_reading"><b><i>Leitura:</i></b> %s</string>
+    <string name="popup_vocabulary_basic_form"><b><i>Forma básica:</i></b> %s</string>
+
 
     <!-- KANJI -->
     <string name="kanji_jlpt"><b><i>jlpt:</i></b> N%d</string>

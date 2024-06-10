@@ -112,10 +112,9 @@ class Formatter {
                 middle = kanjax.keyword + "  -  " + kanjax.keywordPt + "\n\n" +
                         kanjax.meaning + " | " + kanjax.meaningPt + "\n"
 
-                middle += "onYomi: " + kanjax.onYomi + " | nKunYomi: " + kanjax.kunYomi + "\n"
+                middle += "onYomi: " + kanjax.onYomi + " | kunYomi: " + kanjax.kunYomi + "\n"
 
-                bottom =
-                    "jlpt: " + kanjax.jlpt + " grade: " + kanjax.grade + " frequency: " + kanjax.frequence + "\n"
+                bottom = "jlpt: " + kanjax.jlpt + " grade: " + kanjax.grade + " frequency: " + kanjax.frequence + "\n"
 
                 description = SpannableString(middle + bottom)
                 description.setSpan(RelativeSizeSpan(1.2f), 0, middle.length, 0)

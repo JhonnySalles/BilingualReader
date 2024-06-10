@@ -28,14 +28,6 @@
                     android:layout_marginStart="5dp"
                     android:textSize="@dimen/popup_vocabulary_title_size"/>
 
-                <TextView
-                    android:id="@+id/popup_vocabulary_reading"
-                    style="@style/TextNormal.Inverse.Vocabulary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="5dp"
-                    android:textSize="@dimen/popup_vocabulary_reading_size"/>
-
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -57,6 +49,54 @@
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/popup_vocabulary_sub_title_size"/>
 
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/popup_vocabulary_sub_title_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:gravity="center">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="@dimen/margin">
+                    <TextView
+                        android:id="@+id/popup_vocabulary_jlpt"
+                        style="@style/TextNormal.Vocabulary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/popup_vocabulary_content_size"/>
+
+                    <TextView
+                        android:id="@+id/popup_vocabulary_appear"
+                        style="@style/TextNormal.Vocabulary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/popup_vocabulary_content_size"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/popup_vocabulary_basic_form"
+                        style="@style/TextNormal.Vocabulary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="5dp"
+                        android:textSize="@dimen/popup_vocabulary_content_size"/>
+
+                    <TextView
+                        android:id="@+id/popup_vocabulary_reading"
+                        style="@style/TextNormal.Vocabulary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="5dp"
+                        android:textSize="@dimen/popup_vocabulary_content_size"/>
                 </LinearLayout>
             </LinearLayout>
 
