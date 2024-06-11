@@ -38,9 +38,10 @@
             layout="@layout/last_page_manga"
             android:layout_width="@dimen/last_page_card_layout_width"
             android:layout_height="@dimen/last_page_card_layout_height"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="140dp"
-            android:layout_marginEnd="10dp"
             android:layout_alignParentStart="true"
             android:visibility="gone"/>
 
