@@ -112,7 +112,7 @@ class PagesLinkFragment : Fragment() {
     private lateinit var mMapLanguage: HashMap<String, Languages>
     private val mImageLoadHandler: Handler = ImageLoadHandler(this)
     private var mShowScrollButton: Boolean = true
-    private var mHandler = Handler(Looper.getMainLooper())
+    private val mHandler = Handler(Looper.getMainLooper())
 
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mDismissDownButton = Runnable { mScrollDown.hide() }

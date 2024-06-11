@@ -61,7 +61,7 @@ class SelectMangaFragment : Fragment() {
 
     private lateinit var mListener: MangaCardListener
 
-    private var mHandler = Handler(Looper.getMainLooper())
+    private val mHandler = Handler(Looper.getMainLooper())
 
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mDismissDownButton = Runnable { mScrollDown.hide() }

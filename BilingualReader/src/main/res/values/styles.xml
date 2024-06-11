@@ -516,6 +516,12 @@
         <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
     </style>
 
+    <style name="TextNormal.Card.LastPage" parent="TextNormal.Card">
+        <item name="android:maxLines">1</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textSize">10sp</item>
+    </style>
+
     <style name="TextNormal.Card.PageLink" parent="TextNormal">
         <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
         <item name="android:background">?attr/colorTertiaryContainer</item>
@@ -787,6 +793,12 @@
     </style>
 
     <style name="Card.Detail" parent="Card">
+        <item name="android:layout_gravity">bottom</item>
+        <item name="android:background">@drawable/grid_card_title_background</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="Card.LastPage" parent="Card">
         <item name="android:layout_gravity">bottom</item>
         <item name="android:background">@drawable/grid_card_title_background</item>
         <item name="android:orientation">vertical</item>

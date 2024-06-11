@@ -127,7 +127,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private lateinit var mStorage: Storage
     private var mTextToSpeech: TextToSpeechController? = null
 
-    private var mHandler = Handler(Looper.getMainLooper())
+    private val mHandler = Handler(Looper.getMainLooper())
 
     var mParse: DocumentParse? = null
 

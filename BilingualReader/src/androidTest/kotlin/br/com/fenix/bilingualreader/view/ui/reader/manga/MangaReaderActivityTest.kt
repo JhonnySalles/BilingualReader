@@ -15,7 +15,9 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.utils.BookTestUtil
 import br.com.fenix.bilingualreader.utils.MangaTestUtil
+import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderFragment
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import org.junit.FixMethodOrder
@@ -31,21 +33,22 @@ import java.util.concurrent.TimeUnit
 @RunWith(AndroidJUnit4::class)
 class MangaReaderActivityTest {
 
-    // Inform a file test here
-    private val filePath = "/storage/1D01-1E06/Mangas/Aho Girl - Volume 08 (Jap) Sem capa.cbr" // "storage/emulated/0/Manga/Manga of test.cbr"
-    private val manga: Manga = MangaTestUtil.getManga(ApplicationProvider.getApplicationContext(), filePath)
+    private val manga: Manga = MangaTestUtil.getManga(ApplicationProvider.getApplicationContext(), MangaTestUtil.mMangaPath)
     private var intent: Intent? = null
 
     init {
-        assertFalse("Not informed comic file, please declare 'filePath' in " + MangaReaderActivityTest::class.java.name, filePath.isEmpty())
         assertTrue("Comic file informed not found, please verify declared 'filePath' in " + MangaReaderActivityTest::class.java.name, manga.file.exists())
 
         val dataBase = DataBase.getDataBase(ApplicationProvider.getApplicationContext()).getMangaDao()
 
-        for (obj in dataBase.list(manga.fkLibrary))
-            dataBase.delete(obj)
+        try {
+            for (obj in dataBase.list(manga.fkLibrary))
+                dataBase.delete(obj)
+        } catch (e: Exception) {
+        }
 
-        dataBase.save(manga)
+        manga.bookMark = MangaTestUtil.mMangaPage
+        manga.id = dataBase.save(manga)
 
         intent = Intent(ApplicationProvider.getApplicationContext(), MangaReaderActivity::class.java)
 
@@ -53,8 +56,8 @@ class MangaReaderActivityTest {
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA, Libraries.DEFAULT.name, ""))
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
         bundle.putString(GeneralConsts.KEYS.MANGA.NAME, manga.title)
-        bundle.putInt(GeneralConsts.KEYS.MANGA.PAGE_NUMBER, 0)
-        bundle.putInt(GeneralConsts.KEYS.MANGA.MARK, 0)
+        bundle.putInt(GeneralConsts.KEYS.MANGA.PAGE_NUMBER, MangaTestUtil.mMangaPage)
+        bundle.putInt(GeneralConsts.KEYS.MANGA.MARK, MangaTestUtil.mMangaPage)
         intent?.putExtras(bundle)
     }
 
@@ -63,6 +66,19 @@ class MangaReaderActivityTest {
     val activityScenarioRule = ActivityScenarioRule<MangaReaderActivity>(intent)
 
     private val awaitProcessSeconds = 2L
+
+    @Test
+    fun `0_test_manga_reader`() {
+        val waiter = CountDownLatch(1)
+        val scenario = activityScenarioRule.scenario
+
+        scenario.onActivity {
+            val fragment = it.supportFragmentManager.findFragmentById(R.id.root_frame_manga_reader)
+            assertTrue(fragment is MangaReaderFragment)
+        }
+
+        waiter.await(10, TimeUnit.MINUTES)
+    }
 
     @Test
     fun `1_test_manga_read`() {

@@ -43,7 +43,7 @@ class MangaChaptersFragment : Fragment(), ChapterLoadListener {
     private var mPosInitial = 0
     private var mTolbarTitle = ""
 
-    private var mHandler = Handler(Looper.getMainLooper())
+    private val mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
 

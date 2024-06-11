@@ -61,6 +61,8 @@ class TestUtil {
 
 class MangaTestUtil {
     companion object MangaTestUtils {
+        const val mMangaPage = 24
+        const val mMangaPath = "/storage/1CFF-100F/Mangas/Biblioteca 1/Aho Girl - Volume 01 (Jap).cbr"
 
         private val MANGA_TEST_FILE_PATH = "storage/emulated/0/Manga/Manga of test.cbr"
 

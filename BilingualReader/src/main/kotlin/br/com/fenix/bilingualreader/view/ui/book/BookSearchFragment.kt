@@ -66,7 +66,7 @@ class BookSearchFragment : Fragment() {
     private lateinit var mHistoryListener: BookSearchHistoryListener
     private lateinit var mSearchListener: BookSearchListener
 
-    private var mHandler = Handler(Looper.getMainLooper())
+    private val mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
 

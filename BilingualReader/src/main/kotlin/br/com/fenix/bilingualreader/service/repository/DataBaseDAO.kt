@@ -134,7 +134,7 @@ abstract class MangaDAO : BaseDAO<Manga, Long>(DataBaseConsts.MANGA.TABLE_NAME, 
     abstract fun listHistory(): List<Manga>
 
     @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.MANGA.COLUMNS.ID + " = :id")
-    abstract fun get(id: Long): Manga
+    abstract fun get(id: Long): Manga?
 
     @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 0 AND UPPER(" + DataBaseConsts.MANGA.COLUMNS.FILE_NAME + ") = UPPER(:name)")
     abstract fun getByFileName(name: String): Manga?

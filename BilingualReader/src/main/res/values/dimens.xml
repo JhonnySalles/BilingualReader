@@ -100,6 +100,9 @@
     <dimen name="manga_chapter_margin_bottom">20dp</dimen>
     <dimen name="manga_chapter_selected_stroke">3dp</dimen>
 
+    <dimen name="manga_last_page_card_layout_width">70dp</dimen>
+    <dimen name="manga_last_page_card_layout_height">120dp</dimen>
+
     <dimen name="manga_detail_card_layout_width">150dp</dimen>
     <dimen name="manga_detail_card_layout_height">200dp</dimen>
     <dimen name="manga_detail_card_layout_width_tablet">200dp</dimen>

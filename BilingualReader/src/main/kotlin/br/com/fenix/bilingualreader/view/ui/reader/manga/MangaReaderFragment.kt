@@ -21,6 +21,7 @@ import android.provider.MediaStore.Images
 import android.util.SparseArray
 import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -30,10 +31,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
+import android.view.animation.AnticipateOvershootInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
@@ -47,6 +50,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.transition.Slide
+import androidx.transition.Transition
+import androidx.transition.TransitionManager
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
@@ -71,6 +77,7 @@ import br.com.fenix.bilingualreader.view.components.manga.ImageViewPager
 import br.com.fenix.bilingualreader.view.managers.MangaHandler
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
@@ -81,6 +88,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.OutputStream
 import java.lang.ref.WeakReference
+import java.util.LinkedList
 import kotlin.math.max
 import kotlin.math.min
 
@@ -106,6 +114,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mPreviousButton: MaterialButton
     private lateinit var mNextButton: MaterialButton
 
+    private lateinit var mLastPageContainer: MaterialCardView
+    private lateinit var mLastPageImage: ImageView
+    private lateinit var mLastPageText: TextView
+
     private var mResourceViewMode: HashMap<Int, ReaderMode> = HashMap()
     private var mIsFullscreen = false
     private var mFileName: String? = null
@@ -127,6 +139,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mStorage: Storage
     private lateinit var mSubtitleController: SubTitleController
 
+    private val mLastPage = LinkedList<Pair<Int, Bitmap>>()
+    private val mHandler = Handler(Looper.getMainLooper())
+
     init {
         mResourceViewMode[R.id.manga_view_mode_aspect_fill] = ReaderMode.ASPECT_FILL
         mResourceViewMode[R.id.manga_view_mode_aspect_fit] = ReaderMode.ASPECT_FIT
@@ -134,6 +149,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     companion object {
+        private const val LAST_PAGE_OUT_SCREEN = 100
+
         var mCurrentPage = 0
         private var mCacheFolderIndex = 0
         private val mCacheFolder = arrayOf(
@@ -224,6 +241,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         val bundle: Bundle? = arguments
         if (bundle != null && !bundle.isEmpty) {
+            mLastPage.clear()
+
             mLibrary = bundle.getSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY) as Library
 
             mManga = bundle.getSerializable(GeneralConsts.KEYS.OBJECT.MANGA) as Manga?
@@ -333,11 +352,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view: View = inflater.inflate(R.layout.fragment_manga_reader, container, false)
 
         mRoot = requireActivity().findViewById(R.id.root_activity_manga_reader)
@@ -349,6 +364,12 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mPreviousButton = requireActivity().findViewById(R.id.reader_manga_nav_previous_file)
         mNextButton = requireActivity().findViewById(R.id.reader_manga_nav_next_file)
         mViewPager = view.findViewById<View>(R.id.fragment_reader) as ImageViewPager
+
+        mLastPageContainer = requireActivity().findViewById(R.id.reader_manga_last_page)
+        mLastPageImage = requireActivity().findViewById(R.id.last_page_manga_image)
+        mLastPageText = requireActivity().findViewById(R.id.last_page_manga_text)
+
+        mLastPageContainer.visibility = View.GONE
 
         (mPageNavLayout.findViewById<View>(R.id.reader_manga_bottom_progress) as DottedSeekBar).also {
             mPageSeekBar = it
@@ -369,18 +390,45 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     if (mIsLeftToRight)
                         setCurrentPage(progress + 1)
                     else
-                        setCurrentPage(mPageSeekBar.max - progress + 1)
+
+                    setCurrentPage(mPageSeekBar.max - progress + 1)
+                    changeLastPagePosition(progress + 1)
                 }
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar) {
                 mPicasso.pauseTag(this@MangaReaderFragment.requireActivity())
+
+                try {
+                    val view = getCurrencyImageView() ?: return
+
+                    if (mLastPage.size > 3)
+                        mLastPage.removeLast()
+
+                    val page = seekBar.progress + 1
+                    val bitmap = (view.drawable as BitmapDrawable).bitmap
+                    mLastPage.addFirst(Pair(page, bitmap.copy(bitmap.config, true)))
+                    openLastPage()
+                } catch (e: Exception) {
+                    mLOGGER.error("Error to insert last page", e)
+                }
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar) {
                 mPicasso.resumeTag(this@MangaReaderFragment.requireActivity())
             }
         })
+
+        mLastPageContainer.setOnClickListener {
+            val old = mLastPage.removeFirst()
+            if (mLastPage.isEmpty())
+                closeLastPage()
+            else {
+                changeLastPage(mLastPage.first)
+                changeLastPagePosition(old.first)
+            }
+            setCurrentPage(old.first)
+        }
 
         mViewPager.adapter = mPagerAdapter
         mViewPager.offscreenPageLimit = ReaderConsts.READER.MANGA_OFF_SCREEN_PAGE_LIMIT
@@ -924,6 +972,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             mToolbarBottom.translationY = (initialTranslation * -1)
         }
 
+        if (isFullScreen)
+            closeLastPage()
+        else
+            openLastPage()
+
         mPageNavLayout.animate().alpha(finalAlpha).setDuration(duration)
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
@@ -992,7 +1045,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             .setPositiveButton(
                 R.string.switch_action_positive
             ) { _, _ ->
-                if (activity == null) return@setPositiveButton
+                if (activity == null)
+                    return@setPositiveButton
 
                 confirm = true
                 val activity = requireActivity() as MangaReaderActivity
@@ -1083,4 +1137,81 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             }
         }
     }
+
+    private var mLastPageIsLeft = true
+    private fun openLastPage() {
+        if (mLastPage.isEmpty())
+            return
+
+        val page = mLastPage.first
+        changeLastPage(page)
+        if (mLastPageContainer.visibility != View.VISIBLE)
+            transitionLastPage(true, mLastPageIsLeft)
+    }
+
+    private fun changeLastPagePosition(page: Int) {
+        if (mLastPage.isEmpty() || mLastPage.first.first == page)
+            return
+
+        val position = mLastPage.first.first < page
+
+        mLOGGER.error("Call transition, position: $position -- lastposition: $mLastPageIsLeft")
+        if (position != mLastPageIsLeft) {
+            mLastPageIsLeft = position
+            transitionLastPage(false, !position, object : Transition.TransitionListener {
+                override fun onTransitionStart(transition: Transition) { }
+
+                override fun onTransitionEnd(transition: Transition) {
+                    mHandler.postDelayed({ transitionLastPage(true, position) }, 100)
+                }
+
+                override fun onTransitionCancel(transition: Transition) { }
+
+                override fun onTransitionPause(transition: Transition) { }
+
+                override fun onTransitionResume(transition: Transition) { }
+            })
+        }
+    }
+
+    private fun changeLastPage(lastPage: Pair<Int, Bitmap>) {
+        mLastPageImage.setImageBitmap(lastPage.second)
+        mLastPageText.text = lastPage.first.toString()
+    }
+
+    private fun closeLastPage() {
+        if (mLastPageContainer.visibility == View.GONE)
+            return
+
+        transitionLastPage(false, mLastPageIsLeft)
+    }
+
+    private fun transitionLastPage(isVisible: Boolean, isLeft: Boolean, listenner: Transition.TransitionListener? = null) {
+        if (isVisible && mLastPageContainer.visibility == View.VISIBLE || !isVisible && mLastPageContainer.visibility == View.GONE)
+            return
+
+        mLOGGER.error("Call transition, isVisible: $isVisible -- isLeft: $isLeft")
+
+        if (isVisible) {
+            if (isLeft) {
+                (mLastPageContainer.layoutParams as RelativeLayout.LayoutParams).removeRule(RelativeLayout.ALIGN_PARENT_END)
+                (mLastPageContainer.layoutParams as RelativeLayout.LayoutParams).addRule(RelativeLayout.ALIGN_PARENT_START, RelativeLayout.TRUE)
+            } else {
+                (mLastPageContainer.layoutParams as RelativeLayout.LayoutParams).removeRule(RelativeLayout.ALIGN_PARENT_START)
+                (mLastPageContainer.layoutParams as RelativeLayout.LayoutParams).addRule(RelativeLayout.ALIGN_PARENT_END, RelativeLayout.TRUE)
+            }
+        }
+
+        val transition = if (isLeft) Slide(Gravity.START) else Slide(Gravity.END)
+        transition.setDuration(800L)
+        transition.addTarget(mLastPageContainer)
+        transition.interpolator = AnticipateOvershootInterpolator()
+
+        if (listenner != null)
+            transition.addListener(listenner)
+
+        TransitionManager.beginDelayedTransition(mRoot, transition)
+        mLastPageContainer.visibility = if (isVisible) View.VISIBLE else View.GONE
+    }
+
 }

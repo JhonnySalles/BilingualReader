@@ -40,13 +40,9 @@ class HelpFragment : Fragment() {
     private lateinit var mLanguageSupportTitle: TextView
 
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
-    private var mHandler = Handler(Looper.getMainLooper())
+    private val mHandler = Handler(Looper.getMainLooper())
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_help, container, false)
     }
 

@@ -73,7 +73,7 @@ class FloatingWindowOcr constructor(
                 })
         }
     }
-    private var mHandler = Handler(Looper.getMainLooper())
+    private val mHandler = Handler(Looper.getMainLooper())
 
     private var mTouchParamUpdateTimer = System.currentTimeMillis()
     private var mSizeParamUpdateTimer = System.currentTimeMillis()

@@ -80,7 +80,7 @@ class BookAnnotationFragment : Fragment() {
 
     private lateinit var mBook: Book
 
-    private var mHandler = Handler(Looper.getMainLooper())
+    private val mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
 

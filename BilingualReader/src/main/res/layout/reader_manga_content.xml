@@ -40,6 +40,18 @@
             android:layout_marginBottom="@dimen/manga_chapter_margin_bottom"
             android:visibility="gone" />
 
+        <include
+            android:id="@+id/reader_manga_last_page"
+            layout="@layout/last_page_manga"
+            android:layout_width="@dimen/manga_last_page_card_layout_width"
+            android:layout_height="@dimen/manga_last_page_card_layout_height"
+            android:layout_marginStart="10dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="140dp"
+            android:layout_marginEnd="10dp"
+            android:layout_alignParentEnd="false"
+            android:visibility="gone"/>
+
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/reader_manga_toolbar_reader_top"
             android:layout_width="match_parent"

@@ -137,7 +137,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     private lateinit var mChapterContent: LinearLayout
     private lateinit var mChapterList: RecyclerView
 
-    private var mHandler = Handler(Looper.getMainLooper())
+    private val mHandler = Handler(Looper.getMainLooper())
     private val mMonitoringBattery = Runnable { getBatteryPercent() }
     private val mDismissTouchView = Runnable { closeViewTouch() }
 

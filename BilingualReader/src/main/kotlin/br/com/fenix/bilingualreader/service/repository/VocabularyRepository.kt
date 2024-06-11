@@ -267,7 +267,7 @@ class VocabularyRepository(var context: Context) {
             return
 
         val list = subTitleChapters.toList()
-        val manga = mBase.getMangaDao().get(idManga)
+        val manga = mBase.getMangaDao().get(idManga) ?: return
         if (!forced && manga.lastVocabImport != null && !Date(manga.file.lastModified()).after(manga.fileAlteration))
             return
 

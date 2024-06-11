@@ -65,6 +65,19 @@ class BookReaderActivityTest {
     private val awaitProcessSeconds = 2L
 
     @Test
+    fun `0_test_book_reader`() {
+        val waiter = CountDownLatch(1)
+        val scenario = activityScenarioRule.scenario
+
+        scenario.onActivity {
+            val fragment = it.supportFragmentManager.findFragmentById(R.id.root_frame_book_reader)
+            assertTrue(fragment is BookReaderFragment)
+        }
+
+        waiter.await(10, TimeUnit.MINUTES)
+    }
+
+    @Test
     fun `1_test_book_reader`() {
         val waiter = CountDownLatch(1)
         val scenario = activityScenarioRule.scenario

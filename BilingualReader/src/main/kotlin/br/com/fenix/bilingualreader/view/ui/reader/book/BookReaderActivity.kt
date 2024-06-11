@@ -90,7 +90,7 @@ class BookReaderActivity : AppCompatActivity() {
 
     private lateinit var mTouchView: ConstraintLayout
 
-    private var mHandler = Handler(Looper.getMainLooper())
+    private val mHandler = Handler(Looper.getMainLooper())
     private val mMonitoringBattery = Runnable { getBatteryPercent() }
     private val mDismissTouchView = Runnable { closeViewTouch() }
 
