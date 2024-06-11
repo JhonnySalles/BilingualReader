@@ -365,9 +365,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mNextButton = requireActivity().findViewById(R.id.reader_manga_nav_next_file)
         mViewPager = view.findViewById<View>(R.id.fragment_reader) as ImageViewPager
 
-        mLastPageContainer = requireActivity().findViewById(R.id.reader_manga_last_page)
-        mLastPageImage = requireActivity().findViewById(R.id.last_page_manga_image)
-        mLastPageText = requireActivity().findViewById(R.id.last_page_manga_text)
+        mLastPageContainer = requireActivity().findViewById(R.id.reader_last_page)
+        mLastPageImage = requireActivity().findViewById(R.id.last_page_image)
+        mLastPageText = requireActivity().findViewById(R.id.last_page_text)
 
         mLastPageContainer.visibility = View.GONE
 
@@ -390,8 +390,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     if (mIsLeftToRight)
                         setCurrentPage(progress + 1)
                     else
+                        setCurrentPage(mPageSeekBar.max - progress + 1)
 
-                    setCurrentPage(mPageSeekBar.max - progress + 1)
                     changeLastPagePosition(progress + 1)
                 }
             }
@@ -945,6 +945,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
 
         changeContentsVisibility(fullscreen)
+
+        if (fullscreen)
+            closeLastPage()
+        else
+            openLastPage()
     }
 
     private val duration = 200L
@@ -971,11 +976,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             mToolbarTop.translationY = initialTranslation
             mToolbarBottom.translationY = (initialTranslation * -1)
         }
-
-        if (isFullScreen)
-            closeLastPage()
-        else
-            openLastPage()
 
         mPageNavLayout.animate().alpha(finalAlpha).setDuration(duration)
             .setListener(object : AnimatorListenerAdapter() {
@@ -1189,8 +1189,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private fun transitionLastPage(isVisible: Boolean, isLeft: Boolean, listenner: Transition.TransitionListener? = null) {
         if (isVisible && mLastPageContainer.visibility == View.VISIBLE || !isVisible && mLastPageContainer.visibility == View.GONE)
             return
-
-        mLOGGER.error("Call transition, isVisible: $isVisible -- isLeft: $isLeft")
 
         if (isVisible) {
             if (isLeft) {

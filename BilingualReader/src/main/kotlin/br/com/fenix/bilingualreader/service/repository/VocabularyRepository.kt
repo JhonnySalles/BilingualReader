@@ -266,11 +266,11 @@ class VocabularyRepository(var context: Context) {
         if (subTitleChapters.isEmpty() || idManga == null)
             return
 
-        val list = subTitleChapters.toList()
         val manga = mBase.getMangaDao().get(idManga) ?: return
         if (!forced && manga.lastVocabImport != null && !Date(manga.file.lastModified()).after(manga.fileAlteration))
             return
 
+        val list = subTitleChapters.toList()
         val chaptersList = Collections.synchronizedCollection(list.parallelStream()
                 .filter(Objects::nonNull)
                 .filter { it.language == Languages.JAPANESE && it.vocabulary.isNotEmpty() }
@@ -345,7 +345,7 @@ class VocabularyRepository(var context: Context) {
         if (!isProcess || idBook == null)
             return
 
-        val book = mBase.getBookDao().get(idBook)
+        val book = mBase.getBookDao().get(idBook) ?: return
         if (book.language != Languages.JAPANESE || (book.lastVocabImport != null && !Date(book.file.lastModified()).after(book.fileAlteration)))
             return
 

@@ -40,13 +40,7 @@ class MangaReaderActivityTest {
         assertTrue("Comic file informed not found, please verify declared 'filePath' in " + MangaReaderActivityTest::class.java.name, manga.file.exists())
 
         val dataBase = DataBase.getDataBase(ApplicationProvider.getApplicationContext()).getMangaDao()
-
-        try {
-            for (obj in dataBase.list(manga.fkLibrary))
-                dataBase.delete(obj)
-        } catch (e: Exception) {
-        }
-
+        
         manga.bookMark = MangaTestUtil.mMangaPage
         manga.id = dataBase.save(manga)
 

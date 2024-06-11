@@ -118,6 +118,8 @@ class TextViewPager(
         post { setTextIsSelectable(true) }
     }
 
+    fun getHolder(position: Int): TextViewPagerHolder? = if (mHolders.containsKey(position)) mHolders[position] else null
+
     inner class TextViewPagerHolder(itemView: View) : RecyclerView.ViewHolder(itemView), ScrollChangeListener, SelectionChangeListener {
         val scrollView: NotifyingScrollView = itemView.findViewById(R.id.page_scroll_view)
         val textView: TextViewPage = itemView.findViewById(R.id.page_text_view)

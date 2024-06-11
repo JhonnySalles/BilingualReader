@@ -51,6 +51,7 @@ import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.view.components.DottedSeekBar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.google.android.material.tabs.TabLayout
@@ -71,7 +72,7 @@ class BookReaderActivity : AppCompatActivity() {
 
     private lateinit var mToolBarBottomProgressTitle: TextView
     private lateinit var mToolBarBottom: LinearLayout
-    private lateinit var mToolBarBottomProgress: Slider
+    private lateinit var mToolBarBottomProgress: DottedSeekBar
     private lateinit var mToolBarBottomAuthor: TextView
 
     private lateinit var mBackgroundContainer: LinearLayout
@@ -298,8 +299,11 @@ class BookReaderActivity : AppCompatActivity() {
         mToolBarTitle.text = book.name
         mToolBarBottomAuthor.text = book.author
 
+        setDots(mutableListOf(), mutableListOf())
         generateHistory(book)
     }
+
+    fun setDots(dots: MutableList<Int>, inverse: MutableList<Int>) = mToolBarBottomProgress.setDots(dots.toIntArray(), inverse.toIntArray())
 
     private fun dialogPageIndex() {
         val currentFragment = supportFragmentManager.findFragmentById(R.id.root_frame_book_reader) ?: return

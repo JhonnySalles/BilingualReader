@@ -41,15 +41,15 @@
             android:visibility="gone" />
 
         <include
-            android:id="@+id/reader_manga_last_page"
+            android:id="@+id/reader_last_page"
             layout="@layout/last_page_manga"
-            android:layout_width="@dimen/manga_last_page_card_layout_width"
-            android:layout_height="@dimen/manga_last_page_card_layout_height"
+            android:layout_width="@dimen/last_page_card_layout_width"
+            android:layout_height="@dimen/last_page_card_layout_height"
             android:layout_marginStart="10dp"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="140dp"
             android:layout_marginEnd="10dp"
-            android:layout_alignParentEnd="false"
+            android:layout_alignParentStart="true"
             android:visibility="gone"/>
 
         <com.google.android.material.appbar.AppBarLayout
@@ -120,7 +120,7 @@
                 android:paddingTop="5dp"
                 android:paddingBottom="10dp"
                 android:progressDrawable="@drawable/reader_nav_progress"
-                android:thumb="@drawable/reader_nav_thumb"
+                android:thumb="@drawable/reader_nav_thumb_small"
                 android:thumbOffset="6dp"
                 custom:dots_drawable="@drawable/ico_progress_dot"/>
         </LinearLayout>
