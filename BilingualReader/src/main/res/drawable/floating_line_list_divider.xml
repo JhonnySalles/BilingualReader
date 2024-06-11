@@ -4,4 +4,5 @@
     <stroke
         android:width="2px"
         android:color="@color/floating_list_divider" />
+    <size android:height="1dp" />
 </shape>

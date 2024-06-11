@@ -19,6 +19,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -32,6 +33,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.MsgUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.view.adapter.RecyclerViewItemDecoration
 import br.com.fenix.bilingualreader.view.adapter.configuration.LibrariesLineCardAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -59,8 +61,10 @@ class ConfigLibrariesFragment : Fragment() {
 
         mRecycleView = view.findViewById(R.id.rv_config_library_list)
         mRecycleView.adapter = LibrariesLineCardAdapter()
-        mRecycleView.layoutManager = GridLayoutManager(context, 1)
-        mRecycleView.layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_library_line)
+        val layout = GridLayoutManager(requireContext(), 1)
+        mRecycleView.layoutManager = layout
+        mRecycleView.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.layout_animation_library_line)
+        mRecycleView.addItemDecoration(RecyclerViewItemDecoration(requireContext(), R.drawable.config_library_list_divider))
 
         mToolbar = view.findViewById(R.id.toolbar_configuration_libraries)
         MenuUtil.tintColor(requireContext(), view.findViewById<TextView>(R.id.config_libraries_title))
@@ -115,11 +119,7 @@ class ConfigLibrariesFragment : Fragment() {
         mViewModel.loadLibrary(mType)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_config_libraries, container, false)
     }
 
@@ -134,10 +134,7 @@ class ConfigLibrariesFragment : Fragment() {
     }
 
     private var itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-        override fun onMove(
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder
-        ): Boolean {
+        override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
             return false
         }
 
@@ -182,11 +179,7 @@ class ConfigLibrariesFragment : Fragment() {
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == GeneralConsts.REQUEST.PERMISSION_FILES_ACCESS) {
             MsgUtil.validPermission(requireContext(), grantResults)
@@ -230,10 +223,7 @@ class ConfigLibrariesFragment : Fragment() {
     private var mLibraryTypeSelect: Libraries = Libraries.JAPANESE
     private lateinit var mMapLanguage: HashMap<String, Libraries>
 
-    private fun createLibraryPopup(
-        inflater: LayoutInflater,
-        library: Library?
-    ): View? {
+    private fun createLibraryPopup(inflater: LayoutInflater, library: Library?): View? {
         val root = inflater.inflate(R.layout.fragment_config_library, null, false)
 
         mLibraryTitle = root.findViewById(R.id.libraries_txt_library_title)

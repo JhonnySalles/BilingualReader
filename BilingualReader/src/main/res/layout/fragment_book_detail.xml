@@ -440,7 +440,7 @@
                         android:layout_height="120dp"
                         android:layout_margin="5dp"
                         android:nestedScrollingEnabled="true"
-                        android:divider="@drawable/book_detail_list_divider"
+                        android:divider="@drawable/line_list_divider"
                         android:dividerHeight="1dp"/>
 
                 </LinearLayout>
@@ -476,7 +476,7 @@
                         android:layout_height="200dp"
                         android:layout_margin="5dp"
                         android:nestedScrollingEnabled="true"
-                        android:divider="@drawable/book_detail_list_divider"
+                        android:divider="@drawable/line_list_divider"
                         android:dividerHeight="1dp"/>
 
                 </LinearLayout>
@@ -513,7 +513,7 @@
                         android:layout_height="200dp"
                         android:layout_margin="5dp"
                         android:nestedScrollingEnabled="true"
-                        android:divider="@drawable/book_detail_list_divider"
+                        android:divider="@drawable/line_list_divider"
                         android:dividerHeight="2dip"/>
 
                 </LinearLayout>

@@ -6,11 +6,14 @@ import android.graphics.BitmapFactory
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
+import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.MarkType
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
@@ -201,7 +204,7 @@ class MangaTestUtil {
 class BookTestUtil {
     companion object BookTestUtils {
         const val mBookPage = 24
-        const val mBookPath = "/storage/1F0A-291F/Livros/The Irregular at Magic High School - Volume 01 [Yen Press] [Darkmeep].epub"
+        const val mBookPath = "/storage/1CFF-100F/Livros/[Novel] Mahouka Koukou no Rettousei 01 入学編〈上〉 (電撃文庫.epub"
         private val BOOK_TEST_FILE_PATH = "storage/emulated/0/Book/Book of test.cbr"
         fun clearCache(context: Context) {
             val cache = File(
@@ -421,3 +424,38 @@ class BookTestUtil {
     }
 }
 
+class LibraryTestUtil {
+    companion object LibraryTestUtils {
+
+        val mLibraryType = Type.MANGA.toString()
+
+        private val LIBRARY_TEST_PATH = "storage/emulated/0/Book/Book of test.cbr"
+
+        fun getArrayLibraries(): ArrayList<Library> {
+            val array = arrayListOf<Library>()
+
+            for (i in 0 until 10)
+                array.add(
+                    Library(
+                        i.toLong(),
+                        "Library teste $i",
+                        LIBRARY_TEST_PATH,
+                        when((1..4).random()) {
+                            1 -> Libraries.DEFAULT
+                            2 -> Libraries.PORTUGUESE
+                            3 -> Libraries.ENGLISH
+                            else -> Libraries.JAPANESE
+                        },
+                        when((1..2).random()){
+                            1 -> Type.BOOK
+                            else -> Type.MANGA
+                        },
+                        (1..4).random() < 3,
+                        (1..4).random() > 3
+                    )
+                )
+
+            return array
+        }
+    }
+}

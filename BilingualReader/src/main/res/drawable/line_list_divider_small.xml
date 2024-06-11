@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:insetLeft="50dp" android:insetRight="50dp" >
+    android:insetLeft="25dp" android:insetRight="25dp" >
     <shape>
-        <solid android:color="@color/manga_detail_list_divider" />
+        <solid android:color="@color/default_list_divider" />
         <corners android:radius="2.0dip" />
+        <size android:height="1dp" />
     </shape>
 </inset>

@@ -43,8 +43,6 @@
     <color name="manga_detail_title_background_center">#DD000000</color>
     <color name="manga_detail_title_background_bottom">#00000000</color>
 
-    <color name="manga_detail_list_divider">#484848</color>
-
     <color name="manga_card_title_background_start">#05000000</color>
     <color name="manga_card_title_background_middle">#55000000</color>
     <color name="manga_card_title_background_end">#DD000000</color>
@@ -53,8 +51,6 @@
     <color name="book_detail_title_background_top">#000000</color>
     <color name="book_detail_title_background_center">#DD000000</color>
     <color name="book_detail_title_background_bottom">#00000000</color>
-
-    <color name="book_detail_list_divider">#484848</color>
 
     <color name="floating_background_semi_transparent">#BF000000</color>
     <color name="floating_button_color">#FFFFFF</color>
@@ -89,6 +85,9 @@
 
     <color name="manga_reader_splash_light_screen">#79f300</color>
     <color name="manga_reader_splash_night_screen">#59b300</color>
+
+
+    <color name="default_list_divider">#484848</color>
 
     <!--
         colorPrimary, colorOnPrimary = Text color white/green

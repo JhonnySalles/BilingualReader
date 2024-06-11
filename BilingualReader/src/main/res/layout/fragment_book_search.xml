@@ -74,7 +74,7 @@
                     android:layout_marginTop="10dp"
                     android:paddingBottom="@dimen/book_search_list_padding"
                     android:minHeight="@dimen/book_search_list_min_height"
-                    android:divider="@drawable/book_search_list_divider"
+                    android:divider="@drawable/line_list_divider_small"
                     android:dividerHeight="1dp"/>
             </LinearLayout>
         </LinearLayout>

@@ -453,7 +453,7 @@
                                 android:layout_height="200dp"
                                 android:layout_margin="5dp"
                                 android:nestedScrollingEnabled="true"
-                                android:divider="@drawable/manga_detail_list_divider"
+                                android:divider="@drawable/line_list_divider"
                                 android:dividerHeight="1dp"/>
                         </LinearLayout>
                     </LinearLayout>
@@ -490,7 +490,7 @@
                         android:layout_height="200dp"
                         android:layout_margin="5dp"
                         android:nestedScrollingEnabled="true"
-                        android:divider="@drawable/manga_detail_list_divider"
+                        android:divider="@drawable/line_list_divider"
                         android:dividerHeight="1dp"/>
 
                 </LinearLayout>
@@ -527,7 +527,7 @@
                         android:layout_height="200dp"
                         android:layout_margin="5dp"
                         android:nestedScrollingEnabled="true"
-                        android:divider="@drawable/manga_detail_list_divider"
+                        android:divider="@drawable/line_list_divider"
                         android:dividerHeight="1dip"/>
 
                 </LinearLayout>
@@ -573,7 +573,7 @@
                         android:layout_height="200dp"
                         android:layout_margin="5dp"
                         android:nestedScrollingEnabled="true"
-                        android:divider="@drawable/manga_detail_list_divider"
+                        android:divider="@drawable/line_list_divider"
                         android:dividerHeight="1dip"/>
 
                 </LinearLayout>
@@ -740,7 +740,7 @@
                         android:layout_marginStart="10dp"
                         android:layout_marginEnd="10dp"
                         android:nestedScrollingEnabled="true"
-                        android:divider="@drawable/manga_detail_list_divider"
+                        android:divider="@drawable/line_list_divider"
                         android:dividerHeight="1dip"/>
 
                     <TextView

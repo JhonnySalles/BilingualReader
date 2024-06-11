@@ -10,8 +10,10 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.BookAnnotationRepository
+import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.utils.BookTestUtil
+import br.com.fenix.bilingualreader.view.ui.menu.ConfigLibrariesFragment
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import junit.framework.TestCase
 import org.junit.AfterClass
@@ -53,14 +55,14 @@ class BookAnnotationFragmentTest {
         @JvmStatic
         @AfterClass
         fun clear(): Unit {
-            val repository = BookAnnotationRepository(ApplicationProvider.getApplicationContext())
+            val repository = DataBase.getDataBase(ApplicationProvider.getApplicationContext()).getBookAnnotation()
             for (annotation in annotations)
                 repository.delete(annotation)
         }
     }
 
     init {
-        val repository = BookAnnotationRepository(ApplicationProvider.getApplicationContext())
+        val repository = DataBase.getDataBase(ApplicationProvider.getApplicationContext()).getBookAnnotation()
         annotations.clear()
         annotations.addAll(BookTestUtil.getAnnotations(book))
         for (annotation in annotations) {
@@ -89,6 +91,13 @@ class BookAnnotationFragmentTest {
     @Test
     fun `1_test_book_annotation`() {
         val waiter = CountDownLatch(1)
+        val scenario = activityScenarioRule.scenario
+
+        scenario.onActivity {
+            val fragment = it.supportFragmentManager.findFragmentById(R.id.frame_book_annotation)
+            TestCase.assertTrue(fragment is BookAnnotationFragment)
+        }
+
         waiter.await(10, TimeUnit.MINUTES)
     }
 

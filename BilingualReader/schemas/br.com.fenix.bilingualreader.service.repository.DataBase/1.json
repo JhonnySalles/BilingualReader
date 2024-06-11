@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "18cc14c9e2491fcdad914d55e455f199",
+    "identityHash": "2e61c19ffc78837076ea9413eed0a74e",
     "entities": [
       {
         "tableName": "Manga",
@@ -1488,7 +1488,7 @@
       },
       {
         "tableName": "History",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_library` INTEGER NOT NULL, `id_reference` INTEGER NOT NULL, `type` TEXT NOT NULL, `page_start` INTEGER NOT NULL, `page_end` INTEGER NOT NULL, `pages` INTEGER NOT NULL, `volume` INTEGER NOT NULL, `chapters_READ` INTEGER NOT NULL, `date_time_start` TEXT NOT NULL, `date_time_end` TEXT NOT NULL, `use_tts` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_library` INTEGER NOT NULL, `id_reference` INTEGER NOT NULL, `type` TEXT NOT NULL, `page_start` INTEGER NOT NULL, `page_end` INTEGER NOT NULL, `pages` INTEGER NOT NULL, `volume` INTEGER NOT NULL, `chapters_READ` INTEGER NOT NULL, `date_time_start` TEXT NOT NULL, `date_time_end` TEXT NOT NULL, `use_tts` INTEGER NOT NULL, `notified` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -1561,6 +1561,12 @@
             "columnName": "use_tts",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "isNotify",
+            "columnName": "notified",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -1587,7 +1593,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '18cc14c9e2491fcdad914d55e455f199')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2e61c19ffc78837076ea9413eed0a74e')"
     ]
   }
 }
