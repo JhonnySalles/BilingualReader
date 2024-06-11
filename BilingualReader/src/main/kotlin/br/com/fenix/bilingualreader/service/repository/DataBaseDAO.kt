@@ -665,6 +665,15 @@ abstract class TagsDAO : BaseDAO<Tags, Long>(DataBaseConsts.TAGS.TABLE_NAME, Dat
 @Dao
 abstract class HistoryDAO :  BaseDAO<History, Long>(DataBaseConsts.HISTORY.TABLE_NAME, DataBaseConsts.HISTORY.COLUMNS.ID) {
 
+    @Query("SELECT * FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " WHERE " + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = :type AND " + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + " = :idLibrary AND " + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + " = :idReference ORDER BY " + DataBaseConsts.HISTORY.COLUMNS.ID + " DESC LIMIT 1")
+    abstract fun last(type: Type, idLibrary: Long, idReference: Long): History?
+
+    @Query("UPDATE " + DataBaseConsts.HISTORY.TABLE_NAME + " SET " + DataBaseConsts.HISTORY.COLUMNS.NOTIFIED + " = 1 WHERE " + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = :type AND " + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + " = :idLibrary AND " + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + " = :idReference")
+    abstract fun notify(type: Type, idLibrary: Long, idReference: Long)
+
+    @Query("UPDATE " + DataBaseConsts.HISTORY.TABLE_NAME + " SET " + DataBaseConsts.HISTORY.COLUMNS.NOTIFIED + " = 1 WHERE " + DataBaseConsts.HISTORY.COLUMNS.ID + " = :id")
+    abstract fun notify(id: Long)
+
 }
 
 

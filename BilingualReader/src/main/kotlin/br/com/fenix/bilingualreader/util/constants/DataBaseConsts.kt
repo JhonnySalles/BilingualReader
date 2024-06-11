@@ -316,6 +316,7 @@ class DataBaseConsts private constructor() {
             const val DATE_TIME_START = "date_time_start"
             const val DATE_TIME_END = "date_time_end"
             const val USE_TTS = "use_tts"
+            const val NOTIFIED = "notified"
         }
     }
 

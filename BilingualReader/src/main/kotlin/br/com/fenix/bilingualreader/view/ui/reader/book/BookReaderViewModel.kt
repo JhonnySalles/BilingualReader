@@ -594,7 +594,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         }
         click = PopupAnnotations.generateClick(context, annotation, app.getColor(annotation.color.getColor()), delete) { alter ->
             if (alter)
-                listener?.textSelectRemoveMark(annotation)
+                listener?.textSelectChangeMark(annotation)
         }
 
         val spannable = span.getSpans(annotation.range[0], annotation.range[1], ClickableSpan::class.java)
@@ -616,7 +616,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
     fun save(annotation: BookAnnotation) {
         if (annotation.id == null)
-            mAnnotationRepository.save(annotation)
+            annotation.id = mAnnotationRepository.save(annotation)
         else
             mAnnotationRepository.update(annotation)
 
@@ -627,6 +627,9 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     fun delete(annotation: BookAnnotation) {
         if (annotation.id != null)
             mAnnotationRepository.delete(annotation)
+
+        if (mAnnotation.contains(annotation))
+            mAnnotation.remove(annotation)
     }
 
     fun refreshAnnotations(book: Book?) {

@@ -50,14 +50,15 @@ data class History(
     var end: LocalDateTime,
 
     @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.USE_TTS)
-    var useTTS: Boolean
+    var useTTS: Boolean,
+
+    @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.NOTIFIED)
+    var isNotify: Boolean
 ) {
 
     @Ignore
-    constructor(fkLibrary: Long, fkReference: Long, type: Type, pageStart: Int, pages: Int, volume: Int, useTTS: Boolean = false) : this(
-        null, fkLibrary, fkReference, type, pageStart, 0, pages, volume, 0, LocalDateTime.now(), LocalDateTime.now(), useTTS
+    constructor(fkLibrary: Long, fkReference: Long, type: Type, pageStart: Int, pages: Int, volume: Int, useTTS: Boolean = false, isNotify: Boolean = false) : this(
+        null, fkLibrary, fkReference, type, pageStart, 0, pages, volume, 0, LocalDateTime.now(), LocalDateTime.now(), useTTS, isNotify
     ) { }
-
-
 
 }

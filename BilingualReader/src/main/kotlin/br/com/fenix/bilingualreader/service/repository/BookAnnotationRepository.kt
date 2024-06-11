@@ -14,9 +14,9 @@ class BookAnnotationRepository(context: Context) {
 
     fun find(id: Long): BookAnnotation? = mDataBase.find(id)
 
-    fun save(obj: BookAnnotation) {
+    fun save(obj: BookAnnotation): Long {
         obj.alteration = LocalDateTime.now()
-        mDataBase.save(obj)
+        return mDataBase.save(obj)
     }
 
     fun update(obj: BookAnnotation) {
