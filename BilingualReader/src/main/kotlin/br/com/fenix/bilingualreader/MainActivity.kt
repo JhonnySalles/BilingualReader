@@ -77,6 +77,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mDefaultUncaughtHandler?.uncaughtException(t, e)
         }
 
+        mMangaLibraryModel = ViewModelProvider(this)[MangaLibraryViewModel::class.java]
+        mBookLibraryModel = ViewModelProvider(this)[BookLibraryViewModel::class.java]
+
+        installSplashScreen().setKeepOnScreenCondition {
+            mMangaLibraryModel.isLaunch && mBookLibraryModel.isLaunch
+        }
+
         val isDark : Boolean = when (ThemeMode.valueOf(
             GeneralConsts.getSharedPreferences(this)
                 .getString(GeneralConsts.KEYS.THEME.THEME_MODE, ThemeMode.SYSTEM.toString())!!
@@ -127,13 +134,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // nav_view have a menu layout
         mNavigationView = binding.navView
         mNavigationView.setNavigationItemSelectedListener(this)
-
-        mMangaLibraryModel = ViewModelProvider(this)[MangaLibraryViewModel::class.java]
-        mBookLibraryModel = ViewModelProvider(this)[BookLibraryViewModel::class.java]
-
-        installSplashScreen().setKeepOnScreenCondition {
-            mMangaLibraryModel.isLaunch && mBookLibraryModel.isLaunch
-        }
 
         mMangaLibraryModel.setDefaultLibrary(LibraryUtil.getDefault(this, Type.MANGA))
         mBookLibraryModel.setDefaultLibrary(LibraryUtil.getDefault(this, Type.BOOK))
@@ -271,11 +271,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == GeneralConsts.REQUEST.PERMISSION_FILES_ACCESS) {
             MsgUtil.validPermission(this, grantResults)

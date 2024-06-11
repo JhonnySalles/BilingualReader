@@ -311,6 +311,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     override fun onDestroy() {
+        mTextToSpeech?.stop()
         SharedData.setDocumentParse(null)
         removeRefreshSizeDelay()
         super.onDestroy()

@@ -207,10 +207,8 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
     private val mNotifyId = Notifications.getID()
 
     private fun createNotification() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            mNotificationManager = NotificationManagerCompat.from(context)
-            changeNotification()
-        }
+        mNotificationManager = NotificationManagerCompat.from(context)
+        changeNotification()
     }
 
     private fun changeNotification() {
@@ -374,6 +372,18 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                             continue
                         }
 
+                        mReading = mLines[mLine]
+                        mLOGGER.error("Page $mPage - Line $mLine - size ${mLines.size}:: " + mReading.text)
+
+                        mMainHandler.post {
+                            processNotification(false)
+                            mListener.forEach { it.readingLine(mReading) }
+                        }
+
+                        Thread.sleep(2000)
+                        if (true)
+                            continue
+
                         if (mReading.audio != null)
                             play(mReading, isPageChange)
                         else {
@@ -395,6 +405,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
             } catch (e: Exception) {
                 mLOGGER.error("Error to reading page on tts.", e)
             } finally {
+                onDestroy()
                 setStatus(AudioStatus.ENDING)
                 mMainHandler.post {
                     mListener.forEach { it.stopTTS() }
@@ -419,9 +430,13 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
 
     fun onDestroy() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && ::mNotificationManager.isInitialized) {
-            mNotificationManager.cancelAll()
-            context.unregisterReceiver(broadcastReceiver)
+        if (::mNotificationManager.isInitialized) {
+            try {
+                context.unregisterReceiver(broadcastReceiver)
+                mNotificationManager.cancel(mNotifyId)
+            } catch (e: Exception) {
+                mLOGGER.error("Error to cancel tts notification.", e)
+            }
         }
 
         mStop = true
