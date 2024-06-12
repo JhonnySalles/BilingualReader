@@ -1126,30 +1126,30 @@ class TextUtil {
             return html.replace("<p>", "").replace("</p>", "").replace("<end-line>", endLine)
         }
 
-        fun replaceEndLine(pageHTML: String, character: String = ""): String {
-            var pageHTML = pageHTML
-            pageHTML = pageHTML.replace("-<end-line>", character)
-            pageHTML = pageHTML.replace("- <end-line>", character)
-            pageHTML = pageHTML.replace("<end-line>", " $character")
-            return pageHTML
+        fun replaceEndLine(html: String, character: String = ""): String {
+            var page = html
+            page = page.replace("-<end-line>", character)
+            page = page.replace("- <end-line>", character)
+            page = page.replace("<end-line>", " $character")
+            return page
         }
 
-        fun replaceHTMLforTTS(pageHTML: String?): String {
-            var pageHTML = pageHTML ?: return ""
-            pageHTML = pageHTML.replace("<b>", "").replace("</b>", "").replace("<i>", "")
-                .replace("</i>", "").replace("<tt>", "").replace("</tt>", "")
-            pageHTML = pageHTML.replace("<br/>", " ")
-            pageHTML = replaceEndLine(pageHTML, "")
-            pageHTML = pageHTML.replace("<p>", "").replace("</p>", " ")
-            pageHTML = pageHTML.replace("&nbsp;", " ").replace("&lt;", " ").replace("&gt;", "")
+        fun replaceHtmlTTS(html: String?, endLineSeparator: String = " "): String {
+            var page = html ?: return ""
+            page = page.replace("<image-begin>\\w*<image-end>".toRegex(), "")
+            page = page.replace("</?[b|i]>|</?tt>|<p>".toRegex(), "")
+            page = page.replace("</p>", " ")
+            page = page.replace("<br/>".toRegex(), endLineSeparator)
+            page = page.replace("&nbsp;", " ").replace("&lt;", " ").replace("&gt;", "")
                 .replace("&amp;", " ").replace("&quot;", " ")
-            pageHTML = pageHTML.replace("'", "")
-            pageHTML = pageHTML.replace("*", "")
-            pageHTML = pageHTML.replace("  ", " ").replace("  ", " ")
-            pageHTML = pageHTML.replace(".", ". ").replace(" .", ".").replace(" .", ".")
-            pageHTML = pageHTML.replace("(?u)(\\w+)(-\\s)".toRegex(), "$1")
-            return pageHTML
+            page = page.replace("['|*]".toRegex(), "")
+            page = page.replace("  ", " ").replace("  ", " ")
+            page = page.replace(".", ". ").replace(" .", ".")
+            page = page.replace("(?u)(\\w+)(-\\s)".toRegex(), "$1")
+            return replaceHtmlTags(page)
         }
+
+        fun replaceHtmlTags(html: String): String = html.replace("<[^>]*>".toRegex(), "")
     }
 }
 

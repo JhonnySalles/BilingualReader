@@ -206,7 +206,7 @@ class MangaTestUtil {
 class BookTestUtil {
     companion object BookTestUtils {
         const val BOOK_PAGE = 24
-        const val BOOK_PATH = "/storage/1F0A-291F/Livros/[Novel] Mahouka Koukou no Rettousei 01 入学編〈上〉 (電撃文庫.epub"
+        const val BOOK_PATH = "/storage/1CFF-100F/Livros/The Irregular at Magic High School - Volume 01 [Yen Press] [Darkmeep].epub"
         private const val BOOK_TEST_FILE_PATH = "storage/emulated/0/Book/Book of test.cbr"
         fun clearCache(context: Context) {
             val cache = File(
