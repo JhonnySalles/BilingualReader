@@ -6,9 +6,12 @@ import android.widget.Filterable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.model.interfaces.History
+import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -17,158 +20,198 @@ import java.util.Locale
 
 class HistoryViewModel(application: Application) : AndroidViewModel(application), Filterable {
 
-    private val mMangaRepository: MangaRepository = MangaRepository(application.applicationContext)
     private val mLibraryRepository: LibraryRepository = LibraryRepository(application.applicationContext)
-    private val mDefaultLibrary = LibraryUtil.getDefault(application.applicationContext, Type.MANGA)
+
+    private val mMangaRepository: MangaRepository = MangaRepository(application.applicationContext)
+    private val mBookRepository: BookRepository = BookRepository(application.applicationContext)
+
+    private val mDefaultMangaLibrary = LibraryUtil.getDefault(application.applicationContext, Type.MANGA)
+    private val mDefaultBookLibrary = LibraryUtil.getDefault(application.applicationContext, Type.BOOK)
 
     private var mLibrary: Library? = null
     private var mFilter: String = ""
 
-    private var mListMangasFull = MutableLiveData<ArrayList<Manga>>(arrayListOf())
-    private var mListMangas = MutableLiveData<ArrayList<Manga>>(arrayListOf())
-    val listMangas: LiveData<ArrayList<Manga>> = mListMangas
+    private var mListFull = MutableLiveData<ArrayList<History>>(arrayListOf())
+    private var mList = MutableLiveData<ArrayList<History>>(arrayListOf())
+    val history: LiveData<ArrayList<History>> = mList
 
     fun list() {
-        val list = mMangaRepository.listHistory()
-        if (list != null) {
-            getLibraries(list)
-            mListMangasFull.value = ArrayList(list)
-            mListMangas.value = ArrayList(list)
-        } else {
-            mListMangasFull.value = ArrayList(list)
-            mListMangas.value = ArrayList()
-        }
+        val list = ArrayList<History>()
+        getLibraries(list)
+
+        val mangas = mMangaRepository.listHistory()
+        if (mangas != null)
+            list.addAll(mangas)
+
+        val books = mMangaRepository.listHistory()
+        if (books != null)
+            list.addAll(books)
+
+        mListFull.value = ArrayList(list)
+        mList.value = ArrayList(list)
     }
 
     fun list(refreshComplete: (Int) -> (Unit)) {
-        val list = mMangaRepository.listHistory()
-        if (list != null) {
-            getLibraries(list)
-            if (mListMangas.value == null || mListMangas.value!!.isEmpty()) {
-                mListMangas.value = ArrayList(list)
-                mListMangasFull.value = ArrayList(list)
-            } else
-                update(list)
-        } else {
-            mListMangas.value = ArrayList()
-            mListMangasFull.value = ArrayList()
-        }
+        val list = ArrayList<History>()
+        getLibraries(list)
 
-        refreshComplete(mListMangas.value!!.size - 1)
+        val mangas = mMangaRepository.listHistory()
+        if (mangas != null)
+            list.addAll(mangas)
+
+        val books = mMangaRepository.listHistory()
+        if (books != null)
+            list.addAll(books)
+
+
+        if (mList.value == null || mList.value!!.isEmpty()) {
+            mList.value = ArrayList(list)
+            mListFull.value = ArrayList(list)
+        } else
+            update(list)
+
+        refreshComplete(mList.value!!.size - 1)
     }
 
-    private fun getLibraries(list: List<Manga>) {
-        val libraries = mLibraryRepository.list(Type.MANGA)
+    private fun getLibraries(list: List<History>) {
+        val mangasLib = mLibraryRepository.list(Type.MANGA)
         list.forEach {
             if (it.fkLibrary != GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
-                it.library = libraries.find { lb -> lb.id == it.fkLibrary } ?: it.library
+                it.library = mangasLib.find { lb -> lb.id == it.fkLibrary } ?: it.library
+        }
+
+        val bookLib = mLibraryRepository.list(Type.BOOK)
+        list.forEach {
+            if (it.fkLibrary != GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK)
+                it.library = bookLib.find { lb -> lb.id == it.fkLibrary } ?: it.library
         }
     }
 
-    fun update(list: List<Manga>) {
+    fun update(list: List<History>) {
         if (list.isNotEmpty()) {
-            for (manga in list) {
-                if (!mListMangas.value!!.contains(manga))
-                    mListMangas.value!!.add(manga)
+            for (history in list) {
+                if (!mList.value!!.contains(history))
+                    mList.value!!.add(history)
 
-                if (!mListMangasFull.value!!.contains(manga))
-                    mListMangasFull.value!!.add(manga)
+                if (!mListFull.value!!.contains(history))
+                    mListFull.value!!.add(history)
             }
         }
     }
 
-    fun updateDelete(manga: Manga) {
-        mMangaRepository.delete(manga)
-    }
-
-    fun updateLastAccess(manga: Manga) {
-        mMangaRepository.update(manga)
-    }
-
-    fun clear(manga: Manga?) {
-        if (manga != null) {
-            save(manga)
-            if (mListMangas.value!!.contains(manga))
-                mListMangas.value!!.remove(manga)
-
-            if (mListMangasFull.value!!.contains(manga))
-                mListMangasFull.value!!.remove(manga)
+    fun updateDelete(history: History) {
+        when (history) {
+            is Manga ->  mMangaRepository.delete(history)
+            is Book ->  mBookRepository.delete(history)
         }
     }
 
-    fun deletePermanent(manga: Manga?) {
-        if (manga != null)
-            mMangaRepository.deletePermanent(manga)
+    fun updateLastAccess(history: History) {
+        when (history) {
+            is Manga ->  mMangaRepository.update(history)
+            is Book ->  mBookRepository.update(history)
+        }
     }
 
-    fun save(manga: Manga?) {
-        manga ?: return
+    fun clear(history: History?) {
+        if (history != null) {
+            save(history)
+            if (mList.value!!.contains(history))
+                mList.value!!.remove(history)
 
-        if (manga.id == 0L)
-            manga.id = mMangaRepository.save(manga)
-        else
-            mMangaRepository.update(manga)
+            if (mListFull.value!!.contains(history))
+                mListFull.value!!.remove(history)
+        }
     }
 
-    fun remove(manga: Manga) {
-        if (mListMangas.value != null && mListMangas.value!!.contains(manga))
-            mListMangas.value!!.remove(manga)
+    fun deletePermanent(history: History?) {
+        history ?: return
 
-        if (mListMangasFull.value != null && mListMangasFull.value!!.contains(manga))
-            mListMangasFull.value!!.remove(manga)
+        when (history) {
+            is Manga -> mMangaRepository.deletePermanent(history)
+            is Book -> mBookRepository.deletePermanent(history)
+        }
     }
 
-    fun add(manga: Manga, index: Int) {
-        if (mListMangas.value != null)
-            mListMangas.value!!.add(index, manga)
+    fun save(history: History?) {
+        history ?: return
 
-        if (mListMangasFull.value != null)
-            mListMangasFull.value!!.add(index, manga)
+        when (history) {
+            is Manga -> {
+                if (history.id == 0L)
+                    history.id = mMangaRepository.save(history)
+                else
+                    mMangaRepository.update(history)
+            }
+            is Book -> {
+                if (history.id == 0L)
+                    history.id = mBookRepository.save(history)
+                else
+                    mBookRepository.update(history)
+            }
+        }
+
     }
 
-    fun getAndRemove(position: Int): Manga? {
-        val manga = if (mListMangas.value != null) mListMangas.value!!.removeAt(position) else null
+    fun remove(history: History) {
+        if (mList.value != null && mList.value!!.contains(history))
+            mList.value!!.remove(history)
 
-        if (mListMangas.value != null && mListMangas.value!!.contains(manga))
-            mListMangas.value!!.remove(manga)
+        if (mListFull.value != null && mListFull.value!!.contains(history))
+            mListFull.value!!.remove(history)
+    }
+
+    fun add(history: History, index: Int) {
+        if (mList.value != null)
+            mList.value!!.add(index, history)
+
+        if (mListFull.value != null)
+            mListFull.value!!.add(index, history)
+    }
+
+    fun getAndRemove(position: Int): History? {
+        val manga = if (mList.value != null) mList.value!!.removeAt(position) else null
+
+        if (mList.value != null && mList.value!!.contains(manga))
+            mList.value!!.remove(manga)
 
         return manga
     }
 
-    private fun filterList(): ArrayList<Manga> {
-        val list = arrayListOf<Manga>()
+    private fun filterList(): ArrayList<History> {
+        val list = arrayListOf<History>()
 
         val isTitleId = null
-        var title: Manga? = null
-        if (mListMangasFull.value != null && mListMangasFull.value!!.isNotEmpty())
-            for (manga in mListMangasFull.value!!) {
-                if (manga == null)
+        var title: History? = null
+        if (mListFull.value != null && mListFull.value!!.isNotEmpty())
+            for (history in mListFull.value!!) {
+                if (history == null)
                     continue
 
-                if (manga.id == isTitleId) {
-                    title = manga
+                if (history.id == isTitleId) {
+                    title = history
                     continue
                 }
 
-                if (mLibrary != null && manga.fkLibrary != mLibrary!!.id)
+                if (mLibrary != null && history.fkLibrary != mLibrary!!.id)
                     continue
 
                 if (mFilter.isNotEmpty()) {
-                    if (manga.name.lowercase(Locale.getDefault()).contains(mFilter) ||
-                        manga.type.compareExtension(mFilter)
+                    if (history.name.lowercase(Locale.getDefault()).contains(mFilter) ||
+                        history.fileType.compareExtension(mFilter)
                     ) {
                         if (title != null) {
                             list.add(title)
                             title = null
                         }
-                        list.add(manga)
+                        list.add(history)
                     }
                 } else {
                     if (title != null) {
                         list.add(title)
                         title = null
                     }
-                    list.add(manga)
+                    list.add(history)
                 }
             }
 
@@ -180,14 +223,14 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
             return
 
         mLibrary = library
-        mListMangas.value = filterList()
+        mList.value = filterList()
     }
 
     override fun getFilter(): Filter {
-        return mMangaFilter
+        return mHistoryFilter
     }
 
-    private val mMangaFilter = object : Filter() {
+    private val mHistoryFilter = object : Filter() {
         override fun performFiltering(constraint: CharSequence?): FilterResults {
             mFilter = constraint.toString().lowercase(Locale.getDefault()).trim()
             val results = FilterResults()
@@ -196,18 +239,20 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
         }
 
         override fun publishResults(constraint: CharSequence?, filterResults: FilterResults?) {
-            val list = arrayListOf<Manga>()
+            val list = arrayListOf<History>()
             filterResults?.let {
-                list.addAll(it.values as Collection<Manga>)
+                list.addAll(it.values as Collection<History>)
             }
-            mListMangas.value = list
+            mList.value = list
         }
     }
 
     fun getLibraryList(): List<Library> {
         val list = mutableListOf<Library>()
-        list.add(mDefaultLibrary)
+        list.add(mDefaultMangaLibrary)
+        list.add(mDefaultBookLibrary)
         list.addAll(mLibraryRepository.list(Type.MANGA))
+        list.addAll(mLibraryRepository.list(Type.BOOK))
         return list
     }
 

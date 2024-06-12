@@ -9,6 +9,8 @@ import br.com.ebook.foobnix.ext.EbookMeta
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Libraries
+import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
@@ -41,7 +43,7 @@ class Book(
     path: String,
     folder: String,
     name: String,
-    type: FileType,
+    fileType: FileType,
     fileSize: Long,
     favorite: Boolean,
     fkLibrary: Long?,
@@ -53,7 +55,7 @@ class Book(
     fileAlteration: Date,
     lastVocabImport: LocalDateTime?,
     lastVerify: LocalDate?
-) : Serializable {
+) : Serializable, History {
 
     @Ignore
     constructor(
@@ -66,7 +68,7 @@ class Book(
         Languages.ENGLISH, path, folder, name, FileType.UNKNOWN, fileSize, false, fkLibrary, mutableListOf(), false,
         LocalDateTime.now(), null, LocalDateTime.now(), Date(), null, null
     ) {
-        this.type = FileUtil.getFileType(this.fileName)
+        this.fileType = FileUtil.getFileType(this.fileName)
         this.fileAlteration = Date(this.file.lastModified())
     }
 
@@ -76,16 +78,16 @@ class Book(
         "", 0, Languages.ENGLISH, file.path, file.parent, file.name, FileType.UNKNOWN, file.length(), false,
         fkLibrary, mutableListOf(), false, LocalDateTime.now(), null, LocalDateTime.now(), Date(), null, null
     ) {
-        this.type = FileUtil.getFileType(file.name)
+        this.fileType = FileUtil.getFileType(file.name)
         this.fileAlteration = Date(this.file.lastModified())
     }
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.ID)
-    var id: Long? = id
+    override var id: Long? = id
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.TITLE)
-    var title: String = title
+    override var title: String = title
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.AUTHOR)
     var author: String = author
@@ -109,7 +111,7 @@ class Book(
     var isbn: String = isbn
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.PAGES)
-    var pages: Int = pages
+    override var pages: Int = pages
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.CHAPTER)
     var chapter: Int = chapter
@@ -118,10 +120,16 @@ class Book(
     var chapterDescription: String = chapterDescription
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.BOOK_MARK)
-    var bookMark: Int = bookMark
+    override var bookMark: Int = bookMark
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.LANGUAGE)
     var language: Languages = language
+
+    @Ignore
+    override var library: Library = Library(null)
+
+    @Ignore
+    override val type: Type = Type.BOOK
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FILE_PATH)
     var path: String = path
@@ -143,25 +151,25 @@ class Book(
     var extension: String = Util.getExtensionFromPath(path)
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FILE_SIZE)
-    var fileSize: Long = fileSize
+    override var fileSize: Long = fileSize
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FILE_NAME)
-    var name: String = name
+    override var name: String = name
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FILE_TYPE)
-    var type: FileType = type
+    override var fileType: FileType = fileType
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FILE_FOLDER)
     var folder: String = folder
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FAVORITE)
-    var favorite: Boolean = favorite
+    override var favorite: Boolean = favorite
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.EXCLUDED)
-    var excluded: Boolean = excluded
+    override var excluded: Boolean = excluded
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY)
-    var fkLibrary: Long? = fkLibrary
+    override var fkLibrary: Long? = fkLibrary
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.TAGS)
     var tags: MutableList<Long> = tags
@@ -170,7 +178,7 @@ class Book(
     var dateCreate: LocalDateTime? = dateCreate
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS)
-    var lastAccess: LocalDateTime? = lastAccess
+    override var lastAccess: LocalDateTime? = lastAccess
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION)
     var lastAlteration: LocalDateTime? = lastAlteration
@@ -199,7 +207,7 @@ class Book(
         if (author != other.author) return false
         if (path != other.path) return false
         if (name != other.name) return false
-        if (type != other.type) return false
+        if (fileType != other.fileType) return false
 
         return true
     }
@@ -210,7 +218,7 @@ class Book(
         result = 31 * result + author.hashCode()
         result = 31 * result + path.hashCode()
         result = 31 * result + name.hashCode()
-        result = 31 * result + type.hashCode()
+        result = 31 * result + fileType.hashCode()
         return result
     }
 
@@ -249,7 +257,7 @@ class Book(
                 else -> this.language
             }
         }
-        this.type = FileUtil.getFileType(file.name)
+        this.fileType = FileUtil.getFileType(file.name)
         this.fileAlteration = Date(this.file.lastModified())
         this.lastVocabImport = null
     }

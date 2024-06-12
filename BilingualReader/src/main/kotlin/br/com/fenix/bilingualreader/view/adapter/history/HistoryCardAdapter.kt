@@ -5,13 +5,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.service.listener.MangaCardListener
+import br.com.fenix.bilingualreader.model.interfaces.History
+import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
 
 
 class HistoryCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private lateinit var mListener: MangaCardListener
-    private var mHistoryList: ArrayList<Manga> = arrayListOf()
+    private lateinit var mListener: HistoryCardListener
+    private var mHistoryList: ArrayList<History> = arrayListOf()
 
     companion object {
         private const val HEADER = 1
@@ -42,18 +43,18 @@ class HistoryCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return mHistoryList.size
     }
 
-    fun updateList(list: ArrayList<Manga>) {
+    fun updateList(list: ArrayList<History>) {
         mHistoryList = list
         notifyDataSetChanged()
     }
 
-    fun attachListener(listener: MangaCardListener) {
+    fun attachListener(listener: HistoryCardListener) {
         mListener = listener
     }
 
-    fun notifyItemChanged(manga: Manga) {
-        if (mHistoryList.contains(manga))
-            notifyItemChanged(mHistoryList.indexOf(manga))
+    fun notifyItemChanged(history: History) {
+        if (mHistoryList.contains(history))
+            notifyItemChanged(mHistoryList.indexOf(history))
     }
 
 }

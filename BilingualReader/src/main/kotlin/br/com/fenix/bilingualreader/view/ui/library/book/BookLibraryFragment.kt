@@ -1088,7 +1088,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             val shareIntent = Intent()
             shareIntent.action = Intent.ACTION_SEND
             shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            shareIntent.type = book.type.getMimeType()
+            shareIntent.type = book.fileType.getMimeType()
             shareIntent.putExtra(Intent.EXTRA_TEXT, book.fileName)
             shareIntent.putExtra(Intent.EXTRA_STREAM, book.file.toURI())
             startActivity(

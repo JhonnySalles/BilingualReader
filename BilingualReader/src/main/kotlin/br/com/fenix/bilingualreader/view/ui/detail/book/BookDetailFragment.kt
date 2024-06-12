@@ -247,7 +247,7 @@ class BookDetailFragment : Fragment() {
 
                 mTitle.text = it.title
                 mFolder.text = it.path
-                mFileType.text = it.type.toString()
+                mFileType.text = it.fileType.toString()
                 mAuthor.text = it.author
                 mChapter.text = ""
 

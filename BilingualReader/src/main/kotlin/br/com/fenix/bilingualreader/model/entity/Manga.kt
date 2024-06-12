@@ -6,10 +6,12 @@ import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.model.enums.FileType
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.model.interfaces.History
 import java.io.File
 import java.io.Serializable
 import java.time.LocalDate
@@ -28,7 +30,7 @@ class Manga(
     folder: String,
     name: String,
     fileSize: Long,
-    type: FileType,
+    fileType: FileType,
     pages: Int,
     chapters: IntArray,
     bookMark: Int,
@@ -47,16 +49,16 @@ class Manga(
     fileAlteration: Date,
     lastVocabImport: LocalDateTime?,
     lastVerify: LocalDate?
-) : Serializable {
+) : Serializable, History {
 
     constructor( id: Long?, title: String,
-        path: String, folder: String, name: String, size: Long, type: FileType,
+        path: String, folder: String, name: String, size: Long, fileType: FileType,
         pages: Int, chapters: IntArray, bookMark: Int, favorite: Boolean, hasSubtitle: Boolean,
         author: String , series: String, publisher: String, volume: String, idLibrary: Long?,
         excluded: Boolean, dateCreate: LocalDateTime?, fileAlteration: Date, lastVocabularyImport: LocalDateTime?,
         lastVerify: LocalDate?, release: LocalDate?, lastAlteration: LocalDateTime?,
         lastAccess: LocalDateTime?, sort: LocalDateTime? = null
-    ) : this( id, title, path, folder, name, size, type, pages, chapters, bookMark, favorite,
+    ) : this( id, title, path, folder, name, size, fileType, pages, chapters, bookMark, favorite,
         hasSubtitle, author, series, publisher, volume, release, idLibrary, excluded,
         dateCreate, lastAccess, lastAlteration, fileAlteration, lastVocabularyImport, lastVerify
     ) {
@@ -70,25 +72,25 @@ class Manga(
         "", null, fkLibrary, false, LocalDateTime.now(), null, null, Date(file.lastModified()),
         null, null
     ) {
-        this.type = FileUtil.getFileType(file.name)
+        this.fileType = FileUtil.getFileType(file.name)
         this.volume = title.substringAfterLast("Volume", "").trim().replace(Regex("[^\\d.][\\s\\S]+"), "")
     }
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.ID)
-    var id: Long? = id
+    override var id: Long? = id
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.TITLE)
-    var title: String = title
+    override var title: String = title
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.PAGES)
-    var pages: Int = pages
+    override var pages: Int = pages
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.CHAPTERS)
     var chapters: IntArray = chapters
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.BOOK_MARK)
-    var bookMark: Int = bookMark
+    override var bookMark: Int = bookMark
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FILE_PATH)
     var path: String = path
@@ -110,19 +112,19 @@ class Manga(
     var extension: String = Util.getExtensionFromPath(path)
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FILE_SIZE)
-    var fileSize: Long = fileSize
+    override var fileSize: Long = fileSize
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FILE_NAME)
-    var name: String = name
+    override var name: String = name
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FILE_TYPE)
-    var type: FileType = type
+    override var fileType: FileType = fileType
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FILE_FOLDER)
     var folder: String = folder
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FAVORITE)
-    var favorite: Boolean = favorite
+    override var favorite: Boolean = favorite
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.HAS_SUBTITLE)
     var hasSubtitle: Boolean = hasSubtitle
@@ -143,16 +145,16 @@ class Manga(
     var release: LocalDate? = release
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.EXCLUDED)
-    var excluded: Boolean = excluded
+    override var excluded: Boolean = excluded
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY)
-    var fkLibrary: Long? = fkLibrary
+    override var fkLibrary: Long? = fkLibrary
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.DATE_CREATE)
     var dateCreate: LocalDateTime? = dateCreate
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS)
-    var lastAccess: LocalDateTime? = lastAccess
+    override var lastAccess: LocalDateTime? = lastAccess
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION)
     var lastAlteration: LocalDateTime? = lastAlteration
@@ -167,7 +169,7 @@ class Manga(
     var lastVerify: LocalDate? = lastVerify
 
     @Ignore
-    var library: Library = Library(null)
+    override var library: Library = Library(null)
 
     @Ignore
     var update: Boolean = false
@@ -179,8 +181,11 @@ class Manga(
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.SORT)
     var sort: LocalDateTime? = null
 
+    @Ignore
+    override val type: Type = Type.MANGA
+
     override fun toString(): String {
-        return "Manga(id=$id, title='$title', pages=$pages, bookMark=$bookMark, type='$type', update=$update)"
+        return "Manga(id=$id, title='$title', pages=$pages, bookMark=$bookMark, fileType='$fileType', update=$update)"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -192,7 +197,7 @@ class Manga(
         if (id != other.id) return false
         if (path != other.path) return false
         if (name != other.name) return false
-        if (type != other.type) return false
+        if (fileType != other.fileType) return false
 
         return true
     }
@@ -201,7 +206,7 @@ class Manga(
         var result = id?.hashCode() ?: 0
         result = 31 * result + path.hashCode()
         result = 31 * result + name.hashCode()
-        result = 31 * result + type.hashCode()
+        result = 31 * result + fileType.hashCode()
         return result
     }
 
@@ -233,7 +238,7 @@ class Manga(
         this.fileSize = file.length()
         this.fileAlteration = Date(file.lastModified())
         this.lastVocabImport = null
-        this.type = FileUtil.getFileType(file.name)
+        this.fileType = FileUtil.getFileType(file.name)
         this.volume = title.substringAfterLast("Volume", "").trim().replace(Regex("[^\\d.][\\s\\S]+"), "")
 
         parse.getComicInfo()?.let {

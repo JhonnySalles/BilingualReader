@@ -136,7 +136,7 @@ class SelectMangaViewModel(application: Application) : AndroidViewModel(applicat
 
                 filteredList.addAll(mListMangasFull.value!!.filter {
                     it.name.lowercase(Locale.getDefault()).contains(filterPattern) ||
-                            it.type.compareExtension(filterPattern)
+                            it.fileType.compareExtension(filterPattern)
                 })
             }
 

@@ -423,7 +423,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             filterConditions.forEach {
                 when (it.first) {
                     FilterType.Type -> {
-                        if (book.type.name.contains(it.second, true))
+                        if (book.fileType.name.contains(it.second, true))
                             condition = true
                     }
                     FilterType.Publisher -> {
@@ -453,7 +453,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         }
 
         return filterPattern.isEmpty() || book.name.lowercase(Locale.getDefault())
-            .contains(filterPattern) || book.type.compareExtension(filterPattern)
+            .contains(filterPattern) || book.fileType.compareExtension(filterPattern)
     }
 
     private val mBookFilter = object : Filter() {

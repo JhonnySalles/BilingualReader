@@ -49,6 +49,9 @@ data class History(
     @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_END)
     var end: LocalDateTime,
 
+    @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.AVERAGE_TIME_PAGE)
+    var averageTimeByPage: Long,
+
     @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.USE_TTS)
     var useTTS: Boolean,
 
@@ -57,8 +60,8 @@ data class History(
 ) {
 
     @Ignore
-    constructor(fkLibrary: Long, fkReference: Long, type: Type, pageStart: Int, pages: Int, volume: Int, useTTS: Boolean = false, isNotify: Boolean = false) : this(
-        null, fkLibrary, fkReference, type, pageStart, 0, pages, volume, 0, LocalDateTime.now(), LocalDateTime.now(), useTTS, isNotify
+    constructor(fkLibrary: Long, fkReference: Long, type: Type, pageStart: Int, pages: Int, volume: Int, averageTimeByPage: Long = 0, useTTS: Boolean = false, isNotify: Boolean = false) : this(
+        null, fkLibrary, fkReference, type, pageStart, 0, pages, volume, 0, LocalDateTime.now(), LocalDateTime.now(), averageTimeByPage, useTTS, isNotify
     ) { }
 
 }

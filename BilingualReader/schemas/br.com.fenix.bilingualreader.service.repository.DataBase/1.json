@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "2e61c19ffc78837076ea9413eed0a74e",
+    "identityHash": "81d69dbb9e49c4f212aafea74d5bed79",
     "entities": [
       {
         "tableName": "Manga",
@@ -57,7 +57,7 @@
             "notNull": true
           },
           {
-            "fieldPath": "type",
+            "fieldPath": "fileType",
             "columnName": "type",
             "affinity": "TEXT",
             "notNull": true
@@ -1488,7 +1488,7 @@
       },
       {
         "tableName": "History",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_library` INTEGER NOT NULL, `id_reference` INTEGER NOT NULL, `type` TEXT NOT NULL, `page_start` INTEGER NOT NULL, `page_end` INTEGER NOT NULL, `pages` INTEGER NOT NULL, `volume` INTEGER NOT NULL, `chapters_READ` INTEGER NOT NULL, `date_time_start` TEXT NOT NULL, `date_time_end` TEXT NOT NULL, `use_tts` INTEGER NOT NULL, `notified` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_library` INTEGER NOT NULL, `id_reference` INTEGER NOT NULL, `type` TEXT NOT NULL, `page_start` INTEGER NOT NULL, `page_end` INTEGER NOT NULL, `pages` INTEGER NOT NULL, `volume` INTEGER NOT NULL, `chapters_READ` INTEGER NOT NULL, `date_time_start` TEXT NOT NULL, `date_time_end` TEXT NOT NULL, `average_time_page` INTEGER NOT NULL, `use_tts` INTEGER NOT NULL, `notified` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -1557,6 +1557,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "averageTimeByPage",
+            "columnName": "average_time_page",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "useTTS",
             "columnName": "use_tts",
             "affinity": "INTEGER",
@@ -1593,7 +1599,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2e61c19ffc78837076ea9413eed0a74e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '81d69dbb9e49c4f212aafea74d5bed79')"
     ]
   }
 }

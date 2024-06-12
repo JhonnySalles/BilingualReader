@@ -452,7 +452,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
             filterConditions.forEach {
                 when (it.first) {
                     FilterType.Type -> {
-                        if (manga.type.name.contains(it.second, true))
+                        if (manga.fileType.name.contains(it.second, true))
                             condition = true
                     }
                     FilterType.Volume -> {
@@ -479,7 +479,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                 return false
         }
 
-        return filterPattern.isEmpty() || manga.name.lowercase(Locale.getDefault()).contains(filterPattern) || manga.type.compareExtension(filterPattern)
+        return filterPattern.isEmpty() || manga.name.lowercase(Locale.getDefault()).contains(filterPattern) || manga.fileType.compareExtension(filterPattern)
     }
 
     private val mMangaFilter = object : Filter() {
