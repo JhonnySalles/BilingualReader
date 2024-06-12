@@ -13,8 +13,7 @@ class MangaChaptersCardAdapter : RecyclerView.Adapter<MangaChaptersViewHolder>()
     private var mList: List<Chapters> = listOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MangaChaptersViewHolder {
-        val item =
-            LayoutInflater.from(parent.context).inflate(R.layout.grid_card_manga_chapter, parent, false)
+        val item = LayoutInflater.from(parent.context).inflate(R.layout.grid_card_manga_chapter, parent, false)
         return MangaChaptersViewHolder(item, mListener)
     }
 

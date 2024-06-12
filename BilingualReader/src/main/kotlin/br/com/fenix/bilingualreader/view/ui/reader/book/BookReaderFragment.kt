@@ -8,6 +8,7 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.PorterDuff
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -77,6 +78,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.view.components.AutoScroll
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
 import br.com.fenix.bilingualreader.view.components.book.TextViewPage
@@ -258,8 +260,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         onLoading(isFinished = false, isLoaded = false)
 
-        val fragmentManager = requireFragmentManager()
-
         mPageSeekBar.isEnabled = false
         mPageSeekBar.max = 2
         mPageSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -277,7 +277,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 try {
                     val text = (mViewPager.adapter as TextViewPager).getHolder(mViewPager.currentItem)?.textView ?: return
 
-                    mLOGGER.error("achou")
+                    val page = seekBar.progress + 1
+                    if (mLastPage.any { it.first == page })
+                        return
 
                     if (mLastPage.size > 3)
                         mLastPage.removeLast()
@@ -286,7 +288,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     val canvas = Canvas(bitmap)
                     text.draw(canvas)
 
-                    val page = seekBar.progress + 1
                     mLastPage.addFirst(Pair(page, bitmap))
                     openLastPage()
                 } catch (e: Exception) {
@@ -355,14 +356,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean(ReaderConsts.STATES.STATE_FULLSCREEN, isFullscreen())
-        outState.putLong(
-            ReaderConsts.STATES.STATE_NEW_BOOK,
-            (if (mNewBook != null) mNewBook!!.id else -1)!!
-        )
-        outState.putInt(
-            ReaderConsts.STATES.STATE_NEW_BOOK_TITLE,
-            if (mNewBook != null) mNewBookTitle else -1
-        )
+        outState.putLong(ReaderConsts.STATES.STATE_NEW_BOOK, (if (mNewBook != null) mNewBook!!.id else -1)!!)
+        outState.putInt(ReaderConsts.STATES.STATE_NEW_BOOK_TITLE, if (mNewBook != null) mNewBookTitle else -1)
         super.onSaveInstanceState(outState)
     }
 
@@ -431,7 +426,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             TextViewPager(requireContext(), mViewModel, mParse, this@BookReaderFragment, this@BookReaderFragment) as Adapter<RecyclerView.ViewHolder>
 
         mViewPager.adapter = mPagerAdapter
-
 
         var scrolling = mViewModel.scrollingType.value
 
@@ -584,7 +578,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         }
     }
 
-    private val mRefreshSizeDelay = Runnable { mPagerAdapter.notifyDataSetChanged() }
+    private val mRefreshSizeDelay = Runnable {
+        if (!ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
+            (mPagerAdapter as TextViewPager).refreshSize()
+        mPagerAdapter.notifyDataSetChanged()
+    }
 
     private fun removeRefreshSizeDelay() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -631,9 +629,13 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             if (!isAdded)
                 return@observeForever
 
+            SharedData.clearChapters()
+
             mParse?.let { parse ->
                 val pages = parse.getPageCount((font + DocumentParse.BOOK_FONT_SIZE_DIFFER).toInt())
                 mPageSeekBar.max = (if (pages > 1) pages else 2) - 1
+                if (!ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
+                    (mPagerAdapter as TextViewPager).refreshSize()
                 mPagerAdapter.notifyItemChanged(mViewPager.currentItem)
 
                 removeRefreshSizeDelay()
@@ -1075,20 +1077,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             }
         }
 
-        var times = 0
-        val handler = Handler()
-        var setDot: () -> Unit = {}
-        setDot = {
-            try {
-                (requireActivity() as MangaReaderActivity).setDots(dots, inverse)
-            } catch (e: Exception) {
-                mLOGGER.error("Error to set dots", e)
-                times++
-                if (times < 3)
-                    handler.postDelayed(setDot, 1000)
-            }
-        }
-        handler.postDelayed(setDot, 1000)
+        (requireActivity() as BookReaderActivity).setDots(dots, inverse)
     }
 
     private fun updateSeekBar() {
@@ -1097,6 +1086,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         val bounds = mPageSeekBar.progressDrawable.bounds
         mPageSeekBar.progressDrawable = d
         mPageSeekBar.progressDrawable.bounds = bounds
+        mPageSeekBar.thumb.setColorFilter(requireContext().getColorFromAttr(R.attr.colorTertiary), PorterDuff.Mode.SRC_IN)
         mPageSeekBar.setDotsMode(!mIsLeftToRight)
     }
 
@@ -1117,7 +1107,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         val position = mLastPage.first.first < page
 
-        mLOGGER.error("Call transition, position: $position -- lastposition: $mLastPageIsLeft")
         if (position != mLastPageIsLeft) {
             mLastPageIsLeft = position
             transitionLastPage(false, !position, object : Transition.TransitionListener {

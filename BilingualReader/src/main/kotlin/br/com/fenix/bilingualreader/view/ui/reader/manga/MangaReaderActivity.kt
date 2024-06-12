@@ -1188,18 +1188,14 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     private fun openChapters() {
-        val initial = mFragment?.getCurrentPage() ?: 0
+        val initial = (mFragment?.getCurrentPage() ?: 1) - 1
         mViewModel.loadChapter(mManga, initial)
 
         val intent = Intent(this, MenuActivity::class.java)
         val bundle = Bundle()
-        bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_manga_chapters)
+        bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_chapters)
         bundle.putString(GeneralConsts.KEYS.MANGA.TITLE, mManga?.title ?: "")
-
-        mFragment?.let {
-            bundle.putInt(GeneralConsts.KEYS.MANGA.PAGE_NUMBER, it.getCurrentPage() - 1)
-        }
-
+        bundle.putInt(GeneralConsts.KEYS.MANGA.PAGE_NUMBER, initial)
         intent.putExtras(bundle)
         overridePendingTransition(
             R.anim.fade_in_fragment_add_enter,

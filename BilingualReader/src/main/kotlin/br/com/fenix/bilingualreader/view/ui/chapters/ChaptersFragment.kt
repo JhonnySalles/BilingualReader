@@ -10,6 +10,7 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
@@ -28,9 +29,9 @@ import org.slf4j.LoggerFactory
 import kotlin.math.max
 
 
-class MangaChaptersFragment : Fragment(), ChapterLoadListener {
+class ChaptersFragment : Fragment(), ChapterLoadListener {
 
-    private val mLOGGER = LoggerFactory.getLogger(MangaChaptersFragment::class.java)
+    private val mLOGGER = LoggerFactory.getLogger(ChaptersFragment::class.java)
 
     private val mViewModel: MangaReaderViewModel by activityViewModels()
 
@@ -38,10 +39,10 @@ class MangaChaptersFragment : Fragment(), ChapterLoadListener {
     private lateinit var mScrollUp: FloatingActionButton
     private lateinit var mScrollDown: FloatingActionButton
 
-    private lateinit var mToolbar: androidx.appcompat.widget.Toolbar
+    private lateinit var mToolbar: Toolbar
 
     private var mPosInitial = 0
-    private var mTolbarTitle = ""
+    private var mToolbarTitle = ""
 
     private val mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
@@ -53,25 +54,21 @@ class MangaChaptersFragment : Fragment(), ChapterLoadListener {
 
         requireArguments().let {
             mPosInitial = if (it.containsKey(GeneralConsts.KEYS.MANGA.PAGE_NUMBER)) it.getInt(GeneralConsts.KEYS.MANGA.PAGE_NUMBER) else 0
-            mTolbarTitle = it.getString(GeneralConsts.KEYS.MANGA.TITLE, "")
+            mToolbarTitle = it.getString(GeneralConsts.KEYS.MANGA.TITLE, "")
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val root = inflater.inflate(R.layout.fragment_manga_chapters, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val root = inflater.inflate(R.layout.fragment_chapters, container, false)
 
-        mRecyclerView = root.findViewById(R.id.manga_chapters_recycler_view)
-        mScrollUp = root.findViewById(R.id.manga_chapter_scroll_up)
-        mScrollDown = root.findViewById(R.id.manga_chapter_scroll_down)
-        mToolbar = root.findViewById(R.id.toolbar_manga_chapter)
+        mRecyclerView = root.findViewById(R.id.chapters_recycler_view)
+        mScrollUp = root.findViewById(R.id.chapter_scroll_up)
+        mScrollDown = root.findViewById(R.id.chapter_scroll_down)
+        mToolbar = root.findViewById(R.id.toolbar_chapter)
 
         (requireActivity() as MenuActivity).setActionBar(mToolbar)
 
-        mToolbar.title = mTolbarTitle
+        mToolbar.title = mToolbarTitle
 
         mScrollUp.visibility = View.GONE
         mScrollDown.visibility = View.GONE

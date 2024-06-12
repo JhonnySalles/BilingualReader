@@ -14,6 +14,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.TypedValue
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
@@ -52,6 +53,7 @@ import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
+import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.google.android.material.tabs.TabLayout
@@ -422,6 +424,16 @@ class BookReaderActivity : AppCompatActivity() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val created = super.onCreateOptionsMenu(menu)
+
+        MenuUtil.longClick(this, R.id.menu_item_reader_book_chapter) {
+            openChapters()
+        }
+
+        return created
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
@@ -513,6 +525,23 @@ class BookReaderActivity : AppCompatActivity() {
             }
         } else
             mViewModel.history = History(book.fkLibrary!!, book.id!!, Type.BOOK, book.bookMark, book.pages, 0)
+    }
+
+    private fun openChapters() {
+        if (mFragment == null)
+            return
+
+        val page = mFragment!!.getCurrentPage() - 1
+        mViewModel.loadChapter(this, mFragment!!.mParse, page)
+
+        val intent = Intent(this, MenuActivity::class.java)
+        val bundle = Bundle()
+        bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_chapters)
+        bundle.putString(GeneralConsts.KEYS.MANGA.TITLE, mBook?.title ?: "")
+        bundle.putInt(GeneralConsts.KEYS.MANGA.PAGE_NUMBER, page)
+        intent.putExtras(bundle)
+        overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+        startActivityForResult(intent, GeneralConsts.REQUEST.MANGA_CHAPTERS, null)
     }
 
 }

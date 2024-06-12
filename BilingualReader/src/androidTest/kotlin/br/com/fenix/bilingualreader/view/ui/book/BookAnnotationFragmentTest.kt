@@ -9,11 +9,9 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
-import br.com.fenix.bilingualreader.service.repository.BookAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.utils.BookTestUtil
-import br.com.fenix.bilingualreader.view.ui.menu.ConfigLibrariesFragment
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import junit.framework.TestCase
 import org.junit.AfterClass
@@ -30,7 +28,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(AndroidJUnit4::class)
 class BookAnnotationFragmentTest {
 
-    private val book: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), BookTestUtil.mBookPath)
+    private val book: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), BookTestUtil.BOOK_PATH)
     private var intent: Intent? = null
 
     init {

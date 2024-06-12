@@ -10,6 +10,7 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.PorterDuff
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -70,11 +71,13 @@ import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPager
 import br.com.fenix.bilingualreader.view.managers.MangaHandler
+import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderFragment
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -402,10 +405,13 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 try {
                     val view = getCurrencyImageView() ?: return
 
+                    val page = seekBar.progress + 1
+                    if (mLastPage.any { it.first == page })
+                        return
+
                     if (mLastPage.size > 3)
                         mLastPage.removeLast()
 
-                    val page = seekBar.progress + 1
                     val bitmap = (view.drawable as BitmapDrawable).bitmap
                     mLastPage.addFirst(Pair(page, bitmap.copy(bitmap.config, true)))
                     openLastPage()
@@ -1071,6 +1077,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         val bounds = mPageSeekBar.progressDrawable.bounds
         mPageSeekBar.progressDrawable = d
         mPageSeekBar.progressDrawable.bounds = bounds
+        mPageSeekBar.thumb.setColorFilter(requireContext().getColorFromAttr(R.attr.colorTertiary), PorterDuff.Mode.SRC_IN)
         mPageSeekBar.setDotsMode(!mIsLeftToRight)
     }
 
@@ -1155,7 +1162,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         val position = mLastPage.first.first < page
 
-        mLOGGER.error("Call transition, position: $position -- lastposition: $mLastPageIsLeft")
         if (position != mLastPageIsLeft) {
             mLastPageIsLeft = position
             transitionLastPage(false, !position, object : Transition.TransitionListener {

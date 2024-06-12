@@ -47,8 +47,8 @@ class BookSearchFragment : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(BookSearchFragment::class.java)
 
-    private val mViewModel: BookSearchViewModel by activityViewModels()
-    private val mAnnotations: BookAnnotationViewModel by activityViewModels()
+    private val mViewModelBookSearch: BookSearchViewModel by activityViewModels()
+    private val mViewModelAnnotations: BookAnnotationViewModel by activityViewModels()
 
     private lateinit var mToolbar: Toolbar
     private lateinit var miSearch: MenuItem
@@ -82,7 +82,7 @@ class BookSearchFragment : Fragment() {
             val password = it.getString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PASSWORD)
             val fontSize = it.getInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE)
             val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-            mViewModel.initialize(book, SharedData.getDocumentParse() ?: DocumentParse(path!!, password!!, fontSize, isLandscape))
+            mViewModelBookSearch.initialize(book, SharedData.getDocumentParse() ?: DocumentParse(path!!, password!!, fontSize, isLandscape))
 
             if (it.containsKey(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH)) {
                 mInitialSearch = it.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH) as BookSearch
@@ -101,9 +101,9 @@ class BookSearchFragment : Fragment() {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null)
-                    mViewModel.search(query)
+                    mViewModelBookSearch.search(query)
                 else
-                    mViewModel.clearSearch()
+                    mViewModelBookSearch.clearSearch()
 
                 return false
             }
@@ -117,7 +117,7 @@ class BookSearchFragment : Fragment() {
         searchSrcTextView.setTextAppearance(R.style.SearchShadow)
 
         searchView.setOnCloseListener {
-            mViewModel.clearSearch()
+            mViewModelBookSearch.clearSearch()
             false
         }
 
@@ -149,7 +149,7 @@ class BookSearchFragment : Fragment() {
         (requireActivity() as MenuActivity).setActionBar(mToolbar)
 
         mClearHistory.setOnClickListener {
-            mViewModel.deleteAll()
+            mViewModelBookSearch.deleteAll()
         }
 
         mScrollUp.setOnClickListener {
@@ -214,7 +214,7 @@ class BookSearchFragment : Fragment() {
             }
 
             override fun onDelete(search: BookSearch, view: View, position: Int) {
-                mViewModel.delete(search)
+                mViewModelBookSearch.delete(search)
             }
         }
 
@@ -235,7 +235,7 @@ class BookSearchFragment : Fragment() {
                 popup.setOnMenuItemClickListener { item ->
                     when (item.itemId) {
                         R.id.menu_item_book_search_add_annotation -> {
-                            mAnnotations.save(search.toAnnotation(mViewModel.getPageCount()))
+                            mViewModelAnnotations.save(search.toAnnotation(mViewModelBookSearch.getPageCount()))
                         }
                     }
                     true
@@ -255,16 +255,16 @@ class BookSearchFragment : Fragment() {
     }
 
     private fun observer() {
-        mViewModel.inSearching.observe(viewLifecycleOwner) {
+        mViewModelBookSearch.inSearching.observe(viewLifecycleOwner) {
             mProgressInSearch.visibility = if (it) View.VISIBLE else View.GONE
         }
 
-        mViewModel.search.observe(viewLifecycleOwner) {
+        mViewModelBookSearch.search.observe(viewLifecycleOwner) {
             mRecyclerView.visibility = if (it.isNotEmpty()) View.VISIBLE else View.GONE
             (mRecyclerView.adapter as BookSearchLineAdapter).updateList(it)
         }
 
-        mViewModel.history.observe(viewLifecycleOwner) {
+        mViewModelBookSearch.history.observe(viewLifecycleOwner) {
             mHistoryList.clear()
             mHistoryList.addAll(it)
             (mHistoryListView.adapter as BookSearchHistoryAdapter).notifyDataSetChanged()

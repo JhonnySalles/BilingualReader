@@ -1,10 +1,17 @@
 package br.com.fenix.bilingualreader.view.ui.reader.book
 
+import android.R.attr.height
+import android.R.attr.width
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.text.LineBreaker.JUSTIFICATION_MODE_INTER_WORD
 import android.os.Build
 import android.text.Html
@@ -12,11 +19,16 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ClickableSpan
+import android.text.style.ForegroundColorSpan
+import android.util.Base64
+import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
+import android.view.WindowManager
 import android.webkit.WebView
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -25,6 +37,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.BookConfiguration
+import br.com.fenix.bilingualreader.model.entity.Chapters
 import br.com.fenix.bilingualreader.model.entity.History
 import br.com.fenix.bilingualreader.model.enums.AlignmentLayoutType
 import br.com.fenix.bilingualreader.model.enums.FontType
@@ -39,6 +52,7 @@ import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.BookAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.BookRepository
+import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
@@ -46,10 +60,14 @@ import br.com.fenix.bilingualreader.util.helpers.ColorUtil
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import br.com.fenix.bilingualreader.view.components.ImageGetter
 import br.com.fenix.bilingualreader.view.components.book.TextViewClickMovement
-import br.com.fenix.bilingualreader.view.components.book.TextViewPage
 import br.com.fenix.bilingualreader.view.components.book.TextViewPager
 import br.com.fenix.bilingualreader.view.components.book.TextViewSelectCallback
 import br.com.fenix.bilingualreader.view.ui.popup.PopupAnnotations
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 
 
@@ -214,7 +232,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         mConfiguration.value?.let { saveBookConfiguration(it) }
     }
 
-    fun changeTextStyle(textView: TextViewPage) {
+    fun changeTextStyle(textView: TextView) {
         textView.setTextColor(ColorUtil.getColor(getFontColor()))
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getFontSize())
         textView.typeface = ResourcesCompat.getFont(app.applicationContext, fontType.value!!.getFont())
@@ -641,5 +659,112 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     fun findAnnotationByBook(book: Book) = mAnnotationRepository.findByBook(book.id!!)
 
     fun findAnnotationByPage(book: Book, page: Int) = mAnnotationRepository.findByPage(book.id!!, page)
+
+
+    // --------------------------------------------------------- Book - Chapters ---------------------------------------------------------
+    private fun loadImage(context: Context, parse: DocumentParse, page: Int, textView : TextView) : Bitmap? {
+        try {
+            var text = parse.getPage(page).pageHTMLWithImages.orEmpty()
+
+            if (text.contains("<image-begin>image"))
+                text = text.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
+
+            val html = "<body>${TextUtil.formatHtml(text)}</body>"
+
+            val isOnlyImage = html.contains("<img") && (text.endsWith(" /><br/>") || text.endsWith(" />"))
+
+            val bitmap :Bitmap
+
+            if (!isOnlyImage) {
+                val processed = SpannableString(Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY))
+
+                val marks = mAnnotation.filter { it.page == page }
+                if (marks.isNotEmpty()) {
+                    for (mark in marks) {
+                        if (mark.color == br.com.fenix.bilingualreader.model.enums.Color.None || mark.range[1] > processed.length || mark.range[0] > processed.length)
+                            continue
+                        processed.setSpan(ForegroundColorSpan(context.getColor(mark.color.getColor())), mark.range[0], mark.range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
+                }
+                textView.text = processed
+                parse.getPage(page).recycle()
+
+                bitmap = Bitmap.createBitmap(textView.layoutParams.width, textView.layoutParams.height, Bitmap.Config.ARGB_8888)
+                val canvas = Canvas(bitmap)
+                val measuredWidth = View.MeasureSpec.makeMeasureSpec(textView.layoutParams.width, View.MeasureSpec.EXACTLY)
+                val measuredHeight = View.MeasureSpec.makeMeasureSpec(textView.layoutParams.height, View.MeasureSpec.EXACTLY)
+                textView.measure(measuredWidth, measuredHeight)
+                textView.layout(0, 0, textView.measuredWidth, textView.measuredHeight)
+
+                textView.draw(canvas)
+            } else {
+                val image = text.substringAfter("<img").substringBefore("/>")
+                val bytes: ByteArray = Base64.decode(image.substringAfter(",").trim(), Base64.DEFAULT)
+                bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            }
+            return bitmap
+        } catch (e: Exception) {
+            mLOGGER.error("Error to load image page", e)
+        }
+        return null
+    }
+
+    fun loadChapter(context: Context, parse: DocumentParse?, number: Int): Boolean {
+        if (parse == null) {
+            SharedData.clearChapters()
+            return false
+        }
+
+        if (SharedData.isProcessed(parse)) {
+            val list = arrayListOf<Chapters>()
+            val chapters = parse.getChapters()
+            val pages = parse.pageCount
+            var title: Chapters
+            var c = 0
+            var p = chapters[c].first
+            title = Chapters(chapters[c].second, 0, chapters[c].first, c.toFloat(), true)
+            list.add(title)
+
+            for (i in 0 until pages) {
+                if (i >= p && c < chapters.size - 1) {
+                    c++
+                    p = chapters[c].first
+                    title = Chapters(chapters[c].second, 0, chapters[c].first, c.toFloat(), true)
+                    list.add(title)
+                }
+
+                list.add(Chapters(chapters[c].second, i, i+1, 0f, false, isSelected = number == i+1))
+            }
+
+            val metrics = DisplayMetrics()
+            val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            windowManager.defaultDisplay.getMetrics(metrics)
+
+            val textView = TextView(context)
+            changeTextStyle(textView)
+            textView.layoutParams.width = metrics.widthPixels
+            textView.layoutParams.height = metrics.heightPixels
+
+            SharedData.setChapters(parse, list)
+            CoroutineScope(Dispatchers.IO).launch {
+                val deferred = async {
+                    for (chapter in list) {
+                        if (chapter.isTitle)
+                            continue
+
+                        chapter.image = loadImage(context, parse, chapter.number, textView)
+                        withContext(Dispatchers.Main) { SharedData.callListeners(chapter.number) }
+                    }
+                }
+
+                deferred.await()
+                withContext(Dispatchers.Main) {
+                    SharedData.setChapters(parse, list.toList())
+                }
+            }
+        }
+
+        return true
+    }
 
 }

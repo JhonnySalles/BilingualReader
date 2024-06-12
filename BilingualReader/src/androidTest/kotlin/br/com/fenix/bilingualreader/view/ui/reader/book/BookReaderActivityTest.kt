@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(AndroidJUnit4::class)
 class BookReaderActivityTest {
 
-    private val book: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), BookTestUtil.mBookPath)
+    private val book: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), BookTestUtil.BOOK_PATH)
     private var intent: Intent? = null
 
     init {
@@ -41,7 +41,7 @@ class BookReaderActivityTest {
             book.file.exists()
         )
 
-        book.bookMark = BookTestUtil.mBookPage
+        book.bookMark = BookTestUtil.BOOK_PAGE
         book.language = Languages.JAPANESE
 
         intent = Intent(ApplicationProvider.getApplicationContext(), BookReaderActivity::class.java)
@@ -53,7 +53,7 @@ class BookReaderActivityTest {
         )
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
         bundle.putString(GeneralConsts.KEYS.BOOK.NAME, book.title)
-        bundle.putInt(GeneralConsts.KEYS.BOOK.PAGE_NUMBER, BookTestUtil.mBookPage)
+        bundle.putInt(GeneralConsts.KEYS.BOOK.PAGE_NUMBER, BookTestUtil.BOOK_PAGE)
         bundle.putInt(GeneralConsts.KEYS.BOOK.MARK, 0)
         intent?.putExtras(bundle)
     }

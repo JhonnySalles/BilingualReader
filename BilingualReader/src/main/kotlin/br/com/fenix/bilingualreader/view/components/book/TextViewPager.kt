@@ -52,6 +52,15 @@ class TextViewPager(
     private val mTextSelectCallback = textSelectCallback
     private val mHolders = mutableMapOf<Int, TextViewPagerHolder>()
     private var mSpeech: Speech? = null
+    private var mItems : Int = 0
+
+    init {
+        refreshSize()
+    }
+
+    fun refreshSize() {
+        mItems = mParse?.getPageCount(mViewModel.getFontSize(isBook = true).toInt()) ?: 1
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TextViewPagerHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -71,7 +80,7 @@ class TextViewPager(
         return holder
     }
 
-    override fun getItemCount(): Int = mParse?.getPageCount(mViewModel.getFontSize(isBook = true).toInt()) ?: 1
+    override fun getItemCount(): Int = mItems
 
     override fun onBindViewHolder(holder: TextViewPagerHolder, position: Int) {
         if (!ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT) {

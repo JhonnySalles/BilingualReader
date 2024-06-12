@@ -10,8 +10,7 @@ import br.com.fenix.bilingualreader.service.listener.ChapterCardListener
 import com.google.android.material.card.MaterialCardView
 
 
-class MangaChaptersViewHolder(itemView: View, private val listener: ChapterCardListener) :
-    RecyclerView.ViewHolder(itemView) {
+class MangaChaptersViewHolder(itemView: View, private val listener: ChapterCardListener) : RecyclerView.ViewHolder(itemView) {
 
     companion object {
         var mPageSelectStroke: Int = 0
