@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -62,17 +63,41 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
     init {
         val sharedPreferences = GeneralConsts.getSharedPreferences(context)
         val language: TextSpeech = TextSpeech.valueOf(sharedPreferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS, TextSpeech.getDefault().toString())!!)
-        mVoice = TTSVoice.provides().stream().filter { v: Voice -> v.shortName == language.getNameAzure() }.collect(Collectors.toList())[0]
+        val providers = TTSVoice.provides()
+
+        mVoice = if (providers.any { it.shortName.equals(language.getNameAzure(), ignoreCase = true) })
+            providers.stream().filter { v: Voice -> v.shortName == language.getNameAzure() }.collect(Collectors.toList())[0]
+        else
+            providers.first()
     }
 
     fun addListener(listener: TTSListener) = mListener.add(listener)
 
     fun removeListener(listener: TTSListener) = mListener.remove(listener)
 
-    fun setVoice(language: TextSpeech, rate: Float = 0f, volume: Int = 0) {
-        mVoice = TTSVoice.provides().stream().filter { v: Voice -> v.shortName == language.getNameAzure() }.collect(Collectors.toList())[0]
-        mVoiceRate = "+$rate%"
-        mVoiceVolume = "+$volume%"
+    fun setVoice(language: TextSpeech, rate: Float = 0f, volume: Int = 0): Boolean {
+        return try {
+            val providers = TTSVoice.provides()
+
+            if (providers.none { it.shortName.equals(language.getNameAzure(), ignoreCase = true) }) {
+                mLOGGER.warn("Voice not found: ${language.name}")
+                Toast.makeText(context, context.getString(R.string.tts_voice_not_found), Toast.LENGTH_SHORT).show()
+                return false
+            }
+
+            val voice = providers.stream().filter { v: Voice -> v.shortName.equals(language.getNameAzure(), ignoreCase = true) }.collect(Collectors.toList())[0]
+            val changeVoice = mVoice != voice
+            mVoice = voice
+            mVoiceRate = "+$rate%"
+            mVoiceVolume = "+$volume%"
+
+            if (changeVoice)
+                generateCache()
+            true
+        } catch (e: Exception) {
+            mLOGGER.error("Error to set voice.", e)
+            false
+        }
     }
 
     fun start(page: Int = 0, initial: String = "") = execute(page, initial)
@@ -261,6 +286,11 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
         speach.audio = null
         try {
             val file = mBook.replace(" ", "_") + '_' + String.format("%03d", speach.page) + "__" + String.format("%05d", speach.sequence)
+
+            val exists = File(mCache, file)
+            if (exists.exists())
+                exists.delete()
+
             val audio = TTS(mVoice, speach.text).fileName(file).formatMp3().voiceRate(mVoiceRate).voiceVolume(mVoiceVolume)
                 //.voicePitch()
                 .storage(mCache.absolutePath).trans()
@@ -414,13 +444,12 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                             }
                         }
 
-                        val limit = if (mLines.size > LIMIT_CACHE) LIMIT_CACHE else mLines.size
-                        if (limit > 1) {
-                            if (SHOW_LOG)
-                                mLOGGER.warn("Generate tss to cache...")
-                            for (i in 1 until (LIMIT_CACHE+1))
-                                generateTTS(mLines[i]) { }
-                        }
+                        if (SHOW_LOG)
+                            mLOGGER.warn("Generate tss to cache...")
+
+                        for (i in 1 until (LIMIT_CACHE + 1))
+                            if (mLine + i < mLines.size)
+                                generateTTS(mLines[mLine + i]) { }
                     } finally {
                         Thread.sleep(500)
                     }
@@ -435,6 +464,12 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 }
             }
         }.start()
+    }
+
+    private fun generateCache() {
+        for (i in mLine until mLines.size)
+            if (i < mLines.size)
+                mLines[i].audio = null
     }
 
     private fun formatHtml(page: Int, html: String): MutableList<Speech> {

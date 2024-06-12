@@ -28,6 +28,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AnticipateOvershootInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -87,7 +88,6 @@ import br.com.fenix.bilingualreader.view.components.book.WebViewPage
 import br.com.fenix.bilingualreader.view.components.book.WebViewPager
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupTTS
-import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -151,6 +151,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     var mParse: DocumentParse? = null
 
     companion object {
+        private const val ANIMATION_DURATION = 200L
+
         var mCurrentPage = 1
         fun create(): BookReaderFragment {
             val fragment = BookReaderFragment()
@@ -658,39 +660,46 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     fun setFullscreen(fullscreen: Boolean) {
+        if (!isAdded || context == null)
+            return
+
         mIsFullscreen = fullscreen
-        val w: Window = requireActivity().window
+
+        val window: Window = requireActivity().window
         if (fullscreen) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                windowInsetsController.let {
-                    it.hide(WindowInsetsCompat.Type.systemBars())
-                    it.systemBarsBehavior =
-                        WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                }
-                WindowCompat.setDecorFitsSystemWindows(w, true)
-            } else {
-                getActionBar()?.hide()
-                @Suppress("DEPRECATION")
-                mViewPager.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN // Hide top iu
-                        or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // Hide navigator
-                        or View.SYSTEM_UI_FLAG_IMMERSIVE // Force navigator hide
-                        or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY // Force top iu hide
-                        or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN // Force full screen
-                        or View.SYSTEM_UI_FLAG_LAYOUT_STABLE // Stable transition on fullscreen and immersive
-                        )
-
-                Handler(Looper.getMainLooper()).postDelayed({
-                    w.clearFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                    w.addFlags(ContextCompat.getColor(requireContext(), R.color.transparent))
-                }, 300)
-            }
-
-            mConfiguration.visibility = View.GONE
             mRoot.fitsSystemWindows = false
+            changeContentsVisibility(fullscreen)
+            Handler(Looper.getMainLooper()).postDelayed({ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    windowInsetsController.let {
+                        it.hide(WindowInsetsCompat.Type.systemBars())
+                        it.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                    }
+                    WindowCompat.setDecorFitsSystemWindows(window, true)
+                } else {
+                    getActionBar()?.hide()
+                    @Suppress("DEPRECATION")
+                    mViewPager.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN // Hide top iu
+                            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // Hide navigator
+                            or View.SYSTEM_UI_FLAG_IMMERSIVE // Force navigator hide
+                            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY // Force top iu hide
+                            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN // Force full screen
+                            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE // Stable transition on fullscreen and immersive
+                            )
+
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        window.clearFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                        window.addFlags(ContextCompat.getColor(requireContext(), R.color.transparent))
+                    }, ANIMATION_DURATION + 100)
+                }
+
+                mConfiguration.visibility = View.GONE
+            }, ANIMATION_DURATION)
         } else {
+            Handler(Looper.getMainLooper()).postDelayed({ changeContentsVisibility(fullscreen)  }, ANIMATION_DURATION)
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
-                WindowCompat.setDecorFitsSystemWindows(w, false)
+                WindowCompat.setDecorFitsSystemWindows(window, false)
             } else {
                 getActionBar()?.show()
                 @Suppress("DEPRECATION")
@@ -699,21 +708,18 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                         or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
 
                 Handler(Looper.getMainLooper()).postDelayed({
-                    w.clearFlags(ContextCompat.getColor(requireContext(), R.color.transparent))
-                    w.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                }, 300)
+                    window.clearFlags(ContextCompat.getColor(requireContext(), R.color.transparent))
+                    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                }, ANIMATION_DURATION + 100)
             }
 
-            w.statusBarColor = requireContext().getColor(R.color.status_bar_color)
-            w.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-            w.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
-            w.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            w.navigationBarColor = requireContext().getColor(R.color.status_bar_color)
-
-            //mRoot.fitsSystemWindows = true
+            window.statusBarColor = requireContext().getColor(R.color.status_bar_color)
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            window.navigationBarColor = requireContext().getColor(R.color.status_bar_color)
         }
 
-        changeContentsVisibility(fullscreen)
 
         if (fullscreen)
             closeLastPage()
@@ -721,7 +727,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             openLastPage()
     }
 
-    private val duration = 200L
     private fun changeContentsVisibility(isFullScreen: Boolean) {
         val visibility = if (isFullScreen) View.GONE else View.VISIBLE
         val finalAlpha = if (isFullScreen) 0.0f else 1.0f
@@ -739,7 +744,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         }
 
         mToolbarBottom.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
-            .setDuration(duration).setListener(object : AnimatorListenerAdapter() {
+            .setDuration(ANIMATION_DURATION).setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mToolbarBottom.visibility = visibility
@@ -747,7 +752,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             })
 
         mToolbarTop.animate().alpha(finalAlpha).translationY(finalTranslation)
-            .setDuration(duration).setListener(object : AnimatorListenerAdapter() {
+            .setDuration(ANIMATION_DURATION).setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mToolbarTop.visibility = visibility
@@ -881,30 +886,14 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         when (status) {
             AudioStatus.PREPARE, AudioStatus.ENDING -> {
                 val visibility = if (status == AudioStatus.ENDING) View.GONE else View.VISIBLE
-                val finalAlpha = if (status == AudioStatus.ENDING) 0.0f else 1.0f
-                val finalTranslation = if (status == AudioStatus.ENDING) -20f else 0f
-                val initialAlpha = if (status == AudioStatus.ENDING) 1.0f else 0.0f
-                val initialTranslation = if (status == AudioStatus.ENDING) 0f else -20f
 
-                if (status == AudioStatus.PREPARE) {
-                    mReaderTTSPlay.setIconResource(R.drawable.ic_tts_play)
-                    mReaderTTSContainer.alpha = initialAlpha
-                    mReaderTTSContainer.translationY = initialTranslation
+                val transition = Slide(Gravity.TOP)
+                transition.setDuration(800L)
+                transition.addTarget(mReaderTTSContainer)
+                transition.interpolator = AccelerateDecelerateInterpolator()
 
-                    mReaderTTSProgress.progress = mCurrentPage
-                    mReaderTTSProgress.max = mViewPager.adapter!!.itemCount
-                    mReaderTTSProgress.isIndeterminate = true
-
-                    mReaderTTSContainer.visibility = View.VISIBLE
-                }
-
-                mReaderTTSContainer.animate().alpha(finalAlpha).translationY(finalTranslation)
-                    .setDuration(duration).setListener(object : AnimatorListenerAdapter() {
-                        override fun onAnimationEnd(animation: Animator) {
-                            super.onAnimationEnd(animation)
-                            mReaderTTSContainer.visibility = visibility
-                        }
-                    })
+                TransitionManager.beginDelayedTransition(mRoot, transition)
+                mReaderTTSContainer.visibility = visibility
             }
 
             AudioStatus.PLAY -> {

@@ -12,7 +12,8 @@ enum class TextSpeech(
     private val region: Int,
     private val idiom: Int,
     private val gender: Int,
-    private val isNeural: Boolean
+    private val isNeural: Boolean,
+    private val isActive: Boolean
 ) {
     ARIA(
         0,
@@ -22,6 +23,7 @@ enum class TextSpeech(
         R.string.book_tts_region_en,
         R.string.book_tts_idiom_en,
         R.string.book_tts_voice_gender_feminine,
+        true,
         true
     ),
     DAVIS(
@@ -32,7 +34,8 @@ enum class TextSpeech(
         R.string.book_tts_region_en,
         R.string.book_tts_idiom_en,
         R.string.book_tts_voice_gender_masculine,
-        true
+        true,
+        false
     ),
     GUY(
         2,
@@ -42,6 +45,7 @@ enum class TextSpeech(
         R.string.book_tts_region_en,
         R.string.book_tts_idiom_en,
         R.string.book_tts_voice_gender_masculine,
+        true,
         true
     ),
     JANE(
@@ -52,7 +56,8 @@ enum class TextSpeech(
         R.string.book_tts_region_en,
         R.string.book_tts_idiom_en,
         R.string.book_tts_voice_gender_feminine,
-        true
+        true,
+        false
     ),
     JASON(
         4,
@@ -62,7 +67,8 @@ enum class TextSpeech(
         R.string.book_tts_region_en,
         R.string.book_tts_idiom_en,
         R.string.book_tts_voice_gender_masculine,
-        true
+        true,
+        false
     ),
     JENNY(
         5,
@@ -72,6 +78,7 @@ enum class TextSpeech(
         R.string.book_tts_region_en,
         R.string.book_tts_idiom_en,
         R.string.book_tts_voice_gender_feminine,
+        true,
         true
     ),
     NANCY(
@@ -82,7 +89,8 @@ enum class TextSpeech(
         R.string.book_tts_region_en,
         R.string.book_tts_idiom_en,
         R.string.book_tts_voice_gender_feminine,
-        true
+        true,
+        false
     ),
     SARA(
         7,
@@ -92,7 +100,8 @@ enum class TextSpeech(
         R.string.book_tts_region_en,
         R.string.book_tts_idiom_en,
         R.string.book_tts_voice_gender_masculine,
-        true
+        true,
+        false
     ),
     TONY(
         8,
@@ -102,7 +111,8 @@ enum class TextSpeech(
         R.string.book_tts_region_en,
         R.string.book_tts_idiom_en,
         R.string.book_tts_voice_gender_masculine,
-        true
+        true,
+        false
     ),
     NANAMI(
         9,
@@ -112,7 +122,7 @@ enum class TextSpeech(
         R.string.book_tts_region_jp,
         R.string.book_tts_idiom_jp,
         R.string.book_tts_voice_gender_feminine,
-        true
+        true, true
     ),
     KEITA(
         10,
@@ -122,6 +132,7 @@ enum class TextSpeech(
         R.string.book_tts_region_jp,
         R.string.book_tts_idiom_jp,
         R.string.book_tts_voice_gender_masculine,
+        true,
         true
     ),
     FRANCISCA(
@@ -132,6 +143,7 @@ enum class TextSpeech(
         R.string.book_tts_region_pt,
         R.string.book_tts_idiom_pt,
         R.string.book_tts_voice_gender_feminine,
+        true,
         true
     ),
     ANTONIO(
@@ -142,7 +154,7 @@ enum class TextSpeech(
         R.string.book_tts_region_pt,
         R.string.book_tts_idiom_pt,
         R.string.book_tts_voice_gender_masculine,
-        true
+        true, true
     ),
     THALITA(
         13,
@@ -152,7 +164,8 @@ enum class TextSpeech(
         R.string.book_tts_region_pt,
         R.string.book_tts_idiom_pt,
         R.string.book_tts_voice_gender_feminine,
-        true
+        true,
+        false
     );
 
     open fun getDescription(context: Context): String {
@@ -165,13 +178,14 @@ enum class TextSpeech(
 
     open fun getNameAzure(): String = this.nameAzure
     open fun isNeural(): Boolean = this.isNeural
+    open fun isActive(): Boolean = this.isActive
 
 
     companion object {
 
         fun getDefault(): TextSpeech = TextSpeech.FRANCISCA
         fun getByDescriptions(context: Context): Map<String, TextSpeech> {
-            return TextSpeech.values().sortedWith(compareBy({ it.language }, { it.name })).associateBy { it.getDescription(context) }
+            return TextSpeech.values().filter { it.isActive }.sortedWith(compareBy({ it.language }, { it.name })).associateBy { it.getDescription(context) }
         }
 
         fun getTextSpeech(context: Context, description: String): TextSpeech {

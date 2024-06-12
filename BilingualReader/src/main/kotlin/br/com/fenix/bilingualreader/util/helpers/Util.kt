@@ -1032,13 +1032,7 @@ class ThemeUtil {
             return typedValue.data
         }
 
-        fun statusBarTransparentTheme(
-            window: Window,
-            isDarkTheme: Boolean,
-            statusBarDrawable: Drawable? = null,
-            @ColorInt statusBarColor: Int? = null,
-            isLightStatus: Boolean = false
-        ) {
+        fun statusBarTransparentTheme(window: Window, isDarkTheme: Boolean, statusBarDrawable: Drawable? = null, @ColorInt statusBarColor: Int? = null, isLightStatus: Boolean = false) {
             val wic = WindowInsetsControllerCompat(window, window.decorView)
 
             if (isDarkTheme)

@@ -329,6 +329,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     }
 
     private fun loadPreferences(isJapanese: Boolean) {
+        mTTSVoice.value = TextSpeech.valueOf(mPreferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS, TextSpeech.getDefault().toString())!!)
+
         mAlignmentType.value = AlignmentLayoutType.valueOf(
             mPreferences.getString(
                 GeneralConsts.KEYS.READER.BOOK_PAGE_ALIGNMENT,

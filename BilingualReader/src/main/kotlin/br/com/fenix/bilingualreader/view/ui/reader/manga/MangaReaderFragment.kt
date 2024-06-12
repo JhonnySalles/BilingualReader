@@ -153,6 +153,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     companion object {
         private const val LAST_PAGE_OUT_SCREEN = 100
+        private const val ANIMATION_DURATION = 200L
 
         var mCurrentPage = 0
         private var mCacheFolderIndex = 0
@@ -893,41 +894,45 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             return
 
         mIsFullscreen = fullscreen
-        val w: Window = requireActivity().window
+
+        val window: Window = requireActivity().window
         if (fullscreen) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                windowInsetsController.let {
-                    it.hide(WindowInsetsCompat.Type.systemBars())
-                    it.systemBarsBehavior =
-                        WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                }
-                WindowCompat.setDecorFitsSystemWindows(w, true)
-            } else {
-                getActionBar()?.hide()
-                @Suppress("DEPRECATION")
-                mViewPager.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN // Hide top iu
-                        or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // Hide navigator
-                        or View.SYSTEM_UI_FLAG_IMMERSIVE // Force navigator hide
-                        or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY // Force top iu hide
-                        or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN // Force full screen
-                        or View.SYSTEM_UI_FLAG_LAYOUT_STABLE // Stable transition on fullscreen and immersive
-                        )
-
-                Handler(Looper.getMainLooper()).postDelayed({
-                    w.clearFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                    w.addFlags(ContextCompat.getColor(requireContext(), R.color.transparent))
-                }, 300)
-            }
-
-            mPopupSubtitle.visibility = View.GONE
-            mPopupColor.visibility = View.GONE
             mRoot.fitsSystemWindows = false
+            changeContentsVisibility(fullscreen)
+            Handler(Looper.getMainLooper()).postDelayed({
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    windowInsetsController.let {
+                        it.hide(WindowInsetsCompat.Type.systemBars())
+                        it.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                    }
+                    WindowCompat.setDecorFitsSystemWindows(window, true)
+                } else {
+                    getActionBar()?.hide()
+                    @Suppress("DEPRECATION")
+                    mViewPager.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN // Hide top iu
+                            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // Hide navigator
+                            or View.SYSTEM_UI_FLAG_IMMERSIVE // Force navigator hide
+                            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY // Force top iu hide
+                            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN // Force full screen
+                            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE // Stable transition on fullscreen and immersive
+                            )
+
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        window.clearFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                        window.addFlags(ContextCompat.getColor(requireContext(), R.color.transparent))
+                    }, ANIMATION_DURATION + 100)
+                }
+
+                mPopupSubtitle.visibility = View.GONE
+                mPopupColor.visibility = View.GONE
+             }, ANIMATION_DURATION)
         } else {
+            Handler(Looper.getMainLooper()).postDelayed({ changeContentsVisibility(fullscreen) }, ANIMATION_DURATION)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 windowInsetsController.let {
                     it.show(WindowInsetsCompat.Type.systemBars())
                 }
-                WindowCompat.setDecorFitsSystemWindows(w, false)
+                WindowCompat.setDecorFitsSystemWindows(window, false)
             } else {
                 getActionBar()?.show()
                 @Suppress("DEPRECATION")
@@ -936,21 +941,18 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                         or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
 
                 Handler(Looper.getMainLooper()).postDelayed({
-                    w.clearFlags(ContextCompat.getColor(requireContext(), R.color.transparent))
-                    w.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                }, 300)
+                    window.clearFlags(ContextCompat.getColor(requireContext(), R.color.transparent))
+                    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                }, ANIMATION_DURATION + 100)
             }
 
-            w.statusBarColor = resources.getColor(R.color.status_bar_color)
-            w.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-            w.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
-            w.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            w.navigationBarColor = resources.getColor(R.color.status_bar_color)
-
-            //mRoot.fitsSystemWindows = true
+            window.statusBarColor = resources.getColor(R.color.status_bar_color)
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            window.navigationBarColor = resources.getColor(R.color.status_bar_color)
         }
 
-        changeContentsVisibility(fullscreen)
 
         if (fullscreen)
             closeLastPage()
@@ -958,7 +960,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             openLastPage()
     }
 
-    private val duration = 200L
     private fun changeContentsVisibility(isFullScreen: Boolean) {
         val visibility = if (isFullScreen) View.GONE else View.VISIBLE
         val finalAlpha = if (isFullScreen) 0.0f else 1.0f
@@ -983,7 +984,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             mToolbarBottom.translationY = (initialTranslation * -1)
         }
 
-        mPageNavLayout.animate().alpha(finalAlpha).setDuration(duration)
+        mPageNavLayout.animate().alpha(finalAlpha).setDuration(ANIMATION_DURATION)
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
@@ -992,7 +993,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             })
 
         mToolbarBottom.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
-            .setDuration(duration).setListener(object : AnimatorListenerAdapter() {
+            .setDuration(ANIMATION_DURATION).setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mToolbarBottom.visibility = visibility
@@ -1000,14 +1001,14 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             })
 
         mToolbarTop.animate().alpha(finalAlpha).translationY(finalTranslation)
-            .setDuration(duration).setListener(object : AnimatorListenerAdapter() {
+            .setDuration(ANIMATION_DURATION).setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mToolbarTop.visibility = visibility
                 }
             })
 
-        mNextButton.animate().alpha(finalAlpha).setDuration(duration)
+        mNextButton.animate().alpha(finalAlpha).setDuration(ANIMATION_DURATION)
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
@@ -1015,7 +1016,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 }
             })
 
-        mPreviousButton.animate().alpha(finalAlpha).setDuration(duration)
+        mPreviousButton.animate().alpha(finalAlpha).setDuration(ANIMATION_DURATION)
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)

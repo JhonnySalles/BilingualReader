@@ -233,6 +233,8 @@
     <!-- READER POPUP LANGUAGE -->
     <string name="popup_reading_language_book">Linguagem do livro</string>
     <string name="popup_reading_language_tts_voice">Voz</string>
+    <string name="popup_reading_language_tts_voice_empty">Necessário informar um tipo de voz</string>
+    <string name="popup_reading_language_tts_voice_not_locate">A voz selecionada não foi encontrada</string>
 
     <!-- READER POPUP LAYOUT -->
     <string name="popup_reading_layout_scrolling_type">Tipo de rolagem</string>
@@ -813,6 +815,7 @@
     <string name="text_colorist">Colorista</string>
 
     <string name="tts_title">Texto para fala</string>
+    <string name="tts_voice_not_found">Voz não encontrada</string>
 
     <string name="button_tts_previous">Anterior</string>
     <string name="button_tts_pause">Pause</string>

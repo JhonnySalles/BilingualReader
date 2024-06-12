@@ -15,23 +15,7 @@
         xmlns:custom="http://schemas.android.com/apk/res/br.com.fenix.bilingualreader"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="false">
-
-        <include
-            android:id="@+id/container_book_progress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            layout="@layout/reader_book_progress"/>
-
-        <include
-            android:id="@+id/container_book_tts"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerInParent="true"
-            android:visibility="gone"
-            layout="@layout/reader_book_tts"/>
+        android:fitsSystemWindows="true">
 
         <include
             android:id="@+id/reader_last_page"
@@ -49,7 +33,6 @@
             android:id="@+id/reader_book_toolbar_top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fitsSystemWindows="true"
             android:background="@drawable/app_reader_toolbar_background"
             android:paddingBottom="5dp"
             android:theme="@style/MainToolbarContentTheme"
@@ -91,7 +74,6 @@
             android:id="@+id/reader_book_toolbar_bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fitsSystemWindows="true"
             android:layout_alignParentBottom="true"
             android:paddingTop="0dp"
             android:paddingBottom="5dp"
