@@ -18,6 +18,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextClock
@@ -48,14 +49,15 @@ import br.com.fenix.bilingualreader.service.repository.LibraryRepository
 import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.slider.Slider
 import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -83,13 +85,16 @@ class BookReaderActivity : AppCompatActivity() {
     private lateinit var mBackgroundClock: TextClock
     private lateinit var mBackgroundBattery: TextView
 
-    private lateinit var mConfiguration: FrameLayout
-    private lateinit var mConfigurationTab: TabLayout
-    private lateinit var mConfigurationView: ViewPager
+    private lateinit var mMenuPopupConfiguration: FrameLayout
+    private lateinit var mPopupConfigurationTab: TabLayout
+    private lateinit var mPopupConfigurationView: ViewPager
 
     private lateinit var mPopupReaderFont: PopupBookFont
     private lateinit var mPopupReaderLayout: PopupBookLayout
     private lateinit var mPopupReaderLanguage: PopupBookLanguage
+
+    private var mMenuPopupBottomSheet: Boolean = false
+    private lateinit var mBottomSheetConfiguration: BottomSheetBehavior<FrameLayout>
 
     private lateinit var mTouchView: ConstraintLayout
 
@@ -140,9 +145,9 @@ class BookReaderActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowTitleEnabled(true)
 
-        mConfiguration = findViewById(R.id.popup_book_configuration)
-        mConfigurationTab = findViewById(R.id.popup_book_configuration_tab)
-        mConfigurationView = findViewById(R.id.popup_book_configuration_view_pager)
+        mMenuPopupConfiguration = findViewById(R.id.popup_book_configuration)
+        mPopupConfigurationTab = findViewById(R.id.popup_book_configuration_tab)
+        mPopupConfigurationView = findViewById(R.id.popup_book_configuration_view_pager)
 
         mToolBarTitle.setOnClickListener {  }
         mToolBarTitle.setOnLongClickListener {
@@ -150,11 +155,33 @@ class BookReaderActivity : AppCompatActivity() {
             true
         }
 
+        if (findViewById<ImageView>(R.id.popup_book_configuration_center_button) == null)
+            mMenuPopupBottomSheet = true
+        else {
+            mBottomSheetConfiguration = BottomSheetBehavior.from(mMenuPopupConfiguration).apply {
+                peekHeight = 195
+                this.state = BottomSheetBehavior.STATE_COLLAPSED
+                mBottomSheetConfiguration = this
+            }
+            mBottomSheetConfiguration.isDraggable = false
+
+            findViewById<ImageView>(R.id.popup_book_configuration_center_button).setOnClickListener {
+                if (mBottomSheetConfiguration.state == BottomSheetBehavior.STATE_COLLAPSED)
+                    mBottomSheetConfiguration.state = BottomSheetBehavior.STATE_EXPANDED
+                else
+                    mBottomSheetConfiguration.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+        }
+
+        findViewById<ImageView>(R.id.popup_book_configuration_close_button).setOnClickListener {
+            AnimationUtil.animatePopupClose(this, mMenuPopupConfiguration, !mMenuPopupBottomSheet, navigationColor = false)
+        }
+
         mPopupReaderFont = PopupBookFont()
         mPopupReaderLayout = PopupBookLayout()
         mPopupReaderLanguage = PopupBookLanguage()
 
-        mConfigurationTab.setupWithViewPager(mConfigurationView)
+        mPopupConfigurationTab.setupWithViewPager(mPopupConfigurationView)
 
         val viewPagerAdapter = ViewPagerAdapter(supportFragmentManager, 0)
         viewPagerAdapter.addFragment(
@@ -170,7 +197,7 @@ class BookReaderActivity : AppCompatActivity() {
             resources.getString(R.string.popup_reading_book_tab_item_language)
         )
 
-        mConfigurationView.adapter = viewPagerAdapter
+        mPopupConfigurationView.adapter = viewPagerAdapter
 
         if (savedInstanceState == null) {
             SharedData.clearChapters()
@@ -444,15 +471,23 @@ class BookReaderActivity : AppCompatActivity() {
             R.id.menu_item_reader_book_chapter -> { dialogPageIndex() }
             R.id.menu_item_reader_book_search -> {}
             R.id.menu_item_reader_book_annotation -> {}
-            R.id.menu_item_reader_book_font_style -> { mConfiguration.visibility = View.VISIBLE }
+            R.id.menu_item_reader_book_font_style -> {
+                if (mMenuPopupConfiguration.visibility == View.GONE) {
+                    if (!mMenuPopupBottomSheet)
+                        mBottomSheetConfiguration.state = BottomSheetBehavior.STATE_EXPANDED
+
+                    AnimationUtil.animatePopupOpen(this, mMenuPopupConfiguration, !mMenuPopupBottomSheet, navigationColor = false)
+                } else
+                    AnimationUtil.animatePopupClose(this, mMenuPopupConfiguration, !mMenuPopupBottomSheet, navigationColor = false)
+            }
             R.id.menu_item_reader_book_mark_page -> {}
         }
         return super.onOptionsItemSelected(item)
     }
 
     override fun onBackPressed() {
-        if (mConfiguration.visibility != View.GONE) {
-            mConfiguration.visibility = View.GONE
+        if (mMenuPopupConfiguration.visibility != View.GONE) {
+            AnimationUtil.animatePopupClose(this, mMenuPopupConfiguration, !mMenuPopupBottomSheet, navigationColor = false)
             return
         }
 

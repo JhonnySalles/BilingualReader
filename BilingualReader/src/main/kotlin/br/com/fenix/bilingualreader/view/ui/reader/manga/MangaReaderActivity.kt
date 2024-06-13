@@ -832,21 +832,27 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             R.id.manga_view_mode_fit_width -> optionsSave(ReaderMode.FIT_WIDTH)
             R.id.menu_item_reader_manga_popup_open_floating -> openFloatingSubtitle()
             R.id.menu_item_reader_manga_favorite -> changeFavorite(item)
-            R.id.menu_item_reader_manga_popup_subtitle -> mMenuPopupTranslate.visibility =
+            R.id.menu_item_reader_manga_popup_subtitle -> {
                 if (mMenuPopupTranslate.visibility == View.GONE) {
                     mMenuPopupColor.visibility = View.GONE
                     if (!mMenuPopupBottomSheet)
                         mBottomSheetTranslate.state = BottomSheetBehavior.STATE_EXPANDED
-                    View.VISIBLE
-                } else View.GONE
 
-            R.id.menu_item_reader_manga_popup_color -> mMenuPopupColor.visibility =
-                if (mMenuPopupTranslate.visibility == View.GONE) {
+                    AnimationUtil.animatePopupOpen(this, mMenuPopupTranslate, !mMenuPopupBottomSheet, navigationColor = false)
+                } else
+                    AnimationUtil.animatePopupClose(this, mMenuPopupTranslate, !mMenuPopupBottomSheet, navigationColor = false)
+            }
+
+            R.id.menu_item_reader_manga_popup_color -> {
+                if (mMenuPopupColor.visibility == View.GONE) {
                     mMenuPopupTranslate.visibility = View.GONE
                     if (!mMenuPopupBottomSheet)
                         mBottomSheetColor.state = BottomSheetBehavior.STATE_EXPANDED
-                    View.VISIBLE
-                } else View.GONE
+
+                    AnimationUtil.animatePopupOpen(this, mMenuPopupColor, !mMenuPopupBottomSheet, navigationColor = false)
+                } else
+                    AnimationUtil.animatePopupClose(this, mMenuPopupColor, !mMenuPopupBottomSheet, navigationColor = false)
+            }
 
             R.id.menu_item_reader_manga_file_link -> openFileLink()
             R.id.menu_item_reader_manga_open_kaku -> {
@@ -1014,8 +1020,11 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     fun openFloatingSubtitle() {
-        mMenuPopupTranslate.visibility = View.INVISIBLE
-        mMenuPopupColor.visibility = View.INVISIBLE
+        if (mMenuPopupColor.visibility == View.VISIBLE)
+        AnimationUtil.animatePopupClose(this, mMenuPopupColor, !mMenuPopupBottomSheet, navigationColor = false)
+
+        if (mMenuPopupTranslate.visibility == View.VISIBLE)
+            AnimationUtil.animatePopupClose(this, mMenuPopupTranslate, !mMenuPopupBottomSheet, navigationColor = false)
 
         if (mFloatingSubtitleReader.isShowing)
             mFloatingSubtitleReader.dismiss()

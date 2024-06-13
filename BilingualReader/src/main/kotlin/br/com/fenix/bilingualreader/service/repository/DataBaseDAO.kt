@@ -629,7 +629,10 @@ abstract class LibrariesDAO : BaseDAO<Library, Long>(DataBaseConsts.LIBRARIES.TA
 @Dao
 abstract class BookAnnotationDAO : BaseDAO<BookAnnotation, Long>(DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME, DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ID) {
 
-    @Query("SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook")
+    @Query(
+        "SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook " +
+        "ORDER BY ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION} DESC"
+    )
     abstract fun findAllByBook(idBook: Long): List<BookAnnotation>
 
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
@@ -658,7 +661,10 @@ abstract class BookAnnotationDAO : BaseDAO<BookAnnotation, Long>(DataBaseConsts.
     )
     abstract fun list(idBook: Long): List<BookAnnotation>
 
-    @Query("SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook")
+    @Query(
+        "SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook " +
+        "ORDER BY ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION} DESC"
+    )
     abstract fun findByBook(idBook: Long): List<BookAnnotation>
 
     @Query("SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook AND " + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGE + " = :page")

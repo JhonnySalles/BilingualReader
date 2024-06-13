@@ -12,6 +12,7 @@ import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.service.listener.BookAnnotationListener
 import com.google.android.material.button.MaterialButton
 
+
 class BookAnnotationViewHolder(itemView: View, private val listener: BookAnnotationListener) : RecyclerView.ViewHolder(itemView) {
 
     fun bind(mark: BookAnnotation, position: Int) {
@@ -45,16 +46,15 @@ class BookAnnotationViewHolder(itemView: View, private val listener: BookAnnotat
 
         favorite.setIconResource(if (mark.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
 
-
         text.text = mark.text
 
         if (mark.type == MarkType.PageMark) {
-            title.text = itemView.context.getString(R.string.book_annotation_list_title_mark, mark.page)
+            title.text = itemView.context.getString(R.string.book_annotation_list_title_mark, mark.page + 1, mark.pages)
             note.text = ""
             color.visibility = View.GONE
             noteContent.visibility = View.GONE
         } else {
-            title.text = itemView.context.getString(R.string.book_annotation_list_title_detach, mark.page)
+            title.text = itemView.context.getString(R.string.book_annotation_list_title_detach, mark.page + 1, mark.pages)
 
             color.visibility = View.VISIBLE
             if (mark.color != Color.None)

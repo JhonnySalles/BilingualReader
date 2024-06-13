@@ -268,8 +268,8 @@
 
     <string name="book_annotation_note">Nota</string>
 
-    <string name="book_annotation_list_title_detach">Página %d • Destaque</string>
-    <string name="book_annotation_list_title_mark">Página %d • Marcador</string>
+    <string name="book_annotation_list_title_detach">Página %d de %d • Destaque</string>
+    <string name="book_annotation_list_title_mark">Página %d de %d • Marcador</string>
     <string name="book_annotation_list_add_note">Adicionar nota</string>
     <string name="book_annotation_list_favorite">Favorito</string>
     <string name="book_annotation_list_options">Opções</string>

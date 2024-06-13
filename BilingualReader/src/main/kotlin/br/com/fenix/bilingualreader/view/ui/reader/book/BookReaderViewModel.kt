@@ -590,7 +590,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
     private fun prepareSpan(context: Context, span: SpannableString, page: Int, listener: TextSelectCallbackListener?): SpannableString {
         var spanned = span
-        val marks = mAnnotation.filter { it.page == page }
+        val marks = mAnnotation.filter { it.page == page && it.fontSize == mFontSize.value }
         if (marks.isNotEmpty()) {
             val process = SpannableString(spanned)
             var isSpan = false

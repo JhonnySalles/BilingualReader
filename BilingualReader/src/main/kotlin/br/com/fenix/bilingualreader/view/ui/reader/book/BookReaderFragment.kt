@@ -781,7 +781,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             }
 
         mCurrentPage = mViewPager.currentItem + 1
-        mPageSeekBar.progress = mCurrentPage-1
+        mPageSeekBar.progress = mCurrentPage - 1
 
         (requireActivity() as BookReaderActivity).changePageDescription(mBook!!.chapter, mBook!!.chapterDescription, mCurrentPage, mViewPager.adapter!!.itemCount)
     }
@@ -854,7 +854,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     if (anotation.fontSize != mViewModel.fontSize.value!!) {
                         mViewModel.changeFontSize(anotation.fontSize)
                         mHandler.postDelayed({
-                            setCurrentPage(anotation.page, isAnimated = false)
+                            setCurrentPage(anotation.page + 1, isAnimated = false)
                             mPagerAdapter.notifyItemChanged(anotation.page)
                         }, 1000)
                     } else if (anotation.page > 0)
