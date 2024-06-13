@@ -304,6 +304,7 @@
 
     <!-- BOOK SEARCH -->
     <string name="book_search_menu">Search</string>
+    <string name="book_search_stop">Stop</string>
     <string name="book_search_history_title">Recent search</string>
     <string name="book_search_history_clear">Clear history</string>
     <string name="book_search_history_delete">Delete</string>

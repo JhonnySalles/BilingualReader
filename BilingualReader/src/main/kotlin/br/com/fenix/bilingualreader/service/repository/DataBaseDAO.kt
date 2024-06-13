@@ -684,7 +684,7 @@ abstract class BookConfigurationDAO : BaseDAO<BookConfiguration, Long>(DataBaseC
 @Dao
 abstract class BookSearchDAO : BaseDAO<BookSearch, Long>(DataBaseConsts.BOOK_SEARCH_HISTORY.TABLE_NAME, DataBaseConsts.BOOK_SEARCH_HISTORY.COLUMNS.ID) {
 
-    @Query("SELECT * FROM " + DataBaseConsts.BOOK_SEARCH_HISTORY.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_SEARCH_HISTORY.COLUMNS.FK_ID_BOOK + " = :idBook")
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK_SEARCH_HISTORY.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_SEARCH_HISTORY.COLUMNS.FK_ID_BOOK + " = :idBook ORDER BY " + DataBaseConsts.BOOK_SEARCH_HISTORY.COLUMNS.DATE + " DESC")
     abstract fun findAllByBook(idBook: Long): List<BookSearch>
 
 }

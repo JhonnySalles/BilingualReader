@@ -34,14 +34,8 @@ class BookSearchLineAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            HEADER -> BookSearchHeaderViewHolder(
-                LayoutInflater.from(parent.context)
-                    .inflate(R.layout.line_card_divider_book_search, parent, false), mListener
-            )
-            else -> BookSearchViewHolder(
-                LayoutInflater.from(parent.context)
-                    .inflate(R.layout.line_card_book_search, parent, false), mListener
-            )
+            HEADER -> BookSearchHeaderViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.line_card_divider_book_search, parent, false), mListener)
+            else -> BookSearchViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.line_card_book_search, parent, false), mListener)
         }
     }
 

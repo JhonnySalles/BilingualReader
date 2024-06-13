@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.model.entity
 
+import androidx.compose.runtime.clearCompositionErrors
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
@@ -7,6 +8,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
+import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import java.io.Serializable
 import java.time.LocalDateTime
 
@@ -73,8 +75,8 @@ data class BookSearch(
             fontSize,
             MarkType.BookMark,
             chapter.chapter,
-            chapter.search,
-            search,
+            TextUtil.clearHighlightWordInText(chapter.search),
+            TextUtil.clearHighlightWordInText(search),
             intArrayOf(),
             ""
         )

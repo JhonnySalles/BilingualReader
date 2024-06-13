@@ -1,14 +1,19 @@
 package br.com.fenix.bilingualreader.view.ui.book
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookSearch
+import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.BookSearchRepository
+import br.com.fenix.bilingualreader.util.helpers.ColorUtil
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -23,7 +28,7 @@ class BookSearchViewModel(var app: Application) : AndroidViewModel(app) {
 
     private val mLOGGER = LoggerFactory.getLogger(BookSearchViewModel::class.java)
 
-    private var mColorHighlight = "#479900"
+    private var mColorHighlight = app.applicationContext.getColorFromAttr(R.attr.colorTertiary)
 
     private var last = ""
     var book: Book? = null
@@ -60,7 +65,8 @@ class BookSearchViewModel(var app: Application) : AndroidViewModel(app) {
         mRepository.delete(obj)
     }
 
-    fun initialize(book: Book, parse: DocumentParse) {
+    fun initialize(context: Context, book: Book, parse: DocumentParse) {
+        mColorHighlight = context.getColorFromAttr(R.attr.colorTertiary)
         last = ""
         this.book = book
         this.parse = parse
@@ -93,6 +99,7 @@ class BookSearchViewModel(var app: Application) : AndroidViewModel(app) {
                     mInSearching.value = true
                 }
 
+                val color = ColorUtil.getColor(mColorHighlight)
                 stopSearch = false
 
                 val list = mutableListOf<BookSearch>()
@@ -103,8 +110,7 @@ class BookSearchViewModel(var app: Application) : AndroidViewModel(app) {
                 val deferred = async {
                     for (i in 0 until parse!!.pageCount) {
                         val lines =
-                            TextUtil.formatHtml(parse!!.getPage(i).pageHTML, "||").split("||")
-                                .filter { it.isNotEmpty() }
+                            TextUtil.formatHtml(parse!!.getPage(i).pageHTML, "||").split("||").filter { it.isNotEmpty() }
 
                         if (stopSearch)
                             break
@@ -113,20 +119,13 @@ class BookSearchViewModel(var app: Application) : AndroidViewModel(app) {
                             if (line.contains(text, true)) {
                                 val chapter = chapters.lastOrNull { it.first <= i }
                                 if (chapter != null && title.chapter != chapter.first.toFloat()) {
-                                    title = BookSearch(
-                                        book!!.id!!,
-                                        chapter.second,
-                                        chapter.first.toFloat()
-                                    )
+                                    title = BookSearch(book!!.id!!, chapter.second, chapter.first.toFloat())
                                     texts.add(title)
                                 }
 
                                 val index = line.indexOf(text, ignoreCase = true)
                                 val contain = line.substring(index, index + text.length)
-                                val search = TextUtil.clearHtml(line).replace(
-                                    contain,
-                                    "<font color=$mColorHighlight>$contain</font>"
-                                )
+                                val search = TextUtil.highlightWordInText(line, contain, color)
                                 texts.add(BookSearch(book!!.id!!, search, i, title))
                             }
 

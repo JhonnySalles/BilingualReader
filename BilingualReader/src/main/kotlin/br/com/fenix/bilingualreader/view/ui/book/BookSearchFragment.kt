@@ -21,7 +21,9 @@ import android.widget.ListView
 import android.widget.PopupMenu
 import android.widget.ProgressBar
 import android.widget.SearchView
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.widget.Toolbar
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -29,6 +31,7 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookSearch
+import br.com.fenix.bilingualreader.service.listener.BookParseListener
 import br.com.fenix.bilingualreader.service.listener.BookSearchHistoryListener
 import br.com.fenix.bilingualreader.service.listener.BookSearchListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
@@ -43,7 +46,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.slf4j.LoggerFactory
 
 
-class BookSearchFragment : Fragment() {
+class BookSearchFragment : Fragment(), BookParseListener {
 
     private val mLOGGER = LoggerFactory.getLogger(BookSearchFragment::class.java)
 
@@ -54,7 +57,9 @@ class BookSearchFragment : Fragment() {
     private lateinit var miSearch: MenuItem
     private lateinit var searchView: SearchView
 
-    private lateinit var mProgressInSearch: ProgressBar
+    private lateinit var mProgressContent: CoordinatorLayout
+    private lateinit var mProgressIndicator: ProgressBar
+    private lateinit var mSearchStop: MaterialButton
     private lateinit var mClearHistory: MaterialButton
     private lateinit var mScrollUp: FloatingActionButton
     private lateinit var mScrollDown: FloatingActionButton
@@ -87,7 +92,9 @@ class BookSearchFragment : Fragment() {
                 mFontSize = it.getFloat(GeneralConsts.KEYS.OBJECT.BOOK_FONT_SIZE)
 
             val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-            mViewModelBookSearch.initialize(book, SharedData.getDocumentParse() ?: DocumentParse(path!!, password!!, fontSize, isLandscape))
+
+            val parse = SharedData.getDocumentParse() ?: DocumentParse(path!!, password!!, fontSize, isLandscape, this)
+            mViewModelBookSearch.initialize(requireContext(), book, parse)
 
             if (it.containsKey(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH)) {
                 mInitialSearch = it.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH) as BookSearch
@@ -142,16 +149,23 @@ class BookSearchFragment : Fragment() {
 
         mClearHistory = root.findViewById(R.id.book_search_history_clear)
 
-        mProgressInSearch = root.findViewById(R.id.book_search_in_progress)
+        mProgressContent = root.findViewById(R.id.book_search_progress_content)
+        mProgressIndicator = root.findViewById(R.id.book_search_in_progress)
+        mSearchStop = root.findViewById(R.id.book_search_stop)
         mScrollUp = root.findViewById(R.id.book_search_scroll_up)
         mScrollDown = root.findViewById(R.id.book_search_scroll_down)
 
         mToolbar = root.findViewById(R.id.toolbar_book_search)
 
+        (requireActivity() as MenuActivity).setActionBar(mToolbar)
+
+        mProgressContent.visibility = if (mViewModelBookSearch.parse != null && mViewModelBookSearch.parse!!.isLoading()) View.VISIBLE else View.GONE
         mScrollUp.visibility = View.GONE
         mScrollDown.visibility = View.GONE
 
-        (requireActivity() as MenuActivity).setActionBar(mToolbar)
+        mSearchStop.setOnClickListener {
+            mViewModelBookSearch.stopSearch = true
+        }
 
         mClearHistory.setOnClickListener {
             mViewModelBookSearch.deleteAll()
@@ -261,7 +275,7 @@ class BookSearchFragment : Fragment() {
 
     private fun observer() {
         mViewModelBookSearch.inSearching.observe(viewLifecycleOwner) {
-            mProgressInSearch.visibility = if (it) View.VISIBLE else View.GONE
+            mProgressContent.visibility = if (it) View.VISIBLE else View.GONE
         }
 
         mViewModelBookSearch.search.observe(viewLifecycleOwner) {
@@ -290,6 +304,19 @@ class BookSearchFragment : Fragment() {
         }
 
         super.onDestroy()
+    }
+
+    override fun onLoading(isFinished: Boolean, isLoaded: Boolean) {
+        if (::mProgressContent.isInitialized)
+            mProgressContent.visibility = if (isFinished) View.GONE else View.VISIBLE
+    }
+
+    override fun onSearching(isSearching: Boolean) {
+
+    }
+
+    override fun onConverting(isConverting: Boolean) {
+
     }
 
 }

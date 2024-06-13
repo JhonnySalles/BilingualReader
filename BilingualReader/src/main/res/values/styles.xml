@@ -670,6 +670,7 @@
 
     <style name="RoundedProgressBar" >
         <item name="android:layout_centerInParent">true</item>
+        <item name="android:progressBackgroundTint">?attr/colorOnPrimaryContainer</item>
         <item name="android:indeterminateTint">?attr/colorPrimaryContainer</item>
         <item name="android:progressTint">?attr/colorPrimaryContainer</item>
     </style>

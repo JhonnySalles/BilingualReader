@@ -303,6 +303,7 @@
 
     <!-- BOOK SEARCH -->
     <string name="book_search_menu">Pesquisa</string>
+    <string name="book_search_stop">Parar</string>
     <string name="book_search_history_title">Pesquisas recentes</string>
     <string name="book_search_history_clear">Limpar histórico</string>
     <string name="book_search_history_delete">Apagar</string>

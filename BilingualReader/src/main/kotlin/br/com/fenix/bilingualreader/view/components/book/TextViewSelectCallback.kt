@@ -127,7 +127,7 @@ class TextViewSelectCallback(val context: Context, val holder: TextViewPager.Tex
     }
 
     private fun selectAllText() {
-        Selection.setSelection(mTextView.getText() as Spannable, 0, mTextView.length())
+        Selection.setSelection(mTextView.text as Spannable, 0, mTextView.length())
     }
 
     private fun copyText(text: String) {

@@ -183,6 +183,8 @@
     <dimen name="book_search_text">12sp</dimen>
     <dimen name="book_search_page">10sp</dimen>
 
+    <dimen name="book_search_button_progress">30dp</dimen>
+
     <dimen name="book_search_padding_divider_title">20sp</dimen>
     <dimen name="book_search_scrolling_button_margin">10dp</dimen>
     <dimen name="book_search_up_border">2dp</dimen>

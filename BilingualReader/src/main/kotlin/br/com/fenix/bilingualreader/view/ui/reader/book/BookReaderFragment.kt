@@ -16,6 +16,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Selection
+import android.text.Spannable
 import android.util.Base64
 import android.view.GestureDetector
 import android.view.Gravity
@@ -81,6 +83,7 @@ import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.service.functions.AutoScroll
+import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
 import br.com.fenix.bilingualreader.view.components.book.TextViewPage
 import br.com.fenix.bilingualreader.view.components.book.TextViewPager
@@ -849,18 +852,35 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         when (requestCode) {
             GeneralConsts.REQUEST.BOOK_ANNOTATION -> {
                 if (data?.extras != null && data.extras!!.containsKey(GeneralConsts.KEYS.OBJECT.BOOK_ANNOTATION)) {
-                    val anotation = data.extras!!.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK_ANNOTATION) as BookAnnotation
+                    val annotation = data.extras!!.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK_ANNOTATION) as BookAnnotation
 
-                    if (anotation.fontSize != mViewModel.fontSize.value!!) {
-                        mViewModel.changeFontSize(anotation.fontSize)
+                    if (annotation.fontSize != mViewModel.fontSize.value!!) {
+                        mViewModel.changeFontSize(annotation.fontSize)
                         mHandler.postDelayed({
-                            setCurrentPage(anotation.page + 1, isAnimated = false)
-                            mPagerAdapter.notifyItemChanged(anotation.page)
+                            setCurrentPage(annotation.page + 1, isAnimated = false)
+                            mPagerAdapter.notifyItemChanged(annotation.page)
                         }, 1000)
-                    } else if (anotation.page > 0)
-                        setCurrentPage(anotation.page)
+                    } else if (annotation.page > 0)
+                        setCurrentPage(annotation.page + 1, isAnimated = false)
                 }
                 setFullscreen(true)
+            }
+            GeneralConsts.REQUEST.BOOK_SEARCH -> {
+                if (data?.extras != null && data.extras!!.containsKey(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH)) {
+                    val search = data.extras!!.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH) as BookSearch
+                    setCurrentPage(search.page + 1, isAnimated = false)
+                    mHandler.postDelayed({
+                        if (!ReaderConsts.READER.BOOK_WEB_VIEW_MODE) {
+                            val textView = (mPagerAdapter as TextViewPager).getHolder(search.page)?.textView ?: return@postDelayed
+                            val text = TextUtil.clearHighlightWordInText(search.search)
+                            val position = textView.text.indexOf(text)
+                            if (position > 0) {
+                                textView.requestFocus()
+                                Selection.setSelection(textView.text as Spannable, position, position + text.length)
+                            }
+                        }
+                    }, 1200)
+                }
             }
         }
     }

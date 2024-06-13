@@ -886,12 +886,10 @@ class MenuUtil {
         }
 
         fun tintColor(context: Context, textInput: TextInputLayout) {
-            textInput.hintTextColor =
-                ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorSecondary))
+            textInput.hintTextColor = ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorSecondary))
             textInput.boxBackgroundColor = context.getColorFromAttr(R.attr.colorOnSurface)
             textInput.boxStrokeColor = context.getColorFromAttr(R.attr.colorSurface)
-            textInput.placeholderTextColor =
-                ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorPrimary))
+            textInput.placeholderTextColor = ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorPrimary))
             tintIcons(context, textInput.startIconDrawable, R.attr.colorSecondary)
             tintIcons(context, textInput.endIconDrawable, R.attr.colorSecondary)
         }
@@ -1023,11 +1021,7 @@ class ThemeUtil {
         }
 
         @ColorInt
-        fun Context.getColorFromAttr(
-            @AttrRes attrColor: Int,
-            typedValue: TypedValue = TypedValue(),
-            resolveRefs: Boolean = true
-        ): Int {
+        fun Context.getColorFromAttr(@AttrRes attrColor: Int, typedValue: TypedValue = TypedValue(), resolveRefs: Boolean = true): Int {
             theme.resolveAttribute(attrColor, typedValue, resolveRefs)
             return typedValue.data
         }
@@ -1144,6 +1138,15 @@ class TextUtil {
         }
 
         fun replaceHtmlTags(html: String): String = html.replace("<[^>]*>".toRegex(), "")
+
+        fun highlightWordInText(html: String, contain: String, @ColorInt color: Int): String {
+            val color = ColorUtil.getColor(color)
+            return highlightWordInText(html, contain, color)
+        }
+
+        fun highlightWordInText(html: String, contain: String, color: String): String = clearHtml(html).replace(contain, "<font color=$color>$contain</font>")
+
+        fun clearHighlightWordInText(html: String): String = replaceHtmlTags(html)
     }
 }
 
@@ -1284,7 +1287,7 @@ class ColorUtil {
         }
 
         fun getColor(exadecimal: String) : Int = android.graphics.Color.parseColor(exadecimal)
-
+        fun getColor(@ColorInt color: Int) : String = String.format("#%06X", (0xFFFFFF and color))
     }
 }
 

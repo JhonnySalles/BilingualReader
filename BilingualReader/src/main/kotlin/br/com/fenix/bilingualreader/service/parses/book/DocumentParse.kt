@@ -79,6 +79,7 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
         CoroutineScope(newSingleThreadContext("BookThread")).launch {
             async {
                 try {
+                    isLoading = true
                     val start = Date()
                     clear()
                     mCodecDocument = ImageExtractor.getNewCodecContext(path, password, mWidth, mHeight, fontSize)
@@ -93,6 +94,7 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
                     mLOGGER.error(e.message, e)
                     throw BookLoadException("Could not open selected book: $path")
                 } finally {
+                    isLoading = false
                     withContext(Dispatchers.Main) {
                         listener?.onLoading(true, isLoaded)
                         onEnding(isLoaded)

@@ -111,15 +111,34 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/default_navigator_header_size"
                 android:background="@android:color/transparent"
+                android:titleMarginStart="10dp"
                 app:popupTheme="@style/MainToolbarStyle"
                 style="@style/MainToolbarThemeWithShadow">
-                <ProgressBar
-                    android:id="@+id/book_search_in_progress"
-                    style="@style/RoundedProgressBar"
+                <androidx.coordinatorlayout.widget.CoordinatorLayout
+                    android:id="@+id/book_search_progress_content"
                     android:layout_alignParentLeft="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="30dp"
-                    android:visibility="gone"/>
+                    android:layout_gravity="start"
+                    android:layout_width="@dimen/book_search_button_progress"
+                    android:layout_height="@dimen/book_search_button_progress"
+                    android:theme="@style/Theme.MangaReader"
+                    android:translationX="-10dp">
+                    <ProgressBar
+                        android:id="@+id/book_search_in_progress"
+                        style="@style/RoundedProgressBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/book_search_stop"
+                        style="@style/Button.IconOnly"
+                        android:layout_width="@dimen/book_search_button_progress"
+                        android:layout_height="@dimen/book_search_button_progress"
+                        android:textColor="?attr/colorSecondary"
+                        android:contentDescription="@string/book_search_stop"
+                        app:iconSize="15dp"
+                        app:iconTint="?attr/colorTertiary"
+                        app:icon="@drawable/ic_close" />
+                </androidx.coordinatorlayout.widget.CoordinatorLayout>
             </com.google.android.material.appbar.MaterialToolbar>
         </com.google.android.material.appbar.AppBarLayout>
 
