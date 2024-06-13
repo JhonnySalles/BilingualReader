@@ -178,11 +178,11 @@ class Manga(
     var subTitles: List<SubTitle> = arrayListOf()
 
     @Ignore
-    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.SORT)
-    var sort: LocalDateTime? = null
+    override val type: Type = Type.MANGA
 
     @Ignore
-    override val type: Type = Type.MANGA
+    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.SORT)
+    override var sort: LocalDateTime? = null
 
     override fun toString(): String {
         return "Manga(id=$id, title='$title', pages=$pages, bookMark=$bookMark, fileType='$fileType', update=$update)"

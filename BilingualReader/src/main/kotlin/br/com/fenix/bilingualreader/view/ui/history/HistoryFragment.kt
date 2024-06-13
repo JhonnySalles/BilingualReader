@@ -25,6 +25,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -52,9 +53,9 @@ class HistoryFragment : Fragment() {
         inflater.inflate(R.menu.menu_history_manga, menu)
         super.onCreateOptionsMenu(menu, inflater)
 
-        val miLibrary = menu.findItem(R.id.menu_history_manga_library)
+        val miLibrary = menu.findItem(R.id.menu_history_library)
         miLibrary.subMenu?.clear()
-        miLibrary.subMenu?.add(requireContext().getString(R.string.history_menu_choice_library_all))?.setOnMenuItemClickListener { _: MenuItem? ->
+        miLibrary.subMenu?.add(requireContext().getString(R.string.history_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
                 filterLibrary(null)
                 true
             }
@@ -65,7 +66,25 @@ class HistoryFragment : Fragment() {
                 true
             }
 
-        miSearch = menu.findItem(R.id.menu_history_manga_search)
+        val miTypes = menu.findItem(R.id.menu_history_type)
+        miTypes.subMenu?.clear()
+        miTypes.subMenu?.add(requireContext().getString(R.string.history_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
+            filterType(null)
+            true
+        }
+
+        for (type in Type.values()) {
+            val title = when (type) {
+                Type.MANGA -> requireContext().getString(R.string.history_manga)
+                Type.BOOK -> requireContext().getString(R.string.history_book)
+            }
+            miTypes.subMenu?.add(title)?.setOnMenuItemClickListener { _: MenuItem? ->
+                filterType(type)
+                true
+            }
+        }
+
+        miSearch = menu.findItem(R.id.menu_history_search)
         searchView = miSearch.actionView as SearchView
         searchView.imeOptions = EditorInfo.IME_ACTION_DONE
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -85,7 +104,7 @@ class HistoryFragment : Fragment() {
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
-            R.id.menu_history_manga_library -> {}
+            R.id.menu_history_library -> {}
         }
         return super.onOptionsItemSelected(menuItem)
     }
@@ -96,6 +115,10 @@ class HistoryFragment : Fragment() {
 
     private fun filterLibrary(library: Library?) {
         mViewModel.filterLibrary(library)
+    }
+
+    private fun filterType(type: Type?) {
+        mViewModel.filterType(type)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

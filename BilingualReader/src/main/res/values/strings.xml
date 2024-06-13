@@ -689,11 +689,14 @@
     <string name="book_detail_information_annotation"><b>Annotation:</b> %s</string>
     <string name="book_detail_information_genres"><b>Genres:</b> %s</string>
 
-    <!-- HISTORY - Manga / Comic -->
+    <!-- HISTORY - Manga / Comic / Book -->
     <string name="history_last_access">Last access</string>
     <string name="history_delete_description">Do you really want to delete the history?</string>
     <string name="menu_manga_history_library">Library</string>
-    <string name="history_menu_choice_library_all">All</string>
+    <string name="history_menu_choice_all">All</string>
+    <string name="history_library_default">Default</string>
+    <string name="history_manga">Manga / Comic</string>
+    <string name="history_book">Book</string>
 
     <!-- PAGE LINK -->
     <string name="page_link_manga_empty">Manga not found</string>

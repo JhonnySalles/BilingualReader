@@ -522,7 +522,7 @@
 
     <string name="book_library_share">Compartilhar livro</string>
 
-    <string name="book_library_default">Default</string>
+    <string name="book_library_default">Padrão</string>
     <string name="book_library_menu_delete">Deletar</string>
     <string name="book_library_menu_clear">Limpar histórico</string>
     <string name="book_library_menu_favorite_add">Adicionar favorito</string>
@@ -645,7 +645,10 @@
     <string name="history_last_access">Último acesso</string>
     <string name="history_delete_description">Deseja realmente excluir o histórico?</string>
     <string name="menu_manga_history_library">Biblioteca</string>
-    <string name="history_menu_choice_library_all">Todos</string>
+    <string name="history_menu_choice_all">Todos</string>
+    <string name="history_library_default">Padrão</string>
+    <string name="history_manga">Manga / Comic</string>
+    <string name="history_book">Livro</string>
 
     <!-- PAGE LINK -->
     <string name="page_link_manga_empty">Manga não encontrado</string>

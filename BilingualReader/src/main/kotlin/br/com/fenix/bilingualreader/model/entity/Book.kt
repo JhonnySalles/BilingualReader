@@ -57,12 +57,23 @@ class Book(
     lastVerify: LocalDate?
 ) : Serializable, History {
 
+    constructor(
+        id: Long?, title: String, author: String, password: String, annotation: String, year: String, genre: String, publisher: String, isbn: String,
+        pages: Int, chapter: Int, chapterDescription: String, bookMark: Int, language: Languages, path: String, name: String, fileType: FileType, folder: String,
+        fileSize: Long, favorite: Boolean, dateCreate: LocalDateTime?, fkLibrary: Long?, tags: MutableList<Long>, excluded: Boolean, lastAlteration: LocalDateTime?,
+        fileAlteration: Date, lastVocabImport: LocalDateTime?, lastVerify: LocalDate?, lastAccess: LocalDateTime?, sort: LocalDateTime?
+    ) : this(
+        id, title, author, password, annotation, year, genre, publisher, isbn, pages, chapter, chapterDescription, bookMark, language, path, folder,
+        name, fileType, fileSize, favorite, fkLibrary, tags, excluded, dateCreate, lastAccess, lastAlteration, fileAlteration, lastVocabImport, lastVerify
+    ) {
+        this.sort = sort
+    }
+
+
     @Ignore
     constructor(
-        fkLibrary: Long?, title: String, author: String, annotation: String,
-        year: String, genre: String, publisher: String, isbn: String,
-        path: String, folder: String, name: String, fileSize: Long,
-        pages: Int
+        fkLibrary: Long?, title: String, author: String, annotation: String, year: String, genre: String, publisher: String, isbn: String, path: String,
+        folder: String, name: String, fileSize: Long, pages: Int
     ) : this(
         null, title, author, "", annotation, year, genre, publisher, isbn, pages, 0, "", 0,
         Languages.ENGLISH, path, folder, name, FileType.UNKNOWN, fileSize, false, fkLibrary, mutableListOf(), false,
@@ -125,12 +136,6 @@ class Book(
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.LANGUAGE)
     var language: Languages = language
 
-    @Ignore
-    override var library: Library = Library(null)
-
-    @Ignore
-    override val type: Type = Type.BOOK
-
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.FILE_PATH)
     var path: String = path
         set(value) {
@@ -191,6 +196,16 @@ class Book(
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.LAST_VERIFY)
     var lastVerify: LocalDate? = lastVerify
+
+    @Ignore
+    override var library: Library = Library(null)
+
+    @Ignore
+    override val type: Type = Type.BOOK
+
+    @Ignore
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.SORT)
+    override var sort: LocalDateTime? = null
 
     override fun toString(): String {
         return "Book(id=$id, title='$title', author='$author', language=$language, path='$path', fileName='$fileName', extension='$extension', fileSize=$fileSize, name='$name', favorite=$favorite, excluded=$excluded)"

@@ -168,7 +168,7 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
-            R.id.menu_history_manga_library -> {}
+            R.id.menu_history_library -> {}
         }
         return super.onOptionsItemSelected(menuItem)
     }

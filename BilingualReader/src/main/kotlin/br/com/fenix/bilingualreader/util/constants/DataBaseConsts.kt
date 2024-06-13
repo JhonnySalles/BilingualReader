@@ -31,6 +31,7 @@ class DataBaseConsts private constructor() {
             const val FILE_ALTERATION = "file_alteration"
             const val LAST_VOCABULARY_IMPORT = "last_vocabulary_import"
             const val LAST_VERIFY = "last_verify"
+
             const val SORT = "sort"
         }
     }

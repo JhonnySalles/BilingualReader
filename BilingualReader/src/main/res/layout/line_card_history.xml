@@ -137,13 +137,26 @@
                     android:textSize="@dimen/history_content_size" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/history_library"
-                style="@style/TextNormal.History.Subtitle"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:textSize="@dimen/history_library" />
+                android:orientation="horizontal"
+                android:layout_marginTop="5dp">
+                <TextView
+                    android:id="@+id/history_library"
+                    style="@style/TextNormal.History.Subtitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="@dimen/history_library" />
+
+                <TextView
+                    android:id="@+id/history_type"
+                    style="@style/TextNormal.History.Subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/history_library" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

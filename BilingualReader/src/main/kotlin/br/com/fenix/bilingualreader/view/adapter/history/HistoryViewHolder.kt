@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
@@ -38,6 +39,7 @@ class HistoryViewHolder(itemView: View, private val listener: HistoryCardListene
         val fileSize = itemView.findViewById<TextView>(R.id.history_line_file_size)
         val pagesRead = itemView.findViewById<TextView>(R.id.history_line_pages)
         val library = itemView.findViewById<TextView>(R.id.history_library)
+        val type = itemView.findViewById<TextView>(R.id.history_type)
         val favorite = itemView.findViewById<ImageView>(R.id.history_favorite)
         val subtitle = itemView.findViewById<ImageView>(R.id.history_has_subtitle)
         val cardView = itemView.findViewById<LinearLayout>(R.id.history_card)
@@ -62,10 +64,17 @@ class HistoryViewHolder(itemView: View, private val listener: HistoryCardListene
         val percent: Float = if (history.bookMark > 0) ((history.bookMark.toFloat() / history.pages) * 100) else 0f
         pagesRead.text = "${history.bookMark} / ${history.pages}" + if (percent > 0) (" (" + Util.formatDecimal(percent) + ")") else ""
 
-        library.text = if (history.fkLibrary == GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
+        library.text = if (history.fkLibrary == GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA || history.fkLibrary == GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK)
             itemView.context.getString(R.string.manga_library_default).uppercase()
         else
             history.library.title.uppercase()
+
+        type.text = when(history.type) {
+            Type.BOOK -> itemView.context.getString(R.string.history_book)
+            Type.MANGA -> itemView.context.getString(R.string.history_manga)
+            else -> ""
+        }
+
         favorite.visibility = if (history.favorite) View.VISIBLE else View.GONE
         subtitle.visibility = if (history is Manga && history.hasSubtitle) View.VISIBLE else View.GONE
 

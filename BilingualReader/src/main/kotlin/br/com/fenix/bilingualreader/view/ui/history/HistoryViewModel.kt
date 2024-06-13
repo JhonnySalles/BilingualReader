@@ -6,9 +6,11 @@ import android.widget.Filterable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.repository.BookRepository
@@ -25,10 +27,11 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
     private val mMangaRepository: MangaRepository = MangaRepository(application.applicationContext)
     private val mBookRepository: BookRepository = BookRepository(application.applicationContext)
 
-    private val mDefaultMangaLibrary = LibraryUtil.getDefault(application.applicationContext, Type.MANGA)
-    private val mDefaultBookLibrary = LibraryUtil.getDefault(application.applicationContext, Type.BOOK)
+    private val mDefaultKey = -3L
+    private val mDefaultLibrary = Library(mDefaultKey, application.applicationContext.getString(R.string.history_library_default), "", excluded = true)
 
     private var mLibrary: Library? = null
+    private var mType: Type? = null
     private var mFilter: String = ""
 
     private var mListFull = MutableLiveData<ArrayList<History>>(arrayListOf())
@@ -36,8 +39,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
     val history: LiveData<ArrayList<History>> = mList
 
     fun list() {
-        val list = ArrayList<History>()
-        getLibraries(list)
+        var list = mutableListOf<History>()
 
         val mangas = mMangaRepository.listHistory()
         if (mangas != null)
@@ -46,14 +48,15 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
         val books = mBookRepository.listHistory()
         if (books != null)
             list.addAll(books)
+
+        list = list.distinctBy { it.lastAccess }.sortedByDescending { it.sort }.toMutableList()
 
         mListFull.value = ArrayList(list)
         mList.value = ArrayList(list)
     }
 
     fun list(refreshComplete: (Int) -> (Unit)) {
-        val list = ArrayList<History>()
-        getLibraries(list)
+        var list = mutableListOf<History>()
 
         val mangas = mMangaRepository.listHistory()
         if (mangas != null)
@@ -63,6 +66,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
         if (books != null)
             list.addAll(books)
 
+        list = list.distinctBy { it.lastAccess }.sortedByDescending { it.sort }.toMutableList()
 
         if (mList.value == null || mList.value!!.isEmpty()) {
             mList.value = ArrayList(list)
@@ -71,20 +75,6 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
             update(list)
 
         refreshComplete(mList.value!!.size - 1)
-    }
-
-    private fun getLibraries(list: List<History>) {
-        val mangasLib = mLibraryRepository.list(Type.MANGA)
-        list.forEach {
-            if (it.fkLibrary != GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
-                it.library = mangasLib.find { lb -> lb.id == it.fkLibrary } ?: it.library
-        }
-
-        val bookLib = mLibraryRepository.list(Type.BOOK)
-        list.forEach {
-            if (it.fkLibrary != GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK)
-                it.library = bookLib.find { lb -> lb.id == it.fkLibrary } ?: it.library
-        }
     }
 
     fun update(list: List<History>) {
@@ -193,13 +183,25 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
                     continue
                 }
 
-                if (mLibrary != null && history.fkLibrary != mLibrary!!.id)
+                if (mType != null && history.type != mType)
                     continue
 
+                if (mLibrary != null) {
+                    val key = if (mLibrary!!.id == mDefaultKey) {
+                        when (history) {
+                            is Manga -> GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
+                            is Book -> GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK
+                            else -> mLibrary!!.id
+                        }
+                    } else
+                        mLibrary!!.id
+
+                    if (history.fkLibrary != key)
+                        continue
+                }
+
                 if (mFilter.isNotEmpty()) {
-                    if (history.name.lowercase(Locale.getDefault()).contains(mFilter) ||
-                        history.fileType.compareExtension(mFilter)
-                    ) {
+                    if (history.name.lowercase(Locale.getDefault()).contains(mFilter) || history.fileType.compareExtension(mFilter)) {
                         if (title != null) {
                             list.add(title)
                             title = null
@@ -223,6 +225,13 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
             return
 
         mLibrary = library
+        mList.value = filterList()
+    }
+    fun filterType(type: Type?) {
+        if (type == mType)
+            return
+
+        mType = type
         mList.value = filterList()
     }
 
@@ -249,8 +258,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
 
     fun getLibraryList(): List<Library> {
         val list = mutableListOf<Library>()
-        list.add(mDefaultMangaLibrary)
-        list.add(mDefaultBookLibrary)
+        list.add(mDefaultLibrary)
         list.addAll(mLibraryRepository.list(Type.MANGA))
         list.addAll(mLibraryRepository.list(Type.BOOK))
         return list

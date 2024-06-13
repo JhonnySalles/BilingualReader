@@ -26,6 +26,7 @@ import br.com.fenix.bilingualreader.model.entity.Tags
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.model.entity.VocabularyBook
 import br.com.fenix.bilingualreader.model.entity.VocabularyManga
+import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
@@ -124,7 +125,7 @@ abstract class MangaDAO : BaseDAO<Manga, Long>(DataBaseConsts.MANGA.TABLE_NAME, 
                 "        '' AS ${DataBaseConsts.MANGA.COLUMNS.VOLUME}, -1 AS ${DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY}, 0 AS ${DataBaseConsts.MANGA.COLUMNS.EXCLUDED}, " +
                 "        null AS ${DataBaseConsts.MANGA.COLUMNS.DATE_CREATE}, 0 AS ${DataBaseConsts.MANGA.COLUMNS.FILE_ALTERATION}, null AS ${DataBaseConsts.MANGA.COLUMNS.LAST_VOCABULARY_IMPORT}, " +
                 "        null AS ${DataBaseConsts.MANGA.COLUMNS.LAST_VERIFY}, ${DataBaseConsts.MANGA.COLUMNS.RELEASE}, null AS ${DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION}, " +
-                "        Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '00:00:00.000' AS ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, " +
+                "        Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '23:59:59.999' AS ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, " +
                 "        Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '25:60:60.000' AS ${DataBaseConsts.MANGA.COLUMNS.SORT} " +
                 " FROM  " + DataBaseConsts.MANGA.TABLE_NAME +
                 " WHERE " + DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS + " is not null " +
@@ -241,13 +242,13 @@ abstract class BookDAO : BaseDAO<Book, Long>(DataBaseConsts.BOOK.TABLE_NAME, Dat
                 "        '' AS ${DataBaseConsts.BOOK.COLUMNS.PASSWORD}, '' AS ${DataBaseConsts.BOOK.COLUMNS.ANNOTATION}, ${DataBaseConsts.BOOK.COLUMNS.YEAR}, " +
                 "        '' AS ${DataBaseConsts.BOOK.COLUMNS.GENRE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.PUBLISHER}, '' AS ${DataBaseConsts.BOOK.COLUMNS.ISBN}, " +
                 "        0 AS ${DataBaseConsts.BOOK.COLUMNS.PAGES}, '' AS ${DataBaseConsts.BOOK.COLUMNS.CHAPTER}, '' AS ${DataBaseConsts.BOOK.COLUMNS.CHAPTER_DESCRIPTION}, " +
-                "        0 AS ${DataBaseConsts.BOOK.COLUMNS.BOOK_MARK}, '' AS ${DataBaseConsts.BOOK.COLUMNS.LANGUAGE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_PATH}, " +
-                "        '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_NAME}, null AS ${DataBaseConsts.BOOK.COLUMNS.FILE_TYPE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_FOLDER}, " +
+                "        0 AS ${DataBaseConsts.BOOK.COLUMNS.BOOK_MARK}, ${DataBaseConsts.BOOK.COLUMNS.LANGUAGE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_PATH}, " +
+                "        '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_NAME}, ${DataBaseConsts.BOOK.COLUMNS.FILE_TYPE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_FOLDER}, " +
                 "        0 AS ${DataBaseConsts.BOOK.COLUMNS.FILE_SIZE}, false AS ${DataBaseConsts.BOOK.COLUMNS.FAVORITE}, null AS ${DataBaseConsts.BOOK.COLUMNS.DATE_CREATE}, " +
                 "        -1 AS ${DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY}, '' AS ${DataBaseConsts.BOOK.COLUMNS.TAGS}, false AS ${DataBaseConsts.BOOK.COLUMNS.EXCLUDED}, " +
                 "        null AS ${DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION}, false AS ${DataBaseConsts.BOOK.COLUMNS.FILE_ALTERATION}, " +
                 "        null AS ${DataBaseConsts.BOOK.COLUMNS.LAST_VOCABULARY_IMPORT}, null AS ${DataBaseConsts.BOOK.COLUMNS.LAST_VERIFY}, " +
-                "        Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '00:00:00.000' AS ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, " +
+                "        Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '23:59:59.999' AS ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, " +
                 "        Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '25:60:60.000' AS ${DataBaseConsts.MANGA.COLUMNS.SORT} " +
                 " FROM  " + DataBaseConsts.BOOK.TABLE_NAME +
                 " WHERE " + DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS + " is not null " +

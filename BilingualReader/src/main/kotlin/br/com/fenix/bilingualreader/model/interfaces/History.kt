@@ -19,4 +19,5 @@ interface History {
     var library: Library
     val fileType: FileType
     val type: Type
+    var sort: LocalDateTime?
 }
