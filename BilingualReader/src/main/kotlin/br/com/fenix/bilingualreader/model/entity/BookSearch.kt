@@ -1,6 +1,5 @@
 package br.com.fenix.bilingualreader.model.entity
 
-import androidx.compose.runtime.clearCompositionErrors
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore

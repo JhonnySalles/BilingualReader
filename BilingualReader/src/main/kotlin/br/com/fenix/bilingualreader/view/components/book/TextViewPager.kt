@@ -7,8 +7,6 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.text.Spannable
 import android.text.SpannableString
-import android.text.style.ClickableSpan
-import android.text.style.ForegroundColorSpan
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -18,8 +16,6 @@ import android.widget.ImageView
 import android.widget.PopupWindow
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.core.graphics.toRectF
-import androidx.core.text.clearSpans
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Speech

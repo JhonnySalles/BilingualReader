@@ -1,7 +1,6 @@
 package br.com.fenix.bilingualreader.service.repository
 
 import android.content.Context
-import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts

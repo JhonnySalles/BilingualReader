@@ -3,17 +3,14 @@ package br.com.fenix.bilingualreader.view.components.book
 import android.content.Context
 import android.text.Spannable
 import android.text.method.MovementMethod
-import android.text.style.ClickableSpan
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
-import android.widget.ScrollView
 import androidx.appcompat.widget.AppCompatTextView
 import br.com.fenix.bilingualreader.service.listener.SelectionChangeListener
 import org.slf4j.LoggerFactory
-import kotlin.math.abs
 import kotlin.math.sqrt
 
 

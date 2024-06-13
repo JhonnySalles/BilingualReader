@@ -28,8 +28,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.drawToBitmap
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
-import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.service.functions.AutoScroll
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min

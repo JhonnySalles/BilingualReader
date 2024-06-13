@@ -8,7 +8,6 @@ import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookSearch
-import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.BookSearchRepository
 import br.com.fenix.bilingualreader.util.helpers.ColorUtil

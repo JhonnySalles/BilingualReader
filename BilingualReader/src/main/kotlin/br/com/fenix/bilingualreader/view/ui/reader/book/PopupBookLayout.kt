@@ -16,7 +16,6 @@ import br.com.fenix.bilingualreader.model.enums.BookLayoutType
 import br.com.fenix.bilingualreader.model.enums.MarginLayoutType
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
-import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
 import org.slf4j.LoggerFactory

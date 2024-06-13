@@ -11,8 +11,6 @@ import android.view.View
 import android.widget.PopupWindow
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
-import br.com.fenix.bilingualreader.view.components.book.TextViewPager
-import br.com.fenix.bilingualreader.view.components.book.TextViewSelectCallback
 import com.google.android.material.button.MaterialButton
 
 

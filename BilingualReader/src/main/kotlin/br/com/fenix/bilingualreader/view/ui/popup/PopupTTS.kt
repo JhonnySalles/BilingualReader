@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.view.ui.popup
 
 import android.content.Context
 import android.content.DialogInterface
-import android.speech.tts.Voice
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.AdapterView
@@ -10,9 +9,7 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.appcompat.app.AlertDialog
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.Tags
 import br.com.fenix.bilingualreader.model.enums.TextSpeech
-import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import io.github.whitemagic2014.tts.TTSVoice

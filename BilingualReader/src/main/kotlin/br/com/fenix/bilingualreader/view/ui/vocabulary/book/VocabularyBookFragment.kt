@@ -37,6 +37,8 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.model.enums.Order
+import br.com.fenix.bilingualreader.service.functions.InitializeVocabulary
+import br.com.fenix.bilingualreader.service.listener.PopupOrderListener
 import br.com.fenix.bilingualreader.service.listener.VocabularyCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
@@ -45,8 +47,6 @@ import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyBookCardAd
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyBookListCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyLoadState
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
-import br.com.fenix.bilingualreader.service.functions.InitializeVocabulary
-import br.com.fenix.bilingualreader.service.listener.PopupOrderListener
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyPopupOrder
 import com.google.android.material.bottomsheet.BottomSheetBehavior
