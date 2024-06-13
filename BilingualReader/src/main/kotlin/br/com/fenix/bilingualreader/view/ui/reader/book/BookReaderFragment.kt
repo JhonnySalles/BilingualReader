@@ -80,7 +80,7 @@ import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
-import br.com.fenix.bilingualreader.view.components.AutoScroll
+import br.com.fenix.bilingualreader.service.functions.AutoScroll
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
 import br.com.fenix.bilingualreader.view.components.book.TextViewPage
 import br.com.fenix.bilingualreader.view.components.book.TextViewPager
@@ -941,7 +941,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     override fun textSelectAddMark(page: Int, text: String, color: Color, start: Int, end: Int): BookAnnotation {
         val chapter = mParse!!.getChapter(page) ?: Pair(0, "")
         val annotation = BookAnnotation(
-            mBook!!.id!!, page, mParse!!.pageCount, MarkType.Annotation, chapter.first.toFloat(), chapter.second, text,
+            mBook!!.id!!, page, mParse!!.pageCount, mParse!!.fontSize, MarkType.Annotation, chapter.first.toFloat(), chapter.second, text,
             intArrayOf(start, end), "", color = color
         )
         mViewModel.save(annotation)
@@ -1001,7 +1001,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     break
             }
 
-            val annotation = BookAnnotation(mBook!!.id!!, mCurrentPage, mParse!!.pageCount, MarkType.PageMark, chapter.first.toFloat(), chapter.second, text, intArrayOf(), "")
+            val annotation = BookAnnotation(mBook!!.id!!, mCurrentPage, mParse!!.pageCount, mParse!!.fontSize, MarkType.PageMark, chapter.first.toFloat(), chapter.second, text, intArrayOf(), "")
             mViewModel.save(annotation)
             msg = getString(R.string.book_annotation_page_marked, mCurrentPage)
         }

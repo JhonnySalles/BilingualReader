@@ -6,7 +6,6 @@ import android.os.Build
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.Spanned
-import android.text.SpannedString
 import android.text.TextPaint
 import android.text.style.ClickableSpan
 import android.text.style.RelativeSizeSpan
@@ -18,11 +17,9 @@ import br.com.fenix.bilingualreader.service.repository.KanjaxRepository
 import br.com.fenix.bilingualreader.service.repository.KanjiRepository
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.helpers.JapaneseCharacter
-import br.com.fenix.bilingualreader.view.components.LongClickableSpan
+import br.com.fenix.bilingualreader.model.interfaces.LongClickableSpan
 import br.com.fenix.bilingualreader.view.ui.popup.PopupKanji
 import br.com.fenix.bilingualreader.view.ui.popup.PopupVocabulary
-import com.pedromassango.doubleclick.DoubleClick
-import com.pedromassango.doubleclick.DoubleClickListener
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory

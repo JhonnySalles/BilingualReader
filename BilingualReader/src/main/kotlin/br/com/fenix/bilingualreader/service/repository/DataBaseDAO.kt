@@ -220,6 +220,42 @@ abstract class BookDAO : BaseDAO<Book, Long>(DataBaseConsts.BOOK.TABLE_NAME, Dat
     @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS + " >= :date ORDER BY " + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + ", " + DataBaseConsts.BOOK.COLUMNS.FILE_NAME)
     abstract fun listSync(date: Date): List<Book>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query(
+        "SELECT * FROM ( " +
+                " SELECT ${DataBaseConsts.BOOK.COLUMNS.ID}, ${DataBaseConsts.BOOK.COLUMNS.TITLE}, ${DataBaseConsts.BOOK.COLUMNS.AUTHOR}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.PASSWORD}, ${DataBaseConsts.BOOK.COLUMNS.ANNOTATION}, ${DataBaseConsts.BOOK.COLUMNS.YEAR}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.GENRE}, ${DataBaseConsts.BOOK.COLUMNS.PUBLISHER}, ${DataBaseConsts.BOOK.COLUMNS.ISBN}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.PAGES}, ${DataBaseConsts.BOOK.COLUMNS.CHAPTER}, ${DataBaseConsts.BOOK.COLUMNS.CHAPTER_DESCRIPTION}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.BOOK_MARK}, ${DataBaseConsts.BOOK.COLUMNS.LANGUAGE}, ${DataBaseConsts.BOOK.COLUMNS.FILE_PATH}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.FILE_NAME}, ${DataBaseConsts.BOOK.COLUMNS.FILE_TYPE}, ${DataBaseConsts.BOOK.COLUMNS.FILE_FOLDER}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.FILE_SIZE}, ${DataBaseConsts.BOOK.COLUMNS.FAVORITE}, ${DataBaseConsts.BOOK.COLUMNS.DATE_CREATE}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY}, ${DataBaseConsts.BOOK.COLUMNS.TAGS}, ${DataBaseConsts.BOOK.COLUMNS.EXCLUDED}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION}, ${DataBaseConsts.BOOK.COLUMNS.FILE_ALTERATION}, ${DataBaseConsts.BOOK.COLUMNS.LAST_VOCABULARY_IMPORT}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.LAST_VERIFY}, ${DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS} AS ${DataBaseConsts.BOOK.COLUMNS.SORT}  " +
+                " FROM " + DataBaseConsts.BOOK.TABLE_NAME +
+                " WHERE " + DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS + " is not null " +
+                "UNION" +
+                " SELECT null AS ${DataBaseConsts.BOOK.COLUMNS.ID}, '' AS ${DataBaseConsts.BOOK.COLUMNS.TITLE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.AUTHOR}, " +
+                "        '' AS ${DataBaseConsts.BOOK.COLUMNS.PASSWORD}, '' AS ${DataBaseConsts.BOOK.COLUMNS.ANNOTATION}, ${DataBaseConsts.BOOK.COLUMNS.YEAR}, " +
+                "        '' AS ${DataBaseConsts.BOOK.COLUMNS.GENRE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.PUBLISHER}, '' AS ${DataBaseConsts.BOOK.COLUMNS.ISBN}, " +
+                "        0 AS ${DataBaseConsts.BOOK.COLUMNS.PAGES}, '' AS ${DataBaseConsts.BOOK.COLUMNS.CHAPTER}, '' AS ${DataBaseConsts.BOOK.COLUMNS.CHAPTER_DESCRIPTION}, " +
+                "        0 AS ${DataBaseConsts.BOOK.COLUMNS.BOOK_MARK}, '' AS ${DataBaseConsts.BOOK.COLUMNS.LANGUAGE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_PATH}, " +
+                "        '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_NAME}, null AS ${DataBaseConsts.BOOK.COLUMNS.FILE_TYPE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_FOLDER}, " +
+                "        0 AS ${DataBaseConsts.BOOK.COLUMNS.FILE_SIZE}, false AS ${DataBaseConsts.BOOK.COLUMNS.FAVORITE}, null AS ${DataBaseConsts.BOOK.COLUMNS.DATE_CREATE}, " +
+                "        -1 AS ${DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY}, '' AS ${DataBaseConsts.BOOK.COLUMNS.TAGS}, false AS ${DataBaseConsts.BOOK.COLUMNS.EXCLUDED}, " +
+                "        null AS ${DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION}, false AS ${DataBaseConsts.BOOK.COLUMNS.FILE_ALTERATION}, " +
+                "        null AS ${DataBaseConsts.BOOK.COLUMNS.LAST_VOCABULARY_IMPORT}, null AS ${DataBaseConsts.BOOK.COLUMNS.LAST_VERIFY}, " +
+                "        Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '00:00:00.000' AS ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, " +
+                "        Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '25:60:60.000' AS ${DataBaseConsts.MANGA.COLUMNS.SORT} " +
+                " FROM  " + DataBaseConsts.BOOK.TABLE_NAME +
+                " WHERE " + DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS + " is not null " +
+                " GROUP BY Substr(${DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS}, 0, 11)) " +
+                "ORDER BY sort DESC "
+    )
+    abstract fun listHistory(): List<Book>
+
 }
 
 
@@ -599,18 +635,19 @@ abstract class BookAnnotationDAO : BaseDAO<BookAnnotation, Long>(DataBaseConsts.
     @Query(
         "SELECT * FROM ( " +
                 " SELECT ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ID}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGE}, " +
-                "        ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGES}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TYPE}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER_NUMBER}, " +
-                "        ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TEXT}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ANNOTATION}, " +
-                "        ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FAVORITE}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COLOR}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.RANGE}, " +
-                "         ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CREATED}, 0 AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COUNT} " +
+                "        ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGES}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FONT_SIZE}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TYPE}, " +
+                "        ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER_NUMBER}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TEXT}, " +
+                "        ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ANNOTATION}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FAVORITE}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COLOR}, " +
+                "        ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.RANGE}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CREATED}, " +
+                "        0 AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COUNT} " +
                 " FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME +
                 " WHERE " + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + " = :idBook " +
                 "UNION" +
                 " SELECT null AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ID}, 0 AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK}, 0 AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGE}, " +
-                "        0 AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGES}, 'BookMark' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TYPE}, mark.${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER_NUMBER}, " +
-                "        mark.${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER}, '' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TEXT}, '' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ANNOTATION}, " +
-                "        false AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FAVORITE}, 'None' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COLOR}, '' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.RANGE}, " +
-                "        '2000-01-01T00:00:00.000' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION}, '2000-01-01T00:00:00.000' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CREATED}, " +
+                "        0 AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGES}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FONT_SIZE}, 'BookMark' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TYPE}, " +
+                "        mark.${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER_NUMBER}, mark.${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER}, '' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TEXT}, " +
+                "        '' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ANNOTATION}, false AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FAVORITE}, 'None' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COLOR}, " +
+                "        '' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.RANGE}, '2000-01-01T00:00:00.000' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION}, '2000-01-01T00:00:00.000' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CREATED}, " +
                 "        (SELECT Count(*) FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " aux WHERE aux." + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + " = mark." + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + "" +
                 "         AND aux." + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER + " = mark." + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER + ") AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COUNT} " +
                 " FROM  " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " mark " +

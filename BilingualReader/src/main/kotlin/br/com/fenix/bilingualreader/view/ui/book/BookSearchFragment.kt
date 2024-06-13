@@ -235,7 +235,7 @@ class BookSearchFragment : Fragment() {
                 popup.setOnMenuItemClickListener { item ->
                     when (item.itemId) {
                         R.id.menu_item_book_search_add_annotation -> {
-                            mViewModelAnnotations.save(search.toAnnotation(mViewModelBookSearch.getPageCount()))
+                            mViewModelAnnotations.save(search.toAnnotation(mViewModelBookSearch.getPageCount(), GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT.toInt()))
                         }
                     }
                     true

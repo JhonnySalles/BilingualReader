@@ -36,7 +36,7 @@ class MangaDetailActivityTest {
         intent = Intent(ApplicationProvider.getApplicationContext(), DetailActivity::class.java)
         val bundle = Bundle()
         manga = MangaTestUtil.getManga(ApplicationProvider.getApplicationContext())
-        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, Library(-1, Libraries.DEFAULT.name, ""))
+        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, manga.library)
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
         intent?.putExtras(bundle)
     }

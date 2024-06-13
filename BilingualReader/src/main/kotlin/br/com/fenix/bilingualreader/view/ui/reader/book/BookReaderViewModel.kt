@@ -7,6 +7,7 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
@@ -738,14 +739,10 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 list.add(Chapters(chapters[c].second, i, i+1, 0f, false, isSelected = number == i+1))
             }
 
-            val metrics = DisplayMetrics()
-            val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-            windowManager.defaultDisplay.getMetrics(metrics)
-
             val textView = TextView(context)
             changeTextStyle(textView)
-            textView.layoutParams.width = metrics.widthPixels
-            textView.layoutParams.height = metrics.heightPixels
+            textView.layoutParams.width = Resources.getSystem().displayMetrics.widthPixels
+            textView.layoutParams.height = Resources.getSystem().displayMetrics.heightPixels
 
             SharedData.setChapters(parse, list)
             CoroutineScope(Dispatchers.IO).launch {

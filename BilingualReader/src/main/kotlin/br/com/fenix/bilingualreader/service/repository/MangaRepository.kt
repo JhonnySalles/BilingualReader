@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.service.repository
 
 import android.content.Context
+import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -14,6 +15,7 @@ class MangaRepository(context: Context) {
 
     private val mLOGGER = LoggerFactory.getLogger(MangaRepository::class.java)
     private var mDataBase = DataBase.getDataBase(context).getMangaDao()
+    private var mLibrary = DataBase.getDataBase(context).getLibrariesDao()
 
     fun save(obj: Manga): Long {
         obj.lastAlteration = LocalDateTime.now()
@@ -52,7 +54,7 @@ class MangaRepository(context: Context) {
 
     fun list(library: Library): List<Manga>? {
         return try {
-            mDataBase.list(library.id)
+            loadLibrary(mDataBase.list(library.id))
         } catch (e: Exception) {
             mLOGGER.error("Error when list Manga: " + e.message, e)
             null
@@ -61,7 +63,7 @@ class MangaRepository(context: Context) {
 
     fun listRecentChange(library: Library): List<Manga>? {
         return try {
-            mDataBase.listRecentChange(library.id)
+            loadLibrary(mDataBase.listRecentChange(library.id))
         } catch (e: Exception) {
             mLOGGER.error("Error when list Manga: " + e.message, e)
             null
@@ -70,7 +72,7 @@ class MangaRepository(context: Context) {
 
     fun listRecentDeleted(library: Library): List<Manga>? {
         return try {
-            mDataBase.listRecentDeleted(library.id)
+            loadLibrary(mDataBase.listRecentDeleted(library.id))
         } catch (e: Exception) {
             mLOGGER.error("Error when list Manga: " + e.message, e)
             null
@@ -79,7 +81,7 @@ class MangaRepository(context: Context) {
 
     fun listDeleted(library: Library): List<Manga>? {
         return try {
-            mDataBase.listDeleted(library.id)
+            loadLibrary(mDataBase.listDeleted(library.id))
         } catch (e: Exception) {
             mLOGGER.error("Error when list Manga: " + e.message, e)
             null
@@ -88,7 +90,7 @@ class MangaRepository(context: Context) {
 
     fun listHistory(): List<Manga>? {
         return try {
-            mDataBase.listHistory()
+            loadLibrary(mDataBase.listHistory())
         } catch (e: Exception) {
             mLOGGER.error("Error when list Manga History: " + e.message, e)
             null
@@ -126,7 +128,7 @@ class MangaRepository(context: Context) {
 
     fun get(id: Long): Manga? {
         return try {
-            mDataBase.get(id)
+            loadLibrary(mDataBase.get(id))
         } catch (e: Exception) {
             mLOGGER.error("Error when get Manga: " + e.message, e)
             null
@@ -135,7 +137,7 @@ class MangaRepository(context: Context) {
 
     fun findByFileName(name: String): Manga? {
         return try {
-            mDataBase.getByFileName(name)
+            loadLibrary(mDataBase.getByFileName(name))
         } catch (e: Exception) {
             mLOGGER.error("Error when find Manga by file name: " + e.message, e)
             null
@@ -144,7 +146,7 @@ class MangaRepository(context: Context) {
 
     fun findByFilePath(name: String): Manga? {
         return try {
-            mDataBase.getByPath(name)
+            loadLibrary(mDataBase.getByPath(name))
         } catch (e: Exception) {
             mLOGGER.error("Error when find Manga by file name: " + e.message, e)
             null
@@ -153,7 +155,7 @@ class MangaRepository(context: Context) {
 
     fun findByFileFolder(folder: String): List<Manga>? {
         return try {
-            mDataBase.listByFolder(folder)
+            loadLibrary(mDataBase.listByFolder(folder))
         } catch (e: Exception) {
             mLOGGER.error("Error when find Manga by file folder: " + e.message, e)
             null
@@ -162,7 +164,7 @@ class MangaRepository(context: Context) {
 
     fun listOrderByTitle(library: Library): List<Manga>? {
         return try {
-            mDataBase.listOrderByTitle(library.id)
+            loadLibrary(mDataBase.listOrderByTitle(library.id))
         } catch (e: Exception) {
             mLOGGER.error("Error when find Manga by file folder: " + e.message, e)
             null
@@ -188,11 +190,23 @@ class MangaRepository(context: Context) {
     fun listSync(date: Date): List<Manga> {
         return try {
             val simple = SimpleDateFormat(GeneralConsts.PATTERNS.FULL_DATE_TIME, Locale.getDefault())
-            mDataBase.listSync(simple.format(date))
+            loadLibrary(mDataBase.listSync(simple.format(date)))
         } catch (e: Exception) {
             mLOGGER.error("Error when list Manga: " + e.message, e)
             listOf()
         }
+    }
+
+    private fun loadLibrary(manga: Manga?) : Manga? {
+        manga ?: return null
+        if (manga.fkLibrary != GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
+            manga.library = mLibrary.get(manga.fkLibrary!!)
+        return manga
+    }
+
+    private fun loadLibrary(list: List<Manga>) : List<Manga> {
+        list.forEach { loadLibrary(it) }
+        return list
     }
 
 }

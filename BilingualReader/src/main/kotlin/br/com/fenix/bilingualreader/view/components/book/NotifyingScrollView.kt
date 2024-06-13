@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.widget.ScrollView
 import br.com.fenix.bilingualreader.service.listener.ScrollChangeListener
-import br.com.fenix.bilingualreader.view.components.AutoScroll
+import br.com.fenix.bilingualreader.service.functions.AutoScroll
 
 
 class NotifyingScrollView(context: Context, attributeSet: AttributeSet?) : ScrollView(context, attributeSet), AutoScroll {

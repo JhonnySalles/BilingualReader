@@ -46,7 +46,7 @@ class SubTitleLinkedPageLinkTypeActivityTest {
         intent = Intent(ApplicationProvider.getApplicationContext(), PagesLinkActivity::class.java)
 
         val bundle = Bundle()
-        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA, Libraries.DEFAULT.name, ""))
+        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, manga.library)
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
         bundle.putInt(GeneralConsts.KEYS.MANGA.PAGE_NUMBER, 0)
         intent?.putExtras(bundle)

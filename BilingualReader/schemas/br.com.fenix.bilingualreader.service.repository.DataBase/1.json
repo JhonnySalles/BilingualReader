@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "81d69dbb9e49c4f212aafea74d5bed79",
+    "identityHash": "9711df3ff8bd13d29a31ef886d052c7e",
     "entities": [
       {
         "tableName": "Manga",
@@ -1117,7 +1117,7 @@
             "notNull": true
           },
           {
-            "fieldPath": "type",
+            "fieldPath": "fileType",
             "columnName": "type",
             "affinity": "TEXT",
             "notNull": true
@@ -1211,7 +1211,7 @@
       },
       {
         "tableName": "BookMark",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_book` INTEGER NOT NULL, `page` INTEGER NOT NULL, `pages` INTEGER NOT NULL, `type` TEXT NOT NULL, `chapter_number` REAL NOT NULL, `chapter` TEXT NOT NULL, `text` TEXT NOT NULL, `range` TEXT NOT NULL, `annotation` TEXT NOT NULL, `favorite` INTEGER NOT NULL, `color` TEXT NOT NULL, `alteration` TEXT NOT NULL, `created` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_book` INTEGER NOT NULL, `page` INTEGER NOT NULL, `pages` INTEGER NOT NULL, `font_size` INTEGER NOT NULL, `type` TEXT NOT NULL, `chapter_number` REAL NOT NULL, `chapter` TEXT NOT NULL, `text` TEXT NOT NULL, `range` TEXT NOT NULL, `annotation` TEXT NOT NULL, `favorite` INTEGER NOT NULL, `color` TEXT NOT NULL, `alteration` TEXT NOT NULL, `created` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -1234,6 +1234,12 @@
           {
             "fieldPath": "pages",
             "columnName": "pages",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fontSize",
+            "columnName": "font_size",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -1599,7 +1605,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '81d69dbb9e49c4f212aafea74d5bed79')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9711df3ff8bd13d29a31ef886d052c7e')"
     ]
   }
 }

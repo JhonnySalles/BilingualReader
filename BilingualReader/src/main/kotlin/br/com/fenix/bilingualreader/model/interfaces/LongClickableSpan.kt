@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.components
+package br.com.fenix.bilingualreader.model.interfaces
 
 import android.text.style.ClickableSpan
 import android.view.View

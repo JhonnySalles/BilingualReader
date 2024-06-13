@@ -45,7 +45,7 @@ import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyLoadState
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaListCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
-import br.com.fenix.bilingualreader.view.components.InitializeVocabulary
+import br.com.fenix.bilingualreader.service.functions.InitializeVocabulary
 import br.com.fenix.bilingualreader.service.listener.PopupOrderListener
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyPopupOrder

@@ -8,7 +8,7 @@ import android.text.method.MovementMethod
 import android.text.style.ClickableSpan
 import android.view.MotionEvent
 import android.widget.TextView
-import br.com.fenix.bilingualreader.view.components.LongClickableSpan
+import br.com.fenix.bilingualreader.model.interfaces.LongClickableSpan
 import org.slf4j.LoggerFactory
 import kotlin.math.abs
 

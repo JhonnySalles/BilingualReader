@@ -40,7 +40,7 @@ import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyCardAdapte
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyLoadState
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaListCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
-import br.com.fenix.bilingualreader.view.components.InitializeVocabulary
+import br.com.fenix.bilingualreader.service.functions.InitializeVocabulary
 import br.com.fenix.bilingualreader.service.listener.PopupOrderListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton

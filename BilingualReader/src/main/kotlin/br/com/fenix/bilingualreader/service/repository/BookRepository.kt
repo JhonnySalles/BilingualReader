@@ -4,6 +4,8 @@ import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookConfiguration
 import br.com.fenix.bilingualreader.model.entity.Library
+import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Date
@@ -13,6 +15,7 @@ class BookRepository(context: Context) {
     private val mLOGGER = LoggerFactory.getLogger(BookRepository::class.java)
     private var mDataBase = DataBase.getDataBase(context).getBookDao()
     private var mConfiguration = DataBase.getDataBase(context).getBookConfigurationDao()
+    private var mLibrary = DataBase.getDataBase(context).getLibrariesDao()
 
     // --------------------------------------------------------- BOOK ---------------------------------------------------------
     fun save(obj: Book): Long {
@@ -52,7 +55,7 @@ class BookRepository(context: Context) {
 
     fun list(library: Library): List<Book> {
         return try {
-            mDataBase.list(library.id)
+            loadLibrary(mDataBase.list(library.id))
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book: " + e.message, e)
             listOf()
@@ -61,7 +64,7 @@ class BookRepository(context: Context) {
 
     fun listRecentChange(library: Library): List<Book> {
         return try {
-            mDataBase.listRecentChange(library.id)
+            loadLibrary(mDataBase.listRecentChange(library.id))
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book: " + e.message, e)
             listOf()
@@ -70,7 +73,7 @@ class BookRepository(context: Context) {
 
     fun listRecentDeleted(library: Library): List<Book> {
         return try {
-            mDataBase.listRecentDeleted(library.id)
+            loadLibrary(mDataBase.listRecentDeleted(library.id))
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book: " + e.message, e)
             listOf()
@@ -79,10 +82,19 @@ class BookRepository(context: Context) {
 
     fun listDeleted(library: Library): List<Book> {
         return try {
-            mDataBase.listDeleted(library.id)
+            loadLibrary(mDataBase.listDeleted(library.id))
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book: " + e.message, e)
             listOf()
+        }
+    }
+
+    fun listHistory(): List<Book>? {
+        return try {
+            loadLibrary(mDataBase.listHistory())
+        } catch (e: Exception) {
+            mLOGGER.error("Error when list Book History: " + e.message, e)
+            null
         }
     }
 
@@ -117,7 +129,7 @@ class BookRepository(context: Context) {
 
     fun get(id: Long): Book? {
         return try {
-            mDataBase.get(id)
+            loadLibrary(mDataBase.get(id))
         } catch (e: Exception) {
             mLOGGER.error("Error when get Book: " + e.message, e)
             null
@@ -126,7 +138,7 @@ class BookRepository(context: Context) {
 
     fun findByFileName(name: String): Book? {
         return try {
-            mDataBase.getByFileName(name)
+            loadLibrary(mDataBase.getByFileName(name))
         } catch (e: Exception) {
             mLOGGER.error("Error when find Book by file name: " + e.message, e)
             null
@@ -135,7 +147,7 @@ class BookRepository(context: Context) {
 
     fun findByFilePath(name: String): Book? {
         return try {
-            mDataBase.getByPath(name)
+            loadLibrary(mDataBase.getByPath(name))
         } catch (e: Exception) {
             mLOGGER.error("Error when find Book by file name: " + e.message, e)
             null
@@ -144,7 +156,7 @@ class BookRepository(context: Context) {
 
     fun findByFileFolder(folder: String): List<Book>? {
         return try {
-            mDataBase.listByFolder(folder)
+            loadLibrary(mDataBase.listByFolder(folder))
         } catch (e: Exception) {
             mLOGGER.error("Error when find Book by file folder: " + e.message, e)
             null
@@ -153,7 +165,7 @@ class BookRepository(context: Context) {
 
     fun listOrderByTitle(library: Library): List<Book>? {
         return try {
-            mDataBase.listOrderByTitle(library.id)
+            loadLibrary(mDataBase.listOrderByTitle(library.id))
         } catch (e: Exception) {
             mLOGGER.error("Error when find Book by file folder: " + e.message, e)
             null
@@ -162,7 +174,7 @@ class BookRepository(context: Context) {
 
     fun listSync(date: Date): List<Book> {
         return try {
-            mDataBase.listSync(date)
+            loadLibrary(mDataBase.listSync(date))
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book: " + e.message, e)
             listOf()
@@ -183,6 +195,19 @@ class BookRepository(context: Context) {
             mLOGGER.error("Error when find last Book open: " + e.message, e)
             Pair(null, null)
         }
+    }
+
+    private fun loadLibrary(book: Book?) : Book? {
+        book ?: return null
+
+        if (book.fkLibrary != GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK)
+            book.library = mLibrary.get(book.fkLibrary!!)
+        return book
+    }
+
+    private fun loadLibrary(list: List<Book>) : List<Book> {
+        list.forEach { loadLibrary(it) }
+        return list
     }
 
     // --------------------------------------------------------- Configuration ---------------------------------------------------------

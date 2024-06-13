@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.components
+package br.com.fenix.bilingualreader.service.functions
 
 interface InitializeVocabulary<O> {
     fun setObject(obj: O)

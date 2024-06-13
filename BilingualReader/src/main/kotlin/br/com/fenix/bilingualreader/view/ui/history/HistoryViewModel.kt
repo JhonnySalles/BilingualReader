@@ -43,7 +43,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
         if (mangas != null)
             list.addAll(mangas)
 
-        val books = mMangaRepository.listHistory()
+        val books = mBookRepository.listHistory()
         if (books != null)
             list.addAll(books)
 
@@ -59,7 +59,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
         if (mangas != null)
             list.addAll(mangas)
 
-        val books = mMangaRepository.listHistory()
+        val books = mBookRepository.listHistory()
         if (books != null)
             list.addAll(books)
 

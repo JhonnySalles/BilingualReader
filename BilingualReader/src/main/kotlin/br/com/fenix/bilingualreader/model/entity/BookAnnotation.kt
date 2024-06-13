@@ -26,6 +26,8 @@ data class BookAnnotation(
     var page: Int,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGES)
     var pages: Int,
+    @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FONT_SIZE)
+    var fontSize: Int,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TYPE)
     val type: MarkType,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER_NUMBER)
@@ -50,18 +52,18 @@ data class BookAnnotation(
 
     @Ignore
     constructor(
-        id_book: Long, page: Int, pages: Int, type: MarkType, chapterNumber: Float, chapter: String, text: String,
+        id_book: Long, page: Int, pages: Int, fontSize: Int, type: MarkType, chapterNumber: Float, chapter: String, text: String,
         range: IntArray, annotation: String, favorite: Boolean = false, color: Color = Color.None
     ) : this(
-        null, id_book, page, pages, type, chapterNumber, chapter, text, range, annotation, favorite,
+        null, id_book, page, pages, fontSize, type, chapterNumber, chapter, text, range, annotation, favorite,
         color, LocalDateTime.now(), LocalDateTime.now()
     )
 
     constructor(
-        id: Long?, id_book: Long, page: Int, pages: Int, type: MarkType, chapterNumber: Float, chapter: String, text: String, range: IntArray,
+        id: Long?, id_book: Long, page: Int, pages: Int, fontSize: Int, type: MarkType, chapterNumber: Float, chapter: String, text: String, range: IntArray,
         annotation: String, favorite: Boolean, color: Color, alteration: LocalDateTime, created: LocalDateTime, count: Int
     ) : this(
-        id, id_book, page, pages, type, chapterNumber, chapter, text, range, annotation, favorite,
+        id, id_book, page, pages, fontSize, type, chapterNumber, chapter, text, range, annotation, favorite,
         color, alteration, created
     ) {
         this.count = count
@@ -69,8 +71,8 @@ data class BookAnnotation(
 
     @Ignore
     constructor(other: BookAnnotation) : this(
-        other.id, other.id_book, other.page, other.pages, other.type, other.chapterNumber, other.chapter, other.text, other.range, other.annotation,
-        other.favorite, other.color, other.alteration, other.created, other.count
+        other.id, other.id_book, other.page, other.pages, other.fontSize, other.type, other.chapterNumber, other.chapter, other.text, other.range,
+        other.annotation, other.favorite, other.color, other.alteration, other.created, other.count
     )
 
     @Ignore
@@ -81,6 +83,7 @@ data class BookAnnotation(
         this.id = other.id
         this.page = other.page
         this.pages = other.pages
+        this.fontSize = other.fontSize
         this.text = other.text
         this.range = other.range
         this.annotation = other.annotation

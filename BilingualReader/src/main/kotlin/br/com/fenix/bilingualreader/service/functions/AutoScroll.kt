@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.components
+package br.com.fenix.bilingualreader.service.functions
 
 interface AutoScroll {
     fun autoScroll(isBack: Boolean = false): Boolean

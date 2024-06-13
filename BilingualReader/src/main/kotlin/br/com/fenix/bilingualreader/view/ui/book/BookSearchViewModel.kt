@@ -33,8 +33,7 @@ class BookSearchViewModel(var app: Application) : AndroidViewModel(app) {
     private var mInSearching: MutableLiveData<Boolean> = MutableLiveData(false)
     val inSearching: LiveData<Boolean> = mInSearching
 
-    private var mListHistory: MutableLiveData<MutableList<BookSearch>> =
-        MutableLiveData(mutableListOf())
+    private var mListHistory: MutableLiveData<MutableList<BookSearch>> = MutableLiveData(mutableListOf())
     val history: LiveData<MutableList<BookSearch>> = mListHistory
 
     private var mListSearch: MutableLiveData<List<BookSearch>> = MutableLiveData(listOf())

@@ -47,10 +47,7 @@ class BookReaderActivityTest {
         intent = Intent(ApplicationProvider.getApplicationContext(), BookReaderActivity::class.java)
 
         val bundle = Bundle()
-        bundle.putSerializable(
-            GeneralConsts.KEYS.OBJECT.LIBRARY,
-            Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK, Libraries.DEFAULT.name, "")
-        )
+        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, book.library)
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
         bundle.putString(GeneralConsts.KEYS.BOOK.NAME, book.title)
         bundle.putInt(GeneralConsts.KEYS.BOOK.PAGE_NUMBER, BookTestUtil.BOOK_PAGE)

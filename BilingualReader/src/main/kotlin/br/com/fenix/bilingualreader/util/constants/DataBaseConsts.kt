@@ -182,6 +182,8 @@ class DataBaseConsts private constructor() {
             const val FILE_ALTERATION = "file_alteration"
             const val LAST_VOCABULARY_IMPORT = "last_vocabulary_import"
             const val LAST_VERIFY = "last_verify"
+
+            const val SORT = "sort"
         }
     }
 
@@ -195,6 +197,7 @@ class DataBaseConsts private constructor() {
             const val CHAPTER = "chapter"
             const val PAGE = "page"
             const val PAGES = "pages"
+            const val FONT_SIZE = "font_size"
             const val TYPE = "type"
             const val TEXT = "text"
             const val ANNOTATION = "annotation"
