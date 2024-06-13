@@ -27,7 +27,7 @@ data class BookAnnotation(
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGES)
     var pages: Int,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FONT_SIZE)
-    var fontSize: Int,
+    var fontSize: Float,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TYPE)
     val type: MarkType,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER_NUMBER)
@@ -52,7 +52,7 @@ data class BookAnnotation(
 
     @Ignore
     constructor(
-        id_book: Long, page: Int, pages: Int, fontSize: Int, type: MarkType, chapterNumber: Float, chapter: String, text: String,
+        id_book: Long, page: Int, pages: Int, fontSize: Float, type: MarkType, chapterNumber: Float, chapter: String, text: String,
         range: IntArray, annotation: String, favorite: Boolean = false, color: Color = Color.None
     ) : this(
         null, id_book, page, pages, fontSize, type, chapterNumber, chapter, text, range, annotation, favorite,
@@ -60,7 +60,7 @@ data class BookAnnotation(
     )
 
     constructor(
-        id: Long?, id_book: Long, page: Int, pages: Int, fontSize: Int, type: MarkType, chapterNumber: Float, chapter: String, text: String, range: IntArray,
+        id: Long?, id_book: Long, page: Int, pages: Int, fontSize: Float, type: MarkType, chapterNumber: Float, chapter: String, text: String, range: IntArray,
         annotation: String, favorite: Boolean, color: Color, alteration: LocalDateTime, created: LocalDateTime, count: Int
     ) : this(
         id, id_book, page, pages, fontSize, type, chapterNumber, chapter, text, range, annotation, favorite,

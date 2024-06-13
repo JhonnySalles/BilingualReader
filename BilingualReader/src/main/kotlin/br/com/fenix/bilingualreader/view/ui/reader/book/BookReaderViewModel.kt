@@ -44,6 +44,7 @@ import br.com.fenix.bilingualreader.model.enums.AlignmentLayoutType
 import br.com.fenix.bilingualreader.model.enums.FontType
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.MarginLayoutType
+import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
 import br.com.fenix.bilingualreader.model.enums.TextSpeech
@@ -534,6 +535,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     }
 
     fun prepareHtml(context: Context, parse: DocumentParse?, page: Int, holder: TextViewPager.TextViewPagerHolder, listener: TextSelectCallbackListener?) {
+        holder.pageMark.visibility = if (mAnnotation.any { it.page == page && it.type == MarkType.PageMark }) View.VISIBLE else View.GONE
+
         var text = parse?.getPage(page)?.pageHTMLWithImages.orEmpty()
 
         if (text.contains("<image-begin>image"))

@@ -241,6 +241,7 @@ class GeneralConsts private constructor() {
             const val DOCUMENT_PATH = "DOCUMENT_PATH"
             const val DOCUMENT_FONT_SIZE = "DOCUMENT_FONT_SIZE"
             const val DOCUMENT_PASSWORD = "DOCUMENT_PASSWORD"
+            const val BOOK_FONT_SIZE = "BOOK_FONT_SIZE"
             const val BOOK_ANNOTATION = "BOOK_ANNOTATION_OBJECT"
             const val BOOK_SEARCH = "BOOK_SEARCH_OBJECT"
         }

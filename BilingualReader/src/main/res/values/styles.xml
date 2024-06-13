@@ -730,6 +730,10 @@
         <item name="android:tint">?attr/colorPrimary</item>
     </style>
 
+    <style name="IconPageMark" parent="Theme.MangaReader">
+        <item name="android:tint">?attr/colorTertiary</item>
+    </style>
+
     <style name="FloatingButton" >
         <item name="android:textColor">@color/floating_button_color</item>
         <item name="android:layout_gravity">center</item>

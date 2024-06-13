@@ -71,6 +71,7 @@ class BookSearchFragment : Fragment() {
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
 
     private var mInitialSearch: BookSearch? = null
+    private var mFontSize: Float = GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,6 +82,10 @@ class BookSearchFragment : Fragment() {
             val path = it.getString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PATH)
             val password = it.getString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PASSWORD)
             val fontSize = it.getInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE)
+
+            if (it.containsKey(GeneralConsts.KEYS.OBJECT.BOOK_FONT_SIZE))
+                mFontSize = it.getFloat(GeneralConsts.KEYS.OBJECT.BOOK_FONT_SIZE)
+
             val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
             mViewModelBookSearch.initialize(book, SharedData.getDocumentParse() ?: DocumentParse(path!!, password!!, fontSize, isLandscape))
 
@@ -235,7 +240,7 @@ class BookSearchFragment : Fragment() {
                 popup.setOnMenuItemClickListener { item ->
                     when (item.itemId) {
                         R.id.menu_item_book_search_add_annotation -> {
-                            mViewModelAnnotations.save(search.toAnnotation(mViewModelBookSearch.getPageCount(), GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT.toInt()))
+                            mViewModelAnnotations.save(search.toAnnotation(mViewModelBookSearch.getPageCount(), mFontSize))
                         }
                     }
                     true

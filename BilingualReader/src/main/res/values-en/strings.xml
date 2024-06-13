@@ -215,6 +215,7 @@
     <string name="reading_book_title_position">Position %d of %d • %s%%</string>
     <string name="reading_book_title_chapter">Chapter %d: %s</string>
 
+    <string name="reading_book_page_mark">Page marker</string>
     <string name="reading_book_page_index">Page index</string>
     <string name="reading_book_page_empty">File has no folders</string>
     <string name="reading_book_open_exception">Could not open selected book</string>

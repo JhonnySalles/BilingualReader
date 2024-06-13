@@ -64,7 +64,7 @@ data class BookSearch(
         id: Long?, id_book: Long, search: String, date: LocalDateTime,
     ) : this(id, id_book, search, date, 0, 0F, true, null)
 
-    fun toAnnotation(pages: Int, fontSize: Int): BookAnnotation {
+    fun toAnnotation(pages: Int, fontSize: Float): BookAnnotation {
         val chapter = parent!!
         return BookAnnotation(
             id_book,

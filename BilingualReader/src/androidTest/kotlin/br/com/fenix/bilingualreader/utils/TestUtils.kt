@@ -407,7 +407,7 @@ class BookTestUtil {
                         book.id!!,
                         pages[i]!!,
                         book.pages,
-                        10,
+                        10f,
                         type!!,
                         chapters[i]!!,
                         "Chapter ${chapters[i]}",

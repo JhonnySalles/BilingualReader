@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "9711df3ff8bd13d29a31ef886d052c7e",
+    "identityHash": "6f905a17c86e5609ddb5888a136c64ce",
     "entities": [
       {
         "tableName": "Manga",
@@ -1211,7 +1211,7 @@
       },
       {
         "tableName": "BookMark",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_book` INTEGER NOT NULL, `page` INTEGER NOT NULL, `pages` INTEGER NOT NULL, `font_size` INTEGER NOT NULL, `type` TEXT NOT NULL, `chapter_number` REAL NOT NULL, `chapter` TEXT NOT NULL, `text` TEXT NOT NULL, `range` TEXT NOT NULL, `annotation` TEXT NOT NULL, `favorite` INTEGER NOT NULL, `color` TEXT NOT NULL, `alteration` TEXT NOT NULL, `created` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_book` INTEGER NOT NULL, `page` INTEGER NOT NULL, `pages` INTEGER NOT NULL, `font_size` REAL NOT NULL, `type` TEXT NOT NULL, `chapter_number` REAL NOT NULL, `chapter` TEXT NOT NULL, `text` TEXT NOT NULL, `range` TEXT NOT NULL, `annotation` TEXT NOT NULL, `favorite` INTEGER NOT NULL, `color` TEXT NOT NULL, `alteration` TEXT NOT NULL, `created` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -1238,9 +1238,9 @@
             "notNull": true
           },
           {
-            "fieldPath": "fontSize",
+            "fieldPath": "size",
             "columnName": "font_size",
-            "affinity": "INTEGER",
+            "affinity": "REAL",
             "notNull": true
           },
           {
@@ -1605,7 +1605,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9711df3ff8bd13d29a31ef886d052c7e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6f905a17c86e5609ddb5888a136c64ce')"
     ]
   }
 }

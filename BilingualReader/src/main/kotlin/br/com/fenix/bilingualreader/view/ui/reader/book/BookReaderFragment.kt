@@ -844,6 +844,27 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_ANNOTATION, null)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            GeneralConsts.REQUEST.BOOK_ANNOTATION -> {
+                if (data?.extras != null && data.extras!!.containsKey(GeneralConsts.KEYS.OBJECT.BOOK_ANNOTATION)) {
+                    val anotation = data.extras!!.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK_ANNOTATION) as BookAnnotation
+
+                    if (anotation.fontSize != mViewModel.fontSize.value!!) {
+                        mViewModel.changeFontSize(anotation.fontSize)
+                        mHandler.postDelayed({
+                            setCurrentPage(anotation.page, isAnimated = false)
+                            mPagerAdapter.notifyItemChanged(anotation.page)
+                        }, 1000)
+                    } else if (anotation.page > 0)
+                        setCurrentPage(anotation.page)
+                }
+                setFullscreen(true)
+            }
+        }
+    }
+
     private fun openBookSearch(search: BookSearch? = null) {
         if (mParse == null)
             return
@@ -861,6 +882,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         bundle.putString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PATH, mParse!!.path)
         bundle.putString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PASSWORD, mParse!!.password)
         bundle.putInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE, mParse!!.fontSize)
+        mViewModel.fontSize.value?.let { bundle.putFloat(GeneralConsts.KEYS.OBJECT.BOOK_FONT_SIZE, it) }
 
         if (search != null)
             bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH, search)
@@ -941,7 +963,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     override fun textSelectAddMark(page: Int, text: String, color: Color, start: Int, end: Int): BookAnnotation {
         val chapter = mParse!!.getChapter(page) ?: Pair(0, "")
         val annotation = BookAnnotation(
-            mBook!!.id!!, page, mParse!!.pageCount, mParse!!.fontSize, MarkType.Annotation, chapter.first.toFloat(), chapter.second, text,
+            mBook!!.id!!, page, mParse!!.pageCount, mViewModel.fontSize.value!!, MarkType.Annotation, chapter.first.toFloat(), chapter.second, text,
             intArrayOf(start, end), "", color = color
         )
         mViewModel.save(annotation)
@@ -986,7 +1008,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             mViewModel.delete(mark)
             msg = getString(R.string.book_annotation_page_unmarked, mCurrentPage)
         } else {
-
             val chapter = mParse!!.getChapter(mCurrentPage) ?: Pair(0, "")
 
             val html = mParse!!.getPage(mCurrentPage).pageHTMLWithImages.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
@@ -1001,9 +1022,13 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     break
             }
 
-            val annotation = BookAnnotation(mBook!!.id!!, mCurrentPage, mParse!!.pageCount, mParse!!.fontSize, MarkType.PageMark, chapter.first.toFloat(), chapter.second, text, intArrayOf(), "")
+            val annotation = BookAnnotation(mBook!!.id!!, mCurrentPage, mParse!!.pageCount, mViewModel.fontSize.value!!, MarkType.PageMark, chapter.first.toFloat(), chapter.second, text, intArrayOf(), "")
             mViewModel.save(annotation)
             msg = getString(R.string.book_annotation_page_marked, mCurrentPage)
+        }
+
+        (mViewPager.adapter as TextViewPager).getHolder(mViewPager.currentItem)?.pageMark?.let {
+            it.visibility = if (mark == null) View.VISIBLE else View.GONE
         }
 
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()

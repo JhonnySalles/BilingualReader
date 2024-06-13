@@ -6,6 +6,16 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <ImageView
+        android:id="@+id/page_mark"
+        style="@style/IconPageMark"
+        android:layout_width="30dp"
+        android:layout_height="90dp"
+        android:layout_gravity="end|top"
+        android:contentDescription="@string/reading_book_page_mark"
+        android:src="@drawable/ic_book_reader_page_mark"
+        android:translationY="-20dp"/>
+
     <br.com.fenix.bilingualreader.view.components.book.NotifyingScrollView
         android:id="@+id/page_scroll_view"
         android:layout_width="match_parent"

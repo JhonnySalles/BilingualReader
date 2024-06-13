@@ -215,6 +215,7 @@
     <string name="reading_book_title_position">Posição %d de %d • %s%%</string>
     <string name="reading_book_title_chapter">Capítulo %d: %s</string>
 
+    <string name="reading_book_page_mark">Marcador de página</string>
     <string name="reading_book_page_index">Índice</string>
     <string name="reading_book_page_empty">Arquivo não contem capítulos</string>
     <string name="reading_book_open_exception">Não foi possível abrir o livro selecionado</string>
