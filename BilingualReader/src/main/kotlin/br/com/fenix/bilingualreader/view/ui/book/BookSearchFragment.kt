@@ -21,7 +21,6 @@ import android.widget.ListView
 import android.widget.PopupMenu
 import android.widget.ProgressBar
 import android.widget.SearchView
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment

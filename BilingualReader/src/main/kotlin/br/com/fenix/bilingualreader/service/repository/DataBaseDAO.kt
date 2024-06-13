@@ -26,7 +26,6 @@ import br.com.fenix.bilingualreader.model.entity.Tags
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.model.entity.VocabularyBook
 import br.com.fenix.bilingualreader.model.entity.VocabularyManga
-import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts

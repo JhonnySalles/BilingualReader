@@ -15,7 +15,6 @@ import br.com.fenix.bilingualreader.model.enums.TextSpeech
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputLayout
-import org.lucasr.twowayview.TwoWayView
 import org.slf4j.LoggerFactory
 
 

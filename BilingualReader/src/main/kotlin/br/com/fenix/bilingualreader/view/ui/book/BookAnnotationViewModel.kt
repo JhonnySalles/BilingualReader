@@ -10,12 +10,11 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.MarkType
-import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 import br.com.fenix.bilingualreader.service.repository.BookAnnotationRepository
-import br.com.fenix.bilingualreader.util.helpers.ListUtil.ListUtils.mapToSet
 import org.slf4j.LoggerFactory
 import java.util.Locale
 import java.util.Objects
+import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 
 
 class BookAnnotationViewModel(var app: Application) : AndroidViewModel(app), Filterable {

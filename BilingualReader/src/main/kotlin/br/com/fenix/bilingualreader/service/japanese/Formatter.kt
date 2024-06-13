@@ -13,11 +13,11 @@ import android.view.View
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.model.exceptions.TokenizerLoadException
+import br.com.fenix.bilingualreader.model.interfaces.LongClickableSpan
 import br.com.fenix.bilingualreader.service.repository.KanjaxRepository
 import br.com.fenix.bilingualreader.service.repository.KanjiRepository
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.helpers.JapaneseCharacter
-import br.com.fenix.bilingualreader.model.interfaces.LongClickableSpan
 import br.com.fenix.bilingualreader.view.ui.popup.PopupKanji
 import br.com.fenix.bilingualreader.view.ui.popup.PopupVocabulary
 import kotlinx.coroutines.launch

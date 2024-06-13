@@ -3,7 +3,6 @@ package br.com.fenix.bilingualreader.view.ui.popup
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import br.com.fenix.bilingualreader.R

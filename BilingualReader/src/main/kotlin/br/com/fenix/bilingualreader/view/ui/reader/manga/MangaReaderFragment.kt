@@ -77,7 +77,6 @@ import br.com.fenix.bilingualreader.view.components.DottedSeekBar
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPager
 import br.com.fenix.bilingualreader.view.managers.MangaHandler
-import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderFragment
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
