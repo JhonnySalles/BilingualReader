@@ -648,6 +648,20 @@
         <item name="tint">?attr/colorSecondary</item>
     </style>
 
+
+    <style name="TextTitle.Statistics.Sector" parent="TextTitle">
+        <item name="android:textColor">?attr/colorTertiary</item>
+        <item name="android:textAppearance">?attr/textAppearanceHeadlineMedium</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextTitle.Statistics.Container" parent="TextTitle">
+        <item name="android:textColor">?attr/colorPrimaryInverse</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
+    </style>
+
+
     <style name="SeekBar" >
         <item name="android:progressBackgroundTint">?attr/colorOnPrimaryContainer</item>
         <item name="android:progressTint">?attr/colorPrimaryContainer</item>

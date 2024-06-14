@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fragment_config_book"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/TextTitle.Statistics.Sector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:gravity="center"
+            android:text="@string/config_sector_book" />
+
+        <com.google.android.material.divider.MaterialDivider
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin_small"
+            android:layout_marginRight="@dimen/margin" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/margin_small"
+                android:layout_marginEnd="@dimen/margin_small"
+                android:background="@drawable/statistics_content_small_rounded_background"
+                android:orientation="vertical">
+                <TextView
+                    style="@style/TextTitle.Statistics.Container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin"
+                    android:layout_marginTop="@dimen/margin_small"
+                    android:layout_marginBottom="@dimen/margin_small"
+                    android:gravity="center"
+                    android:text="Reading" />
+                <TextView
+                    style="@style/TextTitle.Statistics.Container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin"
+                    android:layout_marginBottom="@dimen/margin_small"
+                    android:gravity="center"
+                    android:text="120" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/margin_small"
+                android:layout_marginStart="@dimen/margin_small"
+                android:background="@drawable/statistics_content_small_rounded_background"
+                android:orientation="vertical">
+                <TextView
+                    style="@style/TextTitle.Statistics.Container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin"
+                    android:layout_marginTop="@dimen/margin_small"
+                    android:layout_marginBottom="@dimen/margin_small"
+                    android:gravity="center"
+                    android:text="To Read" />
+                <TextView
+                    style="@style/TextTitle.Statistics.Container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin"
+                    android:layout_marginBottom="@dimen/margin_small"
+                    android:gravity="center"
+                    android:text="404" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/margin_small"
+                android:layout_marginEnd="@dimen/margin_small"
+                android:background="@drawable/statistics_content_small_rounded_background"
+                android:orientation="vertical">
+                <TextView
+                    style="@style/TextTitle.Statistics.Container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin"
+                    android:layout_marginTop="@dimen/margin_small"
+                    android:layout_marginBottom="@dimen/margin_small"
+                    android:gravity="center"
+                    android:text="Library" />
+                <TextView
+                    style="@style/TextTitle.Statistics.Container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin"
+                    android:layout_marginBottom="@dimen/margin_small"
+                    android:gravity="center"
+                    android:text="524" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/margin_small"
+                android:layout_marginStart="@dimen/margin_small"
+                android:background="@drawable/statistics_content_small_rounded_background"
+                android:orientation="vertical">
+                <TextView
+                    style="@style/TextTitle.Statistics.Container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin"
+                    android:layout_marginTop="@dimen/margin_small"
+                    android:layout_marginBottom="@dimen/margin_small"
+                    android:gravity="center"
+                    android:text="Readed" />
+                <TextView
+                    style="@style/TextTitle.Statistics.Container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin"
+                    android:layout_marginBottom="@dimen/margin_small"
+                    android:gravity="center"
+                    android:text="450" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_small"
+            android:background="@drawable/statistics_content_big_rounded_background"
+            android:layout_margin="@dimen/margin"
+            android:orientation="vertical">
+            <TextView
+                style="@style/TextTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin"
+                android:layout_marginTop="@dimen/margin_small"
+                android:text="Completed" />
+
+            <com.google.android.material.divider.MaterialDivider
+                style="@style/MaterialDivider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView
+                        style="@style/TextNormal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginBottom="@dimen/margin_small"
+                        android:gravity="center"
+                        android:text="Pages" />
+
+                    <TextView
+                        style="@style/TextNormal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginBottom="@dimen/margin_small"
+                        android:gravity="center"
+                        android:text="120"
+                        android:textSize="20sp"/>
+                </LinearLayout>
+
+                <com.google.android.material.divider.MaterialDivider
+                    style="@style/MaterialDivider"
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="@dimen/margin" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="3"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView
+                        style="@style/TextNormal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginBottom="@dimen/margin_small"
+                        android:gravity="center"
+                        android:text="Times readed" />
+
+                    <TextView
+                        style="@style/TextNormal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginBottom="@dimen/margin_small"
+                        android:gravity="center"
+                        android:text="1 hour 13 minutes"
+                        android:textSize="20sp"/>
+                </LinearLayout>
+
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_small"
+            android:background="@drawable/statistics_content_big_rounded_background"
+            android:layout_margin="@dimen/margin"
+            android:orientation="vertical">
+            <TextView
+                style="@style/TextTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin"
+                android:layout_marginTop="@dimen/margin_small"
+                android:text="Current" />
+
+            <com.google.android.material.divider.MaterialDivider
+                style="@style/MaterialDivider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView
+                        style="@style/TextNormal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginBottom="@dimen/margin_small"
+                        android:gravity="center"
+                        android:text="Pages" />
+
+                    <TextView
+                        style="@style/TextNormal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginBottom="@dimen/margin_small"
+                        android:gravity="center"
+                        android:text="120"
+                        android:textSize="20sp"/>
+                </LinearLayout>
+
+                <com.google.android.material.divider.MaterialDivider
+                    style="@style/MaterialDivider"
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="@dimen/margin" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="3"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView
+                        style="@style/TextNormal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginBottom="@dimen/margin_small"
+                        android:gravity="center"
+                        android:text="Times readed" />
+
+                    <TextView
+                        style="@style/TextNormal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginBottom="@dimen/margin_small"
+                        android:gravity="center"
+                        android:text="1 hour 13 minutes"
+                        android:textSize="20sp"/>
+                </LinearLayout>
+
+
+            </LinearLayout>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin">
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:contentDescription="@string/about_app_name"
+                android:src="@mipmap/app_icon" />
+            <TextView
+                style="@style/TextTitle"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/margin"
+                android:gravity="center_vertical"
+                android:text="Pages readed" />
+
+            <TextView
+                style="@style/TextTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/margin"
+                android:gravity="center_vertical"
+                android:text="150 pages" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin">
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:contentDescription="@string/about_app_name"
+                android:src="@mipmap/app_icon" />
+            <TextView
+                style="@style/TextTitle"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/margin"
+                android:gravity="center_vertical"
+                android:text="Total time readed" />
+
+            <TextView
+                style="@style/TextTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/margin"
+                android:gravity="center_vertical"
+                android:text="15 hour 25 minutes" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin">
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:contentDescription="@string/about_app_name"
+                android:src="@mipmap/app_icon" />
+            <TextView
+                style="@style/TextTitle"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/margin"
+                android:gravity="center_vertical"
+                android:text="Reading average" />
+
+            <TextView
+                style="@style/TextTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/margin"
+                android:gravity="center_vertical"
+                android:text="20.5 pages per hour" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin"
+            android:orientation="vertical">
+            <TextView
+                style="@style/TextTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin"
+                android:layout_marginBottom="@dimen/margin_small"
+                android:gravity="center"
+                android:text="Books read / month" />
+
+            <TextView
+                style="@style/TextTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin"
+                android:layout_marginBottom="@dimen/margin_small"
+                android:gravity="center"
+                android:text="2020" />
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>
