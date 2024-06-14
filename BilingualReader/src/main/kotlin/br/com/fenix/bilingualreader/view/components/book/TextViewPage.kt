@@ -7,10 +7,13 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.view.View
 import androidx.appcompat.widget.AppCompatTextView
 import br.com.fenix.bilingualreader.service.listener.SelectionChangeListener
 import org.slf4j.LoggerFactory
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sqrt
 
 
@@ -20,6 +23,9 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
         const val TEXT_MAX_SIZE = 140f
         const val TEXT_MIN_SIZE = 40f
         const val STEP = 4
+
+        const val IMAGE_SCALE_MAX_SIZE = 2f
+        const val IMAGE_SCALE_MIN_SIZE = 0.5f
 
         private val mLOGGER = LoggerFactory.getLogger(TextViewPage::class.java)
     }
@@ -34,6 +40,7 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
 
     private var mCustomMovement: MovementMethod? = null
     private var mGestureDetector: GestureDetector
+    private var mScaleGestureDetector: ScaleGestureDetector
     private var mOuterTouchListener: OnTouchListener? = null
     private var mSelectionListener: SelectionChangeListener? = null
     private var mIsChangeSize: Boolean = true
@@ -44,19 +51,26 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
     init {
         mOriginalSize = textSize
 
-        mGestureDetector = GestureDetector(context, MyTouchListener())
+        mGestureDetector = GestureDetector(context, SimpleGestureListener())
+        mScaleGestureDetector = ScaleGestureDetector(context, ScaleGestureListener())
         super.setOnTouchListener { view, event ->
             view.performClick()
 
-            if (mCustomMovement != null) {
+            if (!isOnlyImage && mCustomMovement != null) {
                 if (text is Spannable && mCustomMovement!!.onTouchEvent(this, text as Spannable, event))
                     return@setOnTouchListener true
             }
 
+
             if (event.pointerCount > 1) {
                 setTextIsSelectable(false)
-                zoom(view, event)
+                if (isOnlyImage) {
+                    mScaleGestureDetector.onTouchEvent(event)
+                    setTextIsSelectable(true)
+                } else
+                    zoom(view, event)
                 parent.requestDisallowInterceptTouchEvent(true)
+                return@setOnTouchListener true
             } else
                 setTextIsSelectable(true)
 
@@ -113,6 +127,9 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
         if (mZooming)
             try {
                 mIsChangeSize = false
+                scaleX = 1f
+                scaleY = 1f
+                mScaleFactor = 1f
                 setTextSize(TypedValue.COMPLEX_UNIT_PX, mOriginalSize)
             } finally {
                 mIsChangeSize = true
@@ -120,6 +137,9 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
     }
 
     private fun zoom(v: View?, event: MotionEvent): Boolean {
+        if (isOnlyImage)
+            return true
+
         if (event.pointerCount == 2) {
             try {
                 mIsChangeSize = false
@@ -164,9 +184,20 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
         return sqrt((dx * dx + dy * dy).toDouble()).toInt()
     }
 
-    inner class MyTouchListener : GestureDetector.SimpleOnGestureListener() {
+    inner class SimpleGestureListener : GestureDetector.SimpleOnGestureListener() {
         override fun onDoubleTap(e: MotionEvent): Boolean {
             resetZoom()
+            return true
+        }
+    }
+
+    private var mScaleFactor = 1.0f
+    inner class ScaleGestureListener :  ScaleGestureDetector.SimpleOnScaleGestureListener() {
+        override fun onScale(detector: ScaleGestureDetector): Boolean {
+            mScaleFactor *= detector.scaleFactor
+            mScaleFactor = mScaleFactor.coerceIn(0.5f, 5.0f)
+            this@TextViewPage.scaleX = mScaleFactor
+            this@TextViewPage.scaleY = mScaleFactor
             return true
         }
     }

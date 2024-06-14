@@ -23,8 +23,7 @@ import com.pedromassango.doubleclick.DoubleClickListener
 import kotlin.math.roundToInt
 
 
-class PageLinkViewHolder(itemView: View, private val listener: PageLinkCardListener) :
-    RecyclerView.ViewHolder(itemView) {
+class PageLinkViewHolder(itemView: View, private val listener: PageLinkCardListener) : RecyclerView.ViewHolder(itemView) {
 
 
     companion object {

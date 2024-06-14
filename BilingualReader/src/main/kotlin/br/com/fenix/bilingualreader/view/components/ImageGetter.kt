@@ -34,7 +34,7 @@ class ImageGetter(val context: Context, val textView: TextView, val isOnlyImage 
             drawable.mutate()
 
             val start = (if (isOnlyImage) (screenWith / 2f) - (bmp.width / 2f) else 0).toInt()
-            drawable.setBounds(start, 0, start + bmp.width, bmp.height)
+            drawable.setBounds(0, 0, bmp.width, bmp.height)
         } catch (e: Exception) {
             mLOGGER.error("Error to load image", e)
         }

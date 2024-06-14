@@ -205,14 +205,11 @@ class MangaTestUtil {
 
 class BookTestUtil {
     companion object BookTestUtils {
-        const val BOOK_PAGE = 24
-        const val BOOK_PATH = "/storage/1CF6-3F0F/Livro/The Irregular at Magic High School - Volume 01 [Yen Press] [Darkmeep].epub"
+        const val BOOK_PAGE = 19
+        const val BOOK_PATH = "/storage/1F0A-291F/Livros/The Irregular at Magic High School - Volume 01 [Yen Press] [Darkmeep].epub"
         private const val BOOK_TEST_FILE_PATH = "storage/emulated/0/Book/Book of test.cbr"
         fun clearCache(context: Context) {
-            val cache = File(
-                GeneralConsts.getCacheDir(context),
-                GeneralConsts.CACHE_FOLDER.BOOKS + '/'
-            )
+            val cache = File(GeneralConsts.getCacheDir(context), GeneralConsts.CACHE_FOLDER.BOOKS + '/')
 
             if (cache.exists() && cache.listFiles() != null)
                 for (file in cache.listFiles())
