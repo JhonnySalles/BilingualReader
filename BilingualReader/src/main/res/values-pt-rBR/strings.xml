@@ -224,6 +224,10 @@
     <string name="reading_book_menu_text_functions_find">Encontrar</string>
     <string name="reading_book_menu_text_functions_translate">Traduzir</string>
 
+    <string name="reading_book_time_to_ending_hour">Restante: %d h %d min</string>
+    <string name="reading_book_time_to_ending_minutes">Restante: %d minutos</string>
+
+
     <!-- READER POPUP TITLES -->
     <string name="popup_reading_book_open">Abrir</string>
     <string name="popup_reading_book_close">Fechar</string>

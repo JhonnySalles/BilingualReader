@@ -145,7 +145,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     private lateinit var mStorage: Storage
     private lateinit var mRepository: MangaRepository
     private lateinit var mSubtitleController: SubTitleController
-    private lateinit var mHistoryRepository: HistoryRepository
     private lateinit var mLibrary: Library
     private var mFragment: MangaReaderFragment? = null
     private var mManga: Manga? = null
@@ -369,7 +368,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         mPopupColorView.adapter = viewColorPagerAdapter
 
         mRepository = MangaRepository(applicationContext)
-        mHistoryRepository = HistoryRepository(applicationContext)
 
         mPreferences = GeneralConsts.getSharedPreferences(this)
         mClockAndBattery.visibility = if (mPreferences.getBoolean(
@@ -560,7 +558,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         mManga = manga
         changePage(manga.title, "", manga.bookMark)
         setDots(mutableListOf(), mutableListOf())
-        generateHistory(manga)
     }
 
     fun setDots(dots: MutableList<Int>, inverse: MutableList<Int>) = mReaderProgress.setDots(dots.toIntArray(), inverse.toIntArray())
@@ -764,8 +761,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     override fun onDestroy() {
-        mViewModel.history?.let { mHistoryRepository.save(it) }
-
         mViewModel.mLanguageOcr = null
 
         if (::mFloatingSubtitleReader.isInitialized)
@@ -1341,17 +1336,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     override fun onLoading(page: Int) {
         if (!mChapterList.isComputingLayout)
             mChapterList.adapter?.notifyItemChanged(page)
-    }
-
-    private fun generateHistory(manga: Manga) {
-        if (mViewModel.history != null) {
-            if (mViewModel.history!!.fkLibrary != manga.fkLibrary || mViewModel.history!!.fkReference != manga.id) {
-                mViewModel.history!!.end = LocalDateTime.now()
-                mHistoryRepository.save(mViewModel.history!!)
-                mViewModel.history = History(manga.fkLibrary!!, manga.id!!, Type.MANGA, manga.bookMark, manga.pages, 0)
-            }
-        } else
-            mViewModel.history = History(manga.fkLibrary!!, manga.id!!, Type.MANGA, manga.bookMark, manga.pages, 0)
     }
 
 }

@@ -61,6 +61,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.BookSearch
+import br.com.fenix.bilingualreader.model.entity.History
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Speech
 import br.com.fenix.bilingualreader.model.enums.AudioStatus
@@ -76,6 +77,7 @@ import br.com.fenix.bilingualreader.service.listener.BookParseListener
 import br.com.fenix.bilingualreader.service.listener.TTSListener
 import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
+import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -91,6 +93,7 @@ import br.com.fenix.bilingualreader.view.components.book.WebViewPage
 import br.com.fenix.bilingualreader.view.components.book.WebViewPager
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupTTS
+import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderFragment
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -100,6 +103,9 @@ import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.nio.charset.StandardCharsets
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
+import java.util.Calendar
 import java.util.LinkedList
 
 
@@ -137,6 +143,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private lateinit var mLastPageImage: ImageView
     private lateinit var mLastPageText: TextView
 
+    private lateinit var mTimeToEnding: TextView
+
     private var mIsFullscreen = false
     private var mIsLeftToRight = true
 
@@ -146,7 +154,12 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private var mNewBook: Book? = null
     private var mNewBookTitle = 0
     private lateinit var mStorage: Storage
+    private lateinit var mHistoryRepository : HistoryRepository
     private var mTextToSpeech: TextToSpeechController? = null
+
+    private var mIsSeekBarChange = false
+    private var mPageStartReading = LocalDateTime.now()
+    private var mPagesAverage = mutableListOf<Long>()
 
     private val mLastPage = LinkedList<Pair<Int, Bitmap>>()
     private val mHandler = Handler(Looper.getMainLooper())
@@ -187,6 +200,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         super.onCreate(savedInstanceState)
         mCurrentPage = 1
         mStorage = Storage(requireContext())
+        mHistoryRepository = HistoryRepository(requireContext())
         mLibrary = LibraryUtil.getDefault(requireContext(), Type.BOOK)
 
         val bundle: Bundle? = arguments
@@ -256,12 +270,20 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         mLastPageImage = requireActivity().findViewById(R.id.last_page_image)
         mLastPageText = requireActivity().findViewById(R.id.last_page_text)
 
+        mTimeToEnding = requireActivity().findViewById(R.id.book_time_to_ending)
+
         mLastPageContainer.visibility = View.GONE
+
+        mTimeToEnding.text = ""
 
         if (mBook != null) {
             BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, true)
             BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, false)
+            generateHistory(mBook!!)
         }
+
+        mPageStartReading = LocalDateTime.now()
+        mPagesAverage = mutableListOf()
 
         onLoading(isFinished = false, isLoaded = false)
 
@@ -280,6 +302,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
             override fun onStartTrackingTouch(seekBar: SeekBar) {
                 try {
+                    mIsSeekBarChange = true
+
                     val text = (mViewPager.adapter as TextViewPager).getHolder(mViewPager.currentItem)?.textView ?: return
 
                     val page = seekBar.progress + 1
@@ -300,7 +324,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 }
             }
 
-            override fun onStopTrackingTouch(p0: SeekBar?) { }
+            override fun onStopTrackingTouch(p0: SeekBar?) {
+                mIsSeekBarChange = false
+            }
         })
 
         mLastPageContainer.setOnClickListener {
@@ -370,6 +396,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         if (mBook != null) {
             mBook?.bookMark = getCurrentPage()
             mStorage.updateBookMark(mBook!!)
+        }
+        mViewModel.history?.let {
+            it.pageEnd = mCurrentPage
+            it.end = LocalDateTime.now()
+            mHistoryRepository.save(it)
         }
         super.onPause()
     }
@@ -452,6 +483,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     setCurrentPage(position + 1, false)
                 else
                     setCurrentPage(mViewPager.adapter!!.itemCount - position, false)
+
+                generatePageAverage()
             }
         })
 
@@ -653,6 +686,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     setBookDots(pages)
                 }
             }
+
+            mPagesAverage.clear()
+            generatePageAverage(isOnlyCalculate = true)
         }
     }
 
@@ -946,6 +982,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
                     mViewModel.history?.let {
                         it.useTTS = true
+                        mHistoryRepository.save(it)
                     }
                 }
 
@@ -1052,6 +1089,88 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         }
 
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun generateHistory(book: Book) {
+        if (mViewModel.history != null) {
+            if (mViewModel.history!!.fkLibrary != book.fkLibrary || mViewModel.history!!.fkReference != book.id) {
+                mViewModel.history!!.end = LocalDateTime.now()
+                mHistoryRepository.save(mViewModel.history!!)
+                mViewModel.history = History(book.fkLibrary!!, book.id!!, Type.BOOK, book.bookMark, book.pages, 0)
+            }
+        } else
+            mViewModel.history = History(book.fkLibrary!!, book.id!!, Type.BOOK, book.bookMark, book.pages, 0)
+    }
+
+    private fun generatePageAverage(isOnlyCalculate: Boolean = false) {
+        if (mIsSeekBarChange) {
+            mPageStartReading = LocalDateTime.now()
+            return
+        }
+
+        if (!isOnlyCalculate) {
+            val pageSeconds = ChronoUnit.SECONDS.between(mPageStartReading, LocalDateTime.now())
+            mPageStartReading = LocalDateTime.now()
+
+            if (mPagesAverage.size > 5) {
+                val first = mPagesAverage.first()
+                val last = mPagesAverage.last()
+
+                if (pageSeconds <= first)
+                    mPagesAverage.remove(first)
+                else if (pageSeconds >= last)
+                    mPagesAverage.remove(last)
+                else {
+                    val center = (last - first)
+                    if (pageSeconds == center)
+                        mPagesAverage.remove(mPagesAverage[3])
+                    else if (pageSeconds < center)
+                        mPagesAverage.remove(mPagesAverage[2])
+                    else
+                        mPagesAverage.remove(mPagesAverage[4])
+                }
+
+                mPagesAverage.add(pageSeconds)
+            } else
+                mPagesAverage.add(pageSeconds)
+
+            mPagesAverage.sort()
+        }
+
+        if (mPagesAverage.isEmpty())
+            return
+
+        var average = 0L
+        for (second in mPagesAverage)
+            average += second
+
+        average /= mPagesAverage.size
+        mViewModel.history?.let {
+            if (!isOnlyCalculate) {
+                it.pageEnd = mCurrentPage
+                it.end = LocalDateTime.now()
+            }
+            it.averageTimeByPage = average
+            mHistoryRepository.save(it)
+        }
+
+        if (mPagesAverage.size < 2) {
+            mTimeToEnding.text = ""
+            return
+        }
+
+        val remaining = average * (mViewPager.adapter!!.itemCount - mCurrentPage)
+        val now = LocalDateTime.now()
+        val ending = now.plusSeconds(remaining)
+        val hours = ChronoUnit.HOURS.between(now, ending)
+        val minutes = (ChronoUnit.SECONDS.between(now, ending) % (60 * 60)) / 60
+
+        mTimeToEnding.text = if (hours <= 0L && minutes <= 0L)
+            ""
+        else if (hours > 0)
+            getString(R.string.reading_book_time_to_ending_hour, hours, minutes)
+        else
+            getString(R.string.reading_book_time_to_ending_minutes, minutes)
     }
 
     inner class MyTouchListener : GestureDetector.SimpleOnGestureListener() {

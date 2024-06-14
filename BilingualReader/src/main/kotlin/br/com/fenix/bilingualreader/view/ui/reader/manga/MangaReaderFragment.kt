@@ -57,6 +57,7 @@ import androidx.transition.TransitionManager
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.History
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.PageMode
@@ -67,6 +68,7 @@ import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
+import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
@@ -77,6 +79,7 @@ import br.com.fenix.bilingualreader.view.components.DottedSeekBar
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPager
 import br.com.fenix.bilingualreader.view.managers.MangaHandler
+import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderFragment
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -90,6 +93,8 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.OutputStream
 import java.lang.ref.WeakReference
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import java.util.LinkedList
 import kotlin.math.max
 import kotlin.math.min
@@ -134,11 +139,16 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     var mTargets = SparseArray<Target>()
     private var mLastZoomScale = 0f
 
+    private var mIsSeekBarChange = false
+    private var mPageStartReading = LocalDateTime.now()
+    private var mPagesAverage = mutableListOf<Long>()
+
     private lateinit var mLibrary: Library
     private var mManga: Manga? = null
     private var mNewManga: Manga? = null
     private var mNewMangaTitle = 0
     private lateinit var mStorage: Storage
+    private lateinit var mHistoryRepository: HistoryRepository
     private lateinit var mSubtitleController: SubTitleController
 
     private val mLastPage = LinkedList<Pair<Int, Bitmap>>()
@@ -241,6 +251,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mLibrary = LibraryUtil.getDefault(requireContext(), Type.MANGA)
         mPreferences = GeneralConsts.getSharedPreferences(requireContext())
         mSubtitleController = SubTitleController.getInstance(requireContext())
+        mHistoryRepository = HistoryRepository(requireContext())
 
         val bundle: Bundle? = arguments
         if (bundle != null && !bundle.isEmpty) {
@@ -374,6 +385,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         mLastPageContainer.visibility = View.GONE
 
+        mPageStartReading = LocalDateTime.now()
+        mPagesAverage = mutableListOf()
+
         (mPageNavLayout.findViewById<View>(R.id.reader_manga_bottom_progress) as DottedSeekBar).also {
             mPageSeekBar = it
         }
@@ -400,6 +414,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar) {
+                mIsSeekBarChange = true
                 mPicasso.pauseTag(this@MangaReaderFragment.requireActivity())
 
                 try {
@@ -421,6 +436,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar) {
+                mIsSeekBarChange = false
                 mPicasso.resumeTag(this@MangaReaderFragment.requireActivity())
             }
         })
@@ -445,6 +461,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     setCurrentPage(position + 1)
                 else
                     setCurrentPage(mViewPager.adapter!!.count - position)
+
+                generatePageAverage()
             }
         })
         mViewPager.setOnSwipeOutListener(object : ImageViewPager.OnSwipeOutListener {
@@ -469,6 +487,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         } else
             setFullscreen(true)
 
+        mManga?.let { generateHistory(it) }
         requireActivity().title = mFileName
         updateSeekBar()
 
@@ -514,6 +533,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         if (mManga != null) {
             mManga?.bookMark = getCurrentPage()
             mStorage.updateBookMark(mManga!!)
+        }
+        mViewModel.history?.let {
+            it.pageEnd = mCurrentPage
+            it.end = LocalDateTime.now()
+            mHistoryRepository.save(it)
         }
         super.onPause()
     }
@@ -1142,6 +1166,63 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             } finally {
                 Util.closeInputStream(it)
             }
+        }
+    }
+
+    private fun generateHistory(manga: Manga) {
+        if (mViewModel.history != null) {
+            if (mViewModel.history!!.fkLibrary != manga.fkLibrary || mViewModel.history!!.fkReference != manga.id) {
+                mViewModel.history!!.end = LocalDateTime.now()
+                mHistoryRepository.save(mViewModel.history!!)
+                mViewModel.history = History(manga.fkLibrary!!, manga.id!!, Type.MANGA, manga.bookMark, manga.pages, 0)
+            }
+        } else
+            mViewModel.history = History(manga.fkLibrary!!, manga.id!!, Type.MANGA, manga.bookMark, manga.pages, 0)
+    }
+
+    private fun generatePageAverage() {
+        if (mIsSeekBarChange) {
+            mPageStartReading = LocalDateTime.now()
+            return
+        }
+
+
+        val pageSeconds = ChronoUnit.SECONDS.between(mPageStartReading, LocalDateTime.now())
+        mPageStartReading = LocalDateTime.now()
+
+        if (mPagesAverage.size > 5) {
+            val first = mPagesAverage.first()
+            val last = mPagesAverage.last()
+
+            if (pageSeconds <= first)
+                mPagesAverage.remove(first)
+            else if (pageSeconds >= last)
+                mPagesAverage.remove(last)
+            else {
+                val center = (last - first)
+                if (pageSeconds == center)
+                    mPagesAverage.remove(mPagesAverage[3])
+                else if (pageSeconds < center)
+                    mPagesAverage.remove(mPagesAverage[2])
+                else
+                    mPagesAverage.remove(mPagesAverage[4])
+            }
+            mPagesAverage.add(pageSeconds)
+        } else
+            mPagesAverage.add(pageSeconds)
+
+        mPagesAverage.sort()
+
+        var average = 0L
+        for (second in mPagesAverage)
+            average += second
+
+        average /= mPagesAverage.size
+        mViewModel.history?.let {
+            it.pageEnd = mCurrentPage
+            it.end = LocalDateTime.now()
+            it.averageTimeByPage = average
+            mHistoryRepository.save(it)
         }
     }
 

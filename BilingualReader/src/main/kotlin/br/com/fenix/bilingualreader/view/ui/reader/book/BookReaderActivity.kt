@@ -35,16 +35,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
-import br.com.fenix.bilingualreader.model.entity.History
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.PageMode
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
 import br.com.fenix.bilingualreader.model.enums.Themes
-import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.repository.BookRepository
-import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
 import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.service.repository.Storage
@@ -61,7 +58,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
 import java.io.File
-import java.time.LocalDateTime
 
 
 class BookReaderActivity : AppCompatActivity() {
@@ -83,7 +79,6 @@ class BookReaderActivity : AppCompatActivity() {
     private lateinit var mBackgroundTitle: TextView
     private lateinit var mBackgroundProgress: ProgressBar
     private lateinit var mBackgroundClock: TextClock
-    private lateinit var mBackgroundBattery: TextView
 
     private lateinit var mMenuPopupConfiguration: FrameLayout
     private lateinit var mPopupConfigurationTab: TabLayout
@@ -99,14 +94,12 @@ class BookReaderActivity : AppCompatActivity() {
     private lateinit var mTouchView: ConstraintLayout
 
     private val mHandler = Handler(Looper.getMainLooper())
-    private val mMonitoringBattery = Runnable { getBatteryPercent() }
     private val mDismissTouchView = Runnable { closeViewTouch() }
 
     private lateinit var mPreferences: SharedPreferences
     private lateinit var mStorage: Storage
     private lateinit var mRepository: BookRepository
     private lateinit var mLibrary: Library
-    private lateinit var mHistoryRepository : HistoryRepository
     private var mFragment: BookReaderFragment? = null
     private var mBook: Book? = null
 
@@ -123,7 +116,6 @@ class BookReaderActivity : AppCompatActivity() {
         Formatter.initializeAsync(applicationContext)
 
         mRepository = BookRepository(applicationContext)
-        mHistoryRepository = HistoryRepository(applicationContext)
 
         mToolBarTop = findViewById(R.id.toolbar_book_reader)
         MenuUtil.tintToolbar(mToolBarTop, theme)
@@ -139,7 +131,6 @@ class BookReaderActivity : AppCompatActivity() {
         mBackgroundTitle = findViewById(R.id.book_progress_text)
         mBackgroundProgress = findViewById(R.id.book_progress_bar)
         mBackgroundClock = findViewById(R.id.book_progress_clock)
-        mBackgroundBattery = findViewById(R.id.book_progress_battery)
 
         setSupportActionBar(mToolBarTop)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -233,8 +224,6 @@ class BookReaderActivity : AppCompatActivity() {
             }
         } else
             mFragment = supportFragmentManager.findFragmentById(R.id.root_frame_book_reader) as BookReaderFragment?
-
-        getBatteryPercent()
     }
 
     private fun initialize(book: Book?) {
@@ -257,46 +246,6 @@ class BookReaderActivity : AppCompatActivity() {
         setFragment(fragment)
     }
 
-    /*private fun switchBook(isNext: Boolean = true) {
-        if (mBook == null) return
-
-        val changeBook = if (isNext)
-            mStorage.getNextBook(mLibrary, mBook!!)
-        else
-            mStorage.getPrevBook(mLibrary, mBook!!)
-
-        if (changeBook == null) {
-            val content =
-                if (isNext) R.string.switch_next_comic_last_comic else R.string.switch_prev_comic_first_comic
-            MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)
-                .setTitle(getString(R.string.switch_next_comic_not_found))
-                .setMessage(content)
-                .setPositiveButton(
-                    R.string.action_neutral
-                ) { _, _ ->
-                }
-                .create().show()
-            return
-        }
-
-        val title = if (isNext) R.string.switch_next_comic else R.string.switch_prev_comic
-
-        val dialog: AlertDialog =
-            MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)
-                .setTitle(title)
-                .setMessage(changeBook.file.name)
-                .setPositiveButton(
-                    R.string.switch_action_positive
-                ) { _, _ ->
-                    changeBook(changeBook)
-                }
-                .setNegativeButton(
-                    R.string.switch_action_negative
-                ) { _, _ -> }
-                .create()
-        dialog.show()
-    }*/
-
     fun changeBook(book: Book) {
         setBook(book)
         setFragment(BookReaderFragment.create(mLibrary, book))
@@ -313,10 +262,6 @@ class BookReaderActivity : AppCompatActivity() {
             getString(R.string.progress, page, pages)
 
         SharedData.selectPage(page)
-        mViewModel.history?.let {
-            it.pageEnd = page
-            it.end = LocalDateTime.now()
-        }
     }
 
     private fun setBook(book: Book) {
@@ -329,7 +274,6 @@ class BookReaderActivity : AppCompatActivity() {
         mToolBarBottomAuthor.text = book.author
 
         setDots(mutableListOf(), mutableListOf())
-        generateHistory(book)
     }
 
     fun setDots(dots: MutableList<Int>, inverse: MutableList<Int>) = mToolBarBottomProgress.setDots(dots.toIntArray(), inverse.toIntArray())
@@ -410,18 +354,11 @@ class BookReaderActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        mViewModel.history?.let { mHistoryRepository.save(it) }
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (mHandler.hasCallbacks(mMonitoringBattery))
-                mHandler.removeCallbacks(mMonitoringBattery)
-
             if (mHandler.hasCallbacks(mDismissTouchView))
                 mHandler.removeCallbacks(mDismissTouchView)
-        } else {
-            mHandler.removeCallbacks(mMonitoringBattery)
+        } else
             mHandler.removeCallbacks(mDismissTouchView)
-        }
 
         super.onDestroy()
     }
@@ -540,26 +477,6 @@ class BookReaderActivity : AppCompatActivity() {
         override fun getPageTitle(position: Int): CharSequence {
             return fragmentTitle[position]
         }
-    }
-
-    private fun getBatteryPercent() {
-        try {
-            val percent = (getSystemService(BATTERY_SERVICE) as BatteryManager).getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
-            mBackgroundBattery.text = getString(R.string.percent, percent)
-        } finally {
-            mHandler.postDelayed(mMonitoringBattery, 60000)
-        }
-    }
-
-    private fun generateHistory(book: Book) {
-        if (mViewModel.history != null) {
-            if (mViewModel.history!!.fkLibrary != book.fkLibrary || mViewModel.history!!.fkReference != book.id) {
-                mViewModel.history!!.end = LocalDateTime.now()
-                mHistoryRepository.save(mViewModel.history!!)
-                mViewModel.history = History(book.fkLibrary!!, book.id!!, Type.BOOK, book.bookMark, book.pages, 0)
-            }
-        } else
-            mViewModel.history = History(book.fkLibrary!!, book.id!!, Type.BOOK, book.bookMark, book.pages, 0)
     }
 
     private fun openChapters() {

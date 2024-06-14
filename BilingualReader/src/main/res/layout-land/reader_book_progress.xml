@@ -32,7 +32,7 @@
             android:textSize="@dimen/book_reader_progress_size" />
 
         <TextView
-            android:id="@+id/book_progress_battery"
+            android:id="@+id/book_time_to_ending"
             style="@style/TextTitle.PageNumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

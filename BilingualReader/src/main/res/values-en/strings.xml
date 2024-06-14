@@ -224,6 +224,9 @@
     <string name="reading_book_menu_text_functions_find">Find</string>
     <string name="reading_book_menu_text_functions_translate">Translate</string>
 
+    <string name="reading_book_time_to_ending_hour">Remaining: %d h %d min</string>
+    <string name="reading_book_time_to_ending_minutes">Remaining: %d minutes</string>
+
 
     <!-- READER POPUP TITLES -->
     <string name="popup_reading_book_open">Open</string>
