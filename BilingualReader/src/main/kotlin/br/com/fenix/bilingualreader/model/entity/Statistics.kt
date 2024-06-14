@@ -33,7 +33,7 @@ data class Statistics (
     @ColumnInfo(name = DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS)
     val totalReadSeconds: Long,
     @ColumnInfo(name = DataBaseConsts.STATISTICS.COLUMNS.DATE_TIME)
-    val dateTime: LocalDateTime,
+    val dateTime: LocalDateTime?,
     @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name = DataBaseConsts.STATISTICS.COLUMNS.TYPE)
     val type: Type

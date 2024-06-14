@@ -7,9 +7,10 @@
     android:layout_height="match_parent"
     android:clipToPadding="false"
     android:clipChildren="false"
-    tools:context=".view.ui.configuration.StatisticsFragment">
+    tools:context=".view.ui.statistics.StatisticsFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/frame_statistics_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -54,6 +55,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
+            app:blurOverlayColor="?attr/colorOnSurface"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -64,11 +66,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:indeterminate="false"
-                android:max="100"
-                android:progress="100"
+                android:indeterminate="true"
+                app:indicatorSize="@dimen/statistics_loading_size"
                 app:rippleColor="?attr/colorTertiary"
-                app:indicatorSize="@dimen/page_link_loading_progress_size"
                 app:indicatorColor="?attr/colorTertiary" />
 
         </eightbitlab.com.blurview.BlurView>

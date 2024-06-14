@@ -414,6 +414,7 @@
             android:layout_marginTop="@dimen/margin"
             android:orientation="vertical">
             <TextView
+                android:id="@+id/statistics_manga_chart_title"
                 style="@style/TextTitle.Statistics.Title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -423,7 +424,6 @@
                 android:text="@string/statistics_read_by_month" />
 
             <TextView
-                android:id="@+id/statistics_manga_chart_title"
                 style="@style/TextTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

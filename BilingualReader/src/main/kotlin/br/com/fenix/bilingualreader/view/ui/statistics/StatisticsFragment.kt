@@ -1,14 +1,18 @@
 package br.com.fenix.bilingualreader.view.ui.statistics
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.StatisticsRepository
 import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 import kotlin.math.round
@@ -18,10 +22,11 @@ class StatisticsFragment : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(StatisticsFragment::class.java)
 
-    private var mRepository: StatisticsRepository = StatisticsRepository(requireContext())
+    private lateinit var mRepository:StatisticsRepository
 
 
     private lateinit var mRoot: FrameLayout
+    private lateinit var mContent: ConstraintLayout
     private lateinit var mProgress: BlurView
 
     // --------------------------------------------------------- Manga / Comic ---------------------------------------------------------
@@ -57,10 +62,15 @@ class StatisticsFragment : Fragment() {
     private lateinit var mBookTotalTime: TextView
     private lateinit var mBookReadingAverage: TextView
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_statistics, container, false)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         mRoot = view.findViewById(R.id.frame_statistics_root)
+        mContent = view.findViewById(R.id.frame_statistics_content)
         mProgress = view.findViewById(R.id.fragment_statistics_progress)
 
         mMangaReading = view.findViewById(R.id.statistics_book_reading)
@@ -89,6 +99,16 @@ class StatisticsFragment : Fragment() {
 
         view.findViewById<TextView>(R.id.statistics_manga_chart_title).text = getString(R.string.statistics_read_by_month, getString(R.string.statistics_sector_manga))
         view.findViewById<TextView>(R.id.statistics_book_chart_title).text = getString(R.string.statistics_read_by_month, getString(R.string.statistics_sector_book))
+
+        mRepository = StatisticsRepository(requireContext())
+
+        val background = requireActivity().window.decorView.background
+
+        mProgress.setupWith(mContent, RenderScriptBlur(requireContext()))
+            .setFrameClearDrawable(background)
+            .setBlurRadius(20F)
+
+        loadStatistics()
     }
 
     private fun loadStatistics() {
@@ -129,7 +149,7 @@ class StatisticsFragment : Fragment() {
                 }
             }
         } finally {
-            mProgress.visibility = View.GONE
+            //mProgress.visibility = View.GONE
         }
     }
 
