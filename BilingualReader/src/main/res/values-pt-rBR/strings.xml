@@ -42,11 +42,42 @@
     <string name="menu_book">Biblioteca</string>
     <string name="menu_help">Ajuda</string>
     <string name="menu_about">Sobre</string>
+    <string name="menu_statistics">Estatística</string>
     <string name="menu_config">Configuração</string>
     <string name="menu_history">Histórico</string>
     <string name="menu_vocabulary">Vocabulário</string>
     <string name="menu_manga_library_type">Tipo da grid</string>
     <string name="menu_book_library_type">Tipo da grid</string>
+
+
+    <!-- STATISTICS -->
+    <string name="statistics_sector_system">Statistics</string>
+    <string name="statistics_sector_manga">Manga / Comic</string>
+    <string name="statistics_sector_book">Book</string>
+
+    <string name="statistics_reading">Lendo</string>
+    <string name="statistics_to_read">Pendentes</string>
+    <string name="statistics_library">Biblioteca</string>
+    <string name="statistics_read">Lido</string>
+
+    <string name="statistics_title_completed">Completos</string>
+    <string name="statistics_title_current">Atual</string>
+
+    <string name="statistics_title_pages">Páginas</string>
+    <string name="statistics_title_time">Tempo em leitura</string>
+
+    <string name="statistics_total_read_pages">Total de páginas lidas</string>
+    <string name="statistics_total_read_times">Total de tempo lendo</string>
+    <string name="statistics_total_read_average">Média de leitura</string>
+
+    <string name="statistics_read_by_month">%s leituras / mês</string>
+    <string name="statistics_average">%d minutos por página</string>
+
+    <string name="statistics_format_days">%d dias </string>
+    <string name="statistics_format_hours">%d horas </string>
+    <string name="statistics_format_minutes">%d minutos </string>
+    <string name="statistics_format_seconds">%d segundos </string>
+
 
     <!-- CONFIG -->
     <string name="config_sector_system">Sistema</string>

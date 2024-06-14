@@ -319,9 +319,30 @@ class DataBaseConsts private constructor() {
             const val CHAPTERS_READ = "chapters_READ"
             const val DATE_TIME_START = "date_time_start"
             const val DATE_TIME_END = "date_time_end"
+            const val SECONDS_READ = "seconds_read"
             const val USE_TTS = "use_tts"
             const val AVERAGE_TIME_PAGE = "average_time_page"
             const val NOTIFIED = "notified"
+        }
+    }
+
+    object STATISTICS {
+        object COLUMNS {
+            const val READING = "reading"
+            const val TO_READ = "to_read"
+            const val LIBRARY = "library"
+            const val READ = "read"
+
+            const val COMPLETE_READING_PAGES = "complete_reading_pages"
+            const val COMPLETE_READING_SECONDS = "complete_reading_seconds"
+            const val CURRENT_READING_PAGES = "current_reading_pages"
+            const val CURRENT_READING_SECONDS = "current_reading_seconds"
+
+            const val TOTAL_READ_PAGES = "total_read_pages"
+            const val TOTAL_READ_SECONDS = "total_read_seconds"
+
+            const val DATE_TIME = "date_time"
+            const val TYPE = "type"
         }
     }
 

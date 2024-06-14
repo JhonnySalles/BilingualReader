@@ -5,12 +5,12 @@
     <group>
         <item
             android:id="@+id/menu_manga_library_content"
-            android:icon="@drawable/ico_library"
+            android:icon="@drawable/ico_library_manga"
             android:title="@string/menu_manga">
             <menu android:id="@+id/menu_manga_library_items">
                 <item
                     android:id="@+id/menu_manga_library_default"
-                    android:icon="@drawable/ico_library"
+                    android:icon="@drawable/ico_library_manga"
                     android:orderInCategory="0"
                     android:title="@string/menu_library"/>
             </menu>
@@ -18,12 +18,12 @@
 
         <item
             android:id="@+id/menu_book_library_content"
-            android:icon="@drawable/ico_book"
+            android:icon="@drawable/ico_library_book"
             android:title="@string/menu_books">
             <menu android:id="@+id/menu_book_library_items">
                 <item
                     android:id="@+id/menu_book_library_default"
-                    android:icon="@drawable/ico_book"
+                    android:icon="@drawable/ico_library_book"
                     android:orderInCategory="0"
                     android:title="@string/menu_book"/>
             </menu>
@@ -40,6 +40,12 @@
             android:icon="@drawable/ico_animated_vocabulary"
             android:orderInCategory="100"
             android:title="@string/menu_vocabulary" />
+
+        <item
+            android:id="@+id/menu_statistics"
+            android:icon="@drawable/ic_statistics"
+            android:orderInCategory="100"
+            android:title="@string/menu_statistics" />
 
         <item
             android:id="@+id/menu_configuration"

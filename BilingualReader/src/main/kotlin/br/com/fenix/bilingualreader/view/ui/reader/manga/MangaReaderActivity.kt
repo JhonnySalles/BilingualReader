@@ -540,10 +540,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         mToolBar.title = title
         mToolBar.subtitle = text
         SharedData.selectPage(page)
-        mViewModel.history?.let {
-            it.pageEnd = page
-            it.end = LocalDateTime.now()
-        }
     }
 
     private fun setManga(manga: Manga, isRestore: Boolean = false) {

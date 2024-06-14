@@ -47,7 +47,10 @@ data class History(
     val start: LocalDateTime,
 
     @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_END)
-    var end: LocalDateTime,
+    private var end: LocalDateTime,
+
+    @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ)
+    private var secondsRead: Long,
 
     @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.AVERAGE_TIME_PAGE)
     var averageTimeByPage: Long,
@@ -61,7 +64,15 @@ data class History(
 
     @Ignore
     constructor(fkLibrary: Long, fkReference: Long, type: Type, pageStart: Int, pages: Int, volume: Int, averageTimeByPage: Long = 0, useTTS: Boolean = false, isNotify: Boolean = false) : this(
-        null, fkLibrary, fkReference, type, pageStart, 0, pages, volume, 0, LocalDateTime.now(), LocalDateTime.now(), averageTimeByPage, useTTS, isNotify
+        null, fkLibrary, fkReference, type, pageStart, 0, pages, volume, 0, LocalDateTime.now(), LocalDateTime.now(), 0, averageTimeByPage, useTTS, isNotify
     ) { }
+
+    fun getEnd() = end
+    fun setEnd(end: LocalDateTime) {
+        this.end = end
+        //secondsRead = end.toEpochSecond(end.offset) - start.toEpochSecond(start.offset)
+    }
+
+    fun getSecondsRead() = secondsRead
 
 }

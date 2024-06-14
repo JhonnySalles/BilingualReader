@@ -44,6 +44,7 @@ import br.com.fenix.bilingualreader.view.ui.library.book.BookLibraryFragment
 import br.com.fenix.bilingualreader.view.ui.library.book.BookLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryFragment
 import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryViewModel
+import br.com.fenix.bilingualreader.view.ui.statistics.StatisticsFragment
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyFragment
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
@@ -245,6 +246,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
 
             R.id.menu_configuration -> ConfigFragment()
+            R.id.menu_statistics -> StatisticsFragment()
             R.id.menu_help -> HelpFragment()
             R.id.menu_about -> AboutFragment()
             R.id.menu_history -> HistoryFragment()
@@ -333,7 +335,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun setLibraries(submenu: SubMenu?, type: Type, libraries: List<Library>) {
         val list = libraries.filter { it.type == type }
-        val icon = if (type == Type.BOOK) R.drawable.ico_book else R.drawable.ico_library
+        val icon = if (type == Type.BOOK) R.drawable.ico_library_book else R.drawable.ico_library_manga
         for ((index, library) in list.withIndex())
             submenu?.let {
                 val key =

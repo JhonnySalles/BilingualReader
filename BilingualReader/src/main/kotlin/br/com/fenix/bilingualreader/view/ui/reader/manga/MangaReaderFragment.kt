@@ -536,7 +536,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
         mViewModel.history?.let {
             it.pageEnd = mCurrentPage
-            it.end = LocalDateTime.now()
+            it.setEnd(LocalDateTime.now())
             mHistoryRepository.save(it)
         }
         super.onPause()
@@ -1172,7 +1172,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private fun generateHistory(manga: Manga) {
         if (mViewModel.history != null) {
             if (mViewModel.history!!.fkLibrary != manga.fkLibrary || mViewModel.history!!.fkReference != manga.id) {
-                mViewModel.history!!.end = LocalDateTime.now()
+                mViewModel.history!!.setEnd(LocalDateTime.now())
                 mHistoryRepository.save(mViewModel.history!!)
                 mViewModel.history = History(manga.fkLibrary!!, manga.id!!, Type.MANGA, manga.bookMark, manga.pages, 0)
             }
@@ -1220,7 +1220,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         average /= mPagesAverage.size
         mViewModel.history?.let {
             it.pageEnd = mCurrentPage
-            it.end = LocalDateTime.now()
+            it.setEnd(LocalDateTime.now())
             it.averageTimeByPage = average
             mHistoryRepository.save(it)
         }

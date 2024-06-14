@@ -61,6 +61,7 @@ abstract class DataBase : RoomDatabase() {
     abstract fun getLibrariesDao(): LibrariesDAO
     abstract fun getTagsDao(): TagsDAO
     abstract fun getHistoryDao(): HistoryDAO
+    abstract fun getStatisticsDao(): StatisticsDAO
 
     // Singleton - One database initialize only
     companion object {

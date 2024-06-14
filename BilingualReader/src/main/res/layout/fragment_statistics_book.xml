@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/fragment_config_book"
+    android:id="@+id/fragment_statistics_book"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -19,7 +18,7 @@
             android:layout_marginStart="@dimen/margin"
             android:layout_marginBottom="@dimen/margin_small"
             android:gravity="center"
-            android:text="@string/config_sector_book" />
+            android:text="@string/statistics_sector_book" />
 
         <com.google.android.material.divider.MaterialDivider
             style="@style/MaterialDivider"
@@ -42,22 +41,24 @@
                 android:background="@drawable/statistics_content_small_rounded_background"
                 android:orientation="vertical">
                 <TextView
-                    style="@style/TextTitle.Statistics.Container"
+                    style="@style/TextTitle.Statistics.Container.Title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin"
+                    android:layout_marginEnd="@dimen/margin"
                     android:layout_marginTop="@dimen/margin_small"
                     android:layout_marginBottom="@dimen/margin_small"
                     android:gravity="center"
-                    android:text="Reading" />
+                    android:text="@string/statistics_reading" />
                 <TextView
+                    android:id="@+id/statistics_book_reading"
                     style="@style/TextTitle.Statistics.Container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin"
+                    android:layout_marginEnd="@dimen/margin"
                     android:layout_marginBottom="@dimen/margin_small"
-                    android:gravity="center"
-                    android:text="120" />
+                    android:gravity="center" />
             </LinearLayout>
 
             <LinearLayout
@@ -69,23 +70,26 @@
                 android:background="@drawable/statistics_content_small_rounded_background"
                 android:orientation="vertical">
                 <TextView
-                    style="@style/TextTitle.Statistics.Container"
+                    style="@style/TextTitle.Statistics.Container.Title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin"
+                    android:layout_marginEnd="@dimen/margin"
                     android:layout_marginTop="@dimen/margin_small"
                     android:layout_marginBottom="@dimen/margin_small"
                     android:gravity="center"
-                    android:text="To Read" />
+                    android:text="@string/statistics_to_read" />
                 <TextView
+                    android:id="@+id/statistics_book_to_read"
                     style="@style/TextTitle.Statistics.Container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin"
+                    android:layout_marginEnd="@dimen/margin"
                     android:layout_marginBottom="@dimen/margin_small"
-                    android:gravity="center"
-                    android:text="404" />
+                    android:gravity="center" />
             </LinearLayout>
+
         </LinearLayout>
 
         <LinearLayout
@@ -101,22 +105,24 @@
                 android:background="@drawable/statistics_content_small_rounded_background"
                 android:orientation="vertical">
                 <TextView
-                    style="@style/TextTitle.Statistics.Container"
+                    style="@style/TextTitle.Statistics.Container.Title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin"
+                    android:layout_marginEnd="@dimen/margin"
                     android:layout_marginTop="@dimen/margin_small"
                     android:layout_marginBottom="@dimen/margin_small"
                     android:gravity="center"
-                    android:text="Library" />
+                    android:text="@string/statistics_library" />
                 <TextView
+                    android:id="@+id/statistics_book_library"
                     style="@style/TextTitle.Statistics.Container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin"
+                    android:layout_marginEnd="@dimen/margin"
                     android:layout_marginBottom="@dimen/margin_small"
-                    android:gravity="center"
-                    android:text="524" />
+                    android:gravity="center" />
             </LinearLayout>
 
             <LinearLayout
@@ -128,23 +134,26 @@
                 android:background="@drawable/statistics_content_small_rounded_background"
                 android:orientation="vertical">
                 <TextView
-                    style="@style/TextTitle.Statistics.Container"
+                    style="@style/TextTitle.Statistics.Container.Title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin"
+                    android:layout_marginEnd="@dimen/margin"
                     android:layout_marginTop="@dimen/margin_small"
                     android:layout_marginBottom="@dimen/margin_small"
                     android:gravity="center"
-                    android:text="Readed" />
+                    android:text="@string/statistics_read" />
                 <TextView
+                    android:id="@+id/statistics_book_read"
                     style="@style/TextTitle.Statistics.Container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin"
+                    android:layout_marginEnd="@dimen/margin"
                     android:layout_marginBottom="@dimen/margin_small"
-                    android:gravity="center"
-                    android:text="450" />
+                    android:gravity="center" />
             </LinearLayout>
+
         </LinearLayout>
 
         <LinearLayout
@@ -160,7 +169,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin"
                 android:layout_marginTop="@dimen/margin_small"
-                android:text="Completed" />
+                android:text="@string/statistics_title_completed" />
 
             <com.google.android.material.divider.MaterialDivider
                 style="@style/MaterialDivider"
@@ -184,16 +193,16 @@
                         android:layout_marginStart="@dimen/margin"
                         android:layout_marginBottom="@dimen/margin_small"
                         android:gravity="center"
-                        android:text="Pages" />
+                        android:text="@string/statistics_title_pages" />
 
                     <TextView
-                        style="@style/TextNormal"
+                        android:id="@+id/statistics_book_completed_pages"
+                        style="@style/TextNormal.Statistics.Container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin"
                         android:layout_marginBottom="@dimen/margin_small"
                         android:gravity="center"
-                        android:text="120"
                         android:textSize="20sp"/>
                 </LinearLayout>
 
@@ -213,23 +222,24 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:layout_marginBottom="@dimen/margin_small"
                         android:gravity="center"
-                        android:text="Times readed" />
+                        android:text="@string/statistics_title_time" />
 
                     <TextView
-                        style="@style/TextNormal"
+                        android:id="@+id/statistics_book_completed_time"
+                        style="@style/TextNormal.Statistics.Container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:layout_marginBottom="@dimen/margin_small"
-                        android:gravity="center"
-                        android:text="1 hour 13 minutes"
-                        android:textSize="20sp"/>
+                        android:gravity="center"/>
                 </LinearLayout>
 
-
             </LinearLayout>
+
         </LinearLayout>
 
         <LinearLayout
@@ -245,7 +255,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin"
                 android:layout_marginTop="@dimen/margin_small"
-                android:text="Current" />
+                android:text="@string/statistics_title_current" />
 
             <com.google.android.material.divider.MaterialDivider
                 style="@style/MaterialDivider"
@@ -269,17 +279,16 @@
                         android:layout_marginStart="@dimen/margin"
                         android:layout_marginBottom="@dimen/margin_small"
                         android:gravity="center"
-                        android:text="Pages" />
+                        android:text="@string/statistics_title_pages" />
 
                     <TextView
-                        style="@style/TextNormal"
+                        android:id="@+id/statistics_book_current_pages"
+                        style="@style/TextNormal.Statistics.Container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin"
                         android:layout_marginBottom="@dimen/margin_small"
-                        android:gravity="center"
-                        android:text="120"
-                        android:textSize="20sp"/>
+                        android:gravity="center"/>
                 </LinearLayout>
 
                 <com.google.android.material.divider.MaterialDivider
@@ -298,23 +307,24 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:layout_marginBottom="@dimen/margin_small"
                         android:gravity="center"
-                        android:text="Times readed" />
+                        android:text="@string/statistics_title_time" />
 
                     <TextView
-                        style="@style/TextNormal"
+                        android:id="@+id/statistics_book_current_time"
+                        style="@style/TextNormal.Statistics.Container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:layout_marginBottom="@dimen/margin_small"
-                        android:gravity="center"
-                        android:text="1 hour 13 minutes"
-                        android:textSize="20sp"/>
+                        android:gravity="center"/>
                 </LinearLayout>
 
-
             </LinearLayout>
+
         </LinearLayout>
 
 
@@ -325,8 +335,8 @@
             <ImageView
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:contentDescription="@string/about_app_name"
-                android:src="@mipmap/app_icon" />
+                android:src="@drawable/ic_statistics_book" />
+
             <TextView
                 style="@style/TextTitle"
                 android:layout_width="0dp"
@@ -334,15 +344,15 @@
                 android:layout_height="match_parent"
                 android:layout_marginStart="@dimen/margin"
                 android:gravity="center_vertical"
-                android:text="Pages readed" />
+                android:text="@string/statistics_total_read_pages" />
 
             <TextView
+                android:id="@+id/statistics_book_total_read_pages"
                 style="@style/TextTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginStart="@dimen/margin"
-                android:gravity="center_vertical"
-                android:text="150 pages" />
+                android:gravity="center_vertical" />
         </LinearLayout>
 
         <LinearLayout
@@ -352,8 +362,8 @@
             <ImageView
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:contentDescription="@string/about_app_name"
-                android:src="@mipmap/app_icon" />
+                android:src="@drawable/ic_statistics_time" />
+
             <TextView
                 style="@style/TextTitle"
                 android:layout_width="0dp"
@@ -361,15 +371,15 @@
                 android:layout_height="match_parent"
                 android:layout_marginStart="@dimen/margin"
                 android:gravity="center_vertical"
-                android:text="Total time readed" />
+                android:text="@string/statistics_total_read_times" />
 
             <TextView
+                android:id="@+id/statistics_book_total_read_times"
                 style="@style/TextTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginStart="@dimen/margin"
-                android:gravity="center_vertical"
-                android:text="15 hour 25 minutes" />
+                android:gravity="center_vertical" />
         </LinearLayout>
 
         <LinearLayout
@@ -379,8 +389,8 @@
             <ImageView
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:contentDescription="@string/about_app_name"
-                android:src="@mipmap/app_icon" />
+                android:src="@drawable/ic_statistics_average" />
+
             <TextView
                 style="@style/TextTitle"
                 android:layout_width="0dp"
@@ -388,17 +398,16 @@
                 android:layout_height="match_parent"
                 android:layout_marginStart="@dimen/margin"
                 android:gravity="center_vertical"
-                android:text="Reading average" />
+                android:text="@string/statistics_total_read_average" />
 
             <TextView
+                android:id="@+id/statistics_book_total_read_average"
                 style="@style/TextTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginStart="@dimen/margin"
-                android:gravity="center_vertical"
-                android:text="20.5 pages per hour" />
+                android:gravity="center_vertical" />
         </LinearLayout>
-
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -406,13 +415,14 @@
             android:layout_marginTop="@dimen/margin"
             android:orientation="vertical">
             <TextView
-                style="@style/TextTitle"
+                android:id="@+id/statistics_book_chart_title"
+                style="@style/TextTitle.Statistics.Title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin"
                 android:layout_marginBottom="@dimen/margin_small"
                 android:gravity="center"
-                android:text="Books read / month" />
+                android:text="@string/statistics_read_by_month" />
 
             <TextView
                 style="@style/TextTitle"

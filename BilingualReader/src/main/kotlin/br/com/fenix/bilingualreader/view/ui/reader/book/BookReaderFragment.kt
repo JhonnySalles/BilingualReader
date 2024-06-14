@@ -399,7 +399,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         }
         mViewModel.history?.let {
             it.pageEnd = mCurrentPage
-            it.end = LocalDateTime.now()
+            it.setEnd(LocalDateTime.now())
             mHistoryRepository.save(it)
         }
         super.onPause()
@@ -1094,7 +1094,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private fun generateHistory(book: Book) {
         if (mViewModel.history != null) {
             if (mViewModel.history!!.fkLibrary != book.fkLibrary || mViewModel.history!!.fkReference != book.id) {
-                mViewModel.history!!.end = LocalDateTime.now()
+                mViewModel.history!!.setEnd(LocalDateTime.now())
                 mHistoryRepository.save(mViewModel.history!!)
                 mViewModel.history = History(book.fkLibrary!!, book.id!!, Type.BOOK, book.bookMark, book.pages, 0)
             }
@@ -1148,7 +1148,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         mViewModel.history?.let {
             if (!isOnlyCalculate) {
                 it.pageEnd = mCurrentPage
-                it.end = LocalDateTime.now()
+                it.setEnd(LocalDateTime.now())
             }
             it.averageTimeByPage = average
             mHistoryRepository.save(it)
