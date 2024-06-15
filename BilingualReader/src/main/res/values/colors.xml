@@ -89,7 +89,8 @@
 
     <color name="default_list_divider">#484848</color>
 
-    <color name="statistics_overlay_semi_transparent">#DD000000</color>
+    <color name="statistics_container_text">#ffffff</color>
+    <color name="statistics_overlay_semi_transparent">#333333AA</color>
 
     <!--
         colorPrimary, colorOnPrimary = Text color white/green

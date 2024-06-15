@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 
 @Entity(
@@ -68,9 +69,10 @@ data class History(
     ) { }
 
     fun getEnd() = end
+
     fun setEnd(end: LocalDateTime) {
         this.end = end
-        //secondsRead = end.toEpochSecond(end.offset) - start.toEpochSecond(start.offset)
+        secondsRead = ChronoUnit.SECONDS.between(start, end)
     }
 
     fun getSecondsRead() = secondsRead

@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.view.ui.statistics
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,11 +10,18 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.Statistics
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.StatisticsRepository
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.google.android.play.integrity.internal.i
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 import kotlin.math.round
 
@@ -62,6 +70,8 @@ class StatisticsFragment : Fragment() {
     private lateinit var mBookTotalTime: TextView
     private lateinit var mBookReadingAverage: TextView
 
+    private lateinit var mBookChart: LineChart
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_statistics, container, false)
     }
@@ -73,29 +83,30 @@ class StatisticsFragment : Fragment() {
         mContent = view.findViewById(R.id.frame_statistics_content)
         mProgress = view.findViewById(R.id.fragment_statistics_progress)
 
-        mMangaReading = view.findViewById(R.id.statistics_book_reading)
-        mMangaToRead = view.findViewById(R.id.statistics_book_to_read)
-        mMangaLibrary = view.findViewById(R.id.statistics_book_library)
-        mMangaRead = view.findViewById(R.id.statistics_book_read)
-        mMangaCompletePages = view.findViewById(R.id.statistics_book_completed_pages)
-        mMangaCompleteTimes = view.findViewById(R.id.statistics_book_completed_time)
-        mMangaCurrentPages = view.findViewById(R.id.statistics_book_current_pages)
-        mMangaCurrentTimes = view.findViewById(R.id.statistics_book_current_time)
-        mMangaTotalPages = view.findViewById(R.id.statistics_book_total_read_pages)
-        mMangaTotalTime = view.findViewById(R.id.statistics_book_total_read_times)
-        mMangaReadingAverage = view.findViewById(R.id.statistics_book_total_read_average)
+        mBookReading = view.findViewById(R.id.statistics_book_reading)
+        mBookToRead = view.findViewById(R.id.statistics_book_to_read)
+        mBookLibrary = view.findViewById(R.id.statistics_book_library)
+        mBookRead = view.findViewById(R.id.statistics_book_read)
+        mBookCompletePages = view.findViewById(R.id.statistics_book_completed_pages)
+        mBookCompleteTimes = view.findViewById(R.id.statistics_book_completed_time)
+        mBookCurrentPages = view.findViewById(R.id.statistics_book_current_pages)
+        mBookCurrentTimes = view.findViewById(R.id.statistics_book_current_time)
+        mBookTotalPages = view.findViewById(R.id.statistics_book_total_read_pages)
+        mBookTotalTime = view.findViewById(R.id.statistics_book_total_read_times)
+        mBookReadingAverage = view.findViewById(R.id.statistics_book_total_read_average)
 
-        mBookReading = view.findViewById(R.id.statistics_manga_reading)
-        mBookToRead = view.findViewById(R.id.statistics_manga_to_read)
-        mBookLibrary = view.findViewById(R.id.statistics_manga_library)
-        mBookRead = view.findViewById(R.id.statistics_manga_read)
-        mBookCompletePages = view.findViewById(R.id.statistics_manga_completed_pages)
-        mBookCompleteTimes = view.findViewById(R.id.statistics_manga_completed_time)
-        mBookCurrentPages = view.findViewById(R.id.statistics_manga_current_pages)
-        mBookCurrentTimes = view.findViewById(R.id.statistics_manga_current_time)
-        mBookTotalPages = view.findViewById(R.id.statistics_manga_total_read_pages)
-        mBookTotalTime = view.findViewById(R.id.statistics_manga_total_read_times)
-        mBookReadingAverage = view.findViewById(R.id.statistics_manga_total_read_average)
+        mMangaReading = view.findViewById(R.id.statistics_manga_reading)
+        mMangaToRead = view.findViewById(R.id.statistics_manga_to_read)
+        mMangaLibrary = view.findViewById(R.id.statistics_manga_library)
+        mMangaRead = view.findViewById(R.id.statistics_manga_read)
+        mMangaCompletePages = view.findViewById(R.id.statistics_manga_completed_pages)
+        mMangaCompleteTimes = view.findViewById(R.id.statistics_manga_completed_time)
+        mMangaCurrentPages = view.findViewById(R.id.statistics_manga_current_pages)
+        mMangaCurrentTimes = view.findViewById(R.id.statistics_manga_current_time)
+        mMangaTotalPages = view.findViewById(R.id.statistics_manga_total_read_pages)
+        mMangaTotalTime = view.findViewById(R.id.statistics_manga_total_read_times)
+        mMangaReadingAverage = view.findViewById(R.id.statistics_manga_total_read_average)
+        mBookChart = view.findViewById(R.id.statistics_book_chart)
 
         view.findViewById<TextView>(R.id.statistics_manga_chart_title).text = getString(R.string.statistics_read_by_month, getString(R.string.statistics_sector_manga))
         view.findViewById<TextView>(R.id.statistics_book_chart_title).text = getString(R.string.statistics_read_by_month, getString(R.string.statistics_sector_book))
@@ -104,9 +115,9 @@ class StatisticsFragment : Fragment() {
 
         val background = requireActivity().window.decorView.background
 
-        mProgress.setupWith(mContent, RenderScriptBlur(requireContext()))
+        mProgress.setupWith(mRoot, RenderScriptBlur(requireContext()))
             .setFrameClearDrawable(background)
-            .setBlurRadius(20F)
+            .setBlurRadius(10F)
 
         loadStatistics()
     }
@@ -148,8 +159,27 @@ class StatisticsFragment : Fragment() {
                     }
                 }
             }
+
+            //val year = mRepository.statistics(2024)
+            val year = mutableListOf<Statistics>()
+            year.add(Statistics(20, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 12, 1, 1, 1), Type.BOOK))
+            year.add(Statistics(5, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 11, 1, 1, 1), Type.BOOK))
+            year.add(Statistics(40, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 10, 1, 1, 1), Type.BOOK))
+            year.add(Statistics(70, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 9, 1, 1, 1), Type.BOOK))
+            year.add(Statistics(50, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 8, 1, 1, 1), Type.BOOK))
+            year.add(Statistics(24, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 7, 1, 1, 1), Type.BOOK))
+            year.add(Statistics(5, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 6, 1, 1, 1), Type.BOOK))
+            year.add(Statistics(46, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 5, 1, 1, 1), Type.BOOK))
+            year.add(Statistics(89, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 4, 1, 1, 1), Type.BOOK))
+            year.add(Statistics(45, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 3, 1, 1, 1), Type.BOOK))
+            year.add(Statistics(67, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 2, 1, 1, 1), Type.BOOK))
+            year.add(Statistics(56, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 1, 1, 1, 1), Type.BOOK))
+
+            val data = getData(year)
+            setupChart(mBookChart, data)
+
         } finally {
-            //mProgress.visibility = View.GONE
+            mProgress.visibility = View.GONE
         }
     }
 
@@ -162,18 +192,70 @@ class StatisticsFragment : Fragment() {
         var description = ""
 
         if (day > 0)
-            description += getString(R.string.statistics_format_days, day)
+            description += getString(R.string.statistics_format_days, day) + " "
 
         if (hours > 0)
-            description += getString(R.string.statistics_format_hours, hours)
+            description += getString(R.string.statistics_format_hours, hours) + " "
 
         if (minute > 0)
-            description += getString(R.string.statistics_format_minutes, minute)
+            description += getString(R.string.statistics_format_minutes, minute) + " "
 
         if (second > 0)
-            description += getString(R.string.statistics_format_seconds, second)
+            description += getString(R.string.statistics_format_seconds, second) + " "
 
         return description.trim()
+    }
+
+    private fun setupChart(chart: LineChart, data: LineData) {
+        //(data.getDataSetByIndex(0) as LineDataSet).circleHoleColor = color
+
+        chart.description.isEnabled = true
+
+        chart.setTouchEnabled(true)
+
+        chart.isDragEnabled = true
+        chart.setScaleEnabled(true)
+
+        chart.setPinchZoom(true)
+
+        //chart.setBackgroundColor(color)
+
+        chart.setViewPortOffsets(10f, 0f, 10f, 0f)
+
+        chart.data = data
+
+        val l = chart.legend
+        l.isEnabled = false
+
+        chart.axisLeft.isEnabled = false
+        chart.axisLeft.spaceTop = 40f
+        chart.axisLeft.spaceBottom = 40f
+        chart.axisRight.isEnabled = false
+
+        chart.xAxis.isEnabled = false
+
+        chart.animateX(2500)
+    }
+
+    private fun getData(list: List<Statistics>): LineData {
+        val values = ArrayList<Entry>()
+
+        for (stats in list)
+            values.add(Entry(stats.dateTime?.month?.value?.toFloat() ?: 0F, stats.read.toFloat()))
+
+        val set1 = LineDataSet(values, "DataSet 1")
+
+        set1.fillAlpha = 110;
+        set1.setFillColor(Color.RED);
+        set1.lineWidth = 1.75f
+        set1.circleRadius = 5f
+        set1.circleHoleRadius = 2.5f
+        set1.color = Color.WHITE
+        set1.setCircleColor(Color.WHITE)
+        set1.highLightColor = Color.WHITE
+        set1.setDrawValues(false)
+
+        return LineData(set1)
     }
 
 }

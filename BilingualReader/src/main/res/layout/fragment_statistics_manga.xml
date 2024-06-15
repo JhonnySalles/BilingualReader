@@ -184,7 +184,7 @@
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:orientation="vertical">
                     <TextView
                         style="@style/TextNormal"
@@ -199,7 +199,7 @@
                         android:id="@+id/statistics_manga_completed_pages"
                         style="@style/TextNormal.Statistics.Container"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_marginStart="@dimen/margin"
                         android:layout_marginBottom="@dimen/margin_small"
                         android:gravity="center"/>
@@ -214,7 +214,7 @@
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_weight="3"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:orientation="vertical">
                     <TextView
                         style="@style/TextNormal"
@@ -230,7 +230,7 @@
                         android:id="@+id/statistics_manga_completed_time"
                         style="@style/TextNormal.Statistics.Container"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_marginStart="@dimen/margin"
                         android:layout_marginEnd="@dimen/margin"
                         android:layout_marginBottom="@dimen/margin_small"
@@ -269,7 +269,7 @@
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:orientation="vertical">
                     <TextView
                         style="@style/TextNormal"
@@ -284,7 +284,7 @@
                         android:id="@+id/statistics_manga_current_pages"
                         style="@style/TextNormal.Statistics.Container"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_marginStart="@dimen/margin"
                         android:layout_marginBottom="@dimen/margin_small"
                         android:gravity="center"/>
@@ -299,7 +299,7 @@
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_weight="3"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:orientation="vertical">
                     <TextView
                         style="@style/TextNormal"
@@ -315,7 +315,7 @@
                         android:id="@+id/statistics_manga_current_time"
                         style="@style/TextNormal.Statistics.Container"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_marginStart="@dimen/margin"
                         android:layout_marginEnd="@dimen/margin"
                         android:layout_marginBottom="@dimen/margin_small"

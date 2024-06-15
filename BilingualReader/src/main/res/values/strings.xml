@@ -72,10 +72,10 @@
     <string name="statistics_read_by_month">%s read / month</string>
     <string name="statistics_average">%d minutes per page</string>
 
-    <string name="statistics_format_days">%d days </string>
-    <string name="statistics_format_hours">%d hours </string>
-    <string name="statistics_format_minutes">%d minutes </string>
-    <string name="statistics_format_seconds">%d seconds </string>
+    <string name="statistics_format_days">%d days</string>
+    <string name="statistics_format_hours">%d hours</string>
+    <string name="statistics_format_minutes">%d minutes</string>
+    <string name="statistics_format_seconds">%d seconds</string>
 
 
     <!-- CONFIG -->

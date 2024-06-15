@@ -724,7 +724,7 @@ abstract class HistoryDAO :  BaseDAO<History, Long>(DataBaseConsts.HISTORY.TABLE
 @Dao
 abstract class StatisticsDAO {
     companion object {
-        private const val SELECT = "SELECT SUM(" + DataBaseConsts.STATISTICS.COLUMNS.READING + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.READING + ", " +
+        const val SELECT = "SELECT SUM(" + DataBaseConsts.STATISTICS.COLUMNS.READING + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.READING + ", " +
                 "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.TO_READ + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.TO_READ + ", " +
                 "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.LIBRARY + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.LIBRARY + ", " +
                 "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.READ + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.READ + ", " +
