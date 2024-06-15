@@ -5,8 +5,6 @@
 	🚧  BilingualReader 🚀 Em construção...  🚧
 </h4>
 
-[![Build Status][travis-image]][travis-url]
-
 <p align="center">
  <a href="#Sobre">Sobre</a> •
  <a href="#Bibliotecas-utilizadas">Bibliotecas utilizadas</a> • 
@@ -185,93 +183,65 @@ O aplicativo é também compatível com legendas extraidas e pré processadas co
 
 > Algumas imagens do aplicativo
 
-<p align="center">
+<p align="center" float="left">
    <img alt="Menu principal" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Menu.png" width="300" class="center">
-</p>
-
-
-<p align="center">
    <img alt="Biblioteca" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Biblioteca_01.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Biblioteca" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Biblioteca_02.png" width="300" class="center">
 </p>
 
-<p align="center">
+<p align="center" float="left">
    <img alt="Leitor" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Leitura_01.png" width="300" class="center">
-</p>
-
-<p align="center">
-   <img alt="Leitor" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Leitura_03.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Capítulos" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Paginas_01.png" width="300" class="center">
+</p>
+
+<p align="center">
+   <img alt="Leitor" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Leitura_03.png" width="500" class="center">
+</p>
+
+<p align="center" float="left">
+   <img alt="Apresentação do livro" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Livro_01.png" width="300" class="center">
+   <img alt="Marcações no texto" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Livro_detash_01.png" width="300" class="center">
+   <img alt="Filtros para marcações" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Livro_detash_04.png" width="300" class="center">
 </p>
 
 
 > Biblioteca
 
-<p align="center">
+<p align="center" float="left">
    <img alt="Bibliotecaa" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Biblioteca_01.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Ordenação" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Biblioteca_05.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Filtro" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Biblioteca_06.png" width="300" class="center">
 </p>
 
-<p align="center">
+<p align="center" float="left">
    <img alt="Sugestões de pesquisa" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Biblioteca_03.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Filtrado Sugestões" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Biblioteca_04.png" width="300" class="center">
 </p>
 
 
 > MetaData
 
-<p align="center">
+<p align="center" float="left">
    <img alt="MetaData ComicRack" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Detalhe_01.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Informações do arquivo" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Detalhe_02.png" width="300" class="center">
 </p>
 
 
 > Vinculo entre arquivos
 
-<p align="center">
+<p align="center" float="left">
    <img alt="Vinculo de paginas entre dois arquivos" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Vinculo_01.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Movimentação das próximas imagens" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Vinculo_02.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Vinculo em página simples" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Vinculo_03.png" width="300" class="center">
 </p>
 
-<p align="center">
+<p align="center" float="left">
    <img alt="Vinculo de pagina dupla" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Vinculo_04.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Pagina dupla" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Vinculo_05.png" width="300" class="center">
 </p>
 
-<p align="center">
+<p align="center" float="left">
    <img alt="Zoom da pagina" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Vinculo_06.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Zoom da pagina" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Vinculo_07.png" width="300" class="center">
 </p>
 
@@ -322,50 +292,29 @@ O aplicativo é também compatível com legendas extraidas e pré processadas co
    <img alt="Auto Scroll próxima página" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Leitura_09.png" width="500" class="center">
 </p>
 
-<p align="center">
+<p align="center" float="left">
    <img alt="Cores e iluminação" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Leitura_02.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Compartilhar a imagem" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Compartilhar_01.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Compartilhar a imagem" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Compartilhar_02.png" width="300" class="center">
 </p>
 
 
 > Legenda
 
-<p align="center">
+<p align="center" float="left">
    <img alt="Legendas" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Legenda_01.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Legendas" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Legenda_02.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Vocabulário" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Legenda_03.png" width="300" class="center">
 </p>
 
-<p align="center">
+<p align="center" float="left">
    <img alt="Legenda" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Legenda_04.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Legenda" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Legenda_05.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Kanji" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Legenda_06.png" width="300" class="center">
 </p>
 
-<p align="center">
+<p align="center" float="left">
    <img alt="Kanji" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Legenda_07.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Kanji" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Legenda_08.png" width="300" class="center">
 </p>
 
@@ -377,47 +326,56 @@ O aplicativo é também compatível com legendas extraidas e pré processadas co
    <img alt="Identificação da legenda pela coordenada no clique longo" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Popup_02.png" width="500" class="center">
 </p>
 
-<p align="center">
+<p align="center" float="left">
    <img alt="Impressão da localização da legenda" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Popup_03.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Impressão da localização da legenda" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Popup_04.png" width="300" class="center">
 </p>
-
-<p align="center">
+<p align="center" float="left">
    <img alt="Impressão da localização da legenda em outro idioma" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Popup_05.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Copia do vocabulário" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Popup_06.png" width="300" class="center">
 </p>
 
 
 > Recursos
 
-<p align="center">
+<p align="center" float="left">
    <img alt="Sincronização de marcações" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Notificacao_01.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Sincronização de marcações" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Notificacao_02.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Importação de vocabulário" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Notificacao_03.png" width="300" class="center">
 </p>
 
-<p align="center">
+<p align="center" float="left">
    <img alt="Temas" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Tema_01.png" width="300" class="center">
-</p>
-
-<p align="center">
    <img alt="Temas" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Tema_02.png" width="300" class="center">
+   <img alt="Temas" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Tema_03.png" width="300" class="center">
 </p>
 
-<p align="center">
-   <img alt="Temas" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Tema_03.png" width="300" class="center">
+
+> Livro
+
+<p align="center" float="left">
+   <img alt="Apresentação do livro" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Livro_01.png" width="300" class="center">
+   <img alt="Layout da leitura do livro" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Livro_02.png" width="300" class="center">
+   <img alt="Busca de texto" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Livro_find_01.png" width="300" class="center">
+</p>
+
+<p align="center" float="left">
+   <img alt="Livro em japonês" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Livro_03.png" width="300" class="center">
+   <img alt="Processamento de vocabulário e kanjis" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Livro_japanese_01.png" width="300" class="center">
+   <img alt="Popup de significados" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Livro_japanese_02.png" width="300" class="center">
+</p>
+
+
+> Marcações
+
+<p align="center" float="left">
+   <img alt="Marcações no texto" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Livro_detash_01.png" width="300" class="center">
+   <img alt="Anotações das marcações" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Livro_detash_02.png" width="300" class="center">
+</p>
+
+<p align="center" float="left">
+   <img alt="Pesquisa de marcações" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Livro_detash_03.png" width="300" class="center">
+   <img alt="Filtros para marcações" src="https://github.com/JhonnySalles/BilingualReader/blob/master/image/Livro_detash_04.png" width="300" class="center">
 </p>
 
 
