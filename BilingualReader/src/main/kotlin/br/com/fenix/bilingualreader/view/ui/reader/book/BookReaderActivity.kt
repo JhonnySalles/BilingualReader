@@ -103,10 +103,7 @@ class BookReaderActivity : AppCompatActivity() {
     private var mBook: Book? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val theme = Themes.valueOf(
-            GeneralConsts.getSharedPreferences(this)
-                .getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!
-        )
+        val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(theme.getValue())
 
         super.onCreate(savedInstanceState)

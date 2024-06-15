@@ -561,8 +561,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         val horizontalSize = resources.getDimensionPixelSize(R.dimen.reader_touch_demonstration_initial_horizontal)
         val horizontal = (if (isLandscape) horizontalSize * 1.2 else horizontalSize * 1.5).toFloat()
 
-        val x = e.x
-        val y = e.y
+        val x = e.rawX
+        val y = e.rawY
         val divider = if (isLandscape) 5 else 3
 
         val height = Resources.getSystem().displayMetrics.heightPixels

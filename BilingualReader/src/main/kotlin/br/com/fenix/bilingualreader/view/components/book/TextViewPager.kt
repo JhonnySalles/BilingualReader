@@ -29,6 +29,7 @@ import br.com.fenix.bilingualreader.service.tts.TTSTextColorSpan
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
+import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderViewModel
 import org.slf4j.LoggerFactory
 import kotlin.math.max
@@ -96,7 +97,7 @@ class TextViewPager(
 
         holder.textView.resetZoom()
 
-        if (!holder.textView.isOnlyImage)
+        if (!holder.isOnlyImage)
             holder.textView.fixTextSelection()
         else
             holder.textView.setTextIsSelectable(false)
@@ -113,6 +114,15 @@ class TextViewPager(
         }
 
         holder.textView.setOnTouchListener(mListener)
+        holder.imageView.setOnTouchListener(mListener)
+
+        if (holder.isOnlyImage) {
+            holder.textView.visibility = View.GONE
+            holder.imageView.visibility = View.VISIBLE
+        } else {
+            holder.textView.visibility = View.VISIBLE
+            holder.imageView.visibility = View.GONE
+        }
 
         mHolders[position] = holder
         if (mSpeech != null && mSpeech!!.page == position)
@@ -130,6 +140,8 @@ class TextViewPager(
         val pageMark: ImageView = itemView.findViewById(R.id.page_mark)
         val scrollView: NotifyingScrollView = itemView.findViewById(R.id.page_scroll_view)
         val textView: TextViewPage = itemView.findViewById(R.id.page_text_view)
+        val imageView: ImageViewPage = itemView.findViewById(R.id.page_image_view)
+        var isOnlyImage: Boolean = false
         var style: String = ""
 
         val popupTextSelect: PopupWindow = PopupWindow()

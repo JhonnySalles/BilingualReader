@@ -1147,6 +1147,8 @@ class TextUtil {
         fun highlightWordInText(html: String, contain: String, color: String): String = clearHtml(html).replace(contain, "<font color=$color>$contain</font>")
 
         fun clearHighlightWordInText(html: String): String = replaceHtmlTags(html)
+
+        fun getImageFromTag(html: String) = html.substringAfter("<img").substringBefore("/>")
     }
 }
 

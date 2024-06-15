@@ -17,6 +17,7 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
+import android.text.style.URLSpan
 import android.util.Base64
 import android.util.TypedValue
 import android.view.Gravity
@@ -53,6 +54,7 @@ import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.ColorUtil
+import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import br.com.fenix.bilingualreader.view.components.ImageGetter
 import br.com.fenix.bilingualreader.view.components.book.TextViewClickMovement
@@ -65,6 +67,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
+import java.util.concurrent.ThreadLocalRandom.current
 
 
 class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
@@ -536,29 +539,34 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         if (text.contains("<image-begin>image"))
             text = text.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
 
+        holder.isOnlyImage = text.startsWith("<img ") && (text.endsWith(" /><br/>") || text.endsWith(" />"))
 
-        val html = "<body>${TextUtil.formatHtml(text)}</body>"
+        if (holder.isOnlyImage) {
+            val bmp = ImageUtil.decodeImageBase64(TextUtil.getImageFromTag(text).substringAfter(",").trim())
+            holder.imageView.setImageBitmap(bmp)
+            holder.textView.linksClickable = false
+            holder.textView.movementMethod = null
+            holder.textView.customSelectionActionModeCallback = null
+        } else {
+            val html = "<body>${TextUtil.formatHtml(text)}</body>"
+            holder.imageView.setImageBitmap(null)
+            var processed: Spanned = SpannableString("")
+            try {
+                processed = if (html.contains("<img"))
+                    Html.fromHtml(
+                        html,
+                        Html.FROM_HTML_MODE_LEGACY,
+                        ImageGetter(context, holder.textView),
+                        null
+                    )
+                else
+                    Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
 
-        holder.textView.isOnlyImage = html.contains("<img") && (text.endsWith(" /><br/>") || text.endsWith(" />"))
+                processed = SpannableString(processed)
 
-        var processed: Spanned = SpannableString("")
-        try {
-            processed = if (html.contains("<img"))
-                Html.fromHtml(
-                    html,
-                    Html.FROM_HTML_MODE_LEGACY,
-                    ImageGetter(context, holder.textView, holder.textView.isOnlyImage),
-                    null
-                )
-            else
-                Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
+                if (isProcessJapaneseText && isJapanese)
+                    Formatter.generateTextView(context, processed, isFurigana)
 
-            processed = SpannableString(processed)
-
-            if (!holder.textView.isOnlyImage && isProcessJapaneseText && isJapanese)
-                Formatter.generateTextView(context, processed, isFurigana)
-
-            if (!holder.textView.isOnlyImage) {
                 val createSpanSelect = { annotation: BookAnnotation, start: Int, end: Int ->
                     val span = SpannableString(holder.textView.text)
                     createSpan(context, span, annotation, listener)
@@ -569,14 +577,9 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 holder.textView.isClickable = true
                 holder.textView.linksClickable = true
                 holder.textView.setCustomMovement(TextViewClickMovement.getInstance())
-            } else {
-                holder.textView.linksClickable = false
-                holder.textView.movementMethod = null
-                holder.textView.customSelectionActionModeCallback = null
+            } finally {
+                holder.textView.text = processed
             }
-
-        } finally {
-            holder.textView.text = processed
         }
         parse?.getPage(page)?.recycle()
         holder.textView.setBackgroundColor(Color.TRANSPARENT)

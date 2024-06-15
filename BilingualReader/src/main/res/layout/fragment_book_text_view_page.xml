@@ -42,4 +42,10 @@
             android:layout_marginEnd="@dimen/book_reader_text_margin"/>
     </br.com.fenix.bilingualreader.view.components.book.NotifyingScrollView>
 
+    <br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
+        android:id="@+id/page_image_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+
 </FrameLayout>
