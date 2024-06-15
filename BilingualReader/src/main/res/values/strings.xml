@@ -24,6 +24,21 @@
     <string name="date_format_today">Today</string>
     <string name="date_format_day_ago">%s days ago.</string>
 
+    <string-array name="mouth_descriptions">
+        <item>January</item>
+        <item>February</item>
+        <item>March</item>
+        <item>April</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>August</item>
+        <item>September</item>
+        <item>October</item>
+        <item>November</item>
+        <item>December</item>
+    </string-array>
+
     <!-- NOTIFICATIONS -->
     <string name="notifications_channel_name">Bilingual Reader</string>
     <string name="notifications_channel_description">Bilingual Reader</string>
@@ -70,6 +85,7 @@
     <string name="statistics_total_read_average">Reading average</string>
 
     <string name="statistics_read_by_month">%s read / month</string>
+    <string name="statistics_chart_year">Year</string>
     <string name="statistics_average">%d minutes per page</string>
 
     <string name="statistics_format_days">%d days</string>

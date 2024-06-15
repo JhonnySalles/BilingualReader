@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import br.com.fenix.bilingualreader.R
@@ -17,6 +16,7 @@ import br.com.fenix.bilingualreader.model.enums.MarginLayoutType
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import org.slf4j.LoggerFactory
 
@@ -28,7 +28,7 @@ class PopupBookLayout : Fragment() {
     private val mViewModel: BookReaderViewModel by activityViewModels()
 
     private lateinit var mScrollingType: TextInputLayout
-    private lateinit var mScrollingTypeAutoComplete: AutoCompleteTextView
+    private lateinit var mScrollingTypeAutoComplete: MaterialAutoCompleteTextView
 
     private lateinit var mMarginSmall: MaterialButton
     private lateinit var mMarginMedium: MaterialButton

@@ -13,7 +13,7 @@
         android:hint="@string/popup_reading_language_tts_voice"
         app:startIconDrawable="@drawable/ic_book_tts">
 
-        <AutoCompleteTextView
+        <com.google.android.material.textfield.MaterialAutoCompleteTextView
             android:id="@+id/popup_menu_autocomplete_tts_voice"
             style="@style/AutoCompleteDropMenu"
             android:layout_width="match_parent"

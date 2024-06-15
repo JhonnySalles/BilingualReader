@@ -21,6 +21,7 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.LinkedFile
 import br.com.fenix.bilingualreader.model.entity.LinkedPage
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.entity.Statistics
 import br.com.fenix.bilingualreader.model.entity.SubTitle
 import br.com.fenix.bilingualreader.model.entity.Tags
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
@@ -28,7 +29,6 @@ import br.com.fenix.bilingualreader.model.entity.VocabularyBook
 import br.com.fenix.bilingualreader.model.entity.VocabularyManga
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
-import br.com.fenix.bilingualreader.model.entity.Statistics
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.time.LocalDateTime
 import java.util.Date
@@ -778,15 +778,18 @@ abstract class StatisticsDAO {
                 "         AND H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + " = B." + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY +
                 "         AND H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + " = B." + DataBaseConsts.BOOK.COLUMNS.ID + ")"
 
-        private const val GROUP_BY_YEAR = SELECT + " WHERE " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " >= :dateStart AND " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " <= :dateEnd " +
-                " GROUP BY " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START
+        private const val GROUP_BY_YEAR = SELECT + " WHERE " + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = :type AND " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " >= :dateStart" +
+                "   AND " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " <= :dateEnd GROUP BY SUBSTR(" + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 6,7)"
     }
 
     @Query(SELECT)
     abstract fun statistics(): List<Statistics>
 
     @Query(GROUP_BY_YEAR)
-    abstract fun statistics(dateStart: LocalDateTime, dateEnd: LocalDateTime): List<Statistics>
+    abstract fun statistics(type: Type, dateStart: LocalDateTime, dateEnd: LocalDateTime): List<Statistics>
+
+    @Query("SELECT SUBSTR(" + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 1, 4) AS YEAR FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " GROUP BY YEAR")
+    abstract fun listYears(): MutableList<Int>
 
 }
 

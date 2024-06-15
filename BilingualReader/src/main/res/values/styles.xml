@@ -130,7 +130,7 @@
         <item name="dividerInsetEnd">16dp</item>
     </style>
 
-    <style name="TextInputDropMenu" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+    <style name="TextInputDropMenu" parent="Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu">
         <item name="android:textColorHint">?attr/colorPrimary</item>
         <item name="boxBackgroundColor">?attr/colorOnSurface</item>
         <item name="boxStrokeColor">?attr/colorSurface</item>
@@ -140,7 +140,7 @@
         <item name="hintTextColor">?attr/colorSecondary</item>
     </style>
 
-    <style name="TextInputWithoutDropMenu" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+    <style name="TextInputWithoutDropMenu" parent="Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu">
         <item name="android:textColorHint">?attr/colorPrimary</item>
         <item name="boxBackgroundColor">?attr/colorOnSurface</item>
         <item name="boxStrokeColor">?attr/colorSurface</item>

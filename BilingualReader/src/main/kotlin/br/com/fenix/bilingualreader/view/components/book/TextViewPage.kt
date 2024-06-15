@@ -12,8 +12,6 @@ import android.view.View
 import androidx.appcompat.widget.AppCompatTextView
 import br.com.fenix.bilingualreader.service.listener.SelectionChangeListener
 import org.slf4j.LoggerFactory
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.sqrt
 
 

@@ -5,19 +5,26 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Statistics
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.StatisticsRepository
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
+import br.com.fenix.bilingualreader.view.components.MonthAxisValueFormatter
 import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import com.google.android.play.integrity.internal.i
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
+import com.google.android.material.textfield.TextInputLayout
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
@@ -30,7 +37,7 @@ class StatisticsFragment : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(StatisticsFragment::class.java)
 
-    private lateinit var mRepository:StatisticsRepository
+    private lateinit var mRepository: StatisticsRepository
 
 
     private lateinit var mRoot: FrameLayout
@@ -53,6 +60,10 @@ class StatisticsFragment : Fragment() {
     private lateinit var mMangaTotalTime: TextView
     private lateinit var mMangaReadingAverage: TextView
 
+    private lateinit var mMangaYear: TextInputLayout
+    private lateinit var mMangaYearAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mMangaChart: LineChart
+
     // --------------------------------------------------------- Book ---------------------------------------------------------
 
     private lateinit var mBookReading: TextView
@@ -70,6 +81,8 @@ class StatisticsFragment : Fragment() {
     private lateinit var mBookTotalTime: TextView
     private lateinit var mBookReadingAverage: TextView
 
+    private lateinit var mBookYear: TextInputLayout
+    private lateinit var mBookYearAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mBookChart: LineChart
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -94,6 +107,9 @@ class StatisticsFragment : Fragment() {
         mBookTotalPages = view.findViewById(R.id.statistics_book_total_read_pages)
         mBookTotalTime = view.findViewById(R.id.statistics_book_total_read_times)
         mBookReadingAverage = view.findViewById(R.id.statistics_book_total_read_average)
+        mBookYear = view.findViewById(R.id.statistics_book_chart_year)
+        mBookYearAutoComplete = view.findViewById(R.id.statistics_book_chart_year_auto_complete)
+        mBookChart = view.findViewById(R.id.statistics_book_chart)
 
         mMangaReading = view.findViewById(R.id.statistics_manga_reading)
         mMangaToRead = view.findViewById(R.id.statistics_manga_to_read)
@@ -106,7 +122,9 @@ class StatisticsFragment : Fragment() {
         mMangaTotalPages = view.findViewById(R.id.statistics_manga_total_read_pages)
         mMangaTotalTime = view.findViewById(R.id.statistics_manga_total_read_times)
         mMangaReadingAverage = view.findViewById(R.id.statistics_manga_total_read_average)
-        mBookChart = view.findViewById(R.id.statistics_book_chart)
+        mMangaYear = view.findViewById(R.id.statistics_manga_chart_year)
+        mMangaYearAutoComplete = view.findViewById(R.id.statistics_manga_chart_year_auto_complete)
+        mMangaChart = view.findViewById(R.id.statistics_manga_chart)
 
         view.findViewById<TextView>(R.id.statistics_manga_chart_title).text = getString(R.string.statistics_read_by_month, getString(R.string.statistics_sector_manga))
         view.findViewById<TextView>(R.id.statistics_book_chart_title).text = getString(R.string.statistics_read_by_month, getString(R.string.statistics_sector_book))
@@ -141,7 +159,10 @@ class StatisticsFragment : Fragment() {
                         mMangaCurrentTimes.text = generateSeconds(statistic.currentReadingSeconds)
                         mMangaTotalPages.text = statistic.totalReadPages.toString()
                         mMangaTotalTime.text = generateSeconds(statistic.totalReadSeconds)
-                        mMangaReadingAverage.text = getString(R.string.statistics_average, round(statistic.totalReadSeconds.toFloat() / statistic.totalReadPages / 60).toInt())
+                        mMangaReadingAverage.text = getString(
+                            R.string.statistics_average,
+                            round(statistic.totalReadSeconds.toFloat() / statistic.totalReadPages / 60).toInt()
+                        )
                     }
 
                     Type.BOOK -> {
@@ -155,29 +176,41 @@ class StatisticsFragment : Fragment() {
                         mBookCurrentTimes.text = generateSeconds(statistic.currentReadingSeconds)
                         mBookTotalPages.text = statistic.totalReadPages.toString()
                         mBookTotalTime.text = generateSeconds(statistic.totalReadSeconds)
-                        mBookReadingAverage.text = getString(R.string.statistics_average, round(statistic.totalReadSeconds.toFloat() / statistic.totalReadPages / 60).toInt())
+                        mBookReadingAverage.text = getString(
+                            R.string.statistics_average,
+                            round(statistic.totalReadSeconds.toFloat() / statistic.totalReadPages / 60).toInt()
+                        )
                     }
                 }
             }
 
-            //val year = mRepository.statistics(2024)
-            val year = mutableListOf<Statistics>()
-            year.add(Statistics(20, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 12, 1, 1, 1), Type.BOOK))
-            year.add(Statistics(5, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 11, 1, 1, 1), Type.BOOK))
-            year.add(Statistics(40, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 10, 1, 1, 1), Type.BOOK))
-            year.add(Statistics(70, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 9, 1, 1, 1), Type.BOOK))
-            year.add(Statistics(50, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 8, 1, 1, 1), Type.BOOK))
-            year.add(Statistics(24, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 7, 1, 1, 1), Type.BOOK))
-            year.add(Statistics(5, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 6, 1, 1, 1), Type.BOOK))
-            year.add(Statistics(46, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 5, 1, 1, 1), Type.BOOK))
-            year.add(Statistics(89, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 4, 1, 1, 1), Type.BOOK))
-            year.add(Statistics(45, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 3, 1, 1, 1), Type.BOOK))
-            year.add(Statistics(67, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 2, 1, 1, 1), Type.BOOK))
-            year.add(Statistics(56, 20, 20, 20, 20, 20, 20, 20, 20, 20, LocalDateTime.of(2024, 1, 1, 1, 1), Type.BOOK))
+            setupChart(mBookChart)
+            setupChart(mMangaChart)
 
-            val data = getData(year)
-            setupChart(mBookChart, data)
+            val years = mRepository.listYears()
 
+            if (years.isEmpty())
+                years.add(LocalDateTime.now().year)
+
+            val adapter = ArrayAdapter(requireContext(), R.layout.list_item, years.toTypedArray())
+            mMangaYearAutoComplete.setAdapter(adapter)
+            mMangaYearAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
+                val selected = parent.getItemAtPosition(position).toString().toInt()
+                setChartData(mMangaChart, getData(mRepository.statistics(Type.MANGA, selected), selected))
+            }
+
+            mBookYearAutoComplete.setAdapter(adapter)
+            mBookYearAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
+                val selected = parent.getItemAtPosition(position).toString().toInt()
+                setChartData(mBookChart, getData(mRepository.statistics(Type.BOOK, selected), selected))
+            }
+
+            val year = years.last()
+            mMangaYearAutoComplete.setText(year.toString(), false)
+            mBookYearAutoComplete.setText(year.toString(), false)
+
+            setChartData(mBookChart, getData(mRepository.statistics(Type.BOOK, year), year))
+            setChartData(mMangaChart, getData(mRepository.statistics(Type.MANGA, year), year))
         } finally {
             mProgress.visibility = View.GONE
         }
@@ -206,11 +239,12 @@ class StatisticsFragment : Fragment() {
         return description.trim()
     }
 
-    private fun setupChart(chart: LineChart, data: LineData) {
-        //(data.getDataSetByIndex(0) as LineDataSet).circleHoleColor = color
+    private fun setChartData(chart: LineChart, data: LineData) {
+        chart.data = data
+        chart.invalidate()
+    }
 
-        chart.description.isEnabled = true
-
+    private fun setupChart(chart: LineChart) {
         chart.setTouchEnabled(true)
 
         chart.isDragEnabled = true
@@ -218,44 +252,59 @@ class StatisticsFragment : Fragment() {
 
         chart.setPinchZoom(true)
 
-        //chart.setBackgroundColor(color)
-
-        chart.setViewPortOffsets(10f, 0f, 10f, 0f)
-
-        chart.data = data
-
-        val l = chart.legend
-        l.isEnabled = false
+        chart.legend.isEnabled = false
 
         chart.axisLeft.isEnabled = false
-        chart.axisLeft.spaceTop = 40f
-        chart.axisLeft.spaceBottom = 40f
+        chart.axisLeft.spaceTop = 20f
+        chart.axisLeft.spaceBottom = 20f
         chart.axisRight.isEnabled = false
 
-        chart.xAxis.isEnabled = false
+        chart.xAxis.isEnabled = true
+        chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
+        chart.xAxis.setDrawGridLines(false)
+        chart.xAxis.setGranularity(1f)
+        chart.xAxis.setLabelCount(12)
+        chart.xAxis.textColor = requireContext().getColorFromAttr(R.attr.colorPrimary)
+        chart.xAxis.valueFormatter = MonthAxisValueFormatter(requireContext());
 
-        chart.animateX(2500)
+        chart.animateX(2000)
+        chart.description.isEnabled = false
     }
 
-    private fun getData(list: List<Statistics>): LineData {
+    private fun getData(list: List<Statistics>, year: Int): LineData {
         val values = ArrayList<Entry>()
 
-        for (stats in list)
-            values.add(Entry(stats.dateTime?.month?.value?.toFloat() ?: 0F, stats.read.toFloat()))
+        val max = if (year == LocalDateTime.now().year) LocalDateTime.now().month.value else 12
+        for (i in 1 until (max + 1)) {
+            val stats = list.find { it.dateTime?.month?.value?.toFloat() == i.toFloat() }
+            if (stats != null)
+                values.add(Entry(i.toFloat(), stats.read.toFloat()))
+            else
+                values.add(Entry(i.toFloat(), 0F))
+        }
 
-        val set1 = LineDataSet(values, "DataSet 1")
+        val lineColor = requireContext().getColorFromAttr(R.attr.colorOutline)
+        val textColor = requireContext().getColorFromAttr(R.attr.colorPrimary)
 
-        set1.fillAlpha = 110;
-        set1.setFillColor(Color.RED);
-        set1.lineWidth = 1.75f
-        set1.circleRadius = 5f
-        set1.circleHoleRadius = 2.5f
-        set1.color = Color.WHITE
-        set1.setCircleColor(Color.WHITE)
-        set1.highLightColor = Color.WHITE
-        set1.setDrawValues(false)
+        val linedata = LineDataSet(values, "")
 
-        return LineData(set1)
+        linedata.setDrawCircles(false)
+        linedata.setDrawHorizontalHighlightIndicator(false)
+        linedata.setDrawVerticalHighlightIndicator(false)
+
+        linedata.setDrawFilled(true)
+        linedata.fillDrawable = AppCompatResources.getDrawable(requireContext(), R.drawable.statistics_chart_gradient)
+        linedata.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+        linedata.color = lineColor
+        linedata.highLightColor = lineColor
+        linedata.valueTextColor = textColor
+
+        linedata.lineWidth = 1.75f
+        linedata.circleRadius = 5f
+        linedata.circleHoleRadius = 2.5f
+        linedata.setCircleColor(Color.TRANSPARENT)
+
+        return LineData(linedata)
     }
 
 }

@@ -47,7 +47,7 @@
             android:hint="@string/config_theme_mode"
             app:startIconDrawable="@drawable/ic_theme_mode">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_system_menu_autocomplete_theme_mode"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
@@ -98,7 +98,7 @@
             android:hint="@string/config_system_format_date"
             app:startIconDrawable="@drawable/ic_format_date">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_system_menu_autocomplete_format_date"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
@@ -140,7 +140,7 @@
             android:hint="@string/config_system_share_mark_cloud"
             app:startIconDrawable="@drawable/ic_share_mark_cloud">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_system_menu_autocomplete_share_mark_type"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"

@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
@@ -36,6 +35,7 @@ import br.com.fenix.bilingualreader.view.adapter.RecyclerViewItemDecoration
 import br.com.fenix.bilingualreader.view.adapter.configuration.LibrariesLineCardAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import org.slf4j.LoggerFactory
 
@@ -214,10 +214,10 @@ class ConfigLibrariesFragment : Fragment() {
     private lateinit var mLibraryTitle: TextInputLayout
 
     private lateinit var mLibraryLanguage: TextInputLayout
-    private lateinit var mLibraryLanguageAutoComplete: AutoCompleteTextView
+    private lateinit var mLibraryLanguageAutoComplete: MaterialAutoCompleteTextView
 
     private lateinit var mLibraryPath: TextInputLayout
-    private lateinit var mLibraryPathAutoComplete: AutoCompleteTextView
+    private lateinit var mLibraryPathAutoComplete: MaterialAutoCompleteTextView
 
     private var mLibraryTypeSelect: Libraries = Libraries.JAPANESE
     private lateinit var mMapLanguage: HashMap<String, Libraries>

@@ -53,7 +53,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Chapters
-import br.com.fenix.bilingualreader.model.entity.History
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Languages
@@ -69,7 +68,6 @@ import br.com.fenix.bilingualreader.service.listener.ChapterCardListener
 import br.com.fenix.bilingualreader.service.listener.ChapterLoadListener
 import br.com.fenix.bilingualreader.service.ocr.GoogleVision
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess
-import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.service.repository.SharedData
@@ -98,7 +96,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
 import java.io.File
-import java.time.LocalDateTime
 
 
 class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener {

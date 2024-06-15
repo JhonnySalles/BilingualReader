@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ListView
@@ -35,6 +34,7 @@ import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import org.slf4j.LoggerFactory
 
@@ -79,7 +79,7 @@ class BookDetailFragment : Fragment() {
     private lateinit var mTagsList: ListView
 
     private lateinit var mBookLanguage: TextInputLayout
-    private lateinit var mBookLanguageAutoComplete: AutoCompleteTextView
+    private lateinit var mBookLanguageAutoComplete: MaterialAutoCompleteTextView
 
     private lateinit var mListener: InformationCardListener
 

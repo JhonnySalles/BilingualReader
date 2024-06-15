@@ -24,7 +24,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -68,6 +67,7 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import org.slf4j.LoggerFactory
 import java.lang.ref.WeakReference
@@ -88,9 +88,9 @@ class PagesLinkFragment : Fragment() {
     private lateinit var mPageNotLinkIcon: ImageView
     private lateinit var mContent: LinearLayout
     private lateinit var mFileLink: TextInputLayout
-    private lateinit var mFileLinkAutoComplete: AutoCompleteTextView
+    private lateinit var mFileLinkAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mFileLinkLanguage: TextInputLayout
-    private lateinit var mFileLinkLanguageAutoComplete: AutoCompleteTextView
+    private lateinit var mFileLinkLanguageAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mContentButton: LinearLayout
     private lateinit var mSave: Button
     private lateinit var mReload: MaterialButtonExpanded

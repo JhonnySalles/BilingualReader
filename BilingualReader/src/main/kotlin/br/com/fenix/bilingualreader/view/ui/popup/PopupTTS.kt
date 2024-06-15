@@ -11,6 +11,7 @@ import androidx.appcompat.app.AlertDialog
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.TextSpeech
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import io.github.whitemagic2014.tts.TTSVoice
 
@@ -45,7 +46,7 @@ class PopupTTS(var context: Context) {
         val root = inflater.inflate(R.layout.popup_tts, null, false)
 
         mReadingTTS = root.findViewById(R.id.popup_tts_voice)
-        val readingTTSAutoComplete: AutoCompleteTextView = root.findViewById(R.id.popup_menu_autocomplete_tts_voice)
+        val readingTTSAutoComplete: MaterialAutoCompleteTextView = root.findViewById(R.id.popup_menu_autocomplete_tts_voice)
 
         mMapReadingTTS = TextSpeech.getByDescriptions(context)
 

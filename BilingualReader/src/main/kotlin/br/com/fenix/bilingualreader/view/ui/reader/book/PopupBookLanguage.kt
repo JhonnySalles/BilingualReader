@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import br.com.fenix.bilingualreader.R
@@ -14,6 +13,7 @@ import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.TextSpeech
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import org.slf4j.LoggerFactory
 
@@ -25,9 +25,9 @@ class PopupBookLanguage : Fragment() {
     private val mViewModel: BookReaderViewModel by activityViewModels()
 
     private lateinit var mBookLanguage: TextInputLayout
-    private lateinit var mBookLanguageAutoComplete: AutoCompleteTextView
+    private lateinit var mBookLanguageAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mBookReadingTTS: TextInputLayout
-    private lateinit var mBookReadingTTSAutoComplete: AutoCompleteTextView
+    private lateinit var mBookReadingTTSAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mProcessJapaneseText: SwitchMaterial
     private lateinit var mTextWithFurigana: SwitchMaterial
 

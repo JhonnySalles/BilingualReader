@@ -1,10 +1,7 @@
 package br.com.fenix.bilingualreader.service.repository
 
 import android.content.Context
-import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.History
-import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.model.entity.Statistics
 import br.com.fenix.bilingualreader.model.enums.Type
 import org.slf4j.LoggerFactory
 

@@ -28,7 +28,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/popup_book_layout_scrolling_type_menu_autocomplete"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"

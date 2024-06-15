@@ -12,7 +12,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -20,13 +19,14 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.japanese.Formatter
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 
 
 class PopupMangaSubtitleReader : Fragment() {
 
     private lateinit var mSubtitlePage: TextInputLayout
-    private lateinit var mSubtitlePageAutoComplete: AutoCompleteTextView
+    private lateinit var mSubtitlePageAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mSubtitleTitle: TextView
     private lateinit var mSubtitleContent: TextView
     private lateinit var mNavBeforeText: MaterialButton

@@ -12,7 +12,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import br.com.fenix.bilingualreader.R
@@ -22,6 +21,7 @@ import br.com.fenix.bilingualreader.service.repository.SubTitleRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
 import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -33,11 +33,11 @@ class PopupMangaSubtitleConfiguration : Fragment() {
 
     private lateinit var mPreferences: SharedPreferences
     private lateinit var mLoadExternalSubtitle: TextInputLayout
-    private lateinit var mLoadExternalSubtitleAutoComplete: AutoCompleteTextView
+    private lateinit var mLoadExternalSubtitleAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mSubtitleSelected: TextInputLayout
-    private lateinit var mSubtitleSelectedAutoComplete: AutoCompleteTextView
+    private lateinit var mSubtitleSelectedAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mSubtitleLanguage: TextInputLayout
-    private lateinit var mSubtitleLanguageAutoComplete: AutoCompleteTextView
+    private lateinit var mSubtitleLanguageAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mUsePageLinkInSearchTranslate: SwitchMaterial
 
     private lateinit var mSubTitleController: SubTitleController

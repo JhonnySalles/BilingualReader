@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/fragment_statistics_book"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -327,18 +328,17 @@
 
         </LinearLayout>
 
-
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin">
             <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="@dimen/statistics_icon_size"
+                android:layout_height="@dimen/statistics_icon_size"
                 android:src="@drawable/ic_statistics_book" />
 
             <TextView
-                style="@style/TextTitle"
+                style="@style/TextNormal"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
@@ -360,12 +360,12 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin">
             <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="@dimen/statistics_icon_size"
+                android:layout_height="@dimen/statistics_icon_size"
                 android:src="@drawable/ic_statistics_time" />
 
             <TextView
-                style="@style/TextTitle"
+                style="@style/TextNormal"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
@@ -387,12 +387,12 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin">
             <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="@dimen/statistics_icon_size"
+                android:layout_height="@dimen/statistics_icon_size"
                 android:src="@drawable/ic_statistics_average" />
 
             <TextView
-                style="@style/TextTitle"
+                style="@style/TextNormal"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
@@ -424,19 +424,28 @@
                 android:gravity="center"
                 android:text="@string/statistics_read_by_month" />
 
-            <TextView
-                style="@style/TextTitle"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/statistics_book_chart_year"
+                style="@style/TextInputDropMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin"
-                android:layout_marginBottom="@dimen/margin_small"
-                android:gravity="center"
-                android:text="2020" />
+                android:layout_margin="@dimen/margin_small"
+                android:hint="@string/statistics_chart_year"
+                app:startIconDrawable="@drawable/ic_statistics_chart_year">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/statistics_book_chart_year_auto_complete"
+                    style="@style/AutoCompleteDropMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/statistics_book_chart"
+                android:layout_margin="@dimen/margin_small"
                 android:layout_width="match_parent"
-                android:layout_height="300dp" />
+                android:layout_height="@dimen/statistics_chart_height" />
         </LinearLayout>
 
     </LinearLayout>

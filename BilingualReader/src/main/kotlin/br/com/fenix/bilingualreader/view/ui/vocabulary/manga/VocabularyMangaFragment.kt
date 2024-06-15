@@ -142,7 +142,8 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
             }
         })
 
-        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
+        val searchSrcTextView =
+            miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
         searchSrcTextView.setTextAppearance(R.style.SearchShadow)
 
         MenuUtil.longClick(requireActivity(), R.id.menu_vocabulary_list_order) {

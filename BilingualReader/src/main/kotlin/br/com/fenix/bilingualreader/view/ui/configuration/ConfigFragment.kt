@@ -10,7 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -63,6 +62,7 @@ import com.google.android.gms.tasks.Task
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import com.google.api.services.drive.DriveScopes
 import org.lucasr.twowayview.TwoWayView
@@ -82,15 +82,15 @@ class ConfigFragment : Fragment() {
 
     // -------------------------------------------------------- System --------------------------------------------------------
     private lateinit var mConfigSystemThemeMode: TextInputLayout
-    private lateinit var mConfigSystemThemeModeAutoComplete: AutoCompleteTextView
+    private lateinit var mConfigSystemThemeModeAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mConfigSystemThemes: TwoWayView
 
     private lateinit var mConfigSystemFormatDate: TextInputLayout
-    private lateinit var mConfigSystemFormatDateAutoComplete: AutoCompleteTextView
+    private lateinit var mConfigSystemFormatDateAutoComplete: MaterialAutoCompleteTextView
 
     private lateinit var mConfigSystemShareMarkEnabled: SwitchMaterial
     private lateinit var mConfigSystemShareMarkType: TextInputLayout
-    private lateinit var mConfigSystemShareMarkTypeAutoComplete: AutoCompleteTextView
+    private lateinit var mConfigSystemShareMarkTypeAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mConfigSystemShareMarkAccount: Button
     private lateinit var mConfigSystemShareMarkSignIn: SignInButton
     private lateinit var mConfigSystemShareMarkLastSync: Button
@@ -113,20 +113,20 @@ class ConfigFragment : Fragment() {
 
     // --------------------------------------------------------- Manga / Comic ---------------------------------------------------------
     private lateinit var mMangaLibraryPath: TextInputLayout
-    private lateinit var mMangaLibraryPathAutoComplete: AutoCompleteTextView
+    private lateinit var mMangaLibraryPathAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mMangaLibraryOrder: TextInputLayout
-    private lateinit var mMangaLibraryOrderAutoComplete: AutoCompleteTextView
+    private lateinit var mMangaLibraryOrderAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mMangaLibrariesButton: Button
 
     private lateinit var mMangaDefaultSubtitleLanguage: TextInputLayout
-    private lateinit var mMangaDefaultSubtitleLanguageAutoComplete: AutoCompleteTextView
+    private lateinit var mMangaDefaultSubtitleLanguageAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mMangaDefaultSubtitleTranslate: TextInputLayout
-    private lateinit var mMangaSubtitleTranslateAutoComplete: AutoCompleteTextView
+    private lateinit var mMangaSubtitleTranslateAutoComplete: MaterialAutoCompleteTextView
 
     private lateinit var mMangaReaderComicMode: TextInputLayout
-    private lateinit var mMangaReaderComicModeAutoComplete: AutoCompleteTextView
+    private lateinit var mMangaReaderComicModeAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mMangaReaderPageMode: TextInputLayout
-    private lateinit var mMangaPageModeAutoComplete: AutoCompleteTextView
+    private lateinit var mMangaPageModeAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mMangaShowClockAndBattery: SwitchMaterial
     private lateinit var mMangaUseMagnifierType: SwitchMaterial
     private lateinit var mMangaKeepZoomBetweenPages: SwitchMaterial
@@ -151,14 +151,14 @@ class ConfigFragment : Fragment() {
     // --------------------------------------------------------- Book ---------------------------------------------------------
     private lateinit var mBookLibrariesButton: Button
     private lateinit var mBookLibraryPath: TextInputLayout
-    private lateinit var mBookLibraryPathAutoComplete: AutoCompleteTextView
+    private lateinit var mBookLibraryPathAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mBookLibraryOrder: TextInputLayout
-    private lateinit var mBookLibraryOrderAutoComplete: AutoCompleteTextView
+    private lateinit var mBookLibraryOrderAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mBookScrollingMode: TextInputLayout
-    private lateinit var mBookScrollingModeAutoComplete: AutoCompleteTextView
+    private lateinit var mBookScrollingModeAutoComplete: MaterialAutoCompleteTextView
 
     private lateinit var mBookReadingTTS: TextInputLayout
-    private lateinit var mBookReadingTTSAutoComplete: AutoCompleteTextView
+    private lateinit var mBookReadingTTSAutoComplete: MaterialAutoCompleteTextView
 
     private lateinit var mBookFontTypeNormal: TwoWayView
     private lateinit var mBookFontTypeJapanese: TwoWayView

@@ -296,7 +296,7 @@
                         android:hint="@string/book_detail_information_language"
                         app:startIconDrawable="@drawable/ic_language">
 
-                        <AutoCompleteTextView
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/book_detail_information_menu_autocomplete_language"
                             style="@style/AutoCompleteDropMenu"
                             android:layout_width="match_parent"

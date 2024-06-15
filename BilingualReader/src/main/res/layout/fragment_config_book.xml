@@ -47,7 +47,7 @@
             android:hint="@string/config_book_library_order"
             app:startIconDrawable="@drawable/ic_order">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_book_menu_autocomplete_library_order"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
@@ -65,7 +65,7 @@
             app:endIconMode="clear_text"
             app:startIconDrawable="@drawable/ic_sd_storage">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_book_menu_autocomplete_library_path"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
@@ -110,7 +110,7 @@
             android:hint="@string/config_book_scrolling_mode"
             app:startIconDrawable="@drawable/ic_reading_mode">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_book_menu_autocomplete_scrolling_mode"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
@@ -165,7 +165,7 @@
             android:hint="@string/config_book_tts_voice"
             app:startIconDrawable="@drawable/ic_book_tts">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_book_menu_autocomplete_tts_voice"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"

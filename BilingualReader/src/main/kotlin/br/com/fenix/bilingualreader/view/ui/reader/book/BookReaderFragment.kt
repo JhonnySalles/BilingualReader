@@ -93,7 +93,6 @@ import br.com.fenix.bilingualreader.view.components.book.WebViewPage
 import br.com.fenix.bilingualreader.view.components.book.WebViewPager
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupTTS
-import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderFragment
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -105,7 +104,6 @@ import java.io.File
 import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import java.util.Calendar
 import java.util.LinkedList
 
 
