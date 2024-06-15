@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.view.components
 
 import android.content.Context
 import br.com.fenix.bilingualreader.R
-import com.github.mikephil.charting.charts.BarLineChartBase
 import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.formatter.ValueFormatter
 

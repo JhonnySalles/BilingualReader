@@ -1,24 +1,10 @@
 package br.com.fenix.bilingualreader.view.ui.statistics
 
 import android.content.Intent
-import android.os.Bundle
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.Book
-import br.com.fenix.bilingualreader.model.entity.BookAnnotation
-import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
-import br.com.fenix.bilingualreader.service.repository.DataBase
-import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.utils.BookTestUtil
-import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
-import junit.framework.TestCase
-import org.junit.AfterClass
 import org.junit.FixMethodOrder
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters

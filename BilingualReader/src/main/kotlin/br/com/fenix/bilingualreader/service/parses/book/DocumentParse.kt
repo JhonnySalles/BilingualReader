@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.RectF
+import android.os.Handler
+import android.os.Looper
 import br.com.ebook.foobnix.android.utils.Dips
 import br.com.ebook.foobnix.ext.CacheZipUtils
 import br.com.ebook.foobnix.pdf.info.ExtUtils
@@ -15,13 +17,6 @@ import br.com.ebook.foobnix.sys.TempHolder
 import br.com.fenix.bilingualreader.model.exceptions.BookLoadException
 import br.com.fenix.bilingualreader.service.listener.BookParseListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
-import kotlinx.coroutines.withContext
 import org.ebookdroid.common.cache.CacheManager
 import org.ebookdroid.core.codec.CodecDocument
 import org.ebookdroid.core.codec.CodecPage
@@ -29,6 +24,7 @@ import org.ebookdroid.core.codec.CodecPageInfo
 import org.ebookdroid.core.codec.OutlineLink
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.lang.Thread.sleep
 import java.util.Date
 
 
@@ -68,40 +64,39 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
     private var mCodecDocument: CodecDocument? = null
 
 
-    fun changeFontSize(fontSize: Int, onEnding: (Boolean) -> (Unit))  = openBook(path, password, fontSize, onEnding)
-    fun getPageCount(fontSize: Int) : Int {
+    fun changeFontSize(fontSize: Int, onEnding: (Boolean) -> (Unit)) = openBook(path, password, fontSize, onEnding)
+    fun getPageCount(fontSize: Int): Int {
         this.fontSize = fontSize
         return mCodecDocument?.getPageCount(mWidth, mHeight, fontSize) ?: 1
     }
 
+    private var mMainHandler = Handler(Looper.getMainLooper())
     fun openBook(path: String, password: String = "", fontSize: Int, onEnding: (Boolean) -> (Unit)) {
         listener?.onLoading(false)
-        CoroutineScope(newSingleThreadContext("BookThread")).launch {
-            async {
-                try {
-                    isLoading = true
-                    val start = Date()
-                    clear()
-                    mCodecDocument = ImageExtractor.getNewCodecContext(path, password, mWidth, mHeight, fontSize)
-                    this@DocumentParse.fontSize = fontSize
-                    isLoaded = mCodecDocument != null
+        Thread {
+            try {
+                isLoading = true
+                val start = Date()
+                clear()
+                mCodecDocument = ImageExtractor.getNewCodecContext(path, password, mWidth, mHeight, fontSize)
+                this@DocumentParse.fontSize = fontSize
+                isLoaded = mCodecDocument != null
 
-                    val diff = Date().time - start.time
+                val diff = Date().time - start.time
 
-                    if (diff < 2000)
-                        delay(2000 - diff)
-                } catch (e : Exception) {
-                    mLOGGER.error(e.message, e)
-                    throw BookLoadException("Could not open selected book: $path")
-                } finally {
-                    isLoading = false
-                    withContext(Dispatchers.Main) {
-                        listener?.onLoading(true, isLoaded)
-                        onEnding(isLoaded)
-                    }
+                if (diff < 2000)
+                    sleep(2000 - diff)
+            } catch (e: Exception) {
+                mLOGGER.error(e.message, e)
+                throw BookLoadException("Could not open selected book: $path")
+            } finally {
+                isLoading = false
+                mMainHandler.post {
+                    listener?.onLoading(true, isLoaded)
+                    onEnding(isLoaded)
                 }
             }
-        }
+        }.start()
     }
 
     fun clear() {
@@ -112,11 +107,11 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
         }
     }
 
-    fun isLoaded() : Boolean = isLoaded
+    fun isLoaded(): Boolean = isLoaded
 
-    fun isLoading() : Boolean = isLoading
-    fun isSearching() : Boolean = TempHolder.isSeaching
-    fun isConverting() : Boolean = TempHolder.isConverting
+    fun isLoading(): Boolean = isLoading
+    fun isSearching(): Boolean = TempHolder.isSeaching
+    fun isConverting(): Boolean = TempHolder.isConverting
 
     fun cancelOpen() {
         if (isLoading)
@@ -124,8 +119,8 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
         TempHolder.get().loadingCancelled
     }
 
-    fun getChapter(page: Int) : Pair<Int, String>? {
-        var chapter : Pair<Int, String>? = null
+    fun getChapter(page: Int): Pair<Int, String>? {
+        var chapter: Pair<Int, String>? = null
         if (mCodecDocument != null && mCodecDocument?.outline != null && mCodecDocument?.outline!!.isNotEmpty())
             for (link in mCodecDocument!!.outline!!) {
                 val number = link.link.replace(Regex("[^\\d+]"), "")
@@ -138,8 +133,8 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
         return chapter
     }
 
-    fun getChapters() : List<Pair<Int, String>> {
-        val chapter : MutableList<Pair<Int, String>> = mutableListOf()
+    fun getChapters(): List<Pair<Int, String>> {
+        val chapter: MutableList<Pair<Int, String>> = mutableListOf()
         if (mCodecDocument != null && mCodecDocument?.outline != null && mCodecDocument?.outline!!.isNotEmpty())
             for (link in mCodecDocument!!.outline!!) {
                 val number = link.link.replace(Regex("[^\\d+]"), "")

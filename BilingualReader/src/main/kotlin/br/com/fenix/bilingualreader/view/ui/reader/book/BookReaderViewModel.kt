@@ -17,7 +17,6 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
-import android.text.style.URLSpan
 import android.util.Base64
 import android.util.TypedValue
 import android.view.Gravity
@@ -67,7 +66,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
-import java.util.concurrent.ThreadLocalRandom.current
 
 
 class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {

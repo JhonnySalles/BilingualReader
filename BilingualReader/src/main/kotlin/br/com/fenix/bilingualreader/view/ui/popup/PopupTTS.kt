@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import androidx.appcompat.app.AlertDialog
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.TextSpeech
