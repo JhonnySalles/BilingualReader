@@ -105,6 +105,7 @@ import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.LinkedList
+import kotlin.math.abs
 
 
 class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, TTSListener, TextSelectCallbackListener {
@@ -798,12 +799,14 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     fun setCurrentPage(page: Int, isChangePage: Boolean = true, isAnimated: Boolean = true) {
+        val animated = if (isAnimated) abs(mCurrentPage - page) < 10 else false
+
         if (isChangePage) {
             // Use animated to load because wrong page is set started
             if (mIsLeftToRight)
-                mViewPager.setCurrentItem(page - 1, isAnimated)
+                mViewPager.setCurrentItem(page - 1, animated)
             else
-                mViewPager.setCurrentItem(mViewPager.adapter!!.itemCount - page, isAnimated)
+                mViewPager.setCurrentItem(mViewPager.adapter!!.itemCount - page, animated)
         }
 
         mCurrentPage = mViewPager.currentItem
@@ -904,6 +907,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     val search = data.extras!!.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH) as BookSearch
                     setCurrentPage(search.page + 1, isAnimated = false)
                     mHandler.postDelayed({
+                        setFullscreen(true)
                         if (!ReaderConsts.READER.BOOK_WEB_VIEW_MODE) {
                             val textView = (mPagerAdapter as TextViewPager).getHolder(search.page)?.textView ?: return@postDelayed
                             val text = TextUtil.clearHighlightWordInText(search.search)
