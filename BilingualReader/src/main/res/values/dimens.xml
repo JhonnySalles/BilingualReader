@@ -305,6 +305,8 @@
     <dimen name="statistics_loading_size">90dp</dimen>
     <dimen name="statistics_icon_size">30dp</dimen>
     <dimen name="statistics_chart_height">300dp</dimen>
+    <dimen name="statistics_chart_label_font_size">3dp</dimen>
+    <dimen name="statistics_chart_point_font_size">3dp</dimen>
 
     <dimen name="config_theme_height">200dp</dimen>
     <dimen name="config_theme_selected_stroke">3dp</dimen>

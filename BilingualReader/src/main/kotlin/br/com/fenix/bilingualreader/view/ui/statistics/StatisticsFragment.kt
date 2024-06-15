@@ -11,6 +11,7 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Statistics
@@ -23,11 +24,14 @@ import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 import kotlin.math.round
@@ -35,10 +39,13 @@ import kotlin.math.round
 
 class StatisticsFragment : Fragment() {
 
+    companion object {
+        private val decimal = DecimalFormat("0")
+    }
+
     private val mLOGGER = LoggerFactory.getLogger(StatisticsFragment::class.java)
 
     private lateinit var mRepository: StatisticsRepository
-
 
     private lateinit var mRoot: FrameLayout
     private lateinit var mContent: ConstraintLayout
@@ -265,7 +272,8 @@ class StatisticsFragment : Fragment() {
         chart.xAxis.setGranularity(1f)
         chart.xAxis.setLabelCount(12)
         chart.xAxis.textColor = requireContext().getColorFromAttr(R.attr.colorPrimary)
-        chart.xAxis.valueFormatter = MonthAxisValueFormatter(requireContext());
+        chart.xAxis.textSize = requireContext().resources.getDimension(R.dimen.statistics_chart_label_font_size)
+        chart.xAxis.valueFormatter = MonthAxisValueFormatter(requireContext())
 
         chart.animateX(2000)
         chart.description.isEnabled = false
@@ -298,13 +306,21 @@ class StatisticsFragment : Fragment() {
         linedata.color = lineColor
         linedata.highLightColor = lineColor
         linedata.valueTextColor = textColor
+        linedata.valueTextSize = requireContext().resources.getDimension(R.dimen.statistics_chart_point_font_size)
+        linedata.valueTypeface = ResourcesCompat.getFont(requireContext(), R.font.comic_sans)
 
         linedata.lineWidth = 1.75f
         linedata.circleRadius = 5f
         linedata.circleHoleRadius = 2.5f
         linedata.setCircleColor(Color.TRANSPARENT)
 
-        return LineData(linedata)
+        decimal.roundingMode = RoundingMode.UP
+        val data = LineData(linedata)
+        data.setValueFormatter(object : ValueFormatter() {
+            override fun getFormattedValue(value: Float): String = decimal.format(value)
+        })
+
+        return data
     }
 
 }
