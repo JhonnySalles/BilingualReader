@@ -73,6 +73,7 @@ import br.com.fenix.bilingualreader.view.adapter.library.BookGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookLineCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
+import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
 import br.com.fenix.bilingualreader.view.ui.popup.PopupTags
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -80,6 +81,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.math.max
 
@@ -723,6 +725,16 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                         R.id.menu_book_config_detail -> goBookDetail(book, root, position)
                         R.id.menu_book_config_tag -> {
                             mPopupTag.getPopupTags(book) { mViewModel.loadTags() }
+                        }
+                        R.id.menu_book_config_book_mark -> {
+                            PopupBookMark(requireActivity(), requireActivity().supportFragmentManager)
+                                .getPopupBookMark(book.bookMark, book.pages, book.lastAccess ?: LocalDateTime.now()) { change, bookMark, lastAccess ->
+                                if (change) {
+                                    book.bookMark = bookMark
+                                    book.lastAccess = lastAccess
+                                    mViewModel.save(book)
+                                }
+                            }
                         }
                     }
                     true

@@ -794,6 +794,23 @@
     <string name="kanji_onYomi"><b><i>on:</i></b> %s</string>
     <string name="kanji_kunYomi"><b><i>kun:</i></b> %s</string>
 
+
+    <!-- POPUP - BOOK MARK -->
+    <string name="popup_book_mark_page">Marcador</string>
+    <string name="popup_book_mark_date">Data</string>
+
+    <string name="popup_book_select_date">Selecione uma data</string>
+    <string name="popup_book_select_time">Selecione uma horário</string>
+
+    <string name="popup_book_mark_read">Marcar como lido</string>
+
+    <string name="popup_book_mark_only_number">Apenas números</string>
+    <string name="popup_book_mark_necessary_page">Necessário informar uma página</string>
+    <string name="popup_book_mark_exceed_max">A página não pode exceder o número máximo de páginas, máximo %d</string>
+    <string name="popup_book_mark_necessary_date">Necessário informar uma data</string>
+    <string name="popup_book_mark_necessary_time">Necessário informar uma hora</string>
+
+
     <!-- HELP -->
     <string name="help_content">Conteúdo</string>
     <string name="help_library_content">• Biblioteca</string>

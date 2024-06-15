@@ -111,11 +111,7 @@ class MangaDetailFragment : Fragment() {
     private var mFileLinks: MutableList<String> = mutableListOf()
     private var mBookMarks: MutableList<String> = mutableListOf()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_manga_detail, container, false)
 
         mRootScroll = root.findViewById(R.id.manga_detail_scroll)
