@@ -1,7 +1,5 @@
 package br.com.ebook.fitz
 
-import br.com.ebook.fitz.Context.init
-
 class StructuredText {
     private var pointer: Long
     protected external fun finalize()
@@ -44,9 +42,6 @@ class StructuredText {
     }
 
     companion object {
-        init {
-            init()
-        }
 
         @JvmStatic
         val blocks: Array<TextBlock?>?

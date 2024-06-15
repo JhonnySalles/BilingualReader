@@ -36,7 +36,7 @@
             android:hint="@string/config_libraries_title_language"
             app:startIconDrawable="@drawable/ic_language">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/libraries_menu_autocomplete_library_language"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
@@ -53,7 +53,7 @@
             android:hint="@string/config_libraries_title_path"
             app:startIconDrawable="@drawable/ic_sd_storage">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/libraries_menu_autocomplete_library_path"
                 style="@style/AutoCompleteDropMenu"
                 android:focusable="false"

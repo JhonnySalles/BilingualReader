@@ -96,7 +96,7 @@
                 android:contentDescription="@string/vocabulary_manga_button"
                 android:text="@string/vocabulary_manga_button"
                 app:iconSize="20dp"
-                app:icon="@drawable/ico_library"/>
+                app:icon="@drawable/ico_library_manga"/>
         </LinearLayout>
 
         <LinearLayout
@@ -112,7 +112,7 @@
                 android:contentDescription="@string/vocabulary_book_button"
                 android:text="@string/vocabulary_book_button"
                 app:iconSize="20dp"
-                app:icon="@drawable/ico_book"/>
+                app:icon="@drawable/ico_library_book"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/vocabulary_tatoeba_button"

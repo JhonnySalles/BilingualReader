@@ -15,6 +15,7 @@
     <string name="action_disconnect">Desconectar</string>
     <string name="action_copy_name">Copiado: %s</string>
 
+    <string name="alert_error_call_google_translate">Descuple, Nenhum Google Translation está instalado.</string>
     <string name="alert_permission_files_access_denied_title">Acesso negado</string>
     <string name="alert_permission_files_access_denied">Não foi possível obter a permissão de acesso a pasta informada, por favor libere o acesso na configuração do android.</string>
 
@@ -24,11 +25,29 @@
     <string name="date_format_today">Hoje</string>
     <string name="date_format_day_ago">%s dias atrás.</string>
 
+    <string-array name="mouth_descriptions">
+        <item>Janeiro</item>
+        <item>Fevereiro</item>
+        <item>Março</item>
+        <item>Abril</item>
+        <item>Maio</item>
+        <item>Junho</item>
+        <item>Julho</item>
+        <item>Agosto</item>
+        <item>Setembro</item>
+        <item>Outubro</item>
+        <item>Novembro</item>
+        <item>Dezembro</item>
+    </string-array>
+
     <!-- NOTIFICATIONS -->
     <string name="notifications_channel_name">Bilingual Reader</string>
     <string name="notifications_channel_description">Bilingual Reader</string>
     <string name="notifications_share_mark_drive_title">Sincronizando</string>
-    <string name="notifications_share_mark_drive_content">Sincronizando marcações para o Google drive.</string>
+    <string name="notifications_share_mark_drive_content">Sincronizando marcações com a cloud.</string>
+    <string name="notifications_scanner_library">Escaneando bibliotecas</string>
+    <string name="notifications_scanner_library_content">Escaneando arquivos nas pastas da biblioteca %s. (%s)</string>
+    <string name="notifications_scanner_library_processed">Escaneamento da biblioteca %s concluído com sucesso.</string>
 
     <!-- MENU -->
     <string name="menu_search">Procurar</string>
@@ -38,11 +57,43 @@
     <string name="menu_book">Biblioteca</string>
     <string name="menu_help">Ajuda</string>
     <string name="menu_about">Sobre</string>
+    <string name="menu_statistics">Estatística</string>
     <string name="menu_config">Configuração</string>
     <string name="menu_history">Histórico</string>
     <string name="menu_vocabulary">Vocabulário</string>
     <string name="menu_manga_library_type">Tipo da grid</string>
     <string name="menu_book_library_type">Tipo da grid</string>
+
+
+    <!-- STATISTICS -->
+    <string name="statistics_sector_system">Statistics</string>
+    <string name="statistics_sector_manga">Manga / Comic</string>
+    <string name="statistics_sector_book">Book</string>
+
+    <string name="statistics_reading">Lendo</string>
+    <string name="statistics_to_read">Pendentes</string>
+    <string name="statistics_library">Biblioteca</string>
+    <string name="statistics_read">Lido</string>
+
+    <string name="statistics_title_completed">Completos</string>
+    <string name="statistics_title_current">Atual</string>
+
+    <string name="statistics_title_pages">Páginas</string>
+    <string name="statistics_title_time">Tempo em leitura</string>
+
+    <string name="statistics_total_read_pages">Total de páginas lidas</string>
+    <string name="statistics_total_read_times">Total de tempo lendo</string>
+    <string name="statistics_total_read_average">Média de leitura</string>
+
+    <string name="statistics_read_by_month">%s leituras / mês</string>
+    <string name="statistics_chart_year">Ano</string>
+    <string name="statistics_average">%d minutos por página</string>
+
+    <string name="statistics_format_days">%d dias</string>
+    <string name="statistics_format_hours">%d horas</string>
+    <string name="statistics_format_minutes">%d minutos</string>
+    <string name="statistics_format_seconds">%d segundos</string>
+
 
     <!-- CONFIG -->
     <string name="config_sector_system">Sistema</string>
@@ -58,6 +109,7 @@
     <string name="config_title_monitoring">Monitoramento</string>
     <string name="config_title_database">Banco de dados</string>
     <string name="config_title_themes">Temas</string>
+    <string name="config_title_cover">Capas</string>
 
     <string name="config_manga_switch_use_path_name_for_linked">Utilizar o caminho da página para vincular as páginas?</string>
     <string name="config_manga_switch_use_dual_page_calculate">Considerar página dupla pelo calculo das dimensões?</string>
@@ -84,12 +136,14 @@
 
     <string name="config_manga_reading_show_clock_and_battery">Mostrar o relógio e o percentual bateria?</string>
     <string name="config_manga_reading_use_magnifier_type">Utiliza o zoom em modo de lupa?</string>
+    <string name="config_manga_reading_keep_zoom_between_pages">Manter o zoom entre as páginas?</string>
 
     <string name="config_system_language">Linguagem do sistema</string>
     <string name="config_system_format_date">Formato de data</string>
 
     <string name="config_system_share_mark">Compartilhar marcadores</string>
-    <string name="config_system_share_mark_drive">Compartilhar marcações no Google Drive</string>
+    <string name="config_system_share_mark_enabled">Compartilhar marcações com a cloud</string>
+    <string name="config_system_share_mark_cloud">Tipo de compartilhamento</string>
     <string name="config_system_share_mark_account">Conta Google: %s</string>
     <string name="config_system_share_mark_sign_in_error">Erro ao logar!</string>
     <string name="config_system_share_mark_sign_out_title">Deslogar</string>
@@ -110,6 +164,12 @@
     <string name="config_database_error_read_file">Ocorreu um erro ao ler o arquivo.</string>
     <string name="config_database_error_restore">Ocorreu um erro ao restaurar o backup informado, backup revertido ao arquivo original.</string>
     <string name="config_database_error_new_database">Ocorreu um erro ao restaurar o backup e a versão anterior não pode ser restaurado. Uma nova base foi criada.</string>
+
+    <string name="config_covers_delete">Limpar cache de capas</string>
+    <string name="config_covers_delete_title">Limpar cache de capas</string>
+    <string name="config_covers_delete_description">Deseja realmente apagar o cache de capa?</string>
+    <string name="config_covers_delete_success">Cache limpo com sucesso.</string>
+    <string name="config_covers_delete_error">Erro ao limpar cache de capas.</string>
 
     <string name="config_theme_mode">Modo tema</string>
     <string-array name="theme_mode">
@@ -147,6 +207,9 @@
     <string name="config_book_scrolling_Pagination">Pagination</string>
     <string name="config_book_scrolling_Infinity_Scrolling">Infinity Scrolling</string>
 
+    <string name="config_book_tts">Texto para fala</string>
+    <string name="config_book_tts_voice">Voz</string>
+
     <!-- CONFIG LIBRARIES -->
     <string name="menu_libraries_delete_library">Apagar Biblioteca</string>
 
@@ -174,20 +237,23 @@
     </string-array>
 
     <!-- READER - BOOK -->
-    <string name="book_share_mark_drive_processed">Marcadores compartilhada no Google drive</string>
-    <string name="book_share_mark_drive_processed_receive">Marcadores atualizados do Google drive</string>
-    <string name="book_share_mark_drive_processed_send">Marcadores enviados ao Google drive</string>
-    <string name="book_share_mark_drive_unprocessed">Marcadores não compartilhada no Google drive</string>
-    <string name="book_share_mark_drive_without_alteration">Nenhuma alteração em marcadores encontrada</string>
-    <string name="book_share_mark_drive_need_permission">Necessário permissão para o Google drive</string>
+    <string name="book_share_mark_processed">Marcadores compartilhados com a cloud</string>
+    <string name="book_share_mark_processed_receive">Marcadores atualizados da cloud</string>
+    <string name="book_share_mark_processed_send">Marcadores enviados para cloud</string>
+    <string name="book_share_mark_unprocessed">Marcadores não compartilhados</string>
+    <string name="book_share_mark_without_alteration">Nenhuma alteração em marcadores encontrada</string>
+    <string name="book_share_mark_error_download">Ocorreu um erro no download dos marcadores</string>
+    <string name="book_share_mark_error_upload">Ocorreu um erro no upload dos marcadores</string>
+    <string name="book_share_mark_error_network">Não foi possível conectar a cloud, verifique sua internet</string>
+
+    <string name="book_share_mark_drive_need_permission">Necessário permissão para acessar o Google drive</string>
     <string name="book_share_mark_drive_need_sign_in">Necessário logar na conta do Google</string>
-    <string name="book_share_mark_drive_error_download">Ocorreu um erro no download do Google drive</string>
-    <string name="book_share_mark_drive_error_upload">Ocorreu um erro no upload do Google drive</string>
-    <string name="book_share_mark_drive_error_network">Não foi possível conectar ao Google drive, verifique sua internet</string>
+    <string name="book_share_mark_firebase_not_connected">Não foi possível conectar no firebase</string>
 
     <string name="menu_reading_book_favorite">Favorito</string>
     <string name="menu_book_reading_order">Ordem da lista</string>
     <string name="menu_reading_book_order_change">Ordernado: %s</string>
+    <string name="menu_book_reading_tts">Texto para fala</string>
     <string name="menu_book_reading_chapter">Capítulos</string>
     <string name="menu_book_reading_annotation">Anotações</string>
     <string name="menu_book_reading_font_and_page">Fonte e página</string>
@@ -196,15 +262,31 @@
     <string name="reading_book_title_position">Posição %d de %d • %s%%</string>
     <string name="reading_book_title_chapter">Capítulo %d: %s</string>
 
+    <string name="reading_book_page_mark">Marcador de página</string>
     <string name="reading_book_page_index">Índice</string>
     <string name="reading_book_page_empty">Arquivo não contem capítulos</string>
     <string name="reading_book_open_exception">Não foi possível abrir o livro selecionado</string>
+
+    <string name="reading_book_menu_text_functions_read_from">Ler a partir daqui</string>
+    <string name="reading_book_menu_text_functions_find">Encontrar</string>
+    <string name="reading_book_menu_text_functions_translate">Traduzir</string>
+
+    <string name="reading_book_time_to_ending_hour">Restante: %d h %d min</string>
+    <string name="reading_book_time_to_ending_minutes">Restante: %d minutos</string>
+
 
     <!-- READER POPUP TITLES -->
     <string name="popup_reading_book_open">Abrir</string>
     <string name="popup_reading_book_close">Fechar</string>
     <string name="popup_reading_book_tab_item_font">Fonte</string>
     <string name="popup_reading_book_tab_item_layout">Layout</string>
+    <string name="popup_reading_book_tab_item_language">Linguagem</string>
+
+    <!-- READER POPUP LANGUAGE -->
+    <string name="popup_reading_language_book">Linguagem do livro</string>
+    <string name="popup_reading_language_tts_voice">Voz</string>
+    <string name="popup_reading_language_tts_voice_empty">Necessário informar um tipo de voz</string>
+    <string name="popup_reading_language_tts_voice_not_locate">A voz selecionada não foi encontrada</string>
 
     <!-- READER POPUP LAYOUT -->
     <string name="popup_reading_layout_scrolling_type">Tipo de rolagem</string>
@@ -227,14 +309,18 @@
 
     <string name="book_annotation_type_annotation">Destaque</string>
     <string name="book_annotation_type_book_mark">Marcador</string>
+    <string name="book_annotation_type_page_mark">Página marcada</string>
+
+    <string name="book_annotation_page_marked">Página %d marcada.</string>
+    <string name="book_annotation_page_unmarked">Página %d desmarcada.</string>
 
     <string name="book_annotation_delete">Apagar</string>
     <string name="book_annotation_delete_description">Deseja realmente apagar o %s?</string>
 
     <string name="book_annotation_note">Nota</string>
 
-    <string name="book_annotation_list_title_detach">Página %f • Destaque</string>
-    <string name="book_annotation_list_title_mark">Página %f • Marcador</string>
+    <string name="book_annotation_list_title_detach">Página %d de %d • Destaque</string>
+    <string name="book_annotation_list_title_mark">Página %d de %d • Marcador</string>
     <string name="book_annotation_list_add_note">Adicionar nota</string>
     <string name="book_annotation_list_favorite">Favorito</string>
     <string name="book_annotation_list_options">Opções</string>
@@ -248,26 +334,43 @@
     <string name="book_annotation_popup_filter_open">Abrir</string>
     <string name="book_annotation_popup_filter_close">Fechar</string>
     <string name="book_annotation_tab_item_filter">Filtros</string>
+    <string name="book_annotation_tab_item_color">Cores</string>
     <string name="book_annotation_tab_item_chapters">Capítulos</string>
+
+    <string name="book_annotation_popup_filter_favorite">Favoritos</string>
+    <string name="book_annotation_popup_filter_detach">Destaque</string>
+    <string name="book_annotation_popup_filter_page_marker">Marcador de página</string>
+    <string name="book_annotation_popup_filter_book_marker">Marcador de livro</string>
 
     <!-- BOOK ANNOTATION DETACH -->
     <string name="book_annotation_change_detach_title">Destaque</string>
     <string name="book_annotation_change_detach_description">Selecione a cor de destaque:</string>
 
-    <string name="book_annotation_color_none">Nenhum</string>
-    <string name="book_annotation_color_blue">Azul</string>
-    <string name="book_annotation_color_green">Verde</string>
-    <string name="book_annotation_color_red">Vermelho</string>
-    <string name="book_annotation_color_yellow">Amarelo</string>
+    <!-- BOOK POPUP ANNOTATION LAYOUT -->
+    <string name="book_annotation_popup_title">Página %d - %s</string>
+    <string name="book_annotation_popup_delete">Deletar</string>
+    <string name="book_annotation_popup_cancel">Cancelar</string>
+    <string name="book_annotation_popup_confirm">Confirmar</string>
 
     <!-- BOOK SEARCH -->
     <string name="book_search_menu">Pesquisa</string>
+    <string name="book_search_stop">Parar</string>
     <string name="book_search_history_title">Pesquisas recentes</string>
     <string name="book_search_history_clear">Limpar histórico</string>
     <string name="book_search_history_delete">Apagar</string>
     <string name="book_search_page">Página %d</string>
 
     <string name="book_search_menu_item_add_annotation">Adicionar marcador</string>
+
+    <!-- BOOK - TTS -->
+    <string name="book_tts_voice_gender_masculine">Masculino</string>
+    <string name="book_tts_voice_gender_feminine">Feminino</string>
+
+    <string name="book_tts_voice_required">Obrigatório que seja selecionado um tipo de voz.</string>
+
+    <string name="book_tts_idiom_en">Inglês (Estados Unidos)</string>
+    <string name="book_tts_idiom_jp">Japonês (Japão)</string>
+    <string name="book_tts_idiom_pt">Português (Brasil)</string>
 
     <!-- BOOK - TAGS -->
     <string name="book_tags_title">Tag</string>
@@ -285,16 +388,18 @@
     <string name="reader_not_found">Não encontrado</string>
     <string name="file_not_found">Arquivo não encontrado</string>
 
-    <string name="manga_share_mark_drive_processed">Marcadores compartilhados no Google drive</string>
-    <string name="manga_share_mark_drive_processed_receive">Marcadores atualizados do Google drive</string>
-    <string name="manga_share_mark_drive_processed_send">Marcadores enviados ao Google drive</string>
-    <string name="manga_share_mark_drive_unprocessed">Marcadores não compartilhados no Google drive</string>
-    <string name="manga_share_mark_drive_without_alteration">Nenhuma alteração em marcadores encontrada</string>
+    <string name="manga_share_mark_processed">Marcadores compartilhados a cloud</string>
+    <string name="manga_share_mark_processed_receive">Marcadores atualizados da cloud</string>
+    <string name="manga_share_mark_processed_send">Marcadores enviados para cloud</string>
+    <string name="manga_share_mark_unprocessed">Marcadores não compartilhados na cloud</string>
+    <string name="manga_share_mark_without_alteration">Nenhuma alteração em marcadores encontrada</string>
+    <string name="manga_share_mark_error_download">Ocorreu um erro no download dos marcadores</string>
+    <string name="manga_share_mark_error_upload">Ocorreu um erro no upload dos marcadores</string>
+    <string name="manga_share_mark_error_network">Não foi possível conectar a cloud, verifique sua internet</string>
+
     <string name="manga_share_mark_drive_need_permission">Necessário permissão para o Google drive</string>
     <string name="manga_share_mark_drive_need_sign_in">Necessário logar na conta do Google</string>
-    <string name="manga_share_mark_drive_error_download">Ocorreu um erro no download do Google drive</string>
-    <string name="manga_share_mark_drive_error_upload">Ocorreu um erro no upload do Google drive</string>
-    <string name="manga_share_mark_drive_error_network">Não foi possível conectar ao Google drive, verifique sua internet</string>
+    <string name="manga_share_mark_firebase_not_connected">Não foi possível conectar no firebase</string>
 
     <string name="menu_manga_view_mode">Modo de preenchimento</string>
     <string name="menu_manga_view_mode_aspect_fill">Aspecto preencher</string>
@@ -310,6 +415,7 @@
     <string name="menu_manga_reading_favorite">Favorito</string>
     <string name="menu_manga_reading_order">Ordem da lista</string>
     <string name="menu_manga_reading_order_change">Ordernado:</string>
+    <string name="menu_manga_vocabulary_import">Importar vocabulário</string>
 
     <string name="menu_manga_reading_floating">Popup flutuante</string>
     <string name="menu_manga_reading_floating_buttons">Botões flutuante</string>
@@ -317,6 +423,7 @@
     <string name="menu_manga_reading_options">Opções de leitura</string>
     <string name="menu_manga_reading_show_clock_and_battery">Relógio e percentual de baterria</string>
     <string name="menu_manga_reading_use_magnifier_type">Zoom em lupa</string>
+    <string name="menu_manga_reading_keep_zoom_between_pages">Manter zoom</string>
     <string name="menu_manga_reading_view_touch">Funções touch</string>
     <string name="menu_manga_reading_color">Cor da página</string>
 
@@ -360,7 +467,8 @@
     <string name="ocr_tesseract_copy_data_done">Cópia de arquivos do Tesseract concluído.</string>
     <string name="ocr_tesseract_get_request">Processando a imagem, aguarde…</string>
     <string name="ocr_google_vision_get_request">Comunicando com a api do google vision, aguarde…</string>
-    <string name="ocr_google_vision_error">Não foi possível realizar o processamento. Tente novamente mais tarde.</string>
+    <string name="ocr_google_vision_error">Tente novamente mais tarde.</string>
+    <string name="ocr_google_vision_not_detected">Nenhum texto identificado na imagem.</string>
 
     <!-- READER POPUP TITLES -->
     <string name="popup_reading_manga_open">Abrir</string>
@@ -467,8 +575,12 @@
 
     <string name="book_library_share">Compartilhar livro</string>
 
-    <string name="book_library_default">Default</string>
+    <string name="book_library_default">Padrão</string>
     <string name="book_library_menu_delete">Deletar</string>
+    <string name="book_library_menu_clear">Limpar histórico</string>
+    <string name="book_library_menu_favorite_add">Adicionar favorito</string>
+    <string name="book_library_menu_favorite_remove">Remover favorito</string>
+    <string name="book_library_menu_copy">Copiar</string>
     <string name="book_library_menu_delete_description">Deseja excluir o arquivo?</string>
 
     <string-array name="book_filters">
@@ -586,7 +698,10 @@
     <string name="history_last_access">Último acesso</string>
     <string name="history_delete_description">Deseja realmente excluir o histórico?</string>
     <string name="menu_manga_history_library">Biblioteca</string>
-    <string name="history_menu_choice_library_all">Todos</string>
+    <string name="history_menu_choice_all">Todos</string>
+    <string name="history_library_default">Padrão</string>
+    <string name="history_manga">Manga / Comic</string>
+    <string name="history_book">Livro</string>
 
     <!-- PAGE LINK -->
     <string name="page_link_manga_empty">Manga não encontrado</string>
@@ -661,6 +776,11 @@
     <string name="popup_vocabulary_order_description">Por descrição</string>
     <string name="popup_vocabulary_order_favorite">Por favoritos</string>
     <string name="popup_vocabulary_order_frequency">Por frequência</string>
+
+    <string name="popup_vocabulary_jlpt"><b><i>jlpt:</i></b> N%d</string>
+    <string name="popup_vocabulary_appears"><b><i>Aparece:</i></b> %d</string>
+    <string name="popup_vocabulary_reading"><b><i>Leitura:</i></b> %s</string>
+    <string name="popup_vocabulary_basic_form"><b><i>Forma básica:</i></b> %s</string>
 
 
     <!-- KANJI -->
@@ -753,5 +873,21 @@
     <string name="text_inker">Arte-finalista</string>
     <string name="text_cover_artist">Artista de capa</string>
     <string name="text_colorist">Colorista</string>
+
+    <string name="tts_title">Texto para fala</string>
+    <string name="tts_voice_not_found">Voz não encontrada</string>
+
+    <string name="button_tts_previous">Anterior</string>
+    <string name="button_tts_pause">Pause</string>
+    <string name="button_tts_play">Play</string>
+    <string name="button_tts_next">Próximo</string>
+    <string name="button_tts_close">Fechar</string>
+
+    <string name="annotation_colors_none">Nenhum</string>
+    <string name="annotation_colors_green">Verde</string>
+    <string name="annotation_colors_blue">Azul</string>
+    <string name="annotation_colors_red">Vermelho</string>
+    <string name="annotation_colors_yellow">Amarelo</string>
+    <string name="annotation_colors_erase">Apagar</string>
 
 </resources>

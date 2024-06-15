@@ -2,8 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/library_line_container"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/translucent">
+    android:layout_height="wrap_content">
 
     <LinearLayout
         android:layout_width="0dp"

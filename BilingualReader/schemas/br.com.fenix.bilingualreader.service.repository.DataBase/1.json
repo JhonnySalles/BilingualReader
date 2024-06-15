@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "bef0123e6fa429885a9ec15987ed3cc3",
+    "identityHash": "9f1e5ae527dbbc06efcd27687578b39f",
     "entities": [
       {
         "tableName": "Manga",
@@ -57,7 +57,7 @@
             "notNull": true
           },
           {
-            "fieldPath": "type",
+            "fieldPath": "fileType",
             "columnName": "type",
             "affinity": "TEXT",
             "notNull": true
@@ -1117,7 +1117,7 @@
             "notNull": true
           },
           {
-            "fieldPath": "type",
+            "fieldPath": "fileType",
             "columnName": "type",
             "affinity": "TEXT",
             "notNull": true
@@ -1211,7 +1211,7 @@
       },
       {
         "tableName": "BookMark",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_book` INTEGER NOT NULL, `page` INTEGER NOT NULL, `pages` INTEGER NOT NULL, `type` TEXT NOT NULL, `chapter_number` REAL NOT NULL, `chapter` TEXT NOT NULL, `text` TEXT NOT NULL, `annotation` TEXT NOT NULL, `favorite` INTEGER NOT NULL, `color` TEXT NOT NULL, `alteration` TEXT NOT NULL, `created` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_book` INTEGER NOT NULL, `page` INTEGER NOT NULL, `pages` INTEGER NOT NULL, `font_size` REAL NOT NULL, `type` TEXT NOT NULL, `chapter_number` REAL NOT NULL, `chapter` TEXT NOT NULL, `text` TEXT NOT NULL, `range` TEXT NOT NULL, `annotation` TEXT NOT NULL, `favorite` INTEGER NOT NULL, `color` TEXT NOT NULL, `alteration` TEXT NOT NULL, `created` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -1238,6 +1238,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "fontSize",
+            "columnName": "font_size",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
             "fieldPath": "type",
             "columnName": "type",
             "affinity": "TEXT",
@@ -1258,6 +1264,12 @@
           {
             "fieldPath": "text",
             "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "range",
+            "columnName": "range",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -1433,7 +1445,7 @@
         "foreignKeys": []
       },
       {
-        "tableName": "tags",
+        "tableName": "Tags",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `excluded` INTEGER NOT NULL, `isSelected` INTEGER NOT NULL)",
         "fields": [
           {
@@ -1469,13 +1481,128 @@
         },
         "indices": [
           {
-            "name": "index_tags_name",
+            "name": "index_Tags_name",
             "unique": false,
             "columnNames": [
               "name"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_tags_name` ON `${TABLE_NAME}` (`name`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Tags_name` ON `${TABLE_NAME}` (`name`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "History",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_library` INTEGER NOT NULL, `id_reference` INTEGER NOT NULL, `type` TEXT NOT NULL, `page_start` INTEGER NOT NULL, `page_end` INTEGER NOT NULL, `pages` INTEGER NOT NULL, `volume` INTEGER NOT NULL, `chapters_READ` INTEGER NOT NULL, `date_time_start` TEXT NOT NULL, `date_time_end` TEXT NOT NULL, `seconds_read` INTEGER NOT NULL, `average_time_page` INTEGER NOT NULL, `use_tts` INTEGER NOT NULL, `notified` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "fkLibrary",
+            "columnName": "id_library",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fkReference",
+            "columnName": "id_reference",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageStart",
+            "columnName": "page_start",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageEnd",
+            "columnName": "page_end",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pages",
+            "columnName": "pages",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "volume",
+            "columnName": "volume",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chaptersRead",
+            "columnName": "chapters_READ",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "start",
+            "columnName": "date_time_start",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "end",
+            "columnName": "date_time_end",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "secondsRead",
+            "columnName": "seconds_read",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "averageTimeByPage",
+            "columnName": "average_time_page",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "useTTS",
+            "columnName": "use_tts",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isNotify",
+            "columnName": "notified",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_History_id_reference_id_library",
+            "unique": false,
+            "columnNames": [
+              "id_reference",
+              "id_library"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_History_id_reference_id_library` ON `${TABLE_NAME}` (`id_reference`, `id_library`)"
           }
         ],
         "foreignKeys": []
@@ -1484,7 +1611,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bef0123e6fa429885a9ec15987ed3cc3')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9f1e5ae527dbbc06efcd27687578b39f')"
     ]
   }
 }

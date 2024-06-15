@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/menu_history_manga_search"
+        android:id="@+id/menu_history_search"
         android:icon="@drawable/ic_search"
         android:orderInCategory="100"
         android:title="@string/menu_search"
@@ -10,11 +10,19 @@
         app:actionViewClass="android.widget.SearchView"
         app:showAsAction="always" />
 
-    <item android:id="@+id/menu_history_manga_library"
+    <item android:id="@+id/menu_history_library"
         android:title="@string/menu_manga_history_library"
-        android:icon="@drawable/ic_library_filter"
+        android:icon="@drawable/ic_history_library_filter"
         android:orderInCategory="101"
         app:showAsAction="always">
-        <menu></menu>
+        <menu/>
+    </item>
+
+    <item android:id="@+id/menu_history_type"
+        android:title="@string/menu_manga_history_library"
+        android:icon="@drawable/ic_history_type_filter"
+        android:orderInCategory="102"
+        app:showAsAction="always">
+        <menu/>
     </item>
 </menu>

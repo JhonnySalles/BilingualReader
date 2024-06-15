@@ -7,6 +7,8 @@
     android:background="@drawable/book_mark_custom_ripple"
     android:clickable="true"
     android:focusable="true"
+    android:paddingStart="@dimen/margin"
+    android:paddingEnd="@dimen/margin"
     android:orientation="vertical">
 
     <TextView

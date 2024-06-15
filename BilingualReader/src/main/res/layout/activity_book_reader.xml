@@ -20,6 +20,23 @@
             android:fitsSystemWindows="false" />
 
         <include
+            android:id="@+id/container_book_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:fitsSystemWindows="false"
+            layout="@layout/reader_book_progress"/>
+
+        <include
+            android:id="@+id/container_book_tts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone"
+            android:fitsSystemWindows="false"
+            layout="@layout/reader_book_tts"/>
+
+        <include
             layout="@layout/reader_book_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -27,7 +44,7 @@
 
         <FrameLayout
             android:id="@+id/popup_book_configuration"
-            style="@style/AppBackground.Accent"
+            style="@style/AppBackground.PopupBottom"
             android:layout_width="match_parent"
             android:layout_height="500dp"
             android:layout_alignParentBottom="true"
@@ -47,6 +64,17 @@
                 android:contentDescription="@string/popup_reading_book_open"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_line_popup"/>
+
+            <ImageView
+                android:id="@+id/popup_book_configuration_close_button"
+                style="@style/TextTitle.Popup"
+                android:layout_width="70dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|top"
+                android:layout_marginTop="1dp"
+                android:contentDescription="@string/popup_reading_manga_close"
+                android:scaleType="center"
+                android:src="@drawable/ic_close"/>
 
             <LinearLayout
                 android:layout_width="match_parent"

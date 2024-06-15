@@ -47,7 +47,7 @@
             android:hint="@string/config_manga_library_order"
             app:startIconDrawable="@drawable/ic_order">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_manga_menu_autocomplete_library_order"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
@@ -65,7 +65,7 @@
             app:endIconMode="clear_text"
             app:startIconDrawable="@drawable/ic_sd_storage">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_manga_menu_autocomplete_library_path"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
@@ -112,7 +112,7 @@
             android:hint="@string/config_manga_default_subtitle_language"
             app:startIconDrawable="@drawable/ic_language">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_manga_menu_autocomplete_default_subtitle_language"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
@@ -130,7 +130,7 @@
             android:hint="@string/config_manga_default_subtitle_translate"
             app:startIconDrawable="@drawable/ic_translate">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_manga_menu_autocomplete_default_subtitle_translate"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
@@ -164,7 +164,7 @@
             android:hint="@string/menu_manga_view_mode"
             app:startIconDrawable="@drawable/ic_book_open">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_manga_menu_autocomplete_reader_comic_mode"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
@@ -182,7 +182,7 @@
             android:hint="@string/menu_manga_reading_mode"
             app:startIconDrawable="@drawable/ic_reader_mode">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_manga_menu_autocomplete_page_mode"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
@@ -203,6 +203,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/config_manga_reading_use_magnifier_type" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/config_manga_switch_keep_zoom_between_pages"
+            style="@style/SwitchMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/config_manga_reading_keep_zoom_between_pages" />
 
         <com.google.android.material.divider.MaterialDivider
             style="@style/MaterialDivider"

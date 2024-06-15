@@ -12,24 +12,27 @@
 
     <RelativeLayout
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:custom="http://schemas.android.com/apk/res/br.com.fenix.bilingualreader"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="false">
+        android:fitsSystemWindows="true">
 
         <include
-            android:id="@+id/container_book_progress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:id="@+id/reader_last_page"
+            layout="@layout/last_page_manga"
+            android:layout_width="@dimen/last_page_card_layout_width"
+            android:layout_height="@dimen/last_page_card_layout_height"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             android:layout_alignParentBottom="true"
-            android:layout_marginStart="@dimen/margin"
-            android:layout_marginEnd="@dimen/margin"
-            layout="@layout/reader_book_progress"/>
+            android:layout_marginBottom="140dp"
+            android:layout_alignParentStart="true"
+            android:visibility="gone"/>
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/reader_book_toolbar_top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fitsSystemWindows="true"
             android:background="@drawable/app_reader_toolbar_background"
             android:paddingBottom="5dp"
             android:theme="@style/MainToolbarContentTheme"
@@ -71,7 +74,6 @@
             android:id="@+id/reader_book_toolbar_bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fitsSystemWindows="true"
             android:layout_alignParentBottom="true"
             android:paddingTop="0dp"
             android:paddingBottom="5dp"
@@ -88,17 +90,18 @@
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/title_medium_size"/>
 
-            <com.google.android.material.slider.Slider
+            <br.com.fenix.bilingualreader.view.components.DottedSeekBar
                 android:id="@+id/reader_book_bottom_progress"
-                style="@style/Slider"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:valueFrom="1F"
-                android:valueTo="100F"
-                android:value="1"
-                android:stepSize="1"
-                android:maxHeight="2dp"
-                android:minHeight="2dp"/>
+                android:maxHeight="4dp"
+                android:minHeight="2dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="10dp"
+                android:progressDrawable="@drawable/reader_nav_progress"
+                android:thumb="@drawable/reader_nav_thumb_big"
+                custom:dots_drawable="@drawable/ico_progress_dot"
+                android:thumbOffset="6dp"/>
 
             <TextView
                 android:id="@+id/reader_book_toolbar_bottom_author"

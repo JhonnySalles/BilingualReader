@@ -47,7 +47,7 @@
             android:hint="@string/config_book_library_order"
             app:startIconDrawable="@drawable/ic_order">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_book_menu_autocomplete_library_order"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
@@ -65,7 +65,7 @@
             app:endIconMode="clear_text"
             app:startIconDrawable="@drawable/ic_sd_storage">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_book_menu_autocomplete_library_path"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
@@ -110,7 +110,7 @@
             android:hint="@string/config_book_scrolling_mode"
             app:startIconDrawable="@drawable/ic_reading_mode">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_book_menu_autocomplete_scrolling_mode"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
@@ -138,6 +138,40 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/config_book_process_vocabulary" />
+
+        <com.google.android.material.divider.MaterialDivider
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin_small"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small" />
+
+        <TextView
+            style="@style/TextTitle.Config"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_book_tts" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_book_tts_voice"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_book_tts_voice"
+            app:startIconDrawable="@drawable/ic_book_tts">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/config_book_menu_autocomplete_tts_voice"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.divider.MaterialDivider
             style="@style/MaterialDivider"
@@ -226,9 +260,7 @@
                 android:layout_marginEnd="@dimen/margin_small"
                 android:layout_gravity="center"
                 android:text="@string/popup_reading_font_size_description"
-                android:textSize="20sp"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_alignment_divider" />
+                android:textSize="20sp" />
 
             <com.google.android.material.slider.Slider
                 android:id="@+id/config_book_font_size"
@@ -247,9 +279,7 @@
                 android:layout_marginEnd="@dimen/margin"
                 android:layout_gravity="center"
                 android:text="@string/popup_reading_font_size_description"
-                android:textSize="32sp"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_alignment_divider" />
+                android:textSize="32sp" />
         </LinearLayout>
 
     </LinearLayout>

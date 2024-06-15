@@ -18,7 +18,7 @@
                     android:rotation="90"
                     android:translateX="-41">
                     <group
-                        android:name="_R_G_L_0_G_L_2_G"
+                        android:name="FIRST_POINT"
                         android:translateX="365"
                         android:translateY="266">
                         <path
@@ -37,7 +37,7 @@
                             android:strokeLineJoin="round" />
                     </group>
                     <group
-                        android:name="_R_G_L_0_G_L_1_G"
+                        android:name="SECOND_POINT"
                         android:translateX="454"
                         android:translateY="266">
                         <path
@@ -56,7 +56,7 @@
                             android:strokeLineJoin="round" />
                     </group>
                     <group
-                        android:name="_R_G_L_0_G_L_0_G"
+                        android:name="THIRD_POINT"
                         android:translateX="546"
                         android:translateY="266">
                         <path
@@ -79,48 +79,7 @@
             <group android:name="time_group" />
         </vector>
     </aapt:attr>
-    <target android:name="_R_G_L_0_G_L_3_G">
-        <aapt:attr name="android:animation">
-            <set android:ordering="together">
-                <objectAnimator
-                    android:duration="133"
-                    android:pathData="M 277,266C 277,255 277,200 277,200"
-                    android:propertyName="translateXY"
-                    android:propertyXName="translateX"
-                    android:propertyYName="translateY"
-                    android:startOffset="0">
-                    <aapt:attr name="android:interpolator">
-                        <pathInterpolator android:pathData="M 0.0,0.0 c0.167,0 0.833,1 1.0,1.0" />
-                    </aapt:attr>
-                </objectAnimator>
-                <objectAnimator
-                    android:duration="167"
-                    android:pathData="M 277,200C 277,200 277,255 277,266"
-                    android:propertyName="translateXY"
-                    android:propertyXName="translateX"
-                    android:propertyYName="translateY"
-                    android:startOffset="133">
-                    <aapt:attr name="android:interpolator">
-                        <pathInterpolator android:pathData="M 0.0,0.0 c0.167,0 0.833,1 1.0,1.0" />
-                    </aapt:attr>
-                </objectAnimator>
-            </set>
-        </aapt:attr>
-    </target>
-    <target android:name="_R_G_L_0_G_L_3_G">
-        <aapt:attr name="android:animation">
-            <set android:ordering="together">
-                <objectAnimator
-                    android:duration="0"
-                    android:propertyName="scaleY"
-                    android:startOffset="1001"
-                    android:valueFrom="0"
-                    android:valueTo="1"
-                    android:valueType="floatType" />
-            </set>
-        </aapt:attr>
-    </target>
-    <target android:name="_R_G_L_0_G_L_2_G">
+    <target android:name="FIRST_POINT">
         <aapt:attr name="android:animation">
             <set android:ordering="together">
                 <objectAnimator
@@ -159,7 +118,7 @@
             </set>
         </aapt:attr>
     </target>
-    <target android:name="_R_G_L_0_G_L_1_G">
+    <target android:name="SECOND_POINT">
         <aapt:attr name="android:animation">
             <set android:ordering="together">
                 <objectAnimator
@@ -198,7 +157,7 @@
             </set>
         </aapt:attr>
     </target>
-    <target android:name="_R_G_L_0_G_L_0_G">
+    <target android:name="THIRD_POINT">
         <aapt:attr name="android:animation">
             <set android:ordering="together">
                 <objectAnimator

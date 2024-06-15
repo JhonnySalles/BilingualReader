@@ -131,7 +131,7 @@
                         android:hint="@string/page_link_file"
                         app:startIconDrawable="@drawable/ic_file">
 
-                        <AutoCompleteTextView
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/pages_link_file_link_autocomplete"
                             style="@style/AutoCompleteDropMenu"
                             android:focusable="false"
@@ -171,7 +171,7 @@
                     android:hint="@string/page_link_file_language"
                     app:startIconDrawable="@drawable/ic_translate"  >
 
-                    <AutoCompleteTextView
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
                         android:id="@+id/pages_link_language_autocomplete"
                         style="@style/AutoCompleteDropMenu"
                         android:layout_width="match_parent"

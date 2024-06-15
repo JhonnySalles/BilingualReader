@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/AppBackground.Accent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/margin_small"
+    android:paddingTop="@dimen/margin_small"
+    android:paddingRight="@dimen/margin_small"
+    android:paddingBottom="@dimen/margin_bottom"
+    tools:context=".view.ui.reader.book.PopupBookLanguage">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/popup_book_language_book_language"
+        style="@style/TextInputDropMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_small"
+        android:hint="@string/popup_reading_language_book"
+        app:startIconDrawable="@drawable/ic_language">
+
+        <com.google.android.material.textfield.MaterialAutoCompleteTextView
+            android:id="@+id/popup_book_language_menu_autocomplete_book_language"
+            style="@style/AutoCompleteDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.divider.MaterialDivider
+        style="@style/MaterialDivider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/margin"
+        android:layout_marginTop="@dimen/margin_big"
+        android:layout_marginRight="@dimen/margin"
+        android:layout_marginBottom="@dimen/margin_small"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/popup_book_language_tts_voice"
+        style="@style/TextInputDropMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_small"
+        android:hint="@string/popup_reading_language_tts_voice"
+        app:startIconDrawable="@drawable/ic_book_tts">
+
+        <com.google.android.material.textfield.MaterialAutoCompleteTextView
+            android:id="@+id/popup_book_language_menu_autocomplete_tts_voice"
+            style="@style/AutoCompleteDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.divider.MaterialDivider
+        style="@style/MaterialDivider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/margin"
+        android:layout_marginTop="@dimen/margin_big"
+        android:layout_marginRight="@dimen/margin"
+        android:layout_marginBottom="@dimen/margin_small"/>
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/popup_book_language_process_japanese_text"
+        style="@style/SwitchMaterial"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/config_book_process_japanese_text" />
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/popup_book_language_text_with_furigana"
+        style="@style/SwitchMaterial"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/config_book_text_with_furigana" />
+
+</LinearLayout>

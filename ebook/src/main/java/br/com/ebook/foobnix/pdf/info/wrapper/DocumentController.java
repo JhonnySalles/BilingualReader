@@ -27,14 +27,11 @@ import br.com.ebook.foobnix.android.utils.ResultResponse;
 import br.com.ebook.foobnix.android.utils.Safe;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.entity.FileMeta;
-import br.com.ebook.foobnix.pdf.info.ExtUtils;
 import br.com.ebook.foobnix.pdf.info.IMG;
-import br.com.ebook.foobnix.pdf.info.OutlineHelper;
 import br.com.ebook.foobnix.pdf.info.PageUrl;
 import br.com.ebook.foobnix.pdf.info.model.AnnotationType;
 import br.com.ebook.foobnix.pdf.info.model.OutlineLinkWrapper;
 import br.com.ebook.foobnix.sys.ImageExtractor;
-import br.com.ebook.foobnix.tts.TTSEngine;
 import br.com.ebook.universalimageloader.core.ImageLoader;
 
 @SuppressLint("NewApi")
@@ -194,31 +191,6 @@ public abstract class DocumentController {
         this.outline = outline;
     }
 
-    public String getCurrentChapter() {
-        if (outline == null || outline.isEmpty()) {
-            return null;
-        }
-        int root = OutlineHelper.getRootItemByPageNumber(outline, getCurentPageFirst1());
-        if (outline.size() > root) {
-            OutlineLinkWrapper item = outline.get(root);
-            return item.getTitleAsString();
-        } else {
-            return null;
-        }
-    }
-
-    public boolean isTextFormat() {
-        try {
-            boolean textFomat = ExtUtils.isTextFomat(getCurrentBook().getPath());
-            if (Config.SHOW_LOG)
-                LOG.d("isTextFormat", getCurrentBook().getPath(), textFomat);
-            return textFomat;
-        } catch (Exception e) {
-            LOG.e(e);
-            return false;
-        }
-    }
-
     public abstract boolean isCropCurrentBook();
 
     public float getOffsetX() {
@@ -292,7 +264,6 @@ public abstract class DocumentController {
 
         IMG.clearMemoryCache();
         saveAppState();
-        TTSEngine.get().stop();
 
         Safe.run(new Runnable() {
 

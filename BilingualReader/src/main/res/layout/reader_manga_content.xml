@@ -40,6 +40,18 @@
             android:layout_marginBottom="@dimen/manga_chapter_margin_bottom"
             android:visibility="gone" />
 
+        <include
+            android:id="@+id/reader_last_page"
+            layout="@layout/last_page_manga"
+            android:layout_width="@dimen/last_page_card_layout_width"
+            android:layout_height="@dimen/last_page_card_layout_height"
+            android:layout_marginStart="10dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="140dp"
+            android:layout_marginEnd="10dp"
+            android:layout_alignParentStart="true"
+            android:visibility="gone"/>
+
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/reader_manga_toolbar_reader_top"
             android:layout_width="match_parent"
@@ -69,7 +81,7 @@
                     android:layout_height="0dp"
                     android:layout_marginStart="5dp"
                     android:layout_weight="1"
-                    android:autoLink="all"
+                    android:clickable="true"
                     android:gravity="center_vertical"
                     android:textColor="?attr/colorPrimaryInverse"
                     android:textSize="@dimen/floating_ocr_language_text_size" />
@@ -98,9 +110,9 @@
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/title_small_size" />
 
+            <!-- Not use style, because progress color from drawable -->
             <br.com.fenix.bilingualreader.view.components.DottedSeekBar
                 android:id="@+id/reader_manga_bottom_progress"
-                style="@style/SeekBarDotted"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxHeight="2dp"
@@ -108,7 +120,7 @@
                 android:paddingTop="5dp"
                 android:paddingBottom="10dp"
                 android:progressDrawable="@drawable/reader_nav_progress"
-                android:thumb="@drawable/reader_nav_thumb"
+                android:thumb="@drawable/reader_nav_thumb_small"
                 android:thumbOffset="6dp"
                 custom:dots_drawable="@drawable/ico_progress_dot"/>
         </LinearLayout>
