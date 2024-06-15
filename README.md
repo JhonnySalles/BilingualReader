@@ -150,6 +150,11 @@ O aplicativo é também compatível com legendas extraidas e pré processadas co
 - [X] Compartilhar imagem [Mangas/Comics]
 - [X] Animações nos ícones
 - [X] Compartilhamento de marcações entre o dispositivos através do Google Drive
+- [X] Compartilhamento de marcações entre o dispositivos através do Firebase
+- [X] Funcionalidade de texto para fala utilizando a api do Edge da Microsoft
+- [X] Estatisticas de leituras
+- [X] Marcadores de texto na leitura de livro.
+- [X] Popup para vocabulario e kanji em livros em japonês.
 - [ ] Exportar vocabularios ao Anki
 
 
