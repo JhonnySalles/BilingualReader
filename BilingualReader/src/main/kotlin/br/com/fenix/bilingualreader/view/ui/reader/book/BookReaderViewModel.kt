@@ -537,8 +537,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         if (text.contains("<image-begin>image"))
             text = text.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
 
-        val html = TextUtil.formatHtml(text).trim()
-        holder.isOnlyImage = (html.startsWith("<br/><img ") || html.startsWith("<img ")) && (html.endsWith(" /><br/>") || html.endsWith(" />"))
+        val content = TextUtil.formatHtml(text).trim()
+        holder.isOnlyImage = (content.startsWith("<br/><img ") || content.startsWith("<img ")) && (content.endsWith(" /><br/>") || content.endsWith(" />"))
 
         if (holder.isOnlyImage) {
             val bmp = ImageUtil.decodeImageBase64(TextUtil.getImageFromTag(text).substringAfter(",").trim())
@@ -547,7 +547,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             holder.textView.movementMethod = null
             holder.textView.customSelectionActionModeCallback = null
         } else {
-            val html = "<body>${html}</body>"
+            val html = "<body>${content}</body>"
             holder.imageView.setImageBitmap(null)
             var processed: Spanned = SpannableString("")
             try {
