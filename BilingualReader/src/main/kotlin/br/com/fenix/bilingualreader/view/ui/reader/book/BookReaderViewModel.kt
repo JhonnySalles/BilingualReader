@@ -25,6 +25,10 @@ import android.webkit.WebView
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.marginBottom
+import androidx.core.view.marginEnd
+import androidx.core.view.marginStart
+import androidx.core.view.marginTop
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -236,14 +240,14 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
         val margin = when (marginType.value) {
             MarginLayoutType.Small -> 10
-            MarginLayoutType.Medium -> 20
-            MarginLayoutType.Big -> 30
+            MarginLayoutType.Medium -> 30
+            MarginLayoutType.Big -> 50
             else -> 10
         }
 
         val params: FrameLayout.LayoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
-        params.setMargins(margin, margin, margin, margin)
-        params.gravity = if (isJapanese && isFurigana) Gravity.CENTER_HORIZONTAL else Gravity.CENTER
+        params.setMargins(margin, margin, margin, margin + 10)
+        params.gravity = Gravity.CENTER_HORIZONTAL
         textView.layoutParams = params
 
         val spacing = when (spacingType.value) {
@@ -267,6 +271,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             AlignmentLayoutType.Center -> View.TEXT_ALIGNMENT_CENTER
             else -> View.TEXT_ALIGNMENT_TEXT_START
         }
+
+        textView.requestLayout()
     }
 
     fun changeScrolling(scrolling: ScrollingType) {
@@ -538,7 +544,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             text = text.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
 
         val content = TextUtil.formatHtml(text).trim()
-        holder.isOnlyImage = (content.startsWith("<br/><img ") || content.startsWith("<img ")) && (content.endsWith(" /><br/>") || content.endsWith(" />"))
+        holder.isOnlyImage = TextUtil.isOnlyImageOnHtml(content)
 
         if (holder.isOnlyImage) {
             val bmp = ImageUtil.decodeImageBase64(TextUtil.getImageFromTag(text).substringAfter(",").trim())

@@ -105,6 +105,7 @@ class TextViewPager(
         if (mListener != null)
             holder.scrollView.setOnTouchListener(mListener)
 
+        holder.scrollView.scrollY = 0
         holder.scrollView.parent.requestDisallowInterceptTouchEvent(false)
         holder.scrollView.viewTreeObserver.addOnScrollChangedListener {
             if (holder.scrollView.getChildAt(0).bottom <= (holder.scrollView.height + holder.scrollView.scrollY) || holder.scrollView.scrollY == 0)
@@ -159,7 +160,8 @@ class TextViewPager(
             if (popupTextSelect.isShowing) {
                 val location = calculatePopupLocation()
                 popupTextSelect.update(location.x, location.y, mDefaultWidth, mDefaultHeight)
-            }
+            } else
+                textView.clearFocus()
         }
 
         override fun onTextSelected() {

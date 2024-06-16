@@ -22,10 +22,6 @@ class NotifyingScrollView(context: Context, attributeSet: AttributeSet?) : Scrol
         this.mScrollListener = listener
     }
 
-    override fun performClick(): Boolean {
-        return super.performClick()
-    }
-
     override fun autoScroll(isBack: Boolean): Boolean {
         val child = getChildAt(0)
         if (child != null) {
@@ -37,7 +33,7 @@ class NotifyingScrollView(context: Context, attributeSet: AttributeSet?) : Scrol
                 }
             } else {
                 val childHeight: Int = child.height
-                if ((scrollY + height) < (childHeight + paddingTop + paddingBottom)) {
+                if ((scrollY + height) < (childHeight + paddingTop + paddingBottom + 3)) {
                     isScroll = true
                     smoothScrollTo(0, scrollY + context.resources.displayMetrics.heightPixels)
                 }

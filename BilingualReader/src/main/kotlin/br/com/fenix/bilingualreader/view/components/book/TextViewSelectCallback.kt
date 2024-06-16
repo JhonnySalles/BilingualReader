@@ -34,8 +34,7 @@ class TextViewSelectCallback(val context: Context, val holder: TextViewPager.Tex
             mode?.menuInflater?.inflate(R.menu.menu_text_view_select, menu)
         } else
             mMenuCustom.setAction(mode)
-        
-        return true;
+        return true
     }
 
     override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
@@ -44,7 +43,7 @@ class TextViewSelectCallback(val context: Context, val holder: TextViewPager.Tex
             menu?.removeItem(android.R.id.shareText)
         } else
             menu?.clear()
-        return true;
+        return true
     }
 
     override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
