@@ -135,6 +135,7 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
             .build()
 
         val datePicker = MaterialDatePicker.Builder.datePicker()
+            .setTheme(R.style.AppCompatMaterialDatePicker)
             .setTitleText(R.string.popup_book_select_date)
             .setCalendarConstraints(constraints)
             .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
@@ -156,6 +157,7 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
     private fun selectTime(lastTime: LocalDateTime) {
         val timePicker = MaterialTimePicker.Builder()
                 .setTimeFormat(TimeFormat.CLOCK_12H)
+                .setTheme(R.style.AppCompatMaterialTimePicker)
                 .setHour(lastTime.hour)
                 .setMinute(lastTime.minute)
                 .setTitleText(R.string.popup_book_select_time)

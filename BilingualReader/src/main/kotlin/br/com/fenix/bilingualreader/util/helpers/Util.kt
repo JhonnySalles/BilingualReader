@@ -1106,11 +1106,7 @@ class TextUtil {
             return arrayOf(firstPart, secondPart)
         }
 
-        fun clearHtml(html: String): String {
-            return html.replace(Regex("<[^>]*>"), "")
-        }
-
-        fun formatHtml(html: String, endLine: String = "<br>"): String {
+        fun formatHtml(html: String, endLine: String = "<br/>"): String {
             return html.replace("<p>", "").replace("</p>", "").replace("<end-line>", endLine)
         }
 
@@ -1144,7 +1140,7 @@ class TextUtil {
             return highlightWordInText(html, contain, color)
         }
 
-        fun highlightWordInText(html: String, contain: String, color: String): String = clearHtml(html).replace(contain, "<font color=$color>$contain</font>")
+        fun highlightWordInText(html: String, contain: String, color: String): String = replaceHtmlTags(html).replace(contain, "<font color=$color>$contain</font>")
 
         fun clearHighlightWordInText(html: String): String = replaceHtmlTags(html)
 

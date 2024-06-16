@@ -106,4 +106,50 @@
         <item name="android:textColorPrimary">?attr/colorPrimary</item>
     </style>
 
+    <style name="AppCompatMaterialDatePicker" parent="@style/ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="android:background">?attr/colorOnBackground</item>
+        <item name="android:textColor">?attr/colorOnSecondary</item>
+        <item name="textColor">?attr/colorOnSecondary</item>
+        <item name="iconTint">?attr/colorOnSecondary</item>
+        <item name="itemTextColor">?attr/colorOnSecondary</item>
+        <item name="colorOnSurface">?attr/colorOnSecondary</item>
+        <item name="itemStrokeColor">?attr/colorSecondary</item>
+        <item name="itemFillColor">?attr/colorSecondary</item>
+        <item name="colorPrimary">?attr/colorSecondary</item>
+        <item name="colorOnPrimary">?attr/colorOnBackground</item>
+
+        <item name="materialCalendarHeaderDivider">@style/AppCompatMaterialDatePickerHeaderDivider</item>
+        <item name="materialCalendarHeaderTitle">@style/AppCompatMaterialDatePickerTitle</item>
+        <item name="materialCalendarHeaderSelection">@style/AppCompatMaterialDatePickerSelection</item>
+    </style>
+
+    <style name="AppCompatMaterialDatePickerTitle" parent="@style/Widget.MaterialComponents.MaterialCalendar.HeaderSelection">
+        <item name="colorOnPrimary">?attr/colorOnBackground</item>
+        <item name="android:background">?attr/colorSecondary</item>
+    </style>
+
+    <style name="AppCompatMaterialDatePickerSelection" parent="@style/Widget.MaterialComponents.MaterialCalendar.HeaderSelection">
+        <item name="android:textColor">?attr/colorOnBackground</item>
+        <item name="android:background">?attr/colorSecondary</item>
+        <item name="background">?attr/colorSecondary</item>
+    </style>
+
+    <style name="AppCompatMaterialDatePickerHeaderDivider" parent="@style/Widget.MaterialComponents.MaterialCalendar.HeaderDivider">
+        <item name="android:background">?attr/colorSecondary</item>
+    </style>
+
+
+    <style name="AppCompatMaterialTimePicker" parent="@style/Widget.MaterialComponents.TimePicker">
+        <item name="android:background">?attr/colorOnBackground</item>
+        <item name="android:textColor">?attr/colorOnSecondary</item>
+        <item name="textColor">?attr/colorOnSecondary</item>
+        <item name="iconTint">?attr/colorOnSecondary</item>
+        <item name="itemTextColor">?attr/colorOnSecondary</item>
+        <item name="colorOnSurface">?attr/colorOnSecondary</item>
+        <item name="itemStrokeColor">?attr/colorSecondary</item>
+        <item name="itemFillColor">?attr/colorSecondary</item>
+        <item name="colorPrimary">?attr/colorSecondary</item>
+        <item name="colorOnPrimary">?attr/colorOnBackground</item>
+    </style>
+
 </resources>

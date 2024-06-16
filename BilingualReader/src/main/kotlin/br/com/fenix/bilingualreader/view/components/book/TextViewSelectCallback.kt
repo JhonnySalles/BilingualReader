@@ -137,7 +137,12 @@ class TextViewSelectCallback(val context: Context, val holder: TextViewPager.Tex
     private fun translateText(text: String) = PopupUtil.googleTranslate(context, text)
 
     override fun onDestroyActionMode(mode: ActionMode?) {
-
+        try {
+            if (!ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT)
+                holder.popupTextSelect.dismiss()
+        } catch (e : Exception) {
+            e.printStackTrace()
+        }
     }
 
 }
