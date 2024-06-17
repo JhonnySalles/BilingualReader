@@ -36,7 +36,7 @@ data class History(
     var pageEnd: Int,
 
     @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.PAGES)
-    val pages: Int,
+    var pages: Int,
 
     @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.VOLUME)
     val volume: Int,

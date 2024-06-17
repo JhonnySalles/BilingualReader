@@ -399,7 +399,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         mViewModel.history?.let {
             it.pageEnd = mCurrentPage
             it.setEnd(LocalDateTime.now())
-            mHistoryRepository.save(it)
+            it.id = mHistoryRepository.save(it)
         }
         super.onPause()
     }
@@ -683,6 +683,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     book.pages = pages
                     mViewModel.update(book)
                     setBookDots(pages)
+                    mViewModel.history?.let { it.pages = pages }
                 }
             }
 
@@ -974,6 +975,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
                 TransitionManager.beginDelayedTransition(mRoot, transition)
                 mReaderTTSContainer.visibility = visibility
+
+                generateHistory(mBook!!)
+                mViewModel.history?.let { it.useTTS }
             }
 
             AudioStatus.PLAY -> {
@@ -984,7 +988,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
                     mViewModel.history?.let {
                         it.useTTS = true
-                        mHistoryRepository.save(it)
+                        it.id = mHistoryRepository.save(it)
                     }
                 }
 
@@ -992,11 +996,14 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             }
 
             AudioStatus.PAUSE -> mReaderTTSPlay.setIconResource(R.drawable.ic_tts_play)
-            AudioStatus.STOP -> mReaderTTSPlay.setIconResource(R.drawable.ic_tts_close)
+            AudioStatus.STOP -> {
+                mReaderTTSPlay.setIconResource(R.drawable.ic_tts_close)
+                generateHistory(mBook!!)
+            }
         }
     }
 
-    override fun readingLine(speech: Speech) {}
+    override fun readingLine(speech: Speech) { }
 
     override fun changePageTTS(old: Int, new: Int) {
         mReaderTTSProgress.progress = new
@@ -1153,7 +1160,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 it.setEnd(LocalDateTime.now())
             }
             it.averageTimeByPage = average
-            mHistoryRepository.save(it)
+            it.id = mHistoryRepository.save(it)
         }
 
         if (mPagesAverage.size < 2) {

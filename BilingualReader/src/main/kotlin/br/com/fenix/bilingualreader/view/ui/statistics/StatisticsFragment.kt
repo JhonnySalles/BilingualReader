@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Statistics
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.service.repository.StatisticsDAO
 import br.com.fenix.bilingualreader.service.repository.StatisticsRepository
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.view.components.MonthAxisValueFormatter
@@ -151,6 +152,7 @@ class StatisticsFragment : Fragment() {
         try {
             mProgress.visibility = View.VISIBLE
 
+            mLOGGER.error(StatisticsDAO.SELECT)
             val statistics = mRepository.statistics()
 
             for (statistic in statistics) {
