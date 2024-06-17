@@ -7,40 +7,46 @@ import com.google.firebase.firestore.PropertyName
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
+import java.time.format.DateTimeFormatter
 import java.util.Date
 
 
 data class ShareItem(
     @Expose
-    @SerializedName(ShareItem.FIELD_FILE)
-    @PropertyName(ShareItem.FIELD_FILE)
-    @get:PropertyName(ShareItem.FIELD_FILE)
+    @SerializedName(FIELD_FILE)
+    @PropertyName(FIELD_FILE)
+    @get:PropertyName(FIELD_FILE)
     var file: String,
     @Expose
-    @SerializedName(ShareItem.FIELD_BOOKMARK)
-    @PropertyName(ShareItem.FIELD_BOOKMARK)
-    @get:PropertyName(ShareItem.FIELD_BOOKMARK)
+    @SerializedName(FIELD_BOOKMARK)
+    @PropertyName(FIELD_BOOKMARK)
+    @get:PropertyName(FIELD_BOOKMARK)
     var bookMark: Int,
     @Expose
-    @SerializedName(ShareItem.FIELD_PAGES)
-    @PropertyName(ShareItem.FIELD_PAGES)
-    @get:PropertyName(ShareItem.FIELD_PAGES)
+    @SerializedName(FIELD_PAGES)
+    @PropertyName(FIELD_PAGES)
+    @get:PropertyName(FIELD_PAGES)
     var pages: Int,
     @Expose
-    @SerializedName(ShareItem.FIELD_FAVORITE)
-    @PropertyName(ShareItem.FIELD_FAVORITE)
-    @get:PropertyName(ShareItem.FIELD_FAVORITE)
+    @SerializedName(FIELD_FAVORITE)
+    @PropertyName(FIELD_FAVORITE)
+    @get:PropertyName(FIELD_FAVORITE)
     var favorite: Boolean,
     @Expose
-    @SerializedName(ShareItem.FIELD_LASTACCESS)
-    @PropertyName(ShareItem.FIELD_LASTACCESS)
-    @get:PropertyName(ShareItem.FIELD_LASTACCESS)
+    @SerializedName(FIELD_LASTACCESS)
+    @PropertyName(FIELD_LASTACCESS)
+    @get:PropertyName(FIELD_LASTACCESS)
     var lastAccess: Date,
     @Expose
-    @SerializedName(ShareItem.FIELD_SYNC)
-    @PropertyName(ShareItem.FIELD_SYNC)
-    @get:PropertyName(ShareItem.FIELD_SYNC)
-    var sync: Date
+    @SerializedName(FIELD_SYNC)
+    @PropertyName(FIELD_SYNC)
+    @get:PropertyName(FIELD_SYNC)
+    var sync: Date,
+    @Expose
+    @SerializedName(FIELD_HISTORY)
+    @PropertyName(FIELD_HISTORY)
+    @get:PropertyName(FIELD_HISTORY)
+    var history: MutableMap<String, ShareHistory>? = mutableMapOf()
 ) : Serializable {
 
     companion object {
@@ -50,6 +56,9 @@ data class ShareItem(
         const val FIELD_FAVORITE = "favorito"
         const val FIELD_LASTACCESS = "ultimoAcesso"
         const val FIELD_SYNC = "sincronizado"
+        const val FIELD_HISTORY = "history"
+
+        const val PARSE_DATE_TIME = "yyyy-MM-dd-HH:mm:ss"
     }
 
     @Exclude
@@ -62,32 +71,39 @@ data class ShareItem(
     @Expose(serialize = false, deserialize = false)
     var processed: Boolean = false
 
-    constructor(
-        firebase: Map<String, *>
-    ) : this(
-        firebase[ShareItem.FIELD_FILE] as String, (firebase[ShareItem.FIELD_BOOKMARK] as Long).toInt(), (firebase[ShareItem.FIELD_PAGES] as Long).toInt(),
-        firebase[ShareItem.FIELD_FAVORITE] as Boolean, Date(), Date()
+    constructor(firebase: Map<String, *>) : this(
+        firebase[FIELD_FILE] as String, (firebase[FIELD_BOOKMARK] as Long).toInt(), (firebase[FIELD_PAGES] as Long).toInt(),
+        firebase[FIELD_FAVORITE] as Boolean, Date(), Date()
     ) {
-        this.lastAccess = (firebase[ShareItem.FIELD_LASTACCESS] as Timestamp).toDate()
-        this.sync = (firebase[ShareItem.FIELD_SYNC] as Timestamp).toDate()
+        this.lastAccess = (firebase[FIELD_LASTACCESS] as Timestamp).toDate()
+        this.sync = (firebase[FIELD_SYNC] as Timestamp).toDate()
+        if (firebase.containsKey(FIELD_HISTORY))
+            getHistory(firebase[FIELD_HISTORY] as Map<String, *>)
     }
 
-    constructor(
-        manga: Manga
-    ) : this(
+    private fun getHistory(histories: Map<String, *>) {
+        for (history in histories)
+            this.history?.set(history.key, ShareHistory(history.value as Map<String, *>))
+    }
+
+    constructor(manga: Manga, list: List<History>) : this(
         manga.name, manga.bookMark, manga.pages, manga.favorite, GeneralConsts.dateTimeToDate(manga.lastAccess!!), Date()
     ) {
         alter = true
         processed = true
+
+        for (history in list)
+            this.history?.set(history.start.format(DateTimeFormatter.ofPattern(PARSE_DATE_TIME)), ShareHistory(history))
     }
 
-    constructor(
-        book: Book
-    ) : this(
+    constructor(book: Book, list: List<History>) : this(
         book.name, book.bookMark, book.pages, book.favorite, GeneralConsts.dateTimeToDate(book.lastAccess!!), Date()
     ) {
         alter = true
         processed = true
+
+        for (history in list)
+            this.history?.set(history.start.format(DateTimeFormatter.ofPattern(PARSE_DATE_TIME)), ShareHistory(history))
     }
 
     fun merge(manga: Manga) {

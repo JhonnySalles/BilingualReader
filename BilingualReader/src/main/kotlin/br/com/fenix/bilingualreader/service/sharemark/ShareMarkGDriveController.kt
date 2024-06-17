@@ -4,6 +4,7 @@ import android.accounts.NetworkErrorException
 import android.content.Context
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.History
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.ShareItem
 import br.com.fenix.bilingualreader.model.entity.ShareMark
@@ -13,6 +14,7 @@ import br.com.fenix.bilingualreader.model.exceptions.DriveDownloadException
 import br.com.fenix.bilingualreader.model.exceptions.DriveUploadException
 import br.com.fenix.bilingualreader.model.exceptions.ShareMarkNotConnectCloudException
 import br.com.fenix.bilingualreader.service.repository.BookRepository
+import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -373,7 +375,8 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                     .setDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME)
                     .excludeFieldsWithoutExposeAnnotation()
                     .create()
-                val repository = MangaRepository(context)
+                val repositoryManga = MangaRepository(context)
+                val repositoryHistory = HistoryRepository(context)
 
                 val reader = JsonReader(FileReader(getFile(GeneralConsts.SHARE_MARKS.MANGA_FILE_WITH_EXTENSION)))
                 val share: ShareMark = gson.fromJson(reader, ShareMark::class.java)
@@ -388,28 +391,45 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
 
                 val list = share.marks!!.filter { it.sync.after(lastSync) }
 
-                repository.listSync(lastSync).apply {
+                repositoryManga.listSync(lastSync).apply {
                     for (manga in this)
                         share.marks!!.find { it.file == manga.name }.also {
                             if (it != null) {
                                 if (compare(it, manga)) {
-                                    repository.update(manga)
+                                    repositoryManga.update(manga)
                                     withContext(Dispatchers.Main) {
                                         update(manga)
                                     }
                                 }
                             } else
-                                share.marks!!.add(ShareItem(manga))
+                                share.marks!!.add(ShareItem(manga, repositoryHistory.list(manga.type, manga.fkLibrary!!, manga.id!!)))
                         }
                 }
 
                 list.filter { !it.processed }.forEach {
-                    repository.findByFileName(it.file)?.let { manga ->
+                    repositoryManga.findByFileName(it.file)?.let { manga ->
                         if (compare(it, manga)) {
-                            repository.update(manga)
+                            repositoryManga.update(manga)
                             withContext(Dispatchers.Main) {
                                 update(manga)
                             }
+                        }
+                    }
+                }
+
+                list.parallelStream().forEach {
+                    repositoryManga.findByFileName(it.file)?.let { manga ->
+                        it.history?.let { h ->
+                            val histories = repositoryHistory.list(manga.type, manga.fkLibrary!!, manga.id!!).map { h -> GeneralConsts.dateTimeToDate(h.start) }
+                            val list = h.values.filter { f -> histories.none { s -> f.start.compareTo(s) == 0 } }
+                            if (list.isNotEmpty())
+                                for (shared in list)
+                                    repositoryHistory.save(
+                                        History(null, manga.fkLibrary!!, manga.id!!, manga.type, shared.pageStart, shared.pageEnd, shared.pages,
+                                            shared.volume, shared.chaptersRead, GeneralConsts.dateToDateTime(shared.start), GeneralConsts.dateToDateTime(shared.end),
+                                            shared.secondsRead.toLong(), shared.averageTimeByPage.toLong(), shared.useTTS, isNotify = false
+                                        )
+                                    )
                         }
                     }
                 }
@@ -444,7 +464,8 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                     .setDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME)
                     .excludeFieldsWithoutExposeAnnotation()
                     .create()
-                val repository = BookRepository(context)
+                val repositoryBook = BookRepository(context)
+                val repositoryHistory = HistoryRepository(context)
 
                 val reader = JsonReader(FileReader(getFile(GeneralConsts.SHARE_MARKS.BOOK_FILE_WITH_EXTENSION)))
                 val share: ShareMark = gson.fromJson(reader, ShareMark::class.java)
@@ -456,28 +477,45 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
 
                 val list = share.marks!!.filter { it.sync.after(lastSync) }
 
-                repository.listSync(lastSync).apply {
+                repositoryBook.listSync(lastSync).apply {
                     for (book in this)
                         list.parallelStream().filter { it.file == book.name }.findFirst().also {
                             if (it.isPresent) {
                                 if (compare(it.get(), book)) {
-                                    repository.update(book)
+                                    repositoryBook.update(book)
                                     withContext(Dispatchers.Main) {
                                         update(book)
                                     }
                                 }
                             } else
-                                share.marks!!.add(ShareItem(book))
+                                share.marks!!.add(ShareItem(book, repositoryHistory.list(book.type, book.fkLibrary!!, book.id!!)))
                         }
                 }
 
                 list.filter { !it.processed }.forEach {
-                    repository.findByFileName(it.file)?.let { book ->
+                    repositoryBook.findByFileName(it.file)?.let { book ->
                         if (compare(it, book)) {
-                            repository.update(book)
+                            repositoryBook.update(book)
                             withContext(Dispatchers.Main) {
                                 update(book)
                             }
+                        }
+                    }
+                }
+
+                list.parallelStream().forEach {
+                    repositoryBook.findByFileName(it.file)?.let { manga ->
+                        it.history?.let { h ->
+                            val histories = repositoryHistory.list(manga.type, manga.fkLibrary!!, manga.id!!).map { h -> GeneralConsts.dateTimeToDate(h.start) }
+                            val list = h.values.filter { f -> histories.none { s -> f.start.compareTo(s) == 0 } }
+                            if (list.isNotEmpty())
+                                for (shared in list)
+                                    repositoryHistory.save(
+                                        History(null, manga.fkLibrary!!, manga.id!!, manga.type, shared.pageStart, shared.pageEnd, shared.pages,
+                                            shared.volume, shared.chaptersRead, GeneralConsts.dateToDateTime(shared.start), GeneralConsts.dateToDateTime(shared.end),
+                                            shared.secondsRead.toLong(), shared.averageTimeByPage.toLong(), shared.useTTS, isNotify = false
+                                        )
+                                    )
                         }
                     }
                 }

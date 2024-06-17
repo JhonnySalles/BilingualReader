@@ -109,6 +109,7 @@
     <string name="config_title_database">Database</string>
     <string name="config_title_themes">Themes</string>
     <string name="config_title_cover">Covers</string>
+    <string name="config_title_statistics">Statistics</string>
 
     <string name="config_manga_switch_use_path_name_for_linked">Use page path to link pages?</string>
     <string name="config_manga_switch_use_dual_page_calculate">Consider double page by calculating dimensions?</string>
@@ -172,6 +173,12 @@
     <string name="config_covers_delete_description">Do you really want to delete the cover cache?</string>
     <string name="config_covers_delete_success">Successfully cleared cache.</string>
     <string name="config_covers_delete_error">Error clearing cover cache.</string>
+
+    <string name="config_statistics_clear">Clear statistics</string>
+    <string name="config_statistics_clear_title">Clear statistics</string>
+    <string name="config_statistics_clear_description">Do you really want to clear the statistics?</string>
+    <string name="config_statistics_clear_success">Successfully cleared statistics.</string>
+    <string name="config_statistics_clear_error">Error clearing statistics.</string>
 
     <string name="config_theme_mode">Theme mode</string>
     <string-array name="theme_mode">
@@ -970,6 +977,7 @@
 
     <string name="tts_title">Text to speech</string>
     <string name="tts_voice_not_found">Voice not found</string>
+    <string name="tts_error">Error on execute TTS. %s</string>
 
     <string name="button_tts_previous">Previous</string>
     <string name="button_tts_pause">Pause</string>

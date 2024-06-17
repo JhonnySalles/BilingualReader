@@ -19,6 +19,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import br.com.fenix.bilingualreader.MainActivity
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.History
 import br.com.fenix.bilingualreader.model.enums.FontType
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Order
@@ -33,6 +34,7 @@ import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.listener.FontsListener
 import br.com.fenix.bilingualreader.service.listener.ThemesListener
 import br.com.fenix.bilingualreader.service.repository.DataBase
+import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.service.sharemark.ShareMarkBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -100,6 +102,8 @@ class ConfigFragment : Fragment() {
     private lateinit var mConfigSystemLastBackup: TextView
 
     private lateinit var mConfigCoversDelete: Button
+
+    private lateinit var mConfigStatisticsDelete: Button
 
     private var mConfigSystemThemeModeSelect: ThemeMode = ThemeMode.SYSTEM
     private var mConfigSystemThemeSelect: Themes = Themes.ORIGINAL
@@ -238,6 +242,7 @@ class ConfigFragment : Fragment() {
         mConfigSystemLastBackup = view.findViewById(R.id.config_system_last_backup)
 
         mConfigCoversDelete = view.findViewById(R.id.config_covers_delete)
+        mConfigStatisticsDelete = view.findViewById(R.id.config_statistics_delete)
 
         mMangaLibraryPathAutoComplete.setOnClickListener {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
@@ -506,6 +511,23 @@ class ConfigFragment : Fragment() {
                     } catch (e: Exception) {
                         mLOGGER.error("Error delete bitmap to cache: " + e.message, e)
                         Toast.makeText(requireContext(), getString(R.string.config_covers_delete_error), Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .setNegativeButton(R.string.action_cancel) { _, _ -> }
+                .create().show()
+        }
+
+        mConfigStatisticsDelete.setOnClickListener {
+            MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+                .setTitle(getString(R.string.config_statistics_clear_title))
+                .setMessage(getString(R.string.config_statistics_clear_description))
+                .setPositiveButton(R.string.action_confirm) { _, _ ->
+                    try {
+                        HistoryRepository(requireContext()).clearAll()
+                        Toast.makeText(requireContext(), getString(R.string.config_statistics_clear_success), Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        mLOGGER.error("Error delete bitmap to cache: " + e.message, e)
+                        Toast.makeText(requireContext(), getString(R.string.config_statistics_clear_error), Toast.LENGTH_SHORT).show()
                     }
                 }
                 .setNegativeButton(R.string.action_cancel) { _, _ -> }

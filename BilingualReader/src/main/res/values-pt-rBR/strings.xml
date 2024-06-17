@@ -110,6 +110,7 @@
     <string name="config_title_database">Banco de dados</string>
     <string name="config_title_themes">Temas</string>
     <string name="config_title_cover">Capas</string>
+    <string name="config_title_statistics">Estatísticas</string>
 
     <string name="config_manga_switch_use_path_name_for_linked">Utilizar o caminho da página para vincular as páginas?</string>
     <string name="config_manga_switch_use_dual_page_calculate">Considerar página dupla pelo calculo das dimensões?</string>
@@ -170,6 +171,12 @@
     <string name="config_covers_delete_description">Deseja realmente apagar o cache de capa?</string>
     <string name="config_covers_delete_success">Cache limpo com sucesso.</string>
     <string name="config_covers_delete_error">Erro ao limpar cache de capas.</string>
+
+    <string name="config_statistics_clear">Limpar estatística</string>
+    <string name="config_statistics_clear_title">Limpar estatística</string>
+    <string name="config_statistics_clear_description">Deseja realmente limpar as estatísticas?</string>
+    <string name="config_statistics_clear_success">Estatísticas limpa com sucesso.</string>
+    <string name="config_statistics_clear_error">Erro ao limpar as estatísticas.</string>
 
     <string name="config_theme_mode">Modo tema</string>
     <string-array name="theme_mode">
@@ -572,6 +579,7 @@
     <string name="menu_book_config_delete">Deletar</string>
     <string name="menu_book_config_detail">Detalhe do arquivo</string>
     <string name="menu_book_config_tag">Adicionar tags</string>
+    <string name="menu_book_config_book_mark">Marcador</string>
 
     <string name="book_library_share">Compartilhar livro</string>
 
@@ -893,6 +901,7 @@
 
     <string name="tts_title">Texto para fala</string>
     <string name="tts_voice_not_found">Voz não encontrada</string>
+    <string name="tts_error">Erro ao executar o TTS. %s</string>
 
     <string name="button_tts_previous">Anterior</string>
     <string name="button_tts_pause">Pause</string>

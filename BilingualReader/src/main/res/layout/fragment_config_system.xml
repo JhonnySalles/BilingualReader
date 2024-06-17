@@ -253,5 +253,33 @@
             android:layout_marginBottom="@dimen/margin_small"
             android:text="@string/config_covers_delete"
             app:icon="@drawable/ic_covers_delete" />
+
+        <com.google.android.material.divider.MaterialDivider
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small" />
+
+        <TextView
+            style="@style/TextTitle.Config"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_title_statistics" />
+
+        <Button
+            android:id="@+id/config_statistics_delete"
+            style="@style/Button.LabelStart"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_statistics_clear"
+            app:icon="@drawable/ic_statistics_delete" />
     </LinearLayout>
 </LinearLayout>

@@ -69,6 +69,8 @@ interface DataBaseDAO<T> {
 @Dao
 abstract class BaseDAO<T, ID>(private val mTABLE: String, private val mCOLUMN_ID : String) : DataBaseDAO<T> {
 
+    open fun findAll() : List<T> = list(SimpleSQLiteQuery("SELECT * FROM $mTABLE "))
+
     open fun exist(id: ID): Boolean = query(SimpleSQLiteQuery("SELECT * FROM $mTABLE WHERE $mCOLUMN_ID = ${id.toString()}")) != null
 
     open fun find(id: ID): T? = query(SimpleSQLiteQuery("SELECT * FROM $mTABLE WHERE $mCOLUMN_ID = ${id.toString()}"))
@@ -717,6 +719,9 @@ abstract class HistoryDAO :  BaseDAO<History, Long>(DataBaseConsts.HISTORY.TABLE
 
     @Query("UPDATE " + DataBaseConsts.HISTORY.TABLE_NAME + " SET " + DataBaseConsts.HISTORY.COLUMNS.NOTIFIED + " = 1 WHERE " + DataBaseConsts.HISTORY.COLUMNS.ID + " = :id")
     abstract fun notify(id: Long)
+
+    @Query("SELECT * FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " WHERE " + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = :type AND " + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + " = :idLibrary AND " + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + " = :idReference ORDER BY " + DataBaseConsts.HISTORY.COLUMNS.ID)
+    abstract fun list(type: Type, idLibrary: Long, idReference: Long) : List<History>
 
 }
 

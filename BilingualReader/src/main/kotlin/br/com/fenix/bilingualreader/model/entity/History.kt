@@ -7,6 +7,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 

@@ -454,6 +454,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 }
             } catch (e: Exception) {
                 mLOGGER.error("Error to reading page on tts.", e)
+                Toast.makeText(context, context.getString(R.string.tts_error, e.message), Toast.LENGTH_LONG).show()
             } finally {
                 onDestroy()
                 setStatus(AudioStatus.ENDING)
