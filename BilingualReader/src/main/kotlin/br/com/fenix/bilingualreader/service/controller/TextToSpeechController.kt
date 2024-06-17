@@ -39,7 +39,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
     companion object {
         const val LIMIT_CACHE = 3
-        const val SHOW_LOG = true
+        const val SHOW_LOG = false
     }
 
     private var mListener = mutableListOf<TTSListener>()
@@ -454,7 +454,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 }
             } catch (e: Exception) {
                 mLOGGER.error("Error to reading page on tts.", e)
-                Toast.makeText(context, context.getString(R.string.tts_error, e.message), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.tts_error), Toast.LENGTH_LONG).show()
             } finally {
                 onDestroy()
                 setStatus(AudioStatus.ENDING)

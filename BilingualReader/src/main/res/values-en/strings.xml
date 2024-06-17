@@ -900,7 +900,7 @@
 
     <string name="tts_title">Text to speech</string>
     <string name="tts_voice_not_found">Voice not found</string>
-    <string name="tts_error">Error on execute TTS. %s</string>
+    <string name="tts_error">Error on execute TTS</string>
 
     <string name="button_tts_previous">Previous</string>
     <string name="button_tts_pause">Pause</string>

@@ -901,7 +901,7 @@
 
     <string name="tts_title">Texto para fala</string>
     <string name="tts_voice_not_found">Voz não encontrada</string>
-    <string name="tts_error">Erro ao executar o TTS. %s</string>
+    <string name="tts_error">Erro ao executar o TTS</string>
 
     <string name="button_tts_previous">Anterior</string>
     <string name="button_tts_pause">Pause</string>
