@@ -270,8 +270,8 @@
 
     <dimen name="popup_text_select_width">170dp</dimen>
     <dimen name="popup_text_select_height">70dp</dimen>
-    <dimen name="popup_text_select_colors_margin">20dp</dimen>
-    <dimen name="popup_text_select_colors_size">16dp</dimen>
+    <dimen name="popup_text_select_colors_margin">7dp</dimen>
+    <dimen name="popup_text_select_colors_size">26dp</dimen>
     <dimen name="popup_text_select_colors_icon_size">18dp</dimen>
 
     <dimen name="floating_reader_min_size">100dp</dimen>
