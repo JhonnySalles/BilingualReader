@@ -547,8 +547,13 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         holder.isOnlyImage = TextUtil.isOnlyImageOnHtml(content)
 
         if (holder.isOnlyImage) {
-            val bmp = ImageUtil.decodeImageBase64(TextUtil.getImageFromTag(text).substringAfter(",").trim())
-            holder.imageView.setImageBitmap(bmp)
+            try {
+                val bmp = ImageUtil.decodeImageBase64(TextUtil.getImageFromTag(text).substringAfter(",").trim())
+                holder.imageView.setImageBitmap(bmp)
+            } catch (e: Exception) {
+                mLOGGER.error("Error to generate image.", e)
+                holder.imageView.setImageBitmap(null)
+            }
             holder.textView.linksClickable = false
             holder.textView.movementMethod = null
             holder.textView.customSelectionActionModeCallback = null
