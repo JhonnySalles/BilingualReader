@@ -66,7 +66,13 @@ class TextViewSelectCallback(val context: Context, val holder: TextViewPager.Tex
                 R.id.popup_text_select_functions_select_all, android.R.id.selectAll -> selectAllText()
 
                 R.id.popup_text_select_functions_tts, R.id.menu_text_select_functions_tts -> {
-                    listener?.textSelectReadingFrom(page, mTextView.text.substring(start, end))
+                    var index = mTextView.text.length
+                    val next = mTextView.text.substring(start, index)
+                    if (next.contains("\n"))
+                        index = next.indexOf("\n")
+
+                    val text = mTextView.text.substring(start, start + index).trim()
+                    listener?.textSelectReadingFrom(page, text)
                     mode?.finish()
                 }
 

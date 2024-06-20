@@ -1120,7 +1120,7 @@ class TextUtil {
 
         fun replaceHtmlTTS(html: String?, endLineSeparator: String = " "): String {
             var page = html ?: return ""
-            page = page.replace("<image-begin>\\w*<image-end>".toRegex(), "")
+            page = page.replace("<image-begin>[\\w\\W]*<image-end>".toRegex(), "")
             page = page.replace("< ?(img)[^>]*>".toRegex(), "")
             page = page.replace("</?[b|i]>|</?tt>|<p>".toRegex(), "")
             page = page.replace("</p>", " ")
