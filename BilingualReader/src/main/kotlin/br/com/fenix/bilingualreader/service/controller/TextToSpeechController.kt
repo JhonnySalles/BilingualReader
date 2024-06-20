@@ -17,6 +17,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
@@ -45,8 +46,8 @@ import java.util.stream.Collectors
 class TextToSpeechController(val context: Context, book: Book, parse: DocumentParse?, cover: Bitmap?, val fontSize: Int) {
 
     companion object {
-        const val LIMIT_CACHE = 3
-        const val SHOW_LOG = true
+        const val LIMIT_CACHE = 5
+        const val SHOW_LOG = false
     }
 
     private var mListener = mutableListOf<TTSListener>()
@@ -279,9 +280,9 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
         }
     }
 
-    private fun generateTTS(speach: Speech, loaded: (Uri?) -> (Unit)) {
+    private fun generateTTS(speach: Speech, loaded: (MediaItem?) -> (Unit)) {
         if (speach.audio != null) {
-            loaded(speach.audio)
+            loaded(null)
             return
         }
 
@@ -300,12 +301,13 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 //.voicePitch()
                 .storage(mCache.absolutePath).trans()
             speach.audio = File(mCache, audio).toUri()
+            speach.media = MediaItem.fromUri(speach.audio!!)
             if (SHOW_LOG)
                 mLOGGER.warn("Audio tts generated finish. ${speach.audio}")
         } catch (e: Exception) {
             mLOGGER.error("Error to generate tts.", e)
         } finally {
-            loaded(speach.audio)
+            loaded(speach.media)
         }
     }
 
@@ -332,8 +334,8 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
             mPlayAudio = true
 
             mMainHandler.post {
-                //mPlayer.clearMediaItems()
-                mPlayer.addMediaItem(MediaItem.fromUri(speech.audio!!))
+                mPlayer.clearMediaItems()
+                mPlayer.addMediaItem(speech.media!!)
 
                 if (SHOW_LOG)
                     mLOGGER.warn("Playing tts -- Page: $mPage - Line: $mLine :: ${speech.text}.")
@@ -378,7 +380,6 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
         mPlayer.addListener(object : Player.Listener {
             override fun onPlayerError(error: PlaybackException) {
                 super.onPlayerError(error)
-
                 if (SHOW_LOG)
                     mLOGGER.warn("Error to playing audio tts: ${mReading.audio}.")
 
@@ -389,7 +390,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 mPlayAudio = isPlaying
 
                 if (SHOW_LOG)
-                    mLOGGER.warn("Audio tts reproduced finished.")
+                    mLOGGER.warn(if (mPlayAudio) "Audio tts reproduced initialize..." else "Audio tts reproduced finished.")
             }
         })
 
@@ -407,20 +408,13 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 mPage = page
                 mLine = -1
                 mLines.addAll(formatHtml(page, mParse!!.getPage(page).pageHTMLWithImages))
-                if (initial.isNotEmpty())
+                if (initial.isNotEmpty()) {
+                    val find = initial.substringBefore(",", initial.substringBefore(".", initial))
                     for ((index, line) in mLines.withIndex()) {
-                        if (line.html.contains(initial)) {
+                        if (line.html.contains(find)) {
                             mLine = index - 1
                             break
                         }
-                    }
-
-                mReading = mLines[mLine]
-                if (mReading.audio != null)
-                    play(mReading)
-                else {
-                    generateTTS(mReading) { uri ->
-                        play(mReading)
                     }
                 }
 
@@ -474,16 +468,21 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                             continue
                         }
 
+                        mReading = mLines[mLine]
+                        if (mReading.audio != null)
+                            play(mReading)
+                        else {
+                            generateTTS(mReading) { uri ->
+                                play(mReading)
+                            }
+                        }
+
                         if (SHOW_LOG)
                             mLOGGER.warn("Generate tss to cache...")
 
                         for (i in 1 until (LIMIT_CACHE + 1))
                             if (mLine + i < mLines.size)
-                                generateTTS(mLines[mLine + i]) {
-                                    mMainHandler.post {
-                                        mPlayer.addMediaItem(MediaItem.fromUri(mLines[mLine + i].audio!!))
-                                    }
-                                }
+                                generateTTS(mLines[mLine + i]) { }
                     } finally {
                         Thread.sleep(1000)
                     }
@@ -508,9 +507,9 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
     }
 
     private fun formatHtml(page: Int, html: String): MutableList<Speech> {
-        val separator = "<br>"
         var sequence = 0
-        val lines = TextUtil.replaceEndLine(html, separator).split(separator).map { Speech(page, ++sequence, TextUtil.replaceHtmlTTS(it), TextUtil.replaceHtmlTags(it).trim()) }
+        val lines = TextUtil.replaceEndLine(html, "\n").split(".", ",")
+            .map { Speech(page, ++sequence, TextUtil.replaceHtmlTTS(it).replace("\n", " "), TextUtil.replaceHtmlTags(it).replace(" \n", "\n").replace("\n ", "\n").trim()) }
         return lines.filter { it.text.trim().isNotEmpty() }.toMutableList()
     }
 
