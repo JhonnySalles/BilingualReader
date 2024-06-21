@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.ui.book
+package br.com.fenix.bilingualreader.view.ui.annotation
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,12 +10,13 @@ import android.widget.ListView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.view.ui.book.BookAnnotationViewModel
 import org.slf4j.LoggerFactory
 
 
-class BookAnnotationPopupFilterChapter : Fragment() {
+class AnnotationPopupFilterChapter : Fragment() {
 
-    private val mLOGGER = LoggerFactory.getLogger(BookAnnotationPopupFilterChapter::class.java)
+    private val mLOGGER = LoggerFactory.getLogger(AnnotationPopupFilterChapter::class.java)
 
     private lateinit var mViewModel: BookAnnotationViewModel
 

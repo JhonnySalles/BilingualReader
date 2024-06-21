@@ -35,12 +35,10 @@ class BookAnnotationLineAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             HEADER -> BookAnnotationHeaderViewHolder(
-                LayoutInflater.from(parent.context)
-                    .inflate(R.layout.line_card_divider_book_annotation, parent, false), mListener
+                LayoutInflater.from(parent.context).inflate(R.layout.line_card_divider_book_annotation, parent, false), mListener
             )
             else -> BookAnnotationViewHolder(
-                LayoutInflater.from(parent.context)
-                    .inflate(R.layout.line_card_book_annotation, parent, false), mListener
+                LayoutInflater.from(parent.context).inflate(R.layout.line_card_book_annotation, parent, false), mListener
             )
         }
     }
@@ -58,9 +56,9 @@ class BookAnnotationLineAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(
         mListener = listener
     }
 
-    fun notifyItemChanged(mark: BookAnnotation) {
-        if (mBookAnnotationList.contains(mark))
-            notifyItemChanged(mBookAnnotationList.indexOf(mark))
+    fun notifyItemChanged(annotation: BookAnnotation) {
+        if (mBookAnnotationList.contains(annotation))
+            notifyItemChanged(mBookAnnotationList.indexOf(annotation))
     }
 
 }

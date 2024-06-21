@@ -637,6 +637,9 @@ abstract class BookAnnotationDAO : BaseDAO<BookAnnotation, Long>(DataBaseConsts.
     )
     abstract fun findAllByBook(idBook: Long): List<BookAnnotation>
 
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " ORDER BY " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + ", ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION} DESC")
+    abstract fun findAllOrderByBook() : List<BookAnnotation>
+
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
         "SELECT * FROM ( " +

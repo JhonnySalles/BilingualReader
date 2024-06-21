@@ -58,6 +58,7 @@
     <string name="menu_help">Ajuda</string>
     <string name="menu_about">Sobre</string>
     <string name="menu_statistics">Estatística</string>
+    <string name="menu_annotations">Anotações</string>
     <string name="menu_config">Configuração</string>
     <string name="menu_history">Histórico</string>
     <string name="menu_vocabulary">Vocabulário</string>
@@ -337,17 +338,17 @@
     <string name="book_annotation_menu_item_delete">Deletar</string>
     <string name="book_annotation_menu_item_change_detach">Trocar de destaque</string>
 
-    <!-- BOOK ANNOTATION POPUP LAYOUT -->
-    <string name="book_annotation_popup_filter_open">Abrir</string>
-    <string name="book_annotation_popup_filter_close">Fechar</string>
-    <string name="book_annotation_tab_item_filter">Filtros</string>
-    <string name="book_annotation_tab_item_color">Cores</string>
-    <string name="book_annotation_tab_item_chapters">Capítulos</string>
+    <!-- ANNOTATION POPUP LAYOUT -->
+    <string name="annotation_popup_filter_open">Abrir</string>
+    <string name="annotation_popup_filter_close">Fechar</string>
+    <string name="annotation_tab_item_filter">Filtros</string>
+    <string name="annotation_tab_item_color">Cores</string>
+    <string name="annotation_tab_item_chapters">Capítulos</string>
 
-    <string name="book_annotation_popup_filter_favorite">Favoritos</string>
-    <string name="book_annotation_popup_filter_detach">Destaque</string>
-    <string name="book_annotation_popup_filter_page_marker">Marcador de página</string>
-    <string name="book_annotation_popup_filter_book_marker">Marcador de livro</string>
+    <string name="annotation_popup_filter_favorite">Favoritos</string>
+    <string name="annotation_popup_filter_detach">Destaque</string>
+    <string name="annotation_popup_filter_page_marker">Marcador de página</string>
+    <string name="annotation_popup_filter_book_marker">Marcador de livro</string>
 
     <!-- BOOK ANNOTATION DETACH -->
     <string name="book_annotation_change_detach_title">Destaque</string>

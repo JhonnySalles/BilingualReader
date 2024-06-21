@@ -42,6 +42,12 @@
             android:title="@string/menu_vocabulary" />
 
         <item
+            android:id="@+id/menu_annotations"
+            android:icon="@drawable/ico_animated_annotations"
+            android:orderInCategory="100"
+            android:title="@string/menu_annotations" />
+
+        <item
             android:id="@+id/menu_statistics"
             android:icon="@drawable/ic_statistics"
             android:orderInCategory="100"

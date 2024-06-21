@@ -30,6 +30,15 @@ class BookAnnotationRepository(context: Context) {
             mDataBase.delete(obj)
     }
 
+    fun findAll(): List<BookAnnotation> {
+        return try {
+            mDataBase.findAllOrderByBook()
+        } catch (e: Exception) {
+            mLOGGER.error("Error when list annotation of Book: " + e.message, e)
+            arrayListOf()
+        }
+    }
+
     fun findAll(idBook: Long): List<BookAnnotation> {
         return try {
             mDataBase.findAllByBook(idBook)

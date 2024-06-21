@@ -37,6 +37,7 @@ import br.com.fenix.bilingualreader.util.helpers.MsgUtil
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.view.ui.about.AboutFragment
+import br.com.fenix.bilingualreader.view.ui.annotation.AnnotationFragment
 import br.com.fenix.bilingualreader.view.ui.configuration.ConfigFragment
 import br.com.fenix.bilingualreader.view.ui.help.HelpFragment
 import br.com.fenix.bilingualreader.view.ui.history.HistoryFragment
@@ -247,6 +248,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             R.id.menu_configuration -> ConfigFragment()
             R.id.menu_statistics -> StatisticsFragment()
+            R.id.menu_annotations -> AnnotationFragment()
             R.id.menu_help -> HelpFragment()
             R.id.menu_about -> AboutFragment()
             R.id.menu_history -> HistoryFragment()

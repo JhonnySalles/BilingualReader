@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.ui.book
+package br.com.fenix.bilingualreader.view.ui.annotation
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,12 +9,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Color
+import br.com.fenix.bilingualreader.view.ui.book.BookAnnotationViewModel
 import org.slf4j.LoggerFactory
 
 
-class BookAnnotationPopupFilterColor : Fragment() {
+class AnnotationPopupFilterColor : Fragment() {
 
-    private val mLOGGER = LoggerFactory.getLogger(BookAnnotationPopupFilterColor::class.java)
+    private val mLOGGER = LoggerFactory.getLogger(AnnotationPopupFilterColor::class.java)
 
     private lateinit var mViewModel: BookAnnotationViewModel
 

@@ -5,7 +5,7 @@
     style="@style/AppBackground.Accent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.ui.book.BookAnnotationPopupFilterType">
+    tools:context=".view.ui.annotation.AnnotationPopupFilterType">
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -1,5 +1,6 @@
-package br.com.fenix.bilingualreader.view.ui.book
+package br.com.fenix.bilingualreader.view.ui.annotation
 
+import android.content.Intent
 import android.content.res.Resources
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Build
@@ -33,6 +34,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
+import br.com.fenix.bilingualreader.MainActivity
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
@@ -43,12 +45,11 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.view.adapter.annotation.AnnotationLineAdapter
 import br.com.fenix.bilingualreader.view.adapter.book.BookAnnotationLineAdapter
-import br.com.fenix.bilingualreader.view.ui.annotation.AnnotationPopupFilterChapter
-import br.com.fenix.bilingualreader.view.ui.annotation.AnnotationPopupFilterColor
-import br.com.fenix.bilingualreader.view.ui.annotation.AnnotationPopupFilterType
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupAnnotations
+import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -56,13 +57,11 @@ import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
 
 
-class BookAnnotationFragment : Fragment() {
+class AnnotationFragment : Fragment() {
 
-    private val mLOGGER = LoggerFactory.getLogger(BookAnnotationFragment::class.java)
+    private val mLOGGER = LoggerFactory.getLogger(AnnotationFragment::class.java)
 
-    private val mViewModel: BookAnnotationViewModel by activityViewModels()
-
-    private lateinit var mToolbar: Toolbar
+    private val mViewModel: AnnotationViewModel by activityViewModels()
 
     private lateinit var mScrollUp: FloatingActionButton
     private lateinit var mScrollDown: FloatingActionButton
@@ -90,11 +89,7 @@ class BookAnnotationFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-
-        arguments?.let {
-            mBook = it.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK) as Book
-            mViewModel.search(mBook.id!!)
-        }
+        mViewModel.findAll()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -114,7 +109,8 @@ class BookAnnotationFragment : Fragment() {
             }
         })
 
-        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
+        val searchSrcTextView =
+            miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
         searchSrcTextView.setTextAppearance(R.style.SearchShadow)
     }
 
@@ -126,19 +122,15 @@ class BookAnnotationFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val root = inflater.inflate(R.layout.fragment_book_annotation, container, false)
+        val root = inflater.inflate(R.layout.fragment_annotation, container, false)
 
-        mRecyclerView = root.findViewById(R.id.book_annotation_recycler_view)
+        mRecyclerView = root.findViewById(R.id.annotation_recycler_view)
 
-        mScrollUp = root.findViewById(R.id.book_annotation_scroll_up)
-        mScrollDown = root.findViewById(R.id.book_annotation_scroll_down)
-
-        mToolbar = root.findViewById(R.id.toolbar_book_annotation)
+        mScrollUp = root.findViewById(R.id.annotation_scroll_up)
+        mScrollDown = root.findViewById(R.id.annotation_scroll_down)
 
         mScrollUp.visibility = View.GONE
         mScrollDown.visibility = View.GONE
-
-        (requireActivity() as MenuActivity).setActionBar(mToolbar)
 
         mScrollUp.setOnClickListener {
             (mScrollUp.drawable as AnimatedVectorDrawable).start()
@@ -189,11 +181,11 @@ class BookAnnotationFragment : Fragment() {
             }
         }
 
-        mMenuPopupFilter = root.findViewById(R.id.book_annotation_popup_filter)
-        mPopupFilterTab = root.findViewById(R.id.book_annotation_popup_filter_tab)
-        mPopupFilterView = root.findViewById(R.id.book_annotation_popup_order_filter_view_pager)
+        mMenuPopupFilter = root.findViewById(R.id.annotation_popup_filter)
+        mPopupFilterTab = root.findViewById(R.id.annotation_popup_filter_tab)
+        mPopupFilterView = root.findViewById(R.id.annotation_popup_order_filter_view_pager)
 
-        root.findViewById<ImageView>(R.id.book_annotation_popup_filter_close)
+        root.findViewById<ImageView>(R.id.annotation_popup_filter_close)
             .setOnClickListener {
                 AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupFilter)
             }
@@ -207,7 +199,7 @@ class BookAnnotationFragment : Fragment() {
         }
         mBottomSheet.isDraggable = true
 
-        root.findViewById<ImageView>(R.id.book_annotation_popup_filter_touch)
+        root.findViewById<ImageView>(R.id.annotation_popup_filter_touch)
             .setOnClickListener {
                 if (mBottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED)
                     mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
@@ -240,9 +232,27 @@ class BookAnnotationFragment : Fragment() {
 
         mListener = object : BookAnnotationListener {
             override fun onClick(annotation: BookAnnotation) {
-                val bundle = Bundle()
-                bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK_ANNOTATION, annotation)
-                (requireActivity() as MenuActivity).onBack(bundle)
+                val book = mViewModel.getBook(annotation.id_book) ?: return
+                if (book.file.exists()) {
+                    val intent = Intent(context, BookReaderActivity::class.java)
+                    val bundle = Bundle()
+                    bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, book.library)
+                    bundle.putString(GeneralConsts.KEYS.BOOK.NAME, book.title)
+                    bundle.putInt(GeneralConsts.KEYS.BOOK.MARK, book.bookMark)
+                    bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
+                    intent.putExtras(bundle)
+                    context?.startActivity(intent)
+                    requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+                } else {
+                    MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+                        .setTitle(getString(R.string.book_excluded))
+                        .setMessage(getString(R.string.file_not_found))
+                        .setPositiveButton(
+                            R.string.action_neutral
+                        ) { _, _ -> }
+                        .create()
+                        .show()
+                }
             }
 
             override fun onClickFavorite(annotation: BookAnnotation) {
@@ -264,9 +274,11 @@ class BookAnnotationFragment : Fragment() {
                             mViewModel.save(annotation)
                             notifyDataSet(position)
                         }
+
                         R.id.menu_item_item_book_annotation_delete -> {
                             deleteAnnotation(annotation, position)
                         }
+
                         R.id.menu_item_item_book_annotation_change_detach -> {
                             val colors = Util.getColors(requireContext())
                             val items = colors.keys.toTypedArray()
@@ -316,7 +328,7 @@ class BookAnnotationFragment : Fragment() {
 
         }
 
-        val adapter = BookAnnotationLineAdapter()
+        val adapter = AnnotationLineAdapter()
         adapter.attachListener(mListener)
         mRecyclerView.adapter = adapter
         mRecyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -328,7 +340,7 @@ class BookAnnotationFragment : Fragment() {
 
     private fun observer() {
         mViewModel.annotation.observe(viewLifecycleOwner) {
-            (mRecyclerView.adapter as BookAnnotationLineAdapter).updateList(it)
+            (mRecyclerView.adapter as AnnotationLineAdapter).updateList(it)
         }
     }
 
@@ -373,16 +385,16 @@ class BookAnnotationFragment : Fragment() {
 
 
     private var itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
-                return false
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val annotation = mViewModel.getAndRemove(viewHolder.bindingAdapterPosition) ?: return
-                val position = viewHolder.bindingAdapterPosition
-                deleteAnnotation(annotation, position)
-            }
+        override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+            return false
         }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            val annotation = mViewModel.getAndRemove(viewHolder.bindingAdapterPosition) ?: return
+            val position = viewHolder.bindingAdapterPosition
+            deleteAnnotation(annotation, position)
+        }
+    }
 
     private fun deleteAnnotation(annotation: BookAnnotation, position: Int) {
         var excluded = false

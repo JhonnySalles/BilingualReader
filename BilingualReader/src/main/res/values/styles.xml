@@ -603,6 +603,10 @@
         <item name="android:textAppearance">?attr/textAppearanceTitleMedium</item>
     </style>
 
+    <style name="TextTitle.Annotation" parent="TextTitle">
+        <item name="android:textAppearance">?attr/textAppearanceTitleMedium</item>
+    </style>
+
     <style name="TextNormal.Information" parent="TextNormal">
         <item name="android:textAppearance">?attr/textAppearanceSubtitle2</item>
     </style>
