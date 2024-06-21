@@ -4,19 +4,24 @@ import android.accounts.NetworkErrorException
 import android.content.Context
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.History
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.ShareItem
 import br.com.fenix.bilingualreader.model.entity.ShareMark
+import br.com.fenix.bilingualreader.model.enums.Color
+import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.exceptions.DriveDownloadException
 import br.com.fenix.bilingualreader.model.exceptions.DriveUploadException
 import br.com.fenix.bilingualreader.model.exceptions.ShareMarkNotConnectCloudException
+import br.com.fenix.bilingualreader.service.repository.BookAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.Util
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
@@ -402,7 +407,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                                     }
                                 }
                             } else
-                                share.marks!!.add(ShareItem(manga, repositoryHistory.list(manga.type, manga.fkLibrary!!, manga.id!!)))
+                                share.marks!!.add(ShareItem(manga, repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!)))
                         }
                 }
 
@@ -420,7 +425,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                 list.parallelStream().forEach {
                     repositoryManga.findByFileName(it.file)?.let { manga ->
                         it.history?.let { h ->
-                            val histories = repositoryHistory.list(manga.type, manga.fkLibrary!!, manga.id!!).map { h -> GeneralConsts.dateTimeToDate(h.start) }
+                            val histories = repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!).map { h -> GeneralConsts.dateTimeToDate(h.start) }
                             val list = h.values.filter { f -> histories.none { s -> f.start.compareTo(s) == 0 } }
                             if (list.isNotEmpty())
                                 for (shared in list)
@@ -466,6 +471,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                     .create()
                 val repositoryBook = BookRepository(context)
                 val repositoryHistory = HistoryRepository(context)
+                val repositoryAnnotation = BookAnnotationRepository(context)
 
                 val reader = JsonReader(FileReader(getFile(GeneralConsts.SHARE_MARKS.BOOK_FILE_WITH_EXTENSION)))
                 val share: ShareMark = gson.fromJson(reader, ShareMark::class.java)
@@ -488,7 +494,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                                     }
                                 }
                             } else
-                                share.marks!!.add(ShareItem(book, repositoryHistory.list(book.type, book.fkLibrary!!, book.id!!)))
+                                share.marks!!.add(ShareItem(book, repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!), repositoryAnnotation.findByBook(book.id!!)))
                         }
                 }
 
@@ -504,18 +510,44 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                 }
 
                 list.parallelStream().forEach {
-                    repositoryBook.findByFileName(it.file)?.let { manga ->
+                    repositoryBook.findByFileName(it.file)?.let { book ->
                         it.history?.let { h ->
-                            val histories = repositoryHistory.list(manga.type, manga.fkLibrary!!, manga.id!!).map { h -> GeneralConsts.dateTimeToDate(h.start) }
+                            val histories = repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!).map { h -> GeneralConsts.dateTimeToDate(h.start) }
                             val list = h.values.filter { f -> histories.none { s -> f.start.compareTo(s) == 0 } }
                             if (list.isNotEmpty())
                                 for (shared in list)
                                     repositoryHistory.save(
-                                        History(null, manga.fkLibrary!!, manga.id!!, manga.type, shared.pageStart, shared.pageEnd, shared.pages,
+                                        History(null, book.fkLibrary!!, book.id!!, book.type, shared.pageStart, shared.pageEnd, shared.pages,
                                             shared.volume, shared.chaptersRead, GeneralConsts.dateToDateTime(shared.start), GeneralConsts.dateToDateTime(shared.end),
                                             shared.secondsRead.toLong(), shared.averageTimeByPage.toLong(), shared.useTTS, isNotify = false
                                         )
                                     )
+                        }
+
+                        it.annotation?.let { a ->
+                            val annotations = repositoryAnnotation.findByBook(book.id!!)
+                            for (shared in  a.values) {
+                                val created = GeneralConsts.dateToDateTime(shared.created)
+                                val annotation = annotations.find { f -> f.created.compareTo(created) == 0 }
+
+                                if (annotation != null) {
+                                    annotation.text = shared.text
+                                    annotation.page = shared.page
+                                    annotation.pages = shared.pages
+                                    annotation.fontSize = shared.fontSize
+                                    annotation.annotation = shared.annotation
+                                    annotation.range = Util.stringToIntArray(shared.range)
+                                    annotation.favorite = shared.favorite
+                                    annotation.color = Color.valueOf(shared.color)
+                                    repositoryAnnotation.update(annotation)
+                                } else
+                                    repositoryAnnotation.save(
+                                        BookAnnotation(null, book.id!!, shared.page, shared.pages, shared.fontSize, MarkType.valueOf(shared.type), shared.chapterNumber,
+                                            shared.chapter, shared.text, Util.stringToIntArray(shared.range), shared.annotation, shared.favorite, Color.valueOf(shared.color),
+                                            LocalDateTime.now(), created
+                                        )
+                                    )
+                            }
                         }
                     }
                 }

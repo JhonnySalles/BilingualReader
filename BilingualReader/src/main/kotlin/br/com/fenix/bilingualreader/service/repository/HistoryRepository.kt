@@ -33,6 +33,6 @@ class HistoryRepository(var context: Context) {
         mDataBase.notify(obj.type, obj.fkLibrary, obj.fkReference)
     }
 
-    fun list(type: Type, idLibrary: Long, idReference: Long) = mDataBase.list(type, idLibrary, idReference)
+    fun find(type: Type, idLibrary: Long, idReference: Long) = mDataBase.find(type, idLibrary, idReference)
 
 }

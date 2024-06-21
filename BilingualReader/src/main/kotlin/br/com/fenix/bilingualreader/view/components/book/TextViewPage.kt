@@ -38,7 +38,7 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
     private var mSelectionListener: SelectionChangeListener? = null
     private var mIsChangeSize: Boolean = true
     private var mOriginalSize: Float
-    private var mZooming = false
+    private var mIsZoom = false
 
     init {
         mOriginalSize = textSize
@@ -59,9 +59,6 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
                 return@setOnTouchListener true
             } else
                 setTextIsSelectable(true)
-
-            if (mZooming)
-                parent.requestDisallowInterceptTouchEvent(true)
 
             if (mGestureDetector.onTouchEvent(event))
                 return@setOnTouchListener true
@@ -114,10 +111,11 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
     private var mBaseDistZoomOut = 0
 
     fun resetZoom() {
-        if (mZooming)
+        if (mIsZoom)
             try {
                 mIsChangeSize = false
                 setTextSize(TypedValue.COMPLEX_UNIT_PX, mOriginalSize)
+                mIsZoom = false
             } finally {
                 mIsChangeSize = true
             }
@@ -142,7 +140,7 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
                             finalSize = TEXT_MAX_SIZE
                         }
                         setTextSize(TypedValue.COMPLEX_UNIT_PX, finalSize)
-                        mZooming = true
+                        mIsZoom = true
                     } else {
                         if (currentDistance < mBaseDistZoomOut) {
                             var finalSize: Float = textSize - STEP
@@ -150,7 +148,7 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
                                 finalSize = TEXT_MIN_SIZE
 
                             setTextSize(TypedValue.COMPLEX_UNIT_PX, finalSize)
-                            mZooming = true
+                            mIsZoom = true
                         }
                     }
                 }

@@ -2,14 +2,19 @@ package br.com.fenix.bilingualreader.service.sharemark
 
 import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.History
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.ShareItem
+import br.com.fenix.bilingualreader.model.enums.Color
+import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
+import br.com.fenix.bilingualreader.service.repository.BookAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.Util
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseApp
@@ -27,6 +32,7 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
 import java.util.Date
 import java.util.Locale
 
@@ -37,18 +43,20 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
 
     companion object {
         const val DATABASE_NAME = "bilingualreader"
-        const val MANGA = "manga"
-        const val BOOK = "book"
+        const val MANGA = "_manga"
+        const val BOOK = "_book"
     }
 
     private lateinit var mDB: FirebaseFirestore
+    private var mUser = ""
 
     override fun initialize() {
         if (!::mDB.isInitialized) {
             try {
                 val auth = FirebaseAuth.getInstance()
                 val credential = GoogleSignIn.getLastSignedInAccount(context)
-                val firebaseCredential = GoogleAuthProvider.getCredential(credential!!.idToken, null)
+                mUser = credential!!.email?.substringBeforeLast("@") ?: ""
+                val firebaseCredential = GoogleAuthProvider.getCredential(credential.idToken, null)
                 auth.signInWithCredential(firebaseCredential)
 
                 FirebaseApp.initializeApp(context)
@@ -78,7 +86,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
 
                 try {
                     collection = mDB.collection(DATABASE_NAME)
-                    query = collection.document(MANGA).get()
+                    query = collection.document(mUser + MANGA).get()
                     snapshot = query.await()
                 } catch (e: Exception) {
                     mLOGGER.error(e.message, e)
@@ -120,7 +128,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                     }
                                 }
                             } else
-                                share.add(ShareItem(manga, repositoryHistory.list(manga.type, manga.fkLibrary!!, manga.id!!)))
+                                share.add(ShareItem(manga, repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!)))
                         }
                 }
 
@@ -138,7 +146,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 share.parallelStream().forEach {
                     repositoryManga.findByFileName(it.file)?.let { manga ->
                         it.history?.let { h ->
-                            val histories = repositoryHistory.list(manga.type, manga.fkLibrary!!, manga.id!!).map { h -> GeneralConsts.dateTimeToDate(h.start) }
+                            val histories = repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!).map { h -> GeneralConsts.dateTimeToDate(h.start) }
                             val list = h.values.filter { f -> histories.none { s -> f.start.compareTo(s) == 0 } }
                             if (list.isNotEmpty())
                                 for (shared in list)
@@ -161,7 +169,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                             cloud[it.file] = it
                         }
 
-                        val result = collection.document(MANGA).set(cloud)
+                        val result = collection.document(mUser + MANGA).set(cloud)
                         result.await()
                         ShareMarkType.SUCCESS
                     } catch (e: Exception) {
@@ -200,7 +208,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
 
                 try {
                     collection = mDB.collection(DATABASE_NAME)
-                    query = collection.document(BOOK).get()
+                    query = collection.document(mUser + BOOK).get()
                     snapshot = query.await()
                 } catch (e: Exception) {
                     mLOGGER.error(e.message, e)
@@ -212,6 +220,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
 
                 val repositoryBook = BookRepository(context)
                 val repositoryHistory = HistoryRepository(context)
+                val repositoryAnnotation = BookAnnotationRepository(context)
                 val share = mutableListOf<ShareItem>()
                 val cloud: MutableMap<String, Any> = mutableMapOf()
 
@@ -243,7 +252,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                     }
                                 }
                             } else
-                                share.add(ShareItem(book, repositoryHistory.list(book.type, book.fkLibrary!!, book.id!!)))
+                                share.add(ShareItem(book, repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!), repositoryAnnotation.findByBook(book.id!!)))
                         }
                 }
 
@@ -261,7 +270,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 share.parallelStream().forEach {
                     repositoryBook.findByFileName(it.file)?.let { book ->
                         it.history?.let { h ->
-                            val histories = repositoryHistory.list(book.type, book.fkLibrary!!, book.id!!).map { h -> GeneralConsts.dateTimeToDate(h.start) }
+                            val histories = repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!).map { h -> GeneralConsts.dateTimeToDate(h.start) }
                             val list = h.values.filter { f -> histories.none { s -> f.start.compareTo(s) == 0 } }
                             if (list.isNotEmpty())
                                 for (shared in list)
@@ -271,6 +280,32 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                             shared.secondsRead.toLong(), shared.averageTimeByPage.toLong(), shared.useTTS, isNotify = false
                                         )
                                     )
+                        }
+
+                        it.annotation?.let { a ->
+                            val annotations = repositoryAnnotation.findByBook(book.id!!)
+                            for (shared in  a.values) {
+                                val created = GeneralConsts.dateToDateTime(shared.created)
+                                val annotation = annotations.find { f -> f.created.compareTo(created) == 0 }
+
+                                if (annotation != null) {
+                                    annotation.text = shared.text
+                                    annotation.page = shared.page
+                                    annotation.pages = shared.pages
+                                    annotation.fontSize = shared.fontSize
+                                    annotation.annotation = shared.annotation
+                                    annotation.range = Util.stringToIntArray(shared.range)
+                                    annotation.favorite = shared.favorite
+                                    annotation.color = Color.valueOf(shared.color)
+                                    repositoryAnnotation.update(annotation)
+                                } else
+                                    repositoryAnnotation.save(
+                                        BookAnnotation(null, book.id!!, shared.page, shared.pages, shared.fontSize, MarkType.valueOf(shared.type), shared.chapterNumber,
+                                            shared.chapter, shared.text, Util.stringToIntArray(shared.range), shared.annotation, shared.favorite, Color.valueOf(shared.color),
+                                            LocalDateTime.now(), created
+                                        )
+                                    )
+                            }
                         }
                     }
                 }
@@ -286,7 +321,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                             data[it.file] = it
                         }
 
-                        val result = collection.document(BOOK).set(data)
+                        val result = collection.document(mUser + BOOK).set(data)
                         result.await()
                         ShareMarkType.SUCCESS
                     } catch (e: Exception) {

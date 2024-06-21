@@ -46,7 +46,12 @@ data class ShareItem(
     @SerializedName(FIELD_HISTORY)
     @PropertyName(FIELD_HISTORY)
     @get:PropertyName(FIELD_HISTORY)
-    var history: MutableMap<String, ShareHistory>? = mutableMapOf()
+    var history: MutableMap<String, ShareHistory>? = mutableMapOf(),
+    @Expose
+    @SerializedName(FIELD_ANNOTATION)
+    @PropertyName(FIELD_ANNOTATION)
+    @get:PropertyName(FIELD_ANNOTATION)
+    var annotation: MutableMap<String, ShareAnnotation>? = mutableMapOf()
 ) : Serializable {
 
     companion object {
@@ -57,6 +62,7 @@ data class ShareItem(
         const val FIELD_LASTACCESS = "ultimoAcesso"
         const val FIELD_SYNC = "sincronizado"
         const val FIELD_HISTORY = "history"
+        const val FIELD_ANNOTATION = "annotation"
 
         const val PARSE_DATE_TIME = "yyyy-MM-dd-HH:mm:ss"
     }
@@ -86,6 +92,11 @@ data class ShareItem(
             this.history?.set(history.key, ShareHistory(history.value as Map<String, *>))
     }
 
+    private fun getAnnotation(annotations: Map<String, *>) {
+        for (annotation in annotations)
+            this.annotation?.set(annotation.key, ShareAnnotation(annotation.value as Map<String, *>))
+    }
+
     constructor(manga: Manga, list: List<History>) : this(
         manga.name, manga.bookMark, manga.pages, manga.favorite, GeneralConsts.dateTimeToDate(manga.lastAccess!!), Date()
     ) {
@@ -96,14 +107,17 @@ data class ShareItem(
             this.history?.set(history.start.format(DateTimeFormatter.ofPattern(PARSE_DATE_TIME)), ShareHistory(history))
     }
 
-    constructor(book: Book, list: List<History>) : this(
+    constructor(book: Book, histories: List<History>, annotations: List<BookAnnotation>) : this(
         book.name, book.bookMark, book.pages, book.favorite, GeneralConsts.dateTimeToDate(book.lastAccess!!), Date()
     ) {
         alter = true
         processed = true
 
-        for (history in list)
+        for (history in histories)
             this.history?.set(history.start.format(DateTimeFormatter.ofPattern(PARSE_DATE_TIME)), ShareHistory(history))
+
+        for (annotation in annotations)
+            this.annotation?.set(annotation.created.format(DateTimeFormatter.ofPattern(PARSE_DATE_TIME)), ShareAnnotation(annotation))
     }
 
     fun merge(manga: Manga) {

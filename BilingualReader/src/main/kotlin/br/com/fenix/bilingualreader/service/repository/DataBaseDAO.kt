@@ -721,7 +721,7 @@ abstract class HistoryDAO :  BaseDAO<History, Long>(DataBaseConsts.HISTORY.TABLE
     abstract fun notify(id: Long)
 
     @Query("SELECT * FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " WHERE " + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = :type AND " + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + " = :idLibrary AND " + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + " = :idReference ORDER BY " + DataBaseConsts.HISTORY.COLUMNS.ID)
-    abstract fun list(type: Type, idLibrary: Long, idReference: Long) : List<History>
+    abstract fun find(type: Type, idLibrary: Long, idReference: Long) : List<History>
 
 }
 

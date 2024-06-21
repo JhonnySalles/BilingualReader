@@ -532,6 +532,20 @@ class Util {
             return "%,.2f".format(percent)
         }
 
+        fun intArrayToString(array: IntArray): String {
+            if (array.isEmpty())
+                return ""
+
+            return array.joinToString(",")
+        }
+
+        fun stringToIntArray(array: String): IntArray {
+            if (array.isEmpty())
+                return intArrayOf()
+
+            return array.split(",").map { it.toInt() }.toIntArray()
+        }
+
     }
 }
 
