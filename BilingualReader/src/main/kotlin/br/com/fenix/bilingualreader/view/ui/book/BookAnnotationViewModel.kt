@@ -105,6 +105,16 @@ class BookAnnotationViewModel(var app: Application) : AndroidViewModel(app), Fil
         }
     }
 
+    fun search(search: String) {
+        mWordFilter = search
+        getFilter().filter(mWordFilter)
+    }
+
+    fun clearSearch() {
+        mWordFilter = ""
+        getFilter().filter(mWordFilter)
+    }
+
     fun filterType(filter: FilterType, isRemove: Boolean = false) {
         val types = mTypeFilter.value!!.toMutableSet()
         if (isRemove)
@@ -223,8 +233,7 @@ class BookAnnotationViewModel(var app: Application) : AndroidViewModel(app), Fil
                 return false
         }
 
-        val text = annotation.text.lowercase(Locale.getDefault()).contains(filterPattern) || annotation.annotation.lowercase(Locale.getDefault())
-            .contains(filterPattern)
+        val text = annotation.text.lowercase(Locale.getDefault()).contains(filterPattern) || annotation.annotation.lowercase(Locale.getDefault()).contains(filterPattern)
         return filterPattern.isEmpty() || text
     }
 

@@ -6,18 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Color
-import br.com.fenix.bilingualreader.view.ui.book.BookAnnotationViewModel
+import br.com.fenix.bilingualreader.service.listener.AnnotationListener
 import org.slf4j.LoggerFactory
 
 
 class AnnotationPopupFilterColor : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(AnnotationPopupFilterColor::class.java)
-
-    private lateinit var mViewModel: BookAnnotationViewModel
 
     private lateinit var mFilterNone: CheckBox
     private lateinit var mFilterYellow: CheckBox
@@ -26,12 +23,7 @@ class AnnotationPopupFilterColor : Fragment() {
     private lateinit var mFilterBlue: CheckBox
 
     private lateinit var mCheckMap: Map<CheckBox, Color>
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        mViewModel = ViewModelProvider(requireActivity())[BookAnnotationViewModel::class.java]
-    }
+    private var mListener: AnnotationListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.popup_annotation_filter_color, container, false)
@@ -44,8 +36,7 @@ class AnnotationPopupFilterColor : Fragment() {
 
         mCheckMap = mapOf(mFilterNone to Color.None, mFilterYellow to Color.Yellow, mFilterRed to Color.Red, mFilterGreen to Color.Green, mFilterBlue to Color.Blue)
 
-        setChecked(mCheckMap, mViewModel.colorFilter.value ?: setOf())
-        observer()
+        setChecked(mCheckMap, mListener?.getColors() ?: setOf())
         addListener()
 
         return root
@@ -63,7 +54,7 @@ class AnnotationPopupFilterColor : Fragment() {
         for (check in mCheckMap.keys)
             check.setOnCheckedChangeListener { _, isChecked ->
                 removeListener(mCheckMap.keys)
-                mViewModel.filterColor(mCheckMap[check]!!, !isChecked)
+                mListener?.filterColor(mCheckMap[check]!!, !isChecked)
                 addListener()
             }
 
@@ -74,12 +65,17 @@ class AnnotationPopupFilterColor : Fragment() {
             check.setOnCheckedChangeListener(null)
     }
 
-    private fun observer() {
-        mViewModel.colorFilter.observe(viewLifecycleOwner) {
-            removeListener(mCheckMap.keys)
-            setChecked(mCheckMap, it)
-            addListener()
-        }
+    fun setListener(listener: AnnotationListener?) {
+        mListener = listener
+    }
+
+    fun setColors(colors: Set<Color>) {
+        if (!::mCheckMap.isInitialized)
+            return
+
+        removeListener(mCheckMap.keys)
+        setChecked(mCheckMap, colors)
+        addListener()
     }
 
 }

@@ -36,8 +36,11 @@ import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
+import br.com.fenix.bilingualreader.model.enums.Color
+import br.com.fenix.bilingualreader.model.enums.Filter
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.MarkType
+import br.com.fenix.bilingualreader.service.listener.AnnotationListener
 import br.com.fenix.bilingualreader.service.listener.BookAnnotationListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
@@ -56,7 +59,7 @@ import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
 
 
-class BookAnnotationFragment : Fragment() {
+class BookAnnotationFragment : Fragment(), AnnotationListener {
 
     private val mLOGGER = LoggerFactory.getLogger(BookAnnotationFragment::class.java)
 
@@ -110,6 +113,10 @@ class BookAnnotationFragment : Fragment() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText != null)
+                    mViewModel.search(newText)
+                else
+                    mViewModel.clearSearch()
                 return false
             }
         })
@@ -218,6 +225,10 @@ class BookAnnotationFragment : Fragment() {
         mPopupFilterTypeFragment = AnnotationPopupFilterType()
         mPopupFilterColorFragment = AnnotationPopupFilterColor()
         mPopupFilterChapterFragment = AnnotationPopupFilterChapter()
+
+        mPopupFilterTypeFragment.setListener(this)
+        mPopupFilterColorFragment.setListener(this)
+        mPopupFilterChapterFragment.setListener(this)
 
         val viewOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
         viewOrderPagerAdapter.addFragment(mPopupFilterTypeFragment, resources.getString(R.string.annotation_tab_item_filter))
@@ -330,6 +341,23 @@ class BookAnnotationFragment : Fragment() {
         mViewModel.annotation.observe(viewLifecycleOwner) {
             (mRecyclerView.adapter as BookAnnotationLineAdapter).updateList(it)
         }
+
+        mViewModel.typeFilter.observe(viewLifecycleOwner) {
+            mPopupFilterTypeFragment.setFilters(it)
+        }
+
+        mViewModel.colorFilter.observe(viewLifecycleOwner) {
+            mPopupFilterColorFragment.setColors(it)
+        }
+
+        mViewModel.chapters.observe(viewLifecycleOwner) {
+            mPopupFilterChapterFragment.setChapters(it)
+        }
+
+
+        mViewModel.chapterFilter.observe(viewLifecycleOwner) {
+            mPopupFilterChapterFragment.setChaptersFilter(it)
+        }
     }
 
     private fun notifyDataSet(indexes: MutableList<Pair<ListMode, Int>>) {
@@ -431,6 +459,24 @@ class BookAnnotationFragment : Fragment() {
         override fun getPageTitle(position: Int): CharSequence {
             return fragmentTitle[position]
         }
+    }
+
+    override fun getFilters(): Set<Filter> = mViewModel.typeFilter.value!!
+
+    override fun filterType(filter: Filter, isRemove: Boolean) {
+        mViewModel.filterType(filter, isRemove)
+    }
+
+    override fun getColors(): Set<Color> = mViewModel.colorFilter.value!!
+
+    override fun filterColor(color: Color, isRemove: Boolean) {
+        mViewModel.filterColor(color, isRemove)
+    }
+
+    override fun getChapters(): Map<String, Float> = mViewModel.chapters.value!!
+
+    override fun filterChapter(chapter: String, isRemove: Boolean) {
+        mViewModel.filterChapter(chapter, isRemove)
     }
 
 }

@@ -73,7 +73,7 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
 
     private fun getChapters(list: List<Any>) {
         val chapters = if (list.isNotEmpty())
-            list.filterIsInstance<BookAnnotation>().sortedBy { it.chapter }.associate { it.chapter to it.chapterNumber }
+            list.filterIsInstance<BookAnnotation>().sortedBy { it.chapter }.filter { it.chapter.isNotEmpty() }.associate { it.chapter to it.chapterNumber }
         else
             mapOf()
 
@@ -114,6 +114,16 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
             mAnnotationFull.value!!.remove(annotation)
             getChapters(mAnnotationFull.value!!)
         }
+    }
+
+    fun search(search: String) {
+        mWordFilter = search
+        getFilter().filter(mWordFilter)
+    }
+
+    fun clearSearch() {
+        mWordFilter = ""
+        getFilter().filter(mWordFilter)
     }
 
     fun filterType(filter: FilterType, isRemove: Boolean = false) {
@@ -238,8 +248,7 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
                 return false
         }
 
-        val text = annotation.text.lowercase(Locale.getDefault()).contains(filterPattern) || annotation.annotation.lowercase(Locale.getDefault())
-            .contains(filterPattern)
+        val text = annotation.text.lowercase(Locale.getDefault()).contains(filterPattern) || annotation.annotation.lowercase(Locale.getDefault()).contains(filterPattern)
         return filterPattern.isEmpty() || text
     }
 

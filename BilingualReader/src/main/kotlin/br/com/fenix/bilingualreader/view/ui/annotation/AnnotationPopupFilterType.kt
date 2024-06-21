@@ -6,10 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Filter
-import br.com.fenix.bilingualreader.view.ui.book.BookAnnotationViewModel
+import br.com.fenix.bilingualreader.service.listener.AnnotationListener
 import org.slf4j.LoggerFactory
 
 
@@ -17,19 +16,13 @@ class AnnotationPopupFilterType : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(AnnotationPopupFilterType::class.java)
 
-    private lateinit var mViewModel: BookAnnotationViewModel
-
     private lateinit var mFilterFavorite: CheckBox
     private lateinit var mFilterDetach: CheckBox
     private lateinit var mFilterPageMarker: CheckBox
     private lateinit var mFilterBookMarker: CheckBox
 
     private lateinit var mCheckMap: Map<CheckBox, Filter>
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        mViewModel = ViewModelProvider(requireActivity())[BookAnnotationViewModel::class.java]
-    }
+    private var mListener: AnnotationListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.popup_annotation_filter_type, container, false)
@@ -41,8 +34,7 @@ class AnnotationPopupFilterType : Fragment() {
 
         mCheckMap = mapOf(mFilterFavorite to Filter.Favorite, mFilterDetach to Filter.Detach, mFilterPageMarker to Filter.PageMark, mFilterBookMarker to Filter.BookMark)
 
-        setChecked(mCheckMap, mViewModel.typeFilter.value ?: setOf())
-        observer()
+        setChecked(mCheckMap, mListener?.getFilters() ?:setOf())
         addListener()
 
         return root
@@ -62,7 +54,7 @@ class AnnotationPopupFilterType : Fragment() {
         for (check in list.keys)
             check.setOnCheckedChangeListener { _, isChecked ->
                 removeListener(list.keys)
-                mViewModel.filterType(list[check]!!, !isChecked)
+                mListener?.filterType(list[check]!!, !isChecked)
                 addListener()
             }
 
@@ -73,12 +65,17 @@ class AnnotationPopupFilterType : Fragment() {
             check.setOnCheckedChangeListener(null)
     }
 
-    private fun observer() {
-        mViewModel.typeFilter.observe(viewLifecycleOwner) {
-            removeListener(mCheckMap.keys)
-            setChecked(mCheckMap, it)
-            addListener()
-        }
+    fun setListener(listener: AnnotationListener?) {
+        mListener = listener
+    }
+
+    fun setFilters(filters: Set<Filter>) {
+        if (!::mCheckMap.isInitialized)
+            return
+
+        removeListener(mCheckMap.keys)
+        setChecked(mCheckMap, filters)
+        addListener()
     }
 
 }
