@@ -204,7 +204,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
             }
 
             if (isBefore) {
-                for (i in mLines.size downTo 0) {
+                for (i in (mLines.size -1) downTo 0) {
                     val item = mLines[i]
                     if (page == item.page && item.html.contains(text)) {
                         mLine = i

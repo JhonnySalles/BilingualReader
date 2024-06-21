@@ -982,6 +982,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
                 generateHistory(mBook!!)
                 mViewModel.history?.let { it.useTTS }
+
+                requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             }
 
             AudioStatus.PLAY -> {
@@ -1003,6 +1005,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             AudioStatus.STOP -> {
                 mReaderTTSPlay.setIconResource(R.drawable.ic_tts_close)
                 generateHistory(mBook!!)
+                requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             }
         }
     }
