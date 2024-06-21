@@ -211,8 +211,8 @@
     <string name="config_book_text_with_furigana">Gerar furigana em texto japonês</string>
     <string name="config_book_process_vocabulary">Processar vocabulário do livro</string>
     <string name="config_book_scrolling_mode">Modo de rolagem</string>
-    <string name="config_book_scrolling_Pagination">Pagination</string>
-    <string name="config_book_scrolling_Infinity_Scrolling">Infinity Scrolling</string>
+    <string name="config_book_scrolling_Pagination">Paginação</string>
+    <string name="config_book_scrolling_Infinity_Scrolling">Rolagem infinita</string>
 
     <string name="config_book_tts">Texto para fala</string>
     <string name="config_book_tts_voice">Voz</string>
