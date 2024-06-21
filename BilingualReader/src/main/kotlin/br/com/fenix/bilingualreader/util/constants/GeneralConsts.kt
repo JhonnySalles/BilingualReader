@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -91,20 +92,20 @@ class GeneralConsts private constructor() {
 
         @TargetApi(26)
         fun formatCountDays(context: Context, dateTime: LocalDateTime?): String {
+            val today = LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0, 0))
             return if (dateTime == null)
                 ""
-            else if (dateTime.isAfter(LocalDateTime.now().minusDays(1)))
+            else if (dateTime.isAfter(today))
                 context.getString(R.string.date_format_today)
-            else if (dateTime.isAfter(LocalDateTime.now().minusDays(7)))
+            else if (dateTime.isAfter(today.minusDays(1)))
+                context.getString(R.string.date_format_yesterday)
+            else if (dateTime.isAfter(today.minusDays(7)))
                 context.getString(
                     R.string.date_format_day_ago,
-                    ChronoUnit.DAYS.between(dateTime, LocalDateTime.now()).toString()
+                    ChronoUnit.DAYS.between(dateTime, today).toString()
                 )
             else
-                formatterDate(
-                    context,
-                    dateTime
-                )
+                formatterDate(context, dateTime)
         }
 
         fun formatCountDays(context: Context, dateTime: Date?): String {

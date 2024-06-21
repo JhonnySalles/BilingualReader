@@ -16,6 +16,8 @@ import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class HistoryViewModel(application: Application) : AndroidViewModel(application), Filterable {
@@ -47,7 +49,8 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
         if (books != null)
             list.addAll(books)
 
-        list = list.distinctBy { it.lastAccess }.sortedByDescending { it.sort }.toMutableList()
+        val format = DateTimeFormatter.ofPattern(GeneralConsts.PATTERNS.DATE_TIME_PATTERN)
+        list = list.sortedByDescending { it.sort }.distinctBy { it.lastAccess!!.format(format) }.toMutableList()
 
         mListFull.value = ArrayList(list)
         mList.value = ArrayList(list)
@@ -64,7 +67,8 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
         if (books != null)
             list.addAll(books)
 
-        list = list.distinctBy { it.lastAccess }.sortedByDescending { it.sort }.toMutableList()
+        val format = DateTimeFormatter.ofPattern(GeneralConsts.PATTERNS.DATE_TIME_PATTERN)
+        list = list.sortedByDescending { it.sort }.distinctBy { it.lastAccess!!.format(format) }.toMutableList()
 
         if (mList.value == null || mList.value!!.isEmpty()) {
             mList.value = ArrayList(list)

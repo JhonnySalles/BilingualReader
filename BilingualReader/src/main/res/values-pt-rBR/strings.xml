@@ -23,6 +23,7 @@
 
     <string name="date_format_unknown">desconhecido</string>
     <string name="date_format_today">Hoje</string>
+    <string name="date_format_yesterday">Ontem</string>
     <string name="date_format_day_ago">%s dias atrás.</string>
 
     <string-array name="mouth_descriptions">
