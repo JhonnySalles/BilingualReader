@@ -889,6 +889,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
             GeneralConsts.REQUEST.BOOK_ANNOTATION -> {
+                mViewModel.refreshAnnotations(mBook)
+                mViewPager.adapter!!.notifyDataSetChanged()
+
                 if (data?.extras != null && data.extras!!.containsKey(GeneralConsts.KEYS.OBJECT.BOOK_ANNOTATION)) {
                     val annotation = data.extras!!.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK_ANNOTATION) as BookAnnotation
 
@@ -901,6 +904,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     } else if (annotation.page > 0)
                         setCurrentPage(annotation.page + 1, isAnimated = false)
                 }
+
                 setFullscreen(true)
             }
             GeneralConsts.REQUEST.BOOK_SEARCH -> {

@@ -9,6 +9,7 @@ import br.com.fenix.bilingualreader.model.entity.ShareItem
 import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.BookAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.HistoryRepository
@@ -167,6 +168,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                         share.filter { it.alter }.forEach {
                             it.sync = Date()
                             cloud[it.file] = it
+                            it.refreshHistory(repositoryHistory.find(Type.MANGA, it.idLibrary, it.id))
                         }
 
                         val result = collection.document(mUser + MANGA).set(cloud)
@@ -319,6 +321,8 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                         share.filter { it.alter }.forEach {
                             it.sync = Date()
                             data[it.file] = it
+                            it.refreshHistory(repositoryHistory.find(Type.BOOK, it.idLibrary, it.id))
+                            it.refreshAnnotations(repositoryAnnotation.findByBook(it.id))
                         }
 
                         val result = collection.document(mUser + BOOK).set(data)

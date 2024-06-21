@@ -70,6 +70,16 @@ data class ShareItem(
     @Exclude
     @get:Exclude
     @Expose(serialize = false, deserialize = false)
+    var id: Long = 0
+
+    @Exclude
+    @get:Exclude
+    @Expose(serialize = false, deserialize = false)
+    var idLibrary: Long = 0
+
+    @Exclude
+    @get:Exclude
+    @Expose(serialize = false, deserialize = false)
     var alter: Boolean = false
 
     @Exclude
@@ -85,6 +95,9 @@ data class ShareItem(
         this.sync = (firebase[FIELD_SYNC] as Timestamp).toDate()
         if (firebase.containsKey(FIELD_HISTORY))
             getHistory(firebase[FIELD_HISTORY] as Map<String, *>)
+
+        if (firebase.containsKey(FIELD_ANNOTATION))
+            getAnnotation(firebase[FIELD_ANNOTATION] as Map<String, *>)
     }
 
     private fun getHistory(histories: Map<String, *>) {
@@ -102,6 +115,8 @@ data class ShareItem(
     ) {
         alter = true
         processed = true
+        id = manga.id ?: 0
+        idLibrary = manga.fkLibrary ?: 0
 
         for (history in list)
             this.history?.set(history.start.format(DateTimeFormatter.ofPattern(PARSE_DATE_TIME)), ShareHistory(history))
@@ -112,10 +127,24 @@ data class ShareItem(
     ) {
         alter = true
         processed = true
+        id = book.id ?: 0
+        idLibrary = book.fkLibrary ?: 0
 
         for (history in histories)
             this.history?.set(history.start.format(DateTimeFormatter.ofPattern(PARSE_DATE_TIME)), ShareHistory(history))
 
+        for (annotation in annotations)
+            this.annotation?.set(annotation.created.format(DateTimeFormatter.ofPattern(PARSE_DATE_TIME)), ShareAnnotation(annotation))
+    }
+
+    fun refreshHistory(histories: List<History>) {
+        this.history = mutableMapOf()
+        for (history in histories)
+            this.history?.set(history.start.format(DateTimeFormatter.ofPattern(PARSE_DATE_TIME)), ShareHistory(history))
+    }
+
+    fun refreshAnnotations(annotations: List<BookAnnotation>) {
+        this.annotation = mutableMapOf()
         for (annotation in annotations)
             this.annotation?.set(annotation.created.format(DateTimeFormatter.ofPattern(PARSE_DATE_TIME)), ShareAnnotation(annotation))
     }

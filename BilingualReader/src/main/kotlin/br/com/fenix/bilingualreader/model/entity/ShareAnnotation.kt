@@ -97,11 +97,27 @@ data class ShareAnnotation(
         const val FIELD_FAVORITE = "favorite"
         const val FIELD_COLOR = "color"
         const val FIELD_CREATED = "created"
+
+        private fun getFloat(field: Any?, default: Float): Float {
+            return try {
+                (field as Double).toFloat()
+            } catch (e: Exception) {
+                try {
+                    (field as Float)
+                } catch (e: Exception) {
+                    try {
+                        (field as Long).toFloat()
+                    } catch (e: Exception) {
+                        default
+                    }
+                }
+            }
+        }
     }
 
     constructor(firebase: Map<String, *>) : this(
-        (firebase[FIELD_PAGE] as Long).toInt(), (firebase[FIELD_PAGES] as Long).toInt(), firebase[FIELD_FONT_SIZE] as Float, firebase[FIELD_TYPE] as String,
-        firebase[FIELD_CHAPTER_NUMBER] as Float, firebase[FIELD_CHAPTER] as String, firebase[FIELD_TEXT] as String,
+        (firebase[FIELD_PAGE] as Long).toInt(), (firebase[FIELD_PAGES] as Long).toInt(), getFloat(firebase[FIELD_FONT_SIZE], GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT), firebase[FIELD_TYPE] as String,
+        getFloat(firebase[FIELD_CHAPTER_NUMBER], 0f), firebase[FIELD_CHAPTER] as String, firebase[FIELD_TEXT] as String,
         firebase[FIELD_RANGE] as String, firebase[FIELD_ANNOTATION] as String, firebase[FIELD_FAVORITE] as Boolean,  firebase[FIELD_COLOR] as String,
         (firebase[FIELD_CREATED] as Timestamp).toDate(),
     )

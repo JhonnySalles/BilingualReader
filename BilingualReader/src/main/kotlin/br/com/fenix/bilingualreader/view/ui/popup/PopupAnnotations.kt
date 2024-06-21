@@ -61,7 +61,7 @@ class PopupAnnotations(var context: Context) {
                 mAnnotation.annotation = mEdit.text.toString()
                 annotation.update(mAnnotation)
                 if (annotation.id == null)
-                    mRepository.save(annotation)
+                    annotation.id = mRepository.save(annotation)
                 else
                     mRepository.update(annotation)
                 mPopup.dismiss()
