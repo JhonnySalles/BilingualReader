@@ -640,32 +640,6 @@ abstract class BookAnnotationDAO : BaseDAO<BookAnnotation, Long>(DataBaseConsts.
     @Query("SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " ORDER BY " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + ", ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION} DESC")
     abstract fun findAllOrderByBook() : List<BookAnnotation>
 
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
-    @Query(
-        "SELECT * FROM ( " +
-                " SELECT ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ID}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGE}, " +
-                "        ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGES}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FONT_SIZE}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TYPE}, " +
-                "        ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER_NUMBER}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TEXT}, " +
-                "        ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ANNOTATION}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FAVORITE}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COLOR}, " +
-                "        ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.RANGE}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CREATED}, " +
-                "        0 AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COUNT} " +
-                " FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME +
-                " WHERE " + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + " = :idBook " +
-                "UNION" +
-                " SELECT null AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ID}, 0 AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK}, 0 AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGE}, " +
-                "        0 AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGES}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FONT_SIZE}, 'BookMark' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TYPE}, " +
-                "        mark.${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER_NUMBER}, mark.${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER}, '' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TEXT}, " +
-                "        '' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ANNOTATION}, false AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FAVORITE}, 'None' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COLOR}, " +
-                "        '' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.RANGE}, '2000-01-01T00:00:00.000' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION}, '2000-01-01T00:00:00.000' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CREATED}, " +
-                "        (SELECT Count(*) FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " aux WHERE aux." + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + " = mark." + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + "" +
-                "         AND aux." + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER + " = mark." + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER + ") AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COUNT} " +
-                " FROM  " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " mark " +
-                " WHERE mark." + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + " = :idBook " +
-                " GROUP BY ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER_NUMBER}) " +
-                "ORDER BY ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER_NUMBER} ASC, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COUNT} DESC "
-    )
-    abstract fun list(idBook: Long): List<BookAnnotation>
-
     @Query(
         "SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook " +
         "ORDER BY ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION} DESC"

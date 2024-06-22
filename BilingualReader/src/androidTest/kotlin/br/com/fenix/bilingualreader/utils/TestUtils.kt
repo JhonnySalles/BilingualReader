@@ -414,8 +414,7 @@ class BookTestUtil {
                         (1..3).random() < 2,
                         colors[i]!!,
                         LocalDateTime.now(),
-                        LocalDateTime.now(),
-                        i
+                        LocalDateTime.now()
                     )
                 )
             }

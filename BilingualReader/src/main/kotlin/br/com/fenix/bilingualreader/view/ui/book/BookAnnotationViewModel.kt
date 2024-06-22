@@ -10,6 +10,7 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.MarkType
+import br.com.fenix.bilingualreader.model.interfaces.Annotation
 import br.com.fenix.bilingualreader.service.repository.BookAnnotationRepository
 import org.slf4j.LoggerFactory
 import java.util.Locale
@@ -55,7 +56,23 @@ class BookAnnotationViewModel(var app: Application) : AndroidViewModel(app), Fil
     }
 
     fun search(idBook: Long) {
-        val list = mRepository.findAll(idBook)
+        val list = mutableListOf<BookAnnotation>()
+        val annotations = mRepository.findAll(idBook)
+        var parent: Annotation? = null
+        for (annotation in annotations) {
+            if (list.none { it.isTitle && it.chapterNumber == annotation.chapterNumber }) {
+                val title = BookAnnotation(parent?.id_book ?: 0, annotation.chapterNumber, annotation.chapter, "", "", isTitle = true)
+                title.parent = parent
+                parent = title
+                list.add(title)
+            }
+
+            annotation.parent = parent
+            parent?.let { it.count++ }
+
+            list.add(annotation)
+        }
+
         mAnnotationFull.value = list.toMutableList()
         mAnnotation.value = list.toMutableList()
 
@@ -176,7 +193,7 @@ class BookAnnotationViewModel(var app: Application) : AndroidViewModel(app), Fil
     }
 
     private fun filtered(annotation: BookAnnotation?, filterPattern: String): Boolean {
-        if (annotation == null)
+        if (annotation == null || annotation.isTitle)
             return false
 
         if (mTypeFilter.value!!.isNotEmpty()) {
@@ -244,10 +261,25 @@ class BookAnnotationViewModel(var app: Application) : AndroidViewModel(app), Fil
 
             if (constraint.isNullOrEmpty() && mTypeFilter.value!!.isEmpty() && mColorFilter.value!!.isEmpty() && mChapterFilter.value!!.isEmpty()) {
                 filteredList.addAll(mAnnotationFull.value!!.filter(Objects::nonNull))
+
+                var parent: Annotation? = null
+                for (annotation in filteredList) {
+                    if (parent != annotation.parent) {
+                        parent = annotation.parent
+                        parent?.let { it.count = 0 }
+                    }
+                    parent?.let { it.count++ }
+                }
             } else {
-                filteredList.addAll(mAnnotationFull.value!!.filter {
-                    filtered(it, constraint.toString().lowercase(Locale.getDefault()).trim())
-                })
+                val newList = mAnnotationFull.value!!.filter { filtered(it, constraint.toString().lowercase(Locale.getDefault()).trim()) }
+                for (annotation in newList) {
+                    if (annotation.parent != null && !newList.contains(annotation.parent)) {
+                        filteredList.add(annotation.parent as BookAnnotation)
+                        annotation.parent!!.count = 0
+                    }
+                    filteredList.add(annotation)
+                    annotation.parent?.let { it.count++ }
+                }
             }
 
             val results = FilterResults()

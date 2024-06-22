@@ -6,13 +6,14 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
+import br.com.fenix.bilingualreader.model.interfaces.Annotation
 import br.com.fenix.bilingualreader.service.listener.BookAnnotationListener
 
 
 class AnnotationLineAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private lateinit var mListener: BookAnnotationListener
-    private var mAnnotationList: MutableList<Any> = arrayListOf()
+    private var mAnnotationList: MutableList<Annotation> = arrayListOf()
 
     companion object {
         private const val BOOK = 2
@@ -20,16 +21,16 @@ class AnnotationLineAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         private const val CONTENT = 0
     }
 
-    override fun getItemViewType(position: Int): Int = if (mAnnotationList[position] is Book) BOOK else if ((mAnnotationList[position] as BookAnnotation).id == null) TITLE else CONTENT
+    override fun getItemViewType(position: Int): Int = if (mAnnotationList[position].isRoot) BOOK else if (mAnnotationList[position].isTitle) TITLE else CONTENT
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val pos = holder.adapterPosition
         when (getItemViewType(position)) {
             BOOK -> {
-                (holder as AnnotationBookViewHolder).bind((mAnnotationList[position] as Book), pos == 0)
+                (holder as AnnotationBookViewHolder).bind((mAnnotationList[position] as BookAnnotation), pos == 0)
             }
             TITLE -> {
-                (holder as AnnotationTitleViewHolder).bind((mAnnotationList[position] as BookAnnotation), false)
+                (holder as AnnotationTitleViewHolder).bind((mAnnotationList[position] as BookAnnotation), mAnnotationList[position-1].isRoot)
             }
             else -> {
                 (holder as AnnotationViewHolder).bind((mAnnotationList[position] as BookAnnotation), pos)
@@ -58,7 +59,7 @@ class AnnotationLineAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return mAnnotationList.size
     }
 
-    fun updateList(list: MutableList<Any>) {
+    fun updateList(list: MutableList<Annotation>) {
         mAnnotationList = list
         notifyDataSetChanged()
     }
@@ -67,7 +68,7 @@ class AnnotationLineAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         mListener = listener
     }
 
-    fun notifyItemChanged(item: Any) {
+    fun notifyItemChanged(item: Annotation) {
         if (mAnnotationList.contains(item))
             notifyItemChanged(mAnnotationList.indexOf(item))
     }

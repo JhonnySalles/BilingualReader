@@ -207,7 +207,6 @@ class DataBaseConsts private constructor() {
             const val RANGE = "range"
             const val ALTERATION = "alteration"
             const val CREATED = "created"
-            const val COUNT = "count"
         }
     }
 

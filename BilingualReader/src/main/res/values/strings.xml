@@ -351,7 +351,7 @@
 
     <string name="book_annotation_note">Note</string>
 
-    <string name="book_annotation_list_divide_title" translatable="false">%f • %s</string>
+    <string name="book_annotation_list_divide_title" translatable="false">%s</string>
     <string name="book_annotation_list_divide_count" translatable="false">(%d)</string>
     <string name="book_annotation_list_title_detach">Page %d of %d • Detach</string>
     <string name="book_annotation_list_title_mark">Page %d of %d • Marker</string>

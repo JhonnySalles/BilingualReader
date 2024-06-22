@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory
 import java.util.Locale
 import java.util.Objects
 import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
+import br.com.fenix.bilingualreader.model.interfaces.Annotation
 
 
 class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filterable {
@@ -25,9 +26,9 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
 
     private val mLOGGER = LoggerFactory.getLogger(AnnotationViewModel::class.java)
 
-    private var mAnnotationFull = MutableLiveData<MutableList<Any>>(mutableListOf())
-    private var mAnnotation: MutableLiveData<MutableList<Any>> = MutableLiveData(arrayListOf())
-    val annotation: LiveData<MutableList<Any>> = mAnnotation
+    private var mAnnotationFull = MutableLiveData<MutableList<Annotation>>(mutableListOf())
+    private var mAnnotation: MutableLiveData<MutableList<Annotation>> = MutableLiveData(arrayListOf())
+    val annotation: LiveData<MutableList<Annotation>> = mAnnotation
     private var mWordFilter = ""
 
     private var mChapters: MutableLiveData<Map<String, Float>> = MutableLiveData(mapOf())
@@ -55,11 +56,27 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
     }
 
     fun findAll() {
-        val list = mutableListOf<Any>()
-        val annotations = mRepository.findAll()
+        val list = mutableListOf<Annotation>()
+        val annotations = mRepository.findAllOrderByBook()
+        var root: Annotation? = null
+        var parent: Annotation? = null
         for (annotation in annotations) {
-            if (list.none { it is Book && it.id == annotation.id_book })
-                list.add(mRepositoryBook.get(annotation.id_book)!!)
+            if (list.none { it.isRoot && it.id_book == annotation.id_book }) {
+                val book = mRepositoryBook.get(annotation.id_book)!!
+                root = BookAnnotation(book.id!!, 0f, "", book.title, book.fileName, isRoot = true, isTitle = true)
+                list.add(root)
+                parent = null
+            }
+
+            if (list.none { it.isTitle && it.chapterNumber == annotation.chapterNumber }) {
+                parent = BookAnnotation(parent?.id_book ?: 0, annotation.chapterNumber, annotation.chapter, "", "", isTitle = true)
+                parent.parent = root
+                list.add(parent)
+            }
+
+            annotation.parent = parent ?: root
+            parent?.let { it.count++ }
+
             list.add(annotation)
         }
 
@@ -71,7 +88,7 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
 
     fun getBook(id: Long): Book? = mRepositoryBook.get(id)
 
-    private fun getChapters(list: List<Any>) {
+    private fun getChapters(list: List<Annotation>) {
         val chapters = if (list.isNotEmpty())
             list.filterIsInstance<BookAnnotation>().sortedBy { it.chapter }.filter { it.chapter.isNotEmpty() }.associate { it.chapter to it.chapterNumber }
         else
@@ -88,7 +105,7 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
     }
 
     fun getAndRemove(position: Int): BookAnnotation? {
-        if (mAnnotation.value!!.get(position) is Book)
+        if (mAnnotation.value!![position].isTitle)
             return null
 
         val annotation = if (mAnnotation.value != null) mAnnotation.value!!.removeAt(position) else return null
@@ -186,14 +203,11 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
         return mAnnotationFilter
     }
 
-    private fun filtered(any: Any?, filterPattern: String): Boolean {
-        if (any == null)
+    private fun filtered(annotation: Annotation?, filterPattern: String): Boolean {
+        if (annotation == null || annotation.isTitle)
             return false
 
-        if (any is Book)
-            return true
-
-        val annotation = any as BookAnnotation
+        val annotation = annotation as BookAnnotation
         if (mTypeFilter.value!!.isNotEmpty()) {
             var condition = false
             mTypeFilter.value!!.forEach {
@@ -252,17 +266,37 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
         return filterPattern.isEmpty() || text
     }
 
+    private fun addParent(list: MutableList<Annotation>, annotation: Annotation) {
+        if (annotation.parent == null || list.contains(annotation.parent))
+            return
+        addParent(list, annotation.parent!!)
+        annotation.parent!!.count = 0
+        list.add(annotation.parent!!)
+    }
+
     private val mAnnotationFilter = object : Filter() {
         override fun performFiltering(constraint: CharSequence?): FilterResults {
             mWordFilter = constraint.toString()
-            val filteredList: MutableList<Any> = mutableListOf()
+            val filteredList: MutableList<Annotation> = mutableListOf()
 
             if (constraint.isNullOrEmpty() && mTypeFilter.value!!.isEmpty() && mColorFilter.value!!.isEmpty() && mChapterFilter.value!!.isEmpty()) {
                 filteredList.addAll(mAnnotationFull.value!!.filter(Objects::nonNull))
+
+                var parent: Annotation? = null
+                for (annotation in filteredList) {
+                    if (parent != annotation.parent) {
+                        parent = annotation.parent
+                        parent?.let { it.count = 0 }
+                    }
+                    parent?.let { it.count++ }
+                }
             } else {
-                filteredList.addAll(mAnnotationFull.value!!.filter {
-                    filtered(it, constraint.toString().lowercase(Locale.getDefault()).trim())
-                })
+                val newList = mAnnotationFull.value!!.filter { filtered(it, constraint.toString().lowercase(Locale.getDefault()).trim()) }
+                for (annotation in newList) {
+                    addParent(filteredList, annotation)
+                    filteredList.add(annotation)
+                    annotation.parent?.let { it.count++ }
+                }
             }
 
             val results = FilterResults()
@@ -272,9 +306,9 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
         }
 
         override fun publishResults(constraint: CharSequence?, filterResults: FilterResults?) {
-            val list = mutableListOf<Any>()
+            val list = mutableListOf<Annotation>()
             filterResults?.let {
-                list.addAll(it.values as Collection<Any>)
+                list.addAll(it.values as Collection<Annotation>)
             }
             mAnnotation.value = list
         }
