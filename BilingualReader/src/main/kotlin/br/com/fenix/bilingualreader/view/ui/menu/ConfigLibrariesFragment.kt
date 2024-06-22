@@ -265,7 +265,7 @@ class ConfigLibrariesFragment : Fragment() {
         }
 
         mLibraryLanguageAutoComplete.setText(
-            mMapLanguage.filterValues { it == mLibraryTypeSelect }.keys.first(),
+            mMapLanguage.entries.first { it.value == mLibraryTypeSelect }.key,
             false
         )
 

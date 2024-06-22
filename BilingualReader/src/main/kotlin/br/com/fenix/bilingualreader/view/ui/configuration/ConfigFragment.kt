@@ -946,23 +946,23 @@ class ConfigFragment : Fragment() {
             )!!
         )
         mMangaLibraryOrderAutoComplete.setText(
-            mMangaMapOrder.filterValues { it == mMangaOrderSelect }.keys.first(),
+            mMangaMapOrder.entries.first { it.value == mMangaOrderSelect }.key,
             false
         )
         mMangaDefaultSubtitleLanguageAutoComplete.setText(
-            mMangaMapLanguage.filterValues { it == mMangaDefaultSubtitleLanguageSelect }.keys.first(),
+            mMangaMapLanguage.entries.first { it.value == mMangaDefaultSubtitleLanguageSelect }.key,
             false
         )
         mMangaSubtitleTranslateAutoComplete.setText(
-            mMangaMapLanguage.filterValues { it == mMangaDefaultSubtitleTranslateSelect }.keys.first(),
+            mMangaMapLanguage.entries.first { it.value == mMangaDefaultSubtitleTranslateSelect }.key,
             false
         )
         mMangaReaderComicModeAutoComplete.setText(
-            mMangaMapReaderMode.filterValues { it == mMangaReaderModeSelectType }.keys.first(),
+            mMangaMapReaderMode.entries.first { it.value == mMangaReaderModeSelectType }.key,
             false
         )
         mMangaPageModeAutoComplete.setText(
-            mMangaMapPageMode.filterValues { it == mMangaPageModeSelectType }.keys.first(),
+            mMangaMapPageMode.entries.first { it.value == mMangaPageModeSelectType }.key,
             false
         )
         mMangaShowClockAndBattery.isChecked = sharedPreferences.getBoolean(
@@ -1014,17 +1014,17 @@ class ConfigFragment : Fragment() {
         )
 
         mBookLibraryOrderAutoComplete.setText(
-            mBookMapOrder.filterValues { it == mBookOrderSelect }.keys.first(),
+            mBookMapOrder.entries.first { it.value == mBookOrderSelect }.key,
             false
         )
 
         mBookScrollingModeAutoComplete.setText(
-            mBookMapScrollingMode.filterValues { it == mBookScrollingModeSelect }.keys.first(),
+            mBookMapScrollingMode.entries.first { it.value == mBookScrollingModeSelect }.key,
             false
         )
 
         mBookReadingTTSAutoComplete.setText(
-            mBookMapReadingTTS.filterValues { it == mBookReadingTTSSelect }.keys.first(),
+            mBookMapReadingTTS.entries.first { it.value == mBookReadingTTSSelect }.key,
             false
         )
 
@@ -1065,7 +1065,7 @@ class ConfigFragment : Fragment() {
         )
 
         mConfigSystemShareMarkTypeAutoComplete.setText(
-            mConfigSystemShareMarkCloudMap.filterValues { it == mConfigSystemShareMarkCloudSelect }.keys.first(),
+            mConfigSystemShareMarkCloudMap.entries.first { it.value == mConfigSystemShareMarkCloudSelect }.key,
             false
         )
 
@@ -1115,7 +1115,7 @@ class ConfigFragment : Fragment() {
             )!!
         )
         mConfigSystemThemeModeAutoComplete.setText(
-            mMangaMapThemeMode.filterValues { it == mConfigSystemThemeModeSelect }.keys.first(),
+            mMangaMapThemeMode.entries.first { it.value == mConfigSystemThemeModeSelect }.key,
             false
         )
 

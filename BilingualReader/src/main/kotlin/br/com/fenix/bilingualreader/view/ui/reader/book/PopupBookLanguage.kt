@@ -105,10 +105,10 @@ class PopupBookLanguage : Fragment() {
 
         val tts = TextSpeech.valueOf(preferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS, TextSpeech.getDefault().toString())!!)
 
-        mBookReadingTTSAutoComplete.setText(mMapReadingTTS.filterValues { it == tts }.keys.first(), false)
+        mBookReadingTTSAutoComplete.setText(mMapReadingTTS.entries.first { it.value == tts }.key, false)
 
         val language = mViewModel.book.value?.language ?: Languages.ENGLISH
-        mBookLanguageAutoComplete.setText(mMapLanguage.filterValues { it == language }.keys.first(), false)
+        mBookLanguageAutoComplete.setText(mMapLanguage.entries.first { it.value == language }.key, false)
 
         mProcessJapaneseText.isChecked = preferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT, true)
         mTextWithFurigana.isChecked = preferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT, true)
@@ -122,15 +122,15 @@ class PopupBookLanguage : Fragment() {
             if (it == null)
                 mBookLanguageAutoComplete.setText("", false)
             else
-                mBookLanguageAutoComplete.setText(mMapLanguage.filterValues { lan -> lan == it.language }.keys.first(), false)
+                mBookLanguageAutoComplete.setText(mMapLanguage.entries.first { e -> e.value == it.language }.key, false)
         }
 
         mViewModel.ttsVoice.observe(viewLifecycleOwner) {
-            mBookReadingTTSAutoComplete.setText(mMapReadingTTS.filterValues { tts -> it == tts }.keys.first(), false)
+            mBookReadingTTSAutoComplete.setText(mMapReadingTTS.entries.first { tts -> it == tts.value }.key, false)
         }
 
         mViewModel.language.observe(viewLifecycleOwner) {
-            mBookLanguageAutoComplete.setText(mMapLanguage.filterValues { lang -> it == lang }.keys.first(), false)
+            mBookLanguageAutoComplete.setText(mMapLanguage.entries.first { e -> e.value == it }.key, false)
             changeLanguage(it)
         }
     }

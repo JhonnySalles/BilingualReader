@@ -170,7 +170,7 @@ class BookAnnotationViewModel(var app: Application) : AndroidViewModel(app), Fil
     fun filterChapter(filter: String, isRemove: Boolean = false) = filterChapter(mChapters.value!![filter]!!, isRemove)
 
     fun filterChapter(filter: Float, isRemove: Boolean = false) {
-        val chapter = mChapters.value!!.filterValues { it == filter }.keys.firstOrNull() ?: return
+        val chapter = mChapters.value!!.entries.firstOrNull { it.value == filter }?.key ?: return
 
         val list = mChapterFilter.value!!.toMutableMap()
 

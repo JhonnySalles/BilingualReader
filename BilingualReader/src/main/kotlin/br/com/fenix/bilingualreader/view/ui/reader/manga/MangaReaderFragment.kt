@@ -622,7 +622,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             it.setViewMode(mReaderMode)
         }
 
-        val id: Int = mResourceViewMode.filterValues { it == mode }.keys.first()
+        val id: Int = mResourceViewMode.entries.first { it.value == mode }.key
         val menuItem: MenuItem = toolbar.menu.findItem(id)
         menuItem.isChecked = true
     }

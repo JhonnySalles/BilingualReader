@@ -280,8 +280,13 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         mConfiguration.value?.let { saveBookConfiguration(it) }
     }
 
-    fun changeLanguage(language: Languages) {
+    fun changeLanguage(language: Languages, isLoad: Boolean = false) {
         mLanguage.value = language
+
+        if (!isLoad) {
+            mBook.value!!.language = language
+            mRepository.update(mBook.value!!)
+        }
 
         val isJapanese = language == Languages.JAPANESE
         if (isJapanese != this.isJapanese) {
@@ -318,7 +323,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     fun loadConfiguration(book: Book?) {
         mBook.value = book
 
-        changeLanguage(book?.language ?: Languages.ENGLISH)
+        changeLanguage(book?.language ?: Languages.ENGLISH, true)
 
         mConfiguration.value = if (book?.id != null) mRepository.findConfiguration(book.id!!) else null
         loadConfiguration(mConfiguration.value)
@@ -441,7 +446,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     fun loadFonts() = loadFonts(isJapanese)
 
     private fun loadFonts(isJapanese: Boolean) {
-        val fonts = FontType.values().sortedWith(compareBy({ if (isJapanese) it.isJapanese() else !it.isJapanese() }, { it == FontType.TimesNewRoman }, { it.name }))
+        val fonts = FontType.values().sortedWith(compareBy({ if (isJapanese) !it.isJapanese() else it.isJapanese() }, { it == FontType.TimesNewRoman }, { it.name }))
         mListFonts.value = fonts.map { Pair(it, it == mFontType.value) }.toMutableList()
     }
 

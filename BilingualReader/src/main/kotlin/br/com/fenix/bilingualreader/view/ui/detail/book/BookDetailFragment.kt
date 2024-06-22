@@ -241,7 +241,7 @@ class BookDetailFragment : Fragment() {
         mViewModel.book.observe(viewLifecycleOwner) {
             if (it != null) {
                 mBookLanguageAutoComplete.setText(
-                    mMapLanguage.filterValues { lan -> lan == it.language }.keys.first(),
+                    mMapLanguage.entries.first { lan -> lan.value == it.language }.key,
                     false
                 )
 
