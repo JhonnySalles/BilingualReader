@@ -16,6 +16,7 @@ import br.com.fenix.bilingualreader.model.entity.VocabularyManga
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.japanese.Formatter
+import br.com.fenix.bilingualreader.service.listener.BookParseListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -23,9 +24,12 @@ import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.book.VocabularyBookViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.manga.VocabularyMangaViewModel
+import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
@@ -360,13 +364,44 @@ class VocabularyRepository(var context: Context) {
                 try {
                     Formatter.initializeAsync(context)
 
-                    val document = DocumentParse(book.path, book.password, GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT.toInt(), false)
+                    val openDocument: CompletableJob = Job()
+                    var loaded = false
+                    val listener = object : BookParseListener {
+                        override fun onLoading(isFinished: Boolean, isLoaded: Boolean) {
+                            if (isFinished)
+                                openDocument.complete()
+                            loaded = isLoaded
+                        }
+
+                        override fun onSearching(isSearching: Boolean) {
+                            TODO("Not yet implemented")
+                        }
+
+                        override fun onConverting(isConverting: Boolean) {
+                            TODO("Not yet implemented")
+                        }
+
+                    }
+
+                    val document = DocumentParse(book.path, book.password, GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT.toInt(), false, listener)
+                    joinAll(openDocument) // Await book open
+
+                    if (!loaded)
+                        return@async
+
                     val list = mutableListOf<Vocabulary>()
 
-                    for (i in 0 until document.pageCount) {
+                    val pages = document.pageCount
+                    for (i in 0 until pages) {
                         val page = document.getPage(i).pageHTML
                         if (page != null && page.isNotEmpty())
                             list.addAll(Formatter.generateVocabulary(page))
+
+                        withContext(Dispatchers.Main) {
+                            notification.setProgress(pages, i, false)
+                            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                                notificationManager.notify(notifyId, notification.build())
+                        }
                     }
 
                     val vocabulary = list.stream().distinct()
@@ -393,9 +428,10 @@ class VocabularyRepository(var context: Context) {
 
                         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
                             notificationManager.notify(notifyId, notification.build())
+
+                        Toast.makeText(context, mMsgImport, Toast.LENGTH_SHORT).show()
                     }
 
-                    Toast.makeText(context, mMsgImport, Toast.LENGTH_SHORT).show()
                 } catch (e: Exception) {
                     mLOGGER.error("Error process book vocabulary. ", e)
 
