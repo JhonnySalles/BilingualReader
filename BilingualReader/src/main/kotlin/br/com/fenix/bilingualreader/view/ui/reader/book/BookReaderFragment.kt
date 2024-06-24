@@ -397,7 +397,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             mStorage.updateBookMark(mBook!!)
         }
         mViewModel.history?.let {
-            it.pageEnd = mCurrentPage
+            it.pageEnd = mCurrentPage + 1
             it.setEnd(LocalDateTime.now())
             it.id = mHistoryRepository.save(it)
         }
@@ -1163,7 +1163,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         average /= mPagesAverage.size
         mViewModel.history?.let {
             if (!isOnlyCalculate) {
-                it.pageEnd = mCurrentPage
+                it.pageEnd = mCurrentPage + 1
                 it.setEnd(LocalDateTime.now())
             }
             it.averageTimeByPage = average

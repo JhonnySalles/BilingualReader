@@ -287,7 +287,7 @@ class StatisticsFragment : Fragment() {
         for (i in 1 until (max + 1)) {
             val stats = list.find { it.dateTime?.month?.value?.toFloat() == i.toFloat() }
             if (stats != null)
-                values.add(Entry(i.toFloat(), stats.read.toFloat()))
+                values.add(Entry(i.toFloat(), stats.readByMonth.toFloat()))
             else
                 values.add(Entry(i.toFloat(), 0F))
         }

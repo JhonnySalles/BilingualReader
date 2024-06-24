@@ -340,6 +340,8 @@ class DataBaseConsts private constructor() {
             const val TOTAL_READ_PAGES = "total_read_pages"
             const val TOTAL_READ_SECONDS = "total_read_seconds"
 
+            const val READ_BY_MONTH = "read_by_month"
+
             const val DATE_TIME = "date_time"
             const val TYPE = "type"
         }

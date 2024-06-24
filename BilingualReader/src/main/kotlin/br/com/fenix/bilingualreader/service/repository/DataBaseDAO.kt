@@ -715,6 +715,7 @@ abstract class StatisticsDAO {
                 "          SUM(COALESCE(CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " > 0 AND B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " < B." + DataBaseConsts.BOOK.COLUMNS.PAGES + " THEN (H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ") ELSE 0 END, 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ", " +
                 "          SUM(COALESCE(CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " > 0 AND B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " < B." + DataBaseConsts.BOOK.COLUMNS.PAGES + " THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END, 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
                 "          SUM(COALESCE(H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ", 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ", SUM(COALESCE(H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + ", 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
+                "          SUM(COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " >= B." + DataBaseConsts.BOOK.COLUMNS.PAGES + " THEN 1 ELSE 0 END, 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + "," +
                 "          H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START +
                 "   FROM " + DataBaseConsts.BOOK.TABLE_NAME + " B " +
                 "   LEFT JOIN " + DataBaseConsts.HISTORY.TABLE_NAME + " H ON H." + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = 'BOOK' " +
@@ -731,6 +732,7 @@ abstract class StatisticsDAO {
                 "          SUM(COALESCE(CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " > 0 AND M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " < M." + DataBaseConsts.MANGA.COLUMNS.PAGES + " THEN (H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ") ELSE 0 END, 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ", " +
                 "          SUM(COALESCE(CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " > 0 AND M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " < M." + DataBaseConsts.MANGA.COLUMNS.PAGES + " THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END, 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
                 "          SUM(COALESCE(H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ", 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ", SUM(COALESCE(H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + ", 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
+                "          SUM(COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " >= M." + DataBaseConsts.BOOK.COLUMNS.PAGES + " THEN 1 ELSE 0 END, 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + "," +
                 "          H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START +
                 "   FROM " + DataBaseConsts.MANGA.TABLE_NAME + " M " +
                 "   LEFT JOIN " + DataBaseConsts.HISTORY.TABLE_NAME + " H ON H." + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = 'MANGA' " +
@@ -750,25 +752,29 @@ abstract class StatisticsDAO {
                 "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
                 "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ", " +
                 "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
+                "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + ", " +
                 "  " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " AS " + DataBaseConsts.STATISTICS.COLUMNS.DATE_TIME
 
         const val SELECT = "SELECT " + SELECT_FIELDS +  ", 'MANGA' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " FROM (" + SELECT_MANGA +  ")" +
                 "   UNION ALL   " +
                 "  SELECT " + SELECT_FIELDS + ", 'BOOK' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " FROM (" + SELECT_BOOK +  ")"
 
-        private const val GROUP_BY_YEAR = " WHERE " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " = :type AND " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " >= :dateStart" +
+        private const val GROUP_BY_YEAR = " WHERE " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " >= :dateStart" +
                 "   AND " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " <= :dateEnd GROUP BY SUBSTR(" + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 6,7) "
 
-        const val SELECT_YEAR = "SELECT " + SELECT_FIELDS + ", 'MANGA' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " FROM (" + SELECT_MANGA +  ") " + GROUP_BY_YEAR +
-                "   UNION ALL   " +
-                "  SELECT " + SELECT_FIELDS + ", 'BOOK' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " FROM (" + SELECT_BOOK +  ") " + GROUP_BY_YEAR
+        const val SELECT_YEAR_MANGA = "SELECT " + SELECT_FIELDS + ", 'MANGA' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " FROM (" + SELECT_MANGA +  ") " + GROUP_BY_YEAR
+
+        const val SELECT_YEAR_BOOK = "  SELECT " + SELECT_FIELDS + ", 'BOOK' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " FROM (" + SELECT_BOOK +  ") " + GROUP_BY_YEAR
     }
 
     @Query(SELECT)
     abstract fun statistics(): List<Statistics>
 
-    @Query(SELECT_YEAR)
-    abstract fun statistics(type: Type, dateStart: LocalDateTime, dateEnd: LocalDateTime): List<Statistics>
+    @Query(SELECT_YEAR_BOOK)
+    abstract fun statisticsBook(dateStart: LocalDateTime, dateEnd: LocalDateTime): List<Statistics>
+
+    @Query(SELECT_YEAR_MANGA)
+    abstract fun statisticsManga(dateStart: LocalDateTime, dateEnd: LocalDateTime): List<Statistics>
 
     @Query("SELECT SUBSTR(" + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 1, 4) AS YEAR FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " GROUP BY YEAR")
     abstract fun listYears(): MutableList<Int>

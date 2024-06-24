@@ -15,12 +15,21 @@ class StatisticsRepository(var context: Context) {
 
     fun statistics(): List<Statistics> = mDataBase.statistics()
 
-    fun statistics(type: Type, dateStart: LocalDateTime, dateEnd: LocalDateTime): List<Statistics> = mDataBase.statistics(type, dateStart, dateEnd)
+    fun statistics(type: Type, dateStart: LocalDateTime, dateEnd: LocalDateTime): List<Statistics>  {
+        return when (type) {
+            Type.MANGA -> mDataBase.statisticsManga(dateStart, dateEnd)
+            Type.BOOK -> mDataBase.statisticsBook(dateStart, dateEnd)
+        }
+    }
 
     fun statistics(type: Type, year: Int): List<Statistics> {
         val dateStart = LocalDateTime.of(year, 1, 1, 0, 0)
         val dateEnd = LocalDateTime.of(year, 12, 31, 23, 59, 59)
-        return mDataBase.statistics(type, dateStart, dateEnd)
+
+        return when (type) {
+            Type.MANGA -> mDataBase.statisticsManga(dateStart, dateEnd)
+            Type.BOOK -> mDataBase.statisticsBook(dateStart, dateEnd)
+        }
     }
 
     fun listYears() = mDataBase.listYears()
