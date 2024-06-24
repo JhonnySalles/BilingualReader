@@ -180,11 +180,6 @@ class ConfigFragment : Fragment() {
     private lateinit var mBookMapScrollingMode: HashMap<String, ScrollingType>
     private lateinit var mBookMapReadingTTS: Map<String, TextSpeech>
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        DataBase.initializeBackup(requireContext())
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 

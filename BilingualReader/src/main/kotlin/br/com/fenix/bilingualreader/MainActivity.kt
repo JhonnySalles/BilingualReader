@@ -86,10 +86,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mMangaLibraryModel.isLaunch && mBookLibraryModel.isLaunch
         }
 
-        val isDark : Boolean = when (ThemeMode.valueOf(
-            GeneralConsts.getSharedPreferences(this)
-                .getString(GeneralConsts.KEYS.THEME.THEME_MODE, ThemeMode.SYSTEM.toString())!!
-        )) {
+        val isDark : Boolean = when (ThemeMode.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_MODE, ThemeMode.SYSTEM.toString())!!)) {
             ThemeMode.DARK -> {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                 true
@@ -111,8 +108,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         initializeBook()
         createNotificationChannel()
+        DataBase.initializeBackup(this)
 
-        //setContentView(R.layout.activity_main)
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)

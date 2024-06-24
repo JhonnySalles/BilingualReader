@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.service.repository
 
+import android.app.Activity
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
@@ -127,15 +128,14 @@ abstract class DataBase : RoomDatabase() {
 
 
         private lateinit var BACKUP : RoomBackup
-        fun initializeBackup(context: Context) {
+        fun initializeBackup(activity: Activity) {
             if (!::BACKUP.isInitialized)
-                BACKUP = RoomBackup(context)
+                BACKUP = RoomBackup(activity)
         }
 
         // Backup and restore
         fun backupDatabase(context: Context, file: File) {
-            BACKUP
-                .database(INSTANCE)
+            BACKUP.database(INSTANCE)
                 .enableLogDebug(true)
                 .backupLocation(RoomBackup.BACKUP_FILE_LOCATION_CUSTOM_FILE)
                 .backupLocationCustomFile(File(file.path))
@@ -155,8 +155,7 @@ abstract class DataBase : RoomDatabase() {
         }
 
         fun autoBackupDatabase(context: Context) {
-            BACKUP
-                .database(INSTANCE)
+            BACKUP.database(INSTANCE)
                 .enableLogDebug(true)
                 .backupLocation(RoomBackup.BACKUP_FILE_LOCATION_EXTERNAL)
                 .maxFileCount(5)
@@ -180,8 +179,7 @@ abstract class DataBase : RoomDatabase() {
         }
 
         fun restoreDatabase(context: Context, file: File) {
-            BACKUP
-                .database(INSTANCE)
+            BACKUP.database(INSTANCE)
                 .enableLogDebug(true)
                 .backupLocation(RoomBackup.BACKUP_FILE_LOCATION_CUSTOM_FILE)
                 .backupLocationCustomFile(File(file.path))

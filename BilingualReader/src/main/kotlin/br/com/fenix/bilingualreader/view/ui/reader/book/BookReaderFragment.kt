@@ -93,6 +93,7 @@ import br.com.fenix.bilingualreader.view.components.book.WebViewPage
 import br.com.fenix.bilingualreader.view.components.book.WebViewPager
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupTTS
+import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderFragment
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -852,16 +853,21 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(titleRes)
                 .setMessage(newBook.fileName)
-                .setPositiveButton(
-                    R.string.switch_action_positive
-                ) { _, _ ->
+                .setPositiveButton(R.string.switch_action_positive) { _, _ ->
+                    if (activity == null)
+                        return@setPositiveButton
+
+                    mViewModel.history?.let {
+                        it.pageEnd = mCurrentPage + 1
+                        it.setEnd(LocalDateTime.now())
+                        it.id = mHistoryRepository.save(it)
+                    }
+
                     confirm = true
                     val activity = requireActivity() as BookReaderActivity
                     activity.changeBook(mNewBook!!)
                 }
-                .setNegativeButton(
-                    R.string.switch_action_negative
-                ) { _, _ -> }
+                .setNegativeButton(R.string.switch_action_negative) { _, _ -> }
                 .setOnDismissListener {
                     if (!confirm) {
                         mNewBook = null

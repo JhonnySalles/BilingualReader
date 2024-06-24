@@ -1071,19 +1071,21 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         val dialog = MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
             .setTitle(titleRes)
             .setMessage(newManga.fileName)
-            .setPositiveButton(
-                R.string.switch_action_positive
-            ) { _, _ ->
+            .setPositiveButton(R.string.switch_action_positive) { _, _ ->
                 if (activity == null)
                     return@setPositiveButton
+
+                mViewModel.history?.let {
+                    it.pageEnd = mCurrentPage + 1
+                    it.setEnd(LocalDateTime.now())
+                    it.id = mHistoryRepository.save(it)
+                }
 
                 confirm = true
                 val activity = requireActivity() as MangaReaderActivity
                 activity.changeManga(mNewManga!!)
             }
-            .setNegativeButton(
-                R.string.switch_action_negative
-            ) { _, _ -> }
+            .setNegativeButton(R.string.switch_action_negative) { _, _ -> }
             .setOnDismissListener {
                 if (!confirm) {
                     mNewManga = null

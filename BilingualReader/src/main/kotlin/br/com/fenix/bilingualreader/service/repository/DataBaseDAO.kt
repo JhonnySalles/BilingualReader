@@ -760,7 +760,7 @@ abstract class StatisticsDAO {
                 "  SELECT " + SELECT_FIELDS + ", 'BOOK' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " FROM (" + SELECT_BOOK +  ")"
 
         private const val GROUP_BY_YEAR = " WHERE " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " >= :dateStart" +
-                "   AND " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " <= :dateEnd GROUP BY SUBSTR(" + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 6,7) "
+                "   AND " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " <= :dateEnd GROUP BY SUBSTR(" + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 6,2) "
 
         const val SELECT_YEAR_MANGA = "SELECT " + SELECT_FIELDS + ", 'MANGA' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " FROM (" + SELECT_MANGA +  ") " + GROUP_BY_YEAR
 
