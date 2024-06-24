@@ -152,7 +152,6 @@ class StatisticsFragment : Fragment() {
         try {
             mProgress.visibility = View.VISIBLE
 
-            mLOGGER.error(StatisticsDAO.SELECT)
             val statistics = mRepository.statistics()
 
             for (statistic in statistics) {

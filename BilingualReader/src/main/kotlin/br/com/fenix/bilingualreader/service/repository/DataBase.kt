@@ -70,6 +70,7 @@ abstract class DataBase : RoomDatabase() {
 
         lateinit var mAssets: AssetManager
         private lateinit var INSTANCE: DataBase
+
         fun getDataBase(context: Context): DataBase {
             if (!::INSTANCE.isInitialized)
                 mAssets = context.assets
@@ -124,10 +125,16 @@ abstract class DataBase : RoomDatabase() {
             }
         }
 
+
+        private lateinit var BACKUP : RoomBackup
+        fun initializeBackup(context: Context) {
+            if (!::BACKUP.isInitialized)
+                BACKUP = RoomBackup(context)
+        }
+
         // Backup and restore
         fun backupDatabase(context: Context, file: File) {
-            val backup = RoomBackup(context)
-            backup
+            BACKUP
                 .database(INSTANCE)
                 .enableLogDebug(true)
                 .backupLocation(RoomBackup.BACKUP_FILE_LOCATION_CUSTOM_FILE)
@@ -138,7 +145,7 @@ abstract class DataBase : RoomDatabase() {
                     onCompleteListener { success, message, exitCode ->
                         mLOGGER.warn("Backup database. success: $success, msg: $message, code: $exitCode.")
                         if (success)
-                            backup.restartApp(Intent(context, MainActivity::class.java))
+                            BACKUP.restartApp(Intent(context, MainActivity::class.java))
                         else {
                             mLOGGER.error("Error when backup database: $message.")
                             throw BackupError("Error when backup database")
@@ -148,8 +155,7 @@ abstract class DataBase : RoomDatabase() {
         }
 
         fun autoBackupDatabase(context: Context) {
-            val backup = RoomBackup(context)
-            backup
+            BACKUP
                 .database(INSTANCE)
                 .enableLogDebug(true)
                 .backupLocation(RoomBackup.BACKUP_FILE_LOCATION_EXTERNAL)
@@ -164,7 +170,7 @@ abstract class DataBase : RoomDatabase() {
                                 context.getString(R.string.config_database_backup_success),
                                 Toast.LENGTH_LONG
                             ).show()
-                            backup.restartApp(Intent(context, MainActivity::class.java))
+                            BACKUP.restartApp(Intent(context, MainActivity::class.java))
                         } else {
                             mLOGGER.error("Error when backup database", message)
                             throw BackupError("Error when backup database")
@@ -174,8 +180,7 @@ abstract class DataBase : RoomDatabase() {
         }
 
         fun restoreDatabase(context: Context, file: File) {
-            val backup = RoomBackup(context)
-            backup
+            BACKUP
                 .database(INSTANCE)
                 .enableLogDebug(true)
                 .backupLocation(RoomBackup.BACKUP_FILE_LOCATION_CUSTOM_FILE)
@@ -190,7 +195,7 @@ abstract class DataBase : RoomDatabase() {
                                 context.getString(R.string.config_database_restore_success),
                                 Toast.LENGTH_LONG
                             ).show()
-                            backup.restartApp(Intent(context, MainActivity::class.java))
+                            BACKUP.restartApp(Intent(context, MainActivity::class.java))
                         } else {
                             mLOGGER.error("Error when restore backup database", message)
                             throw ErrorRestoreDatabase("Error when restore file.")
