@@ -1164,7 +1164,7 @@ class TextUtil {
 
         fun clearHighlightWordInText(html: String): String = replaceHtmlTags(html)
 
-        fun getImageFromTag(html: String) = html.substringAfter("<img").substringBefore("/>")
+        fun getImageFromTag(html: String) = html.substringAfter("<img src=\"").substringBefore("\" />")
 
         fun isOnlyImageOnHtml(html: String): Boolean = html.contains("< ?(img)[^>]*>".toRegex()) && replaceHtmlTags(html).trim().isEmpty()
     }

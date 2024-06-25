@@ -566,7 +566,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         if (holder.isOnlyImage) {
             try {
                 val base64 = TextUtil.getImageFromTag(text)
-                val img = base64.substringAfter(",").replace("\"", "").trim()
+                val img = base64.substringAfter(",").trim()
                 val bmp = ImageUtil.decodeImageBase64(img)
                 holder.imageView.setImageBitmap(bmp)
             } catch (e: Exception) {
