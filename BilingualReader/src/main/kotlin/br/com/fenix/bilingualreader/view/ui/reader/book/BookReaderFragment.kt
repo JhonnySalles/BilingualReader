@@ -397,11 +397,13 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             mBook?.bookMark = getCurrentPage()
             mStorage.updateBookMark(mBook!!)
         }
+
         mViewModel.history?.let {
             it.pageEnd = mCurrentPage + 1
             it.setEnd(LocalDateTime.now())
             it.id = mHistoryRepository.save(it)
         }
+
         super.onPause()
     }
 
@@ -962,7 +964,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_SEARCH, null)
     }
 
-    private fun executeTTS(page: Int, initial: String = "") {
+    fun isTTTSPlaing(): Boolean = mTextToSpeech != null && mTextToSpeech!!.getStatus() == AudioStatus.PLAY
+
+    fun executeTTS(page: Int, initial: String = "") {
         if (mTextToSpeech == null) {
             setFullscreen(fullscreen = true)
             mTextToSpeech = TextToSpeechController(requireContext(), mBook!!, mParse, (mCoverImage.drawable as BitmapDrawable).bitmap, mViewModel.getFontSize(true).toInt())
@@ -990,7 +994,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 generateHistory(mBook!!)
                 mViewModel.history?.let { it.useTTS }
 
-                requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                try {
+                    requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                } catch (_: Exception) {
+                }
             }
 
             AudioStatus.PLAY -> {
@@ -1014,8 +1021,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 generateHistory(mBook!!)
                 try {
                     requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                } catch (e: Exception) {
-                    mLOGGER.error("Error stop TTS: " + e.message, e)
+                } catch (_: Exception) {
                 }
             }
         }
@@ -1341,6 +1347,14 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         TransitionManager.beginDelayedTransition(mRoot, transition)
         mLastPageContainer.visibility = if (isVisible) View.VISIBLE else View.GONE
+    }
+
+    fun onBackPressed(): Boolean {
+        return if (mTextToSpeech != null && mTextToSpeech!!.getStatus() == AudioStatus.PLAY) {
+            mTextToSpeech!!.stop()
+            false
+        } else
+            true
     }
 
 }

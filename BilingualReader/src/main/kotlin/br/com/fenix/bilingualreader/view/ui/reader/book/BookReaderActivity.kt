@@ -424,6 +424,9 @@ class BookReaderActivity : AppCompatActivity() {
             return
         }
 
+        if (mFragment != null && !mFragment!!.onBackPressed())
+            return
+
         super.onBackPressed()
         finish()
     }

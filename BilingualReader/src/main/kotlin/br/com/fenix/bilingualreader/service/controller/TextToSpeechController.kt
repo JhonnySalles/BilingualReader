@@ -236,6 +236,8 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
             changeNotification()
     }
 
+    fun getStatus() = mStatus
+
     private lateinit var mNotificationManager: NotificationManagerCompat
     private lateinit var mNotification: NotificationCompat.Builder
     private val mNotifyId = Notifications.getID()
@@ -433,7 +435,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
                     if (mPlayAudio) {
                         if (SHOW_LOG)
-                            mLOGGER.warn("Audio tts playing or preparing")
+                            mLOGGER.warn("Audio tts is playing")
                         Thread.sleep(250)
                         continue
                     }
