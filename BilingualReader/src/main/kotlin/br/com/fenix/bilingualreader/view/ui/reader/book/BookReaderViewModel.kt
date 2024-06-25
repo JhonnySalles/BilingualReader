@@ -24,6 +24,7 @@ import android.view.View
 import android.webkit.WebView
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.marginBottom
 import androidx.core.view.marginEnd
@@ -46,6 +47,7 @@ import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
 import br.com.fenix.bilingualreader.model.enums.TextSpeech
+import br.com.fenix.bilingualreader.model.enums.ThemeMode
 import br.com.fenix.bilingualreader.service.controller.WebInterface
 import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
@@ -130,6 +132,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private var isProcessJapaneseText = mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT, true)
     private var isFurigana = mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT, true)
     private val mAnnotation = mutableListOf<BookAnnotation>()
+    private var isDark : Boolean = false
 
     init {
         loadPreferences(false)
@@ -141,7 +144,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         return mDefaultCss
     }
 
-    fun getFontColor(): String = if (app.resources.getBoolean(R.bool.isNight)) "#ffffff" else "#000000"
+    fun getFontColor(): String = if (isDark) "#ffffff" else "#000000"
     fun getFontType(): String = fontType.value?.name ?: FontType.TimesNewRoman.name
 
     private fun getDiffer(): Float = if (isJapanese) DocumentParse.BOOK_FONT_JAPANESE_SIZE_DIFFER else DocumentParse.BOOK_FONT_SIZE_DIFFER
@@ -337,6 +340,19 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     }
 
     private fun loadPreferences(isJapanese: Boolean) {
+        isDark = when (ThemeMode.valueOf(mPreferences.getString(GeneralConsts.KEYS.THEME.THEME_MODE, ThemeMode.SYSTEM.toString())!!)) {
+            ThemeMode.DARK -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                true
+            }
+
+            ThemeMode.LIGHT -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                false
+            }
+            else -> app.resources.getBoolean(R.bool.isNight)
+        }
+
         mTTSVoice.value = TextSpeech.valueOf(mPreferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS, TextSpeech.getDefault().toString())!!)
 
         mAlignmentType.value = AlignmentLayoutType.valueOf(
