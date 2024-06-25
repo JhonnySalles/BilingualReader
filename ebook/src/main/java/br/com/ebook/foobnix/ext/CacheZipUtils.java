@@ -145,7 +145,7 @@ public class CacheZipUtils {
             ZipEntry nextEntry = null;
 
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
-            while ((nextEntry = entries.nextElement()) != null) {
+            while (entries.hasMoreElements() && (nextEntry = entries.nextElement()) != null) {
                 name = nextEntry.getName();
                 if (find) {
                     zipFile.close();
@@ -188,7 +188,7 @@ public class CacheZipUtils {
 
             ZipEntry nextEntry = null;
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
-            while ((nextEntry = entries.nextElement()) != null) {
+            while (entries.hasMoreElements() && (nextEntry = entries.nextElement()) != null) {
                 if (BookType.isSupportedExtByPath(nextEntry.getName())) {
                     File out = new File(folder.getDir(), nextEntry.getName());
                     BufferedOutputStream fileOutputStream = new BufferedOutputStream(new FileOutputStream(out));

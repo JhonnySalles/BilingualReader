@@ -46,7 +46,7 @@ public class CbzCbrExtractor {
                 Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
                 List<String> names = new ArrayList<String>();
-                while ((nextEntry = entries.nextElement()) != null) {
+                while (entries.hasMoreElements() && (nextEntry = entries.nextElement()) != null) {
                     String name = nextEntry.getName();
                     if (Config.SHOW_LOG)
                         LOG.d("Name", name);
@@ -61,7 +61,7 @@ public class CbzCbrExtractor {
                 nextEntry = null;
 
                 String first = names.get(0);
-                while ((nextEntry = entries.nextElement()) != null) {
+                while (entries.hasMoreElements() && (nextEntry = entries.nextElement()) != null) {
                     if (nextEntry.getName().equals(first)) {
                         CacheZipUtils.writeToStream(zipFile.getInputStream(nextEntry), out);
                         break;
