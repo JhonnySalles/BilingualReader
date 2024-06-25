@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -16,8 +15,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
@@ -118,6 +117,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
     }
 
     private var mLastDelay: Runnable? = null
+    private var mForcePlay: Runnable? = null
 
     private fun preparePlay(isPageChange: Boolean = false) {
         if (!::mThreadHandler.isInitialized)
@@ -388,11 +388,44 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 mPlayAudio = false
             }
 
+            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+                if (playbackState == ExoPlayer.STATE_READY) {
+                    if (mForcePlay != null) {
+                       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                           if (mMainHandler.hasCallbacks(mForcePlay!!))
+                               mMainHandler.removeCallbacks(mForcePlay!!)
+                       } else
+                           mMainHandler.removeCallbacks(mForcePlay!!)
+                   }
+
+                    mForcePlay = Runnable {
+                        mForcePlay = null
+                        mPlayAudio = false
+                        if (SHOW_LOG)
+                            mLOGGER.warn("Force play next audio by time duration...")
+                    }
+
+                    if (mPlayer.duration > C.TIME_UNSET)
+                        mMainHandler.postDelayed(mForcePlay!!, mPlayer.duration + 500L)
+                }
+            }
+
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 mPlayAudio = isPlaying
 
+                if (!isPlaying) {
+                    if (mForcePlay != null) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            if (mMainHandler.hasCallbacks(mForcePlay!!))
+                                mMainHandler.removeCallbacks(mForcePlay!!)
+                        } else
+                            mMainHandler.removeCallbacks(mForcePlay!!)
+                        mForcePlay = null
+                    }
+                }
+
                 if (SHOW_LOG)
-                    mLOGGER.warn(if (mPlayAudio) "Audio tts reproduced initialize..." else "Audio tts reproduced finished.")
+                    mLOGGER.warn(if (isPlaying) "Audio tts reproduced initialize..." else "Audio tts reproduced finished.")
             }
         })
 
@@ -486,7 +519,8 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                             if (mLine + i < mLines.size)
                                 generateTTS(mLines[mLine + i]) { }
                     } finally {
-                        Thread.sleep(1000)
+                        if (mPlayAudio)
+                            Thread.sleep(1000)
                     }
                 }
             } catch (e: Exception) {
@@ -525,6 +559,9 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 mLOGGER.error("Error to cancel tts notification.", e)
             }
         }
+
+        mMainHandler.removeCallbacksAndMessages(null)
+        mThreadHandler.removeCallbacksAndMessages(null)
 
         mMainHandler.post {
             mPlayer.release()
