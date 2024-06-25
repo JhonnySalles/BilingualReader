@@ -508,7 +508,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
     private fun formatHtml(page: Int, html: String): MutableList<Speech> {
         var sequence = 0
-        val lines = TextUtil.replaceEndLine(html, "\n").split(".", ",")
+        val lines = TextUtil.replaceImages(TextUtil.replaceEndLine(html, "\n")).split(".", ",")
             .map { Speech(page, ++sequence, TextUtil.replaceHtmlTTS(it).replace("\n", " "), TextUtil.replaceHtmlTags(it).replace(" \n", "\n").replace("\n ", "\n").trim()) }
         return lines.filter { it.text.trim().isNotEmpty() }.toMutableList()
     }

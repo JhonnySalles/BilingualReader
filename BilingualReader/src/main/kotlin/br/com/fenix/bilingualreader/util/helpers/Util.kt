@@ -1132,10 +1132,15 @@ class TextUtil {
             return page
         }
 
-        fun replaceHtmlTTS(html: String?, endLineSeparator: String = " "): String {
-            var page = html ?: return ""
+        fun replaceImages(html: String): String {
+            var page = html
             page = page.replace("<image-begin>[\\w\\W]*<image-end>".toRegex(), "")
             page = page.replace("< ?(img)[^>]*>".toRegex(), "")
+            return page
+        }
+
+        fun replaceHtmlTTS(html: String?, endLineSeparator: String = " "): String {
+            var page = html ?: return ""
             page = page.replace("</?[b|i]>|</?tt>|<p>".toRegex(), "")
             page = page.replace("</p>", " ")
             page = page.replace("<br/>".toRegex(), endLineSeparator)
@@ -1145,7 +1150,7 @@ class TextUtil {
             page = page.replace("  ", " ").replace("  ", " ")
             page = page.replace(".", ". ").replace(" .", ".")
             page = page.replace("(?u)(\\w+)(-\\s)".toRegex(), "$1")
-            return replaceHtmlTags(page)
+            return replaceHtmlTags(page).trim()
         }
 
         fun replaceHtmlTags(html: String): String = html.replace("<[^>]*>".toRegex(), "")
