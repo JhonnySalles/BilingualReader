@@ -409,6 +409,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         mTextToSpeech?.stop()
         SharedData.setDocumentParse(null)
         removeRefreshSizeDelay()
+        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onDestroy()
     }
 
@@ -1011,7 +1012,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             AudioStatus.STOP -> {
                 mReaderTTSPlay.setIconResource(R.drawable.ic_tts_close)
                 generateHistory(mBook!!)
-                requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                try {
+                    requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                } catch (e: Exception) {
+                    mLOGGER.error("Error stop TTS: " + e.message, e)
+                }
             }
         }
     }
