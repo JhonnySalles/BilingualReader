@@ -26,10 +26,6 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.marginBottom
-import androidx.core.view.marginEnd
-import androidx.core.view.marginStart
-import androidx.core.view.marginTop
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -569,7 +565,9 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
         if (holder.isOnlyImage) {
             try {
-                val bmp = ImageUtil.decodeImageBase64(TextUtil.getImageFromTag(text).substringAfter(",").trim())
+                val base64 = TextUtil.getImageFromTag(text)
+                val img = base64.substringAfter(",").replace("\"", "").trim()
+                val bmp = ImageUtil.decodeImageBase64(img)
                 holder.imageView.setImageBitmap(bmp)
             } catch (e: Exception) {
                 mLOGGER.error("Error to generate image.", e)
