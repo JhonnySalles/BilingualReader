@@ -22,16 +22,18 @@ class ImageGetter(val context: Context, val textView: TextView) : Html.ImageGett
             val image = TextUtil.getImageFromTag(text)
             var bmp = ImageUtil.decodeImageBase64(image.substringAfter(",").trim())
 
-            val screenWith = if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) context.resources.displayMetrics.heightPixels else context.resources.displayMetrics.widthPixels
+            if (bmp != null) {
+                val screenWith = if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) context.resources.displayMetrics.heightPixels else context.resources.displayMetrics.widthPixels
 
-            if (bmp.width > screenWith) {
-                val height = bmp.height * (screenWith.toFloat() / bmp.width)
-                bmp = Bitmap.createScaledBitmap(bmp, screenWith, height.toInt(), false)
+                if (bmp.width > screenWith) {
+                    val height = bmp.height * (screenWith.toFloat() / bmp.width)
+                    bmp = Bitmap.createScaledBitmap(bmp, screenWith, height.toInt(), false)
+                }
+
+                drawable = BitmapDrawable(context.resources, bmp)
+                drawable.mutate()
+                drawable.setBounds(0, 0, bmp.width, bmp.height)
             }
-
-            drawable = BitmapDrawable(context.resources, bmp)
-            drawable.mutate()
-            drawable.setBounds(0, 0, bmp.width, bmp.height)
         } catch (e: Exception) {
             mLOGGER.error("Error to load image", e)
         }

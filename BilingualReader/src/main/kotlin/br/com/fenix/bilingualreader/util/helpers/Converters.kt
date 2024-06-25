@@ -10,7 +10,7 @@ class Converters {
 
     @TypeConverter
     fun fromBase64(image: String): Bitmap {
-        return ImageUtil.decodeImageBase64(image)
+        return ImageUtil.decodeImageBase64(image)!!
     }
 
     @TypeConverter

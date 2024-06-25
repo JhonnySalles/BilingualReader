@@ -852,7 +852,7 @@ class ImageUtil {
             )
         }
 
-        fun decodeImageBase64(image: String): Bitmap {
+        fun decodeImageBase64(image: String): Bitmap? {
             val imageBytes = android.util.Base64.decode(image, android.util.Base64.DEFAULT)
             return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
         }
