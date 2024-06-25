@@ -144,6 +144,8 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
         mRightZoomScale = if (isLandscape) PointF(displayMetrics.widthPixels.toFloat() * displayMetrics.density, 0f)  else PointF(displayMetrics.heightPixels.toFloat(), 0f)
     }
 
+    override fun isVisible(): Boolean = visibility == VISIBLE
+
     override fun autoScroll(isBack: Boolean): Boolean {
         val displayMetrics = Resources.getSystem().displayMetrics
 

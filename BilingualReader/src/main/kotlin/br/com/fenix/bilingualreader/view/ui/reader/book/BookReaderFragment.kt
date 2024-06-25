@@ -1218,12 +1218,22 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 return true
 
             if (position == Position.LEFT || position == Position.RIGHT) {
-                val id = if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE) R.id.page_web_view else R.id.page_scroll_view
-                val view: AutoScroll? = (mViewPager[0] as RecyclerView).layoutManager?.findViewByPosition(mViewPager.currentItem)?.findViewById(id)
-                view?.let {
-                    val isBack = if (mIsLeftToRight) position == Position.LEFT else position == Position.RIGHT
-                    if (it.autoScroll(isBack))
-                        return true
+                if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE) {
+                    val view: AutoScroll? = (mViewPager[0] as RecyclerView).layoutManager?.findViewByPosition(mViewPager.currentItem)?.findViewById(R.id.page_web_view )
+                    view?.let {
+                        val isBack = if (mIsLeftToRight) position == Position.LEFT else position == Position.RIGHT
+                        if (it.autoScroll(isBack))
+                            return true
+                    }
+                } else {
+                    val textView: AutoScroll? =(mViewPager[0] as RecyclerView).layoutManager?.findViewByPosition(mViewPager.currentItem)?.findViewById(R.id.page_scroll_view)
+                    val imageView: AutoScroll? = (mViewPager[0] as RecyclerView).layoutManager?.findViewByPosition(mViewPager.currentItem)?.findViewById(R.id.page_image_view)
+                    val view = if (imageView != null && imageView.isVisible()) imageView else textView
+                    view?.let {
+                        val isBack = if (mIsLeftToRight) position == Position.LEFT else position == Position.RIGHT
+                        if (it.autoScroll(isBack))
+                            return true
+                    }
                 }
             }
 

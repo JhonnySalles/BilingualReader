@@ -125,6 +125,8 @@ class TextViewPager(
             holder.imageView.visibility = View.GONE
         }
 
+        holder.scrollView.visibility = holder.textView.visibility
+
         mHolders[position] = holder
         if (mSpeech != null && mSpeech!!.page == position)
             drawLineSpeech(holder.textView, mSpeech!!)
