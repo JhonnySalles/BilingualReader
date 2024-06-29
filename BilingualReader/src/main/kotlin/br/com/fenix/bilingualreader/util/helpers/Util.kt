@@ -1121,7 +1121,7 @@ class TextUtil {
         }
 
         fun formatHtml(html: String, endLine: String = "<br/>"): String {
-            return html.replace("<p>", "").replace("</p>", "").replace("<end-line>", endLine)
+            return replaceEndLine(html.replace("<p>", "").replace("</p>", ""), endLine)
         }
 
         fun replaceEndLine(html: String, character: String = ""): String {

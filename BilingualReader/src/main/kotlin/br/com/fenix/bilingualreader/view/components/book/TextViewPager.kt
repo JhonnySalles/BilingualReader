@@ -240,9 +240,9 @@ class TextViewPager(
     }
 
     private fun drawLineSpeech(textViewPage: TextViewPage, speech: Speech) {
-        val i: Int = textViewPage.text.indexOf(speech.html)
+        val start: Int = textViewPage.text.indexOf(speech.html)
 
-        if (i < 0)
+        if (start < 0)
             return
 
         val span = SpannableString(textViewPage.text)
@@ -255,7 +255,7 @@ class TextViewPager(
 
         span.setSpan(
             TTSTextColorSpan(context.getColorFromAttr(R.attr.colorOnSurfaceVariant)),
-            i, i + speech.html.length,
+            start, start + speech.html.length,
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
         )
         textViewPage.text = span

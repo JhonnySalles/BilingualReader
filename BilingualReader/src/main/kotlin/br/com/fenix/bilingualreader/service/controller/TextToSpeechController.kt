@@ -9,6 +9,7 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.text.Html
 import android.widget.Toast
 import androidx.annotation.OptIn
 import androidx.core.app.ActivityCompat
@@ -46,7 +47,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
     companion object {
         const val LIMIT_CACHE = 5
-        const val SHOW_LOG = false
+        const val SHOW_LOG = true
     }
 
     private var mListener = mutableListOf<TTSListener>()
@@ -544,8 +545,8 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
     private fun formatHtml(page: Int, html: String): MutableList<Speech> {
         var sequence = 0
-        val lines = TextUtil.replaceImages(TextUtil.replaceEndLine(html, "\n")).split(".")
-            .map { Speech(page, ++sequence, TextUtil.replaceHtmlTTS(it).replace("\n", " "), TextUtil.replaceHtmlTags(it).replace(" \n", "\n").replace("\n ", "\n").trim()) }
+        val lines = TextUtil.replaceImages(TextUtil.formatHtml(html)).split(".")
+            .map { Speech(page, ++sequence, TextUtil.replaceHtmlTTS(it).replace("<br/>", " ").replace(" -", "-"), Html.fromHtml(it).toString().trim()) }
         return lines.filter { it.text.trim().isNotEmpty() }.toMutableList()
     }
 
