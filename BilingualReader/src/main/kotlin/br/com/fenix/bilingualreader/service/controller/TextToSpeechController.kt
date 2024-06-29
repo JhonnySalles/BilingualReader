@@ -46,8 +46,8 @@ import java.util.stream.Collectors
 class TextToSpeechController(val context: Context, book: Book, parse: DocumentParse?, cover: Bitmap?, val fontSize: Int) {
 
     companion object {
-        const val LIMIT_CACHE = 5
-        const val SHOW_LOG = true
+        const val LIMIT_CACHE = 3
+        const val SHOW_LOG = false
     }
 
     private var mListener = mutableListOf<TTSListener>()
