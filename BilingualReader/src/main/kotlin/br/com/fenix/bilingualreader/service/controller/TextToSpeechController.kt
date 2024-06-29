@@ -40,6 +40,7 @@ import io.github.whitemagic2014.tts.TTSVoice
 import io.github.whitemagic2014.tts.bean.Voice
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.time.LocalTime
 import java.util.stream.Collectors
 
 
@@ -115,6 +116,16 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
     fun stop() {
         mStop = true
         setStatus(AudioStatus.STOP)
+        if (!::mThread.isInitialized || LocalTime.now().minusSeconds(10).isAfter(mLasExecution)) {
+            mLasExecution = LocalTime.now()
+            if (::mThread.isInitialized)
+                try {
+                    mThread.interrupt()
+                } catch (e: Exception) {
+                    mLOGGER.error("Error to stop tts.", e)
+                }
+            endingThread()
+        }
     }
 
     private var mLastDelay: Runnable? = null
@@ -367,6 +378,9 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
     private lateinit var mThreadHandler : Handler
     private lateinit var mPlayer: ExoPlayer
 
+    private lateinit var mThread: Thread
+    private var mLasExecution = LocalTime.now()
+
     @OptIn(UnstableApi::class)
     private fun execute(page: Int, initial: String) {
         setStatus(AudioStatus.PREPARE)
@@ -430,7 +444,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
             }
         })
 
-        Thread {
+        mThread = Thread {
             Looper.prepare()
 
             mThreadHandler = Handler(Looper.myLooper()!!)
@@ -457,6 +471,8 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 createNotification()
 
                 while (!mStop) {
+                    mLasExecution = LocalTime.now()
+
                     if (mPause) {
                         if (mStatus != AudioStatus.PAUSE)
                             setStatus(AudioStatus.PAUSE)
@@ -470,7 +486,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                     if (mPlayAudio) {
                         if (SHOW_LOG)
                             mLOGGER.warn("Audio tts is playing")
-                        Thread.sleep(250)
+                        Thread.sleep(500)
                         continue
                     }
 
@@ -528,13 +544,18 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 mLOGGER.error("Error to reading page on tts.", e)
                 Toast.makeText(context, context.getString(R.string.tts_error), Toast.LENGTH_LONG).show()
             } finally {
-                onDestroy()
-                setStatus(AudioStatus.ENDING)
-                mMainHandler.post {
-                    mListener.forEach { it.stopTTS() }
-                }
+                endingThread()
             }
-        }.start()
+        }
+        mThread.start()
+    }
+
+    private fun endingThread() {
+        onDestroy()
+        setStatus(AudioStatus.ENDING)
+        mMainHandler.post {
+            mListener.forEach { it.stopTTS() }
+        }
     }
 
     private fun generateCache() {

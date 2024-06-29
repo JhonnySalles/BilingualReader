@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader.view.ui.reader.book
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Resources
@@ -16,6 +17,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
 import android.text.Selection
 import android.text.Spannable
 import android.util.Base64
@@ -964,8 +966,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_SEARCH, null)
     }
 
-    fun isTTTSPlaing(): Boolean = mTextToSpeech != null && mTextToSpeech!!.getStatus() == AudioStatus.PLAY
-
     fun executeTTS(page: Int, initial: String = "") {
         if (mTextToSpeech == null) {
             setFullscreen(fullscreen = true)
@@ -1019,6 +1019,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             AudioStatus.STOP -> {
                 mReaderTTSPlay.setIconResource(R.drawable.ic_tts_close)
                 generateHistory(mBook!!)
+
                 try {
                     requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 } catch (_: Exception) {
