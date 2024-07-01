@@ -270,7 +270,18 @@ class TextViewPager(
     }
 
     override fun changePageTTS(old: Int, new: Int) {
-        notifyItemChanged(old)
+        if (mHolders.containsKey(old)){
+            val textView = mHolders[old]!!.textView
+            val span = SpannableString(textView.text)
+
+            val spannable = span.getSpans(0, span.length, TTSTextColorSpan::class.java)
+            if (spannable != null && spannable.isNotEmpty()) {
+                for (t in spannable.indices)
+                    span.removeSpan(spannable[t])
+            }
+            
+            textView.text = span
+        }
     }
 
     override fun stopTTS() {

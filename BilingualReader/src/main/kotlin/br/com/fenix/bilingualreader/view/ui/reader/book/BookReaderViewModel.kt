@@ -92,6 +92,9 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private var mTTSVoice: MutableLiveData<TextSpeech> = MutableLiveData(TextSpeech.getDefault())
     val ttsVoice: LiveData<TextSpeech> = mTTSVoice
 
+    private var mTTSSpeed: MutableLiveData<Float> = MutableLiveData(app.resources.getDimension(R.dimen.reader_tts_speed_default))
+    val ttsSpeed: LiveData<Float> = mTTSSpeed
+
     // --------------------------------------------------------- Fonts / Layout ---------------------------------------------------------
     private var mListFonts: MutableLiveData<MutableList<Pair<FontType, Boolean>>> = MutableLiveData(arrayListOf())
     val fonts: LiveData<MutableList<Pair<FontType, Boolean>>> = mListFonts
@@ -298,14 +301,13 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun changeTTSVoice(textSpeech: TextSpeech) {
-        mTTSVoice.value = textSpeech
+    fun changeTTSVoice(voice: TextSpeech, speed: Float) {
+        mTTSVoice.value = voice
+        mTTSSpeed.value = speed
 
         with(GeneralConsts.getSharedPreferences(app.applicationContext).edit()) {
-            this.putString(
-                GeneralConsts.KEYS.READER.BOOK_READER_TTS,
-                textSpeech.toString()
-            )
+            this.putString(GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE, voice.toString())
+            this.putFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, speed)
             this.commit()
         }
     }
@@ -349,7 +351,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             else -> app.resources.getBoolean(R.bool.isNight)
         }
 
-        mTTSVoice.value = TextSpeech.valueOf(mPreferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS, TextSpeech.getDefault().toString())!!)
+        mTTSVoice.value = TextSpeech.valueOf(mPreferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE, TextSpeech.getDefault().toString())!!)
+        mTTSSpeed.value = mPreferences.getFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, app.resources.getDimension(R.dimen.reader_tts_speed_default))
 
         mAlignmentType.value = AlignmentLayoutType.valueOf(
             mPreferences.getString(

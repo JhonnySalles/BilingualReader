@@ -4,20 +4,56 @@
     android:id="@+id/frame_popup_tts_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/popup_tts_voice"
-        style="@style/TextInputDropMenu"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_small"
-        android:hint="@string/popup_reading_language_tts_voice"
-        app:startIconDrawable="@drawable/ic_book_tts">
-
-        <com.google.android.material.textfield.MaterialAutoCompleteTextView
-            android:id="@+id/popup_menu_autocomplete_tts_voice"
-            style="@style/AutoCompleteDropMenu"
+        android:orientation="vertical">
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/popup_tts_voice"
+            style="@style/TextInputDropMenu"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/popup_reading_language_tts_voice"
+            app:startIconDrawable="@drawable/ic_book_tts">
 
-    </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/popup_menu_autocomplete_tts_voice"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                style="@style/TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin"
+                android:layout_marginEnd="@dimen/margin_small"
+                android:layout_gravity="center"
+                android:text="@string/popup_reading_tts_speed_slow"/>
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/popup_tts_speed"
+                style="@style/Slider.TTS"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxHeight="2dp"
+                android:minHeight="2dp"/>
+
+            <TextView
+                style="@style/TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginEnd="@dimen/margin"
+                android:layout_gravity="center"
+                android:text="@string/popup_reading_tts_speed_fast" />
+        </LinearLayout>
+    </LinearLayout>
 </FrameLayout>

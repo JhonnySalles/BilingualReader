@@ -296,6 +296,8 @@
     <string name="popup_reading_language_tts_voice">Voice</string>
     <string name="popup_reading_language_tts_voice_empty">Necessary inform one type of voice</string>
     <string name="popup_reading_language_tts_voice_not_locate">Voice selected is not locate</string>
+    <string name="popup_reading_tts_speed_slow">Slow</string>
+    <string name="popup_reading_tts_speed_fast">Fast</string>
 
     <!-- READER POPUP LAYOUT -->
     <string name="popup_reading_layout_scrolling_type">Scrolling type</string>

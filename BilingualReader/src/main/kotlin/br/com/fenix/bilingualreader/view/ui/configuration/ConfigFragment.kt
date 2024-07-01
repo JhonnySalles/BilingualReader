@@ -19,7 +19,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import br.com.fenix.bilingualreader.MainActivity
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.History
 import br.com.fenix.bilingualreader.model.enums.FontType
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Order
@@ -163,6 +162,7 @@ class ConfigFragment : Fragment() {
 
     private lateinit var mBookReadingTTS: TextInputLayout
     private lateinit var mBookReadingTTSAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mBookReadingSpeed: Slider
 
     private lateinit var mBookFontTypeNormal: TwoWayView
     private lateinit var mBookFontTypeJapanese: TwoWayView
@@ -199,6 +199,7 @@ class ConfigFragment : Fragment() {
 
         mBookReadingTTS = view.findViewById(R.id.config_book_tts_voice)
         mBookReadingTTSAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_tts_voice)
+        mBookReadingSpeed = view.findViewById(R.id.config_book_tts_speed)
 
         mBookFontTypeNormal = view.findViewById(R.id.config_book_list_fonts_normal)
         mBookFontTypeJapanese = view.findViewById(R.id.config_book_list_fonts_japanese)
@@ -835,8 +836,13 @@ class ConfigFragment : Fragment() {
             )
 
             this.putString(
-                GeneralConsts.KEYS.READER.BOOK_READER_TTS,
+                GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE,
                 mBookReadingTTSSelect.toString()
+            )
+
+            this.putFloat(
+                GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED,
+                mBookReadingSpeed.value
             )
 
             this.putBoolean(
@@ -1008,10 +1014,12 @@ class ConfigFragment : Fragment() {
 
         mBookReadingTTSSelect = TextSpeech.valueOf(
             sharedPreferences.getString(
-                GeneralConsts.KEYS.READER.BOOK_READER_TTS,
+                GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE,
                 TextSpeech.getDefault().toString()
             )!!
         )
+
+        mBookReadingSpeed.value = sharedPreferences.getFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, resources.getDimension(R.dimen.reader_tts_speed_default))
 
         mBookLibraryOrderAutoComplete.setText(
             mBookMapOrder.entries.first { it.value == mBookOrderSelect }.key,

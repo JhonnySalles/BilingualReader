@@ -251,6 +251,9 @@
     <dimen name="reader_tts_button_border_size">22dp</dimen>
     <dimen name="reader_tts_button_border_icon_size">19dp</dimen>
     <dimen name="reader_tts_button_margin_size">5dp</dimen>
+    <dimen name="reader_tts_speed_min">-10</dimen>
+    <dimen name="reader_tts_speed_max">10</dimen>
+    <dimen name="reader_tts_speed_default">0</dimen>
 
     <dimen name="popup_reader_title">15sp</dimen>
     <dimen name="popup_reader_file_page_name">10sp</dimen>

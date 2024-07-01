@@ -3,7 +3,6 @@ package br.com.fenix.bilingualreader.view.ui.reader.book
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Resources
@@ -17,7 +16,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.os.PowerManager
 import android.text.Selection
 import android.text.Spannable
 import android.util.Base64
@@ -95,7 +93,6 @@ import br.com.fenix.bilingualreader.view.components.book.WebViewPage
 import br.com.fenix.bilingualreader.view.components.book.WebViewPager
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupTTS
-import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderFragment
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -645,7 +642,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         }
 
         mViewModel.ttsVoice.observe(viewLifecycleOwner) {
-            mTextToSpeech?.setVoice(mViewModel.ttsVoice.value!!)
+            mTextToSpeech?.setVoice(mViewModel.ttsVoice.value!!, mViewModel.ttsSpeed.value!!)
         }
 
         if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
@@ -972,7 +969,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             mTextToSpeech = TextToSpeechController(requireContext(), mBook!!, mParse, (mCoverImage.drawable as BitmapDrawable).bitmap, mViewModel.getFontSize(true).toInt())
             mTextToSpeech!!.addListener(this)
             mTextToSpeech!!.addListener(mPagerAdapter as TTSListener)
-            mTextToSpeech!!.setVoice(mViewModel.ttsVoice.value!!)
+            mTextToSpeech!!.setVoice(mViewModel.ttsVoice.value!!, mViewModel.ttsSpeed.value!!)
             mTextToSpeech!!.start(page, initial)
         } else
             mTextToSpeech?.find(page, initial)
@@ -1040,11 +1037,12 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     private fun openMenuTTS() {
-        val old = mViewModel.ttsVoice.value
-        PopupTTS(requireContext()).getPopupTTS(old!!) {
-            if (old != it) {
-                mViewModel.changeTTSVoice(it)
-                mTextToSpeech?.setVoice(it)
+        val voice = mViewModel.ttsVoice.value
+        val speed = mViewModel.ttsSpeed.value
+        PopupTTS(requireContext()).getPopupTTS(voice!!, speed!!) { v, s ->
+            if (voice != v || speed != s) {
+                mViewModel.changeTTSVoice(v, s)
+                mTextToSpeech?.setVoice(v, s)
             }
         }
     }

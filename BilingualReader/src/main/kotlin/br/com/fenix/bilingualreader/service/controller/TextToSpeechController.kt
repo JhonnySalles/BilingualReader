@@ -15,6 +15,7 @@ import androidx.annotation.OptIn
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -69,20 +70,23 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
     init {
         val sharedPreferences = GeneralConsts.getSharedPreferences(context)
-        val language: TextSpeech = TextSpeech.valueOf(sharedPreferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS, TextSpeech.getDefault().toString())!!)
+        val language: TextSpeech = TextSpeech.valueOf(sharedPreferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE, TextSpeech.getDefault().toString())!!)
+        val speed: Float = sharedPreferences.getFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, context.resources.getDimension(R.dimen.reader_tts_speed_default))
         val providers = TTSVoice.provides()
 
         mVoice = if (providers.any { it.shortName.equals(language.getNameAzure(), ignoreCase = true) })
             providers.stream().filter { v: Voice -> v.shortName == language.getNameAzure() }.collect(Collectors.toList())[0]
         else
             providers.first()
+
+        mVoiceRate = if (speed < 0) "-$speed%" else "+$speed%"
     }
 
     fun addListener(listener: TTSListener) = mListener.add(listener)
 
     fun removeListener(listener: TTSListener) = mListener.remove(listener)
 
-    fun setVoice(language: TextSpeech, rate: Float = 0f, volume: Int = 0): Boolean {
+    fun setVoice(language: TextSpeech, rate: Float, volume: Int = 0): Boolean {
         return try {
             val providers = TTSVoice.provides()
 
@@ -95,7 +99,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
             val voice = providers.stream().filter { v: Voice -> v.shortName.equals(language.getNameAzure(), ignoreCase = true) }.collect(Collectors.toList())[0]
             val changeVoice = mVoice != voice
             mVoice = voice
-            mVoiceRate = "+$rate%"
+            mVoiceRate = if (rate < 0) "-$rate%" else "+$rate%"
             mVoiceVolume = "+$volume%"
 
             if (changeVoice)
@@ -560,8 +564,10 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
     private fun generateCache() {
         for (i in mLine until mLines.size)
-            if (i < mLines.size)
+            if (i < mLines.size) {
+                mLines[i].audio?.toFile()?.delete()
                 mLines[i].audio = null
+            }
     }
 
     private fun formatHtml(page: Int, html: String): MutableList<Speech> {

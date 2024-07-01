@@ -12,6 +12,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.TextSpeech
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import com.google.android.material.slider.Slider
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
@@ -28,6 +29,7 @@ class PopupBookLanguage : Fragment() {
     private lateinit var mBookLanguageAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mBookReadingTTS: TextInputLayout
     private lateinit var mBookReadingTTSAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mBookReadingSpeed: Slider
     private lateinit var mProcessJapaneseText: SwitchMaterial
     private lateinit var mTextWithFurigana: SwitchMaterial
 
@@ -41,6 +43,7 @@ class PopupBookLanguage : Fragment() {
         mBookLanguageAutoComplete = root.findViewById(R.id.popup_book_language_menu_autocomplete_book_language)
         mBookReadingTTS = root.findViewById(R.id.popup_book_language_tts_voice)
         mBookReadingTTSAutoComplete = root.findViewById(R.id.popup_book_language_menu_autocomplete_tts_voice)
+        mBookReadingSpeed = root.findViewById(R.id.popup_book_language_tts_speed)
         mProcessJapaneseText = root.findViewById(R.id.popup_book_language_process_japanese_text)
         mTextWithFurigana = root.findViewById(R.id.popup_book_language_text_with_furigana)
 
@@ -73,7 +76,7 @@ class PopupBookLanguage : Fragment() {
                 else
                     TextSpeech.getDefault()
 
-                mViewModel.changeTTSVoice(selected)
+                mViewModel.changeTTSVoice(selected, mBookReadingSpeed.value)
             }
 
         val preferences = GeneralConsts.getSharedPreferences(requireContext())
@@ -103,9 +106,10 @@ class PopupBookLanguage : Fragment() {
         }
 
 
-        val tts = TextSpeech.valueOf(preferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS, TextSpeech.getDefault().toString())!!)
+        val voice = TextSpeech.valueOf(preferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE, TextSpeech.getDefault().toString())!!)
 
-        mBookReadingTTSAutoComplete.setText(mMapReadingTTS.entries.first { it.value == tts }.key, false)
+        mBookReadingTTSAutoComplete.setText(mMapReadingTTS.entries.first { it.value == voice }.key, false)
+        mBookReadingSpeed.value = preferences.getFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, resources.getDimension(R.dimen.reader_tts_speed_default))
 
         val language = mViewModel.book.value?.language ?: Languages.ENGLISH
         mBookLanguageAutoComplete.setText(mMapLanguage.entries.first { it.value == language }.key, false)
