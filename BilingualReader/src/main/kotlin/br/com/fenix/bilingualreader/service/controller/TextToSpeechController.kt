@@ -71,7 +71,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
     init {
         val sharedPreferences = GeneralConsts.getSharedPreferences(context)
         val language: TextSpeech = TextSpeech.valueOf(sharedPreferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE, TextSpeech.getDefault().toString())!!)
-        val speed: Float = sharedPreferences.getFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, context.resources.getDimension(R.dimen.reader_tts_speed_default))
+        val speed: Float = sharedPreferences.getFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED_DEFAULT)
         val providers = TTSVoice.provides()
 
         mVoice = if (providers.any { it.shortName.equals(language.getNameAzure(), ignoreCase = true) })

@@ -92,7 +92,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private var mTTSVoice: MutableLiveData<TextSpeech> = MutableLiveData(TextSpeech.getDefault())
     val ttsVoice: LiveData<TextSpeech> = mTTSVoice
 
-    private var mTTSSpeed: MutableLiveData<Float> = MutableLiveData(app.resources.getDimension(R.dimen.reader_tts_speed_default))
+    private var mTTSSpeed: MutableLiveData<Float> = MutableLiveData(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED_DEFAULT)
     val ttsSpeed: LiveData<Float> = mTTSSpeed
 
     // --------------------------------------------------------- Fonts / Layout ---------------------------------------------------------
@@ -352,7 +352,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         }
 
         mTTSVoice.value = TextSpeech.valueOf(mPreferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE, TextSpeech.getDefault().toString())!!)
-        mTTSSpeed.value = mPreferences.getFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, app.resources.getDimension(R.dimen.reader_tts_speed_default))
+        mTTSSpeed.value = mPreferences.getFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED_DEFAULT)
 
         mAlignmentType.value = AlignmentLayoutType.valueOf(
             mPreferences.getString(

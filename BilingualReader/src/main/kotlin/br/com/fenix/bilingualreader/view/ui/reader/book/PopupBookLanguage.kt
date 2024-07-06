@@ -109,7 +109,7 @@ class PopupBookLanguage : Fragment() {
         val voice = TextSpeech.valueOf(preferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE, TextSpeech.getDefault().toString())!!)
 
         mBookReadingTTSAutoComplete.setText(mMapReadingTTS.entries.first { it.value == voice }.key, false)
-        mBookReadingSpeed.value = preferences.getFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, resources.getDimension(R.dimen.reader_tts_speed_default))
+        mBookReadingSpeed.value = preferences.getFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED_DEFAULT)
 
         val language = mViewModel.book.value?.language ?: Languages.ENGLISH
         mBookLanguageAutoComplete.setText(mMapLanguage.entries.first { it.value == language }.key, false)

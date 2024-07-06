@@ -198,6 +198,7 @@ class GeneralConsts private constructor() {
             const val BOOK_PROCESS_VOCABULARY = "BOOK_PROCESS_VOCABULARY"
             const val BOOK_READER_TTS_VOICE = "BOOK_READER_TTS_VOICE"
             const val BOOK_READER_TTS_SPEED = "BOOK_READER_TTS_SPEED"
+            const val BOOK_READER_TTS_SPEED_DEFAULT = 0f
         }
 
         object SYSTEM {

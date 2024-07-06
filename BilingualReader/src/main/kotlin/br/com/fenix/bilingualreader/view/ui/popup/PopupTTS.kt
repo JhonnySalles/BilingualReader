@@ -68,6 +68,7 @@ class PopupTTS(var context: Context) {
 
         readingTTSAutoComplete.setText(mMapReadingTTS.entries.first { it.value == mNewTTS }.key, false)
         mSpeedTTS.value = mNewSpeed
+        mSpeedTTS.addOnChangeListener { _, value, _ -> mNewSpeed = value }
 
         return root
     }

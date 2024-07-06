@@ -1019,7 +1019,7 @@ class ConfigFragment : Fragment() {
             )!!
         )
 
-        mBookReadingSpeed.value = sharedPreferences.getFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, resources.getDimension(R.dimen.reader_tts_speed_default))
+        mBookReadingSpeed.value = sharedPreferences.getFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED_DEFAULT)
 
         mBookLibraryOrderAutoComplete.setText(
             mBookMapOrder.entries.first { it.value == mBookOrderSelect }.key,

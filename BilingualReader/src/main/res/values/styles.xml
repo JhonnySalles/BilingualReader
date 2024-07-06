@@ -726,7 +726,7 @@
         <item name="android:valueFrom">@dimen/reader_tts_speed_min</item>
         <item name="android:valueTo">@dimen/reader_tts_speed_max</item>
         <item name="android:value">@dimen/reader_tts_speed_default</item>
-        <item name="android:stepSize">1</item>
+        <item name="android:stepSize">5</item>
     </style>
 
     <style name="IconHelp" >
