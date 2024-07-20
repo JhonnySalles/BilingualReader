@@ -155,6 +155,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private lateinit var mStorage: Storage
     private lateinit var mHistoryRepository : HistoryRepository
     private var mTextToSpeech: TextToSpeechController? = null
+    private var mDialog: AlertDialog? = null
 
     private var mIsSeekBarChange = false
     private var mPageStartReading = LocalDateTime.now()
@@ -847,12 +848,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     private fun confirmSwitch(newBook: Book?, titleRes: Int) {
-        if (newBook == null) return
+        if (newBook == null || mDialog != null) return
         var confirm = false
         mNewBook = newBook
         mNewBookTitle = titleRes
-        val dialog: AlertDialog =
-            MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+        mDialog = MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(titleRes)
                 .setMessage(newBook.fileName)
                 .setPositiveButton(R.string.switch_action_positive) { _, _ ->
@@ -871,13 +871,14 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 }
                 .setNegativeButton(R.string.switch_action_negative) { _, _ -> }
                 .setOnDismissListener {
+                    mDialog = null
                     if (!confirm) {
                         mNewBook = null
                         setFullscreen(fullscreen = true)
                     }
                 }
                 .create()
-        dialog.show()
+        mDialog?.show()
     }
 
     private fun openBookAnnotation() {

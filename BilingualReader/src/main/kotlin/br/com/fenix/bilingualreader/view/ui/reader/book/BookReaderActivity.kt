@@ -23,6 +23,7 @@ import android.widget.ProgressBar
 import android.widget.TextClock
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -101,6 +102,7 @@ class BookReaderActivity : AppCompatActivity() {
     private lateinit var mLibrary: Library
     private var mFragment: BookReaderFragment? = null
     private var mBook: Book? = null
+    private var mDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
@@ -275,6 +277,8 @@ class BookReaderActivity : AppCompatActivity() {
     fun setDots(dots: MutableList<Int>, inverse: MutableList<Int>) = mToolBarBottomProgress.setDots(dots.toIntArray(), inverse.toIntArray())
 
     private fun dialogPageIndex() {
+        if  (mDialog != null) return
+
         val currentFragment = supportFragmentManager.findFragmentById(R.id.root_frame_book_reader) ?: return
         val codec = (currentFragment as BookReaderFragment).mParse ?: return
 
@@ -321,14 +325,16 @@ class BookReaderActivity : AppCompatActivity() {
             true
         }
 
-        MaterialAlertDialogBuilder(this, R.style.AppCompatMaterialAlertList)
+        mDialog = MaterialAlertDialogBuilder(this, R.style.AppCompatMaterialAlertList)
             .setCustomTitle(title)
             .setItems(items) { _, selected ->
                 val pageNumber = chapters[items[selected]]
                 if (pageNumber != null && pageNumber.isNotEmpty())
                     currentFragment.setCurrentPage(pageNumber.toInt())
             }
-            .show()
+            .setOnDismissListener { mDialog = null }
+            .create()
+        mDialog?.show()
     }
 
     @SuppressLint("MissingSuperCall")

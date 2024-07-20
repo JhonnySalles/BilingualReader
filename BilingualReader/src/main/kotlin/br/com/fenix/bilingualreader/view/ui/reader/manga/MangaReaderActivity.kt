@@ -146,6 +146,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     private var mFragment: MangaReaderFragment? = null
     private var mManga: Manga? = null
     private var mMenuPopupBottomSheet: Boolean = false
+    private var mDialog: AlertDialog? = null
 
     companion object {
         private lateinit var mPopupTranslateTab: TabLayout
@@ -464,7 +465,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     private fun switchManga(isNext: Boolean = true) {
-        if (mManga == null) return
+        if (mManga == null || mDialog != null) return
 
         val changeManga = if (isNext)
             mStorage.getNextManga(mLibrary, mManga!!)
@@ -472,35 +473,25 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             mStorage.getPrevManga(mLibrary, mManga!!)
 
         if (changeManga == null) {
-            val content =
-                if (isNext) R.string.switch_next_comic_last_comic else R.string.switch_prev_comic_first_comic
+            val content = if (isNext) R.string.switch_next_comic_last_comic else R.string.switch_prev_comic_first_comic
             MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)
-                .setTitle(getString(R.string.switch_next_comic_not_found))
-                .setMessage(content)
-                .setPositiveButton(
-                    R.string.action_neutral
-                ) { _, _ ->
-                }
-                .create().show()
+                    .setTitle(getString(R.string.switch_next_comic_not_found))
+                    .setMessage(content)
+                    .setPositiveButton(R.string.action_neutral) { _, _ -> }
+                    .show()
             return
         }
 
         val title = if (isNext) R.string.switch_next_comic else R.string.switch_prev_comic
 
-        val dialog: AlertDialog =
-            MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)
+        mDialog = MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)
                 .setTitle(title)
                 .setMessage(changeManga.file.name)
-                .setPositiveButton(
-                    R.string.switch_action_positive
-                ) { _, _ ->
-                    changeManga(changeManga)
-                }
-                .setNegativeButton(
-                    R.string.switch_action_negative
-                ) { _, _ -> }
+                .setPositiveButton(R.string.switch_action_positive) { _, _ -> changeManga(changeManga) }
+                .setNegativeButton(R.string.switch_action_negative) { _, _ -> }
+                .setOnDismissListener { mDialog = null }
                 .create()
-        dialog.show()
+        mDialog?.show()
     }
 
     fun changeManga(manga: Manga) {
@@ -623,8 +614,9 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     private fun dialogPageIndex() {
-        val currentFragment =
-            supportFragmentManager.findFragmentById(R.id.root_frame_manga_reader) ?: return
+        if  (mDialog != null) return
+
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.root_frame_manga_reader) ?: return
         val parse = (currentFragment as MangaReaderFragment).mParse ?: return
 
         var paths = mapOf<String, Int>()
@@ -643,10 +635,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)
                 .setTitle(resources.getString(R.string.reading_manga_page_index))
                 .setMessage(resources.getString(R.string.reading_manga_page_empty))
-                .setPositiveButton(
-                    R.string.action_neutral
-                ) { _, _ -> }
-                .create()
+                .setPositiveButton(R.string.action_neutral) { _, _ -> }
                 .show()
             return
         }
@@ -686,14 +675,16 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             true
         }
 
-        MaterialAlertDialogBuilder(this, R.style.AppCompatMaterialAlertList)
+        mDialog = MaterialAlertDialogBuilder(this, R.style.AppCompatMaterialAlertList)
             .setCustomTitle(title)
             .setItems(items) { _, selected ->
                 val pageNumber = paths[items[selected]]
                 if (pageNumber != null)
                     currentFragment.setCurrentPage(pageNumber + 1)
             }
-            .show()
+            .setOnDismissListener { mDialog = null }
+            .create()
+        mDialog?.show()
     }
 
     @SuppressLint("MissingSuperCall")
@@ -981,10 +972,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)
                 .setTitle(getString(R.string.page_link_manga_empty))
                 .setMessage(getString(R.string.page_link_manga_empty_description))
-                .setPositiveButton(
-                    R.string.action_neutral
-                ) { _, _ -> }
-                .create()
+                .setPositiveButton(R.string.action_neutral) { _, _ -> }
                 .show()
     }
 
@@ -999,10 +987,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)
                 .setTitle(getString(R.string.popup_reading_manga_subtitle_empty))
                 .setMessage(message)
-                .setPositiveButton(
-                    R.string.action_neutral
-                ) { _, _ -> }
-                .create()
+                .setPositiveButton(R.string.action_neutral) { _, _ -> }
                 .show()
         }
     }
@@ -1224,10 +1209,12 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     private fun choiceLanguage(selected: (language: Languages) -> (Unit)) {
+        if  (mDialog != null) return
+
         val mapLanguage = Util.getLanguages(this)
         val items = mapLanguage.keys.filterNot { it == Util.googleLang }.toTypedArray()
 
-        MaterialAlertDialogBuilder(this, R.style.AppCompatMaterialAlertList)
+        mDialog = MaterialAlertDialogBuilder(this, R.style.AppCompatMaterialAlertList)
             .setTitle(getString(R.string.languages_choice))
             .setItems(items) { _, selectItem ->
                 val language = mapLanguage[items[selectItem]]
@@ -1236,7 +1223,9 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                     selected(language)
                 }
             }
-            .show()
+            .setOnDismissListener { mDialog = null }
+            .create()
+        mDialog?.show()
     }
 
     private fun openTesseract() {

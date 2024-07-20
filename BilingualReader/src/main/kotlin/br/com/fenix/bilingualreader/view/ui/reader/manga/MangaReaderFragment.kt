@@ -42,6 +42,7 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -149,6 +150,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mStorage: Storage
     private lateinit var mHistoryRepository: HistoryRepository
     private lateinit var mSubtitleController: SubTitleController
+    private var mDialog: AlertDialog? = null
 
     private val mLastPage = LinkedList<Pair<Int, Bitmap>>()
     private val mHandler = Handler(Looper.getMainLooper())
@@ -1064,11 +1066,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     private fun confirmSwitch(newManga: Manga?, titleRes: Int) {
-        if (newManga == null) return
+        if (newManga == null || mDialog != null) return
         var confirm = false
         mNewManga = newManga
         mNewMangaTitle = titleRes
-        val dialog = MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+        mDialog = MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
             .setTitle(titleRes)
             .setMessage(newManga.fileName)
             .setPositiveButton(R.string.switch_action_positive) { _, _ ->
@@ -1087,13 +1089,14 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             }
             .setNegativeButton(R.string.switch_action_negative) { _, _ -> }
             .setOnDismissListener {
+                mDialog = null
                 if (!confirm) {
                     mNewManga = null
                     setFullscreen(fullscreen = true)
                 }
             }
             .create()
-        dialog.show()
+        mDialog?.show()
     }
 
     private fun updateSeekBar() {
@@ -1112,7 +1115,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             requireContext().getString(R.string.reading_manga_choice_share_image)
         ).toTypedArray()
 
-        MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertList)
+        mDialog = MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertList)
             .setTitle(getString(R.string.reading_manga_title_save_share_image))
             .setIcon(R.drawable.ic_save_share_image)
             .setItems(items) { _, selectItem ->
@@ -1124,7 +1127,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     )
                 )
             }
-            .show()
+            .setOnDismissListener { mDialog = null }
+            .create()
+        mDialog?.show()
     }
 
     private fun shareImage(isShare: Boolean) {
