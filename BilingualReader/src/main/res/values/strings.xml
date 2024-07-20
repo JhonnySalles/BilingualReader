@@ -625,6 +625,10 @@
         <item>Volume</item>
     </string-array>
 
+    <string name="manga_library_line_series">Series:</string>
+    <string name="manga_library_line_publisher">Published:</string>
+    <string name="manga_library_line_authors">Authors:</string>
+
     <!-- LIBRARY - Book -->
     <string name="menu_book_config_send">Send file</string>
     <string name="menu_book_config_clear_progress">Clear progress</string>
@@ -642,6 +646,9 @@
     <string name="book_library_menu_favorite_remove">Remove favorite</string>
     <string name="book_library_menu_copy">Copy</string>
     <string name="book_library_menu_delete_description">Do you really want to delete the file?</string>
+
+    <string name="book_library_separator_favorite">Favorite</string>
+    <string name="book_library_separator_non_favorite">Others</string>
 
     <string-array name="book_filters">
         <item>Author</item>
@@ -685,7 +692,11 @@
     <string name="popup_library_book_filter_favorite">Favorite</string>
     <string name="popup_library_book_filter_reading">Reading</string>
 
-    <string name="popup_library_book_type_grid">Grid</string>
+    <string name="popup_library_book_type_grid_big">Grid big</string>
+    <string name="popup_library_book_type_grid_medium">Grid medium</string>
+    <string name="popup_library_book_type_grid_small">Grid small</string>
+    <string name="popup_library_book_type_separator_big">Grid big with separator</string>
+    <string name="popup_library_book_type_separator_medium">Grid medium with separator</string>
     <string name="popup_library_book_type_line">Line</string>
 
     <!-- MANGA DETAIL -->

@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.view.adapter.library
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -18,7 +19,7 @@ import br.com.fenix.bilingualreader.util.helpers.Util
 import com.google.android.material.card.MaterialCardView
 
 
-class BookGridViewHolder(var type: LibraryBookType, itemView: View, private val listener: BookCardListener) : RecyclerView.ViewHolder(itemView) {
+class BookSeparatorGridViewHolder(var type: LibraryBookType, itemView: View, private val listener: BookCardListener) : RecyclerView.ViewHolder(itemView) {
 
     companion object {
         var mIsLandscape: Boolean = false
@@ -27,7 +28,6 @@ class BookGridViewHolder(var type: LibraryBookType, itemView: View, private val 
         var mBookCardWidthMedium: Int = 0
         var mBookCardHeightMedium: Int = 0
         var mBookCardWidthLandscapeMedium: Int = 0
-
         lateinit var mDefaultImageCover1: Bitmap
         lateinit var mDefaultImageCover2: Bitmap
         lateinit var mDefaultImageCover3: Bitmap
@@ -50,6 +50,7 @@ class BookGridViewHolder(var type: LibraryBookType, itemView: View, private val 
         mDefaultImageCover5 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_5)
     }
 
+    @SuppressLint("SetTextI18n")
     fun bind(book: Book) {
         val bookImage = itemView.findViewById<ImageView>(R.id.book_grid_image_cover)
         val bookTitle = itemView.findViewById<TextView>(R.id.book_grid_title)
@@ -63,11 +64,11 @@ class BookGridViewHolder(var type: LibraryBookType, itemView: View, private val 
         val favorite = itemView.findViewById<ImageView>(R.id.book_grid_favorite)
         val config = itemView.findViewById<ImageView>(R.id.book_grid_config)
 
-        cardView.layoutParams.height = if (type == LibraryBookType.GRID_MEDIUM) mBookCardHeightMedium else mBookCardHeight
-        if (type == LibraryBookType.GRID_MEDIUM)
-            cardView.layoutParams.width = if (mIsLandscape) mBookCardWidthLandscapeMedium else mBookCardWidthMedium
-        else
-            cardView.layoutParams.width = mBookCardWidth
+        cardView.layoutParams.height = if (type == LibraryBookType.SEPARATOR_MEDIUM) mBookCardHeightMedium else mBookCardHeight
+        cardView.layoutParams.width = when (type) {
+            LibraryBookType.SEPARATOR_MEDIUM -> if (mIsLandscape) mBookCardWidthLandscapeMedium else mBookCardWidthMedium
+            else -> mBookCardWidth
+        }
 
         cardView.setOnClickListener { listener.onClick(book) }
         cardView.setOnLongClickListener {

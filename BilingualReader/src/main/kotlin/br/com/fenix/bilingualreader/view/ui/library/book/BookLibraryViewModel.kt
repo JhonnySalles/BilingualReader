@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.view.ui.library.book
 
 import android.app.Application
 import android.content.Context
+import android.content.res.Configuration
 import android.widget.Filter
 import android.widget.Filterable
 import androidx.lifecycle.AndroidViewModel
@@ -13,6 +14,7 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Tags
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
+import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
@@ -54,7 +56,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     private var mTypeFilter = MutableLiveData(FilterType.None)
     val typeFilter: LiveData<FilterType> = mTypeFilter
 
-    private var mLibraryType = MutableLiveData(LibraryBookType.GRID)
+    private var mLibraryType = MutableLiveData(LibraryBookType.GRID_BIG)
     val libraryType: LiveData<LibraryBookType> = mLibraryType
 
     private var mListBookFull = MutableLiveData<MutableList<Book>>(mutableListOf())
@@ -291,7 +293,11 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
 
     fun changeLibraryType() {
         val type = when (mLibraryType.value) {
-            LibraryBookType.LINE -> LibraryBookType.GRID
+            LibraryBookType.LINE -> LibraryBookType.GRID_BIG
+            LibraryBookType.GRID_BIG -> LibraryBookType.GRID_MEDIUM
+            LibraryBookType.GRID_MEDIUM -> LibraryBookType.SEPARATOR_BIG
+            LibraryBookType.SEPARATOR_BIG -> LibraryBookType.SEPARATOR_MEDIUM
+            LibraryBookType.SEPARATOR_MEDIUM -> LibraryBookType.LINE
             else -> LibraryBookType.LINE
         }
         setLibraryType(type)

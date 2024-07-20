@@ -810,11 +810,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         mViewModel.sorted(mSortType)
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (requestCode == GeneralConsts.REQUEST.PERMISSION_FILES_ACCESS && grantResults[0] == PackageManager.PERMISSION_GRANTED)
@@ -1084,7 +1080,6 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         MenuUtil.longClick(requireActivity(), R.id.menu_manga_library_list_order) {
             if (!mRefreshLayout.isRefreshing)
                 onOpenMenuLibrary(1)
-
         }
 
         MenuUtil.longClick(requireActivity(), R.id.menu_manga_library_type) {

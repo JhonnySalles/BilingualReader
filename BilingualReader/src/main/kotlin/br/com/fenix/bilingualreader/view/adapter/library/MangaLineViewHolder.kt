@@ -23,16 +23,27 @@ class MangaLineViewHolder(itemView: View, private val listener: MangaCardListene
         lateinit var mDefaultImageCover : Bitmap
         lateinit var mIconSubtitleExists : Bitmap
         lateinit var mIconSubtitleImported : Bitmap
+
+        var mDescriptionAuthor: String = ""
+        var mDescriptionSeries: String = ""
+        var mDescriptionPublisher: String = ""
     }
 
     init {
         mDefaultImageCover = BitmapFactory.decodeResource(itemView.resources, R.mipmap.app_icon)
+
+        mDescriptionSeries = itemView.context.getString(R.string.manga_library_line_series) + " "
+        mDescriptionPublisher = itemView.context.getString(R.string.manga_library_line_publisher) + " "
+        mDescriptionAuthor = itemView.context.getString(R.string.manga_library_line_authors) + " "
     }
 
     @SuppressLint("SetTextI18n")
     fun bind(manga: Manga) {
         val mangaImage = itemView.findViewById<ImageView>(R.id.manga_line_image_cover)
         val mangaTitle = itemView.findViewById<TextView>(R.id.manga_line_text_title)
+        val mangaAuthor = itemView.findViewById<TextView>(R.id.manga_line_author)
+        val mangaSeries = itemView.findViewById<TextView>(R.id.manga_line_series)
+        val mangaPublisher = itemView.findViewById<TextView>(R.id.manga_line_publisher)
         val mangaLastAccess = itemView.findViewById<TextView>(R.id.manga_line_last_access)
         val mangaFileType = itemView.findViewById<TextView>(R.id.manga_line_file_type)
         val mangaFileSize = itemView.findViewById<TextView>(R.id.manga_line_file_size)
@@ -71,6 +82,27 @@ class MangaLineViewHolder(itemView: View, private val listener: MangaCardListene
         mangaFileSize.text = FileUtil.formatSize(manga.fileSize)
         val percent: Float = if (manga.bookMark > 0) ((manga.bookMark.toFloat() / manga.pages) * 100) else 0f
         mangaPagesRead.text = "${manga.bookMark} / ${manga.pages}" + if (percent > 0) (" (" + Util.formatDecimal(percent) + ")") else ""
+
+        mangaAuthor.text = ""
+        mangaAuthor.visibility = if (manga.author.isNotEmpty())  {
+            mangaAuthor.text = mDescriptionAuthor + manga.author
+            View.VISIBLE
+        } else
+            View.GONE
+
+        mangaSeries.text = ""
+        mangaSeries.visibility = if (manga.series.isNotEmpty())  {
+            mangaSeries.text = mDescriptionSeries + manga.series
+            View.VISIBLE
+        } else
+            View.GONE
+
+        mangaPublisher.text = ""
+        mangaPublisher.visibility = if (manga.publisher.isNotEmpty())  {
+            mangaPublisher.text = mDescriptionPublisher + manga.publisher
+            View.VISIBLE
+        } else
+            View.GONE
 
         mangaProgress.max = manga.pages
         mangaProgress.setProgress(manga.bookMark, false)

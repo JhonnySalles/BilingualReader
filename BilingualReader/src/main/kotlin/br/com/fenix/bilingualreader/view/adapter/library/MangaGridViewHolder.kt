@@ -68,8 +68,6 @@ class MangaGridViewHolder(var type: LibraryMangaType, itemView: View, private va
         val favorite = itemView.findViewById<ImageView>(R.id.manga_grid_favorite)
         val subtitle = itemView.findViewById<ImageView>(R.id.manga_grid_has_subtitle)
 
-        //itemView.findViewById<LinearLayout>(R.id.manga_grid_detail).background.alpha = 150
-
         if (manga.favorite)
             favorite.visibility = View.VISIBLE
         else
