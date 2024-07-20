@@ -106,15 +106,9 @@ class BookImageCoverController private constructor() {
         return getCoverFromFile(context, generateHash(file), file)
     }
 
-    private fun generateHash(file: File): String =
-        Util.MD5(file.path + file.name)
+    private fun generateHash(file: File): String = Util.MD5(file.path + file.name)
 
-    private fun getCoverFromFile(
-        context: Context,
-        hash: String,
-        file: File,
-        isCoverSize: Boolean = true
-    ): Bitmap? {
+    private fun getCoverFromFile(context: Context, hash: String, file: File, isCoverSize: Boolean = true): Bitmap? {
         val cover: Bitmap?
 
         if (isCoverSize) {

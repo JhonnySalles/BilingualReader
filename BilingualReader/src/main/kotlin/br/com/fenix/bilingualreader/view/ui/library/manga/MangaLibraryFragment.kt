@@ -356,12 +356,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         }
     }
 
-    private fun notifyDataSet(
-        index: Int,
-        range: Int = 0,
-        insert: Boolean = false,
-        removed: Boolean = false
-    ) {
+    private fun notifyDataSet(index: Int, range: Int = 0, insert: Boolean = false, removed: Boolean = false) {
         if (insert)
             mRecyclerView.adapter?.notifyItemInserted(index)
         else if (removed)
