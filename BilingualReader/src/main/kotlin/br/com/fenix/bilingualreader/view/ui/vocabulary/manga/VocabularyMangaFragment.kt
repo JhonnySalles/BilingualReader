@@ -105,6 +105,7 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        menu.clear()
         inflater.inflate(R.menu.menu_vocabulary, menu)
         super.onCreateOptionsMenu(menu, inflater)
 

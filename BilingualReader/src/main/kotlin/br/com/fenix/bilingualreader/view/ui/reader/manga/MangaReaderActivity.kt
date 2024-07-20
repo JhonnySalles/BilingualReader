@@ -994,7 +994,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
     fun openFloatingSubtitle() {
         if (mMenuPopupColor.visibility == View.VISIBLE)
-        AnimationUtil.animatePopupClose(this, mMenuPopupColor, !mMenuPopupBottomSheet, navigationColor = false)
+            AnimationUtil.animatePopupClose(this, mMenuPopupColor, !mMenuPopupBottomSheet, navigationColor = false)
 
         if (mMenuPopupTranslate.visibility == View.VISIBLE)
             AnimationUtil.animatePopupClose(this, mMenuPopupTranslate, !mMenuPopupBottomSheet, navigationColor = false)

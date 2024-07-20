@@ -88,6 +88,7 @@ class SelectMangaFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        menu.clear()
         inflater.inflate(R.menu.menu_select_manga, menu)
         super.onCreateOptionsMenu(menu, inflater)
 

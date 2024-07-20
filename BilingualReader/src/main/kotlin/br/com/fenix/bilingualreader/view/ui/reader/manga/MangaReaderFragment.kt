@@ -498,6 +498,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        menu.clear()
         inflater.inflate(R.menu.menu_reader_manga, menu)
         when (mReaderMode) {
             ReaderMode.ASPECT_FILL -> menu.findItem(R.id.manga_view_mode_aspect_fill).isChecked = true

@@ -92,6 +92,7 @@ class AnnotationFragment : Fragment(), AnnotationListener {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        menu.clear()
         inflater.inflate(R.menu.menu_book_annotation, menu)
         super.onCreateOptionsMenu(menu, inflater)
 
