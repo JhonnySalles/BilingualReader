@@ -1,6 +1,8 @@
 package br.com.fenix.bilingualreader.view.ui.statistics
 
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +18,6 @@ import androidx.fragment.app.Fragment
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Statistics
 import br.com.fenix.bilingualreader.model.enums.Type
-import br.com.fenix.bilingualreader.service.repository.StatisticsDAO
 import br.com.fenix.bilingualreader.service.repository.StatisticsRepository
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.view.components.MonthAxisValueFormatter
@@ -302,7 +303,14 @@ class StatisticsFragment : Fragment() {
         linedata.setDrawVerticalHighlightIndicator(false)
 
         linedata.setDrawFilled(true)
-        linedata.fillDrawable = AppCompatResources.getDrawable(requireContext(), R.drawable.statistics_chart_gradient)
+
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+            val gd = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(lineColor, Color.TRANSPARENT, Color.TRANSPARENT))
+            gd.cornerRadius = 0f
+            linedata.fillDrawable = gd
+        } else
+            linedata.fillDrawable = AppCompatResources.getDrawable(requireContext(), R.drawable.statistics_chart_gradient)
+
         linedata.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
         linedata.color = lineColor
         linedata.highLightColor = lineColor
