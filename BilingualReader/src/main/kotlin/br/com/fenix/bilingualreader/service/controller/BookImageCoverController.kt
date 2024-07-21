@@ -64,8 +64,7 @@ class BookImageCoverController private constructor() {
     private fun saveBitmapToCache(context: Context, key: String, bitmap: Bitmap) {
         try {
             saveBitmapToLru(key, bitmap)
-            val cacheDir =
-                File(GeneralConsts.getCacheDir(context), GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
+            val cacheDir = File(GeneralConsts.getCacheDir(context), GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
             if (!cacheDir.exists())
                 cacheDir.mkdir()
 
@@ -142,13 +141,11 @@ class BookImageCoverController private constructor() {
     fun setImageCoverAsync(context: Context, book: Book, isCoverSize: Boolean = true, function: (Bitmap?) -> (Unit)) {
         CoroutineScope(thread).launch {
             try {
-                var image: Bitmap? = null
-                val deferred = async {
-                    image = getBookCover(context, book, isCoverSize)
-                }
-                deferred.await()
-                withContext(Dispatchers.Main) {
-                    function(image)
+                async {
+                    val image: Bitmap? = getBookCover(context, book, isCoverSize)
+                    withContext(Dispatchers.Main) {
+                        function(image)
+                    }
                 }
             } catch (m: OutOfMemoryError) {
                 System.gc()
