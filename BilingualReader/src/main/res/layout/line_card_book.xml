@@ -42,7 +42,7 @@
 
         <!-- Title, secondary and supporting text -->
         <TextView
-            android:id="@+id/book_line_sub_title"
+            android:id="@+id/book_line_author"
             style="@style/TextNormal.Line"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -56,6 +56,14 @@
             android:gravity="center_vertical"
             android:textSize="@dimen/book_line_title_size"
             android:transitionName="transition_book_title"/>
+
+        <TextView
+            android:id="@+id/book_line_publisher"
+            style="@style/TextNormal.Line"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/book_line_content_size"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/book_line_file_name"

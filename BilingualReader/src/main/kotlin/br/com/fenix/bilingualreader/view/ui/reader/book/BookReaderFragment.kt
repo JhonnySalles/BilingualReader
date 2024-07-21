@@ -278,7 +278,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         if (mBook != null) {
             BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, true)
-            BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, false)
+            mHandler.postDelayed({ BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, false) }, 300)
             generateHistory(mBook!!)
         }
 
@@ -409,6 +409,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     override fun onDestroy() {
+        mParse?.let { it.listener = null }
         mTextToSpeech?.stop()
         SharedData.setDocumentParse(null)
         removeRefreshSizeDelay()

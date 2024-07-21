@@ -609,6 +609,9 @@
         <item>Type</item>
     </string-array>
 
+    <string name="book_library_line_publisher">Published:</string>
+    <string name="book_library_line_authors">Authors:</string>
+
     <!-- POPUP LIBRARY - Manga / Comic -->
     <string name="popup_library_manga_tab_item_ordering">Order</string>
     <string name="popup_library_manga_tab_item_filter">Filter</string>

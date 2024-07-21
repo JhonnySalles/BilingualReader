@@ -30,7 +30,7 @@ class MangaLineViewHolder(itemView: View, private val listener: MangaCardListene
     }
 
     init {
-        mDefaultImageCover = BitmapFactory.decodeResource(itemView.resources, R.mipmap.app_icon)
+        mDefaultImageCover = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_2)
 
         mDescriptionSeries = itemView.context.getString(R.string.manga_library_line_series) + " "
         mDescriptionPublisher = itemView.context.getString(R.string.manga_library_line_publisher) + " "

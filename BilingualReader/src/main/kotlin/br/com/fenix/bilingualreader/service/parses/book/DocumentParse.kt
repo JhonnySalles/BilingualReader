@@ -91,9 +91,13 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
                 throw BookLoadException("Could not open selected book: $path")
             } finally {
                 isLoading = false
-                mMainHandler.post {
-                    listener?.onLoading(true, isLoaded)
-                    onEnding(isLoaded)
+                try {
+                    mMainHandler.post {
+                        listener?.onLoading(true, isLoaded)
+                        onEnding(isLoaded)
+                    }
+                } catch (e: Exception) {
+                    mLOGGER.error(e.message, e)
                 }
             }
         }.start()

@@ -21,16 +21,23 @@ class BookLineViewHolder(itemView: View, private val listener: BookCardListener)
 
     companion object {
         lateinit var mDefaultImageCover: Bitmap
+
+        var mDescriptionAuthor: String = ""
+        var mDescriptionPublisher: String = ""
     }
 
     init {
-        mDefaultImageCover = BitmapFactory.decodeResource(itemView.resources, R.mipmap.app_icon)
+        mDefaultImageCover = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_2)
+
+        mDescriptionPublisher = itemView.context.getString(R.string.book_library_line_publisher) + " "
+        mDescriptionAuthor = itemView.context.getString(R.string.book_library_line_authors) + " "
     }
 
     fun bind(book: Book) {
         val bookImage = itemView.findViewById<ImageView>(R.id.book_line_image_cover)
         val bookTitle = itemView.findViewById<TextView>(R.id.book_line_title)
-        val bookSubTitle = itemView.findViewById<TextView>(R.id.book_line_sub_title)
+        val bookAuthor = itemView.findViewById<TextView>(R.id.book_line_author)
+        val bookPublisher = itemView.findViewById<TextView>(R.id.book_line_publisher)
         val bookFileName = itemView.findViewById<TextView>(R.id.book_line_file_name)
         val bookFileSize = itemView.findViewById<TextView>(R.id.book_line_file_size)
         val bookType = itemView.findViewById<TextView>(R.id.book_line_file_type)
@@ -68,7 +75,7 @@ class BookLineViewHolder(itemView: View, private val listener: BookCardListener)
         BookImageCoverController.instance.setImageCoverAsync(itemView.context, book, bookImage, mDefaultImageCover)
 
         bookTitle.text = book.title
-        bookSubTitle.text = book.author
+        bookAuthor.text = if (book.author.isNotEmpty()) mDescriptionAuthor + book.author else ""
         bookFileName.text = book.fileName
         bookFileSize.text = FileUtil.formatSize(book.fileSize)
         bookType.text = Util.getExtensionFromPath(book.path).uppercase()
@@ -78,10 +85,14 @@ class BookLineViewHolder(itemView: View, private val listener: BookCardListener)
         else
             Util.formatDecimal(percent)
 
-        bookLastAccess.text = if (book.lastAccess == null) "" else GeneralConsts.formatterDateTime(
-            itemView.context,
-            book.lastAccess!!
-        )
+        bookPublisher.text = ""
+        bookPublisher.visibility = if (book.publisher.isNotEmpty()) {
+            bookPublisher.text = mDescriptionPublisher + book.publisher
+            View.VISIBLE
+        } else
+            View.GONE
+
+        bookLastAccess.text = if (book.lastAccess == null) "" else GeneralConsts.formatterDateTime(itemView.context, book.lastAccess!!)
 
         bookProgress.max = book.pages
         bookProgress.setProgress(book.bookMark, false)
