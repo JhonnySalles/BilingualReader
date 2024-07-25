@@ -29,6 +29,10 @@ class ChaptersViewHolder(itemView: View, private val listener: ChapterCardListen
         card.strokeWidth = if (chapter.isSelected) mPageSelectStroke else 0
 
         root.setOnClickListener { listener.onClick(chapter) }
+        root.setOnLongClickListener {
+            listener.onLongClick(chapter)
+            true
+        }
         image.setImageBitmap(chapter.image)
         page.text = "${chapter.page}"
     }

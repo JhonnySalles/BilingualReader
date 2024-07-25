@@ -200,8 +200,6 @@
     <dimen name="book_search_list_min_height">100dp</dimen>
 
     <dimen name="book_search_list_icon_size">20dp</dimen>
-
-    <dimen name="book_chapters_list_padding">20dp</dimen>
     
     <dimen name="chapters_list_padding">20dp</dimen>
     <dimen name="chapters_list_padding_top">10dp</dimen>

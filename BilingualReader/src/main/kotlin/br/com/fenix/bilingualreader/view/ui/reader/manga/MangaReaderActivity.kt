@@ -951,6 +951,10 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             override fun onClick(page: Chapters) {
                 mFragment?.setCurrentPage(page.page)
             }
+
+            override fun onLongClick(page: Chapters) {
+
+            }
         }
 
         lineAdapter.attachListener(listener)
@@ -1150,7 +1154,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                     ).show()
             }
 
-            GeneralConsts.REQUEST.MANGA_CHAPTERS -> {
+            GeneralConsts.REQUEST.CHAPTERS -> {
                 if (data?.extras != null && data.extras!!.containsKey(GeneralConsts.KEYS.CHAPTERS.PAGE)) {
                     val page = data.extras!!.getInt(GeneralConsts.KEYS.CHAPTERS.PAGE)
                     mFragment?.setCurrentPage(page)
@@ -1176,14 +1180,11 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         val intent = Intent(this, MenuActivity::class.java)
         val bundle = Bundle()
         bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_chapters)
-        bundle.putString(GeneralConsts.KEYS.MANGA.TITLE, mManga?.title ?: "")
-        bundle.putInt(GeneralConsts.KEYS.MANGA.PAGE_NUMBER, initial)
+        bundle.putString(GeneralConsts.KEYS.CHAPTERS.TITLE, mManga?.title ?: "")
+        bundle.putInt(GeneralConsts.KEYS.CHAPTERS.PAGE, initial)
         intent.putExtras(bundle)
-        overridePendingTransition(
-            R.anim.fade_in_fragment_add_enter,
-            R.anim.fade_out_fragment_remove_exit
-        )
-        startActivityForResult(intent, GeneralConsts.REQUEST.MANGA_CHAPTERS, null)
+        overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+        startActivityForResult(intent, GeneralConsts.REQUEST.CHAPTERS, null)
     }
 
     inner class ViewPagerAdapter(fm: FragmentManager, behavior: Int) :

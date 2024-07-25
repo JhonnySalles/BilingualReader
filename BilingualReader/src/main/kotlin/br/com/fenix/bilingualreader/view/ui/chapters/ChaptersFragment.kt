@@ -10,6 +10,9 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -17,13 +20,17 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Chapters
+import br.com.fenix.bilingualreader.model.entity.LinkedPage
 import br.com.fenix.bilingualreader.service.listener.ChapterCardListener
 import br.com.fenix.bilingualreader.service.listener.ChapterLoadListener
 import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.constants.PageLinkConsts
+import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.view.adapter.chapters.ChaptersGridAdapter
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderViewModel
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.slf4j.LoggerFactory
 import kotlin.math.max
@@ -53,8 +60,8 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
         setHasOptionsMenu(true)
 
         requireArguments().let {
-            mPosInitial = if (it.containsKey(GeneralConsts.KEYS.MANGA.PAGE_NUMBER)) it.getInt(GeneralConsts.KEYS.MANGA.PAGE_NUMBER) else 0
-            mToolbarTitle = it.getString(GeneralConsts.KEYS.MANGA.TITLE, "")
+            mPosInitial = if (it.containsKey(GeneralConsts.KEYS.CHAPTERS.PAGE)) it.getInt(GeneralConsts.KEYS.CHAPTERS.PAGE) else 0
+            mToolbarTitle = it.getString(GeneralConsts.KEYS.CHAPTERS.TITLE, "")
         }
     }
 
@@ -137,6 +144,10 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
                 bundle.putInt(GeneralConsts.KEYS.CHAPTERS.PAGE, page.page)
                 (requireActivity() as MenuActivity).onBack(bundle)
             }
+
+            override fun onLongClick(page: Chapters) {
+                openImageDetail(page)
+            }
         }
 
         val adapter = ChaptersGridAdapter()
@@ -178,6 +189,24 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
 
     override fun onLoading(page: Int) {
         (mRecyclerView.adapter as ChaptersGridAdapter).notifyItemChanged(page)
+    }
+
+    private fun openImageDetail(page: Chapters) {
+        val layout = LayoutInflater.from(requireContext()).inflate(R.layout.popup_chapter_detail, null, false)
+        val image = layout.findViewById<ImageView>(R.id.popup_chapter_detail)
+        val name = layout.findViewById<TextView>(R.id.popup_chapter_name)
+
+        val popup = MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+            .setView(layout)
+            .create()
+
+        ImageUtil.setZoomPinch(requireContext(), image) { popup.dismiss() }
+
+        image.setImageBitmap(page.image)
+        name.text = page.title
+
+        layout.findViewById<LinearLayout>(R.id.popup_chapter_background).setOnClickListener { popup.dismiss() }
+        popup.show()
     }
 
 }

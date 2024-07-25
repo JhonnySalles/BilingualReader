@@ -265,22 +265,26 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
     }
 
     // --------------------------------------------------------- Chapters ---------------------------------------------------------
-    private fun loadImage(parse: Parse, page: Int) : Bitmap? {
+    private fun loadImage(parse: Parse, page: Int, isSmallSize: Boolean = true) : Bitmap? {
         try {
             var stream = parse.getPage(page)
-            val option = BitmapFactory.Options()
-            option.inJustDecodeBounds = true
-            BitmapFactory.decodeStream(stream, null, option)
-            option.inSampleSize = ImageUtil.calculateInSampleSize(
-                option,
-                ReaderConsts.PAGE.PAGE_CHAPTER_LIST_WIDTH,
-                ReaderConsts.PAGE.PAGE_CHAPTER_LIST_HEIGHT
-            )
-            option.inJustDecodeBounds = false
-            Util.closeInputStream(stream)
+            val image = if (isSmallSize) {
+                val option = BitmapFactory.Options()
+                option.inJustDecodeBounds = true
+                BitmapFactory.decodeStream(stream, null, option)
+                option.inSampleSize = ImageUtil.calculateInSampleSize(
+                    option,
+                    ReaderConsts.PAGE.PAGE_CHAPTER_LIST_WIDTH,
+                    ReaderConsts.PAGE.PAGE_CHAPTER_LIST_HEIGHT
+                )
+                option.inJustDecodeBounds = false
+                Util.closeInputStream(stream)
 
-            stream = parse.getPage(page)
-            val image = BitmapFactory.decodeStream(stream, null, option)
+                stream = parse.getPage(page)
+                BitmapFactory.decodeStream(stream, null, option)
+            } else
+                BitmapFactory.decodeStream(stream)
+
             Util.closeInputStream(stream)
             return image
         } catch (m: OutOfMemoryError) {
@@ -299,6 +303,7 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
         }
 
         if (SharedData.isProcessed(manga)) {
+            SharedData.clearChapters()
             val parse = ParseFactory.create(manga.file) ?: return false
 
             if (parse is RarParse) {
@@ -326,18 +331,18 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
                     if (number > 5) {
                         for (i in (number - 3) until list.size) {
                             val page = list[i]
-                            page.image = loadImage(parse, page.number)
+                            page.image = loadImage(parse, page.number, false)
                             withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
                         }
 
                         for (i in (number - 4) downTo 0) {
                             val page = list[i]
-                            page.image = loadImage(parse, page.number)
+                            page.image = loadImage(parse, page.number, false)
                             withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
                         }
                     } else
                         for (page in list) {
-                            page.image = loadImage(parse, page.number)
+                            page.image = loadImage(parse, page.number, false)
                             withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
                         }
 

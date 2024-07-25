@@ -51,6 +51,7 @@ import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -451,6 +452,19 @@ class BookReaderActivity : AppCompatActivity() {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            GeneralConsts.REQUEST.CHAPTERS -> {
+                if (data?.extras != null && data.extras!!.containsKey(GeneralConsts.KEYS.CHAPTERS.PAGE)) {
+                    val page = data.extras!!.getInt(GeneralConsts.KEYS.CHAPTERS.PAGE)
+                    mFragment?.setCurrentPage(page)
+                }
+                mFragment?.setFullscreen(true)
+            }
+        }
+    }
+
     private fun closeViewTouch() {
         mTouchView.alpha = 1.0f
         mTouchView.animate().alpha(0.0f).setDuration(300L)
@@ -494,11 +508,11 @@ class BookReaderActivity : AppCompatActivity() {
         val intent = Intent(this, MenuActivity::class.java)
         val bundle = Bundle()
         bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_chapters)
-        bundle.putString(GeneralConsts.KEYS.MANGA.TITLE, mBook?.title ?: "")
-        bundle.putInt(GeneralConsts.KEYS.MANGA.PAGE_NUMBER, page)
+        bundle.putString(GeneralConsts.KEYS.CHAPTERS.TITLE, mBook?.title ?: "")
+        bundle.putInt(GeneralConsts.KEYS.CHAPTERS.PAGE, page)
         intent.putExtras(bundle)
         overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
-        startActivityForResult(intent, GeneralConsts.REQUEST.MANGA_CHAPTERS, null)
+        startActivityForResult(intent, GeneralConsts.REQUEST.CHAPTERS, null)
     }
 
 }

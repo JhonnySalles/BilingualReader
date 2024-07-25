@@ -768,11 +768,19 @@ class ImageUtil {
         @SuppressLint("ClickableViewAccessibility")
         fun setZoomPinch(context: Context, image: ImageView, oneClick: () -> Unit) {
             val mScaleListener = object : SimpleOnScaleGestureListener() {
+                var mPrevScale = 0f
                 override fun onScale(detector: ScaleGestureDetector): Boolean {
-                    mScaleFactor *= detector.scaleFactor
-                    mScaleFactor = max(1.0f, min(mScaleFactor, 5.0f))
-                    image.scaleX = mScaleFactor
-                    image.scaleY = mScaleFactor
+                    var scale = mScaleFactor * detector.scaleFactor
+                    scale = max(1.0f, min(scale, 5.0f))
+
+                    if ((mPrevScale > detector.scaleFactor && mScaleFactor < scale) || (mPrevScale < detector.scaleFactor && mScaleFactor > scale)) {
+                        mScaleFactor = scale
+                        image.scaleX = mScaleFactor
+                        image.scaleY = mScaleFactor
+                    }
+
+
+                    mPrevScale = detector.scaleFactor
                     return true
                 }
             }
