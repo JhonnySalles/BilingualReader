@@ -415,7 +415,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     override fun onDestroy() {
-        mParse?.let { it.listener = null }
+        destroyParse()
         mTextToSpeech?.stop()
         SharedData.setDocumentParse(null)
         removeRefreshSizeDelay()
@@ -873,8 +873,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     }
 
                     confirm = true
-                    val activity = requireActivity() as BookReaderActivity
-                    activity.changeBook(mNewBook!!)
+                    destroyParse()
+                    (requireActivity() as BookReaderActivity).changeBook(mNewBook!!)
                 }
                 .setNegativeButton(R.string.switch_action_negative) { _, _ -> }
                 .setOnDismissListener {
@@ -1372,6 +1372,14 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             false
         } else
             true
+    }
+
+    fun destroyParse() {
+        if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
+            (mViewPager.adapter as WebViewPager).clearParse()
+        else
+            (mViewPager.adapter as TextViewPager).clearParse()
+        mParse?.destroy()
     }
 
 }

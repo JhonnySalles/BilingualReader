@@ -44,7 +44,7 @@ class TextViewPager(
 
     private val mLOGGER = LoggerFactory.getLogger(TextViewPager::class.java)
 
-    private val mParse = parse
+    private var mParse = parse
     private val mViewModel = model
     private val mListener = listener
     private val mTextSelectCallback = textSelectCallback
@@ -58,6 +58,10 @@ class TextViewPager(
 
     fun refreshSize() {
         mItems = mParse?.getPageCount(mViewModel.getFontSize(isBook = true).toInt()) ?: 1
+    }
+
+    fun clearParse() {
+        mParse = null
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TextViewPagerHolder {

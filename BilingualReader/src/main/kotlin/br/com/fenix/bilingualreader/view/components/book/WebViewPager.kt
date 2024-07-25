@@ -21,7 +21,7 @@ class WebViewPager(
     activity: Activity, context: Context, model: BookReaderViewModel, parse: DocumentParse?, listener: View.OnTouchListener? = null
 ) : RecyclerView.Adapter<WebViewPager.WebViewPagerHolder>(), TTSListener, AutoScroll {
 
-    private val mParse = parse
+    private var mParse = parse
     private val mViewModel = model
     private val mListener = listener
     private val mInterface = WebInterface(activity, context)
@@ -42,6 +42,10 @@ class WebViewPager(
     fun changePages() {
         mPages = mParse?.getPageCount(mViewModel.getFontSize(isBook = true).toInt()) ?: 1
         notifyDataSetChanged()
+    }
+
+    fun clearParse() {
+        mParse = null
     }
 
     inner class WebViewPagerHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

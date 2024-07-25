@@ -123,6 +123,11 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
         TempHolder.get().loadingCancelled
     }
 
+    fun destroy() {
+        listener = null
+        mCodecDocument?.recycle()
+    }
+
     fun getChapter(page: Int): Pair<Int, String>? {
         var chapter: Pair<Int, String>? = null
         if (mCodecDocument != null && mCodecDocument?.outline != null && mCodecDocument?.outline!!.isNotEmpty())
