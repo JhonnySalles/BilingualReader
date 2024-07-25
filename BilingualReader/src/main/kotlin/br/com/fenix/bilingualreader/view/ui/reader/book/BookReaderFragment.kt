@@ -45,9 +45,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.drawToBitmap
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -304,8 +306,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 try {
                     mIsSeekBarChange = true
 
-                    val text = (mViewPager.adapter as TextViewPager).getHolder(mViewPager.currentItem)?.textView ?: return
-
+                    val current = (mViewPager.adapter as TextViewPager).getHolder(mViewPager.currentItem) ?: return
                     val page = seekBar.progress + 1
                     if (mLastPage.any { it.first == page })
                         return
@@ -313,9 +314,14 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     if (mLastPage.size > 3)
                         mLastPage.removeLast()
 
-                    val bitmap = Bitmap.createBitmap(text.width, text.height, Bitmap.Config.ARGB_8888)
-                    val canvas = Canvas(bitmap)
-                    text.draw(canvas)
+                    val bitmap = if (!current.isOnlyImage) {
+                        val text = current.textView
+                        val bitmap = Bitmap.createBitmap(text.width, text.height, Bitmap.Config.ARGB_8888)
+                        val canvas = Canvas(bitmap)
+                        text.draw(canvas)
+                        bitmap
+                    } else
+                        (current.imageView.drawable as BitmapDrawable).bitmap
 
                     mLastPage.addFirst(Pair(page, bitmap))
                     openLastPage()
@@ -764,7 +770,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.navigationBarColor = requireContext().getColor(R.color.status_bar_color)
         }
-
 
         if (fullscreen)
             closeLastPage()
