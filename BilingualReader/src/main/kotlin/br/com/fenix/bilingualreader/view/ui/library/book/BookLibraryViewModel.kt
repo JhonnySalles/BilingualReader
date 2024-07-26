@@ -467,18 +467,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             mWordFilter = constraint.toString()
             val filteredList: MutableList<Book> = mutableListOf()
 
-            if (constraint == null || constraint.isEmpty()) {
-                filteredList.addAll(mListBookFull.value!!.filter(Objects::nonNull))
-            } else {
-                val filterPattern = constraint.toString().lowercase(Locale.getDefault()).trim()
-
-                filteredList.addAll(mListBookFull.value!!.filter(Objects::nonNull).filter {
-                    it.name.lowercase(Locale.getDefault()).contains(filterPattern) ||
-                            it.extension.lowercase(Locale.getDefault()).contains(filterPattern)
-                })
-            }
-
-            if ((constraint == null || constraint.isEmpty()) && mTypeFilter.value == FilterType.None) {
+            if (constraint.isNullOrEmpty() && mTypeFilter.value == FilterType.None) {
                 filteredList.addAll(mListBookFull.value!!.filter(Objects::nonNull))
             } else {
                 var filterPattern = constraint.toString()
