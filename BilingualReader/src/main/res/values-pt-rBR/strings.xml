@@ -673,7 +673,6 @@
     <string name="manga_detail_local_information_volume"><![CDATA[<b>Volume:</b> %s]]></string>
     <string name="manga_detail_local_information_publisher"><![CDATA[<b>Editora:</b> %s]]></string>
     <string name="manga_detail_local_information_release"><![CDATA[<b>Publicação:</b> %s]]></string>
-    <string name="manga_detail_web_information_publish_from_to"><![CDATA[<b>Publicação:</b> %s até %s]]></string>
     <string name="manga_detail_local_information_authors"><![CDATA[<b>Autores:</b> %s]]></string>
 
     <string name="manga_detail_local_information_comic_info_title"><![CDATA[<b>Titulo:</b> %s]]></string>
@@ -684,6 +683,7 @@
     <string name="manga_detail_local_information_comic_info_teams"><![CDATA[<b>Times:</b> %s]]></string>
     <string name="manga_detail_local_information_comic_info_locations"><![CDATA[<b>Localizações:</b> %s]]></string>
     <string name="manga_detail_local_information_comic_info_book_marks_title">Marcadores nas páginas</string>
+    <string name="manga_detail_web_information_publish_from_to"><![CDATA[<b>Publicação:</b> %s até %s]]></string>
 
     <string name="manga_detail_web_information">Informações Web</string>
     <string name="manga_detail_related">Relacionados</string>
@@ -705,7 +705,7 @@
     <string name="book_detail_chapters_title">Capítulos</string>
     <string name="book_detail_subtitles_title">Legendas</string>
     <string name="book_detail_file_links_title">Arquivos vinculados</string>
-    <string name="book_detail_manga_deleted">Arquivo apagado</string>
+    <string name="book_detail_book_deleted">Arquivo apagado</string>
     <string name="book_detail_vocabulary">Vocabulário</string>
 
     <string name="book_detail_information">Informações</string>
@@ -719,6 +719,18 @@
     <string name="book_detail_information_publisher"><b>Editora:</b> %s</string>
     <string name="book_detail_information_annotation"><b>Anotações:</b> %s</string>
     <string name="book_detail_information_genres"><b>Gênero:</b> %s</string>
+
+    <string name="book_detail_web_information">Informações Web</string>
+
+    <string name="book_detail_web_information_alternative_titles"><![CDATA[<b>Títulos alternativos:</b> %s]]></string>
+    <string name="book_detail_web_information_status"><![CDATA[<b>Estatus:</b> %s]]></string>
+    <string name="book_detail_web_information_volumes"><![CDATA[<b>Volumes:</b> %s]]></string>
+    <string name="book_detail_web_information_chapters"><![CDATA[<b>Capítulos:</b> %s]]></string>
+    <string name="book_detail_web_information_publish"><![CDATA[<b>Publicação:</b> %s]]></string>
+    <string name="book_detail_web_information_publish_in_publication">in publication</string>
+    <string name="book_detail_web_information_authors"><![CDATA[<b>Autores:</b> %s]]></string>
+    <string name="book_detail_web_information_genre"><![CDATA[<b>Gêneros:</b> %s]]></string>
+    <string name="book_detail_web_information_publish_from_to"><![CDATA[<b>Publicação:</b> %s até %s]]></string>
 
     <!-- HISTORY -->
     <string name="history_last_access">Último acesso</string>

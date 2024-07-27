@@ -495,19 +495,12 @@ class MangaDetailFragment : Fragment() {
                 mWebInformationImage.setImageBitmap(null)
 
                 if (it.imageLink != null)
-                    MangaImageController.instance.setImageAsync(
-                        requireContext(),
-                        it.imageLink!!,
-                        mWebInformationImage
-                    )
+                    MangaImageController.instance.setImageAsync(requireContext(), it.imageLink!!, mWebInformationImage)
 
                 mWebInformationAlternativeTitles.text = HtmlCompat.fromHtml(it.alternativeTitles, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mWebInformationStatus.text = HtmlCompat.fromHtml(it.status, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mWebInformationPublish.text = HtmlCompat.fromHtml(it.release, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mWebInformationVolumes.text = HtmlCompat.fromHtml(
-                    it.volumes + ", " + it.chapters,
-                    HtmlCompat.FROM_HTML_MODE_COMPACT
-                )
+                mWebInformationVolumes.text = HtmlCompat.fromHtml(it.volumes + ", " + it.chapters, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mWebInformationAuthors.text = HtmlCompat.fromHtml(it.authors, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mWebInformationGenres.text = HtmlCompat.fromHtml(it.genres, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mWebInformationOrigin.text = it.origin
@@ -527,8 +520,7 @@ class MangaDetailFragment : Fragment() {
         }
 
         mViewModel.webInformationRelations.observe(viewLifecycleOwner) {
-            mWebInfoRelatedContent.visibility =
-                if (it != null && it.isNotEmpty()) View.VISIBLE else View.GONE
+            mWebInfoRelatedContent.visibility = if (it != null && it.isNotEmpty()) View.VISIBLE else View.GONE
             updateRelatedList(it)
         }
 

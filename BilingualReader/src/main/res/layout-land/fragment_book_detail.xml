@@ -507,6 +507,183 @@
 
                 </LinearLayout>
 
+                <LinearLayout
+                    android:id="@+id/book_detail_web_information"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <com.google.android.material.divider.MaterialDivider
+                        style="@style/MaterialDivider"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginLeft="@dimen/margin"
+                        android:layout_marginRight="@dimen/margin" />
+
+                    <TextView
+                        style="@style/TextTitle"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="5dp"
+                        android:text="@string/book_detail_web_information"
+                        android:gravity="center_horizontal"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp">
+
+                        <ImageView
+                            android:id="@+id/book_detail_web_information_image"
+                            android:layout_width="@dimen/book_detail_web_information_related_image_size"
+                            android:layout_height="wrap_content"
+                            android:maxHeight="@dimen/book_detail_web_information_related_image_max_size"
+                            android:adjustViewBounds="true"
+                            android:scaleType="centerCrop"
+                            android:layout_marginEnd="5dp"
+                            android:visibility="gone"/>
+
+                        <TextView
+                            android:id="@+id/book_detail_web_information_synopsis"
+                            style="@style/TextNormal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?attr/textAppearanceHeadline6"
+                            android:textSize="@dimen/book_detail_web_information_synopsis_size"/>
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/book_detail_web_information_alternative_titles"
+                        style="@style/TextNormal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:textAppearance="?attr/textAppearanceSubtitle2"
+                        android:textSize="@dimen/book_detail_information_texts_size" />
+
+                    <TextView
+                        android:id="@+id/book_detail_web_information_status"
+                        style="@style/TextNormal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:textAppearance="?attr/textAppearanceSubtitle2"
+                        android:textSize="@dimen/book_detail_information_texts_size" />
+
+                    <TextView
+                        android:id="@+id/book_detail_web_information_publish"
+                        style="@style/TextNormal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:textAppearance="?attr/textAppearanceSubtitle2"
+                        android:textSize="@dimen/book_detail_information_texts_size" />
+
+                    <TextView
+                        android:id="@+id/book_detail_web_information_volumes_chapters"
+                        style="@style/TextNormal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:textAppearance="?attr/textAppearanceSubtitle2"
+                        android:textSize="@dimen/book_detail_information_texts_size" />
+
+                    <TextView
+                        android:id="@+id/book_detail_web_information_author"
+                        style="@style/TextNormal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:textAppearance="?attr/textAppearanceSubtitle2"
+                        android:textSize="@dimen/book_detail_information_texts_size" />
+
+                    <TextView
+                        android:id="@+id/book_detail_web_information_genres"
+                        style="@style/TextNormal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:textAppearance="?attr/textAppearanceSubtitle2"
+                        android:textSize="@dimen/book_detail_information_texts_size" />
+
+                    <TextView
+                        android:id="@+id/book_detail_web_information_origin"
+                        style="@style/TextTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginTop="1dp"
+                        android:textAppearance="?attr/textAppearanceSubtitle2"
+                        android:textSize="@dimen/book_detail_web_information_origin_size" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/book_detail_web_information_relations"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <com.google.android.material.divider.MaterialDivider
+                        style="@style/MaterialDivider"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginLeft="@dimen/margin"
+                        android:layout_marginRight="@dimen/margin"/>
+
+                    <TextView
+                        style="@style/TextTitle"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:text="@string/book_detail_related"
+                        android:gravity="center_horizontal"
+                        android:layout_marginTop="5dp"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/book_detail_relations_lists"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:nestedScrollingEnabled="true"
+                        android:divider="@drawable/line_list_divider"
+                        android:dividerHeight="1dip"/>
+
+                    <TextView
+                        android:id="@+id/book_detail_relations_origin"
+                        style="@style/TextTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:textAppearance="?attr/textAppearanceSubtitle2"
+                        android:textSize="@dimen/book_detail_web_information_origin_size" />
+
+                </LinearLayout>
+
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>

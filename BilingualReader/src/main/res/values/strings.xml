@@ -753,7 +753,7 @@
     <string name="book_detail_chapters_title">Chapters</string>
     <string name="book_detail_subtitles_title">Subtitles</string>
     <string name="book_detail_file_links_title">Files links</string>
-    <string name="book_detail_manga_deleted">File deleted</string>
+    <string name="book_detail_book_deleted">File deleted</string>
     <string name="book_detail_vocabulary">Vocabulary</string>
 
     <string name="book_detail_information">Information</string>
@@ -767,6 +767,18 @@
     <string name="book_detail_information_publisher"><b>Publisher:</b> %s</string>
     <string name="book_detail_information_annotation"><b>Annotation:</b> %s</string>
     <string name="book_detail_information_genres"><b>Genres:</b> %s</string>
+
+    <string name="book_detail_web_information">Web Information</string>
+
+    <string name="book_detail_web_information_alternative_titles"><![CDATA[<b>Alternative titles:</b> %s]]></string>
+    <string name="book_detail_web_information_status"><![CDATA[<b>Status:</b> %s]]></string>
+    <string name="book_detail_web_information_volumes"><![CDATA[<b>Volumes:</b> %s]]></string>
+    <string name="book_detail_web_information_chapters"><![CDATA[<b>Chapters:</b> %s]]></string>
+    <string name="book_detail_web_information_publish"><![CDATA[<b>Published:</b> %s]]></string>
+    <string name="book_detail_web_information_publish_from_to"><![CDATA[<b>Published:</b> %s to %s]]></string>
+    <string name="book_detail_web_information_publish_in_publication">in publication</string>
+    <string name="book_detail_web_information_authors"><![CDATA[<b>Authors:</b> %s]]></string>
+    <string name="book_detail_web_information_genre"><![CDATA[<b>Genres:</b> %s]]></string>
 
     <!-- HISTORY - Manga / Comic / Book -->
     <string name="history_last_access">Last access</string>

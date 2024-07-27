@@ -157,8 +157,7 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
         val name = Util.getNameFromMangaTitle(mManga.value?.title ?: "").replace(PATTERN, "")
 
         mWebInformation.value = list.find {
-            it.title.replace(PATTERN, "").trim().equals(name, true) ||
-                    it.alternativeTitles.contains(name, true)
+            it.title.replace(PATTERN, "").trim().equals(name, true) || it.alternativeTitles.contains(name, true)
         }
         if (mWebInformation.value != null)
             list.remove(mWebInformation.value)

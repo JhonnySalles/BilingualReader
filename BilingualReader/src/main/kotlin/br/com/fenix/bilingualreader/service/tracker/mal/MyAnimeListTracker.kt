@@ -98,7 +98,47 @@ class MyAnimeListTracker(var mContext: Context) {
             override fun onResponse(call: Call<MalMangaList>, response: Response<MalMangaList>) {
                 if (response.code() == 200)
                     response.body()?.let {
-                        listener.onSuccess(MalTransform.getList(it.data))
+                        listener.onSuccess(MalTransform.getList(it.data).filter { r -> r.mediaType == MEDIA.MANGA })
+                    }
+                else
+                    listener.onFailure(response.raw().toString())
+            }
+
+            override fun onFailure(call: Call<MalMangaList>, t: Throwable) {
+                mLOGGER.error(t.message, t.stackTrace)
+                listener.onFailure(mContext.getString(R.string.api_error))
+            }
+
+        })
+
+    }
+
+
+    fun getListNovel(search: String, listener: ApiListener<List<MalMangaDetail>>) {
+        val call = mMyAnimeList.getListManga(token, getIdClient(), search, limit = 50)
+        call.enqueue(object : Callback<MalMangaList> {
+            override fun onResponse(call: Call<MalMangaList>, response: Response<MalMangaList>) {
+                if (response.code() == 200)
+                    response.body()?.let { listener.onSuccess(MalTransform.getList(it.data)) }
+                else
+                    listener.onFailure(response.toString())
+            }
+
+            override fun onFailure(call: Call<MalMangaList>, t: Throwable) {
+                mLOGGER.error(t.message, t.stackTrace)
+                listener.onFailure(mContext.getString(R.string.api_error))
+            }
+
+        })
+    }
+
+    fun getListNovel(search: String, listener: ApiListener<List<MalMangaDetail>>, vararg fields: String) {
+        val call = mMyAnimeList.getListManga(token, getIdClient(), search, fields = fields.joinToString(","))
+        call.enqueue(object : Callback<MalMangaList> {
+            override fun onResponse(call: Call<MalMangaList>, response: Response<MalMangaList>) {
+                if (response.code() == 200)
+                    response.body()?.let {
+                        listener.onSuccess(MalTransform.getList(it.data).filter { r -> r.mediaType == MEDIA.NOVEL })
                     }
                 else
                     listener.onFailure(response.raw().toString())

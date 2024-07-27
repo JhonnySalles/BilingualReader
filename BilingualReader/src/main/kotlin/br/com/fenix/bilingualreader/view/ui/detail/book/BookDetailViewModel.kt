@@ -13,18 +13,23 @@ import br.com.fenix.bilingualreader.model.entity.LinkedFile
 import br.com.fenix.bilingualreader.model.entity.Tags
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
+import br.com.fenix.bilingualreader.service.listener.ApiListener
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.FileLinkRepository
 import br.com.fenix.bilingualreader.service.repository.TagsRepository
+import br.com.fenix.bilingualreader.service.tracker.ParseInformation
+import br.com.fenix.bilingualreader.service.tracker.mal.MalMangaDetail
+import br.com.fenix.bilingualreader.service.tracker.mal.MyAnimeListTracker
+import br.com.fenix.bilingualreader.util.helpers.Util
 import org.slf4j.LoggerFactory
 
-class BookDetailViewModel(application: Application) : AndroidViewModel(application) {
+class BookDetailViewModel(var app: Application) : AndroidViewModel(app) {
 
     private val mLOGGER = LoggerFactory.getLogger(BookDetailViewModel::class.java)
 
-    private val mBookRepository: BookRepository = BookRepository(application.applicationContext)
-    private val mFileLinkRepository: FileLinkRepository = FileLinkRepository(application.applicationContext)
-    private val mTagsRepository: TagsRepository = TagsRepository(application.applicationContext)
+    private val mBookRepository: BookRepository = BookRepository(app.applicationContext)
+    private val mFileLinkRepository: FileLinkRepository = FileLinkRepository(app.applicationContext)
+    private val mTagsRepository: TagsRepository = TagsRepository(app.applicationContext)
 
     var library: Library? = null
     private var mBook = MutableLiveData<Book?>(null)
@@ -47,17 +52,61 @@ class BookDetailViewModel(application: Application) : AndroidViewModel(applicati
     private var mInformation = MutableLiveData<Information?>(null)
     val information: LiveData<Information?> = mInformation
 
+    private var mWebInformation = MutableLiveData<Information?>(null)
+    val webInformation: LiveData<Information?> = mWebInformation
+
+    private var mWebInformationRelations = MutableLiveData<MutableList<Information>>(mutableListOf())
+    val webInformationRelations: LiveData<MutableList<Information>> = mWebInformationRelations
+
     private var mTags = MutableLiveData<List<Tags>>(listOf())
     val tags: LiveData<List<Tags>> = mTags
+
+    private val mTracker = MyAnimeListTracker(app.applicationContext)
 
     fun setBook(context: Context, book: Book) {
         mBook.value = book
 
         mListLinkedFileLinks.value = if (book.id != null) mFileLinkRepository.findAllByManga(book.id!!)?.toMutableList() else mutableListOf()
+        mWebInformation.value = null
         mInformation.value = Information(context, book)
         mTags.value = mTagsRepository.list().filter { t -> book.tags.any { b -> b.compareTo(t.id!!) == 0 } }
+        mWebInformationRelations.value = mutableListOf()
 
         BookImageCoverController.instance.setImageCoverAsync(context, book,  false) { mCover.value = it }
+    }
+
+    fun getInformation() {
+        var name = mBook.value?.title ?: ""
+
+        if (name.isEmpty())
+            return
+
+        name = Util.getNameFromMangaTitle(name).replace(" ", "%")
+        mTracker.getListNovel(name, object : ApiListener<List<MalMangaDetail>> {
+            override fun onSuccess(result: List<MalMangaDetail>) {
+                setInformation(result)
+            }
+
+            override fun onFailure(message: String) {
+                mLOGGER.warn("Error to search manga info", message)
+            }
+        })
+
+    }
+
+    private val PATTERN = Regex("[^\\w\\s]")
+    fun <T> setInformation(mangas: List<T>) {
+        val list = ParseInformation.getInformation(app.applicationContext, mangas)
+
+        val name = Util.getNameFromMangaTitle(mBook.value?.title ?: "").replace(PATTERN, "")
+
+        mWebInformation.value = list.find {
+            it.title.replace(PATTERN, "").trim().equals(name, true) || it.alternativeTitles.contains(name, true)
+        }
+        if (mWebInformation.value != null)
+            list.remove(mWebInformation.value)
+
+        mWebInformationRelations.value = list
     }
 
     fun getPage(folder: String): Int {
