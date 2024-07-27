@@ -15,9 +15,9 @@
         android:id="@+id/history_status"
         android:layout_width="3dp"
         android:layout_height="match_parent"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:background="@drawable/history_item_background"/>
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@color/transparent"/>
 
     <!-- Media -->
     <com.google.android.material.card.MaterialCardView

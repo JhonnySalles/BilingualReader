@@ -83,7 +83,7 @@ class HistoryViewHolder(itemView: View, private val listener: HistoryCardListene
             status.setBackgroundResource(R.drawable.history_item_deleted_background)
         } else {
             cardView.setBackgroundResource(R.drawable.history_custom_ripple)
-            status.setBackgroundResource(R.drawable.history_item_background)
+            status.setBackgroundResource(R.color.transparent)
         }
 
     }

@@ -50,7 +50,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
             list.addAll(books)
 
         val format = DateTimeFormatter.ofPattern(GeneralConsts.PATTERNS.DATE_TIME_PATTERN)
-        list = list.sortedByDescending { it.sort }.distinctBy { it.lastAccess!!.format(format) }.toMutableList()
+        list = list.sortedByDescending { it.lastAccess }.distinctBy { it.lastAccess!!.format(format) }.toMutableList()
 
         mListFull.value = ArrayList(list)
         mList.value = ArrayList(list)
@@ -68,7 +68,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
             list.addAll(books)
 
         val format = DateTimeFormatter.ofPattern(GeneralConsts.PATTERNS.DATE_TIME_PATTERN)
-        list = list.sortedByDescending { it.sort }.distinctBy { it.lastAccess!!.format(format) }.toMutableList()
+        list = list.sortedByDescending { it.lastAccess }.distinctBy { it.lastAccess!!.format(format) }.toMutableList()
 
         if (mList.value == null || mList.value!!.isEmpty()) {
             mList.value = ArrayList(list)
