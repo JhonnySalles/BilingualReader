@@ -817,12 +817,12 @@ class PagesLinkFragment : Fragment() {
         val name = TextView(requireContext())
         name.text = if (isMangaIndexes) manga else file
         name.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_index_dialog_size))
-        name.setTextColor(requireContext().getColorFromAttr(R.attr.colorPrimary))
+        name.setTextColor(requireContext().getColorFromAttr(R.attr.colorOnBackground))
         title.addView(name)
         val index = TextView(requireContext())
         index.text = resources.getString(R.string.reading_manga_page_index)
         index.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_small_index_dialog_size))
-        index.setTextColor(requireContext().getColorFromAttr(R.attr.colorSecondary))
+        index.setTextColor(requireContext().getColorFromAttr(R.attr.colorOnSecondary))
         title.addView(index)
 
         MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)

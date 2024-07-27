@@ -880,7 +880,7 @@ class MenuUtil {
     companion object MenuUtils {
 
         fun tintBackground(context: Context, background: View) {
-            background.setBackgroundColor(context.getColorFromAttr(R.attr.colorSurface))
+            background.setBackgroundColor(context.getColorFromAttr(R.attr.background))
         }
 
         fun tintToolbar(toolbar: Toolbar, theme: Themes) {
@@ -904,16 +904,16 @@ class MenuUtil {
         }
 
         fun tintColor(context: Context, textView: TextView) {
-            textView.setTextColor(context.getColorFromAttr(R.attr.colorOnSurfaceVariant))
+            textView.setTextColor(context.getColorFromAttr(R.attr.colorSurfaceContainer))
         }
 
         fun tintColor(context: Context, textInput: TextInputLayout) {
-            textInput.hintTextColor = ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorSecondary))
+            textInput.hintTextColor = ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorOnSecondary))
             textInput.boxBackgroundColor = context.getColorFromAttr(R.attr.colorOnSurface)
-            textInput.boxStrokeColor = context.getColorFromAttr(R.attr.colorSurface)
-            textInput.placeholderTextColor = ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorPrimary))
-            tintIcons(context, textInput.startIconDrawable, R.attr.colorSecondary)
-            tintIcons(context, textInput.endIconDrawable, R.attr.colorSecondary)
+            textInput.boxStrokeColor = context.getColorFromAttr(R.attr.background)
+            textInput.placeholderTextColor = ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorOnBackground))
+            tintIcons(context, textInput.startIconDrawable, R.attr.colorOnSecondary)
+            tintIcons(context, textInput.endIconDrawable, R.attr.colorOnSecondary)
         }
 
         fun tintIcons(context: Context, icon: Drawable?, color: Int) {
@@ -921,16 +921,16 @@ class MenuUtil {
         }
 
         fun tintIcons(context: Context, icon: Drawable) {
-            icon.setTint(context.getColorFromAttr(R.attr.colorOnSurfaceVariant))
+            icon.setTint(context.getColorFromAttr(R.attr.colorSurfaceContainer))
         }
 
         fun tintIcons(context: Context, icon: ImageView) {
-            icon.setColorFilter(context.getColorFromAttr(R.attr.colorOnSurfaceVariant))
+            icon.setColorFilter(context.getColorFromAttr(R.attr.colorSurfaceContainer))
         }
 
         fun tintAllIcons(context: Context, menu: Menu) {
             for (i in 0 until menu.size())
-                menu.getItem(i).icon?.setTint(context.getColorFromAttr(R.attr.colorOnSurfaceVariant))
+                menu.getItem(i).icon?.setTint(context.getColorFromAttr(R.attr.colorSurfaceContainer))
         }
 
         fun tintIcons(context: Context, searchView: SearchView) {
@@ -977,7 +977,7 @@ class MenuUtil {
         }
 
         fun tintIcons(context: Context, drawer: DrawerArrowDrawable) {
-            drawer.color = context.getColorFromAttr(R.attr.colorOnSurfaceVariant)
+            drawer.color = context.getColorFromAttr(R.attr.colorSurfaceContainer)
         }
 
         fun longClick(activity: Activity, menuItem: Int, longCLick: () -> (Unit)) {
@@ -1185,7 +1185,7 @@ class AnimationUtil {
             frame.visibility = View.VISIBLE
             if (isVertical) {
                 if (navigationColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-                    activity.window.navigationBarColor = activity.getColorFromAttr(R.attr.colorSurface)
+                    activity.window.navigationBarColor = activity.getColorFromAttr(R.attr.background)
 
                 val positionInitial = frame.translationY
                 frame.translationY = positionInitial + 200F

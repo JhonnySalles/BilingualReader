@@ -312,7 +312,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         mPopupMangaSubtitleConfigurationFragment = PopupMangaSubtitleConfiguration()
         mPopupMangaSubtitleReaderFragment = PopupMangaSubtitleReader()
         mPopupMangaSubtitleVocabularyFragment = PopupMangaSubtitleVocabulary()
-        mPopupMangaSubtitleVocabularyFragment.setBackground(getColorFromAttr(R.attr.colorSurface))
+        mPopupMangaSubtitleVocabularyFragment.setBackground(getColorFromAttr(R.attr.background))
 
         mFloatingButtons = FloatingButtons(applicationContext, this)
         mFloatingSubtitleReader = FloatingSubtitleReader(applicationContext, this)
@@ -651,7 +651,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             TypedValue.COMPLEX_UNIT_PX,
             resources.getDimension(R.dimen.title_index_dialog_size)
         )
-        name.setTextColor(getColorFromAttr(R.attr.colorPrimary))
+        name.setTextColor(getColorFromAttr(R.attr.colorOnBackground))
         title.addView(name)
         val index = TextView(this)
         index.text = resources.getString(R.string.reading_manga_page_index)
@@ -659,7 +659,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             TypedValue.COMPLEX_UNIT_PX,
             resources.getDimension(R.dimen.title_small_index_dialog_size)
         )
-        index.setTextColor(getColorFromAttr(R.attr.colorSecondary))
+        index.setTextColor(getColorFromAttr(R.attr.colorOnSecondary))
         title.addView(index)
         title.setOnLongClickListener {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -893,7 +893,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             ContextCompat.getDrawable(this, R.drawable.ico_favorite_mark)
         else
             ContextCompat.getDrawable(this, R.drawable.ico_favorite_unmark)
-        icon?.setTint(getColorFromAttr(R.attr.colorSecondary))
+        icon?.setTint(getColorFromAttr(R.attr.colorOnSecondary))
         favoriteItem.icon = icon
         return super.onPrepareOptionsMenu(menu)
     }
@@ -908,7 +908,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             ContextCompat.getDrawable(this, R.drawable.ico_animated_favorited_marked)
         else
             ContextCompat.getDrawable(this, R.drawable.ico_animated_favorited_unmarked)
-        icon?.setTint(getColorFromAttr(R.attr.colorSecondary))
+        icon?.setTint(getColorFromAttr(R.attr.colorOnSecondary))
         item.icon = icon
         (item.icon as AnimatedVectorDrawable).start()
         mRepository.update(mManga!!)

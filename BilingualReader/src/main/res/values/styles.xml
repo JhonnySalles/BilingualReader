@@ -188,7 +188,7 @@
         <item name="colorControlActivated">?attr/colorOnSecondary</item>
     </style>
 
-    <style name="SwitchMaterial" parent="Theme.MangaReader">
+    <style name="SwitchMaterial" parent="Widget.MaterialComponents.CompoundButton.Switch">
         <item name="android:textColor">?attr/colorOnBackground</item>
         <item name="android:checked">false</item>
         <item name="android:paddingStart">16dp</item>

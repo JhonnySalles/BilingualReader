@@ -305,12 +305,12 @@ class BookReaderActivity : AppCompatActivity() {
         val name = TextView(this)
         name.text = mToolBarTitle.text
         name.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_index_dialog_size))
-        name.setTextColor(getColorFromAttr(R.attr.colorPrimary))
+        name.setTextColor(getColorFromAttr(R.attr.colorOnBackground))
         title.addView(name)
         val index = TextView(this)
         index.text = resources.getString(R.string.reading_book_page_index)
         index.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_small_index_dialog_size))
-        index.setTextColor(getColorFromAttr(R.attr.colorSecondary))
+        index.setTextColor(getColorFromAttr(R.attr.colorOnSecondary))
         title.addView(index)
         title.setOnLongClickListener {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager

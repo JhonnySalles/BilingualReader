@@ -35,7 +35,7 @@ class PopupAnnotations(var context: Context) {
                     super.updateDrawState(ds)
                     ds.isUnderlineText = false
                     ds.bgColor = color
-                    ds.color = context.getColorFromAttr(R.attr.colorPrimary)
+                    ds.color = context.getColorFromAttr(R.attr.colorOnBackground)
                 }
             }
         }

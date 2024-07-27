@@ -273,7 +273,7 @@ class StatisticsFragment : Fragment() {
         chart.xAxis.setDrawGridLines(false)
         chart.xAxis.setGranularity(1f)
         chart.xAxis.setLabelCount(12)
-        chart.xAxis.textColor = requireContext().getColorFromAttr(R.attr.colorPrimary)
+        chart.xAxis.textColor = requireContext().getColorFromAttr(R.attr.colorOnBackground)
         chart.xAxis.textSize = requireContext().resources.getDimension(R.dimen.statistics_chart_label_font_size)
         chart.xAxis.valueFormatter = MonthAxisValueFormatter(requireContext())
 
@@ -294,7 +294,7 @@ class StatisticsFragment : Fragment() {
         }
 
         val lineColor = requireContext().getColorFromAttr(R.attr.colorOutline)
-        val textColor = requireContext().getColorFromAttr(R.attr.colorPrimary)
+        val textColor = requireContext().getColorFromAttr(R.attr.colorOnBackground)
 
         val linedata = LineDataSet(values, "")
 

@@ -258,7 +258,7 @@ class TextViewPager(
         }
 
         span.setSpan(
-            TTSTextColorSpan(context.getColorFromAttr(R.attr.colorOnSurfaceVariant)),
+            TTSTextColorSpan(context.getColorFromAttr(R.attr.colorSurfaceContainer)),
             start, start + speech.html.length,
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
         )

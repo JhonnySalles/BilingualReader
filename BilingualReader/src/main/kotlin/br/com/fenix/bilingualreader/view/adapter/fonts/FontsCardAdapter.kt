@@ -14,11 +14,7 @@ import br.com.fenix.bilingualreader.model.enums.FontType
 import br.com.fenix.bilingualreader.service.listener.FontsListener
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 
-class FontsCardAdapter(
-    var context: Context,
-    list: MutableList<Pair<FontType, Boolean>>,
-    listener: FontsListener
-) : BaseAdapter() {
+class FontsCardAdapter(var context: Context, list: MutableList<Pair<FontType, Boolean>>, listener: FontsListener) : BaseAdapter() {
 
     companion object {
         var mFontSelect: Int = 0
@@ -26,8 +22,8 @@ class FontsCardAdapter(
     }
 
     init {
-        mFontSelect = context.getColorFromAttr(R.attr.colorPrimaryContainer)
-        mFontNormal = context.getColorFromAttr(R.attr.colorPrimary)
+        mFontSelect = context.getColorFromAttr(R.attr.colorPrimary)
+        mFontNormal = context.getColorFromAttr(R.attr.colorOnBackground)
     }
 
     private var mListener: FontsListener = listener
@@ -53,8 +49,7 @@ class FontsCardAdapter(
     override fun getView(index: Int, view: View?, parent: ViewGroup?): View? {
         val font = getItem(index)
 
-        val newView = view ?: LayoutInflater.from(context)
-            .inflate(R.layout.line_fonts_type, parent, false)
+        val newView = view ?: LayoutInflater.from(context).inflate(R.layout.line_fonts_type, parent, false)
 
         val example = newView.findViewById<TextView>(R.id.font_example)
         example.setTextColor(if (font.second) mFontSelect else mFontNormal)
