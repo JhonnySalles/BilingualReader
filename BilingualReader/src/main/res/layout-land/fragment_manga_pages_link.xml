@@ -173,7 +173,7 @@
                         android:layout_width="@dimen/page_link_pages_index"
                         android:layout_height="wrap_content"
                         android:contentDescription="@string/page_link_page_index"
-                        app:iconTint="?attr/colorSecondary"
+                        app:iconTint="?attr/colorOnSecondary"
                         android:tag=""
                         app:icon="@drawable/ico_animated_file_link_pages_index"/>
 
@@ -190,7 +190,7 @@
                 android:textColor="?attr/colorPrimaryInverse"
                 android:textSize="@dimen/page_link_card_page_number_size"
                 android:layout_marginTop="@dimen/page_link_card_page_name_margin"
-                android:background="?attr/colorOnSurface"
+                android:background="?attr/colorSurface"
                 android:paddingStart="2dp"
                 android:paddingEnd="2dp"
                 app:layout_constraintEnd_toEndOf="parent"

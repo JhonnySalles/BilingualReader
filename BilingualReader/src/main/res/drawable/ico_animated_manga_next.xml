@@ -27,7 +27,7 @@
                                 android:pathData=" M-83.33 41.66 C-83.33,41.66 -0.01,-41.67 -0.01,-41.67 C-0.01,-41.67 83.33,41.67 83.33,41.67 "
                                 android:strokeWidth="40.3"
                                 android:strokeAlpha="1"
-                                android:strokeColor="?attr/colorPrimary"
+                                android:strokeColor="?attr/colorOnBackground"
                                 android:strokeLineCap="round"
                                 android:strokeLineJoin="round" />
                         </group>
@@ -45,7 +45,7 @@
                                 android:pathData=" M-83.33 41.66 C-83.33,41.66 -0.01,-41.67 -0.01,-41.67 C-0.01,-41.67 83.33,41.67 83.33,41.67 "
                                 android:strokeWidth="40.3"
                                 android:strokeAlpha="1"
-                                android:strokeColor="?attr/colorPrimary"
+                                android:strokeColor="?attr/colorOnBackground"
                                 android:strokeLineCap="round"
                                 android:strokeLineJoin="round" />
                         </group>

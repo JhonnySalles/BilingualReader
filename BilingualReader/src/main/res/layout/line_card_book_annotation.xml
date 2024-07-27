@@ -21,10 +21,10 @@
             style="@style/Button.IconOnly"
             android:layout_width="@dimen/book_annotation_button_size"
             android:layout_height="@dimen/book_annotation_button_size"
-            android:textColor="?attr/colorSecondary"
+            android:textColor="?attr/colorOnSecondary"
             android:contentDescription="@string/book_annotation_list_favorite"
             app:iconSize="@dimen/book_annotation_icon_size"
-            app:iconTint="?attr/colorSecondary"
+            app:iconTint="?attr/colorOnSecondary"
             app:icon="@drawable/ico_animated_favorited_unmarked"/>
 
         <TextView
@@ -41,11 +41,11 @@
             style="@style/Button.IconOnly"
             android:layout_width="@dimen/book_annotation_button_size"
             android:layout_height="@dimen/book_annotation_button_size"
-            android:textColor="?attr/colorPrimary"
+            android:textColor="?attr/colorOnBackground"
             android:contentDescription="@string/book_annotation_list_options"
             android:layout_marginStart="5dp"
             app:iconSize="@dimen/book_annotation_icon_size"
-            app:iconTint="?attr/colorPrimary"
+            app:iconTint="?attr/colorOnBackground"
             app:icon="@drawable/ico_animated_options"/>
     </LinearLayout>
 

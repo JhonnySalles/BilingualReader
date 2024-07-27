@@ -11,7 +11,7 @@
 
     <style name="MainToolbarStyle" parent="Widget.MaterialComponents.Toolbar">
         <item name="android:background">@color/transparent</item>
-        <item name="android:textColorPrimary">?attr/colorSurfaceVariant</item>
+        <item name="android:textColorPrimary">?attr/colorSurfaceContainer</item>
         <item name="android:textColorSecondary">?attr/colorOnSurfaceVariant</item>
         <item name="colorControlNormal">?attr/colorOnSurfaceVariant</item>
         <item name="android:drawableTint">?attr/colorOnSurfaceVariant</item>
@@ -126,7 +126,7 @@
     </style>
 
     <style name="SearchShadow" parent="Widget.AppCompat.SearchView">
-        <item name="android:textColor">?attr/colorSurfaceVariant</item>
+        <item name="android:textColor">?attr/colorSurfaceContainer</item>
         <item name="android:shadowColor">@color/shadow</item>
         <item name="android:shadowDx">3</item>
         <item name="android:shadowDy">3</item>
@@ -264,9 +264,9 @@
     </style>
 
     <style name="ReaderToolbarTheme" parent="Base.Theme.MangaReader">
-        <item name="android:textColor">?attr/colorSurfaceVariant</item>
-        <item name="android:textColorPrimary">?attr/colorSurfaceVariant</item>
-        <item name="android:textColorSecondary">?attr/colorSurfaceVariant</item>
+        <item name="android:textColor">?attr/colorSurfaceContainer</item>
+        <item name="android:textColorPrimary">?attr/colorSurfaceContainer</item>
+        <item name="android:textColorSecondary">?attr/colorSurfaceContainer</item>
         <item name="android:ellipsize">end</item>
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
@@ -297,10 +297,10 @@
     </style>
 
     <style name="MainNavigation" parent="Base.Theme.MangaReader">
-        <item name="android:background">?attr/colorSurface</item>
-        <item name="itemTextColor">?attr/colorPrimary</item>
-        <item name="itemIconTint">?attr/colorSecondary</item>
-        <item name="subheaderColor">?attr/colorSecondary</item>
+        <item name="android:background">?attr/background</item>
+        <item name="itemTextColor">?attr/colorOnBackground</item>
+        <item name="itemIconTint">?attr/colorOnSecondary</item>
+        <item name="subheaderColor">?attr/colorOnSecondary</item>
     </style>
 
     <style name="MainNavigationTitle" parent="Base.Theme.MangaReader">

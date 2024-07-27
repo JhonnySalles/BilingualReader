@@ -13,7 +13,7 @@
                     <path
                         android:name="bar_ico1"
                         android:pathData="M 3 12 L 17 12"
-                        android:strokeColor="?attr/colorSecondary"
+                        android:strokeColor="?attr/colorOnSecondary"
                         android:strokeWidth="2"
                         android:strokeLineCap="round"
                         android:strokeLineJoin="round"/>
@@ -24,7 +24,7 @@
                     <path
                         android:name="bar_ico2"
                         android:pathData="M 3 17 L 13 17"
-                        android:strokeColor="?attr/colorSecondary"
+                        android:strokeColor="?attr/colorOnSecondary"
                         android:strokeWidth="2"
                         android:strokeLineCap="round"
                         android:strokeLineJoin="round"/>
@@ -35,7 +35,7 @@
                     <path
                         android:name="bar_ico3"
                         android:pathData="M 3 7 L 21 7"
-                        android:strokeColor="?attr/colorSecondary"
+                        android:strokeColor="?attr/colorOnSecondary"
                         android:strokeWidth="2"
                         android:strokeLineCap="round"
                         android:strokeLineJoin="round"/>
@@ -50,7 +50,7 @@
                     <path
                         android:name="ico_sequency"
                         android:pathData="M 23.88 19.865 C 23.88 19.6 23.774 19.345 23.587 19.158 C 23.4 18.97 23.145 18.865 22.88 18.865 L 21.88 18.865 C 21.327 18.865 20.88 18.865 20.88 19.865 L 22.88 19.865 L 22.88 20.865 L 22.38 20.865 C 22.247 20.865 22.12 20.917 22.026 21.011 C 21.933 21.105 21.88 21.232 21.88 21.365 C 21.88 21.497 21.933 21.624 22.026 21.718 C 22.12 21.812 22.247 21.865 22.38 21.865 L 22.88 21.865 L 22.88 22.865 L 20.88 22.865 C 20.88 23.865 21.327 23.865 21.88 23.865 L 22.88 23.865 C 23.145 23.865 23.4 23.759 23.587 23.572 C 23.774 23.384 23.88 23.13 23.88 22.865 L 23.88 21.865 C 23.875 21.687 23.822 21.514 23.727 21.365 C 23.823 21.215 23.876 21.042 23.88 20.865 Z M 23.857 12.255 L 22.857 12.255 L 22.857 8.255 L 20.857 8.255 L 20.857 9.255 L 21.857 9.255 L 21.857 12.255 L 20.857 12.255 L 20.857 13.255 L 23.857 13.255 Z M 22.823 16.531 C 23.088 16.531 23.342 16.426 23.53 16.238 C 23.717 16.051 23.823 15.796 23.823 15.531 L 23.823 14.531 C 23.823 14.266 23.717 14.012 23.53 13.824 C 23.342 13.637 23.088 13.531 22.823 13.531 L 21.823 13.531 C 21.557 13.531 21.303 13.637 21.115 13.824 C 20.928 14.012 20.823 14.266 20.823 14.531 L 22.823 14.531 L 22.823 15.531 L 21.823 15.531 C 21.557 15.531 21.303 15.637 21.115 15.824 C 20.928 16.012 20.823 16.266 20.823 16.531 L 20.823 17.531 C 20.823 17.796 20.928 18.051 21.115 18.238 C 21.303 18.426 21.557 18.531 21.823 18.531 L 23.823 18.531 L 23.823 17.531 L 21.823 17.531 L 21.823 16.531 Z"
-                        android:fillColor="?attr/colorSecondary"
+                        android:fillColor="?attr/colorOnSecondary"
                         android:fillAlpha="0"
                         android:strokeWidth="1"/>
                 </group>

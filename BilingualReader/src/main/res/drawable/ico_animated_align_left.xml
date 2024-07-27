@@ -15,7 +15,7 @@
                     <path
                         android:name="line_1"
                         android:pathData="M 5 5 C 4.735 5 4.48 5.105 4.293 5.293 C 4.105 5.48 4 5.735 4 6 C 4 6.265 4.105 6.52 4.293 6.707 C 4.48 6.895 4.735 7 5 7 L 19 7 C 19.265 7 19.52 6.895 19.707 6.707 C 19.895 6.52 20 6.265 20 6 C 20 5.735 19.895 5.48 19.707 5.293 C 19.52 5.105 19.265 5 19 5 Z"
-                        android:fillColor="?attr/colorSecondary"/>
+                        android:fillColor="?attr/colorOnSecondary"/>
                 </group>
                 <group
                     android:name="base_line_2"
@@ -23,7 +23,7 @@
                     <path
                         android:name="line_2"
                         android:pathData="M 5 9 C 4.735 9 4.48 9.105 4.293 9.293 C 4.105 9.48 4 9.735 4 10 C 4 10.265 4.105 10.52 4.293 10.707 C 4.48 10.895 4.735 11 5 11 L 15 11 C 15.265 11 15.52 10.895 15.707 10.707 C 15.895 10.52 16 10.265 16 10 C 16 9.735 15.895 9.48 15.707 9.293 C 15.52 9.105 15.265 9 15 9 Z"
-                        android:fillColor="?attr/colorSecondary"/>
+                        android:fillColor="?attr/colorOnSecondary"/>
                 </group>
                 <group
                     android:name="base_line_3"
@@ -31,7 +31,7 @@
                     <path
                         android:name="line_3"
                         android:pathData="M 5 13 C 4.735 13 4.48 13.105 4.293 13.293 C 4.105 13.48 4 13.735 4 14 C 4 14.265 4.105 14.52 4.293 14.707 C 4.48 14.895 4.735 15 5 15 L 19 15 C 19.265 15 19.52 14.895 19.707 14.707 C 19.895 14.52 20 14.265 20 14 C 20 13.735 19.895 13.48 19.707 13.293 C 19.52 13.105 19.265 13 19 13 Z"
-                        android:fillColor="?attr/colorSecondary"/>
+                        android:fillColor="?attr/colorOnSecondary"/>
                 </group>
                 <group
                     android:name="base_line_4"
@@ -39,7 +39,7 @@
                     <path
                         android:name="line_4"
                         android:pathData="M 5 17 C 4.735 17 4.48 17.105 4.293 17.293 C 4.105 17.48 4 17.735 4 18 C 4 18.265 4.105 18.52 4.293 18.707 C 4.48 18.895 4.735 19 5 19 L 15 19 C 15.265 19 15.52 18.895 15.707 18.707 C 15.895 18.52 16 18.265 16 18 C 16 17.735 15.895 17.48 15.707 17.293 C 15.52 17.105 15.265 17 15 17 Z"
-                        android:fillColor="?attr/colorSecondary"/>
+                        android:fillColor="?attr/colorOnSecondary"/>
                 </group>
             </group>
         </vector>

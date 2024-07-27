@@ -150,9 +150,6 @@ class PagesLinkFragment : Fragment() {
         mPagesIndex = root.findViewById(R.id.pages_link_pages_index)
         mMangaName = root.findViewById(R.id.pages_link_name_manga)
 
-        MenuUtil.tintColor(requireContext(), mFileLink)
-        MenuUtil.tintColor(requireContext(), mFileLinkLanguage)
-
         mContentButton = root.findViewById(R.id.pages_link_buttons_content)
         mSave = root.findViewById(R.id.pages_link_save_button)
         mReload = root.findViewById(R.id.pages_link_reload_button)

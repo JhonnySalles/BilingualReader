@@ -4,6 +4,6 @@
     android:width="80dp"
     android:height="80dp">
     <path
-        android:fillColor="?attr/colorSecondary"
+        android:fillColor="?attr/colorOnSecondary"
         android:pathData="M31.7 200.7L221.8 10.6l24.9 24.9L56.6 225.6L31.7 200.7zM15.8 242.9L54 232.7l-28 -28L15.8 242.9z" />
 </vector>

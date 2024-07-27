@@ -84,7 +84,7 @@
                 android:layout_width="@dimen/vocabulary_content_favorite_button_size"
                 android:layout_height="@dimen/vocabulary_content_favorite_button_size"
                 android:contentDescription="@string/vocabulary_favorite"
-                android:textColor="?attr/colorSecondary"
+                android:textColor="?attr/colorOnSecondary"
                 app:icon="@drawable/ico_favorite_unmark"
                 app:iconSize="25dp"
                 app:iconTint="@null" />

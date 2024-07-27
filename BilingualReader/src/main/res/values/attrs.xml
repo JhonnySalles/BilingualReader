@@ -53,4 +53,6 @@
     <attr format="reference" name="toolbarEndColor"/>
     <attr format="reference" name="toolbarTitleColor"/>
     <attr format="reference" name="toolbarTitleAccents"/>
+
+    <attr format="reference" name="fileLinkedBackground"/>
 </resources>

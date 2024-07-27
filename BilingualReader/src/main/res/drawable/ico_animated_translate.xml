@@ -15,27 +15,27 @@
                 <path
                     android:name="border2"
                     android:pathData="M 266.1 309.02 C 266.1 309.02 103.19 309.02 103.19 309.02 C 51.72 309.02 10 267.29 10 215.83 C 10 215.83 10 103.19 10 103.19 C 10 51.72 51.72 10 103.19 10 C 103.19 10 266.1 10 266.1 10 C 317.57 10 359.29 51.72 359.29 103.19 C 359.29 103.19 359.29 215.83 359.29 215.83 C 359.29 267.29 317.57 309.02 266.1 309.02"
-                    android:strokeColor="?attr/colorSecondary"
+                    android:strokeColor="?attr/colorOnSecondary"
                     android:strokeWidth="20"/>
                 <path
                     android:name="japanese1"
                     android:pathData="M 185.6 75.81 C 185.6 75.81 185.6 121.88 185.6 121.88"
-                    android:strokeColor="?attr/colorSecondary"
+                    android:strokeColor="?attr/colorOnSecondary"
                     android:strokeWidth="20"/>
                 <path
                     android:name="japanese2"
                     android:pathData="M 96.83 121.88 C 96.83 121.88 274.38 121.88 274.38 121.88"
-                    android:strokeColor="?attr/colorSecondary"
+                    android:strokeColor="?attr/colorOnSecondary"
                     android:strokeWidth="20"/>
                 <path
                     android:name="japanese3"
                     android:pathData="M 148.13 157.23 C 148.13 157.23 179.1 221.16 251.53 249.64"
-                    android:strokeColor="?attr/colorSecondary"
+                    android:strokeColor="?attr/colorOnSecondary"
                     android:strokeWidth="20"/>
                 <path
                     android:name="japanese4"
                     android:pathData="M 236.54 121.88 C 236.54 121.88 219.06 210.18 122.65 249.64"
-                    android:strokeColor="?attr/colorSecondary"
+                    android:strokeColor="?attr/colorOnSecondary"
                     android:strokeWidth="20"/>
             </group>
             <group
@@ -46,21 +46,21 @@
                     android:name="border1"
                     android:pathData="M 266.1 309.02 C 266.1 309.02 103.19 309.02 103.19 309.02 C 51.72 309.02 10 267.29 10 215.83 C 10 215.83 10 103.19 10 103.19 C 10 51.72 51.72 10 103.19 10 C 103.19 10 266.1 10 266.1 10 C 317.57 10 359.29 51.72 359.29 103.19 C 359.29 103.19 359.29 215.83 359.29 215.83 C 359.29 267.29 317.57 309.02 266.1 309.02"
                     android:fillAlpha="0"
-                    android:strokeColor="?attr/colorSecondary"
+                    android:strokeColor="?attr/colorOnSecondary"
                     android:strokeAlpha="0"
                     android:strokeWidth="20"/>
                 <path
                     android:name="english3"
                     android:pathData="M 120.58 231.18 C 120.58 231.18 179.01 97.75 179.01 97.75 C 181.26 92.67 188.48 92.67 190.73 97.75 C 190.73 97.75 249.09 231.18 249.09 231.18"
                     android:fillAlpha="0"
-                    android:strokeColor="?attr/colorSecondary"
+                    android:strokeColor="?attr/colorOnSecondary"
                     android:strokeAlpha="0"
                     android:strokeWidth="20"/>
                 <path
                     android:name="english4"
                     android:pathData="M 146.77 171.37 C 146.77 171.37 220.58 171.37 220.58 171.37"
                     android:fillAlpha="0"
-                    android:strokeColor="?attr/colorSecondary"
+                    android:strokeColor="?attr/colorOnSecondary"
                     android:strokeAlpha="0"
                     android:strokeWidth="20"/>
             </group>
