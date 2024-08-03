@@ -47,7 +47,7 @@
                 <path
                     android:name="ico_name"
                     android:pathData="M 15.226 21.201 L 23.885 21.201 L 23.885 23.907 L 16.308 23.907 C 16.021 23.907 15.746 23.793 15.543 23.59 C 15.34 23.387 15.226 23.111 15.226 22.824 Z M 23.885 13.082 L 16.308 13.082 C 16.118 13.082 15.932 13.132 15.767 13.227 C 15.602 13.322 15.466 13.459 15.371 13.624 C 15.276 13.788 15.226 13.975 15.226 14.165 L 15.226 20.118 L 23.885 20.118 Z"
-                    android:fillColor="?attr/colorOnSecondary"
+                    android:fillColor="?attr/colorPrimary"
                     android:strokeWidth="1"/>
             </group>
         </vector>

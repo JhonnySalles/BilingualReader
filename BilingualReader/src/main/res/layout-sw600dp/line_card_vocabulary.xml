@@ -11,7 +11,7 @@
 
     <TextView
         android:id="@+id/vocabulary_title"
-        style="@style/TextNormal.Vocabulary"
+        style="@style/TextTitle.Vocabulary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="@dimen/vocabulary_title_size"

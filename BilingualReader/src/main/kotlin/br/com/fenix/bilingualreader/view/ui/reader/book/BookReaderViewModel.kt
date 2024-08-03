@@ -182,8 +182,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 "  max-height: 100%;" +
                 "}"
 
-        val meta =
-            "<meta name=\"viewport\" content=\"height=device-height, width=device-width, initial-scale=1, maximum-scale=2, user-scalable=yes\" >"
+        val meta = "<meta name=\"viewport\" content=\"height=device-height, width=device-width, initial-scale=1, maximum-scale=2, user-scalable=yes\" >"
         val style = "<style type=\"text/css\"> " +
                 mFontsLocation +
                 "body { " +

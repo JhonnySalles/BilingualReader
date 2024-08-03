@@ -310,18 +310,14 @@ class BookReaderActivity : AppCompatActivity() {
         val index = TextView(this)
         index.text = resources.getString(R.string.reading_book_page_index)
         index.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_small_index_dialog_size))
-        index.setTextColor(getColorFromAttr(R.attr.colorOnSecondary))
+        index.setTextColor(getColorFromAttr(R.attr.colorPrimary))
         title.addView(index)
         title.setOnLongClickListener {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newPlainText("Copied Text", mToolBarTitle.text)
             clipboard.setPrimaryClip(clip)
 
-            Toast.makeText(
-                this,
-                getString(R.string.action_copy, mToolBarTitle.text),
-                Toast.LENGTH_LONG
-            ).show()
+            Toast.makeText(this, getString(R.string.action_copy, mToolBarTitle.text), Toast.LENGTH_LONG).show()
 
             true
         }

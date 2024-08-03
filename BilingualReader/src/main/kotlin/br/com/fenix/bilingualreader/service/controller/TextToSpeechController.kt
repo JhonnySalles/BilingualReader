@@ -572,7 +572,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
     private fun formatHtml(page: Int, html: String): MutableList<Speech> {
         var sequence = 0
-        val lines = TextUtil.replaceImages(TextUtil.formatHtml(html)).split(".")
+        val lines = TextUtil.replaceImages(TextUtil.formatHtml(html)).split(".", "。")
             .map { Speech(page, ++sequence, TextUtil.replaceHtmlTTS(it).replace("<br/>", " ").replace(" -", "-"), Html.fromHtml(it).toString().trim()) }
         return lines.filter { it.text.trim().isNotEmpty() }.toMutableList()
     }

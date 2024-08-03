@@ -15,7 +15,7 @@
                     <path
                         android:name="line_1"
                         android:pathData="M 5 5 C 4.735 5 4.48 5.105 4.293 5.293 C 4.105 5.48 4 5.735 4 6 C 4 6.265 4.105 6.52 4.293 6.707 C 4.48 6.895 4.735 7 5 7 L 19 7 C 19.265 7 19.52 6.895 19.707 6.707 C 19.895 6.52 20 6.265 20 6 C 20 5.735 19.895 5.48 19.707 5.293 C 19.52 5.105 19.265 5 19 5 Z"
-                        android:fillColor="?attr/colorOnSecondary"/>
+                        android:fillColor="?attr/colorPrimary"/>
                 </group>
                 <group
                     android:name="base_line_2"
@@ -23,7 +23,7 @@
                     <path
                         android:name="line_2"
                         android:pathData="M 4.919 10.93 C 4.654 10.93 4.399 11.036 4.212 11.223 C 4.024 11.411 3.919 11.665 3.919 11.93 C 3.919 12.195 4.024 12.45 4.212 12.637 C 4.399 12.825 4.654 12.93 4.919 12.93 L 18.919 12.93 C 19.184 12.93 19.439 12.825 19.626 12.637 C 19.813 12.45 19.919 12.195 19.919 11.93 C 19.919 11.665 19.813 11.411 19.626 11.223 C 19.439 11.036 19.184 10.93 18.919 10.93 Z"
-                        android:fillColor="?attr/colorOnSecondary"/>
+                        android:fillColor="?attr/colorPrimary"/>
                 </group>
                 <group
                     android:name="base_line_3"
@@ -31,7 +31,7 @@
                     <path
                         android:name="line_3"
                         android:pathData="M 5 17 C 4.735 17 4.48 17.105 4.293 17.293 C 4.105 17.48 4 17.735 4 18 C 4 18.265 4.105 18.52 4.293 18.707 C 4.48 18.895 4.735 19 5 19 L 19 19 C 19.265 19 19.52 18.895 19.707 18.707 C 19.895 18.52 20 18.265 20 18 C 20 17.735 19.895 17.48 19.707 17.293 C 19.52 17.105 19.265 17 19 17 Z"
-                        android:fillColor="?attr/colorOnSecondary"/>
+                        android:fillColor="?attr/colorPrimary"/>
                 </group>
             </group>
         </vector>

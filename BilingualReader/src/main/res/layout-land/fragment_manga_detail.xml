@@ -426,7 +426,7 @@
 
                             <TextView
                                 android:id="@+id/manga_detail_local_information_comic_info_book_marks_title"
-                                style="@style/TextTitle"
+                                style="@style/TextTitle.MangaDetail"
                                 android:layout_height="wrap_content"
                                 android:layout_width="wrap_content"
                                 android:layout_marginTop="5dp"
@@ -465,7 +465,7 @@
 
                     <TextView
                         android:id="@+id/manga_detail_chapters_title"
-                        style="@style/TextTitle"
+                        style="@style/TextTitle.MangaDetail"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
                         android:layout_marginTop="5dp"
@@ -500,7 +500,7 @@
                         android:layout_marginRight="@dimen/margin" />
 
                     <TextView
-                        style="@style/TextTitle"
+                        style="@style/TextTitle.MangaDetail"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
                         android:layout_marginStart="@dimen/margin"
@@ -537,7 +537,7 @@
                         android:layout_marginRight="@dimen/margin"/>
 
                     <TextView
-                        style="@style/TextTitle"
+                        style="@style/TextTitle.MangaDetail"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
                         android:text="@string/manga_detail_subtitles_title"
@@ -583,7 +583,7 @@
                         android:layout_marginRight="@dimen/margin" />
 
                     <TextView
-                        style="@style/TextTitle"
+                        style="@style/TextTitle.MangaDetail"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
                         android:layout_marginTop="5dp"
@@ -713,7 +713,7 @@
                         android:layout_marginRight="@dimen/margin"/>
 
                     <TextView
-                        style="@style/TextTitle"
+                        style="@style/TextTitle.MangaDetail"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
                         android:text="@string/manga_detail_related"

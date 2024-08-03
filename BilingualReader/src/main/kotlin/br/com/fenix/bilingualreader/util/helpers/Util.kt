@@ -890,13 +890,8 @@ class MenuUtil {
 
         fun getToolbarTheme(theme: Themes): Int {
             return when (theme) {
-                Themes.BLOOD_RED -> R.style.MainToolbarTheme_BloodRed
                 Themes.BLUE -> R.style.MainToolbarTheme_Blue
-                Themes.FOREST_GREEN -> R.style.MainToolbarTheme_ForestGreen
                 Themes.GREEN -> R.style.MainToolbarTheme_Green
-                Themes.NEON_BLUE -> R.style.MainToolbarTheme_NeonBlue
-                Themes.NEON_GREEN -> R.style.MainToolbarTheme_NeonGreen
-                Themes.OCEAN_BLUE -> R.style.MainToolbarTheme_OceanBlue
                 Themes.PINK -> R.style.MainToolbarTheme_Pink
                 Themes.RED -> R.style.MainToolbarTheme_Red
                 else -> R.style.MainToolbarTheme
@@ -908,12 +903,12 @@ class MenuUtil {
         }
 
         fun tintColor(context: Context, textInput: TextInputLayout) {
-            textInput.hintTextColor = ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorOnSecondary))
+            textInput.hintTextColor = ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorOnBackground))
             textInput.boxBackgroundColor = context.getColorFromAttr(R.attr.colorOnSurface)
             textInput.boxStrokeColor = context.getColorFromAttr(R.attr.background)
             textInput.placeholderTextColor = ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorOnBackground))
-            tintIcons(context, textInput.startIconDrawable, R.attr.colorOnSecondary)
-            tintIcons(context, textInput.endIconDrawable, R.attr.colorOnSecondary)
+            tintIcons(context, textInput.startIconDrawable, R.attr.colorOnBackground)
+            tintIcons(context, textInput.endIconDrawable, R.attr.colorOnBackground)
         }
 
         fun tintIcons(context: Context, icon: Drawable?, color: Int) {
@@ -1020,13 +1015,8 @@ class ThemeUtil {
                 val themes = context.resources.getStringArray(R.array.themes)
                 mapThemes = hashMapOf(
                     themes[0] to Themes.ORIGINAL,
-                    themes[1] to Themes.BLOOD_RED,
                     themes[2] to Themes.BLUE,
-                    themes[3] to Themes.FOREST_GREEN,
                     themes[4] to Themes.GREEN,
-                    themes[5] to Themes.NEON_BLUE,
-                    themes[6] to Themes.NEON_GREEN,
-                    themes[7] to Themes.OCEAN_BLUE,
                     themes[8] to Themes.PINK,
                     themes[9] to Themes.RED,
                 )

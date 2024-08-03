@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="?attr/colorTertiary">
+    android:color="?attr/colorPrimaryContainer">
     <item android:drawable="@drawable/book_mark_item_background" />
 </ripple>

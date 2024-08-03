@@ -65,10 +65,10 @@
                 style="@style/Button.IconOnlyWithBackground"
                 android:layout_width="@dimen/vocabulary_book_content_favorite_button_size"
                 android:layout_height="@dimen/vocabulary_book_content_favorite_button_size"
-                android:textColor="?attr/colorOnSecondary"
+                android:textColor="?attr/colorPrimary"
                 android:contentDescription="@string/vocabulary_book_favorite"
                 app:iconSize="25dp"
-                app:iconTint="?attr/colorOnSecondary"
+                app:iconTint="?attr/colorPrimary"
                 app:icon="@drawable/ico_favorite_unmark"/>
         </LinearLayout>
 

@@ -21,10 +21,10 @@
             style="@style/Button.IconOnly"
             android:layout_width="@dimen/book_annotation_button_size"
             android:layout_height="@dimen/book_annotation_button_size"
-            android:textColor="?attr/colorOnSecondary"
+            android:textColor="?attr/colorPrimary"
             android:contentDescription="@string/book_annotation_list_favorite"
             app:iconSize="@dimen/book_annotation_icon_size"
-            app:iconTint="?attr/colorOnSecondary"
+            app:iconTint="?attr/colorPrimary"
             app:icon="@drawable/ico_animated_favorited_unmarked"/>
 
         <TextView
@@ -100,7 +100,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
-                    android:textColor="?attr/colorOnSecondaryContainer"
+                    android:textColor="?attr/colorPrimaryContainer"
                     android:textSize="@dimen/book_annotation_note_text_size"/>
             </LinearLayout>
         </LinearLayout>

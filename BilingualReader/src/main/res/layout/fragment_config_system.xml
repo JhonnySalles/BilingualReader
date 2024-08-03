@@ -17,6 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
+            android:layout_marginEnd="@dimen/margin"
             android:layout_marginBottom="@dimen/margin_small"
             android:gravity="center"
             android:text="@string/config_sector_system" />
@@ -31,7 +32,7 @@
             android:layout_marginBottom="@dimen/margin_small" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
@@ -82,7 +83,7 @@
             android:layout_marginBottom="@dimen/margin_small" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
@@ -116,7 +117,7 @@
             android:layout_marginBottom="@dimen/margin_small" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
@@ -148,7 +149,7 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/config_system_share_mark_signed_account"
             style="@style/Button.LabelStart"
             android:layout_width="match_parent"
@@ -166,7 +167,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/config_system_share_mark_last_sync"
             style="@style/Button.LabelStart"
             android:layout_width="match_parent"
@@ -188,14 +189,14 @@
             android:layout_marginBottom="@dimen/margin_small" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
             android:layout_marginBottom="@dimen/margin_small"
             android:text="@string/config_title_database" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/config_system_backup"
             style="@style/Button.LabelStart"
             android:layout_width="match_parent"
@@ -206,7 +207,7 @@
             android:text="@string/config_database_backup"
             app:icon="@drawable/ic_database_backup" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/config_system_restore"
             style="@style/Button.LabelStart"
             android:layout_width="match_parent"
@@ -236,14 +237,14 @@
             android:layout_marginBottom="@dimen/margin_small" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
             android:layout_marginBottom="@dimen/margin_small"
             android:text="@string/config_title_cover" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/config_covers_delete"
             style="@style/Button.LabelStart"
             android:layout_width="match_parent"
@@ -264,14 +265,14 @@
             android:layout_marginBottom="@dimen/margin_small" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
             android:layout_marginBottom="@dimen/margin_small"
             android:text="@string/config_title_statistics" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/config_statistics_delete"
             style="@style/Button.LabelStart"
             android:layout_width="match_parent"

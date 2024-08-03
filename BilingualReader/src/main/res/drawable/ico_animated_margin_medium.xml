@@ -16,7 +16,7 @@
                     android:name="bar_top"
                     android:pathData="M 6 9 L 42 9"
                     android:fillAlpha="0"
-                    android:strokeColor="?attr/colorOnSecondary"
+                    android:strokeColor="?attr/colorPrimary"
                     android:strokeWidth="4"
                     android:strokeLineCap="round"
                     android:strokeLineJoin="round"/>
@@ -24,7 +24,7 @@
                     android:name="bar_bottom"
                     android:pathData="M 6 39 L 42 39"
                     android:fillAlpha="0"
-                    android:strokeColor="?attr/colorOnSecondary"
+                    android:strokeColor="?attr/colorPrimary"
                     android:strokeWidth="4"
                     android:strokeLineCap="round"
                     android:strokeLineJoin="round"/>
@@ -33,7 +33,7 @@
                         android:name="bar_center_top"
                         android:pathData="M 18.507 18.507 L 30.393 18.507"
                         android:fillAlpha="0"
-                        android:strokeColor="?attr/colorOnSecondary"
+                        android:strokeColor="?attr/colorPrimary"
                         android:strokeWidth="3.01391"
                         android:strokeLineCap="round"
                         android:strokeLineJoin="round"/>
@@ -43,7 +43,7 @@
                         android:name="bar_center_bottom"
                         android:pathData="M 18.507 29.493 L 30.393 29.493"
                         android:fillAlpha="0"
-                        android:strokeColor="?attr/colorOnSecondary"
+                        android:strokeColor="?attr/colorPrimary"
                         android:strokeWidth="3.01391"
                         android:strokeLineCap="round"
                         android:strokeLineJoin="round"/>
@@ -53,7 +53,7 @@
                         android:name="bar_right"
                         android:pathData="M 38.493 18.07 L 38.493 29.956"
                         android:fillAlpha="0"
-                        android:strokeColor="?attr/colorOnSecondary"
+                        android:strokeColor="?attr/colorPrimary"
                         android:strokeWidth="3.01391"
                         android:strokeLineCap="round"
                         android:strokeLineJoin="round"/>
@@ -63,7 +63,7 @@
                         android:name="bar_left"
                         android:pathData="M 10.361 18.028 L 10.361 29.914"
                         android:fillAlpha="0"
-                        android:strokeColor="?attr/colorOnSecondary"
+                        android:strokeColor="?attr/colorPrimary"
                         android:strokeWidth="3.01391"
                         android:strokeLineCap="round"
                         android:strokeLineJoin="round"/>

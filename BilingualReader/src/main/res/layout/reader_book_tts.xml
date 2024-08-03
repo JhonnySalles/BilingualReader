@@ -13,11 +13,11 @@
         style="@style/Button.IconOnly"
         android:layout_width="@dimen/reader_tts_button_border_size"
         android:layout_height="@dimen/reader_tts_button_border_size"
-        android:textColor="?attr/colorOnSecondary"
+        android:textColor="?attr/colorPrimary"
         android:contentDescription="@string/button_tts_previous"
         android:layout_marginStart="@dimen/reader_tts_button_margin_size"
         app:iconSize="@dimen/reader_tts_button_border_icon_size"
-        app:iconTint="?attr/colorOnSecondary"
+        app:iconTint="?attr/colorPrimary"
         app:icon="@drawable/ic_tts_config"/>
 
     <com.google.android.material.button.MaterialButton
@@ -25,10 +25,10 @@
         style="@style/Button.IconOnly"
         android:layout_width="@dimen/reader_tts_button_size"
         android:layout_height="@dimen/reader_tts_button_size"
-        android:textColor="?attr/colorOnSecondary"
+        android:textColor="?attr/colorPrimary"
         android:contentDescription="@string/button_tts_previous"
         app:iconSize="@dimen/reader_tts_button_icon_size"
-        app:iconTint="?attr/colorOnSecondary"
+        app:iconTint="?attr/colorPrimary"
         app:icon="@drawable/ic_tts_previous"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -55,10 +55,10 @@
             style="@style/Button.IconOnly"
             android:layout_width="@dimen/reader_tts_button_center_size"
             android:layout_height="@dimen/reader_tts_button_center_size"
-            android:textColor="?attr/colorOnSecondary"
+            android:textColor="?attr/colorPrimary"
             android:contentDescription="@string/button_tts_play"
             app:iconSize="@dimen/reader_tts_button_center_icon_size"
-            app:iconTint="?attr/colorOnSecondary"
+            app:iconTint="?attr/colorPrimary"
             app:icon="@drawable/ic_tts_play"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -72,10 +72,10 @@
         style="@style/Button.IconOnly"
         android:layout_width="@dimen/reader_tts_button_size"
         android:layout_height="@dimen/reader_tts_button_size"
-        android:textColor="?attr/colorOnSecondary"
+        android:textColor="?attr/colorPrimary"
         android:contentDescription="@string/button_tts_next"
         app:iconSize="@dimen/reader_tts_button_icon_size"
-        app:iconTint="?attr/colorOnSecondary"
+        app:iconTint="?attr/colorPrimary"
         app:icon="@drawable/ic_tts_next"/>
 
     <com.google.android.material.button.MaterialButton
@@ -83,11 +83,11 @@
         style="@style/Button.IconOnly"
         android:layout_width="@dimen/reader_tts_button_border_size"
         android:layout_height="@dimen/reader_tts_button_border_size"
-        android:textColor="?attr/colorOnSecondary"
+        android:textColor="?attr/colorPrimary"
         android:contentDescription="@string/button_tts_next"
         android:layout_marginEnd="@dimen/reader_tts_button_margin_size"
         app:iconSize="@dimen/reader_tts_button_border_icon_size"
-        app:iconTint="?attr/colorOnSecondary"
+        app:iconTint="?attr/colorPrimary"
         app:icon="@drawable/ic_tts_close"/>
 
 </LinearLayout>

@@ -71,8 +71,8 @@
     <dimen name="book_grid_card_layout_height">260dp</dimen>
     <dimen name="book_grid_title_size">12sp</dimen>
     <dimen name="book_grid_sub_title">10sp</dimen>
-    <dimen name="book_grid_favorite">20dp</dimen>
-    <dimen name="book_grid_subtitle">20dp</dimen>
+    <dimen name="book_grid_favorite">23dp</dimen>
+    <dimen name="book_grid_subtitle">23dp</dimen>
 
     <dimen name="book_grid_card_layout_width_medium">120dp</dimen>
     <dimen name="book_grid_card_layout_height_medium">210dp</dimen>

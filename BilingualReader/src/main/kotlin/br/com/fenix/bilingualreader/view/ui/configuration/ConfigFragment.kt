@@ -60,6 +60,7 @@ import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Scope
 import com.google.android.gms.tasks.Task
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -92,17 +93,17 @@ class ConfigFragment : Fragment() {
     private lateinit var mConfigSystemShareMarkEnabled: SwitchMaterial
     private lateinit var mConfigSystemShareMarkType: TextInputLayout
     private lateinit var mConfigSystemShareMarkTypeAutoComplete: MaterialAutoCompleteTextView
-    private lateinit var mConfigSystemShareMarkAccount: Button
+    private lateinit var mConfigSystemShareMarkAccount: MaterialButton
     private lateinit var mConfigSystemShareMarkSignIn: SignInButton
-    private lateinit var mConfigSystemShareMarkLastSync: Button
+    private lateinit var mConfigSystemShareMarkLastSync: MaterialButton
 
-    private lateinit var mConfigSystemBackup: Button
-    private lateinit var mConfigSystemRestore: Button
+    private lateinit var mConfigSystemBackup: MaterialButton
+    private lateinit var mConfigSystemRestore: MaterialButton
     private lateinit var mConfigSystemLastBackup: TextView
 
-    private lateinit var mConfigCoversDelete: Button
+    private lateinit var mConfigCoversDelete: MaterialButton
 
-    private lateinit var mConfigStatisticsDelete: Button
+    private lateinit var mConfigStatisticsDelete: MaterialButton
 
     private var mConfigSystemThemeModeSelect: ThemeMode = ThemeMode.SYSTEM
     private var mConfigSystemThemeSelect: Themes = Themes.ORIGINAL
@@ -119,7 +120,7 @@ class ConfigFragment : Fragment() {
     private lateinit var mMangaLibraryPathAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mMangaLibraryOrder: TextInputLayout
     private lateinit var mMangaLibraryOrderAutoComplete: MaterialAutoCompleteTextView
-    private lateinit var mMangaLibrariesButton: Button
+    private lateinit var mMangaLibrariesButton: MaterialButton
 
     private lateinit var mMangaDefaultSubtitleLanguage: TextInputLayout
     private lateinit var mMangaDefaultSubtitleLanguageAutoComplete: MaterialAutoCompleteTextView
@@ -152,7 +153,7 @@ class ConfigFragment : Fragment() {
     private var mMangaOrderSelect: Order = Order.Name
 
     // --------------------------------------------------------- Book ---------------------------------------------------------
-    private lateinit var mBookLibrariesButton: Button
+    private lateinit var mBookLibrariesButton: MaterialButton
     private lateinit var mBookLibraryPath: TextInputLayout
     private lateinit var mBookLibraryPathAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mBookLibraryOrder: TextInputLayout

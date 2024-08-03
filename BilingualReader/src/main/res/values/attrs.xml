@@ -47,6 +47,7 @@
 
     <bool name="isNight">false</bool>
 
+    <!-- App Colors -->
     <attr format="reference" name="statusBarColor"/>
     <attr format="reference" name="toolbarStartColor"/>
     <attr format="reference" name="toolbarCenterColor"/>
@@ -54,5 +55,5 @@
     <attr format="reference" name="toolbarTitleColor"/>
     <attr format="reference" name="toolbarTitleAccents"/>
 
-    <attr format="reference" name="fileLinkedBackground"/>
+    <attr format="reference" name="detailTextInverse"/>
 </resources>

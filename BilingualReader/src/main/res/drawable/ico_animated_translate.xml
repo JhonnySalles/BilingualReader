@@ -15,12 +15,12 @@
                 <path
                     android:name="border2"
                     android:pathData="M 266.1 309.02 C 266.1 309.02 103.19 309.02 103.19 309.02 C 51.72 309.02 10 267.29 10 215.83 C 10 215.83 10 103.19 10 103.19 C 10 51.72 51.72 10 103.19 10 C 103.19 10 266.1 10 266.1 10 C 317.57 10 359.29 51.72 359.29 103.19 C 359.29 103.19 359.29 215.83 359.29 215.83 C 359.29 267.29 317.57 309.02 266.1 309.02"
-                    android:strokeColor="?attr/colorOnSecondary"
+                    android:strokeColor="?attr/colorPrimary"
                     android:strokeWidth="20"/>
                 <path
                     android:name="japanese1"
                     android:pathData="M 185.6 75.81 C 185.6 75.81 185.6 121.88 185.6 121.88"
-                    android:strokeColor="?attr/colorOnSecondary"
+                    android:strokeColor="?attr/colorPrimary"
                     android:strokeWidth="20"/>
                 <path
                     android:name="japanese2"

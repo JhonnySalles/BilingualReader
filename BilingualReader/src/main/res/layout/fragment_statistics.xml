@@ -68,8 +68,8 @@
                 android:gravity="center"
                 android:indeterminate="true"
                 app:indicatorSize="@dimen/statistics_loading_size"
-                app:rippleColor="?attr/colorTertiary"
-                app:indicatorColor="?attr/colorTertiary" />
+                app:rippleColor="?attr/colorPrimaryContainer"
+                app:indicatorColor="?attr/colorPrimaryContainer" />
 
         </eightbitlab.com.blurview.BlurView>
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -170,12 +170,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             }
         })
 
-        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(
-            Resources.getSystem().getIdentifier(
-                "search_src_text",
-                "id", "android"
-            )
-        ) as AutoCompleteTextView
+        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
         searchSrcTextView.threshold = 1
         searchSrcTextView.setDropDownBackgroundResource(R.drawable.list_item_suggestion_background)
         searchSrcTextView.setTextAppearance(R.style.SearchShadow)
@@ -548,11 +543,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         mGridType = type
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_book_library, container, false)
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
 

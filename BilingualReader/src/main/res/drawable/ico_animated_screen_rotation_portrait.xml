@@ -42,7 +42,7 @@
                     <path
                         android:name="phone"
                         android:pathData="M 62 -87.5 C 62 -87.5 62 87.5 62 87.5 C 62 98.54 53.04 107.5 42 107.5 C 42 107.5 -42 107.5 -42 107.5 C -53.04 107.5 -62 98.54 -62 87.5 C -62 87.5 -62 -87.5 -62 -87.5 C -62 -98.54 -53.04 -107.5 -42 -107.5 C -42 -107.5 42 -107.5 42 -107.5 C 53.04 -107.5 62 -98.54 62 -87.5"
-                        android:fillColor="?attr/colorOnSecondary"
+                        android:fillColor="?attr/colorPrimary"
                         android:fillAlpha="0"
                         android:strokeColor="?attr/colorOnSecondary"
                         android:strokeWidth="20"/>
@@ -52,7 +52,7 @@
                         <path
                             android:name="button"
                             android:pathData="M 0 -10.5 C 5.79 -10.5 10.5 -5.79 10.5 0 C 10.5 5.79 5.79 10.5 0 10.5 C -5.79 10.5 -10.5 5.79 -10.5 0 C -10.5 -5.79 -5.79 -10.5 0 -10.5"
-                            android:fillColor="?attr/colorOnSecondary"
+                            android:fillColor="?attr/colorPrimary"
                             android:strokeColor="?attr/colorOnSecondary"
                             android:strokeWidth="10"/>
                     </group>

@@ -17,6 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
+            android:layout_marginEnd="@dimen/margin"
             android:layout_marginBottom="@dimen/margin_small"
             android:gravity="center"
             android:text="@string/config_sector_book" />
@@ -31,7 +32,7 @@
             android:layout_marginBottom="@dimen/margin_small" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
@@ -75,7 +76,7 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/config_book_libraries"
             style="@style/Button.LabelStart"
             android:layout_width="match_parent"
@@ -94,7 +95,7 @@
             android:layout_marginBottom="@dimen/margin_small" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
@@ -149,7 +150,7 @@
             android:layout_marginBottom="@dimen/margin_small" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
@@ -214,7 +215,7 @@
             android:layout_marginBottom="@dimen/margin_small" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
@@ -239,7 +240,7 @@
             app:layout_constraintVertical_bias="0" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
@@ -273,7 +274,7 @@
             android:layout_marginBottom="@dimen/margin_small" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"

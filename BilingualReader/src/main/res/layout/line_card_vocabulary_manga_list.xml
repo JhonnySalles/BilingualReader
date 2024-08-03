@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         app:strokeWidth="0.0dp"
-        app:rippleColor="?attr/colorTertiary">
+        app:rippleColor="?attr/colorPrimaryContainer">
 
         <ImageView
             android:id="@+id/vocabulary_manga_list_image_cover"

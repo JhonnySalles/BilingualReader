@@ -1,12 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- - - - - - - - - - - - - - - - - - - - Theme Demo Style - - - - - - - - - - - - - - - - - - - -->
-    <style name="ThemeBackground" >
-        <item name="android:background">?attr/background</item>
-    </style>
+    <style name="ThemeBackground" />
 
     <style name="ThemeBackground.Accent" >
-        <item name="android:background">?attr/colorSurface</item>
+        <item name="android:background">?attr/colorSurfaceVariant</item>
     </style>
 
     <style name="ThemeBackground.Card" >
@@ -14,7 +12,6 @@
     </style>
 
     <style name="ThemeBackground.Card.ContentBackground">
-        <item name="android:background">?attr/colorTertiaryContainer</item>
         <item name="android:alpha">0.7</item>
     </style>
 
@@ -51,7 +48,6 @@
     </style>
 
     <style name="ThemeTextInput.Text" parent="Theme.MangaReader">
-        <item name="android:background">?attr/colorOnBackground</item>
     </style>
 
     <style name="ThemeIcon" >
@@ -73,15 +69,12 @@
     </style>
 
     <style name="TouchDemonstration.Vertical" parent="TouchDemonstration">
-        <item name="android:background">?attr/colorSurfaceInverse</item>
     </style>
 
     <style name="TouchDemonstration.Horizontal" parent="TouchDemonstration">
-        <item name="android:background">?attr/colorSurfaceInverse</item>
     </style>
 
     <style name="TouchDemonstration.Corner" parent="TouchDemonstration">
-        <item name="android:background">?attr/colorOnSecondary</item>
     </style>
 
     <!-- - - - - - - - - - - - - - - - - - - - Basic System Style - - - - - - - - - - - - - - - - - - - -->
@@ -95,11 +88,11 @@
     </style>
 
     <style name="AppBackground.Accent" parent="AppBackground">
-        <item name="android:background">?attr/colorSurface</item>
+        <item name="android:background">?attr/colorSurfaceVariant</item>
     </style>
 
-    <style name="AppBackground.Accent.Alter" parent="AppBackground">
-        <item name="android:background">?attr/colorSurfaceBright</item>
+    <style name="AppBackground.Container" parent="AppBackground">
+        <item name="android:background">?attr/colorSurfaceContainer</item>
     </style>
 
     <style name="AppBackground.Item" parent="AppBackground">
@@ -109,12 +102,10 @@
     <style name="AppBackground.Card" parent="AppBackground">
         <item name="android:background">?attr/colorSurfaceInverse</item>
         <item name="strokeColor">?attr/colorSurfaceInverse</item>
-        <item name="rippleColor">?attr/colorTertiary</item>
+        <item name="rippleColor">?attr/colorPrimaryContainer</item>
     </style>
 
-    <style name="AppBackground.Reader" parent="AppBackground">
-        <item name="android:background">?attr/background</item>
-    </style>
+    <style name="AppBackground.Reader" parent="AppBackground" />
 
     <style name="AppBackground.PopupBottom" parent="AppBackground">
         <item name="android:background">@drawable/popup_bottom_background</item>
@@ -131,23 +122,21 @@
     </style>
 
     <style name="TextInputDropMenu" parent="Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu">
-        <item name="android:textColorHint">?attr/colorOnBackground</item>
-        <item name="boxBackgroundColor">?attr/colorSurface</item>
-        <item name="boxStrokeColor">?attr/background</item>
-        <item name="startIconTint">?attr/colorOnSecondary</item>
-        <item name="endIconTint">?attr/colorOnSecondary</item>
-        <item name="placeholderTextColor">?attr/colorOnBackground</item>
-        <item name="hintTextColor">?attr/colorOnSecondary</item>
+        <item name="boxBackgroundColor">?attr/colorSurfaceVariant</item>
+        <item name="boxStrokeColor">?attr/colorOnBackground</item>
+        <item name="startIconTint">?attr/colorPrimary</item>
+        <item name="endIconTint">?attr/colorPrimary</item>
+        <item name="placeholderTextColor">?attr/colorPrimary</item>
+        <item name="hintTextColor">?attr/colorOnBackground</item>
     </style>
 
     <style name="TextInputWithoutDropMenu" parent="Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu">
-        <item name="android:textColorHint">?attr/colorOnBackground</item>
-        <item name="boxBackgroundColor">?attr/colorSurface</item>
-        <item name="boxStrokeColor">?attr/background</item>
-        <item name="startIconTint">?attr/colorOnSecondary</item>
-        <item name="endIconTint">?attr/colorOnSecondary</item>
-        <item name="placeholderTextColor">?attr/colorOnBackground</item>
-        <item name="hintTextColor">?attr/colorOnSecondary</item>
+        <item name="boxBackgroundColor">?attr/colorSurfaceVariant</item>
+        <item name="boxStrokeColor">?attr/colorOnBackground</item>
+        <item name="startIconTint">?attr/colorPrimary</item>
+        <item name="endIconTint">?attr/colorPrimary</item>
+        <item name="placeholderTextColor">?attr/colorPrimary</item>
+        <item name="hintTextColor">?attr/colorOnBackground</item>
         <item name="endIconMode">clear_text</item>
     </style>
 
@@ -158,12 +147,12 @@
     </style>
 
     <style name="TextInputSelect" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="android:textColorHint">?attr/colorOnBackground</item>
-        <item name="boxBackgroundColor">?attr/colorSurface</item>
-        <item name="boxStrokeColor">?attr/background</item>
-        <item name="startIconTint">?attr/colorOnSecondary</item>
-        <item name="placeholderTextColor">?attr/colorOnBackground</item>
-        <item name="hintTextColor">?attr/colorOnSecondary</item>
+        <item name="boxBackgroundColor">?attr/colorSurfaceVariant</item>
+        <item name="boxStrokeColor">?attr/colorOnBackground</item>
+        <item name="startIconTint">?attr/colorPrimary</item>
+        <item name="endIconTint">?attr/colorPrimary</item>
+        <item name="placeholderTextColor">?attr/colorPrimary</item>
+        <item name="hintTextColor">?attr/colorOnBackground</item>
         <item name="endIconMode">clear_text</item>
         <item name="errorEnabled">false</item>
     </style>
@@ -174,18 +163,17 @@
     </style>
 
     <style name="TextInputEditText" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
-        <item name="android:textColorHint">?attr/colorOnBackground</item>
-        <item name="boxStrokeColor">?attr/colorOnSecondary</item>
-        <item name="startIconTint">?attr/colorOnSecondary</item>
-        <item name="placeholderTextColor">?attr/colorOnBackground</item>
-        <item name="hintTextColor">?attr/colorOnSecondary</item>
+        <item name="boxBackgroundColor">?attr/colorSurfaceVariant</item>
+        <item name="boxStrokeColor">?attr/colorOnBackground</item>
+        <item name="startIconTint">?attr/colorPrimary</item>
+        <item name="endIconTint">?attr/colorPrimary</item>
+        <item name="placeholderTextColor">?attr/colorPrimary</item>
+        <item name="hintTextColor">?attr/colorOnBackground</item>
         <item name="endIconMode">clear_text</item>
     </style>
 
     <style name="TextFieldEditText"  parent="Base.Widget.AppCompat.EditText">
         <item name="android:inputType">text</item>
-        <item name="android:textColor">?attr/colorOnBackground</item>
-        <item name="colorControlActivated">?attr/colorOnSecondary</item>
     </style>
 
     <style name="SwitchMaterial" parent="Widget.MaterialComponents.CompoundButton.Switch">
@@ -220,7 +208,7 @@
         <item name="iconTint">?attr/colorOnPrimaryContainer</item>
         <item name="iconPadding">15dp</item>
         <item name="backgroundTint">?attr/colorPrimaryContainer</item>
-        <item name="rippleColor">?attr/colorTertiary</item>
+        <item name="rippleColor">?attr/colorOutline</item>
         <item name="strokeColor">?attr/colorOnPrimaryContainer</item>
         <item name="strokeWidth">1dp</item>
     </style>
@@ -235,8 +223,8 @@
         <item name="iconSize">28dp</item>
         <item name="iconTint">?attr/colorOnPrimaryContainer</item>
         <item name="iconPadding">15dp</item>
-        <item name="backgroundTint">?attr/colorPrimaryContainer</item>
-        <item name="rippleColor">?attr/colorTertiary</item>
+        <item name="backgroundTint">?attr/colorPrimary</item>
+        <item name="rippleColor">?attr/colorPrimaryContainer</item>
         <item name="strokeColor">?attr/colorOnPrimaryContainer</item>
         <item name="strokeWidth">1dp</item>
     </style>
@@ -283,12 +271,12 @@
         <item name="iconPadding">0dp</item>
         <item name="iconSize">28dp</item>
         <item name="iconTint">@color/reader_buttons</item>
-        <item name="rippleColor">?attr/colorTertiary</item>
+        <item name="rippleColor">?attr/colorPrimaryContainer</item>
         <item name="strokeWidth">0dp</item>
     </style>
 
     <style name="Button.PageLinkFunction" parent="Button">
-        <item name="android:textColor">?attr/colorPrimaryInverse</item>
+        <item name="android:textColor">?attr/colorPrimaryContainer</item>
         <item name="iconSize">20dp</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
@@ -310,10 +298,10 @@
         <item name="android:padding">0dp</item>
         <item name="iconPadding">0dp</item>
         <item name="android:textAllCaps">false</item>
-        <item name="rippleColor">?attr/colorTertiary</item>
+        <item name="rippleColor">?attr/colorPrimaryContainer</item>
         <item name="strokeWidth">0dp</item>
-        <item name="backgroundTint">?attr/colorSurface</item>
-        <item name="iconTint">?attr/colorOnBackground</item>
+        <item name="backgroundTint">?attr/colorSurfaceVariant</item>
+        <item name="iconTint">?attr/colorOnSurfaceVariant</item>
         <item name="iconSize">28dp</item>
         <item name="iconGravity">textStart</item>
         <item name="cornerRadius">100dp</item>
@@ -329,11 +317,11 @@
         <item name="android:padding">0dp</item>
         <item name="iconPadding">0dp</item>
         <item name="android:textAllCaps">false</item>
-        <item name="rippleColor">?attr/colorTertiary</item>
+        <item name="rippleColor">?attr/colorPrimaryContainer</item>
         <item name="strokeWidth">0dp</item>
         <item name="strokeColor">?attr/colorPrimaryContainer</item>
-        <item name="backgroundTint">?attr/colorSurface</item>
-        <item name="iconTint">?attr/colorOnBackground</item>
+        <item name="backgroundTint">?attr/colorSurfaceVariant</item>
+        <item name="iconTint">?attr/colorOnSurfaceVariant</item>
         <item name="iconSize">28dp</item>
         <item name="iconGravity">textStart</item>
         <item name="cornerRadius">10dp</item>
@@ -348,10 +336,10 @@
         <item name="android:insetLeft">0dp</item>
         <item name="android:padding">0dp</item>
         <item name="iconPadding">0dp</item>
-        <item name="rippleColor">?attr/colorTertiary</item>
+        <item name="rippleColor">?attr/colorPrimaryContainer</item>
         <item name="strokeWidth">0dp</item>
-        <item name="backgroundTint">?attr/colorSurface</item>
-        <item name="iconTint">?attr/colorOnBackground</item>
+        <item name="backgroundTint">?attr/colorSurfaceVariant</item>
+        <item name="iconTint">?attr/colorOnSurfaceVariant</item>
         <item name="iconSize">28dp</item>
         <item name="iconGravity">textStart</item>
     </style>
@@ -362,7 +350,7 @@
         <item name="android:textColor">?attr/colorOnBackground</item>
         <item name="android:layout_gravity">center</item>
         <item name="android:gravity">center</item>
-        <item name="rippleColor">?attr/colorTertiary</item>
+        <item name="rippleColor">?attr/colorPrimaryContainer</item>
         <item name="strokeWidth">0dp</item>
     </style>
 
@@ -375,7 +363,7 @@
         <item name="android:insetLeft">0dp</item>
         <item name="android:padding">0dp</item>
         <item name="iconPadding">0dp</item>
-        <item name="rippleColor">?attr/colorTertiary</item>
+        <item name="rippleColor">?attr/colorPrimaryContainer</item>
         <item name="strokeWidth">0dp</item>
         <item name="iconTint">?attr/colorOnBackground</item>
         <item name="iconSize">28dp</item>
@@ -406,17 +394,19 @@
     </style>
 
     <style name="TextTitle" parent="Theme.MangaReader">
-        <item name="android:textColor">?attr/colorOnSecondary</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
     </style>
 
-    <style name="TextNormal" parent="Theme.MangaReader" >
+    <style name="TextTitle.SubTitle" parent="Theme.MangaReader">
+        <item name="android:textColor">?attr/colorTertiary</item>
+        <item name="android:textAppearance">?attr/textAppearanceTitleMedium</item>
+    </style>
+
+    <style name="TextNormal" parent="Theme.MangaReader">
         <item name="android:textColor">?attr/colorOnBackground</item>
-        <item name="iconTint">?attr/colorOnBackground</item>
     </style>
 
     <style name="TextNormal.Inverse" parent="TextNormal">
-        <item name="android:textColor">?attr/colorPrimary</item>
-        <item name="iconTint">?attr/colorPrimary</item>
     </style>
 
     <style name="TextNormal.Kanji"  parent="TextNormal">
@@ -425,10 +415,12 @@
 
     <style name="TextNormal.Inverse.Kanji" parent="TextNormal">
         <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
+        <item name="android:textColor">@color/kanji_title</item>
     </style>
 
     <style name="TextNormal.Inverse.Vocabulary" parent="TextNormal.Inverse">
         <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
+        <item name="android:textColor">@color/vocabulary_title</item>
     </style>
 
     <style name="TextTitle.SubtitleReader" parent="TextTitle">
@@ -450,13 +442,12 @@
     </style>
 
     <style name="TextNormal.MangaDetailTitle" parent="TextNormal">
-        <item name="android:textColor">?attr/colorPrimaryInverse</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
     </style>
 
     <style name="TextNormal.MangaDetail" parent="TextNormal">
-        <item name="android:textColor">?attr/colorPrimaryInverse</item>
+        <item name="android:textColor">?attr/detailTextInverse</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textAppearance">?attr/textAppearanceSubtitle2</item>
     </style>
@@ -468,7 +459,6 @@
     </style>
 
     <style name="TextTitle.BookDetail" parent="TextTitle">
-        <item name="android:textColor">?attr/colorPrimaryInverse</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textAppearance">?attr/textAppearanceSubtitle2</item>
     </style>
@@ -484,7 +474,7 @@
     </style>
 
     <style name="TextNormal.BookDetail" parent="TextNormal">
-        <item name="android:textColor">?attr/colorPrimaryInverse</item>
+        <item name="android:textColor">?attr/detailTextInverse</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textAppearance">?attr/textAppearanceSubtitle2</item>
     </style>
@@ -496,7 +486,7 @@
     </style>
 
     <style name="TextTitle.Popup" parent="TextTitle">
-        <item name="tint">?attr/colorOnSecondary</item>
+        <item name="tint">?attr/colorPrimary</item>
     </style>
 
     <style name="TextTitle.Card" parent="TextTitle">
@@ -561,6 +551,12 @@
         <item name="android:textAppearance">?attr/textAppearanceSubtitle1</item>
     </style>
 
+    <style name="TextTitle.Vocabulary" parent="TextTitle">
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">5</item>
+        <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
+    </style>
+
     <style name="TextNormal.Vocabulary" parent="TextNormal">
         <item name="android:ellipsize">end</item>
         <item name="android:maxLines">5</item>
@@ -592,7 +588,7 @@
 
     <style name="TextNormal.History.Title" parent="TextNormal">
         <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
-        <item name="android:textColor">?attr/colorPrimaryContainer</item>
+        <item name="android:textColor">?attr/colorTertiary</item>
     </style>
 
     <style name="TextNormal.History.Subtitle" parent="TextTitle">
@@ -615,12 +611,7 @@
         <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
     </style>
 
-    <style name="TextTitle.Config" parent="TextTitle">
-        <item name="android:textAppearance">?attr/textAppearanceTitleMedium</item>
-    </style>
-
     <style name="TextTitle.Config.Sector" parent="TextTitle">
-        <item name="android:textColor">?attr/colorTertiary</item>
         <item name="android:textAppearance">?attr/textAppearanceHeadlineMedium</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -648,18 +639,13 @@
         <item name="tint">?attr/colorOnBackground</item>
     </style>
 
-    <style name="TextTitle.BookAnnotation" parent="TextTitle">
-        <item name="tint">?attr/colorOnSecondary</item>
-    </style>
-
     <style name="TextTitle.Statistics.Sector" parent="TextTitle">
-        <item name="android:textColor">?attr/colorTertiary</item>
         <item name="android:textAppearance">?attr/textAppearanceHeadlineMedium</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextTitle.Statistics.Container" parent="TextTitle">
-        <item name="android:textColor">@color/statistics_container_text</item>
+        <item name="android:textColor">?attr/android:colorBackground</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textAppearance">?attr/textAppearanceHeadline2</item>
     </style>
@@ -678,14 +664,14 @@
 
     <style name="SeekBar" >
         <item name="android:progressBackgroundTint">?attr/colorOnPrimaryContainer</item>
-        <item name="android:progressTint">?attr/colorPrimaryContainer</item>
-        <item name="android:thumbTint">?attr/colorPrimaryContainer</item>
+        <item name="android:progressTint">?attr/colorTertiary</item>
+        <item name="android:thumbTint">?attr/colorTertiary</item>
     </style>
 
     <style name="SeekBarDotted" >
         <item name="android:progressBackgroundTint">?attr/colorOnPrimaryContainer</item>
         <item name="android:progressTint">?attr/colorPrimaryContainer</item>
-        <item name="android:thumbTint">?attr/colorTertiary</item>
+        <item name="android:thumbTint">?attr/colorPrimaryContainer</item>
     </style>
 
     <style name="ProgressBar" parent="@android:style/Widget.ProgressBar.Horizontal">
@@ -710,7 +696,7 @@
 
     <style name="Slider">
         <item name="trackColorInactive">?attr/colorOnPrimaryContainer</item>
-        <item name="trackColorActive">?attr/colorTertiary</item>
+        <item name="trackColorActive">?attr/colorPrimaryContainer</item>
         <item name="thumbColor">?attr/colorPrimaryContainer</item>
         <item name="tickVisible">false</item>
     </style>
@@ -752,6 +738,7 @@
 
     <style name="IconConfig" >
         <item name="android:adjustViewBounds">true</item>
+        <item name="android:backgroundTint">?attr/colorOnPrimaryContainer</item>
         <item name="android:padding">1dp</item>
         <item name="tint">?attr/colorPrimaryContainer</item>
     </style>
@@ -767,7 +754,7 @@
     </style>
 
     <style name="IconPageMark" parent="Theme.MangaReader">
-        <item name="android:tint">?attr/colorTertiary</item>
+        <item name="android:tint">?attr/colorPrimaryContainer</item>
     </style>
 
     <style name="FloatingButton" >
@@ -776,7 +763,7 @@
         <item name="android:gravity">center</item>
         <item name="android:tint">@color/floating_button_color</item>
         <item name="android:padding">5dp</item>
-        <item name="rippleColor">?attr/colorOnSecondary</item>
+        <item name="rippleColor">?attr/colorPrimaryContainer</item>
     </style>
 
     <style name="FloatingButton.Actions" parent="FloatingButton">
@@ -867,7 +854,6 @@
     </style>
 
     <style name="PopupTab" parent="AppBackground">
-        <item name="android:background">?attr/background</item>
         <item name="tabSelectedTextColor">?attr/colorTertiaryContainer</item>
         <item name="tabTextAppearance">@style/TextPopupTab</item>
         <item name="tabTextColor">?attr/colorOnBackground</item>
@@ -883,10 +869,9 @@
         <item name="android:background">@drawable/custom_ripple</item>
     </style>
 
-    <style name="ReaderBookCssColors" >
-        <item name="android:background">?attr/colorOnBackground</item>
-        <item name="android:color">?attr/background</item>
-        <item name="android:colorAccent">?attr/colorTertiaryContainer</item>
+    <style name="PopupTextSelect" >
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:background">?attr/colorSurfaceVariant</item>
     </style>
 
 </resources>

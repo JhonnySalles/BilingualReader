@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="AppCompatAlertDialogStyle" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
-        <item name="colorAccent">?attr/colorOnSecondary</item>
+        <item name="colorAccent">?attr/colorSurfaceContainer</item>
         <item name="android:textColor">?attr/colorOnBackground</item>
         <item name="android:textColorPrimary">?attr/colorOnBackground</item>
-        <item name="android:background">?attr/colorSurfaceBright</item>
+        <item name="android:background">?attr/colorSurfaceContainer</item>
         <item name="colorControlHighlight">?attr/colorTertiary</item>
+
         <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
         <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
 
@@ -25,7 +26,7 @@
     </style>
 
     <style name="PositiveButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="android:textColor">?attr/colorPrimaryContainer</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
     </style>
 
     <style name="FloatingTab" parent="TextAppearance.Design.Tab">
@@ -34,14 +35,14 @@
     </style>
 
     <style name="AppCompatMaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
-        <item name="colorAccent">?attr/colorOnSecondary</item>
+        <item name="colorAccent">?attr/colorSurfaceContainer</item>
         <item name="android:textColorPrimary">?attr/colorOnBackground</item>
         <item name="textColorAlertDialogListItem">?attr/colorOnBackground</item>
         <item name="android:textColor">?attr/colorOnBackground</item>
         <item name="android:textColorAlertDialogListItem">?attr/colorOnBackground</item>
         <item name="android:textColorSecondary">?attr/colorOnBackground</item>
-        <item name="android:background">?attr/colorSurfaceBright</item>
-        <item name="colorControlHighlight">?attr/colorTertiary</item>
+        <item name="android:background">?attr/colorSurfaceContainer</item>
+        <item name="colorControlHighlight">?attr/colorPrimary</item>
 
         <item name="materialAlertDialogTitleTextStyle">@style/AppCompatAlertDialogTitle</item>
         <item name="materialAlertDialogBodyTextStyle">@style/AppCompatAlertDialogContent</item>
@@ -62,14 +63,14 @@
     </style>
 
     <style name="AppCompatMaterialAlertList" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
-        <item name="colorAccent">?attr/colorOnSecondary</item>
+        <item name="colorAccent">?attr/colorSurfaceContainer</item>
         <item name="android:textColorPrimary">?attr/colorOnBackground</item>
         <item name="textColorAlertDialogListItem">?attr/colorOnBackground</item>
         <item name="android:textColor">?attr/colorOnBackground</item>
         <item name="android:textColorAlertDialogListItem">?attr/colorOnBackground</item>
         <item name="android:textColorSecondary">?attr/colorOnBackground</item>
-        <item name="android:background">?attr/colorSurfaceBright</item>
-        <item name="colorControlHighlight">?attr/colorTertiary</item>
+        <item name="android:background">?attr/colorSurfaceContainer</item>
+        <item name="colorControlHighlight">?attr/colorPrimary</item>
 
         <item name="materialAlertDialogTitleTextStyle">@style/AppCompatAlertDialogTitle</item>
         <item name="materialAlertDialogBodyTextStyle">@style/AppCompatAlertDialogList</item>
@@ -93,7 +94,7 @@
     </style>
 
     <style name="AppCompatAlertDialogTitle" parent="@style/MaterialAlertDialog.MaterialComponents.Title.Text">
-        <item name="android:textColor">?attr/colorOnSecondary</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
     </style>
 
     <style name="AppCompatAlertDialogContent" parent="@style/MaterialAlertDialog.MaterialComponents.Body.Text">
@@ -107,16 +108,6 @@
     </style>
 
     <style name="AppCompatMaterialDatePicker" parent="@style/ThemeOverlay.MaterialComponents.MaterialCalendar">
-        <item name="android:background">?attr/colorSurfaceBright</item>
-        <item name="android:textColor">?attr/colorOnTertiary</item>
-        <item name="textColor">?attr/colorOnTertiary</item>
-        <item name="iconTint">?attr/colorOnTertiary</item>
-        <item name="itemTextColor">?attr/colorOnTertiary</item>
-        <item name="colorOnSurface">?attr/colorOnTertiary</item>
-        <item name="itemStrokeColor">?attr/colorOnSecondary</item>
-        <item name="itemFillColor">?attr/colorOnSecondary</item>
-        <item name="colorPrimary">?attr/colorOnSecondary</item>
-        <item name="colorOnPrimary">?attr/colorSurfaceBright</item>
 
         <item name="materialCalendarHeaderDivider">@style/AppCompatMaterialDatePickerHeaderDivider</item>
         <item name="materialCalendarHeaderTitle">@style/AppCompatMaterialDatePickerTitle</item>
@@ -124,32 +115,16 @@
     </style>
 
     <style name="AppCompatMaterialDatePickerTitle" parent="@style/Widget.MaterialComponents.MaterialCalendar.HeaderSelection">
-        <item name="colorOnPrimary">?attr/colorSurfaceBright</item>
-        <item name="android:background">?attr/colorOnSecondary</item>
     </style>
 
     <style name="AppCompatMaterialDatePickerSelection" parent="@style/Widget.MaterialComponents.MaterialCalendar.HeaderSelection">
-        <item name="android:textColor">?attr/colorSurfaceBright</item>
-        <item name="android:background">?attr/colorOnSecondary</item>
-        <item name="background">?attr/colorOnSecondary</item>
     </style>
 
     <style name="AppCompatMaterialDatePickerHeaderDivider" parent="@style/Widget.MaterialComponents.MaterialCalendar.HeaderDivider">
-        <item name="android:background">?attr/colorOnSecondary</item>
     </style>
 
 
     <style name="AppCompatMaterialTimePicker" parent="@style/Widget.MaterialComponents.TimePicker">
-        <item name="android:background">?attr/colorSurfaceBright</item>
-        <item name="android:textColor">?attr/colorOnTertiary</item>
-        <item name="textColor">?attr/colorOnTertiary</item>
-        <item name="iconTint">?attr/colorOnTertiary</item>
-        <item name="itemTextColor">?attr/colorOnTertiary</item>
-        <item name="colorOnSurface">?attr/colorOnTertiary</item>
-        <item name="itemStrokeColor">?attr/colorOnSecondary</item>
-        <item name="itemFillColor">?attr/colorOnSecondary</item>
-        <item name="colorPrimary">?attr/colorOnSecondary</item>
-        <item name="colorOnPrimary">?attr/colorSurfaceBright</item>
     </style>
 
 </resources>

@@ -2,7 +2,7 @@
 <inset xmlns:android="http://schemas.android.com/apk/res/android"
     android:insetLeft="50dp" android:insetRight="50dp" >
     <shape>
-        <solid android:color="@color/default_list_divider" />
+        <solid android:color="?attr/colorSurfaceInverse" />
         <corners android:radius="2.0dip" />
         <size android:height="1dp" />
     </shape>

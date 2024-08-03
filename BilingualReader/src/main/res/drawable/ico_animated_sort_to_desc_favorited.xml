@@ -79,7 +79,7 @@
                 <path
                     android:name="ico_favorite"
                     android:pathData="M 22.716 15.622 C 21.622 14.528 19.85 14.527 18.756 15.62 C 17.663 14.526 15.889 14.525 14.796 15.618 C 13.702 16.711 13.701 18.484 14.794 19.578 L 18.752 23.54 L 22.713 19.582 C 23.808 18.489 23.809 16.716 22.716 15.622 Z"
-                    android:fillColor="?attr/colorOnSecondary"
+                    android:fillColor="?attr/colorPrimary"
                     android:strokeWidth="1"/>
             </group>
         </vector>

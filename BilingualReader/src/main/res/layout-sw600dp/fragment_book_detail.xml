@@ -313,7 +313,7 @@
                         android:layout_marginRight="@dimen/margin"/>
 
                     <TextView
-                        style="@style/TextTitle"
+                        style="@style/TextTitle.BookDetail"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
                         android:layout_marginTop="5dp"
@@ -413,7 +413,7 @@
                         android:textSize="@dimen/book_detail_information_texts_size" />
 
                     <TextView
-                        style="@style/TextTitle"
+                        style="@style/TextTitle.SubTitle"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
                         android:layout_marginTop="5dp"
@@ -450,7 +450,7 @@
 
                     <TextView
                         android:id="@+id/book_detail_chapters_title"
-                        style="@style/TextTitle"
+                        style="@style/TextTitle.BookDetail"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
                         android:layout_marginTop="5dp"
@@ -492,7 +492,7 @@
                         android:layout_marginRight="@dimen/margin" />
 
                     <TextView
-                        style="@style/TextTitle"
+                        style="@style/TextTitle.BookDetail"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
                         android:text="@string/book_detail_file_links_title"
@@ -526,7 +526,7 @@
                         android:layout_marginRight="@dimen/margin"/>
 
                     <TextView
-                        style="@style/TextTitle"
+                        style="@style/TextTitle.BookDetail"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
                         android:layout_marginTop="5dp"
@@ -655,7 +655,7 @@
                         android:layout_marginRight="@dimen/margin"/>
 
                     <TextView
-                        style="@style/TextTitle"
+                        style="@style/TextTitle.BookDetail"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
                         android:text="@string/book_detail_related"

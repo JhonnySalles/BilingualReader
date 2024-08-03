@@ -83,7 +83,7 @@
                     android:layout_weight="1"
                     android:clickable="true"
                     android:gravity="center_vertical"
-                    android:textColor="?attr/colorPrimaryInverse"
+                    android:textColor="?attr/toolbarTitleAccents"
                     android:textSize="@dimen/floating_ocr_language_text_size" />
             </LinearLayout>
         </com.google.android.material.appbar.AppBarLayout>
@@ -136,7 +136,7 @@
             android:contentDescription="@string/reading_manga_button_previous_file"
             app:icon="@drawable/ico_animated_manga_before"
             app:iconGravity="textStart"
-            app:rippleColor="?attr/colorTertiary"
+            app:rippleColor="?attr/colorPrimaryContainer"
             tools:ignore="TouchTargetSizeCheck" />
 
         <com.google.android.material.button.MaterialButton

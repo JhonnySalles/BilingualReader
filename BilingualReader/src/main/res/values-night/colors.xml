@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- - - - - - - - - - - - - - - - - - - - -  JLPT Colors  - - - - - - - - - - - - - - - - - - - - -->
+    <color name="JLPT0">#b3b3b3</color>
+    <color name="JLPT1">#ff4d4d</color>
+    <color name="JLPT2">#e6b800</color>
+    <color name="JLPT3">#00e600</color>
+    <color name="JLPT4">#668cff</color>
+    <color name="JLPT5">#b366ff</color>
+    <color name="VOCABULARY">#00e600</color>
+
+    <color name="kanji_title">#000000</color>
+    <color name="vocabulary_title">#000000</color>
+
     <!-- - - - - - - - - - - - - - - - - - - - -  Text View Select Colors  - - - - - - - - - - - - - - - - - - - - -->
     <color name="text_select_red">#cc0000</color>
     <color name="text_select_yellow">#cc7a00</color>
@@ -7,7 +20,10 @@
     <color name="text_select_blue">#002db3</color>
 
 
-    <color name="statistics_container_text">#000000</color>
+
+    <color name="manga_reader_detailTextInverse">#000000</color>
     <color name="statistics_overlay_semi_transparent">#1a1a1aAA</color>
+
+    <color name="manga_reader_fileLinkedBackground">#212121</color>
 
 </resources>

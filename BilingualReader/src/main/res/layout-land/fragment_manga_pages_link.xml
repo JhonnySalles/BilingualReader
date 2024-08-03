@@ -173,7 +173,7 @@
                         android:layout_width="@dimen/page_link_pages_index"
                         android:layout_height="wrap_content"
                         android:contentDescription="@string/page_link_page_index"
-                        app:iconTint="?attr/colorOnSecondary"
+                        app:iconTint="?attr/colorPrimary"
                         android:tag=""
                         app:icon="@drawable/ico_animated_file_link_pages_index"/>
 
@@ -333,9 +333,9 @@
                     android:max="100"
                     android:progress="100"
                     android:visibility="invisible"
-                    app:rippleColor="?attr/colorTertiary"
+                    app:rippleColor="?attr/colorPrimaryContainer"
                     app:indicatorSize="@dimen/page_link_loading_progress_size"
-                    app:indicatorColor="?attr/colorTertiary"
+                    app:indicatorColor="?attr/colorPrimaryContainer"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
