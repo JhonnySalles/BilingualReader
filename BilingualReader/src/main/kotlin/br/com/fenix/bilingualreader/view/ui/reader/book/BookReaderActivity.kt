@@ -264,6 +264,7 @@ class BookReaderActivity : AppCompatActivity() {
     }
 
     private fun setBook(book: Book) {
+        mViewModel.stopLoadChapters = true
         SharedData.clearChapters()
         changePageDescription(book.chapter, book.chapterDescription, book.bookMark, book.pages)
         mBook = book

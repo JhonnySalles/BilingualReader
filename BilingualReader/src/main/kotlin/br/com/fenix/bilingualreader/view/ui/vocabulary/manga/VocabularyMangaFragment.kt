@@ -287,7 +287,8 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
         }
 
         mPopupFilterOrderTab.setupWithViewPager(mPopupFilterOrderView)
-        mPopupOrderFragment = VocabularyPopupOrder(this)
+        mPopupOrderFragment = VocabularyPopupOrder()
+        mPopupOrderFragment.setListener(this)
 
         BottomSheetBehavior.from(mMenuPopupFilterOrder).apply {
             peekHeight = 195
@@ -432,6 +433,7 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
     }
 
     override fun onDestroy() {
+        mPopupOrderFragment.clearListener()
         VocabularyMangaListCardAdapter.clearVocabularyMangaList()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

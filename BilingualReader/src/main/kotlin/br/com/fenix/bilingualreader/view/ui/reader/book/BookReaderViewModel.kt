@@ -696,6 +696,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
 
     // --------------------------------------------------------- Book - Chapters ---------------------------------------------------------
+    var isLoadChapters = false
+    var stopLoadChapters = false
     private fun loadImage(context: Context, parse: DocumentParse, page: Int, textView : TextView) : Bitmap? {
         try {
             var text = parse.getPage(page).pageHTMLWithImages.orEmpty()
@@ -750,17 +752,26 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         }
 
         if (SharedData.isProcessed(parse)) {
+            isLoadChapters = true
             SharedData.clearChapters()
+            stopLoadChapters = false
             val list = arrayListOf<Chapters>()
             val chapters = parse.getChapters()
             val pages = parse.pageCount
-            var title: Chapters
             var c = 0
-            var p = chapters[c].first
-            title = Chapters(chapters[c].second, 0, chapters[c].first, c.toFloat(), true)
+            var p = parse.pageCount
+            var title: Chapters = if (chapters.isNotEmpty()) {
+                p = chapters[c].first
+                Chapters(chapters[c].second, 0, chapters[c].first, c.toFloat(), true)
+            } else
+                Chapters(parse.bookTitle, 0, 0, 0f, true)
+
             list.add(title)
 
             for (i in 0 until pages) {
+                if (stopLoadChapters)
+                    break
+
                 if (i >= p && c < chapters.size - 1) {
                     c++
                     p = chapters[c].first
@@ -768,7 +779,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                     list.add(title)
                 }
 
-                list.add(Chapters(chapters[c].second, i, i+1, 0f, false, isSelected = number == i+1))
+                list.add(Chapters(title.title, i, i + 1, 0f, false, isSelected = number == i + 1))
             }
 
             val textView = TextView(context)
@@ -780,18 +791,26 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             CoroutineScope(Dispatchers.IO).launch {
                 val deferred = async {
                     for (chapter in list) {
+                        if (stopLoadChapters)
+                            break
+
                         if (chapter.isTitle)
                             continue
 
                         chapter.image = loadImage(context, parse, chapter.number, textView)
-                        withContext(Dispatchers.Main) { SharedData.callListeners(chapter.number) }
+                        withContext(Dispatchers.Main) {
+                            if (!stopLoadChapters)
+                                SharedData.callListeners(chapter.number)
+                        }
                     }
                 }
 
                 deferred.await()
                 withContext(Dispatchers.Main) {
-                    SharedData.setChapters(parse, list.toList())
+                    if (!stopLoadChapters)
+                        SharedData.setChapters(parse, list.toList())
                 }
+                isLoadChapters = false
             }
         }
 

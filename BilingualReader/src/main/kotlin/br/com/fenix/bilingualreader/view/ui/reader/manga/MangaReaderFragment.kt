@@ -77,6 +77,8 @@ import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
+import br.com.fenix.bilingualreader.view.components.book.TextViewPager
+import br.com.fenix.bilingualreader.view.components.book.WebViewPager
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPager
 import br.com.fenix.bilingualreader.view.managers.MangaHandler
@@ -545,6 +547,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     override fun onDestroy() {
+        mViewModel.stopLoadChapters = true
         mSubtitleController.clearControllers()
         if (mSubtitleController.mReaderFragment == this)
             mSubtitleController.mReaderFragment = null
@@ -1085,6 +1088,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 }
 
                 confirm = true
+                mViewModel.stopLoadChapters = true
                 val activity = requireActivity() as MangaReaderActivity
                 activity.changeManga(mNewManga!!)
             }

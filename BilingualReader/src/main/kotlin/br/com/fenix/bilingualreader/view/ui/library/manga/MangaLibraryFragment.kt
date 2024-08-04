@@ -785,7 +785,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
-            GeneralConsts.REQUEST.MANGA_DETAIL -> notifyDataSet(itemRefresh!!)
+            GeneralConsts.REQUEST.MANGA_DETAIL -> notifyDataSet(itemRefresh ?: 0)
             GeneralConsts.REQUEST.DRIVE_AUTHORIZATION -> shareMarkToDrive()
         }
     }

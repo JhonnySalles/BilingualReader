@@ -532,6 +532,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
     private fun setManga(manga: Manga, isRestore: Boolean = false) {
         if (!isRestore) {
+            mViewModel.stopLoadChapters = true
             mViewModel.clear()
             SharedData.clearChapters()
             mManga = manga

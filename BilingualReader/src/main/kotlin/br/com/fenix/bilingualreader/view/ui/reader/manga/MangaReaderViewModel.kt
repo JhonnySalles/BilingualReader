@@ -265,6 +265,8 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
     }
 
     // --------------------------------------------------------- Chapters ---------------------------------------------------------
+    var isLoadChapters = false
+    var stopLoadChapters = false
     private fun loadImage(parse: Parse, page: Int, isSmallSize: Boolean = true) : Bitmap? {
         try {
             var stream = parse.getPage(page)
@@ -305,6 +307,8 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
         if (SharedData.isProcessed(manga)) {
             SharedData.clearChapters()
             val parse = ParseFactory.create(manga.file) ?: return false
+            isLoadChapters = true
+            stopLoadChapters = false
 
             if (parse is RarParse) {
                 val cacheDir = File(GeneralConsts.getCacheDir(app.applicationContext), GeneralConsts.CACHE_FOLDER.IMAGE)
@@ -330,18 +334,27 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 val deferred = async {
                     if (number > 5) {
                         for (i in (number - 3) until list.size) {
+                            if (stopLoadChapters)
+                                break
+
                             val page = list[i]
                             page.image = loadImage(parse, page.number, false)
                             withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
                         }
 
                         for (i in (number - 4) downTo 0) {
+                            if (stopLoadChapters)
+                                break
+
                             val page = list[i]
                             page.image = loadImage(parse, page.number, false)
                             withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
                         }
                     } else
                         for (page in list) {
+                            if (stopLoadChapters)
+                                break
+
                             page.image = loadImage(parse, page.number, false)
                             withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
                         }
@@ -351,8 +364,10 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
                 deferred.await()
                 withContext(Dispatchers.Main) {
-                    SharedData.setChapters(manga, list.toList())
+                    if (!stopLoadChapters)
+                        SharedData.setChapters(manga, list.toList())
                 }
+                isLoadChapters = false
             }
         }
 

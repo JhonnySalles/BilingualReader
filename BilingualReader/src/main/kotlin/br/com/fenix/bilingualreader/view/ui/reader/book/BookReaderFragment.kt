@@ -415,9 +415,17 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     override fun onDestroy() {
-        destroyParse()
+        mViewModel.stopLoadChapters = true
+        if (mViewModel.isLoadChapters) {
+            mHandler.postDelayed({
+                destroyParse()
+                SharedData.setDocumentParse(null)
+            }, 200)
+        } else {
+            destroyParse()
+            SharedData.setDocumentParse(null)
+        }
         mTextToSpeech?.stop()
-        SharedData.setDocumentParse(null)
         removeRefreshSizeDelay()
         requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onDestroy()
@@ -873,8 +881,16 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     }
 
                     confirm = true
-                    destroyParse()
-                    (requireActivity() as BookReaderActivity).changeBook(mNewBook!!)
+                    if (mViewModel.isLoadChapters) {
+                        mViewModel.stopLoadChapters = true
+                        mHandler.postDelayed({
+                            destroyParse()
+                            (requireActivity() as BookReaderActivity).changeBook(mNewBook!!)
+                        }, 200)
+                    } else {
+                        destroyParse()
+                        (requireActivity() as BookReaderActivity).changeBook(mNewBook!!)
+                    }
                 }
                 .setNegativeButton(R.string.switch_action_negative) { _, _ -> }
                 .setOnDismissListener {
