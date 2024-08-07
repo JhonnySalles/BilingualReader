@@ -53,7 +53,7 @@ public class TxtUtils {
         if (str == null) {
             return str;
         }
-        return str.toLowerCase(Locale.US);
+        return str.toLowerCase(Locale.getDefault());
 
     }
 

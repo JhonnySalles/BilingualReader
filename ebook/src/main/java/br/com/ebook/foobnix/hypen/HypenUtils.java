@@ -17,7 +17,7 @@ public class HypenUtils {
         }
         try {
             if (lang.length() > 2) {
-                lang = lang.substring(0, 2).toLowerCase(Locale.US);
+                lang = lang.substring(0, 2).toLowerCase(Locale.getDefault());
             }
 
             HyphenPattern pattern = HyphenPattern.valueOf(lang);

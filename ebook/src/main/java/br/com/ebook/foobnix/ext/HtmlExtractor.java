@@ -46,13 +46,13 @@ public class HtmlExtractor {
                 if (Config.SHOW_LOG)
                     LOG.d(line);
 
-                if (line.toLowerCase(Locale.US).contains("<body")) {
+                if (line.toLowerCase(Locale.getDefault()).contains("<body")) {
                     isBody = true;
                 }
                 if (isBody) {
                     html.append(line);
                 }
-                if (line.toLowerCase(Locale.US).contains("</html>")) {
+                if (line.toLowerCase(Locale.getDefault()).contains("</html>")) {
                     break;
                 }
             }

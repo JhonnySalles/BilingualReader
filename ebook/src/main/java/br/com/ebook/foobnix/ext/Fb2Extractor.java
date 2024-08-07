@@ -106,7 +106,7 @@ public class Fb2Extractor extends BaseExtractor {
                         }
                         if (imageCover == null) {
                             imageCover = xpp.getAttributeValue(0);
-                            if (TxtUtils.isNotEmpty(imageCover) && imageCover.toLowerCase(Locale.US).contains("cover")) {
+                            if (TxtUtils.isNotEmpty(imageCover) && imageCover.toLowerCase(Locale.getDefault()).contains("cover")) {
                                 imageCover = imageID = imageCover.replace("#", "");
                             } else {
                                 imageCover = null;
@@ -631,9 +631,9 @@ public class Fb2Extractor extends BaseExtractor {
             InputStream encodingCheck = new FileInputStream(fb2);
             byte[] header = new byte[80];
             encodingCheck.read(header);
-            if (new String(header).toLowerCase(Locale.US).contains("windows-1251")) {
+            if (new String(header).toLowerCase(Locale.getDefault()).contains("windows-1251")) {
                 encoding = "cp1251";
-            } else if (new String(header).toLowerCase(Locale.US).contains("windows-1252")) {
+            } else if (new String(header).toLowerCase(Locale.getDefault()).contains("windows-1252")) {
                 encoding = "cp1252";
             }
             encodingCheck.close();

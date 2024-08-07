@@ -279,16 +279,22 @@ public class EpubExtractor extends BaseExtractor {
                 zipFile = new ZipFile(new File(path), StandardCharsets.UTF_8);
                 nextEntry = null;
                 entries = zipFile.entries();
+                byte[] coverAux = null;
 
                 while (entries.hasMoreElements() && (nextEntry = entries.nextElement()) != null) {
-                    String name = nextEntry.getName().toLowerCase(Locale.US);
+                    String name = nextEntry.getName().toLowerCase(Locale.getDefault());
                     if (name.endsWith(".jpeg") || name.endsWith(".jpg") || name.endsWith(".png")) {
-                        if (name.contains("cover")) {
+                        if (name.startsWith("cover")) {
                             cover = BaseExtractor.getEntryAsByte(zipFile.getInputStream(nextEntry));
                             break;
                         }
+                        if (name.contains("cover"))
+                            coverAux = BaseExtractor.getEntryAsByte(zipFile.getInputStream(nextEntry));
                     }
                 }
+
+                if (cover == null && coverAux != null)
+                    cover = coverAux;
             }
 
             if (cover == null) {
@@ -298,7 +304,7 @@ public class EpubExtractor extends BaseExtractor {
                 entries = zipFile.entries();
 
                 while (entries.hasMoreElements() && (nextEntry = entries.nextElement()) != null) {
-                    String name = nextEntry.getName().toLowerCase(Locale.US);
+                    String name = nextEntry.getName().toLowerCase(Locale.getDefault());
                     if (name.endsWith(".jpeg") || name.endsWith(".jpg") || name.endsWith(".png")) {
                         cover = BaseExtractor.getEntryAsByte(zipFile.getInputStream(nextEntry));
                         break;

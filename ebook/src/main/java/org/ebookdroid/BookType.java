@@ -54,13 +54,13 @@ public enum BookType {
         extensionToActivity = new HashMap<>();
         for (final BookType a : values()) {
             for (final String ext : a.extensions) {
-                extensionToActivity.put(ext.toLowerCase(Locale.US), a);
+                extensionToActivity.put(ext.toLowerCase(Locale.getDefault()), a);
             }
         }
         mimeTypesToActivity = new HashMap<>();
         for (final BookType a : values()) {
             for (final String type : a.mimeTypes) {
-                mimeTypesToActivity.put(type.toLowerCase(Locale.US), a);
+                mimeTypesToActivity.put(type.toLowerCase(Locale.getDefault()), a);
             }
         }
     }
@@ -82,7 +82,7 @@ public enum BookType {
             return false;
         }
 
-        path = path.toLowerCase(Locale.US);
+        path = path.toLowerCase(Locale.getDefault());
         for (final String ext : extensions) {
             if (path.endsWith(ext) || path.endsWith(ext + ".zip")) {
                 return true;
@@ -141,7 +141,7 @@ public enum BookType {
         if (path == null) {
             return false;
         }
-        path = path.toLowerCase(Locale.US);
+        path = path.toLowerCase(Locale.getDefault());
 
         for (final BookType a : values()) {
             for (final String ext : a.extensions) {
@@ -159,7 +159,7 @@ public enum BookType {
             return null;
         }
 
-        uri = uri.toLowerCase(Locale.US);
+        uri = uri.toLowerCase(Locale.getDefault());
 
         for (final String ext : extensionToActivity.keySet()) {
             if (uri.endsWith("." + ext)) {

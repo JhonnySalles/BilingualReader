@@ -233,11 +233,11 @@ public class BookCSS {
         boldItalicFont = DEFAULT_FONT;
         headersFont = DEFAULT_FONT;
 
-        initFontName = initFontName.replace(".ttf", "").replace(".otf", "").trim().toLowerCase(Locale.US);
+        initFontName = initFontName.replace(".ttf", "").replace(".otf", "").trim().toLowerCase(Locale.getDefault());
 
         List<String> allFonts = getAllFonts();
         for (String fullName : allFonts) {
-            String fontName = fullName.replace(".ttf", "").replace(".otf", "").trim().toLowerCase(Locale.US);
+            String fontName = fullName.replace(".ttf", "").replace(".otf", "").trim().toLowerCase(Locale.getDefault());
 
             if (fontName.startsWith(initFontName) || fontName.equals(initFontName)) {
 
@@ -280,7 +280,7 @@ public class BookCSS {
 
                 @Override
                 public boolean accept(File dir, String name) {
-                    name = name.toLowerCase(Locale.US);
+                    name = name.toLowerCase(Locale.getDefault());
                     for (String ext : fontExts) {
                         if (name.endsWith(ext)) {
                             return true;
@@ -335,7 +335,7 @@ public class BookCSS {
 
                 @Override
                 public boolean accept(File dir, String name) {
-                    name = name.toLowerCase(Locale.US);
+                    name = name.toLowerCase(Locale.getDefault());
                     for (String ext : fontExts) {
                         if (name.endsWith(ext)) {
                             return true;
@@ -368,7 +368,7 @@ public class BookCSS {
         if (TxtUtils.isEmpty(name)) {
             return false;
         }
-        name = name.toLowerCase(Locale.US);
+        name = name.toLowerCase(Locale.getDefault());
         for (String ext : fontExts) {
             if (name.endsWith(ext)) {
                 return true;

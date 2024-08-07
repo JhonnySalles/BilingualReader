@@ -67,7 +67,7 @@ public class Dips {
 
     public static boolean isEInk(Context context) {
         boolean isEink = getRefreshRate(context) < 30.0;
-        String brand = Build.BRAND.toLowerCase(Locale.US);
+        String brand = Build.BRAND.toLowerCase(Locale.getDefault());
         if (!isEink && (brand.contains("onyx") || brand.contains("icarus") || brand.contains("yota") || brand.contains("nook"))) {
             return true;
         }

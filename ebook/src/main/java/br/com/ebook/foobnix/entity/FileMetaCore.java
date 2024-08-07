@@ -67,7 +67,7 @@ public class FileMetaCore {
     public EbookMeta getEbookMeta(String path, CacheDir folder, boolean withPDF) {
         EbookMeta ebookMeta = EbookMeta.Empty();
         try {
-            if (path.toLowerCase(Locale.US).endsWith(".zip")) {
+            if (path.toLowerCase(Locale.getDefault()).endsWith(".zip")) {
                 CacheZipUtils.cacheLock.lock();
                 try {
                     UnZipRes res = CacheZipUtils.extracIfNeed(path, folder);

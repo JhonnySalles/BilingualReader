@@ -211,7 +211,7 @@ public class ExtUtils {
         if (path == null) {
             return false;
         }
-        String name = path.toLowerCase(Locale.US);
+        String name = path.toLowerCase(Locale.getDefault());
         for (String ext : imageExts) {
             if (name.endsWith(ext)) {
                 return true;
@@ -224,7 +224,7 @@ public class ExtUtils {
         if (mime == null) {
             return false;
         }
-        mime = mime.toLowerCase(Locale.US);
+        mime = mime.toLowerCase(Locale.getDefault());
         for (String ext : imageMimes) {
             if (ext.equals(mime)) {
                 return true;
@@ -262,7 +262,7 @@ public class ExtUtils {
         if (name == null) {
             return false;
         }
-        name = name.toLowerCase(Locale.US);
+        name = name.toLowerCase(Locale.getDefault());
         for (String ext : archiveExts) {
             if (name.endsWith(ext)) {
                 return true;
@@ -284,7 +284,7 @@ public class ExtUtils {
     }
 
     public static boolean isFontFile(String name) {
-        name = name.toLowerCase(Locale.US);
+        name = name.toLowerCase(Locale.getDefault());
         for (String ext : BookCSS.fontExts) {
             if (name.endsWith(ext)) {
                 return true;
@@ -403,7 +403,7 @@ public class ExtUtils {
 
         for (String ext : result) {
             seachExts.add(ext);
-            // seachExts.add(ext.toUpperCase(Locale.US));
+            // seachExts.add(ext.toUpperCase(Locale.getDefault()));
         }
 
     }
@@ -453,7 +453,7 @@ public class ExtUtils {
         if (path == null) {
             return false;
         }
-        return path.toLowerCase(Locale.US).endsWith(".zip");
+        return path.toLowerCase(Locale.getDefault()).endsWith(".zip");
     }
 
     public static synchronized boolean isNoMetaFomat(String path) {
