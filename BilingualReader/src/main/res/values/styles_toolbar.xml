@@ -38,7 +38,25 @@
         <item name="iconTint">?attr/toolbarTitleAccents</item> <!--Icons -->
     </style>
 
+    <style name="MainToolbarTheme.OceanBlue" parent="Theme.MangaReader.OceanBlue">
+        <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
+        <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
+        <item name="colorControlNormal">?attr/toolbarTitleAccents</item> <!-- butons -->
+        <item name="android:textColor">?attr/colorPrimary</item> <!-- text menu -->
+        <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
+        <item name="iconTint">?attr/toolbarTitleAccents</item> <!--Icons -->
+    </style>
+
     <style name="MainToolbarTheme.Green" parent="Theme.MangaReader.Green">
+        <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
+        <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
+        <item name="colorControlNormal">?attr/toolbarTitleAccents</item> <!-- butons -->
+        <item name="android:textColor">?attr/colorPrimary</item> <!-- text menu -->
+        <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
+        <item name="iconTint">?attr/toolbarTitleAccents</item> <!--Icons -->
+    </style>
+
+    <style name="MainToolbarTheme.ForestGreen" parent="Theme.MangaReader.ForestGreen">
         <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
         <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
         <item name="colorControlNormal">?attr/toolbarTitleAccents</item> <!-- butons -->
@@ -57,6 +75,15 @@
     </style>
 
     <style name="MainToolbarTheme.Red" parent="Theme.MangaReader.Red">
+        <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
+        <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
+        <item name="colorControlNormal">?attr/toolbarTitleAccents</item> <!-- butons -->
+        <item name="android:textColor">?attr/colorPrimary</item> <!-- text menu -->
+        <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
+        <item name="iconTint">?attr/toolbarTitleAccents</item> <!--Icons -->
+    </style>
+
+    <style name="MainToolbarTheme.BloodRed" parent="Theme.MangaReader.BloodRed">
         <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
         <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
         <item name="colorControlNormal">?attr/toolbarTitleAccents</item> <!-- butons -->

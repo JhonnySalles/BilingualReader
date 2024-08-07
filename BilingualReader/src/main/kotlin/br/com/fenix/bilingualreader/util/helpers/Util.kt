@@ -677,13 +677,8 @@ class MsgUtil {
                     .setPositiveButton(R.string.action_neutral) { _, _ -> }.create().show()
         }
 
-        inline fun alert(
-            context: Context,
-            title: String,
-            message: String,
-            theme: Int = R.style.AppCompatMaterialAlertDialog,
-            crossinline action: (dialog: DialogInterface, which: Int) -> Unit
-        ) {
+        inline fun alert(context: Context, title: String, message: String, theme: Int = R.style.AppCompatMaterialAlertDialog,
+            crossinline action: (dialog: DialogInterface, which: Int) -> Unit) {
             MaterialAlertDialogBuilder(context, theme)
                 .setTitle(title).setMessage(message)
                 .setPositiveButton(
@@ -694,14 +689,9 @@ class MsgUtil {
                 .create().show()
         }
 
-        inline fun alert(
-            context: Context,
-            title: String,
-            message: String,
-            theme: Int = R.style.AppCompatMaterialAlertDialog,
+        inline fun alert(context: Context, title: String, message: String, theme: Int = R.style.AppCompatMaterialAlertDialog,
             crossinline positiveAction: (dialog: DialogInterface, which: Int) -> Unit,
-            crossinline negativeAction: (dialog: DialogInterface, which: Int) -> Unit
-        ) {
+            crossinline negativeAction: (dialog: DialogInterface, which: Int) -> Unit) {
             MaterialAlertDialogBuilder(context, theme)
                 .setTitle(title).setMessage(message)
                 .setPositiveButton(
@@ -717,13 +707,8 @@ class MsgUtil {
                 .create().show()
         }
 
-        inline fun error(
-            context: Context,
-            title: String,
-            message: String,
-            theme: Int = R.style.AppCompatMaterialErrorDialogStyle,
-            crossinline action: (dialog: DialogInterface, which: Int) -> Unit
-        ) {
+        inline fun error(context: Context, title: String, message: String, theme: Int = R.style.AppCompatMaterialErrorDialogStyle,
+                         crossinline action: (dialog: DialogInterface, which: Int) -> Unit) {
             MaterialAlertDialogBuilder(context, theme)
                 .setTitle(title).setMessage(message)
                 .setPositiveButton(
@@ -824,11 +809,7 @@ class ImageUtil {
             image.setOnClickListener { oneClick() }
         }
 
-        fun calculateInSampleSize(
-            options: BitmapFactory.Options,
-            reqWidth: Int,
-            reqHeight: Int
-        ): Int {
+        fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
             val height = options.outHeight
             val width = options.outWidth
             var inSampleSize = 1
@@ -891,9 +872,12 @@ class MenuUtil {
         fun getToolbarTheme(theme: Themes): Int {
             return when (theme) {
                 Themes.BLUE -> R.style.MainToolbarTheme_Blue
+                Themes.OCEAN_BLUE -> R.style.MainToolbarTheme_OceanBlue
                 Themes.GREEN -> R.style.MainToolbarTheme_Green
+                Themes.FOREST_GREEN -> R.style.MainToolbarTheme_ForestGreen
                 Themes.PINK -> R.style.MainToolbarTheme_Pink
                 Themes.RED -> R.style.MainToolbarTheme_Red
+                Themes.BLOOD_RED -> R.style.MainToolbarTheme_BloodRed
                 else -> R.style.MainToolbarTheme
             }
         }

@@ -133,6 +133,73 @@
         <item name="colorSurfaceContainer">@color/manga_reader_blue_theme_surfaceContainer</item>
         <item name="colorSurfaceContainerHigh">@color/manga_reader_blue_theme_surfaceContainerHigh</item>
         <item name="colorSurfaceContainerHighest">@color/manga_reader_blue_theme_surfaceContainerHighest</item>
+
+        <!-- App Colors -->
+        <item name="statusBarColor">@color/manga_reader_blue_theme_statusBarColor</item>
+        <item name="toolbarStartColor">@color/manga_reader_blue_theme_toolbarStartColor</item>
+        <item name="toolbarCenterColor">@color/manga_reader_blue_theme_toolbarCenterColor</item>
+        <item name="toolbarEndColor">@color/manga_reader_blue_theme_toolbarEndColor</item>
+        <item name="toolbarTitleColor">@color/manga_reader_blue_theme_toolbarTitleColor</item>
+        <item name="toolbarTitleAccents">@color/manga_reader_blue_theme_toolbarTitleAccents</item>
+    </style>
+
+    <!--== Ocean Blue Theme ==-->
+    <style name="Theme.MangaReader.OceanBlue">
+        <!-- Theme Colors -->
+        <item name="colorPrimary">@color/manga_reader_ocean_blue_theme_primary</item>
+        <item name="colorOnPrimary">@color/manga_reader_ocean_blue_theme_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/manga_reader_ocean_blue_theme_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/manga_reader_ocean_blue_theme_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/manga_reader_ocean_blue_theme_secondary</item>
+        <item name="colorOnSecondary">@color/manga_reader_ocean_blue_theme_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/manga_reader_ocean_blue_theme_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/manga_reader_ocean_blue_theme_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/manga_reader_ocean_blue_theme_tertiary</item>
+        <item name="colorOnTertiary">@color/manga_reader_ocean_blue_theme_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/manga_reader_ocean_blue_theme_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/manga_reader_ocean_blue_theme_onTertiaryContainer</item>
+        <item name="colorError">@color/manga_reader_ocean_blue_theme_error</item>
+        <item name="colorOnError">@color/manga_reader_ocean_blue_theme_onError</item>
+        <item name="colorErrorContainer">@color/manga_reader_ocean_blue_theme_errorContainer</item>
+        <item name="colorOnErrorContainer">@color/manga_reader_ocean_blue_theme_onErrorContainer</item>
+        <item name="android:colorBackground">@color/manga_reader_ocean_blue_theme_background</item>
+        <item name="colorOnBackground">@color/manga_reader_ocean_blue_theme_onBackground</item>
+        <item name="colorSurface">@color/manga_reader_ocean_blue_theme_surface</item>
+        <item name="colorOnSurface">@color/manga_reader_ocean_blue_theme_onSurface</item>
+        <item name="colorSurfaceVariant">@color/manga_reader_ocean_blue_theme_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/manga_reader_ocean_blue_theme_onSurfaceVariant</item>
+        <item name="colorOutline">@color/manga_reader_ocean_blue_theme_outline</item>
+        <item name="colorOutlineVariant">@color/manga_reader_ocean_blue_theme_outlineVariant</item>
+        <item name="colorSurfaceInverse">@color/manga_reader_ocean_blue_theme_inverseSurface</item>
+        <item name="colorOnSurfaceInverse">@color/manga_reader_ocean_blue_theme_inverseOnSurface</item>
+        <item name="colorPrimaryInverse">@color/manga_reader_ocean_blue_theme_inversePrimary</item>
+        <item name="colorPrimaryFixed">@color/manga_reader_ocean_blue_theme_primaryFixed</item>
+        <item name="colorOnPrimaryFixed">@color/manga_reader_ocean_blue_theme_onPrimaryFixed</item>
+        <item name="colorPrimaryFixedDim">@color/manga_reader_ocean_blue_theme_primaryFixedDim</item>
+        <item name="colorOnPrimaryFixedVariant">@color/manga_reader_ocean_blue_theme_onPrimaryFixedVariant</item>
+        <item name="colorSecondaryFixed">@color/manga_reader_ocean_blue_theme_secondaryFixed</item>
+        <item name="colorOnSecondaryFixed">@color/manga_reader_ocean_blue_theme_onSecondaryFixed</item>
+        <item name="colorSecondaryFixedDim">@color/manga_reader_ocean_blue_theme_secondaryFixedDim</item>
+        <item name="colorOnSecondaryFixedVariant">@color/manga_reader_ocean_blue_theme_onSecondaryFixedVariant</item>
+        <item name="colorTertiaryFixed">@color/manga_reader_ocean_blue_theme_tertiaryFixed</item>
+        <item name="colorOnTertiaryFixed">@color/manga_reader_ocean_blue_theme_onTertiaryFixed</item>
+        <item name="colorTertiaryFixedDim">@color/manga_reader_ocean_blue_theme_tertiaryFixedDim</item>
+        <item name="colorOnTertiaryFixedVariant">@color/manga_reader_ocean_blue_theme_onTertiaryFixedVariant</item>
+        <item name="colorSurfaceDim">@color/manga_reader_ocean_blue_theme_surfaceDim</item>
+        <item name="colorSurfaceBright">@color/manga_reader_ocean_blue_theme_surfaceBright</item>
+        <item name="colorSurfaceContainerLowest">@color/manga_reader_ocean_blue_theme_surfaceContainerLowest</item>
+        <item name="colorSurfaceContainerLow">@color/manga_reader_ocean_blue_theme_surfaceContainerLow</item>
+        <item name="colorSurfaceContainer">@color/manga_reader_ocean_blue_theme_surfaceContainer</item>
+        <item name="colorSurfaceContainerHigh">@color/manga_reader_ocean_blue_theme_surfaceContainerHigh</item>
+        <item name="colorSurfaceContainerHighest">@color/manga_reader_ocean_blue_theme_surfaceContainerHighest</item>
+
+        <!-- App Colors -->
+        <item name="statusBarColor">@color/manga_reader_ocean_blue_theme_statusBarColor</item>
+        <item name="toolbarStartColor">@color/manga_reader_ocean_blue_theme_toolbarStartColor</item>
+        <item name="toolbarCenterColor">@color/manga_reader_ocean_blue_theme_toolbarCenterColor</item>
+        <item name="toolbarEndColor">@color/manga_reader_ocean_blue_theme_toolbarEndColor</item>
+        <item name="toolbarTitleColor">@color/manga_reader_ocean_blue_theme_toolbarTitleColor</item>
+        <item name="toolbarTitleAccents">@color/manga_reader_ocean_blue_theme_toolbarTitleAccents</item>
     </style>
 
     <!--== Green Theme ==-->
@@ -184,6 +251,73 @@
         <item name="colorSurfaceContainer">@color/manga_reader_green_theme_surfaceContainer</item>
         <item name="colorSurfaceContainerHigh">@color/manga_reader_green_theme_surfaceContainerHigh</item>
         <item name="colorSurfaceContainerHighest">@color/manga_reader_green_theme_surfaceContainerHighest</item>
+
+        <!-- App Colors -->
+        <item name="statusBarColor">@color/manga_reader_green_theme_statusBarColor</item>
+        <item name="toolbarStartColor">@color/manga_reader_green_theme_toolbarStartColor</item>
+        <item name="toolbarCenterColor">@color/manga_reader_green_theme_toolbarCenterColor</item>
+        <item name="toolbarEndColor">@color/manga_reader_green_theme_toolbarEndColor</item>
+        <item name="toolbarTitleColor">@color/manga_reader_green_theme_toolbarTitleColor</item>
+        <item name="toolbarTitleAccents">@color/manga_reader_green_theme_toolbarTitleAccents</item>
+    </style>
+
+    <!--== Forest Green Theme ==-->
+    <style name="Theme.MangaReader.ForestGreen">
+        <!-- Theme Colors -->
+        <item name="colorPrimary">@color/manga_reader_forest_green_theme_primary</item>
+        <item name="colorOnPrimary">@color/manga_reader_forest_green_theme_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/manga_reader_forest_green_theme_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/manga_reader_forest_green_theme_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/manga_reader_forest_green_theme_secondary</item>
+        <item name="colorOnSecondary">@color/manga_reader_forest_green_theme_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/manga_reader_forest_green_theme_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/manga_reader_forest_green_theme_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/manga_reader_forest_green_theme_tertiary</item>
+        <item name="colorOnTertiary">@color/manga_reader_forest_green_theme_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/manga_reader_forest_green_theme_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/manga_reader_forest_green_theme_onTertiaryContainer</item>
+        <item name="colorError">@color/manga_reader_forest_green_theme_error</item>
+        <item name="colorOnError">@color/manga_reader_forest_green_theme_onError</item>
+        <item name="colorErrorContainer">@color/manga_reader_forest_green_theme_errorContainer</item>
+        <item name="colorOnErrorContainer">@color/manga_reader_forest_green_theme_onErrorContainer</item>
+        <item name="android:colorBackground">@color/manga_reader_forest_green_theme_background</item>
+        <item name="colorOnBackground">@color/manga_reader_forest_green_theme_onBackground</item>
+        <item name="colorSurface">@color/manga_reader_forest_green_theme_surface</item>
+        <item name="colorOnSurface">@color/manga_reader_forest_green_theme_onSurface</item>
+        <item name="colorSurfaceVariant">@color/manga_reader_forest_green_theme_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/manga_reader_forest_green_theme_onSurfaceVariant</item>
+        <item name="colorOutline">@color/manga_reader_forest_green_theme_outline</item>
+        <item name="colorOutlineVariant">@color/manga_reader_forest_green_theme_outlineVariant</item>
+        <item name="colorSurfaceInverse">@color/manga_reader_forest_green_theme_inverseSurface</item>
+        <item name="colorOnSurfaceInverse">@color/manga_reader_forest_green_theme_inverseOnSurface</item>
+        <item name="colorPrimaryInverse">@color/manga_reader_forest_green_theme_inversePrimary</item>
+        <item name="colorPrimaryFixed">@color/manga_reader_forest_green_theme_primaryFixed</item>
+        <item name="colorOnPrimaryFixed">@color/manga_reader_forest_green_theme_onPrimaryFixed</item>
+        <item name="colorPrimaryFixedDim">@color/manga_reader_forest_green_theme_primaryFixedDim</item>
+        <item name="colorOnPrimaryFixedVariant">@color/manga_reader_forest_green_theme_onPrimaryFixedVariant</item>
+        <item name="colorSecondaryFixed">@color/manga_reader_forest_green_theme_secondaryFixed</item>
+        <item name="colorOnSecondaryFixed">@color/manga_reader_forest_green_theme_onSecondaryFixed</item>
+        <item name="colorSecondaryFixedDim">@color/manga_reader_forest_green_theme_secondaryFixedDim</item>
+        <item name="colorOnSecondaryFixedVariant">@color/manga_reader_forest_green_theme_onSecondaryFixedVariant</item>
+        <item name="colorTertiaryFixed">@color/manga_reader_forest_green_theme_tertiaryFixed</item>
+        <item name="colorOnTertiaryFixed">@color/manga_reader_forest_green_theme_onTertiaryFixed</item>
+        <item name="colorTertiaryFixedDim">@color/manga_reader_forest_green_theme_tertiaryFixedDim</item>
+        <item name="colorOnTertiaryFixedVariant">@color/manga_reader_forest_green_theme_onTertiaryFixedVariant</item>
+        <item name="colorSurfaceDim">@color/manga_reader_forest_green_theme_surfaceDim</item>
+        <item name="colorSurfaceBright">@color/manga_reader_forest_green_theme_surfaceBright</item>
+        <item name="colorSurfaceContainerLowest">@color/manga_reader_forest_green_theme_surfaceContainerLowest</item>
+        <item name="colorSurfaceContainerLow">@color/manga_reader_forest_green_theme_surfaceContainerLow</item>
+        <item name="colorSurfaceContainer">@color/manga_reader_forest_green_theme_surfaceContainer</item>
+        <item name="colorSurfaceContainerHigh">@color/manga_reader_forest_green_theme_surfaceContainerHigh</item>
+        <item name="colorSurfaceContainerHighest">@color/manga_reader_forest_green_theme_surfaceContainerHighest</item>
+
+        <!-- App Colors -->
+        <item name="statusBarColor">@color/manga_reader_forest_green_theme_statusBarColor</item>
+        <item name="toolbarStartColor">@color/manga_reader_forest_green_theme_toolbarStartColor</item>
+        <item name="toolbarCenterColor">@color/manga_reader_forest_green_theme_toolbarCenterColor</item>
+        <item name="toolbarEndColor">@color/manga_reader_forest_green_theme_toolbarEndColor</item>
+        <item name="toolbarTitleColor">@color/manga_reader_forest_green_theme_toolbarTitleColor</item>
+        <item name="toolbarTitleAccents">@color/manga_reader_forest_green_theme_toolbarTitleAccents</item>
     </style>
 
     <!--== Pink Theme ==-->
@@ -235,6 +369,14 @@
         <item name="colorSurfaceContainer">@color/manga_reader_pink_theme_surfaceContainer</item>
         <item name="colorSurfaceContainerHigh">@color/manga_reader_pink_theme_surfaceContainerHigh</item>
         <item name="colorSurfaceContainerHighest">@color/manga_reader_pink_theme_surfaceContainerHighest</item>
+
+        <!-- App Colors -->
+        <item name="statusBarColor">@color/manga_reader_pink_theme_statusBarColor</item>
+        <item name="toolbarStartColor">@color/manga_reader_pink_theme_toolbarStartColor</item>
+        <item name="toolbarCenterColor">@color/manga_reader_pink_theme_toolbarCenterColor</item>
+        <item name="toolbarEndColor">@color/manga_reader_pink_theme_toolbarEndColor</item>
+        <item name="toolbarTitleColor">@color/manga_reader_pink_theme_toolbarTitleColor</item>
+        <item name="toolbarTitleAccents">@color/manga_reader_pink_theme_toolbarTitleAccents</item>
     </style>
 
     <!--== Red Theme ==-->
@@ -294,7 +436,65 @@
         <item name="toolbarEndColor">@color/manga_reader_red_theme_toolbarEndColor</item>
         <item name="toolbarTitleColor">@color/manga_reader_red_theme_toolbarTitleColor</item>
         <item name="toolbarTitleAccents">@color/manga_reader_red_theme_toolbarTitleAccents</item>
-        <item name="detailTextInverse">@color/manga_reader_detailTextInverse</item>
+    </style>
+
+    <!--== Blood Red Theme ==-->
+    <style name="Theme.MangaReader.BloodRed">
+        <!-- Theme Colors -->
+        <item name="colorPrimary">@color/manga_reader_blood_red_theme_primary</item>
+        <item name="colorOnPrimary">@color/manga_reader_blood_red_theme_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/manga_reader_blood_red_theme_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/manga_reader_blood_red_theme_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/manga_reader_blood_red_theme_secondary</item>
+        <item name="colorOnSecondary">@color/manga_reader_blood_red_theme_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/manga_reader_blood_red_theme_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/manga_reader_blood_red_theme_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/manga_reader_blood_red_theme_tertiary</item>
+        <item name="colorOnTertiary">@color/manga_reader_blood_red_theme_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/manga_reader_blood_red_theme_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/manga_reader_blood_red_theme_onTertiaryContainer</item>
+        <item name="colorError">@color/manga_reader_blood_red_theme_error</item>
+        <item name="colorOnError">@color/manga_reader_blood_red_theme_onError</item>
+        <item name="colorErrorContainer">@color/manga_reader_blood_red_theme_errorContainer</item>
+        <item name="colorOnErrorContainer">@color/manga_reader_blood_red_theme_onErrorContainer</item>
+        <item name="android:colorBackground">@color/manga_reader_blood_red_theme_background</item>
+        <item name="colorOnBackground">@color/manga_reader_blood_red_theme_onBackground</item>
+        <item name="colorSurface">@color/manga_reader_blood_red_theme_surface</item>
+        <item name="colorOnSurface">@color/manga_reader_blood_red_theme_onSurface</item>
+        <item name="colorSurfaceVariant">@color/manga_reader_blood_red_theme_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/manga_reader_blood_red_theme_onSurfaceVariant</item>
+        <item name="colorOutline">@color/manga_reader_blood_red_theme_outline</item>
+        <item name="colorOutlineVariant">@color/manga_reader_blood_red_theme_outlineVariant</item>
+        <item name="colorSurfaceInverse">@color/manga_reader_blood_red_theme_inverseSurface</item>
+        <item name="colorOnSurfaceInverse">@color/manga_reader_blood_red_theme_inverseOnSurface</item>
+        <item name="colorPrimaryInverse">@color/manga_reader_blood_red_theme_inversePrimary</item>
+        <item name="colorPrimaryFixed">@color/manga_reader_blood_red_theme_primaryFixed</item>
+        <item name="colorOnPrimaryFixed">@color/manga_reader_blood_red_theme_onPrimaryFixed</item>
+        <item name="colorPrimaryFixedDim">@color/manga_reader_blood_red_theme_primaryFixedDim</item>
+        <item name="colorOnPrimaryFixedVariant">@color/manga_reader_blood_red_theme_onPrimaryFixedVariant</item>
+        <item name="colorSecondaryFixed">@color/manga_reader_blood_red_theme_secondaryFixed</item>
+        <item name="colorOnSecondaryFixed">@color/manga_reader_blood_red_theme_onSecondaryFixed</item>
+        <item name="colorSecondaryFixedDim">@color/manga_reader_blood_red_theme_secondaryFixedDim</item>
+        <item name="colorOnSecondaryFixedVariant">@color/manga_reader_blood_red_theme_onSecondaryFixedVariant</item>
+        <item name="colorTertiaryFixed">@color/manga_reader_blood_red_theme_tertiaryFixed</item>
+        <item name="colorOnTertiaryFixed">@color/manga_reader_blood_red_theme_onTertiaryFixed</item>
+        <item name="colorTertiaryFixedDim">@color/manga_reader_blood_red_theme_tertiaryFixedDim</item>
+        <item name="colorOnTertiaryFixedVariant">@color/manga_reader_blood_red_theme_onTertiaryFixedVariant</item>
+        <item name="colorSurfaceDim">@color/manga_reader_blood_red_theme_surfaceDim</item>
+        <item name="colorSurfaceBright">@color/manga_reader_blood_red_theme_surfaceBright</item>
+        <item name="colorSurfaceContainerLowest">@color/manga_reader_blood_red_theme_surfaceContainerLowest</item>
+        <item name="colorSurfaceContainerLow">@color/manga_reader_blood_red_theme_surfaceContainerLow</item>
+        <item name="colorSurfaceContainer">@color/manga_reader_blood_red_theme_surfaceContainer</item>
+        <item name="colorSurfaceContainerHigh">@color/manga_reader_blood_red_theme_surfaceContainerHigh</item>
+        <item name="colorSurfaceContainerHighest">@color/manga_reader_blood_red_theme_surfaceContainerHighest</item>
+
+        <!-- App Colors -->
+        <item name="statusBarColor">@color/manga_reader_blood_red_theme_statusBarColor</item>
+        <item name="toolbarStartColor">@color/manga_reader_blood_red_theme_toolbarStartColor</item>
+        <item name="toolbarCenterColor">@color/manga_reader_blood_red_theme_toolbarCenterColor</item>
+        <item name="toolbarEndColor">@color/manga_reader_blood_red_theme_toolbarEndColor</item>
+        <item name="toolbarTitleColor">@color/manga_reader_blood_red_theme_toolbarTitleColor</item>
+        <item name="toolbarTitleAccents">@color/manga_reader_blood_red_theme_toolbarTitleAccents</item>
     </style>
 
 </resources>
