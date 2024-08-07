@@ -162,9 +162,9 @@ class BookRepository(context: Context) {
         }
     }
 
-    fun listOrderByTitle(library: Library): List<Book>? {
+    fun listOrderByPath(library: Library): List<Book>? {
         return try {
-            loadLibrary(mDataBase.listOrderByTitle(library.id))
+            loadLibrary(mDataBase.listOrderByPath(library.id))
         } catch (e: Exception) {
             mLOGGER.error("Error when find Book by file folder: " + e.message, e)
             null
