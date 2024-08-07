@@ -28,7 +28,6 @@ class VocabularyPopupOrder : Fragment() {
     }
 
     fun clearListener() {
-        listener?.popupGetObserver()?.observe(viewLifecycleOwner) {}
         this.listener = null
     }
 

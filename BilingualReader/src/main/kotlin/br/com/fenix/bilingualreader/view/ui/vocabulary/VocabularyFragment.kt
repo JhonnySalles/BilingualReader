@@ -383,7 +383,8 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
     }
 
     override fun onDestroy() {
-        mPopupOrderFragment.clearListener()
+        if (::mPopupOrderFragment.isInitialized)
+            mPopupOrderFragment.clearListener()
         VocabularyMangaListCardAdapter.clearVocabularyMangaList()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
