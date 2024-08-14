@@ -1,8 +1,8 @@
 <resources>
-    <color name="manga_reader_ocean_blue_theme_primary">#66a3ff</color>
+    <color name="manga_reader_ocean_blue_theme_primary">#66ccff</color>
     <color name="manga_reader_ocean_blue_theme_onPrimary">#272B60</color>
-    <color name="manga_reader_ocean_blue_theme_primaryContainer">#3385ff</color>
-    <color name="manga_reader_ocean_blue_theme_onPrimaryContainer">#E0E0FF</color>
+    <color name="manga_reader_ocean_blue_theme_primaryContainer">#0066ff</color>
+    <color name="manga_reader_ocean_blue_theme_onPrimaryContainer">#00004d</color>
     <color name="manga_reader_ocean_blue_theme_secondary">#C2C1FF</color>
     <color name="manga_reader_ocean_blue_theme_onSecondary">#2A2A60</color>
     <color name="manga_reader_ocean_blue_theme_secondaryContainer">#414178</color>
@@ -19,10 +19,10 @@
     <color name="manga_reader_ocean_blue_theme_onBackground">#E4E1E9</color>
     <color name="manga_reader_ocean_blue_theme_surface">#000099</color>
     <color name="manga_reader_ocean_blue_theme_onSurface">#E4E1E9</color>
-    <color name="manga_reader_ocean_blue_theme_surfaceVariant">#41474D</color>
+    <color name="manga_reader_ocean_blue_theme_surfaceVariant">#212C61</color>
     <color name="manga_reader_ocean_blue_theme_onSurfaceVariant">#C1C7CE</color>
     <color name="manga_reader_ocean_blue_theme_outline">#0066ff</color>
-    <color name="manga_reader_ocean_blue_theme_outlineVariant">#41474D</color>
+    <color name="manga_reader_ocean_blue_theme_outlineVariant">#212C61</color>
     <color name="manga_reader_ocean_blue_theme_scrim">#000000</color>
     <color name="manga_reader_ocean_blue_theme_inverseSurface">#E4E1E9</color>
     <color name="manga_reader_ocean_blue_theme_inverseOnSurface">#303036</color>
@@ -141,10 +141,10 @@
     <color name="manga_reader_ocean_blue_theme_surfaceContainerHigh_highContrast">#29292F</color>
     <color name="manga_reader_ocean_blue_theme_surfaceContainerHighest_highContrast">#34343A</color>
 
-    <color name="manga_reader_ocean_blue_theme_statusBarColor">#000d1a</color>
-    <color name="manga_reader_ocean_blue_theme_toolbarStartColor">#11000000</color>
-    <color name="manga_reader_ocean_blue_theme_toolbarCenterColor">#99000000</color>
-    <color name="manga_reader_ocean_blue_theme_toolbarEndColor">#000d1a</color>
+    <color name="manga_reader_ocean_blue_theme_statusBarColor">#000C1C</color>
+    <color name="manga_reader_ocean_blue_theme_toolbarStartColor">#11001433</color>
+    <color name="manga_reader_ocean_blue_theme_toolbarCenterColor">#9900111F</color>
+    <color name="manga_reader_ocean_blue_theme_toolbarEndColor">#000C1C</color>
     <color name="manga_reader_ocean_blue_theme_toolbarTitleColor">#FFFFFF</color>
-    <color name="manga_reader_ocean_blue_theme_toolbarTitleAccents">#4d4dff</color>
+    <color name="manga_reader_ocean_blue_theme_toolbarTitleAccents">#0066ff</color>
 </resources>

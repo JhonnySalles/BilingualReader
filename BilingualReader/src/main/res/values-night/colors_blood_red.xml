@@ -1,8 +1,8 @@
 <resources>
     <color name="manga_reader_blood_red_theme_primary">#ff3d33</color>
     <color name="manga_reader_blood_red_theme_onPrimary">#581D11</color>
-    <color name="manga_reader_blood_red_theme_primaryContainer">#270200</color>
-    <color name="manga_reader_blood_red_theme_onPrimaryContainer">#DE8674</color>
+    <color name="manga_reader_blood_red_theme_primaryContainer">#A10700</color>
+    <color name="manga_reader_blood_red_theme_onPrimaryContainer">#000000</color>
     <color name="manga_reader_blood_red_theme_secondary">#FFB4A7</color>
     <color name="manga_reader_blood_red_theme_onSecondary">#680300</color>
     <color name="manga_reader_blood_red_theme_secondaryContainer">#A10700</color>
@@ -141,10 +141,10 @@
     <color name="manga_reader_blood_red_theme_surfaceContainerHigh_highContrast">#2C2929</color>
     <color name="manga_reader_blood_red_theme_surfaceContainerHighest_highContrast">#373434</color>
 
-    <color name="manga_reader_blood_red_theme_statusBarColor">#330300</color>
-    <color name="manga_reader_blood_red_theme_toolbarStartColor">#111a0000</color>
-    <color name="manga_reader_blood_red_theme_toolbarCenterColor">#991a0000</color>
-    <color name="manga_reader_blood_red_theme_toolbarEndColor">#330300</color>
+    <color name="manga_reader_blood_red_theme_statusBarColor">#490400</color>
+    <color name="manga_reader_blood_red_theme_toolbarStartColor">#111B0000</color>
+    <color name="manga_reader_blood_red_theme_toolbarCenterColor">#99260000</color>
+    <color name="manga_reader_blood_red_theme_toolbarEndColor">#490400</color>
     <color name="manga_reader_blood_red_theme_toolbarTitleColor">#FFFFFF</color>
     <color name="manga_reader_blood_red_theme_toolbarTitleAccents">#ff1a1a</color>
 </resources>

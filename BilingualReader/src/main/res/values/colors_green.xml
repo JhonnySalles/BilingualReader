@@ -141,10 +141,10 @@
     <color name="manga_reader_green_theme_surfaceContainerHigh_highContrast">#E5EADE</color>
     <color name="manga_reader_green_theme_surfaceContainerHighest_highContrast">#DFE4D8</color>
 
-    <color name="manga_reader_green_theme_statusBarColor">#ecf9ec</color>
-    <color name="manga_reader_green_theme_toolbarStartColor">#11f3f3f1</color>
-    <color name="manga_reader_green_theme_toolbarCenterColor">#66f3f3f1</color>
-    <color name="manga_reader_green_theme_toolbarEndColor">#ecf9ec</color>
+    <color name="manga_reader_green_theme_statusBarColor">#e6ffe6</color>
+    <color name="manga_reader_green_theme_toolbarStartColor">#112BFF00</color>
+    <color name="manga_reader_green_theme_toolbarCenterColor">#6600FF2E</color>
+    <color name="manga_reader_green_theme_toolbarEndColor">#e6ffe6</color>
     <color name="manga_reader_green_theme_toolbarTitleColor">#FFFFFF</color>
     <color name="manga_reader_green_theme_toolbarTitleAccents">#009900</color>
 </resources>

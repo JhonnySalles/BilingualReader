@@ -999,10 +999,13 @@ class ThemeUtil {
                 val themes = context.resources.getStringArray(R.array.themes)
                 mapThemes = hashMapOf(
                     themes[0] to Themes.ORIGINAL,
+                    themes[1] to Themes.BLOOD_RED,
                     themes[2] to Themes.BLUE,
+                    themes[3] to Themes.FOREST_GREEN,
                     themes[4] to Themes.GREEN,
-                    themes[8] to Themes.PINK,
-                    themes[9] to Themes.RED,
+                    themes[5] to Themes.OCEAN_BLUE,
+                    themes[6] to Themes.PINK,
+                    themes[7] to Themes.RED,
                 )
                 mapThemes!!
             }

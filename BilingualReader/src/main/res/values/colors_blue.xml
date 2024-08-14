@@ -10,7 +10,7 @@
     <color name="manga_reader_blue_theme_tertiary">#4C005D</color>
     <color name="manga_reader_blue_theme_onTertiary">#FFFFFF</color>
     <color name="manga_reader_blue_theme_tertiaryContainer">#752987</color>
-    <color name="manga_reader_blue_theme_onTertiaryContainer">#FFDEFF</color>
+    <color name="manga_reader_blue_theme_onTertiaryContainer">#FBF8FF</color>
     <color name="manga_reader_blue_theme_error">#BA1A1A</color>
     <color name="manga_reader_blue_theme_onError">#FFFFFF</color>
     <color name="manga_reader_blue_theme_errorContainer">#FFDAD6</color>
@@ -141,10 +141,10 @@
     <color name="manga_reader_blue_theme_surfaceContainerHigh_highContrast">#E9E7F1</color>
     <color name="manga_reader_blue_theme_surfaceContainerHighest_highContrast">#E3E1EB</color>
 
-    <color name="manga_reader_blue_theme_statusBarColor">#ecf9ec</color>
-    <color name="manga_reader_blue_theme_toolbarStartColor">#11f3f3f1</color>
-    <color name="manga_reader_blue_theme_toolbarCenterColor">#66f3f3f1</color>
-    <color name="manga_reader_blue_theme_toolbarEndColor">#ecf9ec</color>
+    <color name="manga_reader_blue_theme_statusBarColor">#e6ffff</color>
+    <color name="manga_reader_blue_theme_toolbarStartColor">#1164BBFF</color>
+    <color name="manga_reader_blue_theme_toolbarCenterColor">#667BB6FF</color>
+    <color name="manga_reader_blue_theme_toolbarEndColor">#e6ffff</color>
     <color name="manga_reader_blue_theme_toolbarTitleColor">#FFFFFF</color>
     <color name="manga_reader_blue_theme_toolbarTitleAccents">#4d69e6</color>
 </resources>

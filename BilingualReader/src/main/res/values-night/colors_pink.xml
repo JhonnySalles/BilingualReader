@@ -2,7 +2,7 @@
     <color name="manga_reader_pink_theme_primary">#FFFFFF</color>
     <color name="manga_reader_pink_theme_onPrimary">#412B28</color>
     <color name="manga_reader_pink_theme_primaryContainer">#F0CCC8</color>
-    <color name="manga_reader_pink_theme_onPrimaryContainer">#523937</color>
+    <color name="manga_reader_pink_theme_onPrimaryContainer">#000000</color>
     <color name="manga_reader_pink_theme_secondary">#D5C2C0</color>
     <color name="manga_reader_pink_theme_onSecondary">#392E2C</color>
     <color name="manga_reader_pink_theme_secondaryContainer">#493D3B</color>
@@ -141,10 +141,10 @@
     <color name="manga_reader_pink_theme_surfaceContainerHigh_highContrast">#2C2929</color>
     <color name="manga_reader_pink_theme_surfaceContainerHighest_highContrast">#373433</color>
 
-    <color name="manga_reader_pink_theme_statusBarColor">#0a0f0f</color>
-    <color name="manga_reader_pink_theme_toolbarStartColor">#11000000</color>
-    <color name="manga_reader_pink_theme_toolbarCenterColor">#99000000</color>
-    <color name="manga_reader_pink_theme_toolbarEndColor">#0a0f0f</color>
+    <color name="manga_reader_pink_theme_statusBarColor">#180018</color>
+    <color name="manga_reader_pink_theme_toolbarStartColor">#122A0032</color>
+    <color name="manga_reader_pink_theme_toolbarCenterColor">#66170017</color>
+    <color name="manga_reader_pink_theme_toolbarEndColor">#180018</color>
     <color name="manga_reader_pink_theme_toolbarTitleColor">#FFFFFF</color>
     <color name="manga_reader_pink_theme_toolbarTitleAccents">#b30059</color>
 </resources>

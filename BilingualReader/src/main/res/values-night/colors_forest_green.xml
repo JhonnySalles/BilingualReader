@@ -1,8 +1,8 @@
 <resources>
     <color name="manga_reader_forest_green_theme_primary">#33ff33</color>
     <color name="manga_reader_forest_green_theme_onPrimary">#0F380D</color>
-    <color name="manga_reader_forest_green_theme_primaryContainer">#00b300</color>
-    <color name="manga_reader_forest_green_theme_onPrimaryContainer">#BFF0B1</color>
+    <color name="manga_reader_forest_green_theme_primaryContainer">#00cc00</color>
+    <color name="manga_reader_forest_green_theme_onPrimaryContainer">#062100</color>
     <color name="manga_reader_forest_green_theme_secondary">#A4D396</color>
     <color name="manga_reader_forest_green_theme_onSecondary">#10380C</color>
     <color name="manga_reader_forest_green_theme_secondaryContainer">#285021</color>
@@ -17,12 +17,12 @@
     <color name="manga_reader_forest_green_theme_onErrorContainer">#FFDAD6</color>
     <color name="manga_reader_forest_green_theme_background">#062100</color>
     <color name="manga_reader_forest_green_theme_onBackground">#E0E4DA</color>
-    <color name="manga_reader_forest_green_theme_surface">#11140F</color>
+    <color name="manga_reader_forest_green_theme_surface">#003300</color>
     <color name="manga_reader_forest_green_theme_onSurface">#E1E4D9</color>
-    <color name="manga_reader_forest_green_theme_surfaceVariant">#43483E</color>
+    <color name="manga_reader_forest_green_theme_surfaceVariant">#006600</color>
     <color name="manga_reader_forest_green_theme_onSurfaceVariant">#C3C8BB</color>
     <color name="manga_reader_forest_green_theme_outline">#009933</color>
-    <color name="manga_reader_forest_green_theme_outlineVariant">#43483E</color>
+    <color name="manga_reader_forest_green_theme_outlineVariant">#006600</color>
     <color name="manga_reader_forest_green_theme_scrim">#000000</color>
     <color name="manga_reader_forest_green_theme_inverseSurface">#E1E4D9</color>
     <color name="manga_reader_forest_green_theme_inverseOnSurface">#2E312B</color>
@@ -142,8 +142,8 @@
     <color name="manga_reader_forest_green_theme_surfaceContainerHighest_highContrast">#32362F</color>
 
     <color name="manga_reader_forest_green_theme_statusBarColor">#001100</color>
-    <color name="manga_reader_forest_green_theme_toolbarStartColor">#11001a00</color>
-    <color name="manga_reader_forest_green_theme_toolbarCenterColor">#99001a00</color>
+    <color name="manga_reader_forest_green_theme_toolbarStartColor">#11002F00</color>
+    <color name="manga_reader_forest_green_theme_toolbarCenterColor">#99002E00</color>
     <color name="manga_reader_forest_green_theme_toolbarEndColor">#001100</color>
     <color name="manga_reader_forest_green_theme_toolbarTitleColor">#FFFFFF</color>
     <color name="manga_reader_forest_green_theme_toolbarTitleAccents">#009933</color>
