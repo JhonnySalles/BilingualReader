@@ -458,8 +458,8 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                 return false
         }
 
-        return filterPattern.isEmpty() || book.name.lowercase(Locale.getDefault())
-            .contains(filterPattern) || book.fileType.compareExtension(filterPattern)
+        return filterPattern.isEmpty() || book.name.lowercase(Locale.getDefault()).contains(filterPattern) ||
+                book.title.lowercase(Locale.getDefault()).contains(filterPattern) || book.fileType.compareExtension(filterPattern)
     }
 
     private val mBookFilter = object : Filter() {

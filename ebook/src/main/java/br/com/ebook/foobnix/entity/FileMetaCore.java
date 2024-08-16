@@ -129,13 +129,13 @@ public class FileMetaCore {
             }
         }
 
-        if (ebookMeta.getsIndex() != null) {
+        /*if (ebookMeta.getsIndex() != null) {
             ebookMeta.setTitle(ebookMeta.getTitle() + " [" + ebookMeta.getsIndex() + "]");
         }
 
         if (path.endsWith(".zip") && !path.endsWith("fb2.zip")) {
             ebookMeta.setTitle("{" + fileNameOriginal + "} " + ebookMeta.getTitle());
-        }
+        }*/
 
         return ebookMeta;
     }
