@@ -10,7 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
@@ -162,7 +161,8 @@ class ConfigFragment : Fragment() {
     private lateinit var mBookScrollingModeAutoComplete: MaterialAutoCompleteTextView
 
     private lateinit var mBookReadingTTS: TextInputLayout
-    private lateinit var mBookReadingTTSAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mBookReadingTTSAutoCompleteNormal: MaterialAutoCompleteTextView
+    private lateinit var mBookReadingTTSAutoCompleteJapanese: MaterialAutoCompleteTextView
     private lateinit var mBookReadingSpeed: Slider
 
     private lateinit var mBookFontTypeNormal: TwoWayView
@@ -175,7 +175,8 @@ class ConfigFragment : Fragment() {
 
     private var mBookOrderSelect: Order = Order.Name
     private var mBookScrollingModeSelect: ScrollingType = ScrollingType.Pagination
-    private var mBookReadingTTSSelect: TextSpeech = TextSpeech.getDefault()
+    private var mBookReadingTTSSelectNormal: TextSpeech = TextSpeech.getDefault(false)
+    private var mBookReadingTTSSelectJapanese: TextSpeech = TextSpeech.getDefault(true)
 
     private lateinit var mBookMapOrder: HashMap<String, Order>
     private lateinit var mBookMapScrollingMode: HashMap<String, ScrollingType>
@@ -198,8 +199,9 @@ class ConfigFragment : Fragment() {
         mBookScrollingMode = view.findViewById(R.id.config_book_scrolling_mode)
         mBookScrollingModeAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_scrolling_mode)
 
-        mBookReadingTTS = view.findViewById(R.id.config_book_tts_voice)
-        mBookReadingTTSAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_tts_voice)
+        mBookReadingTTS = view.findViewById(R.id.config_book_tts_voice_normal)
+        mBookReadingTTSAutoCompleteNormal = view.findViewById(R.id.config_book_menu_autocomplete_tts_voice_normal)
+        mBookReadingTTSAutoCompleteJapanese = view.findViewById(R.id.config_book_menu_autocomplete_tts_voice_japanese)
         mBookReadingSpeed = view.findViewById(R.id.config_book_tts_speed)
 
         mBookFontTypeNormal = view.findViewById(R.id.config_book_list_fonts_normal)
@@ -396,15 +398,26 @@ class ConfigFragment : Fragment() {
             }
 
         val adapterBookReadingTTS = ArrayAdapter(requireContext(), R.layout.list_item, mBookMapReadingTTS.keys.toTypedArray())
-        mBookReadingTTSAutoComplete.setAdapter(adapterBookReadingTTS)
-        mBookReadingTTSAutoComplete.onItemClickListener =
+        mBookReadingTTSAutoCompleteNormal.setAdapter(adapterBookReadingTTS)
+        mBookReadingTTSAutoCompleteNormal.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
-                mBookReadingTTSSelect = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                mBookReadingTTSSelectNormal = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
                     mBookMapReadingTTS.containsKey(parent.getItemAtPosition(position).toString())
                 )
                     mBookMapReadingTTS[parent.getItemAtPosition(position).toString()]!!
                 else
-                    TextSpeech.getDefault()
+                    TextSpeech.getDefault(false)
+            }
+
+        mBookReadingTTSAutoCompleteJapanese.setAdapter(adapterBookReadingTTS)
+        mBookReadingTTSAutoCompleteJapanese.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                mBookReadingTTSSelectJapanese = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                    mBookMapReadingTTS.containsKey(parent.getItemAtPosition(position).toString())
+                )
+                    mBookMapReadingTTS[parent.getItemAtPosition(position).toString()]!!
+                else
+                    TextSpeech.getDefault(false)
             }
 
         val themesMode = ArrayAdapter(requireContext(), R.layout.list_item, mMangaMapThemeMode.keys.toTypedArray())
@@ -837,8 +850,13 @@ class ConfigFragment : Fragment() {
             )
 
             this.putString(
-                GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE,
-                mBookReadingTTSSelect.toString()
+                GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_NORMAL,
+                mBookReadingTTSSelectNormal.toString()
+            )
+
+            this.putString(
+                GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_JAPANESE,
+                mBookReadingTTSSelectJapanese.toString()
             )
 
             this.putFloat(
@@ -1013,10 +1031,17 @@ class ConfigFragment : Fragment() {
             )!!
         )
 
-        mBookReadingTTSSelect = TextSpeech.valueOf(
+        mBookReadingTTSSelectNormal = TextSpeech.valueOf(
             sharedPreferences.getString(
-                GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE,
-                TextSpeech.getDefault().toString()
+                GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_NORMAL,
+                TextSpeech.getDefault(false).toString()
+            )!!
+        )
+
+        mBookReadingTTSSelectJapanese = TextSpeech.valueOf(
+            sharedPreferences.getString(
+                GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_JAPANESE,
+                TextSpeech.getDefault(true).toString()
             )!!
         )
 
@@ -1032,8 +1057,13 @@ class ConfigFragment : Fragment() {
             false
         )
 
-        mBookReadingTTSAutoComplete.setText(
-            mBookMapReadingTTS.entries.first { it.value == mBookReadingTTSSelect }.key,
+        mBookReadingTTSAutoCompleteNormal.setText(
+            mBookMapReadingTTS.entries.first { it.value == mBookReadingTTSSelectNormal }.key,
+            false
+        )
+
+        mBookReadingTTSAutoCompleteJapanese.setText(
+            mBookMapReadingTTS.entries.first { it.value == mBookReadingTTSSelectJapanese }.key,
             false
         )
 

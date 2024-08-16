@@ -9,7 +9,6 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.os.PowerManager
 import android.text.Html
 import android.widget.Toast
 import androidx.annotation.OptIn
@@ -71,7 +70,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
     init {
         val sharedPreferences = GeneralConsts.getSharedPreferences(context)
-        val language: TextSpeech = TextSpeech.valueOf(sharedPreferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE, TextSpeech.getDefault().toString())!!)
+        val language: TextSpeech = TextSpeech.valueOf(sharedPreferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_NORMAL, TextSpeech.getDefault(false).toString())!!)
         val speed: Float = sharedPreferences.getFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED_DEFAULT)
         val providers = TTSVoice.provides()
 

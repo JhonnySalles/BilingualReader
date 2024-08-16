@@ -183,17 +183,17 @@ enum class TextSpeech(
 
     companion object {
 
-        fun getDefault(): TextSpeech = TextSpeech.FRANCISCA
+        fun getDefault(isJapanese : Boolean): TextSpeech = if (isJapanese) NANAMI else FRANCISCA
         fun getByDescriptions(context: Context): Map<String, TextSpeech> {
             return TextSpeech.values().filter { it.isActive }.sortedWith(compareBy({ it.language }, { it.name })).associateBy { it.getDescription(context) }
         }
 
-        fun getTextSpeech(context: Context, description: String): TextSpeech {
+        fun getTextSpeech(context: Context, description: String, isJapanese: Boolean): TextSpeech {
             for (item in TextSpeech.values())
                 if (item.getDescription(context).equals(description, ignoreCase = true))
                     return item
 
-            return getDefault()
+            return getDefault(isJapanese)
         }
     }
 

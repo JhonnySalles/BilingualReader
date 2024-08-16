@@ -215,7 +215,8 @@
     <string name="config_book_scrolling_Infinity_Scrolling">Rolagem infinita</string>
 
     <string name="config_book_tts">Texto para fala</string>
-    <string name="config_book_tts_voice">Voz</string>
+    <string name="config_book_tts_voice_normal">Voz normal</string>
+    <string name="config_book_tts_voice_japanese">Voz japonesa</string>
 
     <!-- CONFIG LIBRARIES -->
     <string name="menu_libraries_delete_library">Apagar Biblioteca</string>

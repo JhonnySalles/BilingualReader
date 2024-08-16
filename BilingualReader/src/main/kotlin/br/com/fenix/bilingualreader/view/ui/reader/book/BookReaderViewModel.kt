@@ -89,7 +89,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private var mLanguage: MutableLiveData<Languages> = MutableLiveData(Languages.ENGLISH)
     val language: LiveData<Languages> = mLanguage
 
-    private var mTTSVoice: MutableLiveData<TextSpeech> = MutableLiveData(TextSpeech.getDefault())
+    private var mTTSVoice: MutableLiveData<TextSpeech> = MutableLiveData(TextSpeech.getDefault(false))
     val ttsVoice: LiveData<TextSpeech> = mTTSVoice
 
     private var mTTSSpeed: MutableLiveData<Float> = MutableLiveData(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED_DEFAULT)
@@ -297,6 +297,10 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             val typeDefault = if (isJapanese) FontType.BabelStoneErjian1.toString() else FontType.TimesNewRoman.toString()
             loadFonts(isJapanese)
             setSelectFont(FontType.valueOf(mPreferences.getString(typeKey, typeDefault)!!))
+
+            val voice = if (isJapanese) GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_JAPANESE else GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_NORMAL
+            mTTSVoice.value = TextSpeech.valueOf(mPreferences.getString(voice, TextSpeech.getDefault(isJapanese).toString())!!)
+            mTTSSpeed.value = mPreferences.getFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED_DEFAULT)
         }
     }
 
@@ -305,7 +309,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         mTTSSpeed.value = speed
 
         with(GeneralConsts.getSharedPreferences(app.applicationContext).edit()) {
-            this.putString(GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE, voice.toString())
+            val key = if (isJapanese) GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_JAPANESE else GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_NORMAL
+            this.putString(key, voice.toString())
             this.putFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, speed)
             this.commit()
         }
@@ -350,7 +355,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             else -> app.resources.getBoolean(R.bool.isNight)
         }
 
-        mTTSVoice.value = TextSpeech.valueOf(mPreferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE, TextSpeech.getDefault().toString())!!)
+        val voice = if (isJapanese) GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_JAPANESE else GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_NORMAL
+        mTTSVoice.value = TextSpeech.valueOf(mPreferences.getString(voice, TextSpeech.getDefault(isJapanese).toString())!!)
         mTTSSpeed.value = mPreferences.getFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED_DEFAULT)
 
         mAlignmentType.value = AlignmentLayoutType.valueOf(

@@ -468,7 +468,7 @@ class Formatter {
                             SuperRubySpan(
                                 generateFurigana(furigana),
                                 SuperReplacementSpan.Alignment.CENTER,
-                                SuperReplacementSpan.Alignment.CENTER
+                                SuperReplacementSpan.Alignment.JUSTIFIED
                             ),
                             t.position, t.position + t.surface.length,
                             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -496,7 +496,7 @@ class Formatter {
                                 SuperRubySpan(
                                     generateFurigana(furigana),
                                     SuperReplacementSpan.Alignment.CENTER,
-                                    SuperReplacementSpan.Alignment.CENTER
+                                    SuperReplacementSpan.Alignment.JUSTIFIED
                                 ),
                                 t.begin(), t.end(),
                                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE

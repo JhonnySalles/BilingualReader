@@ -36,6 +36,8 @@ class PopupBookLanguage : Fragment() {
     private var mMapLanguage: HashMap<String, Languages> = hashMapOf()
     private var mMapReadingTTS:  Map<String, TextSpeech> = hashMapOf()
 
+    private var mIsJapanese : Boolean = false
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.popup_book_language, container, false)
 
@@ -74,7 +76,7 @@ class PopupBookLanguage : Fragment() {
                 val selected = if (parent.getItemAtPosition(position).toString().isNotEmpty() && mMapReadingTTS.containsKey(parent.getItemAtPosition(position).toString()))
                     mMapReadingTTS[parent.getItemAtPosition(position).toString()]!!
                 else
-                    TextSpeech.getDefault()
+                    TextSpeech.getDefault(mIsJapanese)
 
                 mViewModel.changeTTSVoice(selected, mBookReadingSpeed.value)
             }
@@ -105,8 +107,8 @@ class PopupBookLanguage : Fragment() {
             mViewModel.changeJapanese(mProcessJapaneseText.isChecked, mTextWithFurigana.isChecked)
         }
 
-
-        val voice = TextSpeech.valueOf(preferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE, TextSpeech.getDefault().toString())!!)
+        val key = if (mIsJapanese) GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_JAPANESE else GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_NORMAL
+        val voice = TextSpeech.valueOf(preferences.getString(key, TextSpeech.getDefault(mIsJapanese).toString())!!)
 
         mBookReadingTTSAutoComplete.setText(mMapReadingTTS.entries.first { it.value == voice }.key, false)
         mBookReadingSpeed.value = preferences.getFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED_DEFAULT)
@@ -140,7 +142,8 @@ class PopupBookLanguage : Fragment() {
     }
 
     private fun changeLanguage(lang: Languages) {
-        if (lang == Languages.JAPANESE) {
+        mIsJapanese = lang == Languages.JAPANESE
+        if (mIsJapanese) {
             mProcessJapaneseText.visibility = View.VISIBLE
             mTextWithFurigana.visibility = View.VISIBLE
         } else {

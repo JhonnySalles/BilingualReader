@@ -158,16 +158,33 @@
             android:text="@string/config_book_tts" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/config_book_tts_voice"
+            android:id="@+id/config_book_tts_voice_normal"
             style="@style/TextInputDropMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
-            android:hint="@string/config_book_tts_voice"
+            android:hint="@string/config_book_tts_voice_normal"
             app:startIconDrawable="@drawable/ic_book_tts">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                android:id="@+id/config_book_menu_autocomplete_tts_voice"
+                android:id="@+id/config_book_menu_autocomplete_tts_voice_normal"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_book_tts_voice_japanese"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_book_tts_voice_japanese"
+            app:startIconDrawable="@drawable/ic_book_tts">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/config_book_menu_autocomplete_tts_voice_japanese"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />

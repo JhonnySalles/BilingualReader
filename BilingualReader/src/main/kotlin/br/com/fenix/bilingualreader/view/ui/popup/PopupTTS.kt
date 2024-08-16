@@ -63,7 +63,7 @@ class PopupTTS(var context: Context) {
             )
                 mMapReadingTTS[parent.getItemAtPosition(position).toString()]!!
             else
-                TextSpeech.getDefault()
+                TextSpeech.getDefault(false)
         }
 
         readingTTSAutoComplete.setText(mMapReadingTTS.entries.first { it.value == mNewTTS }.key, false)
