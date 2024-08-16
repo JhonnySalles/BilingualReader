@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader.view.ui.reader.book
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Resources
@@ -16,6 +17,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
+import android.provider.Settings
 import android.text.Selection
 import android.text.Spannable
 import android.util.Base64
@@ -45,11 +48,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.core.view.drawToBitmap
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -426,6 +427,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             SharedData.setDocumentParse(null)
         }
         mTextToSpeech?.stop()
+        mWakeLock?.release()
+        mWakeLock = null
         removeRefreshSizeDelay()
         requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onDestroy()
@@ -987,6 +990,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_SEARCH, null)
     }
 
+    private var mWakeLock : PowerManager.WakeLock? = null
     fun executeTTS(page: Int, initial: String = "") {
         if (mTextToSpeech == null) {
             setFullscreen(fullscreen = true)
@@ -1016,6 +1020,20 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 mViewModel.history?.let { it.useTTS }
 
                 try {
+                    (requireActivity().getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+                        mWakeLock = newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "EndlessService::lock")
+                        mWakeLock?.acquire()
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            if (!isIgnoringBatteryOptimizations(requireContext().packageName)) {
+                                //  Prompt the user to disable battery optimization
+                                val intent = Intent()
+                                intent.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                                startActivity(intent)
+                            }
+                        }
+                    }
+
                     requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 } catch (_: Exception) {
                 }
@@ -1058,6 +1076,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
     override fun stopTTS() {
         mTextToSpeech = null
+        mWakeLock?.release()
+        mWakeLock = null
     }
 
     private fun openMenuTTS() {
