@@ -26,6 +26,7 @@ import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.controller.MangaImageController
 import br.com.fenix.bilingualreader.service.listener.InformationCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -482,7 +483,7 @@ class BookDetailFragment : Fragment() {
 
     private fun openBookMark() {
         val book = mViewModel.book.value ?: return
-        val onUpdate: (Int) -> (Unit) = { mViewModel.refresh(book) }
+        val onUpdate: (History) -> (Unit) = { mViewModel.save(book) }
         PopupBookMark(requireActivity(), requireActivity().supportFragmentManager)
             .getPopupBookMark(book, onUpdate) { change, bookMark, lastAccess ->
                 if (change) {

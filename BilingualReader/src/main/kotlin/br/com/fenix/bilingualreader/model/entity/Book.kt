@@ -127,7 +127,7 @@ class Book(
     override var pages: Int = pages
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.VOLUME)
-    var volume: String = volume
+    override var volume: String = volume
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.CHAPTER)
     var chapter: Int = chapter

@@ -142,6 +142,10 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
         }
     }
 
+    fun clearHistory(manga: Manga) {
+        mMangaRepository.clearHistory(manga)
+    }
+
     fun save(obj: Manga): Manga {
         if (obj.id == 0L)
             obj.id = mMangaRepository.save(obj)

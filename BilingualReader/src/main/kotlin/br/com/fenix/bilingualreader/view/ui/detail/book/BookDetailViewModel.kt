@@ -71,10 +71,6 @@ class BookDetailViewModel(var app: Application) : AndroidViewModel(app) {
 
     private val mTracker = MyAnimeListTracker(app.applicationContext)
 
-    fun refresh(book: Book) {
-        mBook.value = book
-    }
-
     fun setBook(context: Context, book: Book) {
         mBook.value = book
 

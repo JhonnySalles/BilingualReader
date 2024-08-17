@@ -51,12 +51,8 @@ class MangaLineViewHolder(itemView: View, private val listener: MangaCardListene
         val mangaProgress = itemView.findViewById<ProgressBar>(R.id.manga_line_progress)
         val cardView = itemView.findViewById<LinearLayout>(R.id.manga_line_card)
         val favorite = itemView.findViewById<ImageView>(R.id.manga_line_favorite)
+        val config = itemView.findViewById<ImageView>(R.id.manga_line_config)
         val subtitle = itemView.findViewById<ImageView>(R.id.manga_line_has_subtitle)
-
-        if (manga.favorite)
-            favorite.visibility = View.VISIBLE
-        else
-            favorite.visibility = View.GONE
 
         subtitle.visibility  = if (manga.hasSubtitle) {
             if (manga.lastVocabImport != null)
@@ -66,6 +62,15 @@ class MangaLineViewHolder(itemView: View, private val listener: MangaCardListene
             View.VISIBLE
         } else
             View.GONE
+
+        favorite.setOnClickListener {
+            manga.favorite = !manga.favorite
+            favorite.setImageResource(if (manga.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+            listener.onClickFavorite(manga)
+        }
+
+        favorite.setImageResource(if (manga.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+        config.setOnClickListener { listener.onClickConfig(manga, cardView, it, layoutPosition) }
 
         cardView.setOnClickListener { listener.onClick(manga) }
         cardView.setOnLongClickListener {

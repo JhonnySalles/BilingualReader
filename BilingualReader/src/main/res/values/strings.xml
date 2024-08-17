@@ -632,7 +632,7 @@
     <string name="menu_book_config_send">Send file</string>
     <string name="menu_book_config_clear_progress">Clear progress</string>
     <string name="menu_book_config_delete">Delete</string>
-    <string name="menu_book_config_detail">File detail</string>
+    <string name="menu_book_config_detail">Book detail</string>
     <string name="menu_book_config_tag">Add tags</string>
     <string name="menu_book_config_book_mark">Book mark</string>
 
@@ -660,6 +660,11 @@
     <string name="book_library_line_authors">Authors:</string>
 
     <!-- POPUP LIBRARY - Manga / Comic -->
+    <string name="menu_manga_config_clear_progress">Clear progress</string>
+    <string name="menu_manga_config_delete">Delete</string>
+    <string name="menu_manga_config_detail">Manga / Comic detail</string>
+    <string name="menu_manga_config_book_mark">Book mark</string>
+
     <string name="popup_library_manga_tab_item_ordering">Order</string>
     <string name="popup_library_manga_tab_item_filter">Filter</string>
     <string name="popup_library_manga_tab_item_type">Grid</string>
@@ -705,6 +710,7 @@
     <string name="manga_detail_favorite">Favorite</string>
     <string name="manga_detail_clear_history">Clear history</string>
     <string name="manga_detail_mark_read">Mark as read</string>
+    <string name="manga_detail_book_mark">Book mark</string>
     <string name="manga_detail_delete">Delete</string>
     <string name="manga_detail_chapters_title">Chapters</string>
     <string name="manga_detail_subtitles_title">Subtitles</string>

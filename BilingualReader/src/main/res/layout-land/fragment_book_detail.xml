@@ -258,7 +258,7 @@
                         android:text="@string/book_detail_book_mark"
                         app:iconPadding="@dimen/book_detail_icon_padding"
                         app:iconGravity="textTop"
-                        app:icon="@drawable/ico_animated_mark_read"
+                        app:icon="@drawable/ico_animated_define_book_mark"
                         app:iconSize="@dimen/book_detail_icon_size"
                         app:cornerRadius="@dimen/book_detail_icon_rounded"/>
 

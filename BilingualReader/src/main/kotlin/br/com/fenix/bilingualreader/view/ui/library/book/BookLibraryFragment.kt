@@ -61,6 +61,7 @@ import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
+import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
 import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.listener.PopupOrderListener
@@ -736,13 +737,17 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                             mPopupTag.getPopupTags(book) { mViewModel.loadTags() }
                         }
                         R.id.menu_book_config_book_mark -> {
-                            val onUpdate: (Int) -> (Unit) = { mViewModel.updateList(position) }
+                            val onUpdate: (History) -> (Unit) = {
+                                mViewModel.save(it as Book)
+                                mViewModel.updateList(position)
+                                notifyDataSet(position)
+                            }
                             PopupBookMark(requireActivity(), requireActivity().supportFragmentManager)
                                 .getPopupBookMark(book, onUpdate) { change, bookMark, lastAccess ->
                                 if (change) {
                                     book.bookMark = bookMark
                                     book.lastAccess = lastAccess
-                                    mViewModel.save(book)
+                                    onUpdate(book)
                                 }
                             }
                         }
@@ -1077,13 +1082,10 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
     private fun deleteBook(book: Book, position: Int) {
         var excluded = false
-        val dialog: AlertDialog =
-            MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+        val dialog: AlertDialog = MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(getString(R.string.book_library_menu_delete))
                 .setMessage(getString(R.string.book_library_menu_delete_description) + "\n" + book.file.name)
-                .setPositiveButton(
-                    R.string.action_delete
-                ) { _, _ ->
+                .setPositiveButton(R.string.action_delete) { _, _ ->
                     deleteFile(book)
                     notifyDataSet(position, removed = true)
                     excluded = true

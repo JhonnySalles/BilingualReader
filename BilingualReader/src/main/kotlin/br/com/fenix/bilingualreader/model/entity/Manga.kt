@@ -139,7 +139,7 @@ class Manga(
     var publisher: String = publisher
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.VOLUME)
-    var volume: String = volume
+    override var volume: String = volume
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.RELEASE)
     var release: LocalDate? = release

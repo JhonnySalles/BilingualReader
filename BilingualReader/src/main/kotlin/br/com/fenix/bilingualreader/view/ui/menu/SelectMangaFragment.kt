@@ -194,6 +194,10 @@ class SelectMangaFragment : Fragment() {
                 (requireActivity() as MenuActivity).onBack(bundle)
             }
 
+            override fun onClickFavorite(manga: Manga) { }
+
+            override fun onClickConfig(manga: Manga, root: View, item: View, position: Int) { }
+
             override fun onClickLong(manga: Manga, view: View, position: Int) {}
         }
 

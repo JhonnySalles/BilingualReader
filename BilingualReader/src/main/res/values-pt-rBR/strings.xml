@@ -584,7 +584,7 @@
     <string name="menu_book_config_send">Enviar o arquivo</string>
     <string name="menu_book_config_clear_progress">Limpar progresso</string>
     <string name="menu_book_config_delete">Deletar</string>
-    <string name="menu_book_config_detail">Detalhe do arquivo</string>
+    <string name="menu_book_config_detail">Detalhe do Livro</string>
     <string name="menu_book_config_tag">Adicionar tags</string>
     <string name="menu_book_config_book_mark">Marcador</string>
 
@@ -612,6 +612,11 @@
     <string name="book_library_line_authors">Autores:</string>
 
     <!-- POPUP LIBRARY - Manga / Comic -->
+    <string name="menu_manga_config_clear_progress">Limpar progresso</string>
+    <string name="menu_manga_config_delete">Deletar</string>
+    <string name="menu_manga_config_detail">Detalhe do Manga / Comic</string>
+    <string name="menu_manga_config_book_mark">Marcador</string>
+
     <string name="popup_library_manga_tab_item_ordering">Ordenação</string>
     <string name="popup_library_manga_tab_item_filter">Filtro</string>
     <string name="popup_library_manga_tab_item_type">Grid</string>
@@ -657,6 +662,7 @@
     <string name="manga_detail_favorite">Favorito</string>
     <string name="manga_detail_clear_history">Limpar histórico</string>
     <string name="manga_detail_mark_read">Marcar lido</string>
+    <string name="manga_detail_book_mark">Marcador</string>
     <string name="manga_detail_delete">Deletar</string>
     <string name="manga_detail_chapters_title">Capítulos</string>
     <string name="manga_detail_subtitles_title">Legendas</string>
@@ -699,8 +705,8 @@
     <!-- BOOK DETAIL -->
     <string name="book_detail_favorite">Favorito</string>
     <string name="book_detail_clear_history">Limpar histórico</string>
-    <string name="book_detail_mark_read">Marcador</string>
-    <string name="book_detail_book_mark">Book mark</string>
+    <string name="book_detail_mark_read">Marcar lido</string>
+    <string name="book_detail_book_mark">Marcador</string>
     <string name="book_detail_delete">Deletar</string>
     <string name="book_detail_chapters_title">Capítulos</string>
     <string name="book_detail_subtitles_title">Legendas</string>

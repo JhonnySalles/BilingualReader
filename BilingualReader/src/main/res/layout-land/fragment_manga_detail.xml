@@ -211,6 +211,21 @@
                         app:cornerRadius="@dimen/manga_detail_icon_rounded"/>
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/manga_detail_button_book_mark"
+                        style="@style/Button.Detail"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="5dp"
+                        android:contentDescription="@string/manga_detail_book_mark"
+                        android:text="@string/manga_detail_book_mark"
+                        app:iconPadding="@dimen/manga_detail_icon_padding"
+                        app:iconGravity="textTop"
+                        app:icon="@drawable/ico_animated_define_book_mark"
+                        app:iconSize="@dimen/manga_detail_icon_size"
+                        app:cornerRadius="@dimen/manga_detail_icon_rounded"/>
+
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/manga_detail_button_delete"
                         style="@style/Button.Detail"
                         android:layout_width="0dp"

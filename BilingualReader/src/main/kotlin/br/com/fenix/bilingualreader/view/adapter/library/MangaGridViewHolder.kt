@@ -66,12 +66,8 @@ class MangaGridViewHolder(var type: LibraryMangaType, itemView: View, private va
         val mangaProgress = itemView.findViewById<ProgressBar>(R.id.manga_grid_progress)
         val cardView = itemView.findViewById<MaterialCardView>(R.id.manga_grid_card)
         val favorite = itemView.findViewById<ImageView>(R.id.manga_grid_favorite)
+        val config = itemView.findViewById<ImageView>(R.id.manga_grid_config)
         val subtitle = itemView.findViewById<ImageView>(R.id.manga_grid_has_subtitle)
-
-        if (manga.favorite)
-            favorite.visibility = View.VISIBLE
-        else
-            favorite.visibility = View.GONE
 
         subtitle.visibility  = if (manga.hasSubtitle) {
             if (manga.lastVocabImport != null)
@@ -80,6 +76,15 @@ class MangaGridViewHolder(var type: LibraryMangaType, itemView: View, private va
                 subtitle.setImageResource(R.drawable.ic_subtitles_exist)
             View.VISIBLE
         } else View.GONE
+
+        favorite.setOnClickListener {
+            manga.favorite = !manga.favorite
+            favorite.setImageResource(if (manga.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+            listener.onClickFavorite(manga)
+        }
+
+        favorite.setImageResource(if (manga.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+        config.setOnClickListener { listener.onClickConfig(manga, cardView, it, layoutPosition) }
 
         when (type) {
             LibraryMangaType.GRID_MEDIUM -> cardView.layoutParams.width = if (mIsLandscape) mMangaCardWidthLandscapeMedium else mMangaCardWidthMedium

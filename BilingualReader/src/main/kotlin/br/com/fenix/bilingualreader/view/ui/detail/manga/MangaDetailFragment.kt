@@ -24,6 +24,7 @@ import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.controller.MangaImageController
 import br.com.fenix.bilingualreader.service.listener.InformationCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -33,6 +34,7 @@ import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.view.adapter.detail.manga.InformationRelatedCardAdapter
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
+import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import com.google.android.material.button.MaterialButton
@@ -59,6 +61,7 @@ class MangaDetailFragment : Fragment() {
     private lateinit var mFavoriteButton: MaterialButton
     private lateinit var mMakReadButton: MaterialButton
     private lateinit var mClearHistoryButton: MaterialButton
+    private lateinit var mBookMakButton: MaterialButton
     private lateinit var mDeleteButton: MaterialButton
     private lateinit var mVocabularyButton: MaterialButton
     private lateinit var mChaptersList: ListView
@@ -126,6 +129,7 @@ class MangaDetailFragment : Fragment() {
         mButtonsContent = root.findViewById(R.id.manga_detail_buttons)
         mFavoriteButton = root.findViewById(R.id.manga_detail_button_favorite)
         mClearHistoryButton = root.findViewById(R.id.manga_detail_button_clear_history)
+        mBookMakButton = root.findViewById(R.id.manga_detail_button_book_mark)
         mMakReadButton = root.findViewById(R.id.manga_detail_button_mark_read)
         mDeleteButton = root.findViewById(R.id.manga_detail_button_delete)
         mVocabularyButton = root.findViewById(R.id.manga_detail_button_vocabulary)
@@ -177,6 +181,10 @@ class MangaDetailFragment : Fragment() {
         mMakReadButton.setOnClickListener {
             (mMakReadButton.icon as AnimatedVectorDrawable).start()
             markRead()
+        }
+        mBookMakButton.setOnClickListener {
+            (mBookMakButton.icon as AnimatedVectorDrawable).start()
+            openBookMark()
         }
         mDeleteButton.setOnClickListener {
             (mDeleteButton.icon as AnimatedVectorDrawable).start()
@@ -286,12 +294,8 @@ class MangaDetailFragment : Fragment() {
             if (it != null) {
                 mTitle.text = it.name
                 mFolder.text = it.path
-                val folder = mViewModel.getChapterFolder(it.bookMark)
-                mBookMark.text = "${it.bookMark} / ${it.pages}" + if (folder.isNotEmpty()) " - $folder" else ""
-                mLastAccess.text = if (it.lastAccess == null) "" else GeneralConsts.formatterDate(
-                    requireContext(),
-                    it.lastAccess!!
-                )
+                mBookMark.text = "${it.bookMark} / ${it.pages}"
+                mLastAccess.text = if (it.lastAccess == null) "" else GeneralConsts.formatterDate(requireContext(), it.lastAccess!!)
                 mProgress.max = it.pages
                 mProgress.setProgress(it.bookMark, false)
 
@@ -553,6 +557,19 @@ class MangaDetailFragment : Fragment() {
 
     private fun markRead() {
         mViewModel.markRead()
+    }
+
+    private fun openBookMark() {
+        val manga = mViewModel.manga.value ?: return
+        val onUpdate: (History) -> (Unit) = { mViewModel.save(manga) }
+        PopupBookMark(requireActivity(), requireActivity().supportFragmentManager)
+            .getPopupBookMark(manga, onUpdate) { change, bookMark, lastAccess ->
+                if (change) {
+                    manga.bookMark = bookMark
+                    manga.lastAccess = lastAccess
+                    mViewModel.save(manga)
+                }
+            }
     }
 
     private fun favorite() {

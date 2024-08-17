@@ -18,6 +18,7 @@ import android.os.Looper
 import android.os.Message
 import android.provider.BaseColumns
 import android.util.Pair
+import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -31,6 +32,7 @@ import android.widget.AutoCompleteTextView
 import android.widget.CursorAdapter
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.ProgressBar
 import android.widget.SearchView
 import android.widget.SimpleCursorAdapter
@@ -53,12 +55,14 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
+import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.service.listener.PopupOrderListener
@@ -75,6 +79,7 @@ import br.com.fenix.bilingualreader.view.adapter.library.MangaLineCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaSeparatorGridCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
+import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -695,6 +700,45 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                 }
             }
 
+            override fun onClickFavorite(manga: Manga) {
+                mViewModel.save(manga)
+            }
+
+            override fun onClickConfig(manga: Manga, root: View, item: View, position: Int) {
+                val wrapper = ContextThemeWrapper(requireContext(), R.style.PopupMenu)
+                val popup = PopupMenu(wrapper, item, 0, R.attr.popupMenuStyle, R.style.PopupMenu)
+                popup.menuInflater.inflate(R.menu.menu_manga_config, popup.menu)
+
+                popup.setOnMenuItemClickListener { menu ->
+                    when (menu.itemId) {
+                        R.id.menu_manga_config_clear_progress -> {
+                            mViewModel.clearHistory(manga)
+                            notifyDataSet(position)
+                        }
+
+                        R.id.menu_manga_config_delete -> deleteManga(manga, position)
+                        R.id.menu_manga_config_detail -> goMangaDetail(manga, root, position)
+                        R.id.menu_manga_config_book_mark -> {
+                            val onUpdate: (History) -> (Unit) = {
+                                mViewModel.save(it as Manga)
+                                mViewModel.updateList(position)
+                                notifyDataSet(position)
+                            }
+                            PopupBookMark(requireActivity(), requireActivity().supportFragmentManager)
+                                .getPopupBookMark(manga, onUpdate) { change, bookMark, lastAccess ->
+                                    if (change) {
+                                        manga.bookMark = bookMark
+                                        manga.lastAccess = lastAccess
+                                        onUpdate(manga)
+                                    }
+                                }
+                        }
+                    }
+                    true
+                }
+                popup.show()
+            }
+
             override fun onClickLong(manga: Manga, view: View, position: Int) {
                 if (mRefreshLayout.isRefreshing)
                     return
@@ -770,15 +814,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         val pTitle: Pair<View, String> = Pair(view.findViewById<TextView>(idText), "transition_manga_title")
         val pProgress: Pair<View, String> = Pair(view.findViewById<ProgressBar>(idProgress), "transition_progress_bar")
 
-        val options = ActivityOptions
-            .makeSceneTransitionAnimation(
-                requireActivity(),
-                *arrayOf(pImageCover, pTitle, pProgress)
-            )
-        requireActivity().overridePendingTransition(
-            R.anim.fade_in_fragment_add_enter,
-            R.anim.fade_out_fragment_remove_exit
-        )
+        val options = ActivityOptions.makeSceneTransitionAnimation(requireActivity(), *arrayOf(pImageCover, pTitle, pProgress))
+        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
         startActivityForResult(intent, GeneralConsts.REQUEST.MANGA_DETAIL, options.toBundle())
     }
 
@@ -995,27 +1032,28 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             override fun onSwiped(viewHolder: ViewHolder, direction: Int) {
                 val manga = mViewModel.getAndRemove(viewHolder.bindingAdapterPosition) ?: return
                 val position = viewHolder.bindingAdapterPosition
-                var excluded = false
-                val dialog: AlertDialog =
-                    MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
-                        .setTitle(getString(R.string.manga_library_menu_delete))
-                        .setMessage(getString(R.string.manga_library_menu_delete_description) + "\n" + manga.file.name)
-                        .setPositiveButton(
-                            R.string.action_delete
-                        ) { _, _ ->
-                            deleteFile(manga)
-                            notifyDataSet(position, removed = true)
-                            excluded = true
-                        }.setOnDismissListener {
-                            if (!excluded) {
-                                mViewModel.add(manga, position)
-                                notifyDataSet(position)
-                            }
-                        }
-                        .create()
-                dialog.show()
+                deleteManga(manga, position)
             }
         }
+
+    private fun deleteManga(manga: Manga, position: Int) {
+        var excluded = false
+        val dialog: AlertDialog = MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+                .setTitle(getString(R.string.manga_library_menu_delete))
+                .setMessage(getString(R.string.manga_library_menu_delete_description) + "\n" + manga.file.name)
+                .setPositiveButton(R.string.action_delete) { _, _ ->
+                    deleteFile(manga)
+                    notifyDataSet(position, removed = true)
+                    excluded = true
+                }.setOnDismissListener {
+                    if (!excluded) {
+                        mViewModel.add(manga, position)
+                        notifyDataSet(position)
+                    }
+                }
+                .create()
+        dialog.show()
+    }
 
     private fun deleteFile(manga: Manga?) {
         if (manga?.file != null) {

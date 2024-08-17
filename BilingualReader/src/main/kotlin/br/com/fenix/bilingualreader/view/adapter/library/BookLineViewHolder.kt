@@ -58,12 +58,13 @@ class BookLineViewHolder(itemView: View, private val listener: BookCardListener)
             true
         }
 
+        config.setOnClickListener { listener.onClickConfig(book, cardView, it, layoutPosition) }
+
         favorite.setOnClickListener {
             book.favorite = !book.favorite
             favorite.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
             listener.onClickFavorite(book)
         }
-        config.setOnClickListener { listener.onClickConfig(book, cardView, it, layoutPosition) }
 
         favorite.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
 
