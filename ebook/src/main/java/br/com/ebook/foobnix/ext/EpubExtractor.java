@@ -18,7 +18,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -147,6 +150,9 @@ public class EpubExtractor extends BaseExtractor {
             String series = null;
             String number = null;
             String lang = null;
+            String isbn = null;
+            String publisher = null;
+            Date release = null;
 
             while (entries.hasMoreElements() && (nextEntry = entries.nextElement()) != null) {
                 String name = nextEntry.getName().toLowerCase();
@@ -175,6 +181,32 @@ public class EpubExtractor extends BaseExtractor {
                                 lang = xpp.nextText();
                             }
 
+                            if (isbn == null && ("dc:identifier".equals(xpp.getName()) || "dcns:identifier".equals(xpp.getName()))) {
+                                String content = xpp.nextText();
+                                if (content != null && content.toLowerCase().contains("isbn"))
+                                    isbn = content.replaceAll("[\\D]", "");
+                            }
+
+                            if (publisher == null && ("dc:publisher".equals(xpp.getName()) || "dcns:publisher".equals(xpp.getName()))) {
+                                publisher = xpp.nextText();
+                            }
+
+                            if (release == null && ("dc:date".equals(xpp.getName()) || "dcns:date".equals(xpp.getName()))) {
+                                String date = xpp.nextText();
+                                try {
+                                    if (date.contains("T"))
+                                        release = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).parse(date);
+                                    else {
+                                        try {
+                                            release = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(date);
+                                        } catch (Exception e) {
+                                            release = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).parse(date);
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                }
+                            }
+
                             if ("meta".equals(xpp.getName())) {
                                 String nameAttr = xpp.getAttributeValue(null, "name");
                                 if ("calibre:series".equals(nameAttr)) {
@@ -183,6 +215,11 @@ public class EpubExtractor extends BaseExtractor {
                                     number = xpp.getAttributeValue(null, "content");
                                     if (number != null) {
                                         number = number.replace(".0", "");
+                                    }
+                                } else {
+                                    String propertyAttr = xpp.getAttributeValue(null, "property");
+                                    if ("group-position".equals(propertyAttr)) {
+                                        number = xpp.getText();
                                     }
                                 }
                             }
@@ -202,21 +239,18 @@ public class EpubExtractor extends BaseExtractor {
                 author = TxtUtils.replaceLastFirstName(author);
             }
 
-            EbookMeta ebookMeta = new EbookMeta(title, author, series, subject.replaceAll(",$", ""));
+            EbookMeta ebookMeta = new EbookMeta(title, author, series, subject.replaceAll(",$", ""), isbn, publisher, release);
             try {
                 if (number != null) {
                     ebookMeta.setsIndex(Integer.parseInt(number));
                 }
             } catch (Exception e) {
-                title = title + " [" + number + "]";
-                ebookMeta.setTitle(title);
                 LOG.d(e);
             }
             ebookMeta.setLang(lang);
             return ebookMeta;
-        } catch (
-
-        Exception e) {
+        } catch (Exception e) {
+            LOG.d(e);
             return EbookMeta.Empty();
         }
     }

@@ -371,14 +371,14 @@
                         android:textSize="@dimen/book_detail_information_texts_size" />
 
                     <TextView
-                        android:id="@+id/book_detail_information_year"
+                        android:id="@+id/book_detail_information_release"
                         style="@style/TextNormal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:layout_marginStart="10dp"
                         android:layout_marginEnd="10dp"
-                        android:text="@string/book_detail_information_year"
+                        android:text="@string/book_detail_information_release"
                         android:textSize="@dimen/book_detail_information_texts_size" />
 
                     <TextView

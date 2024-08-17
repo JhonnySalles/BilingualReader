@@ -6,6 +6,9 @@ import org.xmlpull.v1.XmlPullParser;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import br.com.ebook.BaseExtractor;
 import br.com.ebook.foobnix.android.utils.LOG;
@@ -85,9 +88,38 @@ public class CalirbeExtractor {
                         meta.setAnnotation(xpp.nextText());
                     }
 
+                    if ("dc:identifier".equals(xpp.getName())) {
+                        String content = xpp.nextText();
+                        if (content != null && content.toLowerCase().contains("isbn"))
+                            meta.setIsbn(content.replaceAll("[\\D]", ""));
+                    }
+
+                    if ("dc:publisher".equals(xpp.getName())) {
+                        meta.setPublisher(xpp.nextText());
+                    }
+
+                    if ("dc:date".equals(xpp.getName())) {
+                        String date = xpp.nextText();
+                        Date release = null;
+                        try {
+                            if (date.contains("T"))
+                                release = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).parse(date);
+                            else {
+                                try {
+                                    release = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(date);
+                                } catch (Exception e) {
+                                    release = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).parse(date);
+                                }
+                            }
+                        } catch (Exception e) {
+                        }
+                        meta.setRelease(release);
+                    }
+
                     if ("meta".equals(xpp.getName())) {
                         String attrName = xpp.getAttributeValue(null, "name");
                         String attrContent = xpp.getAttributeValue(null, "content");
+                        String attrProperty = xpp.getAttributeValue(null, "property");
 
                         if ("calibre:series".equals(attrName)) {
                             meta.setSequence(attrContent.replace(",", ""));
@@ -95,6 +127,10 @@ public class CalirbeExtractor {
 
                         if ("calibre:series_index".equals(attrName)) {
                             meta.setsIndex(Integer.parseInt(attrContent));
+                        }
+
+                        if ("group-position".equals(attrProperty)) {
+                            meta.setsIndex(Integer.parseInt(xpp.getText()));
                         }
 
                     }

@@ -210,7 +210,7 @@ class Manga(
         return result
     }
 
-    fun update(manga: Manga) : Boolean {
+    fun update(manga: Manga, isFull: Boolean = false) : Boolean {
         val updated = this.bookMark != manga.bookMark || this.favorite != manga.favorite ||
                 this.hasSubtitle != manga.hasSubtitle || this.lastAccess != manga.lastAccess ||
                 this.author != manga.author || this.series != manga.series || this.publisher != manga.publisher ||
@@ -227,6 +227,13 @@ class Manga(
         this.publisher = manga.publisher
         this.volume = manga.volume
         this.release = manga.release
+
+        if (isFull) {
+            this.title = manga.title
+            this.chapters = manga.chapters
+            this.pages = manga.pages
+            this.pages = manga.pages
+        }
 
         return updated
     }

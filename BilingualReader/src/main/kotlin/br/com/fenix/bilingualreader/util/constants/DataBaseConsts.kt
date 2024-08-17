@@ -156,7 +156,7 @@ class DataBaseConsts private constructor() {
 
             const val PASSWORD = "password"
             const val ANNOTATION = "annotation"
-            const val YEAR = "year"
+            const val RELEASE = "release"
             const val GENRE = "genre"
             const val PUBLISHER = "publisher"
             const val ISBN = "isbn"

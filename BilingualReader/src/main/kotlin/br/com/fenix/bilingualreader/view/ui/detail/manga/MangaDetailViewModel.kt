@@ -92,19 +92,27 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
                     }
                 }
 
+                var update = false
                 val info = parse.getComicInfo()
                 if (info != null) {
                     if (manga.update(info))
-                        mMangaRepository.update(manga)
+                        update = true
                     withContext(Dispatchers.Main) {
                         mLocalInformation.value = Information(app.applicationContext, info)
                     }
                 }
 
                 if (manga.hasSubtitle != parse.hasSubtitles()) {
+                    update = true
                     manga.hasSubtitle = parse.hasSubtitles()
                     manga.lastVocabImport = null
+                }
+
+                if (update) {
                     mMangaRepository.update(manga)
+                    withContext(Dispatchers.Main) {
+                        mManga.value = manga
+                    }
                 }
 
                 val paths = parse.getPagePaths()

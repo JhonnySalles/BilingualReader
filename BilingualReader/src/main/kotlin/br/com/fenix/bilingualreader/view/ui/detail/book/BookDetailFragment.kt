@@ -78,7 +78,7 @@ class BookDetailFragment : Fragment() {
     private lateinit var mInformationSynopsis: TextView
     private lateinit var mInformationAnnotation: TextView
     private lateinit var mInformationPublish: TextView
-    private lateinit var mInformationYear: TextView
+    private lateinit var mInformationRelease: TextView
     private lateinit var mInformationIsbn: TextView
     private lateinit var mInformationGenres: TextView
     private lateinit var mInformationFile: TextView
@@ -146,7 +146,7 @@ class BookDetailFragment : Fragment() {
         mInformationSynopsis = root.findViewById(R.id.book_detail_information_synopsis)
         mInformationAnnotation = root.findViewById(R.id.book_detail_information_annotation)
         mInformationPublish = root.findViewById(R.id.book_detail_information_publish)
-        mInformationYear = root.findViewById(R.id.book_detail_information_year)
+        mInformationRelease = root.findViewById(R.id.book_detail_information_release)
         mInformationIsbn = root.findViewById(R.id.book_detail_information_isbn)
         mInformationGenres = root.findViewById(R.id.book_detail_information_genres)
         mInformationFile = root.findViewById(R.id.book_detail_information_file)
@@ -374,7 +374,7 @@ class BookDetailFragment : Fragment() {
 
                 mInformationAnnotation.text = requireContext().getString(R.string.book_detail_information_annotation, it.annotation)
                 mInformationPublish.text = requireContext().getString(R.string.book_detail_information_publisher, it.publisher)
-                mInformationYear.text = requireContext().getString(R.string.book_detail_information_year, it.year)
+                mInformationRelease.text = requireContext().getString(R.string.book_detail_information_release, it.release)
                 mInformationIsbn.text = requireContext().getString(R.string.book_detail_information_isbn, it.isbn)
                 mInformationGenres.text = requireContext().getString(R.string.book_detail_information_genres, it.genres)
                 mInformationFile.text = requireContext().getString(R.string.book_detail_information_file, it.file)
@@ -385,7 +385,7 @@ class BookDetailFragment : Fragment() {
                 mInformationSynopsis.text = ""
                 mInformationAnnotation.text = ""
                 mInformationPublish.text = ""
-                mInformationYear.text = ""
+                mInformationRelease.text = ""
                 mInformationIsbn.text = ""
                 mInformationGenres.text = ""
                 mInformationFile.text = ""

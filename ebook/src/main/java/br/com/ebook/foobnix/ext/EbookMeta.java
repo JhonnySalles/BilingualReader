@@ -1,8 +1,11 @@
 package br.com.ebook.foobnix.ext;
 
+import java.util.Date;
+
 public class EbookMeta {
 
     public byte[] coverImage;
+    private String isbn;
     private String title;
     private String author;
     private String sequence;
@@ -11,6 +14,8 @@ public class EbookMeta {
     private String unzipPath;
     private Integer sIndex;
     private String lang;
+    private String publisher;
+    private Date release;
 
     public EbookMeta(String title, String author, byte[] coverImage) {
         this.title = updateString(title);
@@ -19,14 +24,17 @@ public class EbookMeta {
     }
 
     public EbookMeta(String title, String author) {
-        this(title, author, null, null);
+        this(title, author, null, null, null, null, null);
     }
 
-    public EbookMeta(String title, String author, String sequence, String genre) {
+    public EbookMeta(String title, String author, String sequence, String genre, String isbn, String publisher, Date release) {
         this.title = updateString(title);
         this.author = updateString(author);
         this.sequence = updateString(sequence);
         this.genre = updateString(genre);
+        this.isbn = updateString(isbn);
+        this.publisher = updateString(publisher);
+        this.release = release;
     }
 
     public String updateString(String input) {
@@ -112,4 +120,27 @@ public class EbookMeta {
         this.lang = lang;
     }
 
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+
+    public Date getRelease() {
+        return release;
+    }
+
+    public void setRelease(Date release) {
+        this.release = release;
+    }
 }

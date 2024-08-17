@@ -194,7 +194,6 @@ public class FileMetaCore {
             fileMeta.setPathTxt(TxtUtils.encode1251(file.getName()));
         } else {
             fileMeta.setPathTxt(file.getName());
-
         }
     }
 

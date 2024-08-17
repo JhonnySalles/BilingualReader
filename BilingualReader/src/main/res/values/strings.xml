@@ -762,7 +762,7 @@
     <string name="book_detail_information_language">Book language</string>
     <string name="book_detail_information_file"><b>File:</b> %s</string>
     <string name="book_detail_information_isbn"><b>ISBN:</b> %s</string>
-    <string name="book_detail_information_year"><b>Year:</b> %s</string>
+    <string name="book_detail_information_release"><b>Release:</b> %s</string>
     <string name="book_detail_information_publisher"><b>Publisher:</b> %s</string>
     <string name="book_detail_information_annotation"><b>Annotation:</b> %s</string>
     <string name="book_detail_information_genres"><b>Genres:</b> %s</string>

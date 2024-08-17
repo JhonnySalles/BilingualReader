@@ -227,7 +227,7 @@ abstract class BookDAO : BaseDAO<Book, Long>(DataBaseConsts.BOOK.TABLE_NAME, Dat
     @Query(
         "SELECT * FROM ( " +
                 " SELECT ${DataBaseConsts.BOOK.COLUMNS.ID}, ${DataBaseConsts.BOOK.COLUMNS.TITLE}, ${DataBaseConsts.BOOK.COLUMNS.AUTHOR}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.PASSWORD}, ${DataBaseConsts.BOOK.COLUMNS.ANNOTATION}, ${DataBaseConsts.BOOK.COLUMNS.YEAR}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.PASSWORD}, ${DataBaseConsts.BOOK.COLUMNS.ANNOTATION}, ${DataBaseConsts.BOOK.COLUMNS.RELEASE}, " +
                 "        ${DataBaseConsts.BOOK.COLUMNS.GENRE}, ${DataBaseConsts.BOOK.COLUMNS.PUBLISHER}, ${DataBaseConsts.BOOK.COLUMNS.ISBN}, " +
                 "        ${DataBaseConsts.BOOK.COLUMNS.PAGES}, ${DataBaseConsts.BOOK.COLUMNS.CHAPTER}, ${DataBaseConsts.BOOK.COLUMNS.CHAPTER_DESCRIPTION}, " +
                 "        ${DataBaseConsts.BOOK.COLUMNS.BOOK_MARK}, ${DataBaseConsts.BOOK.COLUMNS.LANGUAGE}, ${DataBaseConsts.BOOK.COLUMNS.FILE_PATH}, " +
@@ -241,7 +241,7 @@ abstract class BookDAO : BaseDAO<Book, Long>(DataBaseConsts.BOOK.TABLE_NAME, Dat
                 " WHERE " + DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS + " is not null " +
                 "UNION" +
                 " SELECT null AS ${DataBaseConsts.BOOK.COLUMNS.ID}, '' AS ${DataBaseConsts.BOOK.COLUMNS.TITLE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.AUTHOR}, " +
-                "        '' AS ${DataBaseConsts.BOOK.COLUMNS.PASSWORD}, '' AS ${DataBaseConsts.BOOK.COLUMNS.ANNOTATION}, ${DataBaseConsts.BOOK.COLUMNS.YEAR}, " +
+                "        '' AS ${DataBaseConsts.BOOK.COLUMNS.PASSWORD}, '' AS ${DataBaseConsts.BOOK.COLUMNS.ANNOTATION}, ${DataBaseConsts.BOOK.COLUMNS.RELEASE}, " +
                 "        '' AS ${DataBaseConsts.BOOK.COLUMNS.GENRE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.PUBLISHER}, '' AS ${DataBaseConsts.BOOK.COLUMNS.ISBN}, " +
                 "        0 AS ${DataBaseConsts.BOOK.COLUMNS.PAGES}, '' AS ${DataBaseConsts.BOOK.COLUMNS.CHAPTER}, '' AS ${DataBaseConsts.BOOK.COLUMNS.CHAPTER_DESCRIPTION}, " +
                 "        0 AS ${DataBaseConsts.BOOK.COLUMNS.BOOK_MARK}, ${DataBaseConsts.BOOK.COLUMNS.LANGUAGE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_PATH}, " +

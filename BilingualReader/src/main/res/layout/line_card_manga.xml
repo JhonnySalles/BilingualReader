@@ -18,6 +18,7 @@
         android:layout_width="@dimen/manga_line_card_image"
         android:layout_height="match_parent"
         android:layout_gravity="center"
+        app:cardCornerRadius="7dp"
         app:strokeWidth="0.0dp">
 
         <ImageView

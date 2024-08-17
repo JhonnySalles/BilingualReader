@@ -225,6 +225,14 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
         return index
     }
 
+    fun updateList(index : Int) : Int {
+        val manga = mListMangas.value!![index]
+        mMangaRepository.get(manga.id!!)?.let {
+            manga.update(it, true)
+        }
+        return index
+    }
+
     fun updateList(refreshComplete: (Boolean, indexes: MutableList<Pair<ListMode, Int>>) -> (Unit)) {
         var change = false
         val indexes = mutableListOf<Pair<ListMode, Int>>()
@@ -234,7 +242,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                 change = true
                 for (manga in list) {
                     if (mListMangasFull.value!!.contains(manga)) {
-                        if (mListMangasFull.value!![mListMangasFull.value!!.indexOf(manga)].update(manga)) {
+                        if (mListMangasFull.value!![mListMangasFull.value!!.indexOf(manga)].update(manga, true)) {
                             val index = mListMangas.value!!.indexOf(manga)
                             if (index > -1)
                                 indexes.add(Pair(ListMode.MOD, index))

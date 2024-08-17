@@ -55,7 +55,6 @@ class Information() {
 
     var annotation: String = ""
     var publisher: String = ""
-    var year: String = ""
     var isbn: String = ""
     var file: String = ""
 
@@ -222,7 +221,7 @@ class Information() {
         this.genres = book.genre
         this.annotation = book.annotation
         this.publisher = book.publisher
-        this.year = book.year
+        this.release = if (book.release != null) GeneralConsts.formatterDate(context, book.release!!) else ""
         this.isbn = book.isbn
         this.file =
             book.fileName + "  " + FileUtil.formatSize(book.fileSize) + "  " + GeneralConsts.formatterDate(

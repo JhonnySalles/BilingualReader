@@ -6,6 +6,9 @@ import android.graphics.Bitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import br.com.ebook.foobnix.entity.FileMeta
+import br.com.ebook.foobnix.entity.FileMetaCore
+import br.com.ebook.foobnix.ext.CacheZipUtils
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -21,6 +24,11 @@ import br.com.fenix.bilingualreader.service.tracker.ParseInformation
 import br.com.fenix.bilingualreader.service.tracker.mal.MalMangaDetail
 import br.com.fenix.bilingualreader.service.tracker.mal.MyAnimeListTracker
 import br.com.fenix.bilingualreader.util.helpers.Util
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 
 class BookDetailViewModel(var app: Application) : AndroidViewModel(app) {
@@ -73,6 +81,27 @@ class BookDetailViewModel(var app: Application) : AndroidViewModel(app) {
         mWebInformationRelations.value = mutableListOf()
 
         BookImageCoverController.instance.setImageCoverAsync(context, book,  false) { mCover.value = it }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                async {
+                    BookImageCoverController.instance.getCoverFromFile(context, book.file)
+
+                    val ebookMeta = FileMetaCore.get().getEbookMeta(book.path, CacheZipUtils.CacheDir.ZipApp, false)
+                    FileMetaCore.get().udpateFullMeta(FileMeta(book.path), ebookMeta)
+
+                    if (book.update(ebookMeta, book.library.language)) {
+                        mBookRepository.update(book)
+                        withContext(Dispatchers.Main) {
+                            mBook.value = book
+                            mInformation.value = Information(context, book)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                mLOGGER.error("Error to generate new cover and update meta on book", e)
+            }
+        }
     }
 
     fun getInformation() {

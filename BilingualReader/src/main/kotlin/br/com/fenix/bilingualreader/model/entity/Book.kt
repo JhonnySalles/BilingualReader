@@ -12,6 +12,7 @@ import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import java.io.File
@@ -31,7 +32,7 @@ class Book(
     author: String,
     password: String,
     annotation: String,
-    year: String,
+    release: LocalDate?,
     genre: String,
     publisher: String,
     isbn: String,
@@ -58,12 +59,12 @@ class Book(
 ) : Serializable, History {
 
     constructor(
-        id: Long?, title: String, author: String, password: String, annotation: String, year: String, genre: String, publisher: String, isbn: String,
+        id: Long?, title: String, author: String, password: String, annotation: String, release: LocalDate, genre: String, publisher: String, isbn: String,
         pages: Int, chapter: Int, chapterDescription: String, bookMark: Int, language: Languages, path: String, name: String, fileType: FileType, folder: String,
         fileSize: Long, favorite: Boolean, dateCreate: LocalDateTime?, fkLibrary: Long?, tags: MutableList<Long>, excluded: Boolean, lastAlteration: LocalDateTime?,
         fileAlteration: Date, lastVocabImport: LocalDateTime?, lastVerify: LocalDate?, lastAccess: LocalDateTime?, sort: LocalDateTime?
     ) : this(
-        id, title, author, password, annotation, year, genre, publisher, isbn, pages, chapter, chapterDescription, bookMark, language, path, folder,
+        id, title, author, password, annotation, release, genre, publisher, isbn, pages, chapter, chapterDescription, bookMark, language, path, folder,
         name, fileType, fileSize, favorite, fkLibrary, tags, excluded, dateCreate, lastAccess, lastAlteration, fileAlteration, lastVocabImport, lastVerify
     ) {
         this.sort = sort
@@ -72,10 +73,10 @@ class Book(
 
     @Ignore
     constructor(
-        fkLibrary: Long?, title: String, author: String, annotation: String, year: String, genre: String, publisher: String, isbn: String, path: String,
+        fkLibrary: Long?, title: String, author: String, annotation: String, release: LocalDate, genre: String, publisher: String, isbn: String, path: String,
         folder: String, name: String, fileSize: Long, pages: Int
     ) : this(
-        null, title, author, "", annotation, year, genre, publisher, isbn, pages, 0, "", 0,
+        null, title, author, "", annotation, release, genre, publisher, isbn, pages, 0, "", 0,
         Languages.ENGLISH, path, folder, name, FileType.UNKNOWN, fileSize, false, fkLibrary, mutableListOf(), false,
         LocalDateTime.now(), null, LocalDateTime.now(), Date(), null, null
     ) {
@@ -85,7 +86,7 @@ class Book(
 
     @Ignore
     constructor(fkLibrary: Long?, id: Long?, file: File) : this(
-        id, "",  "", "",  "", "",  "", "", "", 1, 0,
+        id, "",  "", "",  "", null,  "", "", "", 1, 0,
         "", 0, Languages.ENGLISH, file.path, file.parent, file.name, FileType.UNKNOWN, file.length(), false,
         fkLibrary, mutableListOf(), false, LocalDateTime.now(), null, LocalDateTime.now(), Date(), null, null
     ) {
@@ -109,8 +110,8 @@ class Book(
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.ANNOTATION)
     var annotation: String = annotation
 
-    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.YEAR)
-    var year: String = year
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.RELEASE)
+    var release: LocalDate? = release
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.GENRE)
     var genre: String = genre
@@ -237,7 +238,7 @@ class Book(
         return result
     }
 
-    fun update(book: Book) : Boolean {
+    fun update(book: Book, isFull: Boolean = false) : Boolean {
         val updated = this.bookMark != book.bookMark || this.favorite != book.favorite ||
                 this.pages != book.pages || this.language != book.language ||
                 this.tags != book.tags || this.lastAccess != book.lastAccess
@@ -251,14 +252,37 @@ class Book(
         this.lastAlteration = book.lastAlteration
         this.lastVocabImport = book.lastVocabImport
 
+        if (isFull) {
+            this.title = book.title
+            this.author = book.author
+            this.password = book.password
+            this.annotation = book.annotation
+            this.release = book.release
+            this.genre = book.genre
+            this.chapter = book.chapter
+            this.chapterDescription = book.chapterDescription
+            this.extension = book.extension
+            this.publisher = book.publisher
+            this.isbn = book.isbn
+        }
+
         return updated
     }
 
-    fun update(meta: EbookMeta, language: Libraries) {
+    fun update(meta: EbookMeta, language: Libraries) : Boolean {
+        val metaRelease = if (meta.release != null) GeneralConsts.dateToDateTime(meta.release).toLocalDate() else null
+
+        val updated = this.title != meta.title || this.author != (meta.author ?: "") || this.annotation != (meta.annotation ?: "") ||
+                this.genre != (meta.genre ?: "") || this.publisher != (meta.publisher ?: "") || this.isbn != (meta.isbn ?: "") ||
+                this.release != metaRelease
+
         this.title = meta.title
         this.author = meta.author ?: ""
         this.annotation = meta.annotation ?: ""
         this.genre = meta.genre ?: ""
+        this.publisher = meta.publisher ?: ""
+        this.isbn = meta.isbn ?: ""
+        this.release = metaRelease
         this.fileSize = file.length()
 
         this.language = when (meta.lang) {
@@ -275,6 +299,8 @@ class Book(
         this.fileType = FileUtil.getFileType(file.name)
         this.fileAlteration = Date(this.file.lastModified())
         this.lastVocabImport = null
+
+        return updated
     }
 
 }

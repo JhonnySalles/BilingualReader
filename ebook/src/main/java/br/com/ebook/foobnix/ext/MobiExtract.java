@@ -7,6 +7,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
@@ -51,6 +54,9 @@ public class MobiExtract {
             String author = parse.getAuthor();
             String subject = parse.getSubject();
             String lang = parse.getLanguage();
+            String isbn = parse.getIsbn();
+            String publisher = parse.getPublisher();
+            String release = parse.getRelease();
 
             if (TxtUtils.isEmpty(title)) {
                 title = file.getName();
@@ -67,8 +73,27 @@ public class MobiExtract {
             EbookMeta ebookMeta = new EbookMeta(title, author, decode);
             ebookMeta.setGenre(subject);
             ebookMeta.setLang(lang);
-            return ebookMeta;
+            ebookMeta.setIsbn(isbn);
+            ebookMeta.setPublisher(publisher);
 
+            if (release != null && !release.isEmpty()) {
+                Date date = null;
+                try {
+                    if (release.contains("T"))
+                        date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).parse(release);
+                    else {
+                        try {
+                            date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(release);
+                        } catch (Exception e) {
+                            date = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).parse(release);
+                        }
+                    }
+                } catch (Exception e) {
+                }
+                ebookMeta.setRelease(date);
+            }
+
+            return ebookMeta;
         } catch (Throwable e) {
             LOG.e(e);
             return EbookMeta.Empty();

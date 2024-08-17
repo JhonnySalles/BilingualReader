@@ -16,7 +16,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -186,6 +188,9 @@ public class Fb2Extractor extends BaseExtractor {
             String sequence = "";
             String lang = "";
             String number = "";
+            String isbn = null;
+            String publisher = null;
+            Date release = null;
             boolean titleInfo = false;
 
             int eventType = xpp.getEventType();
@@ -214,6 +219,24 @@ public class Fb2Extractor extends BaseExtractor {
                             if (TxtUtils.isNotEmpty(current) && !("0".equals(current) || "00".equals(current))) {
                                 number = current;
                             }
+                        } else if (xpp.getName().equals("isbn")) {
+                            isbn = xpp.nextText();
+                        } else if (xpp.getName().equals("publisher")) {
+                            publisher = xpp.nextText();
+                        } else if (xpp.getName().equals("date")) {
+                            String date = xpp.nextText();
+                            try {
+                                if (date.contains("T"))
+                                    release = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).parse(date);
+                                else {
+                                    try {
+                                        release = new SimpleDateFormat("dd.M.yyyy", Locale.getDefault()).parse(date);
+                                    } catch (Exception e) {
+                                        release = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(date);
+                                    }
+                                }
+                            } catch (Exception e) {
+                            }
                         }
                     }
 
@@ -239,7 +262,7 @@ public class Fb2Extractor extends BaseExtractor {
             }
 
             if (TxtUtils.isNotEmpty(number)) {
-                EbookMeta ebookMeta = new EbookMeta(bookTitle, firstName + " " + lastName, sequence, genre);
+                EbookMeta ebookMeta = new EbookMeta(bookTitle, firstName + " " + lastName, sequence, genre, isbn, publisher, release);
                 try {
                     ebookMeta.setLang(lang);
                     ebookMeta.setsIndex(Integer.parseInt(number));
@@ -248,7 +271,7 @@ public class Fb2Extractor extends BaseExtractor {
                 }
                 return ebookMeta;
             } else {
-                EbookMeta ebookMeta = new EbookMeta(bookTitle, firstName + " " + lastName, sequence, genre);
+                EbookMeta ebookMeta = new EbookMeta(bookTitle, firstName + " " + lastName, sequence, genre, isbn, publisher, release);
                 ebookMeta.setLang(lang);
                 return ebookMeta;
             }

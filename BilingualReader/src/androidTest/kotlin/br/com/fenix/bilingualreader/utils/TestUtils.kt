@@ -239,9 +239,7 @@ class BookTestUtil {
                 "Author",
                 "",
                 "Annotation",
-                TestUtil.getRandomDateTime().format(
-                    DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                ),
+                TestUtil.getRandomDateTime().toLocalDate(),
                 "Genre",
                 "Publisher",
                 "Isbn",
@@ -295,9 +293,7 @@ class BookTestUtil {
                 "Author",
                 "",
                 "Annotation",
-                TestUtil.getRandomDateTime().format(
-                    DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                ),
+                TestUtil.getRandomDateTime().toLocalDate(),
                 "Genre",
                 "Publisher",
                 "Isbn",
@@ -341,9 +337,7 @@ class BookTestUtil {
                         "Author",
                         "",
                         "Annotation",
-                        TestUtil.getRandomDateTime().format(
-                            DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                        ),
+                        TestUtil.getRandomDateTime().toLocalDate(),
                         "Genre",
                         "Publisher",
                         "Isbn",
