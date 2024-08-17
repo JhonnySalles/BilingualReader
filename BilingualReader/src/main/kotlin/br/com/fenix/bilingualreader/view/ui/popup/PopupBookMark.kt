@@ -1,13 +1,20 @@
 package br.com.fenix.bilingualreader.view.ui.popup
 
-import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
+import android.content.res.Configuration
 import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentManager
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.History
+import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.service.listener.BookParseListener
+import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
+import br.com.fenix.bilingualreader.service.repository.BookRepository
+import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -25,26 +32,57 @@ import java.time.format.DateTimeFormatter
 
 class PopupBookMark(var context: Context, var manager: FragmentManager) {
 
+    private val mPreferences = GeneralConsts.getSharedPreferences(context)
     private lateinit var mPopup: AlertDialog
-    fun getPopupBookMark(lastPage: Int, pages: Int, lastDate: LocalDateTime = LocalDateTime.now(), onClose: (Boolean, Int, LocalDateTime) -> (Unit)) {
-        mMax = pages
-        mNewBookMark = lastPage
-        mNewDate = lastDate
 
-        if (lastPage == 0)
-            mNewBookMark = pages
+    fun getPopupBookMark(book: Book, onUpdate: (Int) -> (Unit), onClose: (Boolean, Int, LocalDateTime) -> (Unit)) {
+        if (book.pages <= 1) {
+            val fontSize = mPreferences.getFloat(GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE, GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT).toInt()
+            var document : DocumentParse? = null
+            val listener: BookParseListener = object : BookParseListener {
+                override fun onLoading(isFinished: Boolean, isLoaded: Boolean) {
+                    if (isFinished && isLoaded) {
+                        book.pages = document!!.getPageCount(fontSize)
+                        BookRepository(context).update(book)
+                        mMax = book.pages
+
+                        if (book.bookMark <= 0) {
+                            mNewBookMark = book.pages
+                            mBookMarkPageEdit.setText(mNewBookMark.toString())
+                        }
+                    }
+                }
+
+                override fun onSearching(isSearching: Boolean) {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onConverting(isConverting: Boolean) {
+                    TODO("Not yet implemented")
+                }
+            }
+            document = DocumentParse(book.path, book.password, fontSize, context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE, listener)
+        }
+
+        mMax = book.pages
+        mNewBookMark = book.bookMark
+        mNewDate = book.lastAccess ?: LocalDateTime.now()
+
+        if (book.bookMark <= 0)
+            mNewBookMark = book.pages
 
         mPopup = MaterialAlertDialogBuilder(context, R.style.AppCompatMaterialAlertDialog)
             .setView(createPopup(context, LayoutInflater.from(context)))
             .setCancelable(true)
-            .setNeutralButton(R.string.popup_book_mark_read) { _, _ -> mBookMarkPageEdit.setText(pages) }
-            .setNegativeButton(R.string.action_cancel) { _, _ -> onClose(false, lastPage, lastDate) }
+            .setNeutralButton(R.string.popup_book_mark_read) { _, _ -> mBookMarkPageEdit.setText(book.pages.toString()) }
+            .setNegativeButton(R.string.action_cancel) { _, _ -> onClose(false, book.bookMark, book.lastAccess ?: LocalDateTime.now()) }
             .setPositiveButton(R.string.action_confirm, null)
             .create()
 
         mPopup.show()
         mPopup.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener {
             if (validate()) {
+                HistoryRepository(context).save(History(null, book.fkLibrary!!, book.id!!, Type.BOOK, book.bookMark, mNewBookMark, book.pages, book.volume, 0, mNewDate, mNewDate, 0, 0, useTTS = false, isNotify = false))
                 onClose(true, mNewBookMark, mNewDate)
                 mPopup.dismiss()
             }

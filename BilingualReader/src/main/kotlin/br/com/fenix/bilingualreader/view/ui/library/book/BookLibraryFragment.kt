@@ -64,6 +64,7 @@ import br.com.fenix.bilingualreader.model.enums.ShareMarkType
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
 import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.listener.PopupOrderListener
+import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.service.scanner.ScannerBook
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -735,8 +736,9 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                             mPopupTag.getPopupTags(book) { mViewModel.loadTags() }
                         }
                         R.id.menu_book_config_book_mark -> {
+                            val onUpdate: (Int) -> (Unit) = { mViewModel.updateList(position) }
                             PopupBookMark(requireActivity(), requireActivity().supportFragmentManager)
-                                .getPopupBookMark(book.bookMark, book.pages, book.lastAccess ?: LocalDateTime.now()) { change, bookMark, lastAccess ->
+                                .getPopupBookMark(book, onUpdate) { change, bookMark, lastAccess ->
                                 if (change) {
                                     book.bookMark = bookMark
                                     book.lastAccess = lastAccess
@@ -755,10 +757,6 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                     return
 
                 goBookDetail(book, view, position)
-            }
-
-            override fun onClickLongConfig(book: Book, root: View, item: View, position: Int) {
-
             }
 
         }
@@ -848,12 +846,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
     private fun loadConfig() {
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
-        mSortType = Order.valueOf(
-            sharedPreferences.getString(
-                GeneralConsts.KEYS.LIBRARY.BOOK_ORDER,
-                Order.Name.toString()
-            ).toString()
-        )
+        mSortType = Order.valueOf(sharedPreferences.getString(GeneralConsts.KEYS.LIBRARY.BOOK_ORDER, Order.Name.toString()).toString())
 
         mGridType = LibraryBookType.valueOf(
             sharedPreferences.getString(

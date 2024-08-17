@@ -223,11 +223,7 @@ class Information() {
         this.publisher = book.publisher
         this.release = if (book.release != null) GeneralConsts.formatterDate(context, book.release!!) else ""
         this.isbn = book.isbn
-        this.file =
-            book.fileName + "  " + FileUtil.formatSize(book.fileSize) + "  " + GeneralConsts.formatterDate(
-                context,
-                book.fileAlteration
-            )
+        this.file = book.fileName + "." + book.extension + " - " + FileUtil.formatSize(book.fileSize) + " - " + GeneralConsts.formatterDate(context, book.fileAlteration)
 
         return this
     }

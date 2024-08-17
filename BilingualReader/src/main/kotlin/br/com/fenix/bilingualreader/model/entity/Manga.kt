@@ -73,7 +73,7 @@ class Manga(
         null, null
     ) {
         this.fileType = FileUtil.getFileType(file.name)
-        this.volume = title.substringAfterLast("Volume", "").trim().replace(Regex("[^\\d.][\\s\\S]+"), "")
+        this.volume = title.lowercase().substringAfterLast("volume", "").trim().replace(Regex("[^\\d.][\\s\\S]+"), "")
     }
 
     @PrimaryKey(autoGenerate = true)

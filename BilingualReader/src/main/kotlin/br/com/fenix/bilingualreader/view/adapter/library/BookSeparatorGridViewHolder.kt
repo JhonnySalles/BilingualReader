@@ -82,10 +82,6 @@ class BookSeparatorGridViewHolder(var type: LibraryBookType, itemView: View, pri
             listener.onClickFavorite(book)
         }
         config.setOnClickListener { listener.onClickConfig(book, cardView, it, layoutPosition) }
-        config.setOnLongClickListener {
-            listener.onClickLongConfig(book, cardView, it, layoutPosition)
-            true
-        }
 
         favorite.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
 

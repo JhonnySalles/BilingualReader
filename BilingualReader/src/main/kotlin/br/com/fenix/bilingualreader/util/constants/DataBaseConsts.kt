@@ -161,6 +161,7 @@ class DataBaseConsts private constructor() {
             const val PUBLISHER = "publisher"
             const val ISBN = "isbn"
             const val PAGES = "pages"
+            const val VOLUME = "volume"
             const val CHAPTER = "chapter"
             const val CHAPTER_DESCRIPTION = "chapter_description"
             const val BOOK_MARK = "book_mark"

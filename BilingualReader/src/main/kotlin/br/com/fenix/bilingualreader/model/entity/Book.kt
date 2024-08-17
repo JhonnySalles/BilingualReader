@@ -37,6 +37,7 @@ class Book(
     publisher: String,
     isbn: String,
     pages: Int,
+    volume: String,
     chapter: Int,
     chapterDescription: String,
     bookMark: Int,
@@ -60,11 +61,11 @@ class Book(
 
     constructor(
         id: Long?, title: String, author: String, password: String, annotation: String, release: LocalDate, genre: String, publisher: String, isbn: String,
-        pages: Int, chapter: Int, chapterDescription: String, bookMark: Int, language: Languages, path: String, name: String, fileType: FileType, folder: String,
+        pages: Int, volume: String, chapter: Int, chapterDescription: String, bookMark: Int, language: Languages, path: String, name: String, fileType: FileType, folder: String,
         fileSize: Long, favorite: Boolean, dateCreate: LocalDateTime?, fkLibrary: Long?, tags: MutableList<Long>, excluded: Boolean, lastAlteration: LocalDateTime?,
         fileAlteration: Date, lastVocabImport: LocalDateTime?, lastVerify: LocalDate?, lastAccess: LocalDateTime?, sort: LocalDateTime?
     ) : this(
-        id, title, author, password, annotation, release, genre, publisher, isbn, pages, chapter, chapterDescription, bookMark, language, path, folder,
+        id, title, author, password, annotation, release, genre, publisher, isbn, pages, volume, chapter, chapterDescription, bookMark, language, path, folder,
         name, fileType, fileSize, favorite, fkLibrary, tags, excluded, dateCreate, lastAccess, lastAlteration, fileAlteration, lastVocabImport, lastVerify
     ) {
         this.sort = sort
@@ -76,7 +77,7 @@ class Book(
         fkLibrary: Long?, title: String, author: String, annotation: String, release: LocalDate, genre: String, publisher: String, isbn: String, path: String,
         folder: String, name: String, fileSize: Long, pages: Int
     ) : this(
-        null, title, author, "", annotation, release, genre, publisher, isbn, pages, 0, "", 0,
+        null, title, author, "", annotation, release, genre, publisher, isbn, pages, "", 0, "", 0,
         Languages.ENGLISH, path, folder, name, FileType.UNKNOWN, fileSize, false, fkLibrary, mutableListOf(), false,
         LocalDateTime.now(), null, LocalDateTime.now(), Date(), null, null
     ) {
@@ -86,7 +87,7 @@ class Book(
 
     @Ignore
     constructor(fkLibrary: Long?, id: Long?, file: File) : this(
-        id, "",  "", "",  "", null,  "", "", "", 1, 0,
+        id, "",  "", "",  "", null,  "", "", "", 1, "", 0,
         "", 0, Languages.ENGLISH, file.path, file.parent, file.name, FileType.UNKNOWN, file.length(), false,
         fkLibrary, mutableListOf(), false, LocalDateTime.now(), null, LocalDateTime.now(), Date(), null, null
     ) {
@@ -124,6 +125,9 @@ class Book(
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.PAGES)
     override var pages: Int = pages
+
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.VOLUME)
+    var volume: String = volume
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.CHAPTER)
     var chapter: Int = chapter
@@ -259,6 +263,7 @@ class Book(
             this.annotation = book.annotation
             this.release = book.release
             this.genre = book.genre
+            this.volume = book.volume
             this.chapter = book.chapter
             this.chapterDescription = book.chapterDescription
             this.extension = book.extension
@@ -284,6 +289,13 @@ class Book(
         this.isbn = meta.isbn ?: ""
         this.release = metaRelease
         this.fileSize = file.length()
+
+        if (meta.getsIndex() > 0)
+            this.volume = meta.getsIndex().toString()
+        else if (title.lowercase().contains(" vol."))
+            this.volume = title.lowercase().substringAfterLast("vol.", "").substringBefore("—").trim().replace(Regex("[^\\d.][\\s\\S]+"), "")
+        else
+            this.volume = fileName.lowercase().substringAfterLast("volume", "").trim().replace(Regex("[^\\d.][\\s\\S]+"), "")
 
         this.language = when (meta.lang) {
             "ja", "jp" -> Languages.JAPANESE

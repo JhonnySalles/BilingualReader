@@ -1172,10 +1172,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             if (mViewModel.history!!.fkLibrary != book.fkLibrary || mViewModel.history!!.fkReference != book.id) {
                 mViewModel.history!!.setEnd(LocalDateTime.now())
                 mHistoryRepository.save(mViewModel.history!!)
-                mViewModel.history = History(book.fkLibrary!!, book.id!!, Type.BOOK, book.bookMark, book.pages, 0)
+                mViewModel.history = History(book.fkLibrary!!, book.id!!, Type.BOOK, book.bookMark, book.pages, book.volume)
             }
         } else
-            mViewModel.history = History(book.fkLibrary!!, book.id!!, Type.BOOK, book.bookMark, book.pages, 0)
+            mViewModel.history = History(book.fkLibrary!!, book.id!!, Type.BOOK, book.bookMark, book.pages, book.volume)
     }
 
     private fun generatePageAverage(isOnlyCalculate: Boolean = false) {

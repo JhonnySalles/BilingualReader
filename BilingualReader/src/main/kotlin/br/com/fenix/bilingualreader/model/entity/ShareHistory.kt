@@ -32,7 +32,7 @@ data class ShareHistory(
     @SerializedName(FIELD_VOLUME)
     @PropertyName(FIELD_VOLUME)
     @get:PropertyName(FIELD_VOLUME)
-    val volume: Int,
+    val volume: String,
 
     @Expose
     @SerializedName(FIELD_CHAPTERS_READ)
@@ -85,7 +85,7 @@ data class ShareHistory(
     }
 
     constructor(firebase: Map<String, *>) : this(
-        (firebase[FIELD_PAGE_START] as Long).toInt(), (firebase[FIELD_PAGE_END] as Long).toInt(), (firebase[FIELD_PAGES] as Long).toInt(), (firebase[FIELD_VOLUME] as Long).toInt(),
+        (firebase[FIELD_PAGE_START] as Long).toInt(), (firebase[FIELD_PAGE_END] as Long).toInt(), (firebase[FIELD_PAGES] as Long).toInt(), (firebase[FIELD_VOLUME] as String),
         (firebase[FIELD_CHAPTERS_READ] as Long).toInt(), (firebase[FIELD_START] as Timestamp).toDate(), (firebase[FIELD_END] as Timestamp).toDate(),
         firebase[FIELD_SECONDS_READ] as Long, firebase[FIELD_AVERAGE_TIME_BY_PAGE] as Long, firebase[FIELD_USE_TTS] as Boolean,
     )

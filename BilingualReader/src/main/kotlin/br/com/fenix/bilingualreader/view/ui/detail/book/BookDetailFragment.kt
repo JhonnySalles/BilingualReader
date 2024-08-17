@@ -36,6 +36,7 @@ import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.detail.manga.InformationRelatedCardAdapter
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
+import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import com.google.android.material.button.MaterialButton
@@ -66,6 +67,7 @@ class BookDetailFragment : Fragment() {
     private lateinit var mButtonsContent: LinearLayout
     private lateinit var mFavoriteButton: MaterialButton
     private lateinit var mMakReadButton: MaterialButton
+    private lateinit var mBookMakButton: MaterialButton
     private lateinit var mClearHistoryButton: MaterialButton
     private lateinit var mDeleteButton: MaterialButton
     private lateinit var mVocabularyButton: MaterialButton
@@ -79,6 +81,8 @@ class BookDetailFragment : Fragment() {
     private lateinit var mInformationAnnotation: TextView
     private lateinit var mInformationPublish: TextView
     private lateinit var mInformationRelease: TextView
+    private lateinit var mInformationLanguage: TextView
+    private lateinit var mInformationVolume: TextView
     private lateinit var mInformationIsbn: TextView
     private lateinit var mInformationGenres: TextView
     private lateinit var mInformationFile: TextView
@@ -117,7 +121,7 @@ class BookDetailFragment : Fragment() {
         mBackgroundImage = root.findViewById(R.id.book_detail_background_image)
         mImage = root.findViewById(R.id.book_detail_book_image)
 
-        mBookLanguage = root.findViewById(R.id.book_detail_information_language)
+        mBookLanguage = root.findViewById(R.id.book_detail_information_book_language)
         mBookLanguageAutoComplete = root.findViewById(R.id.book_detail_information_menu_autocomplete_language)
 
         mTitle = root.findViewById(R.id.book_detail_title)
@@ -134,6 +138,7 @@ class BookDetailFragment : Fragment() {
         mFavoriteButton = root.findViewById(R.id.book_detail_button_favorite)
         mClearHistoryButton = root.findViewById(R.id.book_detail_button_clear_history)
         mMakReadButton = root.findViewById(R.id.book_detail_button_mark_read)
+        mBookMakButton = root.findViewById(R.id.book_detail_button_book_mark)
         mDeleteButton = root.findViewById(R.id.book_detail_button_delete)
         mVocabularyButton = root.findViewById(R.id.book_detail_button_vocabulary)
 
@@ -146,7 +151,9 @@ class BookDetailFragment : Fragment() {
         mInformationSynopsis = root.findViewById(R.id.book_detail_information_synopsis)
         mInformationAnnotation = root.findViewById(R.id.book_detail_information_annotation)
         mInformationPublish = root.findViewById(R.id.book_detail_information_publish)
+        mInformationLanguage = root.findViewById(R.id.book_detail_information_language)
         mInformationRelease = root.findViewById(R.id.book_detail_information_release)
+        mInformationVolume = root.findViewById(R.id.book_detail_information_volume)
         mInformationIsbn = root.findViewById(R.id.book_detail_information_isbn)
         mInformationGenres = root.findViewById(R.id.book_detail_information_genres)
         mInformationFile = root.findViewById(R.id.book_detail_information_file)
@@ -187,6 +194,10 @@ class BookDetailFragment : Fragment() {
         mMakReadButton.setOnClickListener {
             (mMakReadButton.icon as AnimatedVectorDrawable).start()
             markRead()
+        }
+        mBookMakButton.setOnClickListener {
+            (mBookMakButton.icon as AnimatedVectorDrawable).start()
+            openBookMark()
         }
         mDeleteButton.setOnClickListener {
             (mDeleteButton.icon as AnimatedVectorDrawable).start()
@@ -372,23 +383,27 @@ class BookDetailFragment : Fragment() {
                 mInformationImage.visibility = View.GONE
                 mInformationImage.setImageBitmap(null)
 
-                mInformationAnnotation.text = requireContext().getString(R.string.book_detail_information_annotation, it.annotation)
-                mInformationPublish.text = requireContext().getString(R.string.book_detail_information_publisher, it.publisher)
-                mInformationRelease.text = requireContext().getString(R.string.book_detail_information_release, it.release)
-                mInformationIsbn.text = requireContext().getString(R.string.book_detail_information_isbn, it.isbn)
-                mInformationGenres.text = requireContext().getString(R.string.book_detail_information_genres, it.genres)
-                mInformationFile.text = requireContext().getString(R.string.book_detail_information_file, it.file)
+                mInformationAnnotation.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_annotation, it.annotation), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationPublish.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_publisher, it.publisher), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationRelease.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_release, it.release), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationVolume.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_volume, it.volumes), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationLanguage.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_language, it.language), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationIsbn.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_isbn, it.isbn), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationGenres.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_genres, it.genres), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationFile.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_file, it.file), HtmlCompat.FROM_HTML_MODE_COMPACT)
             } else {
                 mInformationContent.visibility = View.GONE
                 mInformationImage.visibility = View.GONE
 
                 mInformationSynopsis.text = ""
-                mInformationAnnotation.text = ""
-                mInformationPublish.text = ""
-                mInformationRelease.text = ""
-                mInformationIsbn.text = ""
-                mInformationGenres.text = ""
-                mInformationFile.text = ""
+                mInformationAnnotation.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_annotation, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationPublish.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_publisher, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationRelease.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_release, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationLanguage.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_language, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationVolume.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_volume, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationIsbn.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_isbn, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationGenres.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_genres, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationFile.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_file, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
             }
         }
 
@@ -433,7 +448,6 @@ class BookDetailFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-
         mViewModel.getInformation()
     }
 
@@ -464,6 +478,19 @@ class BookDetailFragment : Fragment() {
 
     private fun markRead() {
         mViewModel.markRead()
+    }
+
+    private fun openBookMark() {
+        val book = mViewModel.book.value ?: return
+        val onUpdate: (Int) -> (Unit) = { mViewModel.refresh(book) }
+        PopupBookMark(requireActivity(), requireActivity().supportFragmentManager)
+            .getPopupBookMark(book, onUpdate) { change, bookMark, lastAccess ->
+                if (change) {
+                    book.bookMark = bookMark
+                    book.lastAccess = lastAccess
+                    mViewModel.save(book)
+                }
+            }
     }
 
     private fun favorite() {

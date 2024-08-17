@@ -229,13 +229,13 @@ abstract class BookDAO : BaseDAO<Book, Long>(DataBaseConsts.BOOK.TABLE_NAME, Dat
                 " SELECT ${DataBaseConsts.BOOK.COLUMNS.ID}, ${DataBaseConsts.BOOK.COLUMNS.TITLE}, ${DataBaseConsts.BOOK.COLUMNS.AUTHOR}, " +
                 "        ${DataBaseConsts.BOOK.COLUMNS.PASSWORD}, ${DataBaseConsts.BOOK.COLUMNS.ANNOTATION}, ${DataBaseConsts.BOOK.COLUMNS.RELEASE}, " +
                 "        ${DataBaseConsts.BOOK.COLUMNS.GENRE}, ${DataBaseConsts.BOOK.COLUMNS.PUBLISHER}, ${DataBaseConsts.BOOK.COLUMNS.ISBN}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.PAGES}, ${DataBaseConsts.BOOK.COLUMNS.CHAPTER}, ${DataBaseConsts.BOOK.COLUMNS.CHAPTER_DESCRIPTION}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.BOOK_MARK}, ${DataBaseConsts.BOOK.COLUMNS.LANGUAGE}, ${DataBaseConsts.BOOK.COLUMNS.FILE_PATH}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.FILE_NAME}, ${DataBaseConsts.BOOK.COLUMNS.FILE_TYPE}, ${DataBaseConsts.BOOK.COLUMNS.FILE_FOLDER}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.FILE_SIZE}, ${DataBaseConsts.BOOK.COLUMNS.FAVORITE}, ${DataBaseConsts.BOOK.COLUMNS.DATE_CREATE}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY}, ${DataBaseConsts.BOOK.COLUMNS.TAGS}, ${DataBaseConsts.BOOK.COLUMNS.EXCLUDED}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION}, ${DataBaseConsts.BOOK.COLUMNS.FILE_ALTERATION}, ${DataBaseConsts.BOOK.COLUMNS.LAST_VOCABULARY_IMPORT}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.LAST_VERIFY}, ${DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.PAGES}, ${DataBaseConsts.BOOK.COLUMNS.VOLUME}, ${DataBaseConsts.BOOK.COLUMNS.CHAPTER}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.CHAPTER_DESCRIPTION}, ${DataBaseConsts.BOOK.COLUMNS.BOOK_MARK}, ${DataBaseConsts.BOOK.COLUMNS.LANGUAGE}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.FILE_PATH}, ${DataBaseConsts.BOOK.COLUMNS.FILE_NAME}, ${DataBaseConsts.BOOK.COLUMNS.FILE_TYPE}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.FILE_FOLDER}, ${DataBaseConsts.BOOK.COLUMNS.FILE_SIZE}, ${DataBaseConsts.BOOK.COLUMNS.FAVORITE}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.DATE_CREATE}, ${DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY}, ${DataBaseConsts.BOOK.COLUMNS.TAGS}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.EXCLUDED}, ${DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION}, ${DataBaseConsts.BOOK.COLUMNS.FILE_ALTERATION}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.LAST_VOCABULARY_IMPORT}, ${DataBaseConsts.BOOK.COLUMNS.LAST_VERIFY}, ${DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS}, " +
                 "        ${DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS} AS ${DataBaseConsts.BOOK.COLUMNS.SORT}  " +
                 " FROM " + DataBaseConsts.BOOK.TABLE_NAME +
                 " WHERE " + DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS + " is not null " +
@@ -243,12 +243,12 @@ abstract class BookDAO : BaseDAO<Book, Long>(DataBaseConsts.BOOK.TABLE_NAME, Dat
                 " SELECT null AS ${DataBaseConsts.BOOK.COLUMNS.ID}, '' AS ${DataBaseConsts.BOOK.COLUMNS.TITLE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.AUTHOR}, " +
                 "        '' AS ${DataBaseConsts.BOOK.COLUMNS.PASSWORD}, '' AS ${DataBaseConsts.BOOK.COLUMNS.ANNOTATION}, ${DataBaseConsts.BOOK.COLUMNS.RELEASE}, " +
                 "        '' AS ${DataBaseConsts.BOOK.COLUMNS.GENRE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.PUBLISHER}, '' AS ${DataBaseConsts.BOOK.COLUMNS.ISBN}, " +
-                "        0 AS ${DataBaseConsts.BOOK.COLUMNS.PAGES}, '' AS ${DataBaseConsts.BOOK.COLUMNS.CHAPTER}, '' AS ${DataBaseConsts.BOOK.COLUMNS.CHAPTER_DESCRIPTION}, " +
-                "        0 AS ${DataBaseConsts.BOOK.COLUMNS.BOOK_MARK}, ${DataBaseConsts.BOOK.COLUMNS.LANGUAGE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_PATH}, " +
-                "        '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_NAME}, ${DataBaseConsts.BOOK.COLUMNS.FILE_TYPE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_FOLDER}, " +
-                "        0 AS ${DataBaseConsts.BOOK.COLUMNS.FILE_SIZE}, false AS ${DataBaseConsts.BOOK.COLUMNS.FAVORITE}, null AS ${DataBaseConsts.BOOK.COLUMNS.DATE_CREATE}, " +
-                "        -1 AS ${DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY}, '' AS ${DataBaseConsts.BOOK.COLUMNS.TAGS}, false AS ${DataBaseConsts.BOOK.COLUMNS.EXCLUDED}, " +
-                "        null AS ${DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION}, false AS ${DataBaseConsts.BOOK.COLUMNS.FILE_ALTERATION}, " +
+                "        0 AS ${DataBaseConsts.BOOK.COLUMNS.PAGES}, '' AS ${DataBaseConsts.BOOK.COLUMNS.VOLUME}, 0 AS ${DataBaseConsts.BOOK.COLUMNS.CHAPTER}, " +
+                "        '' AS ${DataBaseConsts.BOOK.COLUMNS.CHAPTER_DESCRIPTION}, 0 AS ${DataBaseConsts.BOOK.COLUMNS.BOOK_MARK}, ${DataBaseConsts.BOOK.COLUMNS.LANGUAGE}, " +
+                "        '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_PATH}, '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_NAME}, ${DataBaseConsts.BOOK.COLUMNS.FILE_TYPE}, " +
+                "        '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_FOLDER}, 0 AS ${DataBaseConsts.BOOK.COLUMNS.FILE_SIZE}, false AS ${DataBaseConsts.BOOK.COLUMNS.FAVORITE}, " +
+                "        null AS ${DataBaseConsts.BOOK.COLUMNS.DATE_CREATE}, -1 AS ${DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY}, '' AS ${DataBaseConsts.BOOK.COLUMNS.TAGS}, " +
+                "        false AS ${DataBaseConsts.BOOK.COLUMNS.EXCLUDED}, null AS ${DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION}, false AS ${DataBaseConsts.BOOK.COLUMNS.FILE_ALTERATION}, " +
                 "        null AS ${DataBaseConsts.BOOK.COLUMNS.LAST_VOCABULARY_IMPORT}, null AS ${DataBaseConsts.BOOK.COLUMNS.LAST_VERIFY}, " +
                 "        Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '23:59:59.999' AS ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, " +
                 "        Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '25:60:60.000' AS ${DataBaseConsts.MANGA.COLUMNS.SORT} " +

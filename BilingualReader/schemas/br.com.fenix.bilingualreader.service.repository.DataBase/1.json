@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "9f5d1c5cec0d5faa34e18f4a46bd81df",
+    "identityHash": "72baf6501c02ee5fd7bd9a2a697cc0fe",
     "entities": [
       {
         "tableName": "Manga",
@@ -1012,7 +1012,7 @@
       },
       {
         "tableName": "Book",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `author` TEXT NOT NULL, `password` TEXT NOT NULL, `annotation` TEXT NOT NULL, `release` TEXT, `genre` TEXT NOT NULL, `publisher` TEXT NOT NULL, `isbn` TEXT NOT NULL, `pages` INTEGER NOT NULL, `chapter` INTEGER NOT NULL, `chapter_description` TEXT NOT NULL, `book_mark` INTEGER NOT NULL, `language` TEXT NOT NULL, `path` TEXT NOT NULL, `size` INTEGER NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `folder` TEXT NOT NULL, `favorite` INTEGER NOT NULL, `excluded` INTEGER NOT NULL, `id_library` INTEGER, `tags` TEXT NOT NULL, `date_create` TEXT, `last_access` TEXT, `last_alteration` TEXT, `file_alteration` INTEGER NOT NULL, `last_vocabulary_import` TEXT, `last_verify` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `author` TEXT NOT NULL, `password` TEXT NOT NULL, `annotation` TEXT NOT NULL, `release` TEXT, `genre` TEXT NOT NULL, `publisher` TEXT NOT NULL, `isbn` TEXT NOT NULL, `pages` INTEGER NOT NULL, `volume` TEXT NOT NULL, `chapter` INTEGER NOT NULL, `chapter_description` TEXT NOT NULL, `book_mark` INTEGER NOT NULL, `language` TEXT NOT NULL, `path` TEXT NOT NULL, `size` INTEGER NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `folder` TEXT NOT NULL, `favorite` INTEGER NOT NULL, `excluded` INTEGER NOT NULL, `id_library` INTEGER, `tags` TEXT NOT NULL, `date_create` TEXT, `last_access` TEXT, `last_alteration` TEXT, `file_alteration` INTEGER NOT NULL, `last_vocabulary_import` TEXT, `last_verify` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -1072,6 +1072,12 @@
             "fieldPath": "pages",
             "columnName": "pages",
             "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "volume",
+            "columnName": "volume",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -1494,7 +1500,7 @@
       },
       {
         "tableName": "History",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_library` INTEGER NOT NULL, `id_reference` INTEGER NOT NULL, `type` TEXT NOT NULL, `page_start` INTEGER NOT NULL, `page_end` INTEGER NOT NULL, `pages` INTEGER NOT NULL, `volume` INTEGER NOT NULL, `chapters_READ` INTEGER NOT NULL, `date_time_start` TEXT NOT NULL, `date_time_end` TEXT NOT NULL, `seconds_read` INTEGER NOT NULL, `average_time_page` INTEGER NOT NULL, `use_tts` INTEGER NOT NULL, `notified` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `id_library` INTEGER NOT NULL, `id_reference` INTEGER NOT NULL, `type` TEXT NOT NULL, `page_start` INTEGER NOT NULL, `page_end` INTEGER NOT NULL, `pages` INTEGER NOT NULL, `volume` TEXT NOT NULL, `chapters_READ` INTEGER NOT NULL, `date_time_start` TEXT NOT NULL, `date_time_end` TEXT NOT NULL, `seconds_read` INTEGER NOT NULL, `average_time_page` INTEGER NOT NULL, `use_tts` INTEGER NOT NULL, `notified` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -1541,7 +1547,7 @@
           {
             "fieldPath": "volume",
             "columnName": "volume",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -1611,7 +1617,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9f5d1c5cec0d5faa34e18f4a46bd81df')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '72baf6501c02ee5fd7bd9a2a697cc0fe')"
     ]
   }
 }

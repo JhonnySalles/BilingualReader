@@ -248,6 +248,21 @@
                         app:cornerRadius="@dimen/book_detail_icon_rounded"/>
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/book_detail_button_book_mark"
+                        style="@style/Button.Detail"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="5dp"
+                        android:contentDescription="@string/book_detail_book_mark"
+                        android:text="@string/book_detail_book_mark"
+                        app:iconPadding="@dimen/book_detail_icon_padding"
+                        app:iconGravity="textTop"
+                        app:icon="@drawable/ico_animated_mark_read"
+                        app:iconSize="@dimen/book_detail_icon_size"
+                        app:cornerRadius="@dimen/book_detail_icon_rounded"/>
+
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/book_detail_button_delete"
                         style="@style/Button.Detail"
                         android:layout_width="0dp"
@@ -289,12 +304,12 @@
                     android:orientation="vertical">
 
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/book_detail_information_language"
+                        android:id="@+id/book_detail_information_book_language"
                         style="@style/TextInputDropMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/margin_small"
-                        android:hint="@string/book_detail_information_language"
+                        android:hint="@string/book_detail_information_book_language"
                         app:startIconDrawable="@drawable/ic_language">
 
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -349,14 +364,13 @@
                     </LinearLayout>
 
                     <TextView
-                        android:id="@+id/book_detail_information_annotation"
+                        android:id="@+id/book_detail_information_author"
                         style="@style/TextNormal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:layout_marginStart="10dp"
                         android:layout_marginEnd="10dp"
-                        android:text="@string/book_detail_information_annotation"
                         android:textSize="@dimen/book_detail_information_texts_size" />
 
                     <TextView
@@ -367,40 +381,76 @@
                         android:layout_marginTop="1dp"
                         android:layout_marginStart="10dp"
                         android:layout_marginEnd="10dp"
-                        android:text="@string/book_detail_information_genres"
                         android:textSize="@dimen/book_detail_information_texts_size" />
 
+                    <LinearLayout
+                        android:id="@+id/book_detail_information_volume_book"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:id="@+id/book_detail_information_isbn"
+                            style="@style/TextNormal"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="@dimen/book_detail_information_texts_size" />
+
+                        <TextView
+                            android:id="@+id/book_detail_information_language"
+                            style="@style/TextNormal"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="@dimen/book_detail_information_texts_size" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/book_detail_information_volume_release_publisher"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:id="@+id/book_detail_information_volume"
+                            style="@style/TextNormal"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="@dimen/book_detail_information_texts_size" />
+
+                        <TextView
+                            android:id="@+id/book_detail_information_release"
+                            style="@style/TextNormal"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="@dimen/book_detail_information_texts_size" />
+
+                        <TextView
+                            android:id="@+id/book_detail_information_publish"
+                            style="@style/TextNormal"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="@dimen/book_detail_information_texts_size" />
+
+                    </LinearLayout>
+
                     <TextView
-                        android:id="@+id/book_detail_information_release"
+                        android:id="@+id/book_detail_information_annotation"
                         style="@style/TextNormal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
+                        android:layout_marginTop="5dp"
                         android:layout_marginStart="10dp"
                         android:layout_marginEnd="10dp"
-                        android:text="@string/book_detail_information_release"
-                        android:textSize="@dimen/book_detail_information_texts_size" />
-
-                    <TextView
-                        android:id="@+id/book_detail_information_publish"
-                        style="@style/TextNormal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
-                        android:text="@string/book_detail_information_publisher"
-                        android:textSize="@dimen/book_detail_information_texts_size" />
-
-                    <TextView
-                        android:id="@+id/book_detail_information_isbn"
-                        style="@style/TextNormal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
-                        android:text="@string/book_detail_information_isbn"
                         android:textSize="@dimen/book_detail_information_texts_size" />
 
                     <TextView
@@ -408,10 +458,9 @@
                         style="@style/TextNormal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
+                        android:layout_marginTop="5dp"
                         android:layout_marginStart="10dp"
                         android:layout_marginEnd="10dp"
-                        android:text="@string/book_detail_information_file"
                         android:textSize="@dimen/book_detail_information_texts_size" />
 
                     <TextView

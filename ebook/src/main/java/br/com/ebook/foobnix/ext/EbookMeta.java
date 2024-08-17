@@ -12,7 +12,7 @@ public class EbookMeta {
     private String genre;
     private String annotation;
     private String unzipPath;
-    private Integer sIndex;
+    private Integer sIndex = 0;
     private String lang;
     private String publisher;
     private Date release;

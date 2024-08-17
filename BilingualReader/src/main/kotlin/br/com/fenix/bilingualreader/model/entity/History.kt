@@ -40,7 +40,7 @@ data class History(
     var pages: Int,
 
     @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.VOLUME)
-    val volume: Int,
+    val volume: String,
 
     @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.CHAPTERS_READ)
     var chaptersRead: Int,
@@ -65,10 +65,9 @@ data class History(
 ) {
 
     @Ignore
-    constructor(fkLibrary: Long, fkReference: Long, type: Type, pageStart: Int, pages: Int, volume: Int, averageTimeByPage: Long = 0, useTTS: Boolean = false, isNotify: Boolean = false) : this(
+    constructor(fkLibrary: Long, fkReference: Long, type: Type, pageStart: Int, pages: Int, volume: String, averageTimeByPage: Long = 0, useTTS: Boolean = false, isNotify: Boolean = false) : this(
         null, fkLibrary, fkReference, type, pageStart, 0, pages, volume, 0, LocalDateTime.now(), LocalDateTime.now(), 0, averageTimeByPage, useTTS, isNotify
     ) { }
-
     fun getEnd() = end
 
     fun setEnd(end: LocalDateTime) {

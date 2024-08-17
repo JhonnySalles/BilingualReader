@@ -1185,10 +1185,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             if (mViewModel.history!!.fkLibrary != manga.fkLibrary || mViewModel.history!!.fkReference != manga.id) {
                 mViewModel.history!!.setEnd(LocalDateTime.now())
                 mHistoryRepository.save(mViewModel.history!!)
-                mViewModel.history = History(manga.fkLibrary!!, manga.id!!, Type.MANGA, manga.bookMark, manga.pages, 0)
+                mViewModel.history = History(manga.fkLibrary!!, manga.id!!, Type.MANGA, manga.bookMark, manga.pages, manga.volume)
             }
         } else
-            mViewModel.history = History(manga.fkLibrary!!, manga.id!!, Type.MANGA, manga.bookMark, manga.pages, 0)
+            mViewModel.history = History(manga.fkLibrary!!, manga.id!!, Type.MANGA, manga.bookMark, manga.pages, manga.volume)
     }
 
     private fun generatePageAverage() {
