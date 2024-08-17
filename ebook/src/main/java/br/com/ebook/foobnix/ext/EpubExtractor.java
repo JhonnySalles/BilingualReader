@@ -280,7 +280,7 @@ public class EpubExtractor extends BaseExtractor {
                                 coverResource = xpp.getAttributeValue(null, "content");
                             }
 
-                            if (coverResource != null && "item".equals(xpp.getName()) && coverResource.equals(xpp.getAttributeValue(null, "id"))) {
+                            if (coverResource != null && "item".equals(xpp.getName()) && (coverResource.equals(xpp.getAttributeValue(null, "id")) || coverResource.equals(xpp.getAttributeValue(null, "properties")))) {
                                 coverName = xpp.getAttributeValue(null, "href");
                                 if (coverName != null && coverName.endsWith(".svg")) {
                                     coverName = null;

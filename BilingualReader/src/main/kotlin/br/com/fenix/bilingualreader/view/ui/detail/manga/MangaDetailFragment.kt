@@ -437,9 +437,7 @@ class MangaDetailFragment : Fragment() {
                 mLocalInformationComicInfoLanguage.visibility = if (it.languageDescription.isNotEmpty()) View.VISIBLE else View.GONE
 
                 mLocalInformationComicInfoTitleLanguageContent.visibility =
-                    if (mLocalInformationComicInfoTitle.visibility == View.VISIBLE ||
-                        mLocalInformationComicInfoLanguage.visibility == View.VISIBLE
-                    )
+                    if (mLocalInformationComicInfoTitle.visibility == View.VISIBLE || mLocalInformationComicInfoLanguage.visibility == View.VISIBLE)
                         View.VISIBLE
                     else
                         View.GONE
