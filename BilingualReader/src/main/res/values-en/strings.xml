@@ -151,6 +151,8 @@
     <string name="config_system_share_mark_sign_in_error">Sig in error!</string>
     <string name="config_system_share_mark_sign_out_title">Sign out</string>
     <string name="config_system_share_mark_sign_out">Sign out account?</string>
+    <string name="config_system_share_mark_manga">Manga / Comic - %s</string>
+    <string name="config_system_share_mark_book">Book - %s</string>
     <string name="config_system_share_mark_clear_last_sync_title">Clear sync</string>
     <string name="config_system_share_mark_clear_last_sync">Do you want to clear the last sync date and time?</string>
 

@@ -168,7 +168,19 @@
             android:layout_margin="@dimen/margin_small" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/config_system_share_mark_last_sync"
+            android:id="@+id/config_system_share_mark_manga_last_sync"
+            style="@style/Button.LabelStart"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text=""
+            android:visibility="gone"
+            app:icon="@drawable/ic_share_mark_last_sync" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/config_system_share_mark_book_last_sync"
             style="@style/Button.LabelStart"
             android:layout_width="match_parent"
             android:layout_height="60dp"

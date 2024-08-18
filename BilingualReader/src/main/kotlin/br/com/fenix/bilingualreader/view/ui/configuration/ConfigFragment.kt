@@ -94,7 +94,8 @@ class ConfigFragment : Fragment() {
     private lateinit var mConfigSystemShareMarkTypeAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mConfigSystemShareMarkAccount: MaterialButton
     private lateinit var mConfigSystemShareMarkSignIn: SignInButton
-    private lateinit var mConfigSystemShareMarkLastSync: MaterialButton
+    private lateinit var mConfigSystemShareMarkMangaLastSync: MaterialButton
+    private lateinit var mConfigSystemShareMarkBookLastSync: MaterialButton
 
     private lateinit var mConfigSystemBackup: MaterialButton
     private lateinit var mConfigSystemRestore: MaterialButton
@@ -236,7 +237,8 @@ class ConfigFragment : Fragment() {
         mConfigSystemShareMarkTypeAutoComplete = view.findViewById(R.id.config_system_menu_autocomplete_share_mark_type)
         mConfigSystemShareMarkAccount = view.findViewById(R.id.config_system_share_mark_signed_account)
         mConfigSystemShareMarkSignIn = view.findViewById(R.id.config_system_share_mark_sign_in_button)
-        mConfigSystemShareMarkLastSync = view.findViewById(R.id.config_system_share_mark_last_sync)
+        mConfigSystemShareMarkMangaLastSync = view.findViewById(R.id.config_system_share_mark_manga_last_sync)
+        mConfigSystemShareMarkBookLastSync = view.findViewById(R.id.config_system_share_mark_book_last_sync)
 
         mMangaUseDualPageCalculate = view.findViewById(R.id.config_manga_switch_use_dual_page_calculate)
         mMangaUsePathNameForLinked = view.findViewById(R.id.config_manga_switch_use_path_name_for_linked)
@@ -584,13 +586,26 @@ class ConfigFragment : Fragment() {
             true
         }
 
-        mConfigSystemShareMarkLastSync.setOnLongClickListener {
+        mConfigSystemShareMarkMangaLastSync.setOnLongClickListener {
             MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
                 .setTitle(getString(R.string.config_system_share_mark_clear_last_sync_title))
                 .setMessage(getString(R.string.config_system_share_mark_clear_last_sync))
                 .setPositiveButton(R.string.action_confirm) { _, _ ->
-                    ShareMarkBase.clearLastSync(requireContext())
-                    mConfigSystemShareMarkLastSync.visibility = View.GONE
+                    ShareMarkBase.clearLastSync(requireContext(), Type.MANGA)
+                    mConfigSystemShareMarkMangaLastSync.visibility = View.GONE
+                }
+                .setNegativeButton(R.string.action_cancel) { _, _ -> }
+                .create().show()
+            true
+        }
+
+        mConfigSystemShareMarkBookLastSync.setOnLongClickListener {
+            MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+                .setTitle(getString(R.string.config_system_share_mark_clear_last_sync_title))
+                .setMessage(getString(R.string.config_system_share_mark_clear_last_sync))
+                .setPositiveButton(R.string.action_confirm) { _, _ ->
+                    ShareMarkBase.clearLastSync(requireContext(), Type.BOOK)
+                    mConfigSystemShareMarkBookLastSync.visibility = View.GONE
                 }
                 .setNegativeButton(R.string.action_cancel) { _, _ -> }
                 .create().show()
@@ -1158,10 +1173,20 @@ class ConfigFragment : Fragment() {
             false
         )
 
-        mConfigSystemShareMarkLastSync.visibility = if (sharedPreferences.contains(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA)) {
+        mConfigSystemShareMarkMangaLastSync.visibility = if (sharedPreferences.contains(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA)) {
             val sync = sharedPreferences.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, Date().toString())
             val dateSync = SimpleDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME, Locale.getDefault()).parse(sync)
-            mConfigSystemShareMarkLastSync.text = SimpleDateFormat(mConfigSystemDateSelect + " " + GeneralConsts.PATTERNS.TIME_PATTERN, Locale.getDefault()).format(dateSync)
+            val lastSync = SimpleDateFormat(mConfigSystemDateSelect + " " + GeneralConsts.PATTERNS.TIME_PATTERN, Locale.getDefault()).format(dateSync)
+            mConfigSystemShareMarkMangaLastSync.text = getString(R.string.config_system_share_mark_manga, lastSync)
+            View.VISIBLE
+        } else
+            View.GONE
+
+        mConfigSystemShareMarkBookLastSync.visibility = if (sharedPreferences.contains(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK)) {
+            val sync = sharedPreferences.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, Date().toString())
+            val dateSync = SimpleDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME, Locale.getDefault()).parse(sync)
+            val lastSync = SimpleDateFormat(mConfigSystemDateSelect + " " + GeneralConsts.PATTERNS.TIME_PATTERN, Locale.getDefault()).format(dateSync)
+            mConfigSystemShareMarkBookLastSync.text = getString(R.string.config_system_share_mark_book, lastSync)
             View.VISIBLE
         } else
             View.GONE

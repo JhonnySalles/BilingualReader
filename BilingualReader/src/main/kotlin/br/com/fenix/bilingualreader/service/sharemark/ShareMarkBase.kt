@@ -9,9 +9,11 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.ShareItem
 import br.com.fenix.bilingualreader.model.enums.ShareMarkCloud
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.exceptions.ShareMarkNotConnectCloudException
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import org.slf4j.LoggerFactory
+import kotlin.math.roundToInt
 
 
 abstract class ShareMarkBase(open var context: Context) : ShareMark {
@@ -31,11 +33,13 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
             }
         }
 
-        fun clearLastSync(context: Context) {
+        fun clearLastSync(context: Context, type: Type) {
             val prefs = GeneralConsts.getSharedPreferences(context)
             with(prefs.edit()) {
-                this.remove(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA)
-                this.remove(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK)
+                when (type) {
+                    Type.MANGA -> this.remove(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA)
+                    Type.BOOK -> this.remove(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK)
+                }
                 this.commit()
             }
         }
@@ -116,7 +120,22 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
     // --------------------------------------------------------- Book ---------------------------------------------------------
     protected fun compare(item: ShareItem, book: Book): Boolean {
         return if (book.lastAccess == null || item.lastAccess.after(GeneralConsts.dateTimeToDate(book.lastAccess!!))) {
-            book.bookMark = item.bookMark
+            if (book.pages <= 1 && item.pages > 1) {
+                book.bookMark = item.bookMark
+                book.pages = item.pages
+            } else {
+                if (item.bookMark >= item.pages)
+                    book.bookMark = item.pages
+                else {
+                    val percent = item.bookMark.toFloat() / item.pages
+                    book.bookMark = (book.pages * percent).roundToInt()
+
+                    if (book.bookMark < 0)
+                        book.bookMark = 0
+                    else if (book.bookMark > book.pages)
+                        book.bookMark = book.pages
+                }
+            }
             book.lastAccess = GeneralConsts.dateToDateTime(item.lastAccess)
             book.favorite = item.favorite
             true

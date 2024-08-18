@@ -181,13 +181,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
         }
     }
 
-    private fun uploadShareFile(
-        drive: Drive,
-        idFolder: String,
-        idFile: String,
-        nameWithoutExtension: String,
-        file: File
-    ): String {
+    private fun uploadShareFile(drive: Drive, idFolder: String, idFile: String, nameWithoutExtension: String, file: File): String {
         return try {
             val gfile = com.google.api.services.drive.model.File()
             gfile.name = nameWithoutExtension + "_" + LocalDateTime.now()

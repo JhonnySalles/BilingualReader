@@ -276,11 +276,13 @@ public class EpubExtractor extends BaseExtractor {
 
                     while (eventType != XmlPullParser.END_DOCUMENT) {
                         if (eventType == XmlPullParser.START_TAG) {
-                            if ("meta".equals(xpp.getName()) && "cover".equals(xpp.getAttributeValue(null, "name"))) {
+                            if (("meta".equals(xpp.getName()) || (xpp.getName() != null && xpp.getName().endsWith(":meta"))) &&
+                                    "cover".equals(xpp.getAttributeValue(null, "name"))) {
                                 coverResource = xpp.getAttributeValue(null, "content");
                             }
 
-                            if (coverResource != null && "item".equals(xpp.getName()) && (coverResource.equals(xpp.getAttributeValue(null, "id")) || coverResource.equals(xpp.getAttributeValue(null, "properties")))) {
+                            if (coverResource != null && ("item".equals(xpp.getName()) || (xpp.getName() != null && xpp.getName().endsWith(":item"))) &&
+                                    (coverResource.equals(xpp.getAttributeValue(null, "id")) || coverResource.equals(xpp.getAttributeValue(null, "properties")))) {
                                 coverName = xpp.getAttributeValue(null, "href");
                                 if (coverName != null && coverName.endsWith(".svg")) {
                                     coverName = null;

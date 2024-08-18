@@ -150,6 +150,8 @@
     <string name="config_system_share_mark_account">Conta Google: %s</string>
     <string name="config_system_share_mark_sign_in_error">Erro ao logar!</string>
     <string name="config_system_share_mark_sign_out_title">Deslogar</string>
+    <string name="config_system_share_mark_manga">Manga / Comic - %s</string>
+    <string name="config_system_share_mark_book">Livro - %s</string>
     <string name="config_system_share_mark_sign_out">Deslogar a conta?</string>
     <string name="config_system_share_mark_clear_last_sync_title">Limpeza sincronização</string>
     <string name="config_system_share_mark_clear_last_sync">Deseja limpar a data e hora da última sincronização?</string>
