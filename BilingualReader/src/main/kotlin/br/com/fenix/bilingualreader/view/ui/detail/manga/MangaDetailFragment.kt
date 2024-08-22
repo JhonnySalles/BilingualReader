@@ -561,12 +561,9 @@ class MangaDetailFragment : Fragment() {
         val manga = mViewModel.manga.value ?: return
         val onUpdate: (History) -> (Unit) = { mViewModel.save(manga) }
         PopupBookMark(requireActivity(), requireActivity().supportFragmentManager)
-            .getPopupBookMark(manga, onUpdate) { change, bookMark, lastAccess ->
-                if (change) {
-                    manga.bookMark = bookMark
-                    manga.lastAccess = lastAccess
-                    mViewModel.save(manga)
-                }
+            .getPopupBookMark(manga, onUpdate) { change, manga ->
+                if (change)
+                    onUpdate(manga)
             }
     }
 

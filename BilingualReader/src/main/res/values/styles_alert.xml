@@ -108,7 +108,6 @@
     </style>
 
     <style name="AppCompatMaterialDatePicker" parent="@style/ThemeOverlay.MaterialComponents.MaterialCalendar">
-
         <item name="materialCalendarHeaderDivider">@style/AppCompatMaterialDatePickerHeaderDivider</item>
         <item name="materialCalendarHeaderTitle">@style/AppCompatMaterialDatePickerTitle</item>
         <item name="materialCalendarHeaderSelection">@style/AppCompatMaterialDatePickerSelection</item>
@@ -121,10 +120,6 @@
     </style>
 
     <style name="AppCompatMaterialDatePickerHeaderDivider" parent="@style/Widget.MaterialComponents.MaterialCalendar.HeaderDivider">
-    </style>
-
-
-    <style name="AppCompatMaterialTimePicker" parent="@style/Widget.MaterialComponents.TimePicker">
     </style>
 
 </resources>

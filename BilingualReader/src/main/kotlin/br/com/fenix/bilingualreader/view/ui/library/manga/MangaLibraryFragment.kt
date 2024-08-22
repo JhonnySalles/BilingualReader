@@ -725,12 +725,9 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                                 notifyDataSet(position)
                             }
                             PopupBookMark(requireActivity(), requireActivity().supportFragmentManager)
-                                .getPopupBookMark(manga, onUpdate) { change, bookMark, lastAccess ->
-                                    if (change) {
-                                        manga.bookMark = bookMark
-                                        manga.lastAccess = lastAccess
+                                .getPopupBookMark(manga, onUpdate) { change, manga ->
+                                    if (change)
                                         onUpdate(manga)
-                                    }
                                 }
                         }
                     }

@@ -41,6 +41,7 @@
                 android:id="@+id/popup_book_mark_date_edit"
                 android:clickable="true"
                 android:editable="false"
+                android:focusable="false"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
@@ -59,6 +60,7 @@
                 android:id="@+id/popup_book_mark_time_edit"
                 android:clickable="true"
                 android:editable="false"
+                android:focusable="false"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 

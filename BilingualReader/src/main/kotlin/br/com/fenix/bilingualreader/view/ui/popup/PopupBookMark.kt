@@ -40,7 +40,7 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
     private val mPreferences = GeneralConsts.getSharedPreferences(context)
     private lateinit var mPopup: AlertDialog
 
-    fun getPopupBookMark(obj: Obj, onUpdate: (Obj) -> (Unit), onClose: (Boolean, Int, LocalDateTime) -> (Unit)) {
+    fun getPopupBookMark(obj: Obj, onUpdate: (Obj) -> (Unit), onClose: (Boolean, Obj) -> (Unit)) {
         processPages(obj, onUpdate)
 
         mMax = obj.pages
@@ -54,7 +54,7 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
             .setView(createPopup(context, LayoutInflater.from(context)))
             .setCancelable(true)
             .setNeutralButton(R.string.popup_book_mark_read, null)
-            .setNegativeButton(R.string.action_cancel) { _, _ -> onClose(false, obj.bookMark, obj.lastAccess ?: LocalDateTime.now()) }
+            .setNegativeButton(R.string.action_cancel) { _, _ -> onClose(false, obj) }
             .setPositiveButton(R.string.action_confirm, null)
             .create()
 
@@ -68,7 +68,9 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
                         0, mNewDate, mNewDate, 0, 0, useTTS = false, isNotify = false
                     )
                 )
-                onClose(true, mNewBookMark, mNewDate)
+                obj.bookMark = mNewBookMark
+                obj.lastAccess = mNewDate
+                onClose(true, obj)
                 mPopup.dismiss()
             }
         }
@@ -237,7 +239,6 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
     private fun selectTime(lastTime: LocalDateTime) {
         val timePicker = MaterialTimePicker.Builder()
             .setTimeFormat(TimeFormat.CLOCK_12H)
-            .setTheme(R.style.AppCompatMaterialTimePicker)
             .setHour(lastTime.hour)
             .setMinute(lastTime.minute)
             .setTitleText(R.string.popup_book_select_time)
