@@ -19,6 +19,7 @@ import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
+import android.view.View
 import android.view.ViewConfiguration
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.Interpolator
@@ -26,18 +27,25 @@ import android.widget.OverScroller
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.ViewCompat
 import androidx.core.view.drawToBitmap
+import androidx.viewpager2.widget.ViewPager2
+import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
 import br.com.fenix.bilingualreader.service.functions.AutoScroll
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
+import org.slf4j.LoggerFactory
 import kotlin.math.abs
+import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.sign
 
 
 open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCompatImageView(context, attributeSet), AutoScroll {
 
     constructor(context: Context) : this(context, null)
+
+    private val mLOGGER = LoggerFactory.getLogger(ImageViewPage::class.java)
 
     private var mViewMode: ReaderMode
     private var mHaveFrame = false
@@ -71,6 +79,18 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
     private val mMagnifierRadius: Float
     private val mRightZoomScale: PointF
 
+    private var mTouchSlop = 0
+    private var mInitialX = 0f
+    private var mInitialY = 0f
+    private val mParentViewPager: ViewPager2?
+        get() {
+            var v: View? = parent as? View
+            while (v != null && v !is ViewPager2) {
+                v = v.parent as? View
+            }
+            return v as? ViewPager2
+        }
+
     fun setViewMode(viewMode: ReaderMode) {
         mViewMode = viewMode
         mSkipScaling = false
@@ -100,7 +120,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
             v.performClick()
 
             mPinch = event.pointerCount > 1
-            if (event.pointerCount > 1) {
+            if (mPinch) {
                 mScaleGestureDetector.onTouchEvent(event)
                 parent.requestDisallowInterceptTouchEvent(true)
             } else
@@ -108,6 +128,9 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
 
             if (mZooming)
                 parent.requestDisallowInterceptTouchEvent(true)
+
+            if (!mZooming && !mPinch)
+                validScrollingTouchEventInViewPager(event)
 
             mOuterTouchListener?.onTouch(v, event)
             onTouchEvent(event)
@@ -326,11 +349,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
                 minY = offset.y
                 maxY = offset.y
             }
-            mScroller.fling(
-                offset.x, offset.y,
-                velocityX.toInt(), velocityY.toInt(),
-                minX, maxX, minY, maxY
-            )
+            mScroller.fling(offset.x, offset.y, velocityX.toInt(), velocityY.toInt(), minX, maxX, minY, maxY)
             ViewCompat.postInvalidateOnAnimation(this@ImageViewPage)
             return true
         }
@@ -449,15 +468,74 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
         return matrix
     }
 
+    private fun canChildScroll(orientation: Int, delta: Float): Boolean {
+        val direction = -delta.sign.toInt()
+        return when (orientation) {
+            0 -> canScrollHorizontally(direction)
+            1 -> canScrollVertically(direction)
+            else -> throw IllegalArgumentException()
+        }
+    }
+
+    private fun validScrollingTouchEventInViewPager(e: MotionEvent) {
+        val orientation = mParentViewPager?.orientation ?: return
+
+        // Early return if child can't scroll in same direction as parent
+        if (!canChildScroll(orientation, -1f) && !canChildScroll(orientation, 1f)) {
+            return
+        }
+
+        if (e.action == MotionEvent.ACTION_DOWN) {
+            mInitialX = e.x
+            mInitialY = e.y
+            parent.requestDisallowInterceptTouchEvent(true)
+        } else if (e.action == MotionEvent.ACTION_MOVE) {
+            val dx = e.x - mInitialX
+            val dy = e.y - mInitialY
+            val isVpHorizontal = orientation == ORIENTATION_HORIZONTAL
+
+            // assuming ViewPager2 touch-slop is 2x touch-slop of child
+            val scaledDx = dx.absoluteValue * if (isVpHorizontal) .5f else 1f
+            val scaledDy = dy.absoluteValue * if (isVpHorizontal) 1f else .5f
+
+            if (scaledDx > mTouchSlop || scaledDy > mTouchSlop) {
+                if (isVpHorizontal == (scaledDy > scaledDx))
+                    parent.requestDisallowInterceptTouchEvent(false)
+                else {
+                    if (canChildScroll(orientation, if (isVpHorizontal) dx else dy))
+                        parent.requestDisallowInterceptTouchEvent(true)
+                    else
+                        parent.requestDisallowInterceptTouchEvent(false)
+                }
+            }
+        }
+    }
+
+    override fun canScrollVertically(direction: Int): Boolean {
+        if (drawable == null)
+            return false
+
+        val imageHeight = computeCurrentImageSize().y.toFloat()
+        val offsetY = computeCurrentOffset().x.toFloat()
+        if (offsetY >= 0 && direction < 0)
+            return false
+        else if (abs(offsetY) + height >= imageHeight && direction > 0)
+            return false
+
+        return true
+    }
+
     override fun canScrollHorizontally(direction: Int): Boolean {
-        if (drawable == null) return false
+        if (drawable == null)
+            return false
+
         val imageWidth = computeCurrentImageSize().x.toFloat()
         val offsetX = computeCurrentOffset().x.toFloat()
-        if (offsetX >= 0 && direction < 0) {
+        if (offsetX >= 0 && direction < 0)
             return false
-        } else if (abs(offsetX) + width >= imageWidth && direction > 0) {
+        else if (abs(offsetX) + width >= imageWidth && direction > 0)
             return false
-        }
+
         return true
     }
 
