@@ -77,8 +77,6 @@ import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
-import br.com.fenix.bilingualreader.view.components.book.TextViewPager
-import br.com.fenix.bilingualreader.view.components.book.WebViewPager
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPager
 import br.com.fenix.bilingualreader.view.managers.MangaHandler
@@ -1284,7 +1282,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         transitionLastPage(false, mLastPageIsLeft)
     }
 
-    private fun transitionLastPage(isVisible: Boolean, isLeft: Boolean, listenner: Transition.TransitionListener? = null) {
+    private fun transitionLastPage(isVisible: Boolean, isLeft: Boolean, listener: Transition.TransitionListener? = null) {
         if (isVisible && mLastPageContainer.visibility == View.VISIBLE || !isVisible && mLastPageContainer.visibility == View.GONE)
             return
 
@@ -1303,8 +1301,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         transition.addTarget(mLastPageContainer)
         transition.interpolator = AnticipateOvershootInterpolator()
 
-        if (listenner != null)
-            transition.addListener(listenner)
+        if (listener != null)
+            transition.addListener(listener)
 
         TransitionManager.beginDelayedTransition(mRoot, transition)
         mLastPageContainer.visibility = if (isVisible) View.VISIBLE else View.GONE

@@ -167,7 +167,7 @@ class HistoryFragment : Fragment() {
         val historyAdapter = HistoryCardAdapter()
         mRecyclerView.adapter = historyAdapter
         mRecyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
-        val listenner = object : HistoryCardListener {
+        val listener = object : HistoryCardListener {
             override fun onClick(history: History) {
                 when (history) {
                     is Manga -> open(history)
@@ -182,7 +182,7 @@ class HistoryFragment : Fragment() {
                 }
             }
         }
-        historyAdapter.attachListener(listenner)
+        historyAdapter.attachListener(listener)
     }
 
     @SuppressLint("NotifyDataSetChanged")

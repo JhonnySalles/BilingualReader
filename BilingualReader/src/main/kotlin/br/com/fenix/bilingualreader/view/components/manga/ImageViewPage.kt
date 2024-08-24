@@ -223,8 +223,8 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
         postInvalidate()
     }
 
-    override fun setOnTouchListener(listenner: OnTouchListener?) {
-        mOuterTouchListener = listenner
+    override fun setOnTouchListener(listener: OnTouchListener?) {
+        mOuterTouchListener = listener
     }
 
     fun setTranslateToRightEdge(translate: Boolean) {
@@ -293,10 +293,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
                 scaleFactor = mMinScale / scale
                 scalable = false
             }
-            mMatrix.postScale(
-                scaleFactor, scaleFactor,
-                detector.focusX, detector.focusY
-            )
+            mMatrix.postScale(scaleFactor, scaleFactor, detector.focusX, detector.focusY)
             imageMatrix = mMatrix
             return scalable
         }

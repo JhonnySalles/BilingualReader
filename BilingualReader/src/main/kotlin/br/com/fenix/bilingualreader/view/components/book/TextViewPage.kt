@@ -82,8 +82,8 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
             mOriginalSize = textSize
     }
 
-    override fun setOnTouchListener(listenner: OnTouchListener?) {
-        mOuterTouchListener = listenner
+    override fun setOnTouchListener(listener: OnTouchListener?) {
+        mOuterTouchListener = listener
     }
 
     fun setCustomMovement(movement: MovementMethod) {

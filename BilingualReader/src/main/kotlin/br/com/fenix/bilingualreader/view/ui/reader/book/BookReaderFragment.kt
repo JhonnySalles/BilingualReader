@@ -1376,7 +1376,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         transitionLastPage(false, mLastPageIsLeft)
     }
 
-    private fun transitionLastPage(isVisible: Boolean, isLeft: Boolean, listenner: Transition.TransitionListener? = null) {
+    private fun transitionLastPage(isVisible: Boolean, isLeft: Boolean, listener: Transition.TransitionListener? = null) {
         if (isVisible && mLastPageContainer.visibility == View.VISIBLE || !isVisible && mLastPageContainer.visibility == View.GONE)
             return
 
@@ -1395,8 +1395,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         transition.addTarget(mLastPageContainer)
         transition.interpolator = AnticipateOvershootInterpolator()
 
-        if (listenner != null)
-            transition.addListener(listenner)
+        if (listener != null)
+            transition.addListener(listener)
 
         TransitionManager.beginDelayedTransition(mRoot, transition)
         mLastPageContainer.visibility = if (isVisible) View.VISIBLE else View.GONE
