@@ -208,6 +208,7 @@
     <string name="config_book_library_folder">Library folder</string>
     <string name="config_book_type_normal">Book type normal</string>
     <string name="config_book_type_japanese">Book type japanese</string>
+    <string name="config_book_font_japanese_style">Japanese style writing (vertical text)</string>
     <string name="config_book_font_size">Font size</string>
 
     <string name="config_book_reading">Reading</string>

@@ -168,8 +168,9 @@ class ConfigFragment : Fragment() {
 
     private lateinit var mBookFontTypeNormal: TwoWayView
     private lateinit var mBookFontTypeJapanese: TwoWayView
-    private lateinit var mBookFontSize: Slider
+    private lateinit var mBookFontJapaneseStyle: SwitchMaterial
 
+    private lateinit var mBookFontSize: Slider
     private lateinit var mBookProcessJapaneseText: SwitchMaterial
     private lateinit var mBookTextWithFurigana: SwitchMaterial
     private lateinit var mBookProcessVocabulary: SwitchMaterial
@@ -207,6 +208,7 @@ class ConfigFragment : Fragment() {
 
         mBookFontTypeNormal = view.findViewById(R.id.config_book_list_fonts_normal)
         mBookFontTypeJapanese = view.findViewById(R.id.config_book_list_fonts_japanese)
+        mBookFontJapaneseStyle = view.findViewById(R.id.config_book_font_japanese_style)
         mBookFontSize = view.findViewById(R.id.config_book_font_size)
 
         mBookProcessJapaneseText = view.findViewById(R.id.config_book_process_japanese_text)
@@ -890,6 +892,11 @@ class ConfigFragment : Fragment() {
             )
 
             this.putBoolean(
+                GeneralConsts.KEYS.READER.BOOK_FONT_JAPANESE_STYLE,
+                mBookFontJapaneseStyle.isChecked
+            )
+
+            this.putBoolean(
                 GeneralConsts.KEYS.READER.BOOK_PROCESS_VOCABULARY,
                 mBookProcessVocabulary.isChecked
             )
@@ -1090,6 +1097,11 @@ class ConfigFragment : Fragment() {
         mBookTextWithFurigana.isChecked = sharedPreferences.getBoolean(
             GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT,
             true
+        )
+
+        mBookFontJapaneseStyle.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.READER.BOOK_FONT_JAPANESE_STYLE,
+            false
         )
 
         mBookProcessVocabulary.isChecked = sharedPreferences.getBoolean(

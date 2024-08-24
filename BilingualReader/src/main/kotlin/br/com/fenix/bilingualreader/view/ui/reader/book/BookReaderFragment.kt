@@ -223,11 +223,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 mViewModel.loadConfiguration(mBook)
 
                 mParse = DocumentParse(
-                    file.path,
-                    mBook?.password ?: "",
-                    mViewModel.fontSize.value!!.toInt(),
+                    file.path, mBook?.password ?: "", mViewModel.fontSize.value!!.toInt(),
                     resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE,
-                    this
+                    mViewModel.isJapaneseStyle(), this
                 )
 
                 if (mBook != null) {
@@ -980,6 +978,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         bundle.putString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PATH, mParse!!.path)
         bundle.putString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PASSWORD, mParse!!.password)
         bundle.putInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE, mParse!!.fontSize)
+        bundle.putBoolean(GeneralConsts.KEYS.OBJECT.DOCUMENT_JAPANESE_STYLE, mViewModel.isJapaneseStyle())
         mViewModel.fontSize.value?.let { bundle.putFloat(GeneralConsts.KEYS.OBJECT.BOOK_FONT_SIZE, it) }
 
         if (search != null)

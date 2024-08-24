@@ -195,6 +195,7 @@ class GeneralConsts private constructor() {
             const val BOOK_PAGE_FONT_SIZE_DEFAULT = 12f
             const val BOOK_PROCESS_JAPANESE_TEXT = "BOOK_PROCESS_JAPANESE_TEXT"
             const val BOOK_GENERATE_FURIGANA_ON_TEXT = "BOOK_GENERATE_FURIGANA_ON_TEXT"
+            const val BOOK_FONT_JAPANESE_STYLE = "BOOK_FONT_JAPANESE_STYLE"
             const val BOOK_PROCESS_VOCABULARY = "BOOK_PROCESS_VOCABULARY"
             const val BOOK_READER_TTS_VOICE_NORMAL = "BOOK_READER_TTS_VOICE_NORMAL"
             const val BOOK_READER_TTS_VOICE_JAPANESE = "BOOK_READER_TTS_VOICE_JAPANESE"
@@ -245,6 +246,7 @@ class GeneralConsts private constructor() {
             const val DOCUMENT_PATH = "DOCUMENT_PATH"
             const val DOCUMENT_FONT_SIZE = "DOCUMENT_FONT_SIZE"
             const val DOCUMENT_PASSWORD = "DOCUMENT_PASSWORD"
+            const val DOCUMENT_JAPANESE_STYLE = "DOCUMENT_JAPANESE_STYLE"
             const val BOOK_FONT_SIZE = "BOOK_FONT_SIZE"
             const val BOOK_ANNOTATION = "BOOK_ANNOTATION_OBJECT"
             const val BOOK_SEARCH = "BOOK_SEARCH_OBJECT"

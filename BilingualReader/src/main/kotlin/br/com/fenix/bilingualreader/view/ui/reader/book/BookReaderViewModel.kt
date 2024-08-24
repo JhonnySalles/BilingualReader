@@ -127,7 +127,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
     private var mFontsLocation: String = FontType.getCssFont()
     private var mDefaultCss: String = ""
-    var isJapanese = false
+    private var isJapanese = false
+    private var isJapaneseStyle = mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_FONT_JAPANESE_STYLE, false)
     private var isProcessJapaneseText = mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT, true)
     private var isFurigana = mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT, true)
     private val mAnnotation = mutableListOf<BookAnnotation>()
@@ -143,11 +144,13 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         return mDefaultCss
     }
 
-    fun getFontColor(): String = if (isDark) "#ffffff" else "#000000"
-    fun getFontType(): String = fontType.value?.name ?: FontType.TimesNewRoman.name
+    private fun getFontColor(): String = if (isDark) "#ffffff" else "#000000"
+    private fun getFontType(): String = fontType.value?.name ?: FontType.TimesNewRoman.name
 
     private fun getDiffer(): Float = if (isJapanese) DocumentParse.BOOK_FONT_JAPANESE_SIZE_DIFFER else DocumentParse.BOOK_FONT_SIZE_DIFFER
     fun getFontSize(isBook: Boolean = false): Float = (if (isBook) fontSize.value!! + getDiffer() else fontSize.value!!)
+
+    fun isJapaneseStyle() = isJapanese && isJapaneseStyle
 
     private fun generateCSS(): String {
         val fontColor = getFontColor()
@@ -237,7 +240,9 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     fun changeTextStyle(textView: TextView) {
         textView.setTextColor(ColorUtil.getColor(getFontColor()))
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getFontSize())
-        textView.typeface = ResourcesCompat.getFont(app.applicationContext, fontType.value!!.getFont())
+        val font = if (isJapaneseStyle()) fontType.value!!.getFontRotate() else fontType.value!!.getFont()
+        textView.typeface = ResourcesCompat.getFont(app.applicationContext, font)
+        textView.rotation = if (isJapaneseStyle()) 90f else 0f
 
         val margin = when (marginType.value) {
             MarginLayoutType.Small -> 10
@@ -259,19 +264,23 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         }
         textView.setLineSpacing(spacing, 1f)
 
-        textView.textAlignment = when (alignmentType.value) {
-            AlignmentLayoutType.Justify -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                    textView.justificationMode = JUSTIFICATION_MODE_INTER_WORD
+        textView.textAlignment =  if (isJapaneseStyle())
+                View.TEXT_ALIGNMENT_TEXT_START
+            else {
+                    when (alignmentType.value) {
+                    AlignmentLayoutType.Justify -> {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                            textView.justificationMode = JUSTIFICATION_MODE_INTER_WORD
 
-                View.TEXT_ALIGNMENT_INHERIT
+                        View.TEXT_ALIGNMENT_INHERIT
+                    }
+
+                    AlignmentLayoutType.Right -> View.TEXT_ALIGNMENT_TEXT_END
+                    AlignmentLayoutType.Left -> View.TEXT_ALIGNMENT_TEXT_START
+                    AlignmentLayoutType.Center -> View.TEXT_ALIGNMENT_CENTER
+                    else -> View.TEXT_ALIGNMENT_TEXT_START
+                }
             }
-
-            AlignmentLayoutType.Right -> View.TEXT_ALIGNMENT_TEXT_END
-            AlignmentLayoutType.Left -> View.TEXT_ALIGNMENT_TEXT_START
-            AlignmentLayoutType.Center -> View.TEXT_ALIGNMENT_CENTER
-            else -> View.TEXT_ALIGNMENT_TEXT_START
-        }
 
         textView.requestLayout()
     }

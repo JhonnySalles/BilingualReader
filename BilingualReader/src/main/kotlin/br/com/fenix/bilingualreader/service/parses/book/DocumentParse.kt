@@ -28,12 +28,12 @@ import java.lang.Thread.sleep
 import java.util.Date
 
 
-class DocumentParse(var path: String, var password: String = "", var fontSize: Int, var isLandscape: Boolean, var listener: BookParseListener? = null) : CodecDocument {
+class DocumentParse(var path: String, var password: String = "", var fontSize: Int, var isLandscape: Boolean, var isVertical: Boolean, var listener: BookParseListener? = null) : CodecDocument {
 
     private val mLOGGER = LoggerFactory.getLogger(DocumentParse::class.java)
 
-    private var mWidth: Int = Resources.getSystem().displayMetrics.widthPixels - Dips.dpToPx(5)
-    private var mHeight: Int = Resources.getSystem().displayMetrics.heightPixels - Dips.dpToPx(5)
+    private var mWidth: Int = (if (isVertical) Resources.getSystem().displayMetrics.heightPixels else Resources.getSystem().displayMetrics.widthPixels) - Dips.dpToPx(5)
+    private var mHeight: Int = (if (isVertical) Resources.getSystem().displayMetrics.widthPixels else Resources.getSystem().displayMetrics.heightPixels) - Dips.dpToPx(5)
 
     init {
         System.loadLibrary("mypdf")

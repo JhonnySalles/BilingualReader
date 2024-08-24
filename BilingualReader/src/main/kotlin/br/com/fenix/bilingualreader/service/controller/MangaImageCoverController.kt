@@ -52,7 +52,8 @@ class MangaImageCoverController private constructor() {
         try {
             synchronized(instance.lru) {
                 if (instance.lru.get(key) == null)
-                    instance.lru.put(key, bitmap)
+                    instance.lru.remove(key)
+                instance.lru.put(key, bitmap)
             }
         } catch (e: Exception) {
             mLOGGER.warn("Error save image on LruCache: " + e.message, e)
@@ -91,7 +92,7 @@ class MangaImageCoverController private constructor() {
             val file = File(GeneralConsts.getCacheDir(context), GeneralConsts.CACHE_FOLDER.MANGA_COVERS + '/' + key)
 
             if (file.exists()) {
-                image = BitmapFactory.decodeFile(file.absolutePath)
+                image = BitmapFactory.decodeFile(file.absolutePath) ?: return null
                 saveBitmapToLru(key, image)
                 return image
             }

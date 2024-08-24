@@ -106,7 +106,7 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
                         }
                     }
 
-                    document = DocumentParse(obj.path, obj.password, fontSize, context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE, listener)
+                    document = DocumentParse(obj.path, obj.password, fontSize, context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE, false, listener)
                 }
                 is Manga -> {
                     val parse = ParseFactory.create(obj.file) ?: return

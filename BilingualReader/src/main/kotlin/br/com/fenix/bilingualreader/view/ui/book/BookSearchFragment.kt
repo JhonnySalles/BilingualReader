@@ -86,13 +86,14 @@ class BookSearchFragment : Fragment(), BookParseListener {
             val path = it.getString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PATH)
             val password = it.getString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PASSWORD)
             val fontSize = it.getInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE)
+            val isJapaneseStyle = it.getBoolean(GeneralConsts.KEYS.OBJECT.DOCUMENT_JAPANESE_STYLE)
 
             if (it.containsKey(GeneralConsts.KEYS.OBJECT.BOOK_FONT_SIZE))
                 mFontSize = it.getFloat(GeneralConsts.KEYS.OBJECT.BOOK_FONT_SIZE)
 
             val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-            val parse = SharedData.getDocumentParse() ?: DocumentParse(path!!, password!!, fontSize, isLandscape, this)
+            val parse = SharedData.getDocumentParse() ?: DocumentParse(path!!, password!!, fontSize, isLandscape, isJapaneseStyle,this)
             mViewModelBookSearch.initialize(requireContext(), book, parse)
 
             if (it.containsKey(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH)) {

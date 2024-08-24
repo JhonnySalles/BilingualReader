@@ -383,7 +383,7 @@ class VocabularyRepository(var context: Context) {
 
                     }
 
-                    val document = DocumentParse(book.path, book.password, GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT.toInt(), false, listener)
+                    val document = DocumentParse(book.path, book.password, GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT.toInt(), isLandscape = false, isVertical = false, listener = listener)
                     joinAll(openDocument) // Await book open
 
                     if (!loaded)

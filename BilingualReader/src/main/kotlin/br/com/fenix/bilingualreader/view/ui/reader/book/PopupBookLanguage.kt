@@ -116,8 +116,8 @@ class PopupBookLanguage : Fragment() {
         val language = mViewModel.book.value?.language ?: Languages.ENGLISH
         mBookLanguageAutoComplete.setText(mMapLanguage.entries.first { it.value == language }.key, false)
 
-        mProcessJapaneseText.isChecked = preferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT, true)
-        mTextWithFurigana.isChecked = preferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT, true)
+        mProcessJapaneseText.isChecked = preferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT, true)
+        mTextWithFurigana.isChecked = preferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT, true)
 
         observer()
         return root
