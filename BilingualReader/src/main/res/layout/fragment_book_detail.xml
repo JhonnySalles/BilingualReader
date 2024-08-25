@@ -53,7 +53,7 @@
 
                 <TextView
                     android:id="@+id/book_detail_title"
-                    style="@style/TextNormal.BookDetail"
+                    style="@style/TextNormal.BookDetailTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/book_detail_title_size_tablet"
@@ -193,7 +193,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/book_detail_title_content">
 
                 <HorizontalScrollView
-                    android:id="@+id/help_scroll_view"
+                    android:id="@+id/book_detail_scroll_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:clipToPadding="false">
@@ -201,14 +201,11 @@
                     <LinearLayout
                         android:id="@+id/book_detail_buttons"
                         style="@style/AppBackground.Accent"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_gravity="bottom"
                         android:orientation="horizontal"
-                        android:paddingLeft="5dp"
-                        android:paddingTop="5dp"
-                        android:paddingRight="5dp"
-                        android:paddingBottom="5dp"
+                        android:padding="@dimen/padding_small"
                         android:gravity="center_horizontal">
 
                         <com.google.android.material.button.MaterialButton
@@ -217,6 +214,8 @@
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
+                            android:minWidth="@dimen/book_detail_button_min_width_small"
+                            android:layout_marginStart="@dimen/margin_small"
                             android:contentDescription="@string/book_detail_favorite"
                             android:text="@string/book_detail_favorite"
                             app:iconPadding="@dimen/book_detail_icon_padding"
@@ -231,7 +230,8 @@
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:layout_marginStart="5dp"
+                            android:minWidth="@dimen/book_detail_button_min_width_big"
+                            android:layout_marginStart="@dimen/margin_small"
                             android:contentDescription="@string/book_detail_mark_read"
                             android:text="@string/book_detail_mark_read"
                             app:iconPadding="@dimen/book_detail_icon_padding"
@@ -246,7 +246,8 @@
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:layout_marginStart="5dp"
+                            android:minWidth="@dimen/book_detail_button_min_width_medium"
+                            android:layout_marginStart="@dimen/margin_small"
                             android:contentDescription="@string/book_detail_clear_history"
                             android:text="@string/book_detail_clear_history"
                             app:iconPadding="@dimen/book_detail_icon_padding"
@@ -261,7 +262,8 @@
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:layout_marginStart="5dp"
+                            android:minWidth="@dimen/book_detail_button_min_width_small"
+                            android:layout_marginStart="@dimen/margin_small"
                             android:contentDescription="@string/book_detail_book_mark"
                             android:text="@string/book_detail_book_mark"
                             app:iconPadding="@dimen/book_detail_icon_padding"
@@ -276,8 +278,8 @@
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:layout_marginStart="5dp"
-                            android:layout_marginEnd="5dp"
+                            android:minWidth="@dimen/book_detail_button_min_width_small"
+                            android:layout_marginStart="@dimen/margin_small"
                             android:contentDescription="@string/book_detail_delete"
                             android:text="@string/book_detail_delete"
                             app:iconPadding="@dimen/book_detail_icon_padding"
@@ -291,9 +293,9 @@
                             style="@style/Button.Detail"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:layout_weight="1.1"
-                            android:layout_marginStart="5dp"
-                            android:layout_marginEnd="5dp"
+                            android:layout_weight="1"
+                            android:minWidth="@dimen/book_detail_button_min_width_medium"
+                            android:layout_marginStart="@dimen/margin_small"
                             android:contentDescription="@string/book_detail_vocabulary"
                             android:text="@string/book_detail_vocabulary"
                             android:singleLine="true"
@@ -304,6 +306,7 @@
                             app:cornerRadius="@dimen/book_detail_icon_rounded"/>
 
                     </LinearLayout>
+
                 </HorizontalScrollView>
 
                 <LinearLayout

@@ -49,6 +49,7 @@
     <color name="manga_detail_title_background_top">#000000</color>
     <color name="manga_detail_title_background_center">#DD000000</color>
     <color name="manga_detail_title_background_bottom">#00000000</color>
+    <color name="manga_detail_title_text">#FFFFFFFF</color>
 
     <color name="card_title_background_start">#05000000</color>
     <color name="card_title_background_middle">#55000000</color>

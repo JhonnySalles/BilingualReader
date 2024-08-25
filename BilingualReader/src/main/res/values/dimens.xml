@@ -14,6 +14,8 @@
     <dimen name="margin_small">6dp</dimen>
     <dimen name="margin_bottom">55dp</dimen>
 
+    <dimen name="padding_small">5dp</dimen>
+
     <dimen name="manga_grid_card_image">200dp</dimen>
     <dimen name="manga_grid_card_layout_width">150dp</dimen>
     <dimen name="manga_grid_card_layout_height">200dp</dimen>
@@ -116,6 +118,9 @@
     <dimen name="manga_detail_icon_size">20dp</dimen>
     <dimen name="manga_detail_icon_rounded">10dp</dimen>
     <dimen name="manga_detail_icon_padding">10dp</dimen>
+    <dimen name="manga_detail_button_min_width_small">100dp</dimen>
+    <dimen name="manga_detail_button_min_width_medium">200dp</dimen>
+    <dimen name="manga_detail_button_min_width_big">300dp</dimen>
 
     <dimen name="manga_detail_information_title_size">14sp</dimen>
     <dimen name="manga_detail_information_texts_size">10sp</dimen>
@@ -150,6 +155,9 @@
     <dimen name="book_detail_icon_size">20dp</dimen>
     <dimen name="book_detail_icon_rounded">10dp</dimen>
     <dimen name="book_detail_icon_padding">10dp</dimen>
+    <dimen name="book_detail_button_min_width_small">100dp</dimen>
+    <dimen name="book_detail_button_min_width_medium">200dp</dimen>
+    <dimen name="book_detail_button_min_width_big">300dp</dimen>
 
     <dimen name="book_detail_information_title_size">14sp</dimen>
     <dimen name="book_detail_information_synopsis_size">12sp</dimen>

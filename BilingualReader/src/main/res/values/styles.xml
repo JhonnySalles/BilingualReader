@@ -442,13 +442,13 @@
     </style>
 
     <style name="TextNormal.MangaDetailTitle" parent="TextNormal">
-        <item name="android:textColor">?attr/detailTextInverse</item>
+        <item name="android:textColor">@color/manga_detail_title_text</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
     </style>
 
     <style name="TextNormal.MangaDetail" parent="TextNormal">
-        <item name="android:textColor">?attr/detailTextInverse</item>
+        <item name="android:textColor">@color/manga_detail_title_text</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textAppearance">?attr/textAppearanceSubtitle2</item>
     </style>
@@ -465,6 +465,7 @@
     </style>
 
     <style name="TextNormal.BookDetailTitle" parent="TextNormal">
+        <item name="android:textColor">@color/manga_detail_title_text</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
     </style>
@@ -475,8 +476,7 @@
     </style>
 
     <style name="TextNormal.BookDetail" parent="TextNormal">
-        <item name="android:textColor">?attr/detailTextInverse</item>
-        <item name="android:ellipsize">end</item>
+        <item name="android:textColor">@color/manga_detail_title_text</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
     </style>

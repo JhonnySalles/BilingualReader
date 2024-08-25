@@ -48,6 +48,7 @@ import androidx.annotation.ColorInt
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.widget.NestedScrollView
 import androidx.palette.graphics.Palette
@@ -1162,29 +1163,24 @@ class AnimationUtil {
             frame.visibility = View.VISIBLE
             if (isVertical) {
                 if (navigationColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-                    activity.window.navigationBarColor = activity.getColorFromAttr(R.attr.background)
+                    activity.window?.run {
+                        navigationBarColor = activity.getColorFromAttr(R.attr.colorSurfaceVariant)
+                        WindowCompat.getInsetsController(this, this.decorView).isAppearanceLightNavigationBars = true
+                    }
 
                 val positionInitial = frame.translationY
                 frame.translationY = positionInitial + 200F
                 frame.animate()
                     .setDuration(duration)
                     .translationY(positionInitial)
-                    .setListener(object : AnimatorListenerAdapter() {
-                        override fun onAnimationEnd(animation: Animator) {
-                            super.onAnimationEnd(animation)
-                        }
-                    })
+                    .setListener(object : AnimatorListenerAdapter() { })
             } else {
                 val positionInitial = frame.translationX
                 frame.translationX = 200F
                 frame.animate()
                     .setDuration(duration)
                     .translationX(positionInitial)
-                    .setListener(object : AnimatorListenerAdapter() {
-                        override fun onAnimationEnd(animation: Animator) {
-                            super.onAnimationEnd(animation)
-                        }
-                    })
+                    .setListener(object : AnimatorListenerAdapter() { })
             }
         }
 
