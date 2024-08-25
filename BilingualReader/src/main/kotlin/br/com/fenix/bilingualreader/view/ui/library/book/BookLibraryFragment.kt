@@ -65,7 +65,6 @@ import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
 import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.listener.PopupOrderListener
-import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.service.scanner.ScannerBook
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -87,7 +86,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.math.max
 

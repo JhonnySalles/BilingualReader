@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.view.ui.library.book
 
 import android.app.Application
 import android.content.Context
-import android.content.res.Configuration
 import android.widget.Filter
 import android.widget.Filterable
 import androidx.lifecycle.AndroidViewModel
@@ -14,7 +13,6 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Tags
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
-import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType

@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
-import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import org.slf4j.LoggerFactory
 
 
