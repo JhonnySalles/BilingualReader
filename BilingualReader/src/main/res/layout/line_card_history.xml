@@ -60,8 +60,8 @@
                 <ImageView
                     android:id="@+id/history_favorite"
                     style="@style/IconFavorite"
-                    android:layout_width="@dimen/manga_grid_favorite"
-                    android:layout_height="@dimen/manga_grid_favorite"
+                    android:layout_width="@dimen/manga_grid_favorite_big"
+                    android:layout_height="@dimen/manga_grid_favorite_big"
                     android:background="@drawable/ic_favorite_mark_border"
                     android:padding="2dp"
                     android:src="@drawable/ico_favorite_mark"
@@ -70,8 +70,8 @@
                 <ImageView
                     android:id="@+id/history_has_subtitle"
                     style="@style/IconSubtitles"
-                    android:layout_width="@dimen/manga_grid_subtitle"
-                    android:layout_height="@dimen/manga_grid_subtitle"
+                    android:layout_width="@dimen/manga_grid_subtitle_big"
+                    android:layout_height="@dimen/manga_grid_subtitle_big"
                     android:padding="1dp"
                     android:background="@drawable/ic_subtitles_border"
                     android:src="@drawable/ic_subtitles_exist"

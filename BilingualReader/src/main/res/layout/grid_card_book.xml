@@ -120,8 +120,8 @@
     <ImageView
         android:id="@+id/book_grid_favorite"
         style="@style/IconFavorite"
-        android:layout_width="@dimen/book_grid_favorite"
-        android:layout_height="@dimen/book_grid_favorite"
+        android:layout_width="@dimen/book_grid_favorite_small"
+        android:layout_height="@dimen/book_grid_favorite_small"
         android:layout_marginStart="5dp"
         android:layout_marginTop="5dp"
         android:background="@drawable/ic_favorite_mark_border"
@@ -131,8 +131,8 @@
     <ImageView
         android:id="@+id/book_grid_config"
         style="@style/IconConfig"
-        android:layout_width="@dimen/book_grid_favorite"
-        android:layout_height="@dimen/book_grid_favorite"
+        android:layout_width="@dimen/book_grid_favorite_small"
+        android:layout_height="@dimen/book_grid_favorite_small"
         android:layout_marginEnd="5dp"
         android:layout_marginTop="5dp"
         android:background="@drawable/ic_config_border"

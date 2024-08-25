@@ -16,6 +16,7 @@
         android:orientation="vertical">
 
         <!-- Media -->
+
         <ImageView
             android:id="@+id/manga_grid_image_cover"
             android:layout_width="match_parent"
@@ -24,9 +25,11 @@
             android:scaleType="centerCrop"
             android:transitionName="transition_manga_cover"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
             app:srcCompat="@mipmap/book_cover_2" />
 
         <LinearLayout
@@ -115,8 +118,8 @@
     <ImageView
         android:id="@+id/manga_grid_favorite"
         style="@style/IconFavorite"
-        android:layout_width="@dimen/book_grid_favorite"
-        android:layout_height="@dimen/book_grid_favorite"
+        android:layout_width="@dimen/manga_grid_favorite_big"
+        android:layout_height="@dimen/manga_grid_favorite_big"
         android:layout_marginStart="5dp"
         android:layout_marginTop="5dp"
         android:background="@drawable/ic_favorite_mark_border"
@@ -126,8 +129,8 @@
     <ImageView
         android:id="@+id/manga_grid_config"
         style="@style/IconConfig"
-        android:layout_width="@dimen/manga_grid_favorite"
-        android:layout_height="@dimen/manga_grid_favorite"
+        android:layout_width="@dimen/manga_grid_config_small"
+        android:layout_height="@dimen/manga_grid_config_small"
         android:layout_marginEnd="5dp"
         android:layout_marginTop="5dp"
         android:background="@drawable/ic_config_border"
@@ -137,8 +140,8 @@
     <ImageView
         android:id="@+id/manga_grid_has_subtitle"
         style="@style/IconSubtitles"
-        android:layout_width="@dimen/manga_grid_subtitle"
-        android:layout_height="@dimen/manga_grid_subtitle"
+        android:layout_width="@dimen/manga_grid_subtitle_small"
+        android:layout_height="@dimen/manga_grid_subtitle_small"
         android:layout_marginStart="30dp"
         android:layout_marginTop="5dp"
         android:background="@drawable/ic_subtitles_border"

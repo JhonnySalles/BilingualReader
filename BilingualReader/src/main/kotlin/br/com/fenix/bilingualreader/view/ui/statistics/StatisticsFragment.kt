@@ -296,35 +296,35 @@ class StatisticsFragment : Fragment() {
         val lineColor = requireContext().getColorFromAttr(R.attr.colorOutline)
         val textColor = requireContext().getColorFromAttr(R.attr.colorOnBackground)
 
-        val linedata = LineDataSet(values, "")
+        val lineData = LineDataSet(values, "")
 
-        linedata.setDrawCircles(false)
-        linedata.setDrawHorizontalHighlightIndicator(false)
-        linedata.setDrawVerticalHighlightIndicator(false)
+        lineData.setDrawCircles(false)
+        lineData.setDrawHorizontalHighlightIndicator(false)
+        lineData.setDrawVerticalHighlightIndicator(false)
 
-        linedata.setDrawFilled(true)
+        lineData.setDrawFilled(true)
 
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
             val gd = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(lineColor, Color.TRANSPARENT, Color.TRANSPARENT))
             gd.cornerRadius = 0f
-            linedata.fillDrawable = gd
+            lineData.fillDrawable = gd
         } else
-            linedata.fillDrawable = AppCompatResources.getDrawable(requireContext(), R.drawable.statistics_chart_gradient)
+            lineData.fillDrawable = AppCompatResources.getDrawable(requireContext(), R.drawable.statistics_chart_gradient)
 
-        linedata.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
-        linedata.color = lineColor
-        linedata.highLightColor = lineColor
-        linedata.valueTextColor = textColor
-        linedata.valueTextSize = requireContext().resources.getDimension(R.dimen.statistics_chart_point_font_size)
-        linedata.valueTypeface = ResourcesCompat.getFont(requireContext(), R.font.comic_sans)
+        lineData.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+        lineData.color = lineColor
+        lineData.highLightColor = lineColor
+        lineData.valueTextColor = textColor
+        lineData.valueTextSize = requireContext().resources.getDimension(R.dimen.statistics_chart_point_font_size)
+        lineData.valueTypeface = ResourcesCompat.getFont(requireContext(), R.font.comic_sans)
 
-        linedata.lineWidth = 1.75f
-        linedata.circleRadius = 5f
-        linedata.circleHoleRadius = 2.5f
-        linedata.setCircleColor(Color.TRANSPARENT)
+        lineData.lineWidth = 1.75f
+        lineData.circleRadius = 5f
+        lineData.circleHoleRadius = 2.5f
+        lineData.setCircleColor(Color.TRANSPARENT)
 
         decimal.roundingMode = RoundingMode.UP
-        val data = LineData(linedata)
+        val data = LineData(lineData)
         data.setValueFormatter(object : ValueFormatter() {
             override fun getFormattedValue(value: Float): String = decimal.format(value)
         })

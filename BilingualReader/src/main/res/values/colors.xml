@@ -91,6 +91,8 @@
 
     <color name="manga_reader_fileLinkedBackground">#212121</color>
 
+    <color name="subtitle_exists">#FFFFFF</color>
+
     <!--
        colorPrimary, colorOnPrimary = Buttons
 

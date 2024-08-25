@@ -728,7 +728,7 @@
     <style name="IconSubtitles" >
         <item name="android:adjustViewBounds">true</item>
         <item name="android:backgroundTint">?attr/colorOnPrimaryContainer</item>
-        <item name="android:padding">1dp</item>
+        <item name="android:padding">2dp</item>
     </style>
 
     <style name="IconFavorite" >
