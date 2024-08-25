@@ -192,6 +192,7 @@
 
                 <HorizontalScrollView
                     android:id="@+id/book_detail_scroll_view"
+                    style="@style/AppBackground.Accent"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:clipToPadding="false">

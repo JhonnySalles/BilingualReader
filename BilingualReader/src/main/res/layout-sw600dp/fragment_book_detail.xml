@@ -190,6 +190,7 @@
 
                 <HorizontalScrollView
                     android:id="@+id/book_detail_scroll_view"
+                    style="@style/AppBackground.Accent"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:clipToPadding="false">
@@ -211,7 +212,7 @@
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:minWidth="@dimen/book_detail_button_min_width_small"
+                            android:minWidth="@dimen/book_detail_button_min_width_medium"
                             android:layout_marginStart="@dimen/margin_small"
                             android:contentDescription="@string/book_detail_favorite"
                             android:text="@string/book_detail_favorite"
@@ -275,7 +276,7 @@
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:minWidth="@dimen/book_detail_button_min_width_small"
+                            android:minWidth="@dimen/book_detail_button_min_width_medium"
                             android:layout_marginStart="@dimen/margin_small"
                             android:contentDescription="@string/book_detail_delete"
                             android:text="@string/book_detail_delete"

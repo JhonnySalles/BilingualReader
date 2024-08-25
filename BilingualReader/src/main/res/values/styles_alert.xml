@@ -82,7 +82,7 @@
     <style name="AppCompatMaterialErrorDialogStyle" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
         <item name="colorAccent">?attr/colorError</item>
         <item name="android:textColorPrimary">?attr/colorError</item>
-        <item name="android:background">?attr/background</item>
+        <item name="android:background">?attr/android:colorBackground</item>
         <item name="colorControlHighlight">?attr/colorError</item>
         <item name="buttonBarNegativeButtonStyle">@style/ErrorButtonStyle</item>
         <item name="buttonBarPositiveButtonStyle">@style/ErrorButtonStyle</item>
