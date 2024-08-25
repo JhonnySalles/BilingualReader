@@ -30,7 +30,9 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import br.com.fenix.bilingualreader.model.interfaces.History as Obj
 
 
@@ -205,10 +207,14 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
         return validated
     }
 
+    private fun formatDatePicker(date: LocalDateTime) = date.atZone(ZoneId.systemDefault()).toInstant().atZone(ZoneId.ofOffset("UTC", ZoneOffset.UTC)).toInstant().toEpochMilli()
+
+    private fun formatDateTime(date: Long) = LocalDateTime.ofInstant(Instant.ofEpochMilli(date), ZoneId.ofOffset("UTC", ZoneOffset.UTC)).atZone(ZoneId.systemDefault()).toLocalDate()
+
     private fun selectDate(lastDate: LocalDateTime) {
         val initial = LocalDateTime.of(2000, 1, 1, 0, 0)
-            .atZone(ZoneId.systemDefault())
-            .toInstant()
+            .truncatedTo(ChronoUnit.DAYS)
+            .toInstant(ZoneOffset.UTC)
             .toEpochMilli()
 
         val constraints = CalendarConstraints.Builder()
@@ -219,14 +225,12 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
             .setTheme(R.style.AppCompatMaterialDatePicker)
             .setTitleText(R.string.popup_book_select_date)
             .setCalendarConstraints(constraints)
-            .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+            .setSelection(formatDatePicker(lastDate))
             .build()
 
         datePicker.addOnPositiveButtonClickListener {
             datePicker.selection?.let { selection ->
-                val date = Instant.ofEpochMilli(selection)
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate()
+                val date = formatDateTime(selection)
                 mNewDate = date.atTime(lastDate.hour, lastDate.minute)
                 mBookMarkDateEdit.setText(GeneralConsts.formatterDate(context, mNewDate))
             }
