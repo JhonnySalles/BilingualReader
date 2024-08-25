@@ -45,7 +45,7 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
         }
     }
 
-    abstract val mNotConnetErrorType : ShareMarkType
+    abstract val mNotConnectErrorType : ShareMarkType
 
     @Throws(ShareMarkNotConnectCloudException::class)
     abstract fun initialize()
@@ -105,7 +105,7 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
             initialize()
         } catch (e: Exception) {
             mLOGGER.error(e.message, e)
-            ending(mNotConnetErrorType)
+            ending(mNotConnectErrorType)
             return
         }
 
@@ -166,7 +166,7 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
             initialize()
         } catch (e: Exception) {
             mLOGGER.error(e.message, e)
-            ending(mNotConnetErrorType)
+            ending(mNotConnectErrorType)
             return
         }
 

@@ -937,8 +937,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     override fun onRefresh() {
-        refresh()
         shareMarkToDrive()
+        refresh()
     }
 
     private fun shareMarkToDrive() {

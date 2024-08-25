@@ -953,8 +953,8 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     }
 
     override fun onRefresh() {
-        refresh()
         shareMarkToDrive()
+        refresh()
     }
 
     private fun shareMarkToDrive() {

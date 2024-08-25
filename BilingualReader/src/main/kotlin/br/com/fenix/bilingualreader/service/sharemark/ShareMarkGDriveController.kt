@@ -104,7 +104,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
         }
     }
 
-    override val mNotConnetErrorType: ShareMarkType get() = ShareMarkType.NOT_CONNECT_DRIVE
+    override val mNotConnectErrorType: ShareMarkType get() = ShareMarkType.NOT_CONNECT_DRIVE
 
     // --------------------------------------------------------- Google Drive ---------------------------------------------------------
     private fun ajusts(share: ShareMark, type: Type) {
@@ -370,6 +370,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
     override fun processManga(update: (manga: Manga) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
         CoroutineScope(Dispatchers.IO).launch {
             async {
+                val sync = Date()
                 val gson = GsonBuilder()
                     .setDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME)
                     .excludeFieldsWithoutExposeAnnotation()
@@ -445,7 +446,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                 ShareMarkType.send = isUpdate
                 ShareMarkType.receive = list.isNotEmpty()
 
-                prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, simpleDate.format(Date())).apply()
+                prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, simpleDate.format(sync)).apply()
 
                 withContext(Dispatchers.Main) {
                     ending(shared)
@@ -458,7 +459,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
     override fun processBook(update: (book: Book) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
         CoroutineScope(Dispatchers.IO).launch {
             async {
-
+                val sync = Date()
                 val gson = GsonBuilder()
                     .setDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME)
                     .excludeFieldsWithoutExposeAnnotation()
@@ -557,7 +558,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                     ending(shared)
                 }
 
-                prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, simpleDate.format(Date())).apply()
+                prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, simpleDate.format(sync)).apply()
             }
         }
     }
