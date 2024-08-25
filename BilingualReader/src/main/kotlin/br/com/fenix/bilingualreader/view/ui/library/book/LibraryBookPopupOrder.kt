@@ -13,7 +13,7 @@ import br.com.fenix.bilingualreader.view.components.TriStateCheckBox
 import org.slf4j.LoggerFactory
 
 
-class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
+class LibraryBookPopupOrder : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(LibraryBookPopupOrder::class.java)
 
@@ -25,6 +25,8 @@ class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
     private lateinit var mOrderAuthor: TriStateCheckBox
 
     private lateinit var mCheckList : ArrayList<TriStateCheckBox>
+
+    private var listener: PopupOrderListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.popup_library_order_book, container, false)
@@ -38,10 +40,14 @@ class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
 
         mCheckList = arrayListOf(mOrderName, mOrderDate, mOrderAccess, mOrderFavorite, mOrderGenre, mOrderAuthor)
 
-        setChecked(mCheckList, listener.popupGetOrder()?.first ?: Order.Name, listener.popupGetOrder()?.second ?: false)
+        setChecked(mCheckList, listener?.popupGetOrder()?.first ?: Order.Name, listener?.popupGetOrder()?.second ?: false)
         addListener()
         observer()
         return root
+    }
+
+    fun setListener(listener: PopupOrderListener) {
+        this.listener = listener
     }
 
     private fun setChecked(checkboxes: ArrayList<TriStateCheckBox>, order: Order, isDesc: Boolean) {
@@ -80,16 +86,16 @@ class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
 
             mOrderName.state = getNextState(mOrderName)
             when (mOrderName.state) {
-                TriStateCheckBox.STATE_INDETERMINATE -> listener.popupSorted(Order.Name, true)
-                TriStateCheckBox.STATE_CHECKED -> listener.popupSorted(Order.Name)
+                TriStateCheckBox.STATE_INDETERMINATE -> listener?.popupSorted(Order.Name, true)
+                TriStateCheckBox.STATE_CHECKED -> listener?.popupSorted(Order.Name)
                 TriStateCheckBox.STATE_UNCHECKED -> {
                     mOrderName.state = TriStateCheckBox.STATE_CHECKED
-                    listener.popupSorted(Order.Name)
+                    listener?.popupSorted(Order.Name)
                 }
                 else -> {}
             }
 
-            listener.popupOrderOnChange()
+            listener?.popupOrderOnChange()
             addListener()
         }
 
@@ -98,16 +104,16 @@ class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
 
             mOrderDate.state = getNextState(mOrderDate)
             when (mOrderDate.state) {
-                TriStateCheckBox.STATE_INDETERMINATE -> listener.popupSorted(Order.Date, true)
-                TriStateCheckBox.STATE_CHECKED -> listener.popupSorted(Order.Date)
+                TriStateCheckBox.STATE_INDETERMINATE -> listener?.popupSorted(Order.Date, true)
+                TriStateCheckBox.STATE_CHECKED -> listener?.popupSorted(Order.Date)
                 TriStateCheckBox.STATE_UNCHECKED -> {
                     mOrderName.state = TriStateCheckBox.STATE_CHECKED
-                    listener.popupSorted(Order.Name)
+                    listener?.popupSorted(Order.Name)
                 }
                 else -> {}
             }
 
-            listener.popupOrderOnChange()
+            listener?.popupOrderOnChange()
             addListener()
         }
 
@@ -116,16 +122,16 @@ class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
 
             mOrderAccess.state = getNextState(mOrderAccess)
             when (mOrderAccess.state) {
-                TriStateCheckBox.STATE_INDETERMINATE -> listener.popupSorted(Order.LastAccess, true)
-                TriStateCheckBox.STATE_CHECKED -> listener.popupSorted(Order.LastAccess)
+                TriStateCheckBox.STATE_INDETERMINATE -> listener?.popupSorted(Order.LastAccess, true)
+                TriStateCheckBox.STATE_CHECKED -> listener?.popupSorted(Order.LastAccess)
                 TriStateCheckBox.STATE_UNCHECKED -> {
                     mOrderName.state = TriStateCheckBox.STATE_CHECKED
-                    listener.popupSorted(Order.Name)
+                    listener?.popupSorted(Order.Name)
                 }
                 else -> {}
             }
 
-            listener.popupOrderOnChange()
+            listener?.popupOrderOnChange()
             addListener()
         }
 
@@ -134,16 +140,16 @@ class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
 
             mOrderFavorite.state = getNextState(mOrderFavorite)
             when (mOrderFavorite.state) {
-                TriStateCheckBox.STATE_INDETERMINATE -> listener.popupSorted(Order.Favorite, true)
-                TriStateCheckBox.STATE_CHECKED -> listener.popupSorted(Order.Favorite)
+                TriStateCheckBox.STATE_INDETERMINATE -> listener?.popupSorted(Order.Favorite, true)
+                TriStateCheckBox.STATE_CHECKED -> listener?.popupSorted(Order.Favorite)
                 TriStateCheckBox.STATE_UNCHECKED -> {
                     mOrderName.state = TriStateCheckBox.STATE_CHECKED
-                    listener.popupSorted(Order.Name)
+                    listener?.popupSorted(Order.Name)
                 }
                 else -> {}
             }
 
-            listener.popupOrderOnChange()
+            listener?.popupOrderOnChange()
             addListener()
         }
 
@@ -152,16 +158,16 @@ class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
 
             mOrderGenre.state = getNextState(mOrderGenre)
             when (mOrderGenre.state) {
-                TriStateCheckBox.STATE_INDETERMINATE -> listener.popupSorted(Order.Genre, true)
-                TriStateCheckBox.STATE_CHECKED -> listener.popupSorted(Order.Genre)
+                TriStateCheckBox.STATE_INDETERMINATE -> listener?.popupSorted(Order.Genre, true)
+                TriStateCheckBox.STATE_CHECKED -> listener?.popupSorted(Order.Genre)
                 TriStateCheckBox.STATE_UNCHECKED -> {
                     mOrderName.state = TriStateCheckBox.STATE_CHECKED
-                    listener.popupSorted(Order.Name)
+                    listener?.popupSorted(Order.Name)
                 }
                 else -> {}
             }
 
-            listener.popupOrderOnChange()
+            listener?.popupOrderOnChange()
             addListener()
         }
 
@@ -170,16 +176,16 @@ class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
 
             mOrderAuthor.state = getNextState(mOrderAuthor)
             when (mOrderAuthor.state) {
-                TriStateCheckBox.STATE_INDETERMINATE -> listener.popupSorted(Order.Author, true)
-                TriStateCheckBox.STATE_CHECKED -> listener.popupSorted(Order.Author)
+                TriStateCheckBox.STATE_INDETERMINATE -> listener?.popupSorted(Order.Author, true)
+                TriStateCheckBox.STATE_CHECKED -> listener?.popupSorted(Order.Author)
                 TriStateCheckBox.STATE_UNCHECKED -> {
                     mOrderName.state = TriStateCheckBox.STATE_CHECKED
-                    listener.popupSorted(Order.Name)
+                    listener?.popupSorted(Order.Name)
                 }
                 else -> {}
             }
 
-            listener.popupOrderOnChange()
+            listener?.popupOrderOnChange()
             addListener()
         }
     }
@@ -190,7 +196,7 @@ class LibraryBookPopupOrder(var listener: PopupOrderListener) : Fragment() {
     }
 
     private fun observer() {
-        listener.popupGetObserver().observe(viewLifecycleOwner) {
+        listener?.popupGetObserver()?.observe(viewLifecycleOwner) {
             removeListener(mCheckList)
             setChecked(mCheckList, it.first, it.second)
             addListener()
