@@ -428,8 +428,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 if (extras != null)
                     mLibrary = extras.getSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY) as Library
 
-                val manga =
-                    if (extras != null) (extras.getSerializable(GeneralConsts.KEYS.OBJECT.MANGA) as Manga?) else null
+                val manga = if (extras != null) (extras.getSerializable(GeneralConsts.KEYS.OBJECT.MANGA) as Manga?) else null
                 manga?.let {
                     it.bookMark = extras?.getInt(GeneralConsts.KEYS.MANGA.MARK) ?: 0
                 }

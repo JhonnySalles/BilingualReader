@@ -33,10 +33,13 @@ data class History(
     val pageStart: Int,
 
     @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.PAGE_END)
-    var pageEnd: Int,
+    private var pageEnd: Int,
 
     @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.PAGES)
-    var pages: Int,
+    private var pages: Int,
+
+    @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.COMPLETED)
+    var completed: Boolean,
 
     @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.VOLUME)
     val volume: String,
@@ -65,13 +68,28 @@ data class History(
 
     @Ignore
     constructor(fkLibrary: Long, fkReference: Long, type: Type, pageStart: Int, pages: Int, volume: String, averageTimeByPage: Long = 0, useTTS: Boolean = false, isNotify: Boolean = false) : this(
-        null, fkLibrary, fkReference, type, pageStart, 0, pages, volume, 0, LocalDateTime.now(), LocalDateTime.now(), 0, averageTimeByPage, useTTS, isNotify
+        null, fkLibrary, fkReference, type, pageStart, 0, pages, false, volume, 0, LocalDateTime.now(), LocalDateTime.now(), 0, averageTimeByPage, useTTS, isNotify
     ) { }
+
     fun getEnd() = end
 
     fun setEnd(end: LocalDateTime) {
         this.end = end
         secondsRead = ChronoUnit.SECONDS.between(start, end)
+    }
+
+    fun getPageEnd() = pageEnd
+
+    fun setPageEnd(pageEnd: Int) {
+        this.pageEnd = pageEnd
+        completed = pageEnd >= pages
+    }
+
+    fun getPages() = pages
+
+    fun setPages(pages: Int) {
+        this.pages = pages
+        completed = pageEnd >= pages
     }
 
     fun getSecondsRead() = secondsRead

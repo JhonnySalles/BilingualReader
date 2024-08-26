@@ -28,6 +28,11 @@ data class ShareItem(
     @get:PropertyName(FIELD_PAGES)
     var pages: Int,
     @Expose
+    @SerializedName(FIELD_COMPLETED)
+    @PropertyName(FIELD_COMPLETED)
+    @get:PropertyName(FIELD_COMPLETED)
+    var completed: Boolean,
+    @Expose
     @SerializedName(FIELD_FAVORITE)
     @PropertyName(FIELD_FAVORITE)
     @get:PropertyName(FIELD_FAVORITE)
@@ -58,6 +63,7 @@ data class ShareItem(
         const val FIELD_FILE = "arquivo"
         const val FIELD_BOOKMARK = "bookMark"
         const val FIELD_PAGES = "paginas"
+        const val FIELD_COMPLETED = "completo"
         const val FIELD_FAVORITE = "favorito"
         const val FIELD_LASTACCESS = "ultimoAcesso"
         const val FIELD_SYNC = "sincronizado"
@@ -89,6 +95,7 @@ data class ShareItem(
 
     constructor(firebase: Map<String, *>) : this(
         firebase[FIELD_FILE] as String, (firebase[FIELD_BOOKMARK] as Long).toInt(), (firebase[FIELD_PAGES] as Long).toInt(),
+        if (firebase.containsKey(FIELD_COMPLETED)) (firebase[FIELD_COMPLETED] as Boolean) else ((firebase[FIELD_BOOKMARK] as Long).toInt() >= (firebase[FIELD_PAGES] as Long).toInt()),
         firebase[FIELD_FAVORITE] as Boolean, Date(), Date()
     ) {
         this.lastAccess = (firebase[FIELD_LASTACCESS] as Timestamp).toDate()
@@ -111,7 +118,7 @@ data class ShareItem(
     }
 
     constructor(manga: Manga, list: List<History>) : this(
-        manga.name, manga.bookMark, manga.pages, manga.favorite, GeneralConsts.dateTimeToDate(manga.lastAccess!!), Date()
+        manga.name, manga.bookMark, manga.pages, manga.completed, manga.favorite, GeneralConsts.dateTimeToDate(manga.lastAccess!!), Date()
     ) {
         alter = true
         processed = true
@@ -123,7 +130,7 @@ data class ShareItem(
     }
 
     constructor(book: Book, histories: List<History>, annotations: List<BookAnnotation>) : this(
-        book.name, book.bookMark, book.pages, book.favorite, GeneralConsts.dateTimeToDate(book.lastAccess!!), Date()
+        book.name, book.bookMark, book.pages, book.completed, book.favorite, GeneralConsts.dateTimeToDate(book.lastAccess!!), Date()
     ) {
         alter = true
         processed = true
@@ -151,6 +158,7 @@ data class ShareItem(
 
     fun merge(manga: Manga) {
         this.bookMark = manga.bookMark
+        this.completed = manga.completed
         this.lastAccess = GeneralConsts.dateTimeToDate(manga.lastAccess!!)
         this.favorite = manga.favorite
         this.alter = true
@@ -160,6 +168,7 @@ data class ShareItem(
 
     fun merge(book: Book) {
         this.bookMark = book.bookMark
+        this.completed = book.completed
         this.lastAccess = GeneralConsts.dateTimeToDate(book.lastAccess!!)
         this.favorite = book.favorite
         this.alter = true

@@ -34,6 +34,7 @@ class Manga(
     pages: Int,
     chapters: IntArray,
     bookMark: Int,
+    completed: Boolean,
     favorite: Boolean,
     hasSubtitle: Boolean,
     author: String,
@@ -53,12 +54,12 @@ class Manga(
 
     constructor( id: Long?, title: String,
         path: String, folder: String, name: String, size: Long, fileType: FileType,
-        pages: Int, chapters: IntArray, bookMark: Int, favorite: Boolean, hasSubtitle: Boolean,
+        pages: Int, chapters: IntArray, bookMark: Int, completed: Boolean, favorite: Boolean, hasSubtitle: Boolean,
         author: String , series: String, publisher: String, volume: String, idLibrary: Long?,
         excluded: Boolean, dateCreate: LocalDateTime?, fileAlteration: Date, lastVocabularyImport: LocalDateTime?,
         lastVerify: LocalDate?, release: LocalDate?, lastAlteration: LocalDateTime?,
         lastAccess: LocalDateTime?, sort: LocalDateTime? = null
-    ) : this( id, title, path, folder, name, size, fileType, pages, chapters, bookMark, favorite,
+    ) : this( id, title, path, folder, name, size, fileType, pages, chapters, bookMark, completed, favorite,
         hasSubtitle, author, series, publisher, volume, release, idLibrary, excluded,
         dateCreate, lastAccess, lastAlteration, fileAlteration, lastVocabularyImport, lastVerify
     ) {
@@ -68,7 +69,7 @@ class Manga(
     @Ignore
     constructor(fkLibrary: Long?, id: Long?, file: File) : this(
         id, file.nameWithoutExtension, file.path, file.parent, file.name, file.length(), FileType.UNKNOWN,
-        1, intArrayOf(), 0, false, false, "", "", "",
+        1, intArrayOf(), 0, false, false, false, "", "", "",
         "", null, fkLibrary, false, LocalDateTime.now(), null, null, Date(file.lastModified()),
         null, null
     ) {
@@ -91,6 +92,13 @@ class Manga(
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.BOOK_MARK)
     override var bookMark: Int = bookMark
+        set(value) {
+            field = value
+            this.completed = value >= pages
+        }
+
+    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.COMPLETED)
+    override var completed: Boolean = completed
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.FILE_PATH)
     var path: String = path
@@ -217,6 +225,7 @@ class Manga(
                 this.volume != manga.volume || this.release != manga.release
 
         this.bookMark = manga.bookMark
+        this.completed = manga.completed
         this.favorite = manga.favorite
         this.lastAccess = manga.lastAccess
         this.hasSubtitle = manga.hasSubtitle

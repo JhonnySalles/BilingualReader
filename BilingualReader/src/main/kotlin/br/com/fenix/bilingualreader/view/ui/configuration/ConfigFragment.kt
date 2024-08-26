@@ -545,7 +545,7 @@ class ConfigFragment : Fragment() {
                         HistoryRepository(requireContext()).clearAll()
                         Toast.makeText(requireContext(), getString(R.string.config_statistics_clear_success), Toast.LENGTH_SHORT).show()
                     } catch (e: Exception) {
-                        mLOGGER.error("Error delete bitmap to cache: " + e.message, e)
+                        mLOGGER.error("Error delete statistics: " + e.message, e)
                         Toast.makeText(requireContext(), getString(R.string.config_statistics_clear_error), Toast.LENGTH_SHORT).show()
                     }
                 }

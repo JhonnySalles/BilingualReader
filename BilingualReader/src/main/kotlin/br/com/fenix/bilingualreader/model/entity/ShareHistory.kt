@@ -29,6 +29,12 @@ data class ShareHistory(
     var pages: Int,
 
     @Expose
+    @SerializedName(FIELD_COMPLETED)
+    @PropertyName(FIELD_COMPLETED)
+    @get:PropertyName(FIELD_COMPLETED)
+    var completed: Boolean,
+
+    @Expose
     @SerializedName(FIELD_VOLUME)
     @PropertyName(FIELD_VOLUME)
     @get:PropertyName(FIELD_VOLUME)
@@ -75,6 +81,7 @@ data class ShareHistory(
         const val FIELD_PAGE_START = "pageStart"
         const val FIELD_PAGE_END = "pageEnd"
         const val FIELD_PAGES = "pages"
+        const val FIELD_COMPLETED = "completed"
         const val FIELD_VOLUME = "volume"
         const val FIELD_CHAPTERS_READ = "chaptersRead"
         const val FIELD_START = "start"
@@ -85,13 +92,14 @@ data class ShareHistory(
     }
 
     constructor(firebase: Map<String, *>) : this(
-        (firebase[FIELD_PAGE_START] as Long).toInt(), (firebase[FIELD_PAGE_END] as Long).toInt(), (firebase[FIELD_PAGES] as Long).toInt(), (firebase[FIELD_VOLUME] as String),
-        (firebase[FIELD_CHAPTERS_READ] as Long).toInt(), (firebase[FIELD_START] as Timestamp).toDate(), (firebase[FIELD_END] as Timestamp).toDate(),
+        (firebase[FIELD_PAGE_START] as Long).toInt(), (firebase[FIELD_PAGE_END] as Long).toInt(), (firebase[FIELD_PAGES] as Long).toInt(),
+        if (firebase.containsKey(FIELD_COMPLETED)) (firebase[FIELD_COMPLETED] as Boolean) else ((firebase[FIELD_PAGE_END] as Long).toInt() >= (firebase[FIELD_PAGES] as Long).toInt()),
+        (firebase[FIELD_VOLUME] as String), (firebase[FIELD_CHAPTERS_READ] as Long).toInt(), (firebase[FIELD_START] as Timestamp).toDate(), (firebase[FIELD_END] as Timestamp).toDate(),
         firebase[FIELD_SECONDS_READ] as Long, firebase[FIELD_AVERAGE_TIME_BY_PAGE] as Long, firebase[FIELD_USE_TTS] as Boolean,
     )
 
     constructor(history: History) : this(
-        history.pageStart, history.pageEnd, history.pages, history.volume, history.chaptersRead, GeneralConsts.dateTimeToDate(history.start),
+        history.pageStart, history.getPageEnd(), history.getPages(), history.completed, history.volume, history.chaptersRead, GeneralConsts.dateTimeToDate(history.start),
         GeneralConsts.dateTimeToDate(history.getEnd()), history.getSecondsRead(), history.averageTimeByPage, history.useTTS
     )
 
@@ -120,7 +128,7 @@ data class ShareHistory(
     }
 
     override fun toString(): String {
-        return "ShareHistory(pageStart=$pageStart, pageEnd=$pageEnd, pages=$pages, volume=$volume, chaptersRead=$chaptersRead, start=$start, end=$end, secondsRead=$secondsRead, averageTimeByPage=$averageTimeByPage, useTTS=$useTTS)"
+        return "ShareHistory(pageStart=$pageStart, pageEnd=$pageEnd, pages=$pages, completed=$completed, volume=$volume, chaptersRead=$chaptersRead, start=$start, end=$end, secondsRead=$secondsRead, averageTimeByPage=$averageTimeByPage, useTTS=$useTTS)"
     }
 
 }

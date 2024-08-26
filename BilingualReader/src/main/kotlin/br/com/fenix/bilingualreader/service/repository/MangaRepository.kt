@@ -116,6 +116,7 @@ class MangaRepository(context: Context) {
                 obj.lastAlteration = LocalDateTime.now()
                 obj.lastAccess = null
                 obj.bookMark = 0
+                obj.completed = false
                 obj.favorite = false
                 if (obj.id != null)
                     mDataBase.update(obj)

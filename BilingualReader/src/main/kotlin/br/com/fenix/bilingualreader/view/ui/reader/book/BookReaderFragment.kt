@@ -405,7 +405,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         }
 
         mViewModel.history?.let {
-            it.pageEnd = mCurrentPage + 1
+            it.setPageEnd(mCurrentPage + 1)
             it.setEnd(LocalDateTime.now())
             it.id = mHistoryRepository.save(it)
         }
@@ -704,7 +704,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     book.pages = pages
                     mViewModel.update(book)
                     setBookDots(pages)
-                    mViewModel.history?.let { it.pages = pages }
+                    mViewModel.history?.let { it.setPages(pages) }
                 }
             }
 
@@ -876,7 +876,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                         return@setPositiveButton
 
                     mViewModel.history?.let {
-                        it.pageEnd = mCurrentPage + 1
+                        it.setPageEnd(mCurrentPage + 1)
                         it.setEnd(LocalDateTime.now())
                         it.id = mHistoryRepository.save(it)
                     }
@@ -1222,7 +1222,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         average /= mPagesAverage.size
         mViewModel.history?.let {
             if (!isOnlyCalculate) {
-                it.pageEnd = mCurrentPage + 1
+                it.setPageEnd(mCurrentPage + 1)
                 it.setEnd(LocalDateTime.now())
             }
             it.averageTimeByPage = average

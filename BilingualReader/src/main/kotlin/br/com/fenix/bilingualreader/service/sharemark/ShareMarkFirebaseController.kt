@@ -153,7 +153,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                             if (list.isNotEmpty())
                                 for (shared in list)
                                     repositoryHistory.save(
-                                        History(null, manga.fkLibrary!!, manga.id!!, manga.type, shared.pageStart, shared.pageEnd, shared.pages,
+                                        History(null, manga.fkLibrary!!, manga.id!!, manga.type, shared.pageStart, shared.pageEnd, shared.pages, shared.completed,
                                             shared.volume, shared.chaptersRead, GeneralConsts.dateToDateTime(shared.start), GeneralConsts.dateToDateTime(shared.end),
                                             shared.secondsRead.toLong(), shared.averageTimeByPage.toLong(), shared.useTTS, isNotify = false
                                         )
@@ -279,7 +279,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                             if (list.isNotEmpty())
                                 for (shared in list)
                                     repositoryHistory.save(
-                                        History(null, book.fkLibrary!!, book.id!!, book.type, shared.pageStart, shared.pageEnd, shared.pages,
+                                        History(null, book.fkLibrary!!, book.id!!, book.type, shared.pageStart, shared.pageEnd, shared.pages, shared.completed,
                                             shared.volume, shared.chaptersRead, GeneralConsts.dateToDateTime(shared.start), GeneralConsts.dateToDateTime(shared.end),
                                             shared.secondsRead.toLong(), shared.averageTimeByPage.toLong(), shared.useTTS, isNotify = false
                                         )

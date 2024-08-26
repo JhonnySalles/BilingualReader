@@ -11,6 +11,7 @@ class DataBaseConsts private constructor() {
             const val PAGES = "pages"
             const val CHAPTERS = "chapters"
             const val BOOK_MARK = "book_mark"
+            const val COMPLETED = "completed"
             const val FILE_PATH = "path"
             const val FILE_NAME = "name"
             const val FILE_TYPE = "type"
@@ -165,6 +166,7 @@ class DataBaseConsts private constructor() {
             const val CHAPTER = "chapter"
             const val CHAPTER_DESCRIPTION = "chapter_description"
             const val BOOK_MARK = "book_mark"
+            const val COMPLETED = "completed"
             const val LANGUAGE = "language"
 
             const val FILE_PATH = "path"
@@ -315,6 +317,7 @@ class DataBaseConsts private constructor() {
             const val PAGE_START = "page_start"
             const val PAGE_END = "page_end"
             const val PAGES = "pages"
+            const val COMPLETED = "completed"
             const val VOLUME = "volume"
             const val CHAPTERS_READ = "chapters_READ"
             const val DATE_TIME_START = "date_time_start"
