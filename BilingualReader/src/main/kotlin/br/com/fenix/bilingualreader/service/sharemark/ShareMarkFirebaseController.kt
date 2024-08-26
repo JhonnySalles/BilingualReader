@@ -76,7 +76,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
     override fun processManga(update: (manga: Manga) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
         CoroutineScope(Dispatchers.IO).launch {
             async {
-                val sync = Date()
+                mSync = Date()
                 val prefs = GeneralConsts.getSharedPreferences(context)
                 val simpleDate = SimpleDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME, Locale.getDefault())
                 val dateSync = prefs.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, INITIAL_SYNC_DATE_TIME)!!
@@ -130,7 +130,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                     }
                                 }
                             } else
-                                share.add(ShareItem(manga, repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!)))
+                                share.add(ShareItem(mSync, manga, repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!)))
                         }
                 }
 
@@ -187,7 +187,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 ShareMarkType.send = isUpdate
                 ShareMarkType.receive = share.isNotEmpty()
 
-                prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, simpleDate.format(sync)).apply()
+                prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, simpleDate.format(Date(mSync.time + 1000))).apply()
 
                 withContext(Dispatchers.Main) {
                     ending(shared)
@@ -200,7 +200,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
     override fun processBook(update: (book: Book) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
         CoroutineScope(Dispatchers.IO).launch {
             async {
-                val sync = Date()
+                mSync = Date()
                 val prefs = GeneralConsts.getSharedPreferences(context)
                 val simpleDate = SimpleDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME, Locale.getDefault())
                 val dateSync = prefs.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, INITIAL_SYNC_DATE_TIME)!!
@@ -256,7 +256,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                     }
                                 }
                             } else
-                                share.add(ShareItem(book, repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!), repositoryAnnotation.findByBook(book.id!!)))
+                                share.add(ShareItem(mSync, book, repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!), repositoryAnnotation.findByBook(book.id!!)))
                         }
                 }
 
@@ -342,7 +342,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 ShareMarkType.send = isUpdate
                 ShareMarkType.receive = share.isNotEmpty()
 
-                prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, simpleDate.format(sync)).apply()
+                prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, simpleDate.format(Date(mSync.time + 1000))).apply()
 
                 withContext(Dispatchers.Main) {
                     ending(shared)

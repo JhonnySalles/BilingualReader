@@ -13,6 +13,7 @@ import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.exceptions.ShareMarkNotConnectCloudException
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import org.slf4j.LoggerFactory
+import java.util.Date
 import kotlin.math.roundToInt
 
 
@@ -71,6 +72,8 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
             "$manufacturer $model"
     }
 
+    protected var mSync : Date = Date()
+
     // --------------------------------------------------------- Manga ---------------------------------------------------------
     protected fun compare(item: ShareItem, manga: Manga): Boolean {
         return if (manga.lastAccess == null || item.lastAccess.after(GeneralConsts.dateTimeToDate(manga.lastAccess!!))) {
@@ -81,8 +84,8 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
         } else {
             //Differ 10 seconds
             val diff: Long = item.lastAccess.time - GeneralConsts.dateTimeToDate(manga.lastAccess!!).time
-            if (diff > 10000 || diff < -10000)
-                item.merge(manga)
+            if (diff > 5000 || diff < -5000)
+                item.merge(mSync, manga)
             false
         }
     }
@@ -142,8 +145,8 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
         } else {
             //Differ 10 seconds
             val diff: Long = item.lastAccess.time - GeneralConsts.dateTimeToDate(book.lastAccess!!).time
-            if (diff > 10000 || diff < -10000)
-                item.merge(book)
+            if (diff > 5000 || diff < -5000)
+                item.merge(mSync, book)
             false
         }
     }

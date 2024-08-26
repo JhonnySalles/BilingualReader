@@ -370,7 +370,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
     override fun processManga(update: (manga: Manga) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
         CoroutineScope(Dispatchers.IO).launch {
             async {
-                val sync = Date()
+                mSync = Date()
                 val gson = GsonBuilder()
                     .setDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME)
                     .excludeFieldsWithoutExposeAnnotation()
@@ -402,7 +402,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                                     }
                                 }
                             } else
-                                share.marks!!.add(ShareItem(manga, repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!)))
+                                share.marks!!.add(ShareItem(mSync, manga, repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!)))
                         }
                 }
 
@@ -446,7 +446,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                 ShareMarkType.send = isUpdate
                 ShareMarkType.receive = list.isNotEmpty()
 
-                prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, simpleDate.format(sync)).apply()
+                prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, simpleDate.format(Date(mSync.time + 1000))).apply()
 
                 withContext(Dispatchers.Main) {
                     ending(shared)
@@ -459,7 +459,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
     override fun processBook(update: (book: Book) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
         CoroutineScope(Dispatchers.IO).launch {
             async {
-                val sync = Date()
+                mSync = Date()
                 val gson = GsonBuilder()
                     .setDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME)
                     .excludeFieldsWithoutExposeAnnotation()
@@ -489,7 +489,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                                     }
                                 }
                             } else
-                                share.marks!!.add(ShareItem(book, repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!), repositoryAnnotation.findByBook(book.id!!)))
+                                share.marks!!.add(ShareItem(mSync, book, repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!), repositoryAnnotation.findByBook(book.id!!)))
                         }
                 }
 
@@ -558,7 +558,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                     ending(shared)
                 }
 
-                prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, simpleDate.format(sync)).apply()
+                prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, simpleDate.format(Date(mSync.time + 1000))).apply()
             }
         }
     }

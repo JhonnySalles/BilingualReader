@@ -117,8 +117,8 @@ data class ShareItem(
             this.annotation?.set(annotation.key, ShareAnnotation(annotation.value as Map<String, *>))
     }
 
-    constructor(manga: Manga, list: List<History>) : this(
-        manga.name, manga.bookMark, manga.pages, manga.completed, manga.favorite, GeneralConsts.dateTimeToDate(manga.lastAccess!!), Date()
+    constructor(sync: Date, manga: Manga, list: List<History>) : this(
+        manga.name, manga.bookMark, manga.pages, manga.completed, manga.favorite, GeneralConsts.dateTimeToDate(manga.lastAccess!!), sync
     ) {
         alter = true
         processed = true
@@ -129,8 +129,8 @@ data class ShareItem(
             this.history?.set(history.start.format(DateTimeFormatter.ofPattern(PARSE_DATE_TIME)), ShareHistory(history))
     }
 
-    constructor(book: Book, histories: List<History>, annotations: List<BookAnnotation>) : this(
-        book.name, book.bookMark, book.pages, book.completed, book.favorite, GeneralConsts.dateTimeToDate(book.lastAccess!!), Date()
+    constructor(sync: Date, book: Book, histories: List<History>, annotations: List<BookAnnotation>) : this(
+        book.name, book.bookMark, book.pages, book.completed, book.favorite, GeneralConsts.dateTimeToDate(book.lastAccess!!), sync
     ) {
         alter = true
         processed = true
@@ -156,24 +156,24 @@ data class ShareItem(
             this.annotation?.set(annotation.created.format(DateTimeFormatter.ofPattern(PARSE_DATE_TIME)), ShareAnnotation(annotation))
     }
 
-    fun merge(manga: Manga) {
+    fun merge(sync: Date, manga: Manga) {
         this.bookMark = manga.bookMark
         this.completed = manga.completed
         this.lastAccess = GeneralConsts.dateTimeToDate(manga.lastAccess!!)
         this.favorite = manga.favorite
         this.alter = true
         this.processed = true
-        this.sync = Date()
+        this.sync = sync
     }
 
-    fun merge(book: Book) {
+    fun merge(sync: Date, book: Book) {
         this.bookMark = book.bookMark
         this.completed = book.completed
         this.lastAccess = GeneralConsts.dateTimeToDate(book.lastAccess!!)
         this.favorite = book.favorite
         this.alter = true
         this.processed = true
-        this.sync = Date()
+        this.sync = sync
     }
 
     override fun equals(other: Any?): Boolean {
