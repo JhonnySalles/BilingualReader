@@ -98,6 +98,9 @@ class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryManga
             Order.Name -> manga.title.substring(0, 1).uppercase()
             Order.Date -> GeneralConsts.formatCountDays(context, manga.dateCreate)
             Order.LastAccess  -> GeneralConsts.formatCountDays(context, manga.lastAccess)
+            Order.Author  -> if (manga.author.isEmpty()) "" else manga.author.lowercase()
+            Order.Genre  -> if (manga.genre.isEmpty()) "" else manga.genre.lowercase()
+            Order.Series  -> if (manga.series.isEmpty()) "" else manga.series.lowercase()
             Order.Favorite -> if (manga.favorite) mFavorite else mNotFavorite
             else -> ""
         }

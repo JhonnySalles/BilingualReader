@@ -35,6 +35,7 @@ class Book(
     release: LocalDate?,
     genre: String,
     publisher: String,
+    series: String,
     isbn: String,
     pages: Int,
     volume: String,
@@ -61,12 +62,12 @@ class Book(
 ) : Serializable, History {
 
     constructor(
-        id: Long?, title: String, author: String, password: String, annotation: String, release: LocalDate, genre: String, publisher: String, isbn: String,
+        id: Long?, title: String, author: String, password: String, annotation: String, release: LocalDate, genre: String, publisher: String, series: String, isbn: String,
         pages: Int, volume: String, chapter: Int, chapterDescription: String, bookMark: Int, completed: Boolean, language: Languages, path: String, name: String, fileType: FileType,
         folder: String, fileSize: Long, favorite: Boolean, dateCreate: LocalDateTime?, fkLibrary: Long?, tags: MutableList<Long>, excluded: Boolean, lastAlteration: LocalDateTime?,
         fileAlteration: Date, lastVocabImport: LocalDateTime?, lastVerify: LocalDate?, lastAccess: LocalDateTime?, sort: LocalDateTime?
     ) : this(
-        id, title, author, password, annotation, release, genre, publisher, isbn, pages, volume, chapter, chapterDescription, bookMark, completed, language, path, folder,
+        id, title, author, password, annotation, release, genre, publisher, series, isbn, pages, volume, chapter, chapterDescription, bookMark, completed, language, path, folder,
         name, fileType, fileSize, favorite, fkLibrary, tags, excluded, dateCreate, lastAccess, lastAlteration, fileAlteration, lastVocabImport, lastVerify
     ) {
         this.sort = sort
@@ -75,10 +76,10 @@ class Book(
 
     @Ignore
     constructor(
-        fkLibrary: Long?, title: String, author: String, annotation: String, release: LocalDate, genre: String, publisher: String, isbn: String, path: String,
+        fkLibrary: Long?, title: String, author: String, annotation: String, release: LocalDate, genre: String, publisher: String, series : String, isbn: String, path: String,
         folder: String, name: String, fileSize: Long, pages: Int
     ) : this(
-        null, title, author, "", annotation, release, genre, publisher, isbn, pages, "", 0, "", 0, false,
+        null, title, author, "", annotation, release, genre, publisher, series, isbn, pages, "", 0, "", 0, false,
         Languages.ENGLISH, path, folder, name, FileType.UNKNOWN, fileSize, false, fkLibrary, mutableListOf(), false,
         LocalDateTime.now(), null, LocalDateTime.now(), Date(), null, null
     ) {
@@ -88,7 +89,7 @@ class Book(
 
     @Ignore
     constructor(fkLibrary: Long?, id: Long?, file: File) : this(
-        id, "",  "", "",  "", null,  "", "", "", 1, "", 0,
+        id, "",  "", "",  "", null,  "", "", "","", 1, "", 0,
         "", 0, false, Languages.ENGLISH, file.path, file.parent, file.name, FileType.UNKNOWN, file.length(), false,
         fkLibrary, mutableListOf(), false, LocalDateTime.now(), null, LocalDateTime.now(), Date(), null, null
     ) {
@@ -120,6 +121,9 @@ class Book(
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.PUBLISHER)
     var publisher: String = publisher
+
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.SERIES)
+    var series: String = series
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.ISBN)
     var isbn: String = isbn
@@ -277,6 +281,7 @@ class Book(
             this.chapterDescription = book.chapterDescription
             this.extension = book.extension
             this.publisher = book.publisher
+            this.series = book.series
             this.isbn = book.isbn
         }
 
@@ -286,15 +291,25 @@ class Book(
     fun update(meta: EbookMeta, language: Libraries) : Boolean {
         val metaRelease = if (meta.release != null) GeneralConsts.dateToDateTime(meta.release).toLocalDate() else null
 
+        val series = meta.sequence ?: let {
+            if (title.contains(" vol.",true))
+                title.substring(0, title.lastIndexOf(" vol.", 0, true)).trim()
+            else if (title.contains("volume", true))
+                title.substring(0, title.lastIndexOf("volume", 0, true)).trim()
+            else
+                ""
+        }
+
         val updated = this.title != meta.title || this.author != (meta.author ?: "") || this.annotation != (meta.annotation ?: "") ||
-                this.genre != (meta.genre ?: "") || this.publisher != (meta.publisher ?: "") || this.isbn != (meta.isbn ?: "") ||
-                this.release != metaRelease
+                this.genre != (meta.genre ?: "") || this.publisher != (meta.publisher ?: "") || this.series != series ||
+                this.isbn != (meta.isbn ?: "") || this.release != metaRelease
 
         this.title = meta.title
         this.author = meta.author ?: ""
         this.annotation = meta.annotation ?: ""
         this.genre = meta.genre ?: ""
         this.publisher = meta.publisher ?: ""
+        this.series = series
         this.isbn = meta.isbn ?: ""
         this.release = metaRelease
         this.fileSize = file.length()

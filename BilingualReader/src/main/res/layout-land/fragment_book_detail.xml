@@ -433,7 +433,7 @@
                             style="@style/TextNormal"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
+                            android:layout_weight="0.5"
                             android:textSize="@dimen/book_detail_information_texts_size" />
 
                         <TextView
@@ -449,7 +449,7 @@
                             style="@style/TextNormal"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
+                            android:layout_weight="1.5"
                             android:textSize="@dimen/book_detail_information_texts_size" />
 
                     </LinearLayout>

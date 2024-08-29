@@ -336,6 +336,10 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                     mListBookFull.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenByDescending { it.name })
                     mListBook.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenByDescending { it.name })
                 }
+                Order.Author -> {
+                    mListBookFull.value!!.sortWith(compareByDescending<Book> { it.author }.thenByDescending { it.name })
+                    mListBook.value!!.sortWith(compareByDescending<Book> { it.author }.thenByDescending { it.name })
+                }
                 else -> {
                     mListBookFull.value!!.sortByDescending { it.name }
                     mListBook.value!!.sortByDescending { it.name }
@@ -354,6 +358,10 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                 Order.Favorite -> {
                     mListBookFull.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenBy { it.name })
                     mListBook.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenBy { it.name })
+                }
+                Order.Author -> {
+                    mListBookFull.value!!.sortWith(compareByDescending<Book> { it.author }.thenBy { it.name })
+                    mListBook.value!!.sortWith(compareByDescending<Book> { it.author }.thenBy { it.name })
                 }
                 else -> {
                     mListBookFull.value!!.sortBy { it.name }

@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b9652b8d131d9fc465e49e7846d2fbd5",
+    "identityHash": "627990671f49987a0f097ea6a2951b5d",
     "entities": [
       {
         "tableName": "Manga",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `pages` INTEGER NOT NULL, `chapters` TEXT NOT NULL, `book_mark` INTEGER NOT NULL, `completed` INTEGER NOT NULL, `path` TEXT NOT NULL, `size` INTEGER NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `folder` TEXT NOT NULL, `favorite` INTEGER NOT NULL, `has_subtitle` INTEGER NOT NULL, `author` TEXT NOT NULL, `series` TEXT NOT NULL, `publisher` TEXT NOT NULL, `volume` TEXT NOT NULL, `release` TEXT, `excluded` INTEGER NOT NULL, `id_library` INTEGER, `date_create` TEXT, `last_access` TEXT, `last_alteration` TEXT, `file_alteration` INTEGER NOT NULL, `last_vocabulary_import` TEXT, `last_verify` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `pages` INTEGER NOT NULL, `chapters` TEXT NOT NULL, `book_mark` INTEGER NOT NULL, `completed` INTEGER NOT NULL, `path` TEXT NOT NULL, `size` INTEGER NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `folder` TEXT NOT NULL, `favorite` INTEGER NOT NULL, `has_subtitle` INTEGER NOT NULL, `author` TEXT NOT NULL, `series` TEXT NOT NULL, `genre` TEXT NOT NULL, `publisher` TEXT NOT NULL, `volume` TEXT NOT NULL, `release` TEXT, `excluded` INTEGER NOT NULL, `id_library` INTEGER, `date_create` TEXT, `last_access` TEXT, `last_alteration` TEXT, `file_alteration` INTEGER NOT NULL, `last_vocabulary_import` TEXT, `last_verify` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -95,6 +95,12 @@
           {
             "fieldPath": "series",
             "columnName": "series",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "genre",
+            "columnName": "genre",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -1018,7 +1024,7 @@
       },
       {
         "tableName": "Book",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `author` TEXT NOT NULL, `password` TEXT NOT NULL, `annotation` TEXT NOT NULL, `release` TEXT, `genre` TEXT NOT NULL, `publisher` TEXT NOT NULL, `isbn` TEXT NOT NULL, `pages` INTEGER NOT NULL, `volume` TEXT NOT NULL, `chapter` INTEGER NOT NULL, `chapter_description` TEXT NOT NULL, `book_mark` INTEGER NOT NULL, `completed` INTEGER NOT NULL, `language` TEXT NOT NULL, `path` TEXT NOT NULL, `size` INTEGER NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `folder` TEXT NOT NULL, `favorite` INTEGER NOT NULL, `excluded` INTEGER NOT NULL, `id_library` INTEGER, `tags` TEXT NOT NULL, `date_create` TEXT, `last_access` TEXT, `last_alteration` TEXT, `file_alteration` INTEGER NOT NULL, `last_vocabulary_import` TEXT, `last_verify` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `author` TEXT NOT NULL, `password` TEXT NOT NULL, `annotation` TEXT NOT NULL, `release` TEXT, `genre` TEXT NOT NULL, `publisher` TEXT NOT NULL, `series` TEXT NOT NULL, `isbn` TEXT NOT NULL, `pages` INTEGER NOT NULL, `volume` TEXT NOT NULL, `chapter` INTEGER NOT NULL, `chapter_description` TEXT NOT NULL, `book_mark` INTEGER NOT NULL, `completed` INTEGER NOT NULL, `language` TEXT NOT NULL, `path` TEXT NOT NULL, `size` INTEGER NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `folder` TEXT NOT NULL, `favorite` INTEGER NOT NULL, `excluded` INTEGER NOT NULL, `id_library` INTEGER, `tags` TEXT NOT NULL, `date_create` TEXT, `last_access` TEXT, `last_alteration` TEXT, `file_alteration` INTEGER NOT NULL, `last_vocabulary_import` TEXT, `last_verify` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -1065,6 +1071,12 @@
           {
             "fieldPath": "publisher",
             "columnName": "publisher",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "series",
+            "columnName": "series",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -1557,7 +1569,7 @@
             "notNull": true
           },
           {
-            "fieldPath": "completed2",
+            "fieldPath": "completed",
             "columnName": "completed",
             "affinity": "INTEGER",
             "notNull": true
@@ -1635,7 +1647,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b9652b8d131d9fc465e49e7846d2fbd5')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '627990671f49987a0f097ea6a2951b5d')"
     ]
   }
 }

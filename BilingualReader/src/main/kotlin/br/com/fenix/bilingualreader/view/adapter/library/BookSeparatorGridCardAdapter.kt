@@ -98,8 +98,9 @@ class BookSeparatorGridCardAdapter(var context: Context, var type: LibraryBookTy
             Order.Name -> book.title.substring(0, 1).uppercase()
             Order.Date -> GeneralConsts.formatCountDays(context, book.dateCreate)
             Order.LastAccess  -> GeneralConsts.formatCountDays(context, book.lastAccess)
-            Order.Author  -> if (book.author.isEmpty()) "" else book.author.substring(0, 1).uppercase()
-            Order.Genre  -> if (book.genre.isEmpty()) "" else book.genre.substring(0, 1).uppercase()
+            Order.Author  -> if (book.author.isEmpty()) "" else book.author.lowercase()
+            Order.Genre  -> if (book.genre.isEmpty()) "" else book.genre.lowercase()
+            Order.Series  -> if (book.series.isEmpty()) "" else book.series.lowercase()
             Order.Favorite -> if (book.favorite) mFavorite else mNotFavorite
             else -> ""
         }

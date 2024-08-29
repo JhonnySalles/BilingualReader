@@ -28,7 +28,7 @@
                 android:layout_height="@dimen/popup_text_select_colors_size"
                 android:contentDescription="@string/annotation_colors_yellow"
                 app:iconSize="@dimen/popup_text_select_colors_icon_size"
-                app:icon="@drawable/ic_text_view_select_all"/>
+                app:icon="@drawable/ico_animated_text_view_select_all"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_text_select_functions_copy"
@@ -38,7 +38,7 @@
                 android:contentDescription="@string/annotation_colors_yellow"
                 android:layout_marginStart="@dimen/popup_text_select_colors_margin"
                 app:iconSize="@dimen/popup_text_select_colors_icon_size"
-                app:icon="@drawable/ic_text_view_copy"/>
+                app:icon="@drawable/ico_animated_text_view_copy"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_text_select_functions_search"
@@ -48,7 +48,7 @@
                 android:contentDescription="@string/annotation_colors_blue"
                 android:layout_marginStart="@dimen/popup_text_select_colors_margin"
                 app:iconSize="@dimen/popup_text_select_colors_icon_size"
-                app:icon="@drawable/ic_text_view_find"/>
+                app:icon="@drawable/ico_animated_text_view_find"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_text_select_functions_translate"
@@ -68,7 +68,7 @@
                 android:contentDescription="@string/annotation_colors_red"
                 android:layout_marginStart="@dimen/popup_text_select_colors_margin"
                 app:iconSize="@dimen/popup_text_select_colors_icon_size"
-                app:icon="@drawable/ic_text_view_tts"/>
+                app:icon="@drawable/ico_animated_text_view_tts"/>
         </LinearLayout>
 
         <com.google.android.material.divider.MaterialDivider
@@ -137,7 +137,7 @@
                 android:contentDescription="@string/annotation_colors_red"
                 android:layout_marginStart="@dimen/popup_text_select_colors_margin"
                 app:iconSize="@dimen/popup_text_select_colors_icon_size"
-                app:icon="@drawable/ic_text_view_select_erase"/>
+                app:icon="@drawable/ico_animated_text_select_erase"/>
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

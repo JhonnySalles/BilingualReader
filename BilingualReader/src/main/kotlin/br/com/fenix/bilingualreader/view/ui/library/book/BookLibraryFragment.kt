@@ -275,6 +275,8 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             Order.LastAccess -> R.drawable.ico_animated_sort_to_desc_last_access
             Order.Favorite -> R.drawable.ico_animated_sort_to_desc_favorited
             Order.Date -> R.drawable.ico_animated_sort_to_desc_date_created
+            Order.Author -> R.drawable.ico_animated_sort_to_desc_author
+            Order.Genre -> R.drawable.ico_animated_sort_to_desc_tag
             else -> R.drawable.ico_animated_sort_to_desc_name
         }
         miGridOrder.setIcon(iconSort)
@@ -419,6 +421,8 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             Order.Date -> Order.Favorite
             Order.Favorite -> Order.LastAccess
             Order.LastAccess -> Order.Genre
+            Order.Genre -> Order.Author
+            Order.Author -> Order.Series
             else -> Order.Name
         }
 

@@ -39,6 +39,7 @@ class Manga(
     hasSubtitle: Boolean,
     author: String,
     series: String,
+    genre: String,
     publisher: String,
     volume: String,
     release: LocalDate?,
@@ -55,12 +56,12 @@ class Manga(
     constructor( id: Long?, title: String,
         path: String, folder: String, name: String, size: Long, fileType: FileType,
         pages: Int, chapters: IntArray, bookMark: Int, completed: Boolean, favorite: Boolean, hasSubtitle: Boolean,
-        author: String , series: String, publisher: String, volume: String, idLibrary: Long?,
+        author: String , series: String, genre: String, publisher: String, volume: String, idLibrary: Long?,
         excluded: Boolean, dateCreate: LocalDateTime?, fileAlteration: Date, lastVocabularyImport: LocalDateTime?,
         lastVerify: LocalDate?, release: LocalDate?, lastAlteration: LocalDateTime?,
         lastAccess: LocalDateTime?, sort: LocalDateTime? = null
     ) : this( id, title, path, folder, name, size, fileType, pages, chapters, bookMark, completed, favorite,
-        hasSubtitle, author, series, publisher, volume, release, idLibrary, excluded,
+        hasSubtitle, author, series, genre, publisher, volume, release, idLibrary, excluded,
         dateCreate, lastAccess, lastAlteration, fileAlteration, lastVocabularyImport, lastVerify
     ) {
         this.sort = sort
@@ -69,7 +70,7 @@ class Manga(
     @Ignore
     constructor(fkLibrary: Long?, id: Long?, file: File) : this(
         id, file.nameWithoutExtension, file.path, file.parent, file.name, file.length(), FileType.UNKNOWN,
-        1, intArrayOf(), 0, false, false, false, "", "", "",
+        1, intArrayOf(), 0, false, false, false, "", "", "", "",
         "", null, fkLibrary, false, LocalDateTime.now(), null, null, Date(file.lastModified()),
         null, null
     ) {
@@ -142,6 +143,9 @@ class Manga(
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.SERIES)
     var series: String = series
+
+    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.GENRE)
+    var genre: String = genre
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.PUBLISHER)
     var publisher: String = publisher
@@ -233,6 +237,7 @@ class Manga(
         this.lastVocabImport = manga.lastVocabImport
         this.author = manga.author
         this.series = manga.series
+        this.genre = manga.genre
         this.publisher = manga.publisher
         this.volume = manga.volume
         this.release = manga.release
@@ -278,13 +283,21 @@ class Manga(
         val release = if (comic.year != null) LocalDate.of(comic.year!!, comic.month ?: 1, comic.day ?: 1) else null
 
         val updated = this.author != author || this.series != comic.series .toString()|| this.publisher != comic.publisher.toString() ||
-                this.volume != comic.volume.toString() || this.release != release
+                this.genre != comic.genre.toString() || this.volume != comic.volume.toString() || this.release != release
 
-        this.series = comic.series.toString()
         this.publisher = comic.publisher.toString()
         this.volume = comic.volume.toString()
         this.author = author
         this.release = release
+        this.genre = comic.genre.toString()
+        this.series = comic.series ?: let {
+            if (title.contains(" vol.",true))
+                title.substring(0, title.lastIndexOf(" vol.", 0, true)).trim()
+            else if (title.contains("volume", true))
+                title.substring(0, title.lastIndexOf("volume", 0, true)).trim()
+            else
+                ""
+        }
 
         return updated
     }

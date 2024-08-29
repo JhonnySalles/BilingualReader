@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.view.ui.popup
 
 import android.content.Intent
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.Drawable
 import android.view.ActionMode
 import android.view.ActionProvider
@@ -21,13 +22,13 @@ class PopupTextSelect(popup: PopupWindow, callback: ActionMode.Callback) {
     init {
         if (!ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT) {
             val content = popup.contentView
-            generateClick(content.findViewById(R.id.popup_text_select_functions_select_all), callback)
-            generateClick(content.findViewById(R.id.popup_text_select_functions_copy), callback)
-            generateClick(content.findViewById(R.id.popup_text_select_functions_search), callback)
+            generateClick(content.findViewById(R.id.popup_text_select_functions_select_all), callback, true)
+            generateClick(content.findViewById(R.id.popup_text_select_functions_copy), callback, true)
+            generateClick(content.findViewById(R.id.popup_text_select_functions_search), callback, true)
             generateClick(content.findViewById(R.id.popup_text_select_functions_translate), callback)
-            generateClick(content.findViewById(R.id.popup_text_select_functions_tts), callback)
+            generateClick(content.findViewById(R.id.popup_text_select_functions_tts), callback, true)
 
-            generateClick(content.findViewById(R.id.popup_text_select_erase), callback)
+            generateClick(content.findViewById(R.id.popup_text_select_erase), callback, true)
             generateClick(content.findViewById(R.id.popup_text_select_red), callback)
             generateClick(content.findViewById(R.id.popup_text_select_blue), callback)
             generateClick(content.findViewById(R.id.popup_text_select_green), callback)
@@ -39,8 +40,11 @@ class PopupTextSelect(popup: PopupWindow, callback: ActionMode.Callback) {
         mActionMode = action
     }
 
-    private fun generateClick(button: MaterialButton, callback: ActionMode.Callback) {
+    private fun generateClick(button: MaterialButton, callback: ActionMode.Callback, isIconAnimated: Boolean = false) {
         button.setOnClickListener {
+            if (isIconAnimated)
+                (button.icon as AnimatedVectorDrawable).start()
+
             callback.onActionItemClicked(mActionMode, PopupTextSelectMenuItem(button.id))
         }
     }

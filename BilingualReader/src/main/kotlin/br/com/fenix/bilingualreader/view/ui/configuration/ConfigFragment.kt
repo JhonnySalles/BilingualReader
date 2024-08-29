@@ -273,7 +273,10 @@ class ConfigFragment : Fragment() {
             getString(R.string.config_option_manga_order_name) to Order.Name,
             getString(R.string.config_option_manga_order_date) to Order.Date,
             getString(R.string.config_option_manga_order_access) to Order.LastAccess,
-            getString(R.string.config_option_manga_order_favorite) to Order.Favorite
+            getString(R.string.config_option_manga_order_favorite) to Order.Favorite,
+            getString(R.string.config_option_manga_order_author) to Order.Author,
+            getString(R.string.config_option_manga_order_genre) to Order.Genre,
+            getString(R.string.config_option_manga_order_series) to Order.Series
         )
 
         mBookMapOrder = hashMapOf(
@@ -282,7 +285,8 @@ class ConfigFragment : Fragment() {
             getString(R.string.config_option_book_order_access) to Order.LastAccess,
             getString(R.string.config_option_book_order_favorite) to Order.Favorite,
             getString(R.string.config_option_book_order_author) to Order.Author,
-            getString(R.string.config_option_book_order_genre) to Order.Genre
+            getString(R.string.config_option_book_order_genre) to Order.Genre,
+            getString(R.string.config_option_book_order_series) to Order.Series
         )
 
         mMangaMapPageMode = hashMapOf(

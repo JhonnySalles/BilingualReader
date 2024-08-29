@@ -125,6 +125,9 @@
     <string name="config_option_manga_order_date">For date</string>
     <string name="config_option_manga_order_access">Last access</string>
     <string name="config_option_manga_order_favorite">Favorite first</string>
+    <string name="config_option_manga_order_author">Author</string>
+    <string name="config_option_manga_order_genre">Genre</string>
+    <string name="config_option_manga_order_series">Series</string>
 
     <string name="config_option_book_order_name">For name</string>
     <string name="config_option_book_order_date">For date</string>
@@ -132,6 +135,7 @@
     <string name="config_option_book_order_favorite">Favorite first</string>
     <string name="config_option_book_order_author">Author</string>
     <string name="config_option_book_order_genre">Genre</string>
+    <string name="config_option_book_order_series">Series</string>
 
     <string name="config_option_vocabulary_order_description">For description</string>
     <string name="config_option_vocabulary_order_frequency">For frequency</string>
@@ -650,6 +654,7 @@
     <string name="popup_library_book_order_favorite">Favorite first</string>
     <string name="popup_library_book_order_genre">For genre</string>
     <string name="popup_library_book_order_author">For author</string>
+    <string name="popup_library_book_order_series">For series</string>
 
     <string name="popup_library_book_filter_favorite">Favorite</string>
     <string name="popup_library_book_filter_reading">Reading</string>

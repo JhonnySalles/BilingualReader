@@ -261,6 +261,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             Order.LastAccess -> R.drawable.ico_animated_sort_to_desc_last_access
             Order.Favorite -> R.drawable.ico_animated_sort_to_desc_favorited
             Order.Date -> R.drawable.ico_animated_sort_to_desc_date_created
+            Order.Author -> R.drawable.ico_animated_sort_to_desc_author
+            Order.Genre -> R.drawable.ico_animated_sort_to_desc_tag
             else -> R.drawable.ico_animated_sort_to_desc_name
         }
         miGridOrder.setIcon(iconSort)
@@ -268,7 +270,6 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         MenuUtil.longClick(requireActivity(), R.id.menu_manga_library_list_order) {
             if (!mRefreshLayout.isRefreshing)
                 onOpenMenuLibrary(1)
-
         }
 
         MenuUtil.longClick(requireActivity(), R.id.menu_manga_library_type) {
@@ -406,6 +407,9 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             Order.Name -> Order.Date
             Order.Date -> Order.Favorite
             Order.Favorite -> Order.LastAccess
+            Order.LastAccess -> Order.Genre
+            Order.Genre -> Order.Author
+            Order.Author -> Order.Series
             else -> Order.Name
         }
 
@@ -438,6 +442,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                 Order.Favorite -> if (isDesc) R.drawable.ico_animated_sort_to_desc_favorited else R.drawable.ico_animated_sort_to_asc_favorited
                 Order.LastAccess -> if (isDesc) R.drawable.ico_animated_sort_to_desc_last_access else R.drawable.ico_animated_sort_to_asc_last_access
                 Order.Date -> if (isDesc) R.drawable.ico_animated_sort_to_desc_date_created else R.drawable.ico_animated_sort_to_asc_date_created
+                Order.Author -> if (isDesc) R.drawable.ico_animated_sort_to_desc_author else R.drawable.ico_animated_sort_to_asc_author
+                Order.Genre -> if (isDesc) R.drawable.ico_animated_sort_to_desc_tag else R.drawable.ico_animated_sort_to_asc_tag
                 else -> null
             }
             mSortDesc = isDesc
@@ -450,6 +456,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                     Order.Favorite -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_favorited
                     Order.LastAccess -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_last_access
                     Order.Date -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_date_created
+                    Order.Author -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_author
+                    Order.Genre -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_tag
                     else -> null
                 } else
                 when (mSortType) {
@@ -457,6 +465,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                     Order.Favorite -> R.drawable.ico_animated_sort_asc_ico_exit_favorited
                     Order.LastAccess -> R.drawable.ico_animated_sort_asc_ico_exit_last_access
                     Order.Date -> R.drawable.ico_animated_sort_asc_ico_exit_date_created
+                    Order.Author -> R.drawable.ico_animated_sort_asc_ico_exit_author
+                    Order.Genre -> R.drawable.ico_animated_sort_asc_ico_exit_tag
                     else -> null
                 }
 
@@ -465,6 +475,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                 Order.Favorite -> R.drawable.ico_animated_sort_asc_ico_enter_favorited
                 Order.LastAccess -> R.drawable.ico_animated_sort_asc_ico_enter_last_access
                 Order.Date -> R.drawable.ico_animated_sort_asc_ico_enter_date_created
+                Order.Author -> R.drawable.ico_animated_sort_asc_ico_enter_author
+                Order.Genre -> R.drawable.ico_animated_sort_asc_ico_enter_tag
                 else -> null
             }
 

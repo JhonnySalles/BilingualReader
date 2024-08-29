@@ -59,6 +59,14 @@
             android:layout_height="wrap_content"
             android:button="@null"
             android:text="@string/popup_library_book_order_author"/>
+
+        <br.com.fenix.bilingualreader.view.components.TriStateCheckBox
+            android:id="@+id/popup_library_order_book_series"
+            style="@style/OrderCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:text="@string/popup_library_book_order_series"/>
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>
