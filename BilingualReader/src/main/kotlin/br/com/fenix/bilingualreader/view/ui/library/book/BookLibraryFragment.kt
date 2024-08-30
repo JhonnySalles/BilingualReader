@@ -428,7 +428,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
         Toast.makeText(
             requireContext(),
-            getString(R.string.menu_reading_book_order_change, mMapOrder[orderBy]),
+            getString(R.string.menu_reading_book_order_change, getString(orderBy.getDescription())),
             Toast.LENGTH_SHORT
         ).show()
 
@@ -551,15 +551,6 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         val root = inflater.inflate(R.layout.fragment_book_library, container, false)
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
 
-        mMapOrder = hashMapOf(
-            Order.Name to getString(R.string.config_option_book_order_name),
-            Order.Date to getString(R.string.config_option_book_order_date),
-            Order.LastAccess to getString(R.string.config_option_book_order_access),
-            Order.Favorite to getString(R.string.config_option_book_order_favorite),
-            Order.Author to getString(R.string.config_option_book_order_author),
-            Order.Genre to getString(R.string.config_option_book_order_genre)
-        )
-
         mRoot = root.findViewById(R.id.frame_book_library_root)
         mRecyclerView = root.findViewById(R.id.book_library_recycler_view)
         mRefreshLayout = root.findViewById(R.id.book_library_refresh)
@@ -609,7 +600,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         mPopupOrderFragment.setListener(this)
 
         BottomSheetBehavior.from(mMenuPopupLibrary).apply {
-            peekHeight = 195
+            peekHeight = 255
             this.state = BottomSheetBehavior.STATE_COLLAPSED
             mBottomSheet = this
         }

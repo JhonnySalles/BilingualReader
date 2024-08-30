@@ -116,7 +116,6 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     private lateinit var mPopupTypeFragment: LibraryMangaPopupType
     private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
 
-    private lateinit var mMapOrder: HashMap<Order, String>
     private val mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mDismissDownButton = Runnable { mScrollDown.hide() }
@@ -415,7 +414,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
         Toast.makeText(
             requireContext(),
-            getString(R.string.menu_manga_reading_order_change) + " ${mMapOrder[orderBy]}",
+            getString(R.string.menu_manga_reading_order_change, getString(orderBy.getDescription())),
             Toast.LENGTH_SHORT
         ).show()
 
@@ -542,13 +541,6 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     ): View? {
         val root = inflater.inflate(R.layout.fragment_manga_library, container, false)
 
-        mMapOrder = hashMapOf(
-            Order.Name to getString(R.string.config_option_manga_order_name),
-            Order.Date to getString(R.string.config_option_manga_order_date),
-            Order.LastAccess to getString(R.string.config_option_manga_order_access),
-            Order.Favorite to getString(R.string.config_option_manga_order_favorite)
-        )
-
         mRoot = root.findViewById(R.id.frame_manga_library_root)
         mRecyclerView = root.findViewById(R.id.manga_library_recycler_view)
         mRefreshLayout = root.findViewById(R.id.manga_library_refresh)
@@ -596,7 +588,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         mPopupOrderFragment.setListener(this)
 
         BottomSheetBehavior.from(mMenuPopupLibrary).apply {
-            peekHeight = 195
+            peekHeight = 255
             this.state = BottomSheetBehavior.STATE_COLLAPSED
             mBottomSheet = this
         }

@@ -270,23 +270,23 @@ class ConfigFragment : Fragment() {
         mMangaMapLanguage = Util.getLanguages(requireContext())
 
         mMangaMapOrder = hashMapOf(
-            getString(R.string.config_option_manga_order_name) to Order.Name,
-            getString(R.string.config_option_manga_order_date) to Order.Date,
-            getString(R.string.config_option_manga_order_access) to Order.LastAccess,
-            getString(R.string.config_option_manga_order_favorite) to Order.Favorite,
-            getString(R.string.config_option_manga_order_author) to Order.Author,
-            getString(R.string.config_option_manga_order_genre) to Order.Genre,
-            getString(R.string.config_option_manga_order_series) to Order.Series
+            getString(R.string.option_order_name) to Order.Name,
+            getString(R.string.option_order_date) to Order.Date,
+            getString(R.string.option_order_access) to Order.LastAccess,
+            getString(R.string.option_order_favorite) to Order.Favorite,
+            getString(R.string.option_order_author) to Order.Author,
+            getString(R.string.option_order_genre) to Order.Genre,
+            getString(R.string.option_order_series) to Order.Series
         )
 
         mBookMapOrder = hashMapOf(
-            getString(R.string.config_option_book_order_name) to Order.Name,
-            getString(R.string.config_option_book_order_date) to Order.Date,
-            getString(R.string.config_option_book_order_access) to Order.LastAccess,
-            getString(R.string.config_option_book_order_favorite) to Order.Favorite,
-            getString(R.string.config_option_book_order_author) to Order.Author,
-            getString(R.string.config_option_book_order_genre) to Order.Genre,
-            getString(R.string.config_option_book_order_series) to Order.Series
+            getString(R.string.option_order_name) to Order.Name,
+            getString(R.string.option_order_date) to Order.Date,
+            getString(R.string.option_order_access) to Order.LastAccess,
+            getString(R.string.option_order_favorite) to Order.Favorite,
+            getString(R.string.option_order_author) to Order.Author,
+            getString(R.string.option_order_genre) to Order.Genre,
+            getString(R.string.option_order_series) to Order.Series
         )
 
         mMangaMapPageMode = hashMapOf(
@@ -628,9 +628,12 @@ class ConfigFragment : Fragment() {
         mViewModel.loadLibrary(null)
     }
 
-    override fun onDestroyView() {
+    override fun onStop() {
         saveConfig()
+        super.onStop()
+    }
 
+    override fun onDestroyView() {
         mViewModel.removeLibraryDefault(
             mMangaLibraryPath.editText?.text.toString(),
             mBookLibraryPath.editText?.text.toString()

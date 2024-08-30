@@ -21,9 +21,13 @@ class LibraryMangaPopupOrder : Fragment() {
     private lateinit var mOrderDate: TriStateCheckBox
     private lateinit var mOrderAccess: TriStateCheckBox
     private lateinit var mOrderFavorite: TriStateCheckBox
-    private lateinit var listener: PopupOrderListener
+    private lateinit var mOrderGenre: TriStateCheckBox
+    private lateinit var mOrderAuthor: TriStateCheckBox
+    private lateinit var mOrderSeries: TriStateCheckBox
 
-    private lateinit var mCheckList: ArrayList<TriStateCheckBox>
+    private lateinit var mCheckList : Map<TriStateCheckBox, Order>
+
+    private lateinit var listener: PopupOrderListener
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.popup_library_order_manga, container, false)
@@ -32,8 +36,12 @@ class LibraryMangaPopupOrder : Fragment() {
         mOrderDate = root.findViewById(R.id.popup_library_order_manga_date)
         mOrderAccess = root.findViewById(R.id.popup_library_order_manga_access)
         mOrderFavorite = root.findViewById(R.id.popup_library_order_manga_favorite)
+        mOrderGenre = root.findViewById(R.id.popup_library_order_manga_genre)
+        mOrderAuthor = root.findViewById(R.id.popup_library_order_manga_author)
+        mOrderSeries = root.findViewById(R.id.popup_library_order_manga_series)
 
-        mCheckList = arrayListOf(mOrderName, mOrderDate, mOrderAccess, mOrderFavorite)
+        mCheckList = mapOf(mOrderName to Order.Name, mOrderDate to Order.Date, mOrderAccess to Order.LastAccess, mOrderFavorite to Order.Favorite,
+            mOrderGenre to Order.Genre, mOrderAuthor to Order.Author, mOrderSeries to Order.Series)
 
         var order = Order.Name
         var isDesc = false
@@ -42,8 +50,8 @@ class LibraryMangaPopupOrder : Fragment() {
             isDesc = listener.popupGetOrder()?.second ?: false
         }
 
-        setChecked(mCheckList, order,isDesc)
-        addListener()
+        setChecked(mCheckList, order, isDesc)
+        addListener(mCheckList)
         observer()
         return root
     }
@@ -52,8 +60,8 @@ class LibraryMangaPopupOrder : Fragment() {
         this.listener = listener
     }
 
-    private fun setChecked(checkboxes: ArrayList<TriStateCheckBox>, order: Order, isDesc: Boolean) {
-        for (check in checkboxes)
+    private fun setChecked(checkboxes: Map<TriStateCheckBox, Order>, order: Order, isDesc: Boolean) {
+        for (check in checkboxes.keys)
             check.state = TriStateCheckBox.STATE_UNCHECKED
 
         when (order) {
@@ -64,6 +72,12 @@ class LibraryMangaPopupOrder : Fragment() {
             Order.LastAccess -> mOrderAccess.state =
                 if (isDesc) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
             Order.Favorite -> mOrderFavorite.state =
+                if (isDesc) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
+            Order.Genre -> mOrderGenre.state =
+                if (isDesc) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
+            Order.Author -> mOrderAuthor.state =
+                if (isDesc) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
+            Order.Series -> mOrderSeries.state =
                 if (isDesc) TriStateCheckBox.STATE_INDETERMINATE else TriStateCheckBox.STATE_CHECKED
             else -> {}
         }
@@ -78,82 +92,33 @@ class LibraryMangaPopupOrder : Fragment() {
         }
     }
 
-    private fun addListener() {
-        mOrderName.setOnCheckedChangeListener { _, _ ->
+    private fun setOnCheckedChangeListener(checkbox: TriStateCheckBox, order: Order) {
+        checkbox.setOnCheckedChangeListener { _, _ ->
             removeListener(mCheckList)
 
-            mOrderName.state = getNextState(mOrderName)
-            when (mOrderName.state) {
-                TriStateCheckBox.STATE_INDETERMINATE -> listener.popupSorted(Order.Name, true)
-                TriStateCheckBox.STATE_CHECKED -> listener.popupSorted(Order.Name)
+            checkbox.state = getNextState(checkbox)
+            when (checkbox.state) {
+                TriStateCheckBox.STATE_INDETERMINATE -> listener?.popupSorted(order, true)
+                TriStateCheckBox.STATE_CHECKED -> listener?.popupSorted(order)
                 TriStateCheckBox.STATE_UNCHECKED -> {
-                    mOrderName.state = TriStateCheckBox.STATE_CHECKED
-                    listener.popupSorted(Order.Name)
+                    checkbox.state = TriStateCheckBox.STATE_CHECKED
+                    listener?.popupSorted(order)
                 }
                 else -> {}
             }
 
-            listener.popupOrderOnChange()
-            addListener()
-        }
-
-        mOrderDate.setOnCheckedChangeListener { _, _ ->
-            removeListener(mCheckList)
-
-            mOrderDate.state = getNextState(mOrderDate)
-            when (mOrderDate.state) {
-                TriStateCheckBox.STATE_INDETERMINATE -> listener.popupSorted(Order.Date, true)
-                TriStateCheckBox.STATE_CHECKED -> listener.popupSorted(Order.Date)
-                TriStateCheckBox.STATE_UNCHECKED -> {
-                    mOrderName.state = TriStateCheckBox.STATE_CHECKED
-                    listener.popupSorted(Order.Name)
-                }
-                else -> {}
-            }
-
-            listener.popupOrderOnChange()
-            addListener()
-        }
-
-        mOrderAccess.setOnCheckedChangeListener { _, _ ->
-            removeListener(mCheckList)
-
-            mOrderAccess.state = getNextState(mOrderAccess)
-            when (mOrderAccess.state) {
-                TriStateCheckBox.STATE_INDETERMINATE -> listener.popupSorted(Order.LastAccess, true)
-                TriStateCheckBox.STATE_CHECKED -> listener.popupSorted(Order.LastAccess)
-                TriStateCheckBox.STATE_UNCHECKED -> {
-                    mOrderName.state = TriStateCheckBox.STATE_CHECKED
-                    listener.popupSorted(Order.Name)
-                }
-                else -> {}
-            }
-
-            listener.popupOrderOnChange()
-            addListener()
-        }
-
-        mOrderFavorite.setOnCheckedChangeListener { _, _ ->
-            removeListener(mCheckList)
-
-            mOrderFavorite.state = getNextState(mOrderFavorite)
-            when (mOrderFavorite.state) {
-                TriStateCheckBox.STATE_INDETERMINATE -> listener.popupSorted(Order.Favorite, true)
-                TriStateCheckBox.STATE_CHECKED -> listener.popupSorted(Order.Favorite)
-                TriStateCheckBox.STATE_UNCHECKED -> {
-                    mOrderName.state = TriStateCheckBox.STATE_CHECKED
-                    listener.popupSorted(Order.Name)
-                }
-                else -> {}
-            }
-
-            listener.popupOrderOnChange()
-            addListener()
+            listener?.popupOrderOnChange()
+            addListener(mCheckList)
         }
     }
 
-    private fun removeListener(checkboxes: ArrayList<TriStateCheckBox>) {
-        for (check in checkboxes)
+    private fun addListener(checkboxes: Map<TriStateCheckBox, Order>) {
+        for (check in checkboxes.keys)
+            setOnCheckedChangeListener(check, checkboxes[check]!!)
+    }
+
+    private fun removeListener(checkboxes: Map<TriStateCheckBox, Order>) {
+        for (check in checkboxes.keys)
             check.setOnCheckedChangeListener(null)
     }
 
@@ -161,7 +126,7 @@ class LibraryMangaPopupOrder : Fragment() {
         listener.popupGetObserver().observe(viewLifecycleOwner) {
             removeListener(mCheckList)
             setChecked(mCheckList, it.first, it.second)
-            addListener()
+            addListener(mCheckList)
             save(it.first)
         }
     }

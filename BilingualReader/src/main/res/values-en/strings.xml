@@ -121,22 +121,6 @@
     <string name="config_manga_default_subtitle_language">Default language</string>
     <string name="config_manga_default_subtitle_translate">Default translate</string>
 
-    <string name="config_option_manga_order_name">For name</string>
-    <string name="config_option_manga_order_date">For date</string>
-    <string name="config_option_manga_order_access">Last access</string>
-    <string name="config_option_manga_order_favorite">Favorite first</string>
-    <string name="config_option_manga_order_author">Author</string>
-    <string name="config_option_manga_order_genre">Genre</string>
-    <string name="config_option_manga_order_series">Series</string>
-
-    <string name="config_option_book_order_name">For name</string>
-    <string name="config_option_book_order_date">For date</string>
-    <string name="config_option_book_order_access">Last access</string>
-    <string name="config_option_book_order_favorite">Favorite first</string>
-    <string name="config_option_book_order_author">Author</string>
-    <string name="config_option_book_order_genre">Genre</string>
-    <string name="config_option_book_order_series">Series</string>
-
     <string name="config_option_vocabulary_order_description">For description</string>
     <string name="config_option_vocabulary_order_frequency">For frequency</string>
     <string name="config_option_vocabulary_order_favorite">Favorite first</string>
@@ -240,6 +224,18 @@
     <string name="config_libraries_title_library_required">Title required</string>
     <string name="config_libraries_title_path_required">Folder required</string>
     <string name="config_libraries_title_path_default">The folder has already been set as the default</string>
+
+    <!-- ORDER -->
+    <string name="option_order_none">None</string>
+    <string name="option_order_name">By name</string>
+    <string name="option_order_date">By date</string>
+    <string name="option_order_access">By Last access</string>
+    <string name="option_order_favorite">Favorite first</string>
+    <string name="option_order_author">By author</string>
+    <string name="option_order_genre">By genre</string>
+    <string name="option_order_series">By series</string>
+    <string name="option_order_description">By description</string>
+    <string name="option_order_frequency">By frequency</string>
 
     <!-- LANGUAGE -->
     <string name="languages_choice">Select language</string>
@@ -431,7 +427,7 @@
     <string name="menu_manga_reading_save_share_image">Save/Share image</string>
     <string name="menu_manga_reading_favorite">Favorite</string>
     <string name="menu_manga_reading_order">List order</string>
-    <string name="menu_manga_reading_order_change">Sort:</string>
+    <string name="menu_manga_reading_order_change">Sort: %s</string>
     <string name="menu_manga_vocabulary_import">Importing vocabulary</string>
 
     <string name="menu_manga_reading_floating">Floating popup</string>
@@ -630,8 +626,11 @@
 
     <string name="popup_library_manga_order_name">For name</string>
     <string name="popup_library_manga_order_date">For date</string>
-    <string name="popup_library_manga_order_access">Last access</string>
+    <string name="popup_library_manga_order_access">For last access</string>
     <string name="popup_library_manga_order_favorite">Favorite first</string>
+    <string name="popup_library_manga_order_genre">For genre</string>
+    <string name="popup_library_manga_order_author">For author</string>
+    <string name="popup_library_manga_order_series">For series</string>
 
     <string name="popup_library_manga_filter_favorite">Favorite</string>
     <string name="popup_library_manga_filter_reading">Reading</string>
@@ -650,7 +649,7 @@
 
     <string name="popup_library_book_order_name">For name</string>
     <string name="popup_library_book_order_date">For date</string>
-    <string name="popup_library_book_order_access">Last access</string>
+    <string name="popup_library_book_order_access">For last access</string>
     <string name="popup_library_book_order_favorite">Favorite first</string>
     <string name="popup_library_book_order_genre">For genre</string>
     <string name="popup_library_book_order_author">For author</string>

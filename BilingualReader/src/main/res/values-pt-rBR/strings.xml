@@ -121,22 +121,6 @@
     <string name="config_manga_default_subtitle_language">Linguagem padrão</string>
     <string name="config_manga_default_subtitle_translate">Tradução padrão</string>
 
-    <string name="config_option_manga_order_name">Por nome</string>
-    <string name="config_option_manga_order_date">Por data</string>
-    <string name="config_option_manga_order_access">Último acesso</string>
-    <string name="config_option_manga_order_favorite">Favoritos primeiro</string>
-    <string name="config_option_manga_order_author">Autor</string>
-    <string name="config_option_manga_order_genre">Gênero</string>
-    <string name="config_option_manga_order_series">Série</string>
-
-    <string name="config_option_book_order_name">Por nome</string>
-    <string name="config_option_book_order_date">Por data</string>
-    <string name="config_option_book_order_access">Último acesso</string>
-    <string name="config_option_book_order_favorite">Favoritos primeiro</string>
-    <string name="config_option_book_order_author">Autor</string>
-    <string name="config_option_book_order_genre">Gênero</string>
-    <string name="config_option_book_order_series">Série</string>
-
     <string name="config_option_vocabulary_order_description">Por descrição</string>
     <string name="config_option_vocabulary_order_frequency">Por frequência</string>
     <string name="config_option_vocabulary_order_favorite">Favoritos primeiro</string>
@@ -240,6 +224,18 @@
     <string name="config_libraries_title_library_required">Titulo é obrigatório</string>
     <string name="config_libraries_title_path_required">Caminho da biblioteca é obrigatória</string>
     <string name="config_libraries_title_path_default">O caminho foi definido como padrão</string>
+
+    <!-- ORDER -->
+    <string name="option_order_none">Nenhum</string>
+    <string name="option_order_name">Por nome</string>
+    <string name="option_order_date">Por data</string>
+    <string name="option_order_access">Por último acesso</string>
+    <string name="option_order_favorite">Favoritos primeiro</string>
+    <string name="option_order_author">Por autor</string>
+    <string name="option_order_genre">Por gênero</string>
+    <string name="option_order_series">Por série</string>
+    <string name="option_order_description">Por descrição</string>
+    <string name="option_order_frequency">Por frequencia</string>
 
     <!-- LANGUAGE -->
     <string name="languages_choice">Selecione a linguagem</string>
@@ -431,7 +427,7 @@
     <string name="menu_manga_reading_save_share_image">Salvar/Compartilhar</string>
     <string name="menu_manga_reading_favorite">Favorito</string>
     <string name="menu_manga_reading_order">Ordem da lista</string>
-    <string name="menu_manga_reading_order_change">Ordernado:</string>
+    <string name="menu_manga_reading_order_change">Ordernado: %s</string>
     <string name="menu_manga_vocabulary_import">Importar vocabulário</string>
 
     <string name="menu_manga_reading_floating">Popup flutuante</string>
@@ -630,8 +626,11 @@
 
     <string name="popup_library_manga_order_name">Por nome</string>
     <string name="popup_library_manga_order_date">Por data</string>
-    <string name="popup_library_manga_order_access">Último acesso</string>
+    <string name="popup_library_manga_order_access">Por último acesso</string>
     <string name="popup_library_manga_order_favorite">Favoritos primeiro</string>
+    <string name="popup_library_manga_order_genre">Por gênero</string>
+    <string name="popup_library_manga_order_author">Por autor</string>
+    <string name="popup_library_manga_order_series">Por séries</string>
 
     <string name="popup_library_manga_filter_favorite">Favoritos</string>
     <string name="popup_library_manga_filter_reading">Lendo</string>
@@ -650,7 +649,7 @@
 
     <string name="popup_library_book_order_name">Por nome</string>
     <string name="popup_library_book_order_date">Por data</string>
-    <string name="popup_library_book_order_access">Último acesso</string>
+    <string name="popup_library_book_order_access">Por último acesso</string>
     <string name="popup_library_book_order_favorite">Favoritos primeiro</string>
     <string name="popup_library_book_order_genre">Por gênero</string>
     <string name="popup_library_book_order_author">Por autor</string>
