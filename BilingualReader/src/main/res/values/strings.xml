@@ -1006,7 +1006,7 @@
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
     <string name="progress" translatable="false">%d / %d</string>
-    <string name="book_chapter" translatable="false">%s • %d / %d</string>
+    <string name="book_chapter" translatable="false">%d / %d • %s</string>
     <string name="book_page_read" translatable="false">%d / %d (%s)</string>
 
     <!-- COMMON -->

@@ -16,7 +16,8 @@
             android:id="@+id/book_progress_clock"
             style="@style/TextTitle.PageNumber"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
             android:format12Hour="hh:mm:ss a"
             android:padding="2dp"
             android:textSize="@dimen/book_reader_progress_size" />
@@ -27,7 +28,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="center"
+            android:gravity="start"
             android:padding="2dp"
             android:textSize="@dimen/book_reader_progress_size" />
 
@@ -35,10 +36,10 @@
             android:id="@+id/book_time_to_ending"
             style="@style/TextTitle.PageNumber"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="end"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
             android:padding="2dp"
-            android:textSize="@dimen/book_reader_progress_size" />
+            android:textSize="@dimen/book_reader_progress_size"/>
     </LinearLayout>
 
     <ProgressBar

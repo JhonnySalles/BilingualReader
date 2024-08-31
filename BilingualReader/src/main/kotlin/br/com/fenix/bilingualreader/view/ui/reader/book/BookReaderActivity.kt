@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.TypedValue
+import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -254,10 +255,14 @@ class BookReaderActivity : AppCompatActivity() {
         mToolBarChapter.text = if (chapter > 0) getString(R.string.reading_book_title_chapter, chapter, description) else description
         mBackgroundProgress.progress = page
         mBackgroundProgress.max = pages
-        mBackgroundTitle.text = if (description.isNotEmpty())
-            getString(R.string.book_chapter, description, page, pages)
-        else
-            getString(R.string.progress, page, pages)
+
+        if (description.isNotEmpty()) {
+            mBackgroundTitle.gravity = Gravity.START
+            mBackgroundTitle.text = getString(R.string.book_chapter, page, pages, description)
+        } else {
+            mBackgroundTitle.gravity = Gravity.CENTER
+            mBackgroundTitle.text = getString(R.string.progress, page, pages)
+        }
 
         SharedData.selectPage(page)
     }
