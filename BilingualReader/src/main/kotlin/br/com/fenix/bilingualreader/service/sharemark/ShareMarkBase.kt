@@ -72,20 +72,19 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
             "$manufacturer $model"
     }
 
-    protected var mSync : Date = Date()
-
     // --------------------------------------------------------- Manga ---------------------------------------------------------
     protected fun compare(item: ShareItem, manga: Manga): Boolean {
         return if (manga.lastAccess == null || item.lastAccess.after(GeneralConsts.dateTimeToDate(manga.lastAccess!!))) {
             manga.bookMark = item.bookMark
             manga.lastAccess = GeneralConsts.dateToDateTime(item.lastAccess)
             manga.favorite = item.favorite
+            manga.completed = item.completed
             true
         } else {
             //Differ 10 seconds
             val diff: Long = item.lastAccess.time - GeneralConsts.dateTimeToDate(manga.lastAccess!!).time
             if (diff > 5000 || diff < -5000)
-                item.merge(mSync, manga)
+                item.merge(manga)
             false
         }
     }
@@ -126,27 +125,29 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
             if (book.pages <= 1 && item.pages > 1) {
                 book.bookMark = item.bookMark
                 book.pages = item.pages
-            } else {
-                if (item.bookMark >= item.pages)
-                    book.bookMark = item.pages
-                else {
-                    val percent = item.bookMark.toFloat() / item.pages
-                    book.bookMark = (book.pages * percent).roundToInt()
+            } else if (item.completed || item.bookMark >= item.pages)
+                book.bookMark = book.pages
+            else {
+                val percent = item.bookMark.toFloat() / item.pages
+                book.bookMark = (book.pages * percent).roundToInt()
 
-                    if (book.bookMark < 0)
-                        book.bookMark = 0
-                    else if (book.bookMark > book.pages)
-                        book.bookMark = book.pages
-                }
+                if (book.bookMark < 0)
+                    book.bookMark = 0
+                else if (book.bookMark > book.pages)
+                    book.bookMark = book.pages
             }
+
+            book.completed = item.completed
             book.lastAccess = GeneralConsts.dateToDateTime(item.lastAccess)
             book.favorite = item.favorite
+            item.processed = true
+            item.received = true
             true
         } else {
             //Differ 10 seconds
             val diff: Long = item.lastAccess.time - GeneralConsts.dateTimeToDate(book.lastAccess!!).time
             if (diff > 5000 || diff < -5000)
-                item.merge(mSync, book)
+                item.merge(book)
             false
         }
     }

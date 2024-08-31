@@ -248,9 +248,7 @@
     </string-array>
 
     <!-- READER - BOOK -->
-    <string name="book_share_mark_processed">Marcadores compartilhados com a cloud</string>
-    <string name="book_share_mark_processed_receive">Marcadores atualizados da cloud</string>
-    <string name="book_share_mark_processed_send">Marcadores enviados para cloud</string>
+    <string name="book_share_mark_processed">Marcadores sincronizado. Enviado %d, Recebido %d</string>
     <string name="book_share_mark_unprocessed">Marcadores não compartilhados</string>
     <string name="book_share_mark_without_alteration">Nenhuma alteração em marcadores encontrada</string>
     <string name="book_share_mark_error_download">Ocorreu um erro no download dos marcadores</string>
@@ -401,9 +399,7 @@
     <string name="reader_not_found">Não encontrado</string>
     <string name="file_not_found">Arquivo não encontrado</string>
 
-    <string name="manga_share_mark_processed">Marcadores compartilhados a cloud</string>
-    <string name="manga_share_mark_processed_receive">Marcadores atualizados da cloud</string>
-    <string name="manga_share_mark_processed_send">Marcadores enviados para cloud</string>
+    <string name="manga_share_mark_processed">Marcadores sincronizado. Enviado %d, Recebido %d</string>
     <string name="manga_share_mark_unprocessed">Marcadores não compartilhados na cloud</string>
     <string name="manga_share_mark_without_alteration">Nenhuma alteração em marcadores encontrada</string>
     <string name="manga_share_mark_error_download">Ocorreu um erro no download dos marcadores</string>

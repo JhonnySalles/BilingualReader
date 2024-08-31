@@ -370,7 +370,9 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
     override fun processManga(update: (manga: Manga) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
         CoroutineScope(Dispatchers.IO).launch {
             async {
-                mSync = Date()
+                ShareMarkType.clear()
+                val sync = Date()
+                val alteration = LocalDateTime.now()
                 val gson = GsonBuilder()
                     .setDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME)
                     .excludeFieldsWithoutExposeAnnotation()
@@ -396,20 +398,20 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                         share.marks!!.find { it.file == manga.name }.also {
                             if (it != null) {
                                 if (compare(it, manga)) {
-                                    repositoryManga.update(manga)
+                                    repositoryManga.update(manga, alteration)
                                     withContext(Dispatchers.Main) {
                                         update(manga)
                                     }
                                 }
-                            } else
-                                share.marks!!.add(ShareItem(mSync, manga, repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!)))
+                            } else if (share.marks!!.none { s -> s.file == manga.name })
+                                share.marks!!.add(ShareItem(manga, repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!)))
                         }
                 }
 
                 list.filter { !it.processed }.forEach {
                     repositoryManga.findByFileName(it.file)?.let { manga ->
                         if (compare(it, manga)) {
-                            repositoryManga.update(manga)
+                            repositoryManga.update(manga, alteration)
                             withContext(Dispatchers.Main) {
                                 update(manga)
                             }
@@ -436,17 +438,18 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
 
                 val isUpdate = if (share.marks!!.isNotEmpty()) share.marks!!.any { it.alter } else false
 
-                val shared = if (isUpdate)
+                val shared = if (isUpdate) {
+                    share.marks!!.filter { it.alter }.forEach { it.sync = sync }
                     saveShareFile(mIdFolder, mIdManga, GeneralConsts.SHARE_MARKS.MANGA_FILE, getFile(share, GeneralConsts.SHARE_MARKS.MANGA_FILE_WITH_EXTENSION))
-                else if (list.isNotEmpty())
+                } else if (list.isNotEmpty())
                     ShareMarkType.SUCCESS
                 else
                     ShareMarkType.NOT_ALTERATION
 
-                ShareMarkType.send = isUpdate
-                ShareMarkType.receive = list.isNotEmpty()
+                ShareMarkType.send = list.count { it.alter }
+                ShareMarkType.receive = list.count { it.received }
 
-                prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, simpleDate.format(Date(mSync.time + 1000))).apply()
+                prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, simpleDate.format(Date(sync.time + 1000))).apply()
 
                 withContext(Dispatchers.Main) {
                     ending(shared)
@@ -459,7 +462,9 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
     override fun processBook(update: (book: Book) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
         CoroutineScope(Dispatchers.IO).launch {
             async {
-                mSync = Date()
+                ShareMarkType.clear()
+                val sync = Date()
+                val alteration = LocalDateTime.now()
                 val gson = GsonBuilder()
                     .setDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME)
                     .excludeFieldsWithoutExposeAnnotation()
@@ -483,20 +488,20 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                         list.parallelStream().filter { it.file == book.name }.findFirst().also {
                             if (it.isPresent) {
                                 if (compare(it.get(), book)) {
-                                    repositoryBook.update(book)
+                                    repositoryBook.update(book, alteration)
                                     withContext(Dispatchers.Main) {
                                         update(book)
                                     }
                                 }
-                            } else
-                                share.marks!!.add(ShareItem(mSync, book, repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!), repositoryAnnotation.findByBook(book.id!!)))
+                            } else if (share.marks!!.none { s -> s.file == book.name })
+                                share.marks!!.add(ShareItem(book, repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!), repositoryAnnotation.findByBook(book.id!!)))
                         }
                 }
 
                 list.filter { !it.processed }.forEach {
                     repositoryBook.findByFileName(it.file)?.let { book ->
                         if (compare(it, book)) {
-                            repositoryBook.update(book)
+                            repositoryBook.update(book, alteration)
                             withContext(Dispatchers.Main) {
                                 update(book)
                             }
@@ -554,11 +559,14 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                 else
                     ShareMarkType.NOT_ALTERATION
 
+                ShareMarkType.send = list.count { it.alter }
+                ShareMarkType.receive = list.count { it.received }
+
                 withContext(Dispatchers.Main) {
                     ending(shared)
                 }
 
-                prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, simpleDate.format(Date(mSync.time + 1000))).apply()
+                prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, simpleDate.format(Date(sync.time + 1000))).apply()
             }
         }
     }

@@ -532,6 +532,8 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                     mListBookFull.value?.find { book -> book.id == item.id }?.let { book ->
                         book.favorite = item.favorite
                         book.bookMark = item.bookMark
+                        book.pages = item.pages
+                        book.completed = item.completed
                         book.lastAccess = item.lastAccess
                     }
                 }

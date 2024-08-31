@@ -17,13 +17,13 @@ class BookRepository(context: Context) {
     private var mLibrary = DataBase.getDataBase(context).getLibrariesDao()
 
     // --------------------------------------------------------- BOOK ---------------------------------------------------------
-    fun save(obj: Book): Long {
-        obj.lastAlteration = LocalDateTime.now()
+    fun save(obj: Book, lastAlteration: LocalDateTime = LocalDateTime.now()): Long {
+        obj.lastAlteration = lastAlteration
         return mDataBase.save(obj)
     }
 
-    fun update(obj: Book) {
-        obj.lastAlteration = LocalDateTime.now()
+    fun update(obj: Book, lastAlteration: LocalDateTime = LocalDateTime.now()) {
+        obj.lastAlteration = lastAlteration
         mDataBase.update(obj)
     }
 

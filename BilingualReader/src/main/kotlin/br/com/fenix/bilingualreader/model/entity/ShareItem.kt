@@ -46,7 +46,7 @@ data class ShareItem(
     @SerializedName(FIELD_SYNC)
     @PropertyName(FIELD_SYNC)
     @get:PropertyName(FIELD_SYNC)
-    var sync: Date,
+    var sync: Date = Date(),
     @Expose
     @SerializedName(FIELD_HISTORY)
     @PropertyName(FIELD_HISTORY)
@@ -91,6 +91,11 @@ data class ShareItem(
     @Exclude
     @get:Exclude
     @Expose(serialize = false, deserialize = false)
+    var received: Boolean = false
+
+    @Exclude
+    @get:Exclude
+    @Expose(serialize = false, deserialize = false)
     var processed: Boolean = false
 
     constructor(firebase: Map<String, *>) : this(
@@ -117,8 +122,8 @@ data class ShareItem(
             this.annotation?.set(annotation.key, ShareAnnotation(annotation.value as Map<String, *>))
     }
 
-    constructor(sync: Date, manga: Manga, list: List<History>) : this(
-        manga.name, manga.bookMark, manga.pages, manga.completed, manga.favorite, GeneralConsts.dateTimeToDate(manga.lastAccess!!), sync
+    constructor(manga: Manga, list: List<History>) : this(
+        manga.name, manga.bookMark, manga.pages, manga.completed, manga.favorite, GeneralConsts.dateTimeToDate(manga.lastAccess!!)
     ) {
         alter = true
         processed = true
@@ -129,8 +134,8 @@ data class ShareItem(
             this.history?.set(history.start.format(DateTimeFormatter.ofPattern(PARSE_DATE_TIME)), ShareHistory(history))
     }
 
-    constructor(sync: Date, book: Book, histories: List<History>, annotations: List<BookAnnotation>) : this(
-        book.name, book.bookMark, book.pages, book.completed, book.favorite, GeneralConsts.dateTimeToDate(book.lastAccess!!), sync
+    constructor(book: Book, histories: List<History>, annotations: List<BookAnnotation>) : this(
+        book.name, book.bookMark, book.pages, book.completed, book.favorite, GeneralConsts.dateTimeToDate(book.lastAccess!!)
     ) {
         alter = true
         processed = true
@@ -156,24 +161,24 @@ data class ShareItem(
             this.annotation?.set(annotation.created.format(DateTimeFormatter.ofPattern(PARSE_DATE_TIME)), ShareAnnotation(annotation))
     }
 
-    fun merge(sync: Date, manga: Manga) {
+    fun merge(manga: Manga) {
         this.bookMark = manga.bookMark
+        this.pages = manga.pages
         this.completed = manga.completed
         this.lastAccess = GeneralConsts.dateTimeToDate(manga.lastAccess!!)
         this.favorite = manga.favorite
         this.alter = true
         this.processed = true
-        this.sync = sync
     }
 
-    fun merge(sync: Date, book: Book) {
+    fun merge(book: Book) {
         this.bookMark = book.bookMark
+        this.pages = book.pages
         this.completed = book.completed
         this.lastAccess = GeneralConsts.dateTimeToDate(book.lastAccess!!)
         this.favorite = book.favorite
         this.alter = true
         this.processed = true
-        this.sync = sync
     }
 
     override fun equals(other: Any?): Boolean {

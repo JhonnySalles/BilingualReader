@@ -554,6 +554,8 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                     mListMangasFull.value?.find { manga -> manga.id == item.id }?.let { manga ->
                         manga.favorite = item.favorite
                         manga.bookMark = item.bookMark
+                        manga.pages = item.pages
+                        manga.completed = item.completed
                         manga.lastAccess = item.lastAccess
                     }
                 }

@@ -435,7 +435,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     override fun onLoading(isFinished: Boolean, isLoaded: Boolean) {
         if (isFinished) {
             if (isLoaded) {
-                val pages = (mParse?.getPageCount(mViewModel.getFontSize(isBook = true).toInt()) ?: 2)
+                if (mParse == null)
+                    return
+
+                val pages = mParse!!.getPageCount(mViewModel.getFontSize(isBook = true).toInt())
                 mPageSeekBar.max = pages -1
                 mCoverContent.animate().alpha(0.0f)
                     .setDuration(400L).setListener(object : AnimatorListenerAdapter() {
@@ -445,8 +448,13 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                         }
                     })
                 setBookDots(pages)
-                if (mBook != null) {
-                    mBook!!.pages = mPageSeekBar.progress + 1
+                if (mBook != null && mBook!!.pages != pages) {
+                    if (mBook!!.completed) {
+                        mBook!!.bookMark = pages
+                        mCurrentPage = mBook!!.bookMark
+                    }
+
+                    mBook!!.pages = pages
                     mStorage.updateLastAccess(mBook!!)
                 }
                 preparePager()
@@ -1410,10 +1418,12 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     fun destroyParse() {
-        if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
-            (mViewPager.adapter as WebViewPager).clearParse()
-        else
-            (mViewPager.adapter as TextViewPager).clearParse()
+        if (mViewPager.adapter != null) {
+            if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
+                (mViewPager.adapter as WebViewPager).clearParse()
+            else
+                (mViewPager.adapter as TextViewPager).clearParse()
+        }
         mParse?.destroy()
     }
 

@@ -20,12 +20,12 @@ enum class ShareMarkType {
     var intent: Intent? = null
 
     companion object {
-        var send: Boolean = false
-        var receive: Boolean = false
+        var send: Int = 0
+        var receive: Int = 0
 
         fun clear() {
-            send = false
-            receive = false
+            send = 0
+            receive = 0
         }
     }
 }

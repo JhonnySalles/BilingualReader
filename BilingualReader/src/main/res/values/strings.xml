@@ -250,9 +250,7 @@
     </string-array>
 
     <!-- READER - BOOK -->
-    <string name="book_share_mark_processed">Bookmarks shared to cloud</string>
-    <string name="book_share_mark_processed_receive">Bookmarks updated from cloud</string>
-    <string name="book_share_mark_processed_send">Bookmarks uploaded to cloud</string>
+    <string name="book_share_mark_processed">Bookmarks syncs. Send %d, Receive %d</string>
     <string name="book_share_mark_unprocessed">Bookmarks not shared to cloud</string>
     <string name="book_share_mark_without_alteration">No changes to bookmarks found</string>
     <string name="book_share_mark_error_download">An error occurred when download bookmarks from cloud</string>
@@ -449,9 +447,7 @@
     <string name="reader_not_found">Not found</string>
     <string name="file_not_found">File not found</string>
 
-    <string name="manga_share_mark_processed">Bookmarks shared to cloud</string>
-    <string name="manga_share_mark_processed_receive">Bookmarks updated from cloud</string>
-    <string name="manga_share_mark_processed_send">Bookmarks uploaded to cloud</string>
+    <string name="manga_share_mark_processed">Bookmarks syncs. Send %d, Receive %d</string>
     <string name="manga_share_mark_unprocessed">Bookmarks not shared to cloud</string>
     <string name="manga_share_mark_without_alteration">No changes to bookmarks found</string>
     <string name="manga_share_mark_error_download">An error occurred when download from cloud</string>

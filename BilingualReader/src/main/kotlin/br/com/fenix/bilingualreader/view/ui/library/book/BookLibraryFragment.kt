@@ -972,12 +972,10 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                             if (result == ShareMarkType.NOTIFY_DATA_SET)
                                 sortList()
 
-                            if (ShareMarkType.receive && !ShareMarkType.send)
-                                getString(R.string.book_share_mark_processed_receive)
-                            else if (!ShareMarkType.receive && ShareMarkType.send)
-                                getString(R.string.book_share_mark_processed_send)
+                            if (ShareMarkType.send > 0 || ShareMarkType.receive > 0)
+                                getString(R.string.book_share_mark_processed, ShareMarkType.send, ShareMarkType.receive)
                             else
-                                getString(R.string.book_share_mark_processed)
+                                getString(R.string.book_share_mark_without_alteration)
                         }
 
                         ShareMarkType.NOT_ALTERATION -> getString(R.string.book_share_mark_without_alteration)
