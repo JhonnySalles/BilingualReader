@@ -65,7 +65,7 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
             if (validate()) {
                 HistoryRepository(context).save(
                     History(
-                        null, obj.fkLibrary!!, obj.id!!, obj.type, obj.bookMark, mNewBookMark, obj.pages, obj.completed,
+                        null, obj.fkLibrary!!, obj.id!!, obj.type, obj.bookMark, mNewBookMark, obj.pages, mNewBookMark == mMax,
                         obj.volume,0, mNewDate, mNewDate, 0, 0, useTTS = false, isNotify = false
                     )
                 )
