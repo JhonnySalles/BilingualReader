@@ -707,39 +707,59 @@ abstract class HistoryDAO :  BaseDAO<History, Long>(DataBaseConsts.HISTORY.TABLE
 @Dao
 abstract class StatisticsDAO {
     companion object {
+        const val HISTORY_BOOK = " SELECT H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + ", H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + ", H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + ", " +
+                "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 1 THEN (H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ") ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_PAGES + ", " +
+                "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 1 THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ", " +
+                "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 0 THEN (H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ") ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ", " +
+                "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 0 THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
+                "          COALESCE(H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ", 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ", COALESCE(H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + ", 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
+                "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 1 THEN 1 ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + "," +
+                "          H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START +
+                "   FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " H " +
+                "   WHERE H." + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = 'BOOK' "
+
         const val SELECT_BOOK = " SELECT CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " > 0 AND B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " < B." + DataBaseConsts.BOOK.COLUMNS.PAGES + " THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.READING + ", " +
                 "          CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " <= 0 THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.TO_READ + ", " +
                 "          CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.LIBRARY + "," +
                 "          CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " > 0 AND B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " >= B." + DataBaseConsts.BOOK.COLUMNS.PAGES + " THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.READ + ", " +
-                "          SUM(COALESCE(CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " > 0 AND B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " >= B." + DataBaseConsts.BOOK.COLUMNS.PAGES + " THEN (H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ") ELSE 0 END, 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_PAGES + ", " +
-                "          SUM(COALESCE(CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " > 0 AND B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " >= B." + DataBaseConsts.BOOK.COLUMNS.PAGES + " THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END, 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ", " +
-                "          SUM(COALESCE(CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " > 0 AND B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " < B." + DataBaseConsts.BOOK.COLUMNS.PAGES + " THEN (H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ") ELSE 0 END, 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ", " +
-                "          SUM(COALESCE(CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " > 0 AND B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " < B." + DataBaseConsts.BOOK.COLUMNS.PAGES + " THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END, 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
-                "          SUM(COALESCE(H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ", 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ", SUM(COALESCE(H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + ", 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
-                "          SUM(COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " THEN 1 ELSE 0 END, 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + "," +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_PAGES + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_PAGES + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES  + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + " ,0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + "," +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + ", 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + ", " +
                 "          H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START +
                 "   FROM " + DataBaseConsts.BOOK.TABLE_NAME + " B " +
-                "   LEFT JOIN " + DataBaseConsts.HISTORY.TABLE_NAME + " H ON H." + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = 'BOOK' " +
-                "     AND H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + " = B." + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY +
-                "     AND H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + " = B." + DataBaseConsts.BOOK.COLUMNS.ID + "  " +
-                "  GROUP BY B." + DataBaseConsts.BOOK.COLUMNS.ID + ", B." + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY
+                "   LEFT JOIN (" + HISTORY_BOOK + ") AS H ON H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + " = B." + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY +
+                "     AND H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + " = B." + DataBaseConsts.BOOK.COLUMNS.ID
+
+        const val HISTORY_MANGA = " SELECT H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + ", H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + ", H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + ", " +
+                "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 1 THEN (H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ") ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_PAGES + ", " +
+                "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 1 THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ", " +
+                "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 0 THEN (H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ") ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ", " +
+                "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 0 THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
+                "          COALESCE(H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ", 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ", COALESCE(H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + ", 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
+                "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 1 THEN 1 ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + "," +
+                "          H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START +
+                "   FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " H " +
+                "   WHERE H." + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = 'MANGA' "
 
         const val SELECT_MANGA = " SELECT CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " > 0 AND M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " < M." + DataBaseConsts.MANGA.COLUMNS.PAGES + " THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.READING + ", " +
                 "          CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " <= 0 THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.TO_READ + ", " +
                 "          CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 0 THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.LIBRARY + "," +
                 "          CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " > 0 AND M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " >= M." + DataBaseConsts.MANGA.COLUMNS.PAGES + " THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.READ + ", " +
-                "          SUM(COALESCE(CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " > 0 AND M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " >= M." + DataBaseConsts.MANGA.COLUMNS.PAGES + " THEN (H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ") ELSE 0 END, 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_PAGES + ", " +
-                "          SUM(COALESCE(CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " > 0 AND M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " >= M." + DataBaseConsts.MANGA.COLUMNS.PAGES + " THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END, 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ", " +
-                "          SUM(COALESCE(CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " > 0 AND M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " < M." + DataBaseConsts.MANGA.COLUMNS.PAGES + " THEN (H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ") ELSE 0 END, 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ", " +
-                "          SUM(COALESCE(CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " > 0 AND M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " < M." + DataBaseConsts.MANGA.COLUMNS.PAGES + " THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END, 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
-                "          SUM(COALESCE(H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ", 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ", SUM(COALESCE(H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + ", 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
-                "          SUM(COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " THEN 1 ELSE 0 END, 0)) AS " + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + "," +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_PAGES + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_PAGES + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES  + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + " ,0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + "," +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + ", 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + ", " +
                 "          H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START +
                 "   FROM " + DataBaseConsts.MANGA.TABLE_NAME + " M " +
-                "   LEFT JOIN " + DataBaseConsts.HISTORY.TABLE_NAME + " H ON H." + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = 'MANGA' " +
-                "     AND H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + " = M." + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY +
-                "     AND H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + " = M." + DataBaseConsts.MANGA.COLUMNS.ID + "  " +
-                " GROUP BY M." + DataBaseConsts.MANGA.COLUMNS.ID + ", M." + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY
+                "   LEFT JOIN (" + HISTORY_MANGA + ") AS H ON H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + " = M." + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY +
+                "     AND H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + " = M." + DataBaseConsts.MANGA.COLUMNS.ID
 
         private const val HAVING_NOT_NULL = " HAVING " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " IS NOT NULL"
 
@@ -756,16 +776,20 @@ abstract class StatisticsDAO {
                 "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + ", " +
                 "  " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " AS " + DataBaseConsts.STATISTICS.COLUMNS.DATE_TIME
 
-        const val SELECT = "SELECT " + SELECT_FIELDS +  ", 'MANGA' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " FROM (" + SELECT_MANGA +  ")" +
+        const val SELECT = "SELECT " + SELECT_FIELDS +  ", 'MANGA' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " FROM (" + SELECT_MANGA +
+                " GROUP BY M." + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY + ", M." + DataBaseConsts.MANGA.COLUMNS.ID +  ") " +
                 "   UNION ALL   " +
-                "  SELECT " + SELECT_FIELDS + ", 'BOOK' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " FROM (" + SELECT_BOOK +  ")"
+                " SELECT " + SELECT_FIELDS + ", 'BOOK' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " FROM (" + SELECT_BOOK +
+                " GROUP BY B." + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + ", B." + DataBaseConsts.BOOK.COLUMNS.ID + ") "
 
         private const val GROUP_BY_YEAR = " WHERE " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " >= :dateStart" +
                 "   AND " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " <= :dateEnd GROUP BY SUBSTR(" + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 6,2) "
 
-        const val SELECT_YEAR_MANGA = "SELECT " + SELECT_FIELDS + ", 'MANGA' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " FROM (" + SELECT_MANGA +  ") " + GROUP_BY_YEAR
+        const val SELECT_YEAR_MANGA = "SELECT " + SELECT_FIELDS + ", 'MANGA' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE +
+                " FROM (" + SELECT_MANGA +  ") " + GROUP_BY_YEAR
 
-        const val SELECT_YEAR_BOOK = "  SELECT " + SELECT_FIELDS + ", 'BOOK' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " FROM (" + SELECT_BOOK +  ") " + GROUP_BY_YEAR
+        const val SELECT_YEAR_BOOK = "  SELECT " + SELECT_FIELDS + ", 'BOOK' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE +
+                " FROM (" + SELECT_BOOK +  ") " + GROUP_BY_YEAR
     }
 
     @Query(SELECT)

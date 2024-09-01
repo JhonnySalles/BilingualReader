@@ -248,7 +248,7 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
             .build()
 
         timePicker.addOnPositiveButtonClickListener {
-            val time = LocalTime.of(timePicker.hour, timePicker.minute)
+            val time = LocalTime.of(timePicker.hour, timePicker.minute, 0, 0)
             mNewDate = LocalDateTime.of(lastTime.toLocalDate(), time)
             mBookMarkTimeEdit.setText(mNewDate.format(DateTimeFormatter.ofPattern(GeneralConsts.PATTERNS.TIME_PATTERN)))
         }

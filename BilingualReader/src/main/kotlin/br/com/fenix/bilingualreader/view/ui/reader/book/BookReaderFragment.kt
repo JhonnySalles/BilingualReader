@@ -712,7 +712,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     book.pages = pages
                     mViewModel.update(book)
                     setBookDots(pages)
-                    mViewModel.history?.let { it.setPages(pages) }
+                    mViewModel.history?.setPages(pages)
                 }
             }
 
@@ -1024,7 +1024,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 mReaderTTSContainer.visibility = visibility
 
                 generateHistory(mBook!!)
-                mViewModel.history?.let { it.useTTS }
+                mViewModel.history?.let { it.useTTS = true }
 
                 try {
                     (requireActivity().getSystemService(Context.POWER_SERVICE) as PowerManager).run {
