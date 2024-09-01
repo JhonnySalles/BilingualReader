@@ -56,15 +56,29 @@ class HistoryFragment : Fragment() {
 
         val miLibrary = menu.findItem(R.id.menu_history_library)
         miLibrary.subMenu?.clear()
-        miLibrary.subMenu?.add(requireContext().getString(R.string.history_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
+        miLibrary.subMenu?.add(Menu.NONE, Menu.NONE, 100, requireContext().getString(R.string.history_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
                 filterLibrary(null)
                 true
             }
 
+        miLibrary.subMenu?.add(Menu.NONE, Menu.NONE, 101, mViewModel.mDefaultLibrary.title)?.setOnMenuItemClickListener { _: MenuItem? ->
+            filterLibrary(mViewModel.mDefaultLibrary)
+            true
+        }
+
+        val manga = miLibrary.subMenu?.addSubMenu(Menu.NONE, Menu.NONE, 102,requireContext().getString(R.string.history_manga))
+        val book = miLibrary.subMenu?.addSubMenu(Menu.NONE, Menu.NONE, 103,requireContext().getString(R.string.history_book))
         for (library in mViewModel.getLibraryList())
-            miLibrary.subMenu?.add(library.title)?.setOnMenuItemClickListener { _: MenuItem? ->
-                filterLibrary(library)
-                true
+            when (library.type) {
+                Type.BOOK -> book!!.add(library.title)?.setOnMenuItemClickListener { _: MenuItem? ->
+                    filterLibrary(library)
+                    true
+                }
+
+                Type.MANGA -> manga!!.add(library.title)?.setOnMenuItemClickListener { _: MenuItem? ->
+                    filterLibrary(library)
+                    true
+                }
             }
 
         val miTypes = menu.findItem(R.id.menu_history_type)

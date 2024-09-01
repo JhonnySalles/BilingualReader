@@ -634,14 +634,9 @@ class ConfigFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        mViewModel.removeLibraryDefault(
-            mMangaLibraryPath.editText?.text.toString(),
-            mBookLibraryPath.editText?.text.toString()
-        )
-        ViewModelProvider(this)[MangaLibraryViewModel::class.java]
-            .setDefaultLibrary(LibraryUtil.getDefault(requireContext(), Type.MANGA))
-        ViewModelProvider(this)[BookLibraryViewModel::class.java]
-            .setDefaultLibrary(LibraryUtil.getDefault(requireContext(), Type.BOOK))
+        mViewModel.removeLibraryDefault(mMangaLibraryPath.editText?.text.toString(), mBookLibraryPath.editText?.text.toString())
+        ViewModelProvider(this)[MangaLibraryViewModel::class.java].setDefaultLibrary(LibraryUtil.getDefault(requireContext(), Type.MANGA))
+        ViewModelProvider(this)[BookLibraryViewModel::class.java].setDefaultLibrary(LibraryUtil.getDefault(requireContext(), Type.BOOK))
         (requireActivity() as MainActivity).setLibraries(mViewModel.getListLibrary())
 
         super.onDestroyView()

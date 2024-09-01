@@ -159,7 +159,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
         mBorder.strokeWidth = resources.getDimension(R.dimen.reader_zoom_border)
 
         mBackground = Paint()
-        mBackground.color = context.getColorFromAttr(R.attr.colorOnSurface)
+        mBackground.color = context.getColorFromAttr(R.attr.colorSurface)
         mBackground.style = Paint.Style.FILL
 
         val displayMetrics = Resources.getSystem().displayMetrics

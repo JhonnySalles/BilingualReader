@@ -131,7 +131,16 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                         update(manga)
                                     }
                                 }
-                            } else if (!cloud.containsKey(manga.name))
+                            } else if (cloud.containsKey(manga.name)) {
+                                val item = ShareItem(cloud[manga.name] as Map<String, *>)
+                                share.add(item)
+                                if (compare(item, manga)) {
+                                    repositoryManga.update(manga, alteration)
+                                    withContext(Dispatchers.Main) {
+                                        update(manga)
+                                    }
+                                }
+                            } else
                                 share.add(ShareItem(manga, repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!)))
                         }
                 }
@@ -258,7 +267,16 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                         update(book)
                                     }
                                 }
-                            } else if (!cloud.containsKey(book.name))
+                            } else if (cloud.containsKey(book.name)) {
+                                val item = ShareItem(cloud[book.name] as Map<String, *>)
+                                share.add(item)
+                                if (compare(item, book)) {
+                                    repositoryBook.update(book, alteration)
+                                    withContext(Dispatchers.Main) {
+                                        update(book)
+                                    }
+                                }
+                            } else
                                 share.add(ShareItem(book, repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!), repositoryAnnotation.findByBook(book.id!!)))
                         }
                 }

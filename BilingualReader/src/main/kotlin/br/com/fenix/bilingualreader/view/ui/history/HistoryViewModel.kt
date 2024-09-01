@@ -27,7 +27,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
     private val mBookRepository: BookRepository = BookRepository(application.applicationContext)
 
     private val mDefaultKey = -3L
-    private val mDefaultLibrary = Library(mDefaultKey, application.applicationContext.getString(R.string.history_library_default), "", excluded = true)
+    val mDefaultLibrary = Library(mDefaultKey, application.applicationContext.getString(R.string.history_library_default), "", excluded = true)
 
     private var mLibrary: Library? = null
     private var mType: Type? = null
@@ -259,7 +259,6 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
 
     fun getLibraryList(): List<Library> {
         val list = mutableListOf<Library>()
-        list.add(mDefaultLibrary)
         list.addAll(mLibraryRepository.list(Type.MANGA))
         list.addAll(mLibraryRepository.list(Type.BOOK))
         return list
