@@ -289,6 +289,15 @@ public class EpubExtractor extends BaseExtractor {
                                 }
                                 break;
                             }
+
+                            if (coverResource == null && "item".equals(xpp.getName()) && xpp.getAttributeValue(null, "properties") != null &&
+                                    xpp.getAttributeValue(null, "properties").toLowerCase().contains("cover")) {
+                                coverName = xpp.getAttributeValue(null, "href");
+                                if (coverName != null && coverName.endsWith(".svg")) {
+                                    coverName = null;
+                                }
+                                break;
+                            }
                         }
                         eventType = xpp.next();
                     }
@@ -319,11 +328,19 @@ public class EpubExtractor extends BaseExtractor {
 
                 while (entries.hasMoreElements() && (nextEntry = entries.nextElement()) != null) {
                     String name = nextEntry.getName().toLowerCase(Locale.getDefault());
+
+                    if (name.contains("\\"))
+                        name = name.substring(name.lastIndexOf("\\") + 1);
+
+                    if (name.contains("/"))
+                        name = name.substring(name.lastIndexOf("/") + 1);
+
                     if (name.endsWith(".jpeg") || name.endsWith(".jpg") || name.endsWith(".png")) {
                         if (name.startsWith("cover")) {
                             cover = BaseExtractor.getEntryAsByte(zipFile.getInputStream(nextEntry));
                             break;
                         }
+
                         if (name.contains("cover"))
                             coverAux = BaseExtractor.getEntryAsByte(zipFile.getInputStream(nextEntry));
                     }
