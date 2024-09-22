@@ -22,7 +22,7 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/vocabulary_book_list_image_card"
         style="@style/AppBackground.Card"
-        android:layout_width="@dimen/vocabulary_book_cover_size"
+        android:layout_width="@dimen/vocabulary_book_cover_width"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         app:strokeWidth="0.0dp"
@@ -30,8 +30,8 @@
 
         <ImageView
             android:id="@+id/vocabulary_book_list_image_cover"
-            android:layout_width="@dimen/vocabulary_book_cover_size"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/vocabulary_book_cover_width"
+            android:layout_height="@dimen/vocabulary_book_cover_height"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
             app:srcCompat="@mipmap/book_cover_2" />

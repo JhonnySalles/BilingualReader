@@ -372,7 +372,7 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
 
         Toast.makeText(
             requireContext(),
-            getString(R.string.menu_manga_reading_order_change) + " ${mMapOrder[orderBy]}",
+            getString(R.string.menu_manga_reading_order_change, mMapOrder[orderBy]),
             Toast.LENGTH_SHORT
         ).show()
 

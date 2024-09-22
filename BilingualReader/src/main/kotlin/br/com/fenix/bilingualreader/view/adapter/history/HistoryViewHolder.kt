@@ -76,7 +76,13 @@ class HistoryViewHolder(itemView: View, private val listener: HistoryCardListene
         }
 
         favorite.visibility = if (history.favorite) View.VISIBLE else View.GONE
-        subtitle.visibility = if (history is Manga && history.hasSubtitle) View.VISIBLE else View.GONE
+        subtitle.visibility  = if (history is Manga && history.hasSubtitle) {
+            if (history.lastVocabImport != null)
+                subtitle.setImageResource(R.drawable.ic_subtitles_imported)
+            else
+                subtitle.setImageResource(R.drawable.ic_subtitles_exist)
+            View.VISIBLE
+        } else View.GONE
 
         if (history.excluded) {
             cardView.setBackgroundResource(R.drawable.history_custom_ripple_item_deleted)
