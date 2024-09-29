@@ -131,17 +131,20 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                         update(manga)
                                     }
                                 }
-                            } else if (cloud.containsKey(manga.name)) {
-                                val item = ShareItem(cloud[manga.name] as Map<String, *>)
-                                share.add(item)
-                                if (compare(item, manga)) {
-                                    repositoryManga.update(manga, alteration)
-                                    withContext(Dispatchers.Main) {
-                                        update(manga)
+                            } else {
+                                val alphabet = manga.name.substring(0, 2).lowercase().trim()
+                                if (cloud.containsKey(alphabet) && (cloud[alphabet]as Map<String, Any>).containsKey(manga.name)) {
+                                    val item = ShareItem((cloud[alphabet] as Map<String, Any>)[manga.name] as Map<String, *>)
+                                    share.add(item)
+                                    if (compare(item, manga)) {
+                                        repositoryManga.update(manga, alteration)
+                                        withContext(Dispatchers.Main) {
+                                            update(manga)
+                                        }
                                     }
-                                }
-                            } else
-                                share.add(ShareItem(manga, repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!)))
+                                } else
+                                    share.add(ShareItem(manga, repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!)))
+                            }
                         }
                 }
 
@@ -179,7 +182,10 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                     try {
                         share.filter { it.alter }.forEach {
                             it.sync = sync
-                            cloud[it.file] = it
+                            val position = it.file.substring(0, 2).lowercase().trim()
+                            val item = if (cloud.containsKey(position)) cloud[position] as MutableMap<String, Any> else mutableMapOf()
+                            item[it.file] = it
+                            cloud[position] = item
                             it.refreshHistory(repositoryHistory.find(Type.MANGA, it.idLibrary, it.id))
                         }
 
@@ -198,7 +204,8 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 ShareMarkType.send = share.count { it.alter }
                 ShareMarkType.receive = share.count { it.received }
 
-                prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, simpleDate.format(Date(sync.time + 1000))).apply()
+                if (shared != ShareMarkType.ERROR_UPLOAD)
+                    prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, simpleDate.format(Date(sync.time + 1000))).apply()
 
                 withContext(Dispatchers.Main) {
                     ending(shared)
@@ -244,10 +251,13 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 try {
                     val documents = snapshot.data ?: mapOf()
                     for (key in documents.keys) {
-                        val item = documents[key] as Map<String, *>
-                        cloud[key] = item
-                        if (lastSync.before((item[ShareItem.FIELD_SYNC] as Timestamp).toDate()))
-                            share.add(ShareItem(item))
+                        val alphabet = documents[key] as Map<String, *>
+                        cloud[key] = alphabet
+                        for (itm in alphabet.keys) {
+                            val item = alphabet[itm] as Map<String, *>
+                            if (lastSync.before((item[ShareItem.FIELD_SYNC] as Timestamp).toDate()))
+                                share.add(ShareItem(item))
+                        }
                     }
                 } catch (e: Exception) {
                     mLOGGER.error(e.message, e)
@@ -267,17 +277,20 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                         update(book)
                                     }
                                 }
-                            } else if (cloud.containsKey(book.name)) {
-                                val item = ShareItem(cloud[book.name] as Map<String, *>)
-                                share.add(item)
-                                if (compare(item, book)) {
-                                    repositoryBook.update(book, alteration)
-                                    withContext(Dispatchers.Main) {
-                                        update(book)
+                            } else {
+                                val alphabet = book.name.substring(0, 2).lowercase().trim()
+                                if (cloud.containsKey(alphabet) && (cloud[alphabet]as Map<String, Any>).containsKey(book.name)) {
+                                    val item = ShareItem((cloud[alphabet] as Map<String, Any>)[book.name] as Map<String, *>)
+                                    share.add(item)
+                                    if (compare(item, book)) {
+                                        repositoryBook.update(book, alteration)
+                                        withContext(Dispatchers.Main) {
+                                            update(book)
+                                        }
                                     }
-                                }
-                            } else
-                                share.add(ShareItem(book, repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!), repositoryAnnotation.findByBook(book.id!!)))
+                                } else
+                                    share.add(ShareItem(book, repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!), repositoryAnnotation.findByBook(book.id!!)))
+                            }
                         }
                 }
 
@@ -341,7 +354,10 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                     try {
                         share.filter { it.alter }.forEach {
                             it.sync = sync
-                            cloud[it.file] = it
+                            val alphabet = it.file.substring(0, 2).lowercase().trim()
+                            val item = if (cloud.containsKey(alphabet)) cloud[alphabet] as MutableMap<String, Any> else mutableMapOf()
+                            item[it.file] = it
+                            cloud[alphabet] = item
                             it.refreshHistory(repositoryHistory.find(Type.BOOK, it.idLibrary, it.id))
                             it.refreshAnnotations(repositoryAnnotation.findByBook(it.id))
                         }
@@ -361,7 +377,8 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 ShareMarkType.send = share.count { it.alter }
                 ShareMarkType.receive = share.count { it.received }
 
-                prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, simpleDate.format(Date(sync.time + 1000))).apply()
+                if (shared != ShareMarkType.ERROR_UPLOAD)
+                    prefs.edit().putString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, simpleDate.format(Date(sync.time + 1000))).apply()
 
                 withContext(Dispatchers.Main) {
                     ending(shared)
