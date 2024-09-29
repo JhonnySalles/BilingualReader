@@ -108,10 +108,13 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 try {
                     val documents = snapshot.data ?: mapOf()
                     for (key in documents.keys) {
-                        val item = documents[key] as Map<String, *>
-                        cloud[key] = item
-                        if (lastSync.before((item[ShareItem.FIELD_SYNC] as Timestamp).toDate()))
-                            share.add(ShareItem(item))
+                        val alphabet = documents[key] as Map<String, *>
+                        cloud[key] = alphabet
+                        for (itm in alphabet.keys) {
+                            val item = alphabet[itm] as Map<String, *>
+                            if (lastSync.before((item[ShareItem.FIELD_SYNC] as Timestamp).toDate()))
+                                share.add(ShareItem(item))
+                        }
                     }
                 } catch (e: Exception) {
                     mLOGGER.error(e.message, e)
