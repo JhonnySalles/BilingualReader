@@ -108,10 +108,10 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 try {
                     val documents = snapshot.data ?: mapOf()
                     for (key in documents.keys) {
-                        val list = documents[key] as Map<String, *>
-                        cloud[key] = list
-                        for (itm in list.keys) {
-                            val item = list[itm] as Map<String, *>
+                        val alphabet = documents[key] as Map<String, *>
+                        cloud[key] = alphabet
+                        for (itm in alphabet.keys) {
+                            val item = alphabet[itm] as Map<String, *>
                             if (lastSync.before((item[ShareItem.FIELD_SYNC] as Timestamp).toDate()))
                                 share.add(ShareItem(item))
                         }
@@ -135,9 +135,9 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                     }
                                 }
                             } else {
-                                val position = manga.name.substring(0, 2).lowercase().trim()
-                                if (cloud.containsKey(position) && (cloud[position]as Map<String, Any>).containsKey(manga.name)) {
-                                    val item = ShareItem((cloud[position] as Map<String, Any>)[manga.name] as Map<String, *>)
+                                val alphabet = manga.name.substring(0, 2).lowercase().trim()
+                                if (cloud.containsKey(alphabet) && (cloud[alphabet]as Map<String, Any>).containsKey(manga.name)) {
+                                    val item = ShareItem((cloud[alphabet] as Map<String, Any>)[manga.name] as Map<String, *>)
                                     share.add(item)
                                     if (compare(item, manga)) {
                                         repositoryManga.update(manga, alteration)
@@ -254,10 +254,10 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 try {
                     val documents = snapshot.data ?: mapOf()
                     for (key in documents.keys) {
-                        val list = documents[key] as Map<String, *>
-                        cloud[key] = list
-                        for (itm in list.keys) {
-                            val item = list[itm] as Map<String, *>
+                        val alphabet = documents[key] as Map<String, *>
+                        cloud[key] = alphabet
+                        for (itm in alphabet.keys) {
+                            val item = alphabet[itm] as Map<String, *>
                             if (lastSync.before((item[ShareItem.FIELD_SYNC] as Timestamp).toDate()))
                                 share.add(ShareItem(item))
                         }
@@ -281,9 +281,9 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                     }
                                 }
                             } else {
-                                val position = book.name.substring(0, 2).lowercase().trim()
-                                if (cloud.containsKey(position) && (cloud[position]as Map<String, Any>).containsKey(book.name)) {
-                                    val item = ShareItem((cloud[position] as Map<String, Any>)[book.name] as Map<String, *>)
+                                val alphabet = book.name.substring(0, 2).lowercase().trim()
+                                if (cloud.containsKey(alphabet) && (cloud[alphabet]as Map<String, Any>).containsKey(book.name)) {
+                                    val item = ShareItem((cloud[alphabet] as Map<String, Any>)[book.name] as Map<String, *>)
                                     share.add(item)
                                     if (compare(item, book)) {
                                         repositoryBook.update(book, alteration)
@@ -357,10 +357,10 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                     try {
                         share.filter { it.alter }.forEach {
                             it.sync = sync
-                            val position = it.file.substring(0, 2).lowercase().trim()
-                            val item = if (cloud.containsKey(position)) cloud[position] as MutableMap<String, Any> else mutableMapOf()
+                            val alphabet = it.file.substring(0, 2).lowercase().trim()
+                            val item = if (cloud.containsKey(alphabet)) cloud[alphabet] as MutableMap<String, Any> else mutableMapOf()
                             item[it.file] = it
-                            cloud[position] = item
+                            cloud[alphabet] = item
                             it.refreshHistory(repositoryHistory.find(Type.BOOK, it.idLibrary, it.id))
                             it.refreshAnnotations(repositoryAnnotation.findByBook(it.id))
                         }
