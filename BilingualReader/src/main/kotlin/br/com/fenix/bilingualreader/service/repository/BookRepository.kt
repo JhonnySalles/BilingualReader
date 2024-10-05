@@ -174,7 +174,7 @@ class BookRepository(context: Context) {
 
     fun listSync(date: Date): List<Book> {
         return try {
-            loadLibrary(mDataBase.listSync(date))
+            loadLibrary(mDataBase.listSync(GeneralConsts.dateToDateTime(date)))
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book: " + e.message, e)
             listOf()

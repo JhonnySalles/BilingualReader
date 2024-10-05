@@ -189,8 +189,7 @@ class MangaRepository(context: Context) {
 
     fun listSync(date: Date): List<Manga> {
         return try {
-            val simple = SimpleDateFormat(GeneralConsts.PATTERNS.FULL_DATE_TIME, Locale.getDefault())
-            loadLibrary(mDataBase.listSync(simple.format(date)))
+            loadLibrary(mDataBase.listSync(GeneralConsts.dateToDateTime(date)))
         } catch (e: Exception) {
             mLOGGER.error("Error when list Manga: " + e.message, e)
             listOf()

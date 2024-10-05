@@ -73,17 +73,24 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
 
     // --------------------------------------------------------- Manga ---------------------------------------------------------
     protected fun compare(item: ShareItem, manga: Manga): Boolean {
-        return if (manga.lastAccess == null || item.lastAccess.after(GeneralConsts.dateTimeToDate(manga.lastAccess!!))) {
+        return if ((manga.lastAccess == null && manga.lastAlteration != null && GeneralConsts.dateTimeToDate(manga.lastAlteration!!).before(item.sync)) ||
+            (manga.lastAccess != null && item.lastAccess.after(GeneralConsts.dateTimeToDate(manga.lastAccess!!)))) {
+
             manga.bookMark = item.bookMark
             manga.lastAccess = GeneralConsts.dateToDateTime(item.lastAccess)
             manga.favorite = item.favorite
             manga.completed = item.completed
+
             true
         } else {
-            //Differ 10 seconds
-            val diff: Long = item.lastAccess.time - GeneralConsts.dateTimeToDate(manga.lastAccess!!).time
-            if (diff > 5000 || diff < -5000)
+            if (manga.lastAccess == null)
                 item.merge(manga)
+            else {
+                //Differ 10 seconds
+                val diff: Long = item.lastAccess.time - GeneralConsts.dateTimeToDate(manga.lastAccess!!).time
+                if (diff > 5000 || diff < -5000)
+                    item.merge(manga)
+            }
             false
         }
     }
@@ -120,7 +127,9 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
 
     // --------------------------------------------------------- Book ---------------------------------------------------------
     protected fun compare(item: ShareItem, book: Book): Boolean {
-        return if (book.lastAccess == null || item.lastAccess.after(GeneralConsts.dateTimeToDate(book.lastAccess!!))) {
+        return if ((book.lastAccess == null && book.lastAlteration != null && GeneralConsts.dateTimeToDate(book.lastAlteration!!).before(item.sync)) ||
+            (book.lastAccess != null && item.lastAccess.after(GeneralConsts.dateTimeToDate(book.lastAccess!!)))) {
+
             if (book.pages <= 1 && item.pages > 1) {
                 book.bookMark = item.bookMark
                 book.pages = item.pages
@@ -143,10 +152,14 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
             item.received = true
             true
         } else {
-            //Differ 10 seconds
-            val diff: Long = item.lastAccess.time - GeneralConsts.dateTimeToDate(book.lastAccess!!).time
-            if (diff > 5000 || diff < -5000)
+            if (book.lastAccess == null)
                 item.merge(book)
+            else {
+                //Differ 10 seconds
+                val diff: Long = item.lastAccess.time - GeneralConsts.dateTimeToDate(book.lastAccess!!).time
+                if (diff > 5000 || diff < -5000)
+                    item.merge(book)
+            }
             false
         }
     }

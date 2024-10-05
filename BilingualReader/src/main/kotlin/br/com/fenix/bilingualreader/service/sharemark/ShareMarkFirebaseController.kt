@@ -189,8 +189,10 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                 it.sync = sync
                                 it.refreshHistory(repositoryHistory.find(Type.MANGA, it.idLibrary, it.id))
                                 collection.document(it.file).set(it).await()
-                            } else
+                            } else {
+                                mangas.remove(it.file)
                                 collection.document(it.file).delete().await()
+                            }
                         }
 
                         if (share.any { it.alter })
@@ -228,7 +230,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 val sync = Date()
                 val prefs = GeneralConsts.getSharedPreferences(context)
                 val simpleDate = SimpleDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME, Locale.getDefault())
-                val dateSync = INITIAL_SYNC_DATE_TIME
+                val dateSync = prefs.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, INITIAL_SYNC_DATE_TIME)!!
                 val lastSync = simpleDate.parse(dateSync)!!
 
                 val collection: CollectionReference
@@ -365,8 +367,10 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                 it.refreshHistory(repositoryHistory.find(Type.BOOK, it.idLibrary, it.id))
                                 it.refreshAnnotations(repositoryAnnotation.findByBook(it.id))
                                 collection.document(it.file).set(it).await()
-                            } else
+                            } else {
+                                books.remove(it.file)
                                 collection.document(it.file).delete().await()
+                            }
                         }
 
                         if (share.any { it.alter })

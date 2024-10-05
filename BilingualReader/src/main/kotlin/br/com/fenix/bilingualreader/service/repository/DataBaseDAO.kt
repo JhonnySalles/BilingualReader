@@ -170,8 +170,8 @@ abstract class MangaDAO : BaseDAO<Manga, Long>(DataBaseConsts.MANGA.TABLE_NAME, 
     @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 0 ORDER BY " + DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS + " DESC LIMIT 2")
     abstract fun getLastOpen(): List<Manga>?
 
-    @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS + " >= :date ORDER BY " + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY + ", " + DataBaseConsts.MANGA.COLUMNS.FILE_NAME)
-    abstract fun listSync(date: String): List<Manga>
+    @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS + " >= :date OR " + DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION + " > :date ORDER BY " + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY + ", " + DataBaseConsts.MANGA.COLUMNS.FILE_NAME)
+    abstract fun listSync(date: LocalDateTime): List<Manga>
 
 }
 
@@ -222,7 +222,7 @@ abstract class BookDAO : BaseDAO<Book, Long>(DataBaseConsts.BOOK.TABLE_NAME, Dat
     abstract fun getLastOpen(): List<Book>?
 
     @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS + " >= :date OR " + DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION + " > :date ORDER BY " + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + ", " + DataBaseConsts.BOOK.COLUMNS.FILE_NAME)
-    abstract fun listSync(date: Date): List<Book>
+    abstract fun listSync(date: LocalDateTime): List<Book>
 
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
