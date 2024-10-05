@@ -78,17 +78,17 @@ data class ShareHistory(
 ) : Serializable {
 
     companion object {
-        const val FIELD_PAGE_START = "pageStart"
-        const val FIELD_PAGE_END = "pageEnd"
-        const val FIELD_PAGES = "pages"
-        const val FIELD_COMPLETED = "completed"
+        const val FIELD_PAGE_START = "paginaInicial"
+        const val FIELD_PAGE_END = "paginaFinal"
+        const val FIELD_PAGES = "paginas"
+        const val FIELD_COMPLETED = "completo"
         const val FIELD_VOLUME = "volume"
-        const val FIELD_CHAPTERS_READ = "chaptersRead"
-        const val FIELD_START = "start"
-        const val FIELD_END = "end"
-        const val FIELD_SECONDS_READ = "secondsRead"
-        const val FIELD_AVERAGE_TIME_BY_PAGE = "averageTimeByPage"
-        const val FIELD_USE_TTS = "useTTS"
+        const val FIELD_CHAPTERS_READ = "capitulosLidos"
+        const val FIELD_START = "inicio"
+        const val FIELD_END = "final"
+        const val FIELD_SECONDS_READ = "segundosLidos"
+        const val FIELD_AVERAGE_TIME_BY_PAGE = "mediaTempoPorPagina"
+        const val FIELD_USE_TTS = "usadoTTS"
     }
 
     constructor(firebase: Map<String, *>) : this(

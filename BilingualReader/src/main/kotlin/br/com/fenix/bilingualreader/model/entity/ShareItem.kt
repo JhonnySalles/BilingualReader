@@ -68,8 +68,8 @@ data class ShareItem(
         const val FIELD_FAVORITE = "favorito"
         const val FIELD_LASTACCESS = "ultimoAcesso"
         const val FIELD_SYNC = "sincronizado"
-        const val FIELD_HISTORY = "history"
-        const val FIELD_ANNOTATION = "annotation"
+        const val FIELD_HISTORY = "historico"
+        const val FIELD_ANNOTATION = "anotacao"
 
         const val PARSE_DATE_TIME = "yyyy-MM-dd-HH:mm:ss"
         val MIN_DATE_TIME = LocalDateTime.of(2000, 1, 1, 0, 0)

@@ -85,18 +85,18 @@ data class ShareAnnotation(
 ) : Serializable {
 
     companion object {
-        const val FIELD_PAGE = "page"
-        const val FIELD_PAGES = "pages"
-        const val FIELD_FONT_SIZE = "fontSize"
-        const val FIELD_TYPE = "type"
-        const val FIELD_CHAPTER_NUMBER = "chapterNumber"
-        const val FIELD_CHAPTER = "chapter"
-        const val FIELD_TEXT = "text"
+        const val FIELD_PAGE = "pagina"
+        const val FIELD_PAGES = "paginas"
+        const val FIELD_FONT_SIZE = "fonteTamanho"
+        const val FIELD_TYPE = "tipo"
+        const val FIELD_CHAPTER_NUMBER = "capituloNumero"
+        const val FIELD_CHAPTER = "capitulo"
+        const val FIELD_TEXT = "texto"
         const val FIELD_RANGE = "range"
-        const val FIELD_ANNOTATION = "annotation"
-        const val FIELD_FAVORITE = "favorite"
-        const val FIELD_COLOR = "color"
-        const val FIELD_CREATED = "created"
+        const val FIELD_ANNOTATION = "anotacao"
+        const val FIELD_FAVORITE = "favorito"
+        const val FIELD_COLOR = "cor"
+        const val FIELD_CREATED = "criado"
 
         private fun getFloat(field: Any?, default: Float): Float {
             return try {

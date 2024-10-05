@@ -17,9 +17,7 @@ import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseApp
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.CollectionReference
@@ -86,13 +84,13 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 val lastSync = simpleDate.parse(dateSync)!!
 
                 val collection: CollectionReference
-                val query: Task<QuerySnapshot>
                 val snapshot: QuerySnapshot
+                val document: DocumentSnapshot
 
                 try {
                     collection = mDB.collection(String.format(DATABASE_NAME, mUser, MANGA))
-                    query = collection.whereGreaterThan(ShareItem.FIELD_SYNC, lastSync).get()
-                    snapshot = query.await()
+                    snapshot = collection.whereGreaterThan(ShareItem.FIELD_SYNC, lastSync).get().await()
+                    document = collection.document("_" + MANGA).get().await()
                 } catch (e: Exception) {
                     mLOGGER.error(e.message, e)
                     withContext(Dispatchers.Main) {
@@ -104,8 +102,14 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 val repositoryManga = MangaRepository(context)
                 val repositoryHistory = HistoryRepository(context)
                 val share = mutableListOf<ShareItem>()
+                val mangas = mutableMapOf<String, Date>()
 
                 try {
+                    if (document.exists()) {
+                        val item = document.data ?: mapOf()
+                        mangas.putAll(item as Map<String, Date>)
+                    }
+
                     snapshot.documents.forEach {
                         val item = it.data ?: mapOf()
                         share.add(ShareItem(item))
@@ -129,17 +133,19 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                     }
                                 }
                             } else {
-                                val document = collection.document(manga.name).get().await()
-                                if (document.exists()) {
-                                    val item = ShareItem(document.data as Map<String, *>)
-                                    share.add(item)
-                                    if (compare(item, manga)) {
-                                        repositoryManga.update(manga, alteration)
-                                        withContext(Dispatchers.Main) {
-                                            update(manga)
+                                if (mangas.containsKey(manga.name)) {
+                                    val document = collection.document(manga.name).get().await()
+                                    if (document.exists()) {
+                                        val item = ShareItem(document.data as Map<String, *>)
+                                        share.add(item)
+                                        if (compare(item, manga)) {
+                                            repositoryManga.update(manga, alteration)
+                                            withContext(Dispatchers.Main) {
+                                                update(manga)
+                                            }
                                         }
                                     }
-                                } else
+                                } else if (manga.bookMark > 0)
                                     share.add(ShareItem(manga, repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!)))
                             }
                         }
@@ -178,11 +184,18 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 val shared = if (isUpdate) {
                     try {
                         share.filter { it.alter }.forEach {
-                            it.sync = sync
-                            it.refreshHistory(repositoryHistory.find(Type.MANGA, it.idLibrary, it.id))
-                            val result = collection.document(it.file).set(it)
-                            result.await()
+                            if (it.bookMark > 0) {
+                                mangas[it.file] = sync
+                                it.sync = sync
+                                it.refreshHistory(repositoryHistory.find(Type.MANGA, it.idLibrary, it.id))
+                                collection.document(it.file).set(it).await()
+                            } else
+                                collection.document(it.file).delete().await()
                         }
+
+                        if (share.any { it.alter })
+                            collection.document("_$MANGA").set(mangas).await()
+
                         ShareMarkType.SUCCESS
                     } catch (e: Exception) {
                         mLOGGER.error(e.message, e)
@@ -215,17 +228,17 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 val sync = Date()
                 val prefs = GeneralConsts.getSharedPreferences(context)
                 val simpleDate = SimpleDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME, Locale.getDefault())
-                val dateSync = prefs.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, INITIAL_SYNC_DATE_TIME)!!
+                val dateSync = INITIAL_SYNC_DATE_TIME
                 val lastSync = simpleDate.parse(dateSync)!!
 
                 val collection: CollectionReference
-                val query: Task<QuerySnapshot>
                 val snapshot: QuerySnapshot
+                val document: DocumentSnapshot
 
                 try {
                     collection = mDB.collection(String.format(DATABASE_NAME, mUser, BOOK))
-                    query = collection.whereGreaterThan(ShareItem.FIELD_SYNC, lastSync).get()
-                    snapshot = query.await()
+                    snapshot = collection.whereGreaterThan(ShareItem.FIELD_SYNC, lastSync).get().await()
+                    document = collection.document("_" + BOOK).get().await()
                 } catch (e: Exception) {
                     mLOGGER.error(e.message, e)
                     withContext(Dispatchers.Main) {
@@ -238,8 +251,14 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 val repositoryHistory = HistoryRepository(context)
                 val repositoryAnnotation = BookAnnotationRepository(context)
                 val share = mutableListOf<ShareItem>()
+                val books = mutableMapOf<String, Date>()
 
                 try {
+                    if (document.exists()) {
+                        val item = document.data ?: mapOf()
+                        books.putAll(item as Map<String, Date>)
+                    }
+
                     snapshot.documents.forEach {
                         val item = it.data ?: mapOf()
                         share.add(ShareItem(item))
@@ -263,17 +282,19 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                     }
                                 }
                             } else {
-                                val document = collection.document(book.name).get().await()
-                                if (document.exists()) {
-                                    val item = ShareItem(document.data as Map<String, *>)
-                                    share.add(item)
-                                    if (compare(item, book)) {
-                                        repositoryBook.update(book, alteration)
-                                        withContext(Dispatchers.Main) {
-                                            update(book)
+                                if (books.containsKey(book.name)) {
+                                    val document = collection.document(book.name).get().await()
+                                    if (document.exists()) {
+                                        val item = ShareItem(document.data as Map<String, *>)
+                                        share.add(item)
+                                        if (compare(item, book)) {
+                                            repositoryBook.update(book, alteration)
+                                            withContext(Dispatchers.Main) {
+                                                update(book)
+                                            }
                                         }
                                     }
-                                } else
+                                } else if (book.bookMark > 0)
                                     share.add(ShareItem(book, repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!), repositoryAnnotation.findByBook(book.id!!)))
                             }
                         }
@@ -338,12 +359,19 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 val shared = if (isUpdate) {
                     try {
                         share.filter { it.alter }.forEach {
-                            it.sync = sync
-                            it.refreshHistory(repositoryHistory.find(Type.BOOK, it.idLibrary, it.id))
-                            it.refreshAnnotations(repositoryAnnotation.findByBook(it.id))
-                            val result = collection.document(it.file).set(it)
-                            result.await()
+                            if (it.bookMark > 0) {
+                                books[it.file] = sync
+                                it.sync = sync
+                                it.refreshHistory(repositoryHistory.find(Type.BOOK, it.idLibrary, it.id))
+                                it.refreshAnnotations(repositoryAnnotation.findByBook(it.id))
+                                collection.document(it.file).set(it).await()
+                            } else
+                                collection.document(it.file).delete().await()
                         }
+
+                        if (share.any { it.alter })
+                            collection.document("_$BOOK").set(books).await()
+
                         ShareMarkType.SUCCESS
                     } catch (e: Exception) {
                         mLOGGER.error(e.message, e)
