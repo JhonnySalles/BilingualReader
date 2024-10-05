@@ -13,7 +13,6 @@ import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.exceptions.ShareMarkNotConnectCloudException
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import org.slf4j.LoggerFactory
-import java.util.Date
 import kotlin.math.roundToInt
 
 
