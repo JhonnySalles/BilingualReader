@@ -238,13 +238,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        if (mParse != null)
-            setFullscreen(fullscreen = true)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mCurrentPage = 0
