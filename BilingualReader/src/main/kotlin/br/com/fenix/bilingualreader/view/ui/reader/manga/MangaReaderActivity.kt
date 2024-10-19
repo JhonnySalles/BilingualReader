@@ -59,7 +59,6 @@ import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.PageMode
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
-import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
@@ -805,8 +804,8 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 return true
             }
 
-            R.id.reading_manga_left_to_right -> optionsSave(PageMode.Comics)
-            R.id.reading_manga_right_to_left -> optionsSave(PageMode.Manga)
+            R.id.reading_manga_mode_comic -> optionsSave(PageMode.Comics)
+            R.id.reading_manga_mode_manga -> optionsSave(PageMode.Manga)
             R.id.manga_view_mode_aspect_fill -> optionsSave(ReaderMode.ASPECT_FILL)
             R.id.manga_view_mode_aspect_fit -> optionsSave(ReaderMode.ASPECT_FIT)
             R.id.manga_view_mode_fit_width -> optionsSave(ReaderMode.FIT_WIDTH)

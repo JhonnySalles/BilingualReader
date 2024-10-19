@@ -297,8 +297,8 @@ class ConfigFragment : Fragment() {
         )
 
         mMangaMapPageMode = hashMapOf(
-            getString(R.string.menu_manga_reading_mode_left_to_right) to PageMode.Comics,
-            getString(R.string.menu_manga_reading_mode_right_to_left) to PageMode.Manga
+            getString(R.string.menu_manga_reading_mode_comic) to PageMode.Comics,
+            getString(R.string.menu_manga_reading_mode_manga) to PageMode.Manga
         )
 
         mMangaMapReaderMode = hashMapOf(

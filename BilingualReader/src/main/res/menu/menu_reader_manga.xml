@@ -17,18 +17,18 @@
         <menu>
             <group android:checkableBehavior="single">
                 <item
-                    android:id="@+id/reading_manga_left_to_right"
-                    android:title="@string/menu_manga_reading_mode_left_to_right" />
+                    android:id="@+id/reading_manga_mode_comic"
+                    android:title="@string/menu_manga_reading_mode_comic" />
                 <item
-                    android:id="@+id/reading_manga_right_to_left"
-                    android:title="@string/menu_manga_reading_mode_right_to_left" />
+                    android:id="@+id/reading_manga_mode_manga"
+                    android:title="@string/menu_manga_reading_mode_manga" />
             </group>
         </menu>
     </item>
 
     <item
         android:id="@+id/menu_item_reader_manga_scrolling_mode"
-        android:icon="@drawable/ic_book_open"
+        android:icon="@drawable/ic_reading_mode"
         android:orderInCategory="102"
         android:title="@string/menu_manga_scrolling_mode"
         app:showAsAction="never">

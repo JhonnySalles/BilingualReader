@@ -424,8 +424,8 @@
     <string name="menu_manga_view_mode_fit_width">Ajustar à largura</string>
 
     <string name="menu_manga_reading_mode">Modo de leitura</string>
-    <string name="menu_manga_reading_mode_left_to_right">Comic</string>
-    <string name="menu_manga_reading_mode_right_to_left">Manga</string>
+    <string name="menu_manga_reading_mode_comic">Comic</string>
+    <string name="menu_manga_reading_mode_manga">Manga</string>
 
     <string name="menu_manga_scrolling_mode">Modo de rolagem</string>
     <string name="menu_manga_scrolling_vertical">Vertical</string>

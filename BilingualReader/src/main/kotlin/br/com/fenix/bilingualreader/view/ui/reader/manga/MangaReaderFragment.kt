@@ -510,9 +510,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
 
         if (mIsLeftToRight)
-            menu.findItem(R.id.reading_manga_left_to_right).isChecked = true
+            menu.findItem(R.id.reading_manga_mode_comic).isChecked = true
         else
-            menu.findItem(R.id.reading_manga_right_to_left).isChecked = true
+            menu.findItem(R.id.reading_manga_mode_manga).isChecked = true
 
         when (mScrollingMode) {
             ScrollingType.Horizontal -> menu.findItem(R.id.reading_manga_scrolling_horizontal).isChecked = true
@@ -591,10 +591,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 }
             }
 
-            R.id.reading_manga_left_to_right, R.id.reading_manga_right_to_left -> {
+            R.id.reading_manga_mode_comic, R.id.reading_manga_mode_manga -> {
                 item.isChecked = true
                 val page = getCurrentPage()
-                mIsLeftToRight = item.itemId == R.id.reading_manga_left_to_right
+                mIsLeftToRight = item.itemId == R.id.reading_manga_mode_comic
                 setCurrentPage(page, false)
                 mViewPager.adapter?.notifyDataSetChanged()
                 updateSeekBar()
