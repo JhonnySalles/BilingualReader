@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/reader_manga_touch_demonstration_content"
+    android:id="@+id/reader_book_touch_demonstration_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -13,8 +13,8 @@
         android:gravity="center"
         android:padding="16dp"
         android:textSize="@dimen/reader_touch_demonstration_text_size"
-        android:text="@string/reading_manga_touch_demonstration_share_image"
-        android:theme="@style/TouchDemonstration.Horizontal"
+        android:text="@string/reading_book_touch_demonstration_page_mark"
+        android:theme="@style/TouchDemonstration.Horizontal.Top"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -24,7 +24,7 @@
         android:layout_height="@dimen/reader_touch_demonstration_initial_horizontal"
         android:gravity="center"
         android:padding="16dp"
-        android:text="@string/reading_manga_touch_demonstration_chapters"
+        android:text="@string/reading_book_touch_demonstration_chapters"
         android:textSize="@dimen/reader_touch_demonstration_text_size"
         android:theme="@style/TouchDemonstration.Horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -36,7 +36,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:padding="16dp"
-        android:text="@string/reading_manga_touch_demonstration_previous_page"
+        android:text="@string/reading_book_touch_demonstration_previous_page"
         android:theme="@style/TouchDemonstration.Vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -47,7 +47,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:padding="16dp"
-        android:text="@string/reading_manga_touch_demonstration_next_page"
+        android:text="@string/reading_book_touch_demonstration_next_page"
         android:theme="@style/TouchDemonstration.Vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -58,27 +58,7 @@
         android:layout_height="@dimen/reader_touch_demonstration_initial_horizontal"
         android:gravity="center"
         android:padding="16dp"
-        android:text="@string/reading_manga_touch_demonstration_aspect_fit"
-        android:theme="@style/TouchDemonstration.Corner"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:layout_width="@dimen/reader_touch_demonstration_initial_vertical"
-        android:layout_height="@dimen/reader_touch_demonstration_initial_horizontal"
-        android:gravity="center"
-        android:padding="16dp"
-        android:text="@string/reading_manga_touch_demonstration_fit_width"
-        android:theme="@style/TouchDemonstration.Corner"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:layout_width="@dimen/reader_touch_demonstration_initial_vertical"
-        android:layout_height="@dimen/reader_touch_demonstration_initial_horizontal"
-        android:gravity="center"
-        android:padding="16dp"
-        android:text="@string/reading_manga_touch_demonstration_next_file"
+        android:text="@string/reading_book_touch_demonstration_next_file"
         android:theme="@style/TouchDemonstration.Corner"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
@@ -88,7 +68,7 @@
         android:layout_height="@dimen/reader_touch_demonstration_initial_horizontal"
         android:gravity="center"
         android:padding="16dp"
-        android:text="@string/reading_manga_touch_demonstration_previous_file"
+        android:text="@string/reading_book_touch_demonstration_previous_file"
         android:theme="@style/TouchDemonstration.Corner"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent" />

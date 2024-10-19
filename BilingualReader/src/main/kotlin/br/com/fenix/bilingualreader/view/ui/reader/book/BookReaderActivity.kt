@@ -130,6 +130,7 @@ class BookReaderActivity : AppCompatActivity() {
         mBackgroundTitle = findViewById(R.id.book_progress_text)
         mBackgroundProgress = findViewById(R.id.book_progress_bar)
         mBackgroundClock = findViewById(R.id.book_progress_clock)
+        mTouchView = findViewById(R.id.reader_book_container_touch_demonstration)
 
         setSupportActionBar(mToolBarTop)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -188,6 +189,17 @@ class BookReaderActivity : AppCompatActivity() {
         )
 
         mPopupConfigurationView.adapter = viewPagerAdapter
+
+        mTouchView.setOnClickListener {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (mHandler.hasCallbacks(mDismissTouchView))
+                    mHandler.removeCallbacks(mDismissTouchView)
+            } else {
+                mHandler.removeCallbacks(mDismissTouchView)
+            }
+
+            closeViewTouch()
+        }
 
         if (savedInstanceState == null) {
             SharedData.clearChapters()
@@ -422,6 +434,7 @@ class BookReaderActivity : AppCompatActivity() {
                     AnimationUtil.animatePopupClose(this, mMenuPopupConfiguration, !mMenuPopupBottomSheet, navigationColor = false)
             }
             R.id.menu_item_reader_book_mark_page -> {}
+            R.id.menu_item_reader_book_view_touch_screen -> openViewTouch()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -449,6 +462,17 @@ class BookReaderActivity : AppCompatActivity() {
                 mFragment?.hitBeginning()
                 true
             }
+
+            Position.TOP -> {
+                mFragment?.markCurrentPage()
+                true
+            }
+
+            Position.BOTTOM -> {
+                dialogPageIndex()
+                true
+            }
+
             else -> false
         }
     }
@@ -464,6 +488,21 @@ class BookReaderActivity : AppCompatActivity() {
                 mFragment?.setFullscreen(true)
             }
         }
+    }
+
+    private fun openViewTouch() {
+        mFragment?.setFullscreen(true)
+
+        mTouchView.alpha = 0.0f
+        mTouchView.animate().alpha(1.0f).setDuration(300L)
+            .setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    super.onAnimationEnd(animation)
+                    mTouchView.visibility = View.VISIBLE
+                }
+            })
+
+        mHandler.postDelayed(mDismissTouchView, 5000)
     }
 
     private fun closeViewTouch() {

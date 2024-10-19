@@ -37,6 +37,13 @@
             layout="@layout/reader_book_tts"/>
 
         <include
+            android:id="@+id/reader_book_container_touch_demonstration"
+            layout="@layout/reader_book_touch_demonstration"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
+
+        <include
             layout="@layout/reader_book_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

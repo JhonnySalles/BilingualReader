@@ -267,6 +267,7 @@
     <string name="menu_book_reading_annotation">Annotation</string>
     <string name="menu_book_reading_font_and_page">Font and page</string>
     <string name="menu_book_reading_book_mark">Book mark</string>
+    <string name="menu_book_reading_view_touch">Touch functions</string>
 
     <string name="reading_book_title_position">Position %d of %d • %s%%</string>
     <string name="reading_book_title_chapter">Chapter %d: %s</string>
@@ -275,6 +276,13 @@
     <string name="reading_book_page_index">Page index</string>
     <string name="reading_book_page_empty">File has no folders</string>
     <string name="reading_book_open_exception">Could not open selected book</string>
+
+    <string name="reading_book_touch_demonstration_chapters">Open chapters list</string>
+    <string name="reading_book_touch_demonstration_next_file">Next file</string>
+    <string name="reading_book_touch_demonstration_previous_file">Previous file</string>
+    <string name="reading_book_touch_demonstration_next_page">Next page</string>
+    <string name="reading_book_touch_demonstration_previous_page">Previous page</string>
+    <string name="reading_book_touch_demonstration_page_mark">Page mark</string>
 
     <string name="reading_book_menu_text_functions_read_from">Read from here</string>
     <string name="reading_book_menu_text_functions_find">Find</string>

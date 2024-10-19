@@ -69,12 +69,19 @@
     </style>
 
     <style name="TouchDemonstration.Vertical" parent="TouchDemonstration">
+        <item name="android:background">@color/touch_demonstration_alter</item>
     </style>
 
     <style name="TouchDemonstration.Horizontal" parent="TouchDemonstration">
+        <item name="android:background">@color/touch_demonstration_alter</item>
     </style>
 
     <style name="TouchDemonstration.Corner" parent="TouchDemonstration">
+        <item name="android:background">?attr/colorPrimaryContainer</item>
+    </style>
+
+    <style name="TouchDemonstration.Horizontal.Top" parent="TouchDemonstration">
+        <item name="android:background">?attr/colorPrimaryContainer</item>
     </style>
 
     <!-- - - - - - - - - - - - - - - - - - - - Basic System Style - - - - - - - - - - - - - - - - - - - -->

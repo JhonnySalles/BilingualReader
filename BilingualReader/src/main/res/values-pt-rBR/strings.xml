@@ -267,6 +267,7 @@
     <string name="menu_book_reading_annotation">Anotações</string>
     <string name="menu_book_reading_font_and_page">Fonte e página</string>
     <string name="menu_book_reading_book_mark">Marcador</string>
+    <string name="menu_book_reading_view_touch">Funções touch</string>
 
     <string name="reading_book_title_position">Posição %d de %d • %s%%</string>
     <string name="reading_book_title_chapter">Capítulo %d: %s</string>
@@ -275,6 +276,13 @@
     <string name="reading_book_page_index">Índice</string>
     <string name="reading_book_page_empty">Arquivo não contem capítulos</string>
     <string name="reading_book_open_exception">Não foi possível abrir o livro selecionado</string>
+
+    <string name="reading_book_touch_demonstration_chapters">Abrir lista de capítulos</string>
+    <string name="reading_book_touch_demonstration_next_file">Próximo arquivo</string>
+    <string name="reading_book_touch_demonstration_previous_file">Arquivo anterior</string>
+    <string name="reading_book_touch_demonstration_next_page">Próxima página</string>
+    <string name="reading_book_touch_demonstration_previous_page">Página anterior</string>
+    <string name="reading_book_touch_demonstration_page_mark">Marcar página</string>
 
     <string name="reading_book_menu_text_functions_read_from">Ler a partir daqui</string>
     <string name="reading_book_menu_text_functions_find">Encontrar</string>

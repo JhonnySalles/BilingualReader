@@ -44,4 +44,11 @@
         android:title="@string/menu_book_reading_book_mark"
         app:showAsAction="always"/>
 
+    <item
+        android:id="@+id/menu_item_reader_book_view_touch_screen"
+        android:icon="@drawable/ic_view_touch_screen"
+        android:orderInCategory="106"
+        android:title="@string/menu_manga_reading_view_touch"
+        app:showAsAction="never"/>
+
 </menu>

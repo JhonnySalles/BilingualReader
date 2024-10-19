@@ -1140,7 +1140,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     override fun textSearch(page: Int, text: String) = openBookSearch(BookSearch(mBook!!.id!!, text, page))
 
 
-    private fun markCurrentPage() {
+    fun markCurrentPage() {
         val msg: String
 
         val mark = mViewModel.findAnnotationByPage(mBook!!, mCurrentPage).find { it.type == MarkType.PageMark }
@@ -1267,11 +1267,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             if ((requireActivity() as BookReaderActivity).touchPosition(position))
                 return true
 
-            if (position == Position.LEFT || position == Position.RIGHT) {
+            if (position in arrayOf(Position.LEFT, Position.RIGHT, Position.CORNER_TOP_LEFT, Position.CORNER_TOP_RIGHT)) {
+                val isBack = if (mIsLeftToRight) (position == Position.LEFT || position == Position.CORNER_TOP_LEFT) else (position == Position.RIGHT || position == Position.CORNER_TOP_RIGHT)
                 if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE) {
                     val view: AutoScroll? = (mViewPager[0] as RecyclerView).layoutManager?.findViewByPosition(mViewPager.currentItem)?.findViewById(R.id.page_web_view )
                     view?.let {
-                        val isBack = if (mIsLeftToRight) position == Position.LEFT else position == Position.RIGHT
                         if (it.autoScroll(isBack))
                             return true
                     }
@@ -1280,7 +1280,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     val imageView: AutoScroll? = (mViewPager[0] as RecyclerView).layoutManager?.findViewByPosition(mViewPager.currentItem)?.findViewById(R.id.page_image_view)
                     val view = if (imageView != null && imageView.isVisible()) imageView else textView
                     view?.let {
-                        val isBack = if (mIsLeftToRight) position == Position.LEFT else position == Position.RIGHT
                         if (it.autoScroll(isBack))
                             return true
                     }
@@ -1288,6 +1287,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             }
 
             when (position) {
+                Position.CORNER_TOP_LEFT,
                 Position.LEFT -> {
                     if (mIsLeftToRight) {
                         if (getCurrentPage() == 1) hitBeginning() else setCurrentPage(getCurrentPage() - 1)
@@ -1296,6 +1296,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     }
                 }
 
+                Position.CORNER_TOP_RIGHT,
                 Position.RIGHT -> {
                     if (mIsLeftToRight) {
                         if (getCurrentPage() == mViewPager.adapter!!.itemCount) hitEnding() else setCurrentPage(getCurrentPage() + 1)
