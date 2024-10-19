@@ -181,7 +181,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
         val imageHeight = imageSize.y
         mMatrix.getValues(m)
 
-        val isScroll = if (imageHeight < (displayMetrics.heightPixels).toFloat())
+        val isScroll = if (imageHeight < height)
             true
         else if (isBack)
             m[Matrix.MTRANS_Y] >= 0F
