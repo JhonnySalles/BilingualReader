@@ -2,5 +2,7 @@ package br.com.fenix.bilingualreader.model.enums
 
 enum class ScrollingType {
     Pagination,
-    Scrolling;
+    Scrolling,
+    Vertical,
+    Horizontal;
 }

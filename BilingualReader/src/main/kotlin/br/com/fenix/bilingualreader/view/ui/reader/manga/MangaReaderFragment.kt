@@ -64,6 +64,7 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.PageMode
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
+import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
@@ -129,6 +130,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private var mIsFullscreen = false
     private var mFileName: String? = null
     var mReaderMode: ReaderMode = ReaderMode.FIT_WIDTH
+    private var mScrollingMode: ScrollingType = ScrollingType.Horizontal
     var mUseMagnifierType = false
     var mIsLeftToRight = false
     var mKeepZoomBetweenPage = false
@@ -346,6 +348,13 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 ).toString()
             )
 
+            mScrollingMode = ScrollingType.valueOf(
+                mPreferences.getString(
+                    GeneralConsts.KEYS.READER.MANGA_PAGE_SCROLLING_MODE,
+                    ScrollingType.Horizontal.toString()
+                ).toString()
+            )
+
             mUseMagnifierType = mPreferences.getBoolean(GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE, false)
             mKeepZoomBetweenPage = mPreferences.getBoolean(GeneralConsts.KEYS.READER.MANGA_KEEP_ZOOM_BETWEEN_PAGES, false)
 
@@ -446,6 +455,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             setCurrentPage(old.first)
         }
 
+        mViewPager.setSwipeOrientation(mScrollingMode == ScrollingType.Vertical)
         mViewPager.adapter = mPagerAdapter
         mViewPager.offscreenPageLimit = ReaderConsts.READER.MANGA_OFF_SCREEN_PAGE_LIMIT
         mViewPager.setOnTouchListener(this)
@@ -498,10 +508,17 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             ReaderMode.ASPECT_FIT -> menu.findItem(R.id.manga_view_mode_aspect_fit).isChecked = true
             ReaderMode.FIT_WIDTH -> menu.findItem(R.id.manga_view_mode_fit_width).isChecked = true
         }
+
         if (mIsLeftToRight)
             menu.findItem(R.id.reading_manga_left_to_right).isChecked = true
         else
             menu.findItem(R.id.reading_manga_right_to_left).isChecked = true
+
+        when (mScrollingMode) {
+            ScrollingType.Horizontal -> menu.findItem(R.id.reading_manga_scrolling_horizontal).isChecked = true
+            ScrollingType.Vertical -> menu.findItem(R.id.reading_manga_scrolling_vertical).isChecked = true
+            else -> menu.findItem(R.id.reading_manga_scrolling_horizontal).isChecked = true
+        }
 
         menu.findItem(R.id.menu_item_reader_manga_use_magnifier_type).isChecked = mUseMagnifierType
         menu.findItem(R.id.menu_item_reader_manga_keep_zoom_between_pages).isChecked = mKeepZoomBetweenPage
@@ -581,6 +598,22 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 setCurrentPage(page, false)
                 mViewPager.adapter?.notifyDataSetChanged()
                 updateSeekBar()
+            }
+
+            R.id.reading_manga_scrolling_horizontal, R.id.reading_manga_scrolling_vertical -> {
+                item.isChecked = true
+
+                mScrollingMode = when (item.itemId) {
+                    R.id.reading_manga_scrolling_horizontal -> ScrollingType.Horizontal
+                    R.id.reading_manga_scrolling_vertical -> ScrollingType.Vertical
+                    else -> ScrollingType.Horizontal
+                }
+                with(mPreferences.edit()) {
+                    this.putString(GeneralConsts.KEYS.READER.MANGA_PAGE_SCROLLING_MODE, mScrollingMode.toString())
+                    this.commit()
+                }
+
+                mViewPager.setSwipeOrientation(mScrollingMode == ScrollingType.Vertical)
             }
 
             R.id.menu_item_reader_manga_use_magnifier_type -> {

@@ -191,6 +191,23 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_manga_reader_scrolling_mode"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/menu_manga_scrolling_mode"
+            app:startIconDrawable="@drawable/ic_reading_mode">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/config_manga_menu_autocomplete_scrolling_mode"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/config_manga_switch_show_clock_and_battery"
             style="@style/SwitchMaterial"

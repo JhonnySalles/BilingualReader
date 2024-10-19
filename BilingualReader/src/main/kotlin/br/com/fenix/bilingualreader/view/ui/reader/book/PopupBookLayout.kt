@@ -61,8 +61,8 @@ class PopupBookLayout : Fragment() {
         mAlignmentRight = root.findViewById(R.id.popup_book_layout_alignment_right)
 
         mBookMapScrollingMode = hashMapOf(
-            getString(R.string.config_book_scrolling_Infinity_Scrolling) to ScrollingType.Scrolling,
-            getString(R.string.config_book_scrolling_Pagination) to ScrollingType.Pagination
+            getString(R.string.config_book_scrolling_infinity_scrolling) to ScrollingType.Scrolling,
+            getString(R.string.config_book_scrolling_pagination) to ScrollingType.Pagination
         )
 
         val adapterBookScrollingMode = ArrayAdapter(requireContext(), R.layout.list_item, mBookMapScrollingMode.keys.toTypedArray())

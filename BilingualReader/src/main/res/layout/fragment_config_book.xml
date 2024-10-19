@@ -103,7 +103,7 @@
             android:text="@string/config_book_reading" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/config_book_scrolling_mode"
+            android:id="@+id/config_book_reader_scrolling_mode"
             style="@style/TextInputDropMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -120,21 +120,21 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/config_book_process_japanese_text"
+            android:id="@+id/config_book_reader_process_japanese_text"
             style="@style/SwitchMaterial"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/config_book_process_japanese_text" />
 
         <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/config_book_text_with_furigana"
+            android:id="@+id/config_book_reader_text_with_furigana"
             style="@style/SwitchMaterial"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/config_book_text_with_furigana" />
 
         <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/config_book_process_vocabulary"
+            android:id="@+id/config_book_reader_process_vocabulary"
             style="@style/SwitchMaterial"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

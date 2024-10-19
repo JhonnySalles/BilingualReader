@@ -11,7 +11,7 @@
     <item
         android:id="@+id/menu_item_reader_manga_reading_mode"
         android:icon="@drawable/ic_book_open"
-        android:orderInCategory="100"
+        android:orderInCategory="101"
         android:title="@string/menu_manga_reading_mode"
         app:showAsAction="never">
         <menu>
@@ -27,9 +27,27 @@
     </item>
 
     <item
+        android:id="@+id/menu_item_reader_manga_scrolling_mode"
+        android:icon="@drawable/ic_book_open"
+        android:orderInCategory="102"
+        android:title="@string/menu_manga_scrolling_mode"
+        app:showAsAction="never">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/reading_manga_scrolling_horizontal"
+                    android:title="@string/menu_manga_scrolling_horizontal" />
+                <item
+                    android:id="@+id/reading_manga_scrolling_vertical"
+                    android:title="@string/menu_manga_scrolling_vertical" />
+            </group>
+        </menu>
+    </item>
+
+    <item
         android:id="@+id/menu_item_reader_manga_aspect_ratio"
         android:icon="@drawable/ic_reader_mode"
-        android:orderInCategory="101"
+        android:orderInCategory="103"
         android:title="@string/menu_manga_view_mode"
         app:showAsAction="never">
         <menu>
@@ -49,7 +67,7 @@
 
     <item
         android:icon="@drawable/ic_reading_options"
-        android:orderInCategory="102"
+        android:orderInCategory="104"
         android:title="@string/menu_manga_reading_options"
         app:showAsAction="never">
         <menu>
@@ -95,7 +113,7 @@
 
     <item
         android:icon="@drawable/ic_ocr_file_linked"
-        android:orderInCategory="103"
+        android:orderInCategory="105"
         android:title="@string/menu_manga_reading_ocr_file_linked"
         app:showAsAction="never">
         <menu>
@@ -125,28 +143,28 @@
     <item
         android:id="@+id/menu_item_reader_manga_popup_open_floating"
         android:icon="@drawable/ic_floating_window"
-        android:orderInCategory="104"
+        android:orderInCategory="106"
         android:title="@string/menu_manga_reading_floating"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/menu_item_reader_manga_floating_buttons"
         android:icon="@drawable/ic_item_floating_buttons"
-        android:orderInCategory="105"
+        android:orderInCategory="107"
         android:title="@string/menu_manga_reading_floating_buttons"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/menu_item_reader_manga_chapters_menu"
         android:icon="@drawable/ic_item_chapters_menu"
-        android:orderInCategory="106"
+        android:orderInCategory="108"
         android:title="@string/menu_manga_reading_chapters_menu"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/menu_item_reader_manga_save_share_image"
         android:icon="@drawable/ic_save_share_image"
-        android:orderInCategory="107"
+        android:orderInCategory="109"
         android:title="@string/menu_manga_reading_save_share_image"
         app:showAsAction="never"/>
 
