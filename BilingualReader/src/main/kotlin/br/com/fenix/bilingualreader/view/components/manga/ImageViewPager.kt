@@ -4,12 +4,11 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import androidx.viewpager.widget.ViewPager
 
 
 class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(context, attributeSet) {
-    private var mStartX = 0f
+    private var mStartPos = 0f
     private var mSwipeOutListener: OnSwipeOutListener? = null
     private var mIsVertical = false
 
@@ -24,28 +23,29 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
 
     override fun onTouchEvent(ev: MotionEvent?): Boolean {
         performClick()
-        val event = if (mIsVertical) swapXY(ev!!) else ev
-        if (event!!.action == MotionEvent.ACTION_UP) {
-            val diff = event.x - mStartX
-            if (diff > 0 && currentItem == 0) {
+        if (ev!!.action == MotionEvent.ACTION_UP) {
+            val diff = if (mIsVertical) (ev.y - mStartPos) else (ev.x - mStartPos)
+            if (diff > 0 && currentItem == 0)
                 mSwipeOutListener?.onSwipeOutAtStart()
-            } else if (diff < 0 && currentItem == adapter!!.count - 1) {
+            else if (diff < 0 && currentItem == adapter!!.count - 1)
                 mSwipeOutListener?.onSwipeOutAtEnd()
-            }
         }
-        return super.onTouchEvent(event)
+        return super.onTouchEvent(if (mIsVertical) swapXY(ev) else ev)
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        if (ev.action == MotionEvent.ACTION_DOWN)
-            mStartX = ev.x
-
         return if (mIsVertical) {
+            if (ev.action == MotionEvent.ACTION_DOWN)
+                mStartPos = ev.y
+
             val event = super.onInterceptTouchEvent(swapXY(ev))
             swapXY(ev)
             return event
-        } else
+        } else {
+            if (ev.action == MotionEvent.ACTION_DOWN)
+                mStartPos = ev.x
             super.onInterceptTouchEvent(ev)
+        }
     }
 
     override fun performClick(): Boolean {
