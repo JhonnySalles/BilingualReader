@@ -31,6 +31,7 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.Order
+import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
@@ -129,7 +130,8 @@ class SelectMangaFragment : Fragment() {
         mScrollDown = root.findViewById(R.id.select_manga_scroll_down)
         mToolbar = root.findViewById(R.id.toolbar_select_manga)
         mTitle = root.findViewById(R.id.toolbar_select_manga_title)
-        MenuUtil.tintColor(requireContext(), mTitle)
+        val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(requireContext()).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
+        MenuUtil.tintToolbar(mToolbar, theme)
 
         (requireActivity() as MenuActivity).setActionBar(mToolbar)
 

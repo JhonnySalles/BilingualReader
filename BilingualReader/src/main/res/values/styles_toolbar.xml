@@ -217,6 +217,15 @@
         <item name="android:shadowRadius">1.6</item>
     </style>
 
+    <style name="SelectMangaToolbarTheme" parent="Base.Theme.MangaReader">
+        <item name="android:textColor">@color/manga_reader_readerTextTitleColor</item>
+        <item name="android:textColorPrimary">@color/manga_reader_readerTextTitleColor</item>
+        <item name="android:textColorSecondary">@color/manga_reader_readerTextTitleColor</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
     <style name="MainNavigation" parent="Base.Theme.MangaReader">
         <item name="itemTextColor">?attr/colorOnBackground</item>
         <item name="itemIconTint">?attr/colorPrimary</item>

@@ -67,7 +67,7 @@
 
                 <TextView
                     android:id="@+id/toolbar_select_manga_title"
-                    style="@style/TextTitle"
+                    style="@style/SelectMangaToolbarTheme"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
 
