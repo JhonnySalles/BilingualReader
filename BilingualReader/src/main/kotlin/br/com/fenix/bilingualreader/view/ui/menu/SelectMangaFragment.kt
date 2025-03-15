@@ -261,10 +261,7 @@ class SelectMangaFragment : Fragment() {
     }
 
     private fun titleLibrary() {
-        if (mViewModel.getLibrary().language == Libraries.DEFAULT)
-            mTitle.text = getString(R.string.app_name)
-        else
-            mTitle.text = mViewModel.getLibrary().title
+        mTitle.text = mViewModel.getLibrary().title
     }
 
     private fun observer() {
