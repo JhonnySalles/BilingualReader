@@ -5,10 +5,8 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import org.slf4j.LoggerFactory
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.Date
-import java.util.Locale
 
 class MangaRepository(context: Context) {
 

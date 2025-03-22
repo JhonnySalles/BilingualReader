@@ -9,13 +9,13 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.SubMenu
-import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.edit
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -55,7 +55,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import java.io.File
-import androidx.core.content.edit
 import java.time.LocalDate
 
 

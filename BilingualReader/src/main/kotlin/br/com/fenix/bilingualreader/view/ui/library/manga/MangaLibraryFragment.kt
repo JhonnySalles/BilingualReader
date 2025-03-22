@@ -42,6 +42,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -87,7 +88,6 @@ import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
 import java.util.UUID
 import kotlin.math.max
-import androidx.core.content.edit
 
 
 class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener {
