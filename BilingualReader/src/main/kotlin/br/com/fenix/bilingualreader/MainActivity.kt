@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.SubMenu
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -54,6 +55,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import java.io.File
+import androidx.core.content.edit
+import java.time.LocalDate
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainListener {
@@ -378,7 +381,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         NotificationManagerCompat.from(this).cancelAll()
         clearCache()
         DataBase.close()
+
+        val preferences = GeneralConsts.getSharedPreferences(this)
+        if (LocalDate.now().isAfter(LocalDate.parse(preferences.getString(GeneralConsts.KEYS.DATABASE.LAST_AUTO_BACKUP, "2025-01-01")))) {
+            GeneralConsts.getSharedPreferences(this).edit(commit = true) { putString(GeneralConsts.KEYS.DATABASE.LAST_AUTO_BACKUP, LocalDate.now().toString()) }
+            DataBase.autoBackupDatabase(this)
+        }
+
         super.onDestroy()
     }
-
 }

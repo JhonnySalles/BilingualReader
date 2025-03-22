@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -71,6 +72,8 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
@@ -524,14 +527,7 @@ class ConfigFragment : Fragment() {
             startActivityForResult(intent, GeneralConsts.REQUEST.GENERATE_BACKUP)
         }
 
-        mConfigSystemRestore.setOnClickListener {
-            val i = Intent(Intent.ACTION_GET_CONTENT)
-            i.type = "*/*"
-            startActivityForResult(
-                Intent.createChooser(i, getString(R.string.config_database_select_file)),
-                GeneralConsts.REQUEST.RESTORE_BACKUP
-            )
-        }
+        mConfigSystemRestore.setOnClickListener { choiceBackup() }
 
         mConfigCoversDelete.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
@@ -759,11 +755,7 @@ class ConfigFragment : Fragment() {
                         if (DataBase.validDatabaseFile(requireContext(), it))
                             DataBase.restoreDatabase(requireContext(), file)
                         else
-                            MsgUtil.alert(
-                                requireContext(),
-                                getString(R.string.config_database_restore),
-                                getString(R.string.config_database_invalid_file)
-                            ) { _, _ -> }
+                            MsgUtil.alert(requireContext(), getString(R.string.config_database_restore), getString(R.string.config_database_invalid_file)) { _, _ -> }
                     }
                 } catch (e: InvalidDatabase) {
                     MsgUtil.error(
@@ -1400,6 +1392,42 @@ class ConfigFragment : Fragment() {
             mConfigSystemShareMarkSignIn.visibility = View.VISIBLE
             mConfigSystemShareMarkAccount.text = ""
         }
+    }
+
+    private fun choiceBackup() {
+        val selectDatabase = getString(R.string.config_database_restore_select_backup)
+        val backups = mutableMapOf<String, String>()
+        backups[selectDatabase] = selectDatabase
+
+        val pattern = DateTimeFormatter.ofPattern(mConfigSystemDateSelect + " " + GeneralConsts.PATTERNS.TIME_PATTERN)
+        val autoBackups = File(requireContext().filesDir, "/databasebackup")
+        if (autoBackups.exists())
+            autoBackups.listFiles()?.let {
+                for (bkp in it.sortedDescending()) {
+                    val name = bkp.name.replace("BilingualReader.db-", "").substringBeforeLast(".")
+                    val date = LocalDateTime.parse(name.substring(0, 10) + "T" + name.substring(11))
+                    backups[date.format(pattern)] = bkp.name
+                    if (backups.size > 3)
+                        break
+                }
+            }
+
+        val items = backups.keys.toTypedArray()
+        MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatMaterialAlertList)
+            .setTitle(R.string.config_database_restore)
+            .setItems(items) { _, selected ->
+                val origin = items[selected]
+                if (origin == selectDatabase) {
+                    val i = Intent(Intent.ACTION_GET_CONTENT)
+                    i.type = "*/*"
+                    startActivityForResult(
+                        Intent.createChooser(i, getString(R.string.config_database_select_file)),
+                        GeneralConsts.REQUEST.RESTORE_BACKUP
+                    )
+                } else
+                    DataBase.restoreDatabase(requireContext(), File(autoBackups, backups[origin]!!))
+            }
+            .show()
     }
 
 }

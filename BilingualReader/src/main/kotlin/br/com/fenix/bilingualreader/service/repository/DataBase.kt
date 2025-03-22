@@ -154,26 +154,23 @@ abstract class DataBase : RoomDatabase() {
                 }.backup()
         }
 
-        fun autoBackupDatabase(context: Context) {
+        fun autoBackupDatabase(context: Context, isRestart: Boolean = false) {
+            mLOGGER.warn("Generate auto backup...")
             BACKUP.database(INSTANCE)
                 .enableLogDebug(true)
-                .backupLocation(RoomBackup.BACKUP_FILE_LOCATION_EXTERNAL)
+                .backupLocation(RoomBackup.BACKUP_FILE_LOCATION_INTERNAL)
                 .maxFileCount(5)
                 .backupIsEncrypted(false)
                 .apply {
                     onCompleteListener { success, message, exitCode ->
-                        mLOGGER.error("Backup database. success: $success, msg: $message, code: $exitCode.")
+                        mLOGGER.warn("Auto backup database. success: $success, msg: $message, code: $exitCode.")
                         if (success) {
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.config_database_backup_success),
-                                Toast.LENGTH_LONG
-                            ).show()
-                            BACKUP.restartApp(Intent(context, MainActivity::class.java))
-                        } else {
-                            mLOGGER.error("Error when backup database", message)
-                            throw BackupError("Error when backup database")
-                        }
+                            if (isRestart) {
+                                Toast.makeText(context, context.getString(R.string.config_database_backup_success), Toast.LENGTH_LONG).show()
+                                BACKUP.restartApp(Intent(context, MainActivity::class.java))
+                            }
+                        } else
+                            mLOGGER.error("Error when auto backup database", message)
                     }
                 }.backup()
         }
@@ -188,11 +185,7 @@ abstract class DataBase : RoomDatabase() {
                     onCompleteListener { success, message, exitCode ->
                         mLOGGER.error("Restore backup database. success: $success, msg: $message, code: $exitCode.")
                         if (success) {
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.config_database_restore_success),
-                                Toast.LENGTH_LONG
-                            ).show()
+                            Toast.makeText(context, context.getString(R.string.config_database_restore_success), Toast.LENGTH_LONG).show()
                             BACKUP.restartApp(Intent(context, MainActivity::class.java))
                         } else {
                             mLOGGER.error("Error when restore backup database", message)

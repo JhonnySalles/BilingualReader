@@ -151,6 +151,7 @@
     <string name="config_database_last_backup">Last backup: %1$s\</string>
     <string name="config_database_backup">Backup</string>
     <string name="config_database_restore">Restore</string>
+    <string name="config_database_restore_select_backup">Select a backup file</string>
     <string name="config_database_select_file">Select DB File</string>
     <string name="config_database_invalid_file">Invalid selected file.</string>
     <string name="config_database_backup_success">Backup performed successfully.</string>

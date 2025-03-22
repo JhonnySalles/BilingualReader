@@ -277,6 +277,7 @@ class GeneralConsts private constructor() {
             const val LAST_BACKUP = "LAST_BACKUP"
             const val BACKUP_RESTORE_ROLLBACK_FILE_NAME = "BilingualReaderBackup.db"
             const val RESTORE_DATABASE = "RESTORE_DATABASE"
+            const val LAST_AUTO_BACKUP = "LAST_AUTO_BACKUP"
         }
 
         object FRAGMENT {
