@@ -87,6 +87,7 @@ import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
 import java.util.UUID
 import kotlin.math.max
+import androidx.core.content.edit
 
 
 class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener {
@@ -951,6 +952,12 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                 val notificationManager = NotificationManagerCompat.from(requireContext())
                 val notification = Notifications.getNotification(requireContext(), getString(R.string.notifications_share_mark_drive_title), getString(R.string.notifications_share_mark_drive_content))
                 val notifyId = Notifications.getID()
+
+                if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED &&
+                    !GeneralConsts.getSharedPreferences(requireContext()).getBoolean(GeneralConsts.KEYS.LIBRARIES.NOTIFICATION_SOLICITED, false)) {
+                    GeneralConsts.getSharedPreferences(requireContext()).edit(commit = true) { putBoolean(GeneralConsts.KEYS.LIBRARIES.NOTIFICATION_SOLICITED, true) }
+                    ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.POST_NOTIFICATIONS), GeneralConsts.REQUEST.PERMISSION_NOTIFICATIONS)
+                }
 
                 if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
                     notificationManager.notify(notifyId, notification.build())

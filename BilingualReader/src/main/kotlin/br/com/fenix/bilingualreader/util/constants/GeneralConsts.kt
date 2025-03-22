@@ -170,6 +170,7 @@ class GeneralConsts private constructor() {
         object LIBRARIES {
             const val MANGA_INDEX_LIBRARIES = 1000
             const val BOOK_INDEX_LIBRARIES = 2000
+            const val NOTIFICATION_SOLICITED = "NOTIFICATION_SOLICITED"
         }
 
         object SUBTITLE {
@@ -357,6 +358,7 @@ class GeneralConsts private constructor() {
         const val PERMISSION_DRAW_OVERLAYS_FLOATING_SUBTITLE = 507
         const val PERMISSION_DRAW_OVERLAYS_FLOATING_BUTTONS = 508
         const val PERMISSION_WRITE_BACKUP = 509
+        const val PERMISSION_NOTIFICATIONS = 510
         const val OPEN_JSON = 205
         const val OPEN_PAGE_LINK = 206
         const val OPEN_MANGA_FOLDER = 105
