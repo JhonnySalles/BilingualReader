@@ -74,7 +74,7 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
     // --------------------------------------------------------- Manga ---------------------------------------------------------
     protected fun compare(item: ShareItem, manga: Manga): Boolean {
         return if ((manga.lastAccess == null && manga.lastAlteration == null) ||
-            (manga.lastAccess == null && GeneralConsts.dateTimeToDate(manga.lastAlteration!!).before(item.sync)) ||
+            (manga.lastAlteration != null && GeneralConsts.dateTimeToDate(manga.lastAlteration!!).before(item.sync)) ||
             (manga.lastAccess != null && item.lastAccess.after(GeneralConsts.dateTimeToDate(manga.lastAccess!!)))) {
 
             manga.bookMark = item.bookMark
@@ -131,7 +131,7 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
     // --------------------------------------------------------- Book ---------------------------------------------------------
     protected fun compare(item: ShareItem, book: Book): Boolean {
         return if ((book.lastAccess == null && book.lastAlteration == null) ||
-            (book.lastAccess == null && GeneralConsts.dateTimeToDate(book.lastAlteration!!).before(item.sync)) ||
+            (book.lastAlteration != null && GeneralConsts.dateTimeToDate(book.lastAlteration!!).before(item.sync)) ||
             (book.lastAccess != null && item.lastAccess.after(GeneralConsts.dateTimeToDate(book.lastAccess!!)))) {
 
             if (book.pages <= 1 && item.pages > 1) {
