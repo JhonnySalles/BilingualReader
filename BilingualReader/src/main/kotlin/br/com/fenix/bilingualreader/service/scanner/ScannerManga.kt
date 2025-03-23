@@ -252,7 +252,7 @@ class ScannerManga(private val context: Context) {
                                                 manga.id = storage.save(manga)
 
                                                 manga.update(parse)
-                                                storage.save(manga)
+                                                storage.save(manga, null)
 
                                                 if (!isSilent)
                                                     generateCover(parse, manga)

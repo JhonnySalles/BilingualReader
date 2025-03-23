@@ -14,13 +14,15 @@ class MangaRepository(context: Context) {
     private var mDataBase = DataBase.getDataBase(context).getMangaDao()
     private var mLibrary = DataBase.getDataBase(context).getLibrariesDao()
 
-    fun save(obj: Manga, lastAlteration: LocalDateTime = LocalDateTime.now()): Long {
-        obj.lastAlteration = lastAlteration
+    fun save(obj: Manga, lastAlteration: LocalDateTime? = LocalDateTime.now()): Long {
+        if (lastAlteration != null)
+            obj.lastAlteration = lastAlteration
         return mDataBase.save(obj)
     }
 
-    fun update(obj: Manga, lastAlteration: LocalDateTime = LocalDateTime.now()) {
-        obj.lastAlteration = lastAlteration
+    fun update(obj: Manga, lastAlteration: LocalDateTime? = LocalDateTime.now()) {
+        if (lastAlteration != null)
+            obj.lastAlteration = lastAlteration
         mDataBase.update(obj)
     }
 

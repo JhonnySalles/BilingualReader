@@ -184,15 +184,10 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 val shared = if (isUpdate) {
                     try {
                         share.filter { it.alter }.forEach {
-                            if (it.bookMark > 0) {
-                                mangas[it.file] = sync
-                                it.sync = sync
-                                it.refreshHistory(repositoryHistory.find(Type.MANGA, it.idLibrary, it.id))
-                                collection.document(it.file).set(it).await()
-                            } else {
-                                mangas.remove(it.file)
-                                collection.document(it.file).delete().await()
-                            }
+                            mangas[it.file] = sync
+                            it.sync = sync
+                            it.refreshHistory(repositoryHistory.find(Type.MANGA, it.idLibrary, it.id))
+                            collection.document(it.file).set(it).await()
                         }
 
                         if (share.any { it.alter })
@@ -361,16 +356,11 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 val shared = if (isUpdate) {
                     try {
                         share.filter { it.alter }.forEach {
-                            if (it.bookMark > 0) {
-                                books[it.file] = sync
-                                it.sync = sync
-                                it.refreshHistory(repositoryHistory.find(Type.BOOK, it.idLibrary, it.id))
-                                it.refreshAnnotations(repositoryAnnotation.findByBook(it.id))
-                                collection.document(it.file).set(it).await()
-                            } else {
-                                books.remove(it.file)
-                                collection.document(it.file).delete().await()
-                            }
+                            books[it.file] = sync
+                            it.sync = sync
+                            it.refreshHistory(repositoryHistory.find(Type.BOOK, it.idLibrary, it.id))
+                            it.refreshAnnotations(repositoryAnnotation.findByBook(it.id))
+                            collection.document(it.file).set(it).await()
                         }
 
                         if (share.any { it.alter })

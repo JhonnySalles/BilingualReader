@@ -308,12 +308,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         else if (fragment is BookLibraryFragment)
             mBookLibraryModel.saveLastLibrary()
 
-        mFragmentManager.beginTransaction().setCustomAnimations(
-            R.anim.slide_fragment_add_enter,
-            R.anim.slide_fragment_add_exit,
-            R.anim.slide_fragment_remove_enter,
-            R.anim.slide_fragment_remove_exit
-        )
+        mFragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_fragment_add_enter, R.anim.slide_fragment_add_exit,
+            R.anim.slide_fragment_remove_enter, R.anim.slide_fragment_remove_exit)
             .replace(R.id.main_content_root, fragment)
             .addToBackStack(null)
             .commit()

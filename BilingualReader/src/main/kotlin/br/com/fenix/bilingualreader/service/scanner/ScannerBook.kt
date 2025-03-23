@@ -244,7 +244,7 @@ class ScannerBook(private val context: Context) {
                                     FileMetaCore.get().udpateFullMeta(FileMeta(it.path), ebookMeta)
 
                                     book.update(ebookMeta, mLibrary.language)
-                                    storage.save(book)
+                                    storage.save(book, null)
 
                                     if (!isSilent)
                                         generateCover(book)
