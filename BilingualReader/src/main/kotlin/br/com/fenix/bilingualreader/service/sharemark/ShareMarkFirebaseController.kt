@@ -144,7 +144,8 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                                 update(manga)
                                             }
                                         }
-                                    }
+                                    } else
+                                        share.add(ShareItem(manga, repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!)))
                                 } else if (manga.bookMark > 0)
                                     share.add(ShareItem(manga, repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!)))
                             }
@@ -290,7 +291,8 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                                                 update(book)
                                             }
                                         }
-                                    }
+                                    } else
+                                        share.add(ShareItem(book, repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!), repositoryAnnotation.findByBook(book.id!!)))
                                 } else if (book.bookMark > 0)
                                     share.add(ShareItem(book, repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!), repositoryAnnotation.findByBook(book.id!!)))
                             }
