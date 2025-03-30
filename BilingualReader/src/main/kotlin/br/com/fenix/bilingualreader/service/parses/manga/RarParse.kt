@@ -4,6 +4,7 @@ import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import com.github.junrar.Archive
+import com.github.junrar.exception.CrcErrorException
 import com.github.junrar.exception.RarException
 import com.github.junrar.rarfile.FileHeader
 import org.simpleframework.xml.Serializer
@@ -142,7 +143,7 @@ class RarParse : Parse {
         return getPageStream(mHeaders[num])
     }
 
-    private fun getPageStream(header: FileHeader): InputStream {
+    private fun getPageStream(header: FileHeader, isFirst : Boolean = true): InputStream {
         return try {
             if (mCacheDir != null) {
                 val name = getName(header)
@@ -154,6 +155,15 @@ class RarParse : Parse {
                     val os = FileOutputStream(cacheFile)
                     try {
                         mArchive!!.extractFile(header, os)
+                    } catch (e : CrcErrorException) {
+                        cacheFile.delete()
+                        if (isFirst) {
+                            Thread.sleep(200)
+                            getPageStream(header, false)
+                        } else {
+                            e.printStackTrace()
+                            throw e
+                        }
                     } catch (e: Exception) {
                         cacheFile.delete()
                         e.printStackTrace()
