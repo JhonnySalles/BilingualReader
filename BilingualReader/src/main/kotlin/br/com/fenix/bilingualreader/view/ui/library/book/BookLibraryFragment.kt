@@ -949,11 +949,11 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     }
 
     override fun onRefresh() {
-        shareMarkToDrive()
+        shareMarksToCloud()
         refresh()
     }
 
-    private fun shareMarkToDrive() {
+    private fun shareMarksToCloud() {
         GeneralConsts.getSharedPreferences(requireContext()).let { share ->
             if (share.getBoolean(GeneralConsts.KEYS.SYSTEM.SHARE_MARK_ENABLED, false)) {
                 val notification = Notifications.getNotification(requireContext(), getString(R.string.notifications_share_mark_drive_title), getString(R.string.notifications_share_mark_drive_content))
@@ -969,10 +969,10 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                 if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
                     notificationManager.notify(notifyId, notification.build())
 
-                mViewModel.processShareMarks(requireContext()) { result ->
-                    val msg = when (result) {
+                mViewModel.processShareMarks(requireContext(), notifyId) { shareMark: ShareMarkType, idNotification: Int ->
+                    val msg = when (shareMark) {
                         ShareMarkType.SUCCESS, ShareMarkType.NOTIFY_DATA_SET -> {
-                            if (result == ShareMarkType.NOTIFY_DATA_SET)
+                            if (shareMark == ShareMarkType.NOTIFY_DATA_SET)
                                 sortList()
 
                             if (ShareMarkType.send > 0 || ShareMarkType.receive > 0)
@@ -983,10 +983,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
                         ShareMarkType.NOT_ALTERATION -> getString(R.string.book_share_mark_without_alteration)
                         ShareMarkType.NEED_PERMISSION_DRIVE -> {
-                            startActivityForResult(
-                                result.intent,
-                                GeneralConsts.REQUEST.DRIVE_AUTHORIZATION
-                            )
+                            startActivityForResult(shareMark.intent, GeneralConsts.REQUEST.DRIVE_AUTHORIZATION)
                             getString(R.string.book_share_mark_drive_need_permission)
                         }
 
@@ -995,6 +992,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                         ShareMarkType.ERROR_DOWNLOAD -> getString(R.string.book_share_mark_error_download)
                         ShareMarkType.ERROR_UPLOAD -> getString(R.string.book_share_mark_error_upload)
                         ShareMarkType.ERROR_NETWORK -> getString(R.string.book_share_mark_error_network)
+                        ShareMarkType.SYNC_IN_PROGRESS -> getString(R.string.book_share_mark_sync_in_progress)
                         else -> getString(R.string.book_share_mark_unprocessed)
                     }
 
@@ -1004,7 +1002,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                         .setOngoing(false)
 
                     if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
-                        notificationManager.notify(notifyId, notification.build())
+                        notificationManager.notify(idNotification, notification.build())
                 }
             }
         }

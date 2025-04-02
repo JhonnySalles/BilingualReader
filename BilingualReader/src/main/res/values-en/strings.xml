@@ -255,6 +255,7 @@
     <string name="book_share_mark_error_download">An error occurred when download bookmarks from cloud</string>
     <string name="book_share_mark_error_upload">An error occurred when upload bookmarks to cloud</string>
     <string name="book_share_mark_error_network">Unable to connect to cloud, check your internet</string>
+    <string name="book_share_mark_sync_in_progress">There is a synchronization in progress, please wait for it to finish</string>
 
     <string name="book_share_mark_drive_need_permission">Need permission to Google drive</string>
     <string name="book_share_mark_drive_need_sign_in">Need sign in to Google Account</string>
@@ -414,6 +415,7 @@
     <string name="manga_share_mark_error_download">An error occurred when download from cloud</string>
     <string name="manga_share_mark_error_upload">An error occurred when upload to cloud</string>
     <string name="manga_share_mark_error_network">Unable to connect to cloud, check your internet</string>
+    <string name="manga_share_mark_sync_in_progress">There is a synchronization in progress, please wait for it to finish</string>
 
     <string name="manga_share_mark_drive_need_permission">Need permission to Google drive</string>
     <string name="manga_share_mark_drive_need_sign_in">Need sign in to Google Account</string>

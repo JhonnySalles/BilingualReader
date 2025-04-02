@@ -45,6 +45,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.FileReader
 import java.io.FileWriter
+import java.io.IOException
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
@@ -97,10 +98,12 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
     }
 
     @Throws(ShareMarkNotConnectCloudException::class)
-    override fun initialize() {
+    override fun initialize(ending: (access: ShareMarkType) -> (Unit)) {
         getShareFiles { access ->
             if (access != ShareMarkType.SUCCESS)
                 throw ShareMarkNotConnectCloudException("Not connect to google drive")
+            else
+                ending(access)
         }
     }
 
@@ -256,8 +259,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                             var mangas = 0
 
                             do {
-                                val query =
-                                    "(name contains '" + GeneralConsts.SHARE_MARKS.MANGA_FILE + "' or " +
+                                val query = "(name contains '" + GeneralConsts.SHARE_MARKS.MANGA_FILE + "' or " +
                                             " name contains '" + GeneralConsts.SHARE_MARKS.BOOK_FILE + "' or " +
                                             " name contains '" + GeneralConsts.SHARE_MARKS.FOLDER + "') and " +
                                             "(mimeType='application/json' or mimeType='application/vnd.google-apps.folder')"
@@ -341,6 +343,11 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                                     else -> ending(ShareMarkType.NOT_CONNECT_DRIVE)
                                 }
                             }
+                        } catch (e: IOException) {
+                            mLOGGER.error(e.message, e)
+                            withContext(Dispatchers.Main) {
+                                ending(ShareMarkType.ERROR)
+                            }
                         }
                     }
                 }
@@ -381,7 +388,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                 val repositoryHistory = HistoryRepository(context)
 
                 val reader = JsonReader(FileReader(getFile(GeneralConsts.SHARE_MARKS.MANGA_FILE_WITH_EXTENSION)))
-                val share: ShareMark = gson.fromJson(reader, ShareMark::class.java)
+                val share: ShareMark = gson.fromJson(reader, ShareMark::class.java) ?: ShareMark(Type.MANGA)
                 ajusts(share, Type.MANGA)
 
                 val prefs = GeneralConsts.getSharedPreferences(context)
@@ -474,7 +481,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                 val repositoryAnnotation = BookAnnotationRepository(context)
 
                 val reader = JsonReader(FileReader(getFile(GeneralConsts.SHARE_MARKS.BOOK_FILE_WITH_EXTENSION)))
-                val share: ShareMark = gson.fromJson(reader, ShareMark::class.java)
+                val share: ShareMark = gson.fromJson(reader, ShareMark::class.java) ?: ShareMark(Type.BOOK)
                 ajusts(share, Type.BOOK)
 
                 val prefs = GeneralConsts.getSharedPreferences(context)

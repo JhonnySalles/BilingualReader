@@ -255,6 +255,7 @@
     <string name="book_share_mark_error_download">Ocorreu um erro no download dos marcadores</string>
     <string name="book_share_mark_error_upload">Ocorreu um erro no upload dos marcadores</string>
     <string name="book_share_mark_error_network">Não foi possível conectar a cloud, verifique sua internet</string>
+    <string name="book_share_mark_sync_in_progress">Existe uma sincronização em andamento, aguarde sua finalização</string>
 
     <string name="book_share_mark_drive_need_permission">Necessário permissão para acessar o Google drive</string>
     <string name="book_share_mark_drive_need_sign_in">Necessário logar na conta do Google</string>
@@ -414,6 +415,7 @@
     <string name="manga_share_mark_error_download">Ocorreu um erro no download dos marcadores</string>
     <string name="manga_share_mark_error_upload">Ocorreu um erro no upload dos marcadores</string>
     <string name="manga_share_mark_error_network">Não foi possível conectar a cloud, verifique sua internet</string>
+    <string name="manga_share_mark_sync_in_progress">Existe uma sincronização em andamento, aguarde sua finalização</string>
 
     <string name="manga_share_mark_drive_need_permission">Necessário permissão para o Google drive</string>
     <string name="manga_share_mark_drive_need_sign_in">Necessário logar na conta do Google</string>

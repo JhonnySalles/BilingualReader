@@ -824,7 +824,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
             GeneralConsts.REQUEST.MANGA_DETAIL -> notifyDataSet(mViewModel.updateList(itemRefresh ?: 0))
-            GeneralConsts.REQUEST.DRIVE_AUTHORIZATION -> shareMarkToDrive()
+            GeneralConsts.REQUEST.DRIVE_AUTHORIZATION -> shareMarksToCloud()
         }
     }
 
@@ -942,11 +942,11 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     override fun onRefresh() {
-        shareMarkToDrive()
+        shareMarksToCloud()
         refresh()
     }
 
-    private fun shareMarkToDrive() {
+    private fun shareMarksToCloud() {
         GeneralConsts.getSharedPreferences(requireContext()).let { share ->
             if (share.getBoolean(GeneralConsts.KEYS.SYSTEM.SHARE_MARK_ENABLED, false)) {
                 val notificationManager = NotificationManagerCompat.from(requireContext())
@@ -962,10 +962,10 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                 if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
                     notificationManager.notify(notifyId, notification.build())
 
-                mViewModel.processShareMarks(requireContext()) { result ->
-                    val msg = when (result) {
+                mViewModel.processShareMarks(requireContext(), notifyId) { shareMark: ShareMarkType, idNotification: Int ->
+                    val msg = when (shareMark) {
                         ShareMarkType.SUCCESS, ShareMarkType.NOTIFY_DATA_SET -> {
-                            if (result == ShareMarkType.NOTIFY_DATA_SET)
+                            if (shareMark == ShareMarkType.NOTIFY_DATA_SET)
                                 sortList()
 
                             if (ShareMarkType.send > 0 || ShareMarkType.receive > 0)
@@ -975,10 +975,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                         }
                         ShareMarkType.NOT_ALTERATION -> getString(R.string.manga_share_mark_without_alteration)
                         ShareMarkType.NEED_PERMISSION_DRIVE -> {
-                            startActivityForResult(
-                                result.intent,
-                                GeneralConsts.REQUEST.DRIVE_AUTHORIZATION
-                            )
+                            startActivityForResult(shareMark.intent, GeneralConsts.REQUEST.DRIVE_AUTHORIZATION)
                             getString(R.string.manga_share_mark_drive_need_permission)
                         }
                         ShareMarkType.NOT_CONNECT_FIREBASE -> getString(R.string.manga_share_mark_firebase_not_connected)
@@ -986,6 +983,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                         ShareMarkType.ERROR_DOWNLOAD -> getString(R.string.manga_share_mark_error_download)
                         ShareMarkType.ERROR_UPLOAD -> getString(R.string.manga_share_mark_error_upload)
                         ShareMarkType.ERROR_NETWORK -> getString(R.string.manga_share_mark_error_network)
+                        ShareMarkType.SYNC_IN_PROGRESS -> getString(R.string.manga_share_mark_sync_in_progress)
                         else -> getString(R.string.manga_share_mark_unprocessed)
                     }
 
@@ -995,7 +993,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                         .setOngoing(false)
 
                     if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
-                        notificationManager.notify(notifyId, notification.build())
+                        notificationManager.notify(idNotification, notification.build())
                 }
             }
         }

@@ -249,7 +249,7 @@ class ScannerManga(private val context: Context) {
                                                 if (exists != null)
                                                     manga.id = exists.id
 
-                                                manga.id = storage.save(manga)
+                                                manga.id = storage.save(manga, null)
 
                                                 manga.update(parse)
                                                 storage.save(manga, null)

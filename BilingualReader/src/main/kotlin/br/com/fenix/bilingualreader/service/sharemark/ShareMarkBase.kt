@@ -22,6 +22,7 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
 
     companion object {
         const val INITIAL_SYNC_DATE_TIME = "2000-01-01T01:01:01.001-0300"
+        var IN_SYNC = false
 
         fun getInstance(context: Context) : ShareMark {
             val prefs = GeneralConsts.getSharedPreferences(context)
@@ -48,7 +49,7 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
     abstract val mNotConnectErrorType : ShareMarkType
 
     @Throws(ShareMarkNotConnectCloudException::class)
-    abstract fun initialize()
+    abstract fun initialize(ending: (access: ShareMarkType) -> (Unit))
 
     protected fun isOnline(): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
@@ -106,25 +107,42 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
      *
      */
     override fun mangaShareMark(update: (manga: Manga) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
+        if (IN_SYNC) {
+            ending(ShareMarkType.SYNC_IN_PROGRESS)
+            return
+        }
+
         ShareMarkType.clear()
         if (!isOnline()) {
             ending(ShareMarkType.ERROR_NETWORK)
             return
         }
 
+        IN_SYNC = true
+
         try {
-            initialize()
+            initialize() {
+                if (it == ShareMarkType.SUCCESS) {
+                    try {
+                        processManga(update) {
+                            IN_SYNC = false
+                            ending(it)
+                        }
+                    } catch (e: Exception) {
+                        IN_SYNC = false
+                        mLOGGER.error(e.message, e)
+                        ending(ShareMarkType.ERROR)
+                    }
+                } else {
+                    ending(it)
+                    IN_SYNC = false
+                }
+            }
         } catch (e: Exception) {
+            IN_SYNC = false
             mLOGGER.error(e.message, e)
             ending(mNotConnectErrorType)
             return
-        }
-
-        try {
-            processManga(update, ending)
-        } catch (e: Exception) {
-            mLOGGER.error(e.message, e)
-            ending(ShareMarkType.ERROR)
         }
     }
 
@@ -176,25 +194,42 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
      *
      */
     override fun bookShareMark(update: (book: Book) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
+        if (IN_SYNC) {
+            ending(ShareMarkType.SYNC_IN_PROGRESS)
+            return
+        }
+
         ShareMarkType.clear()
         if (!isOnline()) {
             ending(ShareMarkType.ERROR_NETWORK)
             return
         }
 
+        IN_SYNC = true
+
         try {
-            initialize()
+            initialize() {
+                if (it == ShareMarkType.SUCCESS) {
+                    try {
+                        processBook(update) {
+                            IN_SYNC = false
+                            ending(it)
+                        }
+                    } catch (e: Exception) {
+                        IN_SYNC = false
+                        mLOGGER.error(e.message, e)
+                        ending(ShareMarkType.ERROR)
+                    }
+                } else {
+                    IN_SYNC = false
+                    ending(it)
+                }
+            }
         } catch (e: Exception) {
+            IN_SYNC = false
             mLOGGER.error(e.message, e)
             ending(mNotConnectErrorType)
             return
-        }
-
-        try {
-            processBook(update, ending)
-        } catch (e: Exception) {
-            mLOGGER.error(e.message, e)
-            ending(ShareMarkType.ERROR)
         }
     }
 

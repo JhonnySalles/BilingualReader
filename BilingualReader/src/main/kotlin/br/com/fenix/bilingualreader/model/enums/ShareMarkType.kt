@@ -4,6 +4,7 @@ import android.content.Intent
 
 enum class ShareMarkType {
     SUCCESS,
+    SYNC_IN_PROGRESS,
     NOTIFY_DATA_SET,
     NOT_ALTERATION,
 

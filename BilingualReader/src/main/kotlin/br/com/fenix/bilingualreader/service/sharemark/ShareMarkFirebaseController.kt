@@ -50,7 +50,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
     private lateinit var mDB: FirebaseFirestore
     private var mUser = ""
 
-    override fun initialize() {
+    override fun initialize(ending: (access: ShareMarkType) -> (Unit)) {
         if (!::mDB.isInitialized) {
             try {
                 val auth = FirebaseAuth.getInstance()
@@ -61,8 +61,10 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
 
                 FirebaseApp.initializeApp(context)
                 mDB = FirebaseFirestore.getInstance()
+                ending(ShareMarkType.SUCCESS)
             } catch (e: Exception) {
                 mLOGGER.error(e.message, e)
+                ending(ShareMarkType.ERROR)
             }
         }
     }

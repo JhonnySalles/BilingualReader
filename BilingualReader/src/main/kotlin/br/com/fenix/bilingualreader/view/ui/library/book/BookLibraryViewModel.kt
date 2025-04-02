@@ -521,7 +521,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         }
     }
 
-    fun processShareMarks(context: Context, processed: (result: ShareMarkType) -> (Unit)) {
+    fun processShareMarks(context: Context, idNotification: Int, processed: (shareMark: ShareMarkType, idNotification: Int) -> Unit) {
         if (!mProcessShareMark) {
             mProcessShareMark = true
             val share = ShareMarkBase.getInstance(context)
@@ -541,10 +541,11 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             share.bookShareMark(process) {
                 mProcessShareMark = false
                 if ((it == ShareMarkType.SUCCESS || it == ShareMarkType.NOT_ALTERATION) && notify)
-                    processed(ShareMarkType.NOTIFY_DATA_SET)
+                    processed(ShareMarkType.NOTIFY_DATA_SET, idNotification)
                 else
-                    processed(it)
+                    processed(it, idNotification)
             }
-        }
+        } else
+            processed(ShareMarkType.SYNC_IN_PROGRESS, idNotification)
     }
 }
