@@ -534,14 +534,14 @@ class ConfigFragment : Fragment() {
                 .setMessage(getString(R.string.config_covers_delete_description))
                 .setPositiveButton(R.string.action_confirm) { _, _ ->
                     try {
-                        val cacheManga = File(GeneralConsts.getCacheDir(requireContext()), GeneralConsts.CACHE_FOLDER.MANGA_COVERS)
+                        val cacheManga = File(GeneralConsts.getCoverDir(requireContext()), GeneralConsts.CACHE_FOLDER.MANGA_COVERS)
                         if (cacheManga.exists())
                             cacheManga.listFiles()?.let {
                                 for (f in it)
                                     f.delete()
                             }
 
-                        val cacheBook = File(GeneralConsts.getCacheDir(requireContext()), GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
+                        val cacheBook = File(GeneralConsts.getCoverDir(requireContext()), GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
                         if (cacheBook.exists())
                             cacheBook.listFiles()?.let {
                                 for (f in it)

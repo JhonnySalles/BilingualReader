@@ -65,7 +65,7 @@ class BookImageCoverController private constructor() {
     private fun saveBitmapToCache(context: Context, key: String, bitmap: Bitmap) {
         try {
             saveBitmapToLru(key, bitmap)
-            val cacheDir = File(GeneralConsts.getCacheDir(context), GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
+            val cacheDir = File(GeneralConsts.getCoverDir(context), GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
             if (!cacheDir.exists())
                 cacheDir.mkdir()
 
@@ -82,10 +82,7 @@ class BookImageCoverController private constructor() {
             var image = retrieveBitmapFromLru(key)
             if (image != null) return image
 
-            val file = File(
-                GeneralConsts.getCacheDir(context),
-                GeneralConsts.CACHE_FOLDER.BOOK_COVERS + '/' + key
-            )
+            val file = File(GeneralConsts.getCoverDir(context), GeneralConsts.CACHE_FOLDER.BOOK_COVERS + '/' + key)
 
             if (file.exists()) {
                 image = BitmapFactory.decodeFile(file.absolutePath) ?: return null

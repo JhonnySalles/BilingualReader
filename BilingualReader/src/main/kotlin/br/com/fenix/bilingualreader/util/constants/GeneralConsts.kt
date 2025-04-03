@@ -24,6 +24,11 @@ import java.util.concurrent.TimeUnit
 
 class GeneralConsts private constructor() {
     companion object {
+        fun getCoverDir(context: Context): File? {
+            val caches = context.externalCacheDirs
+            return caches.last()
+        }
+
         fun getCacheDir(context: Context): File? {
             return context.externalCacheDir
         }
