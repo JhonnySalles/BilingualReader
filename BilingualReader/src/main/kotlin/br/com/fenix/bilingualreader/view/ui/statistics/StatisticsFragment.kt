@@ -201,7 +201,7 @@ class StatisticsFragment : Fragment() {
             if (years.isEmpty())
                 years.add(LocalDateTime.now().year)
 
-            val adapter = ArrayAdapter(requireContext(), R.layout.list_item, years.toTypedArray())
+            val adapter = ArrayAdapter(requireContext(), R.layout.list_item, years.sortedDescending().toTypedArray())
             mMangaYearAutoComplete.setAdapter(adapter)
             mMangaYearAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
                 val selected = parent.getItemAtPosition(position).toString().toInt()

@@ -112,7 +112,7 @@ class ConfigFragment : Fragment() {
     private var mConfigSystemDateSelect: String = GeneralConsts.CONFIG.DATA_FORMAT[0]
     private var mConfigSystemDateSmall: String = GeneralConsts.CONFIG.DATA_FORMAT_SMALL[0]
     private val mConfigSystemDatePattern = GeneralConsts.CONFIG.DATA_FORMAT
-    private val mConfigSystemDateSmallPattern = GeneralConsts.CONFIG.DATA_FORMAT
+    private val mConfigSystemDateSmallPattern = GeneralConsts.CONFIG.DATA_FORMAT_SMALL
 
     private lateinit var mConfigSystemShareMarkCloudMap: HashMap<String, ShareMarkCloud>
     private var mConfigSystemShareMarkCloudSelect = ShareMarkCloud.GOOGLE_DRIVE

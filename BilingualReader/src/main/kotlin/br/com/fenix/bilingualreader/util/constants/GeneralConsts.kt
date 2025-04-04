@@ -314,8 +314,8 @@ class GeneralConsts private constructor() {
     }
 
     object CONFIG {
-        val DATA_FORMAT = listOf("dd/MM/yyyy", "MM/dd/yy", "dd/MM/yy", "yyyy-MM-dd")
-        val DATA_FORMAT_SMALL = listOf("dd/MM/yy", "MM/dd/yy", "dd/MM/yy", "yy-MM-dd")
+        val DATA_FORMAT = listOf("dd/MM/yyyy", "MM/dd/yyyy", "dd/MM/yy", "yyyy-MM-dd", "yy-MM-dd")
+        val DATA_FORMAT_SMALL = listOf("dd/MM/yy", "MM/dd/yy", "yy-MM-dd")
     }
 
     object CACHE_FOLDER {

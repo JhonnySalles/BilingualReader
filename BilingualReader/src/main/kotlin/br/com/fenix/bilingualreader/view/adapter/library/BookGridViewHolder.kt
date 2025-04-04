@@ -5,12 +5,14 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
+import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -60,8 +62,10 @@ class BookGridViewHolder(var type: LibraryBookType, itemView: View, private val 
 
         val cardView = itemView.findViewById<MaterialCardView>(R.id.book_grid_card)
         val bookProgress = itemView.findViewById<ProgressBar>(R.id.book_grid_progress)
-        val favorite = itemView.findViewById<ImageView>(R.id.book_grid_favorite)
-        val config = itemView.findViewById<ImageView>(R.id.book_grid_config)
+        val favorite = itemView.findViewById<LinearLayout>(R.id.book_grid_favorite)
+        val favoriteIcon = itemView.findViewById<ImageView>(R.id.book_grid_favorite_icon)
+        val config = itemView.findViewById<LinearLayout>(R.id.book_grid_config)
+        val configIcon = itemView.findViewById<ImageView>(R.id.book_grid_config_icon)
 
         cardView.layoutParams.height = if (type == LibraryBookType.GRID_MEDIUM) mBookCardHeightMedium else mBookCardHeight
         if (type == LibraryBookType.GRID_MEDIUM)
@@ -77,12 +81,12 @@ class BookGridViewHolder(var type: LibraryBookType, itemView: View, private val 
 
         favorite.setOnClickListener {
             book.favorite = !book.favorite
-            favorite.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+            favoriteIcon.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
             listener.onClickFavorite(book)
         }
-        config.setOnClickListener { listener.onClickConfig(book, cardView, it, layoutPosition) }
 
-        favorite.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+        favoriteIcon.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+        config.setOnClickListener { listener.onClickConfig(book, cardView, it, layoutPosition) }
 
         val image = when ((1..5).random()) {
             1 -> mDefaultImageCover1
@@ -103,10 +107,8 @@ class BookGridViewHolder(var type: LibraryBookType, itemView: View, private val 
         val percent: Float = if (book.bookMark >= book.pages) 100f else if (book.bookMark > 0) ((book.bookMark.toFloat() / book.pages) * 100) else 0f
         bookPagesRead.text = Util.formatDecimal(percent)
 
-        bookLastAccess.text = if (book.lastAccess == null) "" else GeneralConsts.formatterDate(
-            itemView.context,
-            book.lastAccess!!
-        )
+        val isSmall = book.lastAccess != null && book.bookMark > 0 && type != LibraryBookType.GRID_BIG && type != LibraryBookType.SEPARATOR_BIG
+        bookLastAccess.text = if (book.lastAccess == null) "" else GeneralConsts.formatterDate(itemView.context, book.lastAccess!!, isSmall)
 
         bookProgress.max = book.pages
         bookProgress.setProgress(book.bookMark, false)

@@ -331,7 +331,8 @@
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin">
+            android:layout_margin="@dimen/margin"
+            android:gravity="center">
             <ImageView
                 android:layout_width="@dimen/statistics_icon_size"
                 android:layout_height="@dimen/statistics_icon_size"
@@ -339,8 +340,7 @@
 
             <TextView
                 style="@style/TextNormal"
-                android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginStart="@dimen/margin"
                 android:gravity="center_vertical"
@@ -349,16 +349,18 @@
             <TextView
                 android:id="@+id/statistics_book_total_read_pages"
                 style="@style/TextTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin"
-                android:gravity="center_vertical" />
+                android:textAlignment="textEnd" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin">
+            android:layout_margin="@dimen/margin"
+            android:gravity="center">
             <ImageView
                 android:layout_width="@dimen/statistics_icon_size"
                 android:layout_height="@dimen/statistics_icon_size"
@@ -366,8 +368,7 @@
 
             <TextView
                 style="@style/TextNormal"
-                android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginStart="@dimen/margin"
                 android:gravity="center_vertical"
@@ -376,16 +377,18 @@
             <TextView
                 android:id="@+id/statistics_book_total_read_times"
                 style="@style/TextTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin"
-                android:gravity="center_vertical" />
+                android:textAlignment="textEnd"/>
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin">
+            android:layout_margin="@dimen/margin"
+            android:gravity="center">
             <ImageView
                 android:layout_width="@dimen/statistics_icon_size"
                 android:layout_height="@dimen/statistics_icon_size"
@@ -393,8 +396,7 @@
 
             <TextView
                 style="@style/TextNormal"
-                android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginStart="@dimen/margin"
                 android:gravity="center_vertical"
@@ -403,10 +405,11 @@
             <TextView
                 android:id="@+id/statistics_book_total_read_average"
                 style="@style/TextTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin"
-                android:gravity="center_vertical" />
+                android:textAlignment="textEnd"/>
         </LinearLayout>
 
         <LinearLayout

@@ -46,8 +46,10 @@ class BookLineViewHolder(itemView: View, private val listener: BookCardListener)
 
         val cardView = itemView.findViewById<LinearLayout>(R.id.book_line_card)
         val bookProgress = itemView.findViewById<ProgressBar>(R.id.book_line_progress)
-        val favorite = itemView.findViewById<ImageView>(R.id.book_line_favorite)
-        val config = itemView.findViewById<ImageView>(R.id.book_line_config)
+        val favorite = itemView.findViewById<LinearLayout>(R.id.book_line_favorite)
+        val favoriteIcon = itemView.findViewById<ImageView>(R.id.book_line_favorite_icon)
+        val config = itemView.findViewById<LinearLayout>(R.id.book_line_config)
+        val configIcon = itemView.findViewById<ImageView>(R.id.book_line_config_icon)
 
         bookImage.setImageBitmap(null)
         BookImageCoverController.instance.setImageCoverAsync(itemView.context, book, bookImage, mDefaultImageCover)
@@ -58,15 +60,15 @@ class BookLineViewHolder(itemView: View, private val listener: BookCardListener)
             true
         }
 
-        config.setOnClickListener { listener.onClickConfig(book, cardView, it, layoutPosition) }
 
         favorite.setOnClickListener {
             book.favorite = !book.favorite
-            favorite.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+            favoriteIcon.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
             listener.onClickFavorite(book)
         }
 
-        favorite.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+        favoriteIcon.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+        config.setOnClickListener { listener.onClickConfig(book, cardView, it, layoutPosition) }
 
         bookImage.setImageBitmap(null)
         BookImageCoverController.instance.setImageCoverAsync(itemView.context, book, bookImage, mDefaultImageCover)

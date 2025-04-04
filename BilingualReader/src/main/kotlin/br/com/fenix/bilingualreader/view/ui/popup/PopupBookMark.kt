@@ -11,6 +11,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.History
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.entity.ShareItem
 import br.com.fenix.bilingualreader.service.listener.BookParseListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
@@ -47,6 +48,9 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
         mMax = obj.pages
         mNewBookMark = obj.bookMark
         mNewDate = obj.lastAccess ?: LocalDateTime.now()
+
+        if (mNewDate.isEqual(ShareItem.MIN_DATE_TIME))
+            mNewDate = LocalDateTime.now()
 
         if (obj.bookMark <= 0)
             mNewBookMark = obj.pages

@@ -115,27 +115,40 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageView
+    <LinearLayout
         android:id="@+id/manga_grid_favorite"
-        style="@style/IconFavorite"
-        android:layout_width="@dimen/manga_grid_favorite_big"
-        android:layout_height="@dimen/manga_grid_favorite_big"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/ic_favorite_mark_border"
-        android:src="@drawable/ico_favorite_unmark"
-        android:layout_gravity="start"/>
+        android:layout_width="@dimen/manga_grid_favorite_content_big"
+        android:layout_height="@dimen/manga_grid_favorite_content_big"
+        android:layout_gravity="start"
+        android:gravity="start">
+        <ImageView
+            android:id="@+id/manga_grid_favorite_icon"
+            style="@style/IconFavorite"
+            android:layout_width="@dimen/manga_grid_favorite_big"
+            android:layout_height="@dimen/manga_grid_favorite_big"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/ic_favorite_mark_border"
+            android:src="@drawable/ico_favorite_unmark"/>
+    </LinearLayout>
 
-    <ImageView
+    <LinearLayout
         android:id="@+id/manga_grid_config"
-        style="@style/IconConfig"
-        android:layout_width="@dimen/manga_grid_config_small"
-        android:layout_height="@dimen/manga_grid_config_small"
-        android:layout_marginEnd="5dp"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/ic_config_border"
-        android:src="@drawable/ic_config"
-        android:layout_gravity="end"/>
+        android:layout_width="@dimen/manga_grid_config_content_small"
+        android:layout_height="@dimen/manga_grid_config_content_small"
+        android:layout_gravity="end"
+        android:gravity="end">
+        <ImageView
+            android:id="@+id/manga_grid_config_icon"
+            style="@style/IconConfig"
+            android:layout_width="@dimen/manga_grid_config_small"
+            android:layout_height="@dimen/manga_grid_config_small"
+            android:layout_marginEnd="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/ic_config_border"
+            android:src="@drawable/ic_config"/>
+    </LinearLayout>
+
 
     <ImageView
         android:id="@+id/manga_grid_has_subtitle"

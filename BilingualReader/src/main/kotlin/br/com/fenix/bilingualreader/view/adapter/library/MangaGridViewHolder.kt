@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
@@ -65,8 +66,10 @@ class MangaGridViewHolder(var type: LibraryMangaType, itemView: View, private va
         val mangaLastAccess = itemView.findViewById<TextViewWithBorder>(R.id.manga_grid_last_access)
         val mangaProgress = itemView.findViewById<ProgressBar>(R.id.manga_grid_progress)
         val cardView = itemView.findViewById<MaterialCardView>(R.id.manga_grid_card)
-        val favorite = itemView.findViewById<ImageView>(R.id.manga_grid_favorite)
-        val config = itemView.findViewById<ImageView>(R.id.manga_grid_config)
+        val favorite = itemView.findViewById<LinearLayout>(R.id.manga_grid_favorite)
+        val favoriteIcon = itemView.findViewById<ImageView>(R.id.manga_grid_favorite_icon)
+        val config = itemView.findViewById<LinearLayout>(R.id.manga_grid_config)
+        val configIcon = itemView.findViewById<ImageView>(R.id.manga_grid_config_icon)
         val subtitle = itemView.findViewById<ImageView>(R.id.manga_grid_has_subtitle)
 
         subtitle.visibility  = if (manga.hasSubtitle) {
@@ -79,11 +82,11 @@ class MangaGridViewHolder(var type: LibraryMangaType, itemView: View, private va
 
         favorite.setOnClickListener {
             manga.favorite = !manga.favorite
-            favorite.setImageResource(if (manga.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+            favoriteIcon.setImageResource(if (manga.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
             listener.onClickFavorite(manga)
         }
 
-        favorite.setImageResource(if (manga.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+        favoriteIcon.setImageResource(if (manga.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
         config.setOnClickListener { listener.onClickConfig(manga, cardView, it, layoutPosition) }
 
         when (type) {
@@ -118,7 +121,7 @@ class MangaGridViewHolder(var type: LibraryMangaType, itemView: View, private va
         mangaImage.setImageBitmap(null)
         MangaImageCoverController.instance.setImageCoverAsync(itemView.context, manga, mangaImage, image)
 
-        val isSmall = manga.lastAccess != null && manga.bookMark > 0 && type != LibraryMangaType.GRID_BIG
+        val isSmall = manga.lastAccess != null && manga.bookMark > 0 && type != LibraryMangaType.GRID_BIG && type != LibraryMangaType.SEPARATOR_BIG
 
         mangaTitle.text = manga.title
         mangaFileType.text = Util.getExtensionFromPath(manga.path).uppercase()
