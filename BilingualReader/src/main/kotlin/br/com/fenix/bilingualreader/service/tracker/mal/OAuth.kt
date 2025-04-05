@@ -10,6 +10,5 @@ data class OAuth(
     val expires_in: Long,
 ) : Serializable {
 
-    fun isExpired() =
-        System.currentTimeMillis() > created_at + (expires_in * 1000)
+    fun isExpired() = System.currentTimeMillis() > created_at + (expires_in * 1000)
 }

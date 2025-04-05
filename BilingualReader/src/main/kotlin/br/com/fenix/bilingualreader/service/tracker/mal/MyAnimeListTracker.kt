@@ -3,7 +3,7 @@ package br.com.fenix.bilingualreader.service.tracker.mal
 import android.content.Context
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.service.listener.ApiListener
-import br.com.fenix.bilingualreader.service.tracker.RetrofitClient
+import br.com.fenix.bilingualreader.service.tracker.RetrofitTracker
 import br.com.fenix.bilingualreader.util.secrets.PkceUtil
 import br.com.fenix.bilingualreader.util.secrets.Secrets
 import org.slf4j.LoggerFactory
@@ -15,14 +15,13 @@ class MyAnimeListTracker(var mContext: Context) {
 
     private val mLOGGER = LoggerFactory.getLogger(MyAnimeListTracker::class.java)
 
-    private val mMyAnimeListAuth = RetrofitClient.getOAuth(MyAnimeListService::class.java)
-    private val mMyAnimeList = RetrofitClient.getService(MyAnimeListService::class.java)
+    private val mMyAnimeListAuth = RetrofitTracker.getOAuth(MyAnimeListService::class.java)
+    private val mMyAnimeList = RetrofitTracker.getService(MyAnimeListService::class.java)
     private var idClient: String = Secrets.getSecrets(mContext).getMyAnimeListClientId()
     private var token: String? = null
     private var oAuth: OAuth? = null
 
-    private fun getIdClient() =
-        if (token != null) null else idClient
+    private fun getIdClient() = if (token != null) null else idClient
 
     private inline fun <T> validToken(authCode: String, listener: ApiListener<T>, crossinline function: () -> Unit) {
         if (token == null || oAuth == null || oAuth!!.isExpired()) {
