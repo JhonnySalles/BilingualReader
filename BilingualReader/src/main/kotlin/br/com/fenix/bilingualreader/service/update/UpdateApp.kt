@@ -2,10 +2,10 @@ package br.com.fenix.bilingualreader.service.update
 
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.AsyncTask
 import android.os.Environment
+import android.os.StrictMode
+import android.os.StrictMode.ThreadPolicy
 import android.view.LayoutInflater
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -17,8 +17,6 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.service.listener.ApiListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
-import com.google.api.client.json.jackson2.JacksonFactory
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.slf4j.LoggerFactory
@@ -37,21 +35,25 @@ import java.text.NumberFormat
 
 class UpdateApp(var mContext: Context) {
 
+    companion object {
+        private var mToken: String? = null
+    }
+
     private val mLOGGER = LoggerFactory.getLogger(UpdateApp::class.java)
 
     private val mUpdate = RetrofitUpdate.getService(AppDistributionService::class.java)
-    private var token: String? = null
 
     private fun getToken() : String {
-        if (token == null) {
+        if (mToken == null) {
             val json: InputStream = mContext.assets.open("app-distribution.json")
-            val credential = GoogleCredential.fromStream(json,  GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance())
+            val credential = GoogleCredential.fromStream(json).createScoped(setOf("https://www.googleapis.com/auth/cloud-platform"))
+            val policy = ThreadPolicy.Builder().permitAll().build()
+            StrictMode.setThreadPolicy(policy)
             credential.refreshToken()
-            token = credential.accessToken
-            token!!
+            mToken = credential.accessToken
         }
 
-        return token!!
+        return mToken!!
     }
 
     fun consult(listener: ApiListener<Releases>) {
@@ -61,7 +63,7 @@ class UpdateApp(var mContext: Context) {
 
             call.enqueue(object : Callback<Releases> {
                 override fun onResponse(call: Call<Releases>, response: Response<Releases>) {
-                    if (response.code() == 200)
+                    if (response.code() in 200..299)
                         listener.onSuccess(response.body()!!)
                     else
                         listener.onFailure(response.raw().toString())

@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader.service.update
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface AppDistributionService {
 
@@ -12,7 +13,7 @@ interface AppDistributionService {
     }
 
 
-    @GET("v1/projects/$IdProject/apps/$IdApp/releases?orderBy=createTime%20desc&pageSize=1&key={api_key}")
-    fun getLastVersion(@Path("api_key") key: String): Call<Releases>
+    @GET("v1/projects/$IdProject/apps/$IdApp/releases")
+    fun getLastVersion(@Query("key") key: String, @Query("orderBy") create: String = "createTime desc", @Query("pageSize") size: Int = 1): Call<Releases>
 
 }
