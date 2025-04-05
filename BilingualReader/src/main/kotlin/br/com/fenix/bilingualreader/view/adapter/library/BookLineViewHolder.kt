@@ -92,6 +92,7 @@ class BookLineViewHolder(itemView: View, private val listener: BookCardListener)
             View.GONE
 
         bookLastAccess.text = if (book.lastAccess == null) "" else GeneralConsts.formatterDateTime(itemView.context, book.lastAccess!!)
+        bookLastAccess.visibility = if (book.lastAccess == null) View.GONE else View.VISIBLE
 
         bookProgress.max = book.pages
         bookProgress.setProgress(book.bookMark, false)

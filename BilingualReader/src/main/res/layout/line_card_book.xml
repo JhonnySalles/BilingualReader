@@ -58,20 +58,6 @@
             android:textSize="@dimen/book_line_title_size"
             android:transitionName="transition_book_title"/>
 
-        <TextView
-            android:id="@+id/book_line_publisher"
-            style="@style/TextNormal.Line"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/book_line_content_size"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/book_line_file_name"
-            style="@style/TextNormal.Line"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/book_line_content_size"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -85,6 +71,22 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:layout_gravity="bottom">
+
+                <TextView
+                    android:id="@+id/book_line_publisher"
+                    style="@style/TextNormal.Line"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/book_line_content_size"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/book_line_file_name"
+                    style="@style/TextNormal.Line"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/book_line_content_size"/>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -126,7 +128,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="2dp"
-                    android:textSize="@dimen/book_line_content_size" />
+                    android:textSize="@dimen/book_line_content_size"
+                    android:visibility="gone" />
 
                 <ProgressBar
                     android:id="@+id/book_line_progress"
