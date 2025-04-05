@@ -113,6 +113,7 @@
     <string name="config_title_themes">Themes</string>
     <string name="config_title_cover">Covers</string>
     <string name="config_title_statistics">Statistics</string>
+    <string name="config_title_update">Update App</string>
 
     <string name="config_manga_switch_use_path_name_for_linked">Use page path to link pages?</string>
     <string name="config_manga_switch_use_dual_page_calculate">Consider double page by calculating dimensions?</string>
@@ -171,6 +172,13 @@
     <string name="config_statistics_clear_success">Successfully cleared statistics.</string>
     <string name="config_statistics_clear_error">Error clearing statistics.</string>
 
+    <string name="config_update_app">Download and update App</string>
+    <string name="config_update_app_title">Update App</string>
+    <string name="config_update_app_description">Download and update the application to version %s?</string>
+    <string name="config_update_app_error">Error update application.</string>
+    <string name="config_update_app_error_download">Error downloading the application.</string>
+    <string name="config_update_app_error_update">Error updating application, need to manually run the apk in the download folder.</string>
+
     <string name="config_theme_mode">Theme mode</string>
     <string-array name="theme_mode">
         <item>System</item>
@@ -225,6 +233,10 @@
     <string name="config_libraries_title_library_required">Title required</string>
     <string name="config_libraries_title_path_required">Folder required</string>
     <string name="config_libraries_title_path_default">The folder has already been set as the default</string>
+
+    <!-- UPDATE POPUP TITLES -->
+    <string name="popup_update_title">Update App</string>
+    <string name="popup_update_description">Downloading…</string>
 
     <!-- ORDER -->
     <string name="option_order_none">None</string>

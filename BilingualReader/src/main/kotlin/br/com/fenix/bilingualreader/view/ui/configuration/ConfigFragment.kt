@@ -103,6 +103,8 @@ class ConfigFragment : Fragment() {
     private lateinit var mConfigSystemRestore: MaterialButton
     private lateinit var mConfigSystemLastBackup: TextView
 
+    private lateinit var mConfigUpdateApp: MaterialButton
+
     private lateinit var mConfigCoversDelete: MaterialButton
 
     private lateinit var mConfigStatisticsDelete: MaterialButton
@@ -258,8 +260,10 @@ class ConfigFragment : Fragment() {
         mConfigSystemRestore = view.findViewById(R.id.config_system_restore)
         mConfigSystemLastBackup = view.findViewById(R.id.config_system_last_backup)
 
+        mConfigUpdateApp = view.findViewById(R.id.config_update_app)
         mConfigCoversDelete = view.findViewById(R.id.config_covers_delete)
         mConfigStatisticsDelete = view.findViewById(R.id.config_statistics_delete)
+
 
         mMangaLibraryPathAutoComplete.setOnClickListener {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
@@ -527,6 +531,24 @@ class ConfigFragment : Fragment() {
         }
 
         mConfigSystemRestore.setOnClickListener { choiceBackup() }
+
+        mConfigUpdateApp.setOnClickListener {
+            //val update = UpdateApp(requireContext())
+            val version = "33"
+            MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+                .setTitle(getString(R.string.config_update_app_title))
+                .setMessage(getString(R.string.config_update_app_description, version))
+                .setPositiveButton(R.string.action_confirm) { _, _ ->
+                    try {
+                        //update.DownloadApp("https://firebaseappdistribution.googleapis.com/app-binary-downloads/projects/269550539712/apps/1:269550539712:android:11dc80ed33aaa4b14dee25/releases/1jbdetlup0png/binaries/02a0bc537c83f162860d4b66326264265abcb9dd7b126329e58a9321becb4ce9/app.apk?token=AFb1MRwAAAAAZ_CMbBXnz5xwCNFZ6cLRJjKovnDDYRnZ3A31xyFnaGTmt-JBF_mFI9LBLy1zzakfe94nET9FAeR6iiy-3BoTCUTpRnB3lEVkajUOYdl5GZv0qoh-03pnMdK7IOKnH_9x1AXQrKstD8UEeKoy_mgq8AcDc8BJlDXTCBxciToA4TJlhtRD1GhCV9D0h3AR-_6IncuLNye2AySww-ptC0warl-Ex1ur81bvnl20ze4ab1i7PPmpC0U1cgVjVAA_Xfs_Z4gljrn0bMA-SlKjxcxl8qj4qE7PMwRTNFHQwlFd7dAJn0R82uE1T_EiROl9PRY6fOP76FQW0tHFYCHTTkENjsFlN1A")
+                    } catch (e: Exception) {
+                        mLOGGER.error("Error delete bitmap to cache: " + e.message, e)
+                        Toast.makeText(requireContext(), getString(R.string.config_update_app_error), Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .setNegativeButton(R.string.action_cancel) { _, _ -> }
+                .create().show()
+        }
 
         mConfigCoversDelete.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)

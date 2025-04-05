@@ -113,6 +113,7 @@
     <string name="config_title_themes">Temas</string>
     <string name="config_title_cover">Capas</string>
     <string name="config_title_statistics">Estatísticas</string>
+    <string name="config_title_update">Atualização do App</string>
 
     <string name="config_manga_switch_use_path_name_for_linked">Utilizar o caminho da página para vincular as páginas?</string>
     <string name="config_manga_switch_use_dual_page_calculate">Considerar página dupla pelo calculo das dimensões?</string>
@@ -171,6 +172,13 @@
     <string name="config_statistics_clear_success">Estatísticas limpa com sucesso.</string>
     <string name="config_statistics_clear_error">Erro ao limpar as estatísticas.</string>
 
+    <string name="config_update_app">Download e atualização do App</string>
+    <string name="config_update_app_title">Atualização do App</string>
+    <string name="config_update_app_description">Baixar e atualização o aplicativo para a versão %s?</string>
+    <string name="config_update_app_error">Erro ao atualização o aplicativo.</string>
+    <string name="config_update_app_error_download">Erro no download do aplicativo.</string>
+    <string name="config_update_app_error_update">Erro na atualização do aplicativo, necessário executar manualmente o apk na pasta de download.</string>
+
     <string name="config_theme_mode">Modo tema</string>
     <string-array name="theme_mode">
         <item>Sistema</item>
@@ -225,6 +233,10 @@
     <string name="config_libraries_title_library_required">Titulo é obrigatório</string>
     <string name="config_libraries_title_path_required">Caminho da biblioteca é obrigatória</string>
     <string name="config_libraries_title_path_default">O caminho foi definido como padrão</string>
+
+    <!-- UPDATE POPUP TITLES -->
+    <string name="popup_update_title">Atualizar App</string>
+    <string name="popup_update_description">Downloading…</string>
 
     <!-- ORDER -->
     <string name="option_order_none">Nenhum</string>

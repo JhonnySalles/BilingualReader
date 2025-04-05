@@ -367,6 +367,10 @@
     <dimen name="config_book_font_size_max">45</dimen>
     <dimen name="config_book_font_default">12</dimen>
 
+    <dimen name="popup_update_title">25sp</dimen>
+    <dimen name="popup_update_description">15sp</dimen>
+    <dimen name="popup_update_bottom">13sp</dimen>
+
     <dimen name="about_app_name">18sp</dimen>
     <dimen name="about_title_size">16sp</dimen>
     <dimen name="about_content_size">12sp</dimen>

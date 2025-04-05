@@ -254,6 +254,34 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
             android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_title_update" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/config_update_app"
+            style="@style/Button.LabelStart"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_update_app"
+            app:icon="@drawable/ic_update_app" />
+
+        <com.google.android.material.divider.MaterialDivider
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small" />
+
+        <TextView
+            style="@style/TextTitle.SubTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
             android:text="@string/config_title_cover" />
 
         <com.google.android.material.button.MaterialButton
