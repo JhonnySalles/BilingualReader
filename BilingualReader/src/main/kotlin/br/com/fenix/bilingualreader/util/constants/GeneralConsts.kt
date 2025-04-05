@@ -384,6 +384,8 @@ class GeneralConsts private constructor() {
     }
 
     object SHARE_MARKS {
+        val MIN_DATE_TIME: LocalDateTime = LocalDateTime.of(2000, 1, 1, 0, 0)
+
         const val PARSE_DATE_TIME = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
         const val DATE_TIME = "yyyyMMdd HHmmss"
         const val FILE_EXTENSION = ".json"

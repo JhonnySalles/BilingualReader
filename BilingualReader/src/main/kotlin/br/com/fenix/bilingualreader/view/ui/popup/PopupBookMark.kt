@@ -49,7 +49,7 @@ class PopupBookMark(var context: Context, var manager: FragmentManager) {
         mNewBookMark = obj.bookMark
         mNewDate = obj.lastAccess ?: LocalDateTime.now()
 
-        if (mNewDate.isEqual(ShareItem.MIN_DATE_TIME))
+        if (mNewDate.isEqual(GeneralConsts.SHARE_MARKS.MIN_DATE_TIME))
             mNewDate = LocalDateTime.now()
 
         if (obj.bookMark <= 0)

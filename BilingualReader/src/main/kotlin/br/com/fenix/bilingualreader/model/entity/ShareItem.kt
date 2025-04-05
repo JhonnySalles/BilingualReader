@@ -72,7 +72,6 @@ data class ShareItem(
         const val FIELD_ANNOTATION = "anotacao"
 
         const val PARSE_DATE_TIME = "yyyy-MM-dd-HH:mm:ss"
-        val MIN_DATE_TIME = LocalDateTime.of(2000, 1, 1, 0, 0)
     }
 
     @Exclude
@@ -124,7 +123,7 @@ data class ShareItem(
             this.annotation?.set(annotation.key, ShareAnnotation(annotation.value as Map<String, *>))
     }
 
-    constructor(manga: Manga, list: List<History>) : this(manga.name, manga.bookMark, manga.pages, manga.completed, manga.favorite, GeneralConsts.dateTimeToDate(manga.lastAccess ?: MIN_DATE_TIME)) {
+    constructor(manga: Manga, list: List<History>) : this(manga.name, manga.bookMark, manga.pages, manga.completed, manga.favorite, GeneralConsts.dateTimeToDate(manga.lastAccess ?: GeneralConsts.SHARE_MARKS.MIN_DATE_TIME)) {
         alter = true
         processed = true
         id = manga.id ?: 0
@@ -134,7 +133,7 @@ data class ShareItem(
             this.history?.set(history.start.format(DateTimeFormatter.ofPattern(PARSE_DATE_TIME)), ShareHistory(history))
     }
 
-    constructor(book: Book, histories: List<History>, annotations: List<BookAnnotation>) : this(book.name, book.bookMark, book.pages, book.completed, book.favorite, GeneralConsts.dateTimeToDate(book.lastAccess ?: MIN_DATE_TIME)) {
+    constructor(book: Book, histories: List<History>, annotations: List<BookAnnotation>) : this(book.name, book.bookMark, book.pages, book.completed, book.favorite, GeneralConsts.dateTimeToDate(book.lastAccess ?: GeneralConsts.SHARE_MARKS.MIN_DATE_TIME)) {
         alter = true
         processed = true
         id = book.id ?: 0
@@ -163,7 +162,7 @@ data class ShareItem(
         this.bookMark = manga.bookMark
         this.pages = manga.pages
         this.completed = manga.completed
-        this.lastAccess = GeneralConsts.dateTimeToDate(manga.lastAccess ?: MIN_DATE_TIME)
+        this.lastAccess = GeneralConsts.dateTimeToDate(manga.lastAccess ?: GeneralConsts.SHARE_MARKS.MIN_DATE_TIME)
         this.favorite = manga.favorite
         this.alter = true
         this.processed = true
@@ -173,7 +172,7 @@ data class ShareItem(
         this.bookMark = book.bookMark
         this.pages = book.pages
         this.completed = book.completed
-        this.lastAccess = GeneralConsts.dateTimeToDate(book.lastAccess ?: MIN_DATE_TIME)
+        this.lastAccess = GeneralConsts.dateTimeToDate(book.lastAccess ?: GeneralConsts.SHARE_MARKS.MIN_DATE_TIME)
         this.favorite = book.favorite
         this.alter = true
         this.processed = true
