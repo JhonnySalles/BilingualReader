@@ -71,7 +71,7 @@ class UpdateApp(var mContext: Context) {
     }
 
 
-    inner class DownloadApp(var url: String) : AsyncTask<String?, Int?, File?>() {
+    private inner class DownloadApp(var url: String) : AsyncTask<String?, Int?, File?>() {
 
         private lateinit var mPopup : AlertDialog
         private lateinit var mProgress : ProgressBar
