@@ -29,12 +29,15 @@ import br.com.fenix.bilingualreader.model.enums.TextSpeech
 import br.com.fenix.bilingualreader.model.enums.ThemeMode
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.service.listener.ApiListener
 import br.com.fenix.bilingualreader.service.listener.FontsListener
+import br.com.fenix.bilingualreader.service.listener.LibrariesCardListener
 import br.com.fenix.bilingualreader.service.listener.ThemesListener
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.service.sharemark.ShareMarkBase
+import br.com.fenix.bilingualreader.service.update.Releases
 import br.com.fenix.bilingualreader.service.update.UpdateApp
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.BackupError
@@ -514,11 +517,7 @@ class ConfigFragment : Fragment() {
             val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
                 type = "application/*"
-                putExtra(
-                    Intent.EXTRA_MIME_TYPES, arrayOf(
-                        "application/sqlite3"
-                    )
-                )
+                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/sqlite3"))
 
                 val fileName: String = "BilingualReader_" + SimpleDateFormat(
                     GeneralConsts.PATTERNS.BACKUP_DATE_PATTERN,
@@ -534,21 +533,30 @@ class ConfigFragment : Fragment() {
         mConfigSystemRestore.setOnClickListener { choiceBackup() }
 
         mConfigUpdateApp.setOnClickListener {
+            mConfigUpdateApp.isEnabled = false
             val update = UpdateApp(requireContext())
-            val version = "33"
-            MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
-                .setTitle(getString(R.string.config_update_app_title))
-                .setMessage(getString(R.string.config_update_app_description, version))
-                .setPositiveButton(R.string.action_confirm) { _, _ ->
-                    try {
-                        update.download("https://firebaseappdistribution.googleapis.com/app-binary-downloads/projects/269550539712/apps/1:269550539712:android:11dc80ed33aaa4b14dee25/releases/1jbdetlup0png/binaries/02a0bc537c83f162860d4b66326264265abcb9dd7b126329e58a9321becb4ce9/app.apk?token=AFb1MRwAAAAAZ_CMbBXnz5xwCNFZ6cLRJjKovnDDYRnZ3A31xyFnaGTmt-JBF_mFI9LBLy1zzakfe94nET9FAeR6iiy-3BoTCUTpRnB3lEVkajUOYdl5GZv0qoh-03pnMdK7IOKnH_9x1AXQrKstD8UEeKoy_mgq8AcDc8BJlDXTCBxciToA4TJlhtRD1GhCV9D0h3AR-_6IncuLNye2AySww-ptC0warl-Ex1ur81bvnl20ze4ab1i7PPmpC0U1cgVjVAA_Xfs_Z4gljrn0bMA-SlKjxcxl8qj4qE7PMwRTNFHQwlFd7dAJn0R82uE1T_EiROl9PRY6fOP76FQW0tHFYCHTTkENjsFlN1A")
-                    } catch (e: Exception) {
-                        mLOGGER.error("Error delete bitmap to cache: " + e.message, e)
-                        Toast.makeText(requireContext(), getString(R.string.config_update_app_error), Toast.LENGTH_SHORT).show()
+            update.consult(object : ApiListener<Releases> {
+                override fun onSuccess(result: Releases) {
+                    mConfigUpdateApp.isEnabled = true
+                    if (result.releases.isEmpty())
+                        Toast.makeText(requireContext(), getString(R.string.config_update_app_empty), Toast.LENGTH_SHORT).show()
+                    else {
+                        MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+                            .setTitle(getString(R.string.config_update_app_title))
+                            .setMessage(getString(R.string.config_update_app_description, result.releases[0].version))
+                            .setPositiveButton(R.string.action_confirm) { _, _ ->
+                                update.download(result.releases[0].downloadUri)
+                            }
+                            .setNegativeButton(R.string.action_cancel) { _, _ -> }
+                            .create().show()
                     }
                 }
-                .setNegativeButton(R.string.action_cancel) { _, _ -> }
-                .create().show()
+
+                override fun onFailure(message: String) {
+                    mConfigUpdateApp.isEnabled = true
+                    Toast.makeText(requireContext(), getString(R.string.config_update_app_error), Toast.LENGTH_SHORT).show()
+                }
+            })
         }
 
         mConfigCoversDelete.setOnClickListener {

@@ -177,6 +177,7 @@
     <string name="config_update_app">Download and update App</string>
     <string name="config_update_app_title">Update App</string>
     <string name="config_update_app_description">Download and update the application to version %s?</string>
+    <string name="config_update_app_empty">No app version found for update.</string>
     <string name="config_update_app_error">Error update application.</string>
     <string name="config_update_app_error_download">Error downloading the application.</string>
     <string name="config_update_app_error_update">Error updating application, need to manually run the apk in the download folder.</string>

@@ -30,7 +30,7 @@ data class ReleaseNote(
 
 data class Releases(
     @SerializedName("large")
-    val large: List<Release>,
+    val releases: List<Release>,
     @SerializedName("nextPageToken")
     val nextPage: String
 )

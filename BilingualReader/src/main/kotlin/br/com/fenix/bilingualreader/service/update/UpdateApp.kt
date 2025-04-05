@@ -2,17 +2,23 @@ package br.com.fenix.bilingualreader.service.update
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.AsyncTask
 import android.os.Environment
 import android.view.LayoutInflater
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
+import br.com.fenix.bilingualreader.BuildConfig
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.service.listener.ApiListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
+import com.google.api.client.json.jackson2.JacksonFactory
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.slf4j.LoggerFactory
@@ -39,7 +45,8 @@ class UpdateApp(var mContext: Context) {
     private fun getToken() : String {
         if (token == null) {
             val json: InputStream = mContext.assets.open("app-distribution.json")
-            val credential = GoogleCredential.fromStream(json)
+            val credential = GoogleCredential.fromStream(json,  GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance())
+            credential.refreshToken()
             token = credential.accessToken
             token!!
         }
@@ -48,30 +55,41 @@ class UpdateApp(var mContext: Context) {
     }
 
     fun consult(listener: ApiListener<Releases>) {
-        val token = getToken()
-        val call = mUpdate.getLastVersion(token)
+        try {
+            val token = getToken()
+            val call = mUpdate.getLastVersion(token)
 
-        call.enqueue(object : Callback<Releases> {
-            override fun onResponse(call: Call<Releases>, response: Response<Releases>) {
-                if (response.code() == 200)
-                    listener.onSuccess(response.body()!!)
-                else
-                    listener.onFailure(response.raw().toString())
-            }
+            call.enqueue(object : Callback<Releases> {
+                override fun onResponse(call: Call<Releases>, response: Response<Releases>) {
+                    if (response.code() == 200)
+                        listener.onSuccess(response.body()!!)
+                    else
+                        listener.onFailure(response.raw().toString())
+                }
 
-            override fun onFailure(call: Call<Releases>, t: Throwable) {
-                mLOGGER.error(t.message, t.stackTrace)
-                listener.onFailure(mContext.getString(R.string.api_error))
-            }
-        })
+                override fun onFailure(call: Call<Releases>, t: Throwable) {
+                    mLOGGER.error(t.message, t.stackTrace)
+                    listener.onFailure(t.message.toString())
+                    Toast.makeText(mContext, mContext.getString(R.string.api_error), Toast.LENGTH_SHORT).show()
+                }
+            })
+        } catch (e: Exception) {
+            mLOGGER.error("Error update app: " + e.message, e)
+            listener.onFailure(e.message.toString())
+        }
     }
 
     fun download(link : String) {
-        DownloadApp(link).execute()
+        try {
+            DownloadApp(link).execute()
+        } catch (e: Exception) {
+            mLOGGER.error("Error update app: " + e.message, e)
+            Toast.makeText(mContext, mContext.getString(R.string.config_update_app_error), Toast.LENGTH_SHORT).show()
+        }
     }
 
 
-    private inner class DownloadApp(var url: String) : AsyncTask<String?, Int?, File?>() {
+    private inner class DownloadApp(var url: String) : AsyncTask<String?, Long, File?>() {
 
         private lateinit var mPopup : AlertDialog
         private lateinit var mProgress : ProgressBar
@@ -96,15 +114,15 @@ class UpdateApp(var mContext: Context) {
         override fun doInBackground(vararg params: String?): File? {
             var count = 0
             return try {
-                val download = mContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-                val file = File(download, "BilingualReader.apk");
+                val download = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                val file = File(download, "BilingualReader.apk")
                 if (file.exists())
                     file.delete()
 
                 val output: OutputStream = FileOutputStream(file)
 
                 val request: Request = Request.Builder().url(url).build()
-                val response = OkHttpClient().newCall(request).execute();
+                val response = OkHttpClient().newCall(request).execute()
 
                 val body = response.body()
                 val length = body!!.contentLength()
@@ -118,7 +136,7 @@ class UpdateApp(var mContext: Context) {
                 while ((input.read(data).also { count = it }) != -1) {
                     total += count.toLong()
 
-                    publishProgress(total.toInt(), length.toInt())
+                    publishProgress(total, length)
                     output.write(data, 0, count)
                 }
 
@@ -133,16 +151,17 @@ class UpdateApp(var mContext: Context) {
             }
         }
 
-        override fun onProgressUpdate(vararg values: Int?) {
+        override fun onProgressUpdate(vararg values: Long?) {
             super.onProgressUpdate(*values)
             val progress = values[0]!!
             val length = values[1]!!
 
-            val percent = progress * 100 / length
-            mProgress.progress = percent
+            val percent = (progress.toDouble() / length) * 100
+            val perc = percent.toInt()
+            mProgress.progress = perc
 
-            mPercent.text = mContext.getString(R.string.percent, percent)
-            mSize.text = mContext.getString(R.string.file_size_percent, bytesCaption(progress.toLong()), bytesCaption(length.toLong()))
+            mPercent.text = mContext.getString(R.string.percent, perc)
+            mSize.text = mContext.getString(R.string.file_size_percent, bytesCaption(progress), bytesCaption(length))
         }
 
         override fun onPostExecute(apk: File?) {
@@ -150,13 +169,21 @@ class UpdateApp(var mContext: Context) {
             mPopup.dismiss()
 
             if (apk != null) {
-                val uri = FileProvider.getUriForFile(mContext, "br.com.fenix.bilingualreader.provider", apk)
-                val intent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
-                    setDataAndType(uri, "application/vnd.android.package-archive")
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                try {
+                    val uri = FileProvider.getUriForFile(mContext, BuildConfig.APPLICATION_ID + ".provider",apk)
+
+                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                        setDataAndType(uri, "application/vnd.android.package-archive")
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+
+                    mContext.startActivity(intent)
+                } catch (e: Exception) {
+                    mLOGGER.error("Error update app: " + e.message, e)
+                    Toast.makeText(mContext, mContext.getString(R.string.config_update_app_error_update), Toast.LENGTH_SHORT).show()
                 }
-                mContext.startActivity(intent)
-            }
+            } else
+                Toast.makeText(mContext, mContext.getString(R.string.config_update_app_error_download), Toast.LENGTH_SHORT).show()
         }
 
 
