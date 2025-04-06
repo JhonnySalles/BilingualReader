@@ -38,6 +38,7 @@ import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.detail.manga.InformationRelatedCardAdapter
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
+import br.com.fenix.bilingualreader.view.ui.popup.PopupTags
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import com.google.android.material.button.MaterialButton
@@ -69,6 +70,7 @@ class BookDetailFragment : Fragment() {
     private lateinit var mFavoriteButton: MaterialButton
     private lateinit var mMakReadButton: MaterialButton
     private lateinit var mBookMakButton: MaterialButton
+    private lateinit var mAddTagButton: MaterialButton
     private lateinit var mClearHistoryButton: MaterialButton
     private lateinit var mDeleteButton: MaterialButton
     private lateinit var mVocabularyButton: MaterialButton
@@ -79,6 +81,8 @@ class BookDetailFragment : Fragment() {
     private lateinit var mInformationContent: LinearLayout
     private lateinit var mInformationImage: ImageView
     private lateinit var mInformationSynopsis: TextView
+    private lateinit var mInformationTitle: TextView
+    private lateinit var mInformationAuthor: TextView
     private lateinit var mInformationAnnotation: TextView
     private lateinit var mInformationPublish: TextView
     private lateinit var mInformationRelease: TextView
@@ -108,6 +112,7 @@ class BookDetailFragment : Fragment() {
     private lateinit var mBookLanguageAutoComplete: MaterialAutoCompleteTextView
 
     private lateinit var mListener: InformationCardListener
+    private lateinit var mPopupTag: PopupTags
 
     private var mSubtitles: MutableList<String> = mutableListOf()
     private var mChapters: MutableList<String> = mutableListOf()
@@ -140,6 +145,7 @@ class BookDetailFragment : Fragment() {
         mClearHistoryButton = root.findViewById(R.id.book_detail_button_clear_history)
         mMakReadButton = root.findViewById(R.id.book_detail_button_mark_read)
         mBookMakButton = root.findViewById(R.id.book_detail_button_book_mark)
+        mAddTagButton = root.findViewById(R.id.book_detail_button_add_tag)
         mDeleteButton = root.findViewById(R.id.book_detail_button_delete)
         mVocabularyButton = root.findViewById(R.id.book_detail_button_vocabulary)
 
@@ -150,6 +156,8 @@ class BookDetailFragment : Fragment() {
         mInformationContent = root.findViewById(R.id.book_detail_information)
         mInformationImage = root.findViewById(R.id.book_detail_information_image)
         mInformationSynopsis = root.findViewById(R.id.book_detail_information_synopsis)
+        mInformationTitle = root.findViewById(R.id.book_detail_information_title)
+        mInformationAuthor = root.findViewById(R.id.book_detail_information_author)
         mInformationAnnotation = root.findViewById(R.id.book_detail_information_annotation)
         mInformationPublish = root.findViewById(R.id.book_detail_information_publish)
         mInformationLanguage = root.findViewById(R.id.book_detail_information_language)
@@ -196,6 +204,14 @@ class BookDetailFragment : Fragment() {
             (mMakReadButton.icon as AnimatedVectorDrawable).start()
             markRead()
         }
+        mAddTagButton.setOnClickListener {
+            (mAddTagButton.icon as AnimatedVectorDrawable).start()
+            mViewModel.book.value?.run {
+                mPopupTag.getPopupTags(this) {
+                    mViewModel.loadTags()
+                }
+            }
+        }
         mBookMakButton.setOnClickListener {
             (mBookMakButton.icon as AnimatedVectorDrawable).start()
             openBookMark()
@@ -219,6 +235,8 @@ class BookDetailFragment : Fragment() {
 
         mWebInfoRelatedRelatedList.adapter = InformationRelatedCardAdapter()
         mWebInfoRelatedRelatedList.layoutManager = LinearLayoutManager(requireContext())
+
+        mPopupTag = PopupTags(requireContext())
 
         mTitle.setOnLongClickListener {
             mViewModel.book.value?.let { bk -> FileUtil(requireContext()).copyName(bk) }
@@ -386,6 +404,8 @@ class BookDetailFragment : Fragment() {
 
                 mInformationAnnotation.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_annotation, it.annotation), HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mInformationPublish.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_publisher, it.publisher), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationAuthor.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_author, it.authors), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationTitle.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_title, it.title), HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mInformationRelease.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_release, it.release), HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mInformationVolume.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_volume, it.volumes), HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mInformationLanguage.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_language, it.language), HtmlCompat.FROM_HTML_MODE_COMPACT)
@@ -399,6 +419,8 @@ class BookDetailFragment : Fragment() {
                 mInformationSynopsis.text = ""
                 mInformationAnnotation.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_annotation, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mInformationPublish.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_publisher, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationAuthor.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_author, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationTitle.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_title, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mInformationRelease.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_release, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mInformationLanguage.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_language, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mInformationVolume.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_volume, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)

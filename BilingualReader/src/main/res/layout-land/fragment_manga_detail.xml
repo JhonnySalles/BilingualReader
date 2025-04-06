@@ -307,7 +307,7 @@
                         android:textSize="@dimen/manga_detail_local_information_texts_size" />
 
                     <LinearLayout
-                        android:id="@+id/manga_detail_local_information_volume_release_publisher"
+                        android:id="@+id/manga_detail_local_information_volume_release"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -318,7 +318,7 @@
                             style="@style/TextNormal"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="0.5"
+                            android:layout_weight="1"
                             android:layout_marginTop="1dp"
                             android:layout_marginStart="10dp"
                             android:layout_marginEnd="10dp"
@@ -334,7 +334,14 @@
                             android:layout_marginStart="10dp"
                             android:layout_marginEnd="10dp"
                             android:textSize="@dimen/manga_detail_local_information_texts_size" />
+                    </LinearLayout>
 
+                    <LinearLayout
+                        android:id="@+id/manga_detail_local_information_publisher_language"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:orientation="horizontal">
                         <TextView
                             android:id="@+id/manga_detail_local_information_publisher"
                             style="@style/TextNormal"
@@ -345,6 +352,18 @@
                             android:layout_marginStart="10dp"
                             android:layout_marginEnd="10dp"
                             android:textSize="@dimen/manga_detail_local_information_texts_size" />
+
+                        <TextView
+                            android:id="@+id/manga_detail_local_information_language"
+                            style="@style/TextNormal"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginTop="1dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:textSize="@dimen/manga_detail_local_information_texts_size"
+                            android:visibility="gone"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -353,36 +372,15 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:visibility="gone">
-
-                        <LinearLayout
-                            android:id="@+id/manga_detail_local_information_comic_info_title_language"
-                            android:layout_width="match_parent"
+                        <TextView
+                            android:id="@+id/manga_detail_local_information_comic_info_title"
+                            style="@style/TextNormal"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="5dp"
-                            android:orientation="horizontal"
-                            android:visibility="gone">
-                            <TextView
-                                android:id="@+id/manga_detail_local_information_comic_info_title"
-                                style="@style/TextNormal"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginTop="1dp"
-                                android:layout_marginStart="10dp"
-                                android:layout_marginEnd="10dp"
-                                android:textSize="@dimen/manga_detail_local_information_texts_size" />
-
-                            <TextView
-                                android:id="@+id/manga_detail_local_information_comic_info_language"
-                                style="@style/TextNormal"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginTop="1dp"
-                                android:layout_marginStart="10dp"
-                                android:layout_marginEnd="10dp"
-                                android:textSize="@dimen/manga_detail_local_information_texts_size" />
-                        </LinearLayout>
+                            android:layout_marginStart="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:textSize="@dimen/manga_detail_local_information_texts_size" />
 
                         <TextView
                             android:id="@+id/manga_detail_local_information_comic_info_story_arch"

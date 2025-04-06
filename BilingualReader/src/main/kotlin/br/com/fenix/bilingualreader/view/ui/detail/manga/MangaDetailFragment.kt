@@ -97,7 +97,6 @@ class MangaDetailFragment : Fragment() {
 
     private lateinit var mLocalInformationComicInfo: LinearLayout
 
-    private lateinit var mLocalInformationComicInfoTitleLanguageContent: LinearLayout
     private lateinit var mLocalInformationComicInfoTitle: TextView
     private lateinit var mLocalInformationComicInfoLanguage: TextView
     private lateinit var mLocalInformationComicInfoStoryArch: TextView
@@ -144,16 +143,15 @@ class MangaDetailFragment : Fragment() {
         mLocalInformationSeries = root.findViewById(R.id.manga_detail_local_information_series)
         mLocalInformationAuthors = root.findViewById(R.id.manga_detail_local_information_authors)
 
-        mLocalInformationVolumeReleasePublisherContent = root.findViewById(R.id.manga_detail_local_information_volume_release_publisher)
+        mLocalInformationVolumeReleasePublisherContent = root.findViewById(R.id.manga_detail_local_information_volume_release)
         mLocalInformationVolume = root.findViewById(R.id.manga_detail_local_information_volume)
         mLocalInformationRelease = root.findViewById(R.id.manga_detail_local_information_release)
         mLocalInformationPublisher = root.findViewById(R.id.manga_detail_local_information_publisher)
 
         mLocalInformationComicInfo = root.findViewById(R.id.manga_detail_local_information_comic_info)
 
-        mLocalInformationComicInfoTitleLanguageContent = root.findViewById(R.id.manga_detail_local_information_comic_info_title_language)
         mLocalInformationComicInfoTitle = root.findViewById(R.id.manga_detail_local_information_comic_info_title)
-        mLocalInformationComicInfoLanguage = root.findViewById(R.id.manga_detail_local_information_comic_info_language)
+        mLocalInformationComicInfoLanguage = root.findViewById(R.id.manga_detail_local_information_language)
         mLocalInformationComicInfoStoryArch = root.findViewById(R.id.manga_detail_local_information_comic_info_story_arch)
         mLocalInformationComicInfoGenre = root.findViewById(R.id.manga_detail_local_information_comic_info_genre)
         mLocalInformationComicInfoCharacters = root.findViewById(R.id.manga_detail_local_information_comic_info_characters)
@@ -436,12 +434,6 @@ class MangaDetailFragment : Fragment() {
                 mLocalInformationComicInfoLanguage.text = HtmlCompat.fromHtml(it.languageDescription, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mLocalInformationComicInfoLanguage.visibility = if (it.languageDescription.isNotEmpty()) View.VISIBLE else View.GONE
 
-                mLocalInformationComicInfoTitleLanguageContent.visibility =
-                    if (mLocalInformationComicInfoTitle.visibility == View.VISIBLE || mLocalInformationComicInfoLanguage.visibility == View.VISIBLE)
-                        View.VISIBLE
-                    else
-                        View.GONE
-
                 mLocalInformationComicInfoStoryArch.text = HtmlCompat.fromHtml(it.storyArch, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mLocalInformationComicInfoStoryArch.visibility = if (it.storyArch.isNotEmpty()) View.VISIBLE else View.GONE
                 mLocalInformationComicInfoGenre.text = HtmlCompat.fromHtml(it.genres, HtmlCompat.FROM_HTML_MODE_COMPACT)
@@ -475,6 +467,7 @@ class MangaDetailFragment : Fragment() {
 
                 mLocalInformationComicInfoTitle.text = ""
                 mLocalInformationComicInfoLanguage.text = ""
+                mLocalInformationComicInfoLanguage.visibility = View.GONE
 
                 mLocalInformationComicInfoGenre.text = ""
                 mLocalInformationComicInfoCharacters.text = ""
@@ -482,7 +475,6 @@ class MangaDetailFragment : Fragment() {
                 mLocalInformationComicInfoLocations.text = ""
 
                 mLocalInformationVolumeReleasePublisherContent.visibility = View.GONE
-                mLocalInformationComicInfoTitleLanguageContent.visibility = View.GONE
                 mLocalInformationComicInfo.visibility = View.GONE
                 mLocalInformationComicInfoBookMarksContent.visibility = View.GONE
             }

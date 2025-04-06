@@ -739,6 +739,7 @@
     <string name="book_detail_clear_history">Limpar histórico</string>
     <string name="book_detail_mark_read">Marcar lido</string>
     <string name="book_detail_book_mark">Marcador</string>
+    <string name="book_detail_add_tags">Adicionar tag</string>
     <string name="book_detail_delete">Deletar</string>
     <string name="book_detail_chapters_title">Capítulos</string>
     <string name="book_detail_subtitles_title">Legendas</string>
@@ -752,6 +753,7 @@
 
     <string name="book_detail_information_book_language">Linguagem do livro</string>
     <string name="book_detail_information_file"><![CDATA[<b>Arquivo:</b> %s]]></string>
+    <string name="book_detail_information_title"><![CDATA[<b>Título:</b> %s]]></string>
     <string name="book_detail_information_author"><![CDATA[<b>Autores:</b> %s]]></string>
     <string name="book_detail_information_isbn"><![CDATA[<b>ISBN:</b> %s]]></string>
     <string name="book_detail_information_language"><![CDATA[<b>Linguagem:</b> %s]]></string>

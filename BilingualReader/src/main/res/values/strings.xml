@@ -787,6 +787,7 @@
     <string name="book_detail_clear_history">Clear history</string>
     <string name="book_detail_mark_read">Mark as read</string>
     <string name="book_detail_book_mark">Book mark</string>
+    <string name="book_detail_add_tags">Add tag</string>
     <string name="book_detail_delete">Delete</string>
     <string name="book_detail_chapters_title">Chapters</string>
     <string name="book_detail_subtitles_title">Subtitles</string>
@@ -800,6 +801,7 @@
 
     <string name="book_detail_information_book_language">Book language</string>
     <string name="book_detail_information_file"><![CDATA[<b>File:</b> %s]]></string>
+    <string name="book_detail_information_title"><![CDATA[<b>Title:</b> %s]]></string>
     <string name="book_detail_information_author"><![CDATA[<b>Authors:</b> %s]]></string>
     <string name="book_detail_information_isbn"><![CDATA[<b>ISBN:</b> %s]]></string>
     <string name="book_detail_information_language"><![CDATA[<b>Language:</b> %s]]></string>

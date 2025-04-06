@@ -106,8 +106,12 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
     fun clear() {
         isLoaded = false
         if (mCodecDocument != null) {
-            mCodecDocument!!.recycle()
-            mCodecDocument = null
+            try {
+                mCodecDocument!!.recycle()
+                mCodecDocument = null
+            } catch (e : Exception) {
+                mLOGGER.error("Error to close document file", e)
+            }
         }
     }
 

@@ -116,13 +116,18 @@ class BookDetailViewModel(var app: Application) : AndroidViewModel(app) {
                         object : BookParseListener {
                             override fun onLoading(isFinished: Boolean, isLoaded: Boolean) {
                                 if (isFinished) {
-                                    val fontDiffer = if (book.language == Languages.JAPANESE) DocumentParse.BOOK_FONT_JAPANESE_SIZE_DIFFER else DocumentParse.BOOK_FONT_SIZE_DIFFER
-                                    parse!!.getPageCount((size + fontDiffer).toInt())
-                                    mPaths = parse!!.getChapters()
-                                    val chapters = mPaths.entries.sortedBy { it.value }.map { it.key }.toMutableList()
-                                    mListChapters.value = chapters
-                                    parse?.clear()
-                                    parse = null
+                                    try {
+                                        val fontDiffer = if (book.language == Languages.JAPANESE) DocumentParse.BOOK_FONT_JAPANESE_SIZE_DIFFER else DocumentParse.BOOK_FONT_SIZE_DIFFER
+                                        parse!!.getPageCount((size + fontDiffer).toInt())
+                                        mPaths = parse!!.getChapters()
+                                        val chapters = mPaths.entries.sortedBy { it.value }.map { it.key }.toMutableList()
+                                        mListChapters.value = chapters
+                                    } catch (e: Exception) {
+                                        mLOGGER.error("Error obtain chapters of book.", e)
+                                    } finally {
+                                        parse?.clear()
+                                        parse = null
+                                    }
                                 }
                             }
 
@@ -137,6 +142,12 @@ class BookDetailViewModel(var app: Application) : AndroidViewModel(app) {
                 mLOGGER.error("Error to generate new cover and update meta on book", e)
             }
         }
+    }
+
+    fun loadTags() {
+        val book = mBookRepository.get(mBook.value!!.id!!) ?: return
+        mTags.value = mTagsRepository.list().filter { t -> book.tags.any { b -> b.compareTo(t.id!!) == 0 } }
+        mBook.value = book
     }
 
     fun getInformation() {
