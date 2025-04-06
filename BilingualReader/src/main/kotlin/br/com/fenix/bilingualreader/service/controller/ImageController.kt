@@ -18,16 +18,16 @@ import java.io.File
 import java.io.IOException
 import java.net.URL
 
-class MangaImageController private constructor() {
+class ImageController private constructor() {
 
     companion object {
-        val instance: MangaImageController by lazy { HOLDER.INSTANCE }
+        val instance: ImageController by lazy { HOLDER.INSTANCE }
     }
 
-    private val mLOGGER = LoggerFactory.getLogger(MangaImageController::class.java)
+    private val mLOGGER = LoggerFactory.getLogger(ImageController::class.java)
 
     private object HOLDER {
-        val INSTANCE = MangaImageController()
+        val INSTANCE = ImageController()
     }
 
     private fun saveBitmapToCache(context: Context, key: String, bitmap: Bitmap) {
@@ -78,11 +78,7 @@ class MangaImageController private constructor() {
         return image
     }
 
-    fun setImageAsync(
-        context: Context,
-        link: String,
-        imageView: ImageView
-    ) {
+    fun setImageAsync(context: Context, link: String, imageView: ImageView) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 var image: Bitmap? = null

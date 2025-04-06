@@ -25,7 +25,7 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
-import br.com.fenix.bilingualreader.service.controller.MangaImageController
+import br.com.fenix.bilingualreader.service.controller.ImageController
 import br.com.fenix.bilingualreader.service.listener.InformationCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ColorUtil
@@ -497,7 +497,7 @@ class MangaDetailFragment : Fragment() {
                 mWebInformationImage.setImageBitmap(null)
 
                 if (it.imageLink != null)
-                    MangaImageController.instance.setImageAsync(requireContext(), it.imageLink!!, mWebInformationImage)
+                    ImageController.instance.setImageAsync(requireContext(), it.imageLink!!, mWebInformationImage)
 
                 mWebInformationAlternativeTitles.text = HtmlCompat.fromHtml(it.alternativeTitles, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mWebInformationStatus.text = HtmlCompat.fromHtml(it.status, HtmlCompat.FROM_HTML_MODE_COMPACT)

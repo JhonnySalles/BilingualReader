@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Information
-import br.com.fenix.bilingualreader.service.controller.MangaImageController
+import br.com.fenix.bilingualreader.service.controller.ImageController
 import br.com.fenix.bilingualreader.service.listener.InformationCardListener
 
 class InformationRelatedViewHolder(itemView: View, private val listener: InformationCardListener) : RecyclerView.ViewHolder(itemView) {
@@ -33,7 +33,7 @@ class InformationRelatedViewHolder(itemView: View, private val listener: Informa
         image.visibility = View.GONE
 
         if (information.imageLink != null)
-            MangaImageController.instance.setImageAsync(itemView.context, information.imageLink!!, image)
+            ImageController.instance.setImageAsync(itemView.context, information.imageLink!!, image)
 
         title.text = information.title
         alternativeTitles.text = Html.fromHtml(information.alternativeTitles)

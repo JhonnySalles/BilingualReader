@@ -2,6 +2,8 @@ package br.com.fenix.bilingualreader.view.ui.detail.book
 
 import android.app.Application
 import android.content.Context
+import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -17,12 +19,16 @@ import br.com.fenix.bilingualreader.model.entity.Tags
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.listener.ApiListener
+import br.com.fenix.bilingualreader.service.listener.BookParseListener
+import br.com.fenix.bilingualreader.service.listener.LibrariesCardListener
+import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.FileLinkRepository
 import br.com.fenix.bilingualreader.service.repository.TagsRepository
 import br.com.fenix.bilingualreader.service.tracker.ParseInformation
 import br.com.fenix.bilingualreader.service.tracker.mal.MalMangaDetail
 import br.com.fenix.bilingualreader.service.tracker.mal.MyAnimeListTracker
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,6 +44,7 @@ class BookDetailViewModel(var app: Application) : AndroidViewModel(app) {
     private val mBookRepository: BookRepository = BookRepository(app.applicationContext)
     private val mFileLinkRepository: FileLinkRepository = FileLinkRepository(app.applicationContext)
     private val mTagsRepository: TagsRepository = TagsRepository(app.applicationContext)
+    private var mPreferences: SharedPreferences = GeneralConsts.getSharedPreferences(app.applicationContext)
 
     var library: Library? = null
     private var mBook = MutableLiveData<Book?>(null)
@@ -97,6 +104,34 @@ class BookDetailViewModel(var app: Application) : AndroidViewModel(app) {
                             mInformation.value = Information(context, book)
                         }
                     }
+
+                    val configuration = mBookRepository.findConfiguration(book.id!!)
+
+                    val size = configuration?.fontSize ?:  mPreferences.getFloat(GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE, GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT)
+                    val isVertical = (book.language == Languages.JAPANESE) && (mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_FONT_JAPANESE_STYLE, false))
+                    val isLandscape = context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+                    var parse : DocumentParse? = null
+                    parse = DocumentParse(book.path, book.password, size.toInt(), isLandscape = isLandscape, isVertical = isVertical,
+                        object : BookParseListener {
+                            override fun onLoading(isFinished: Boolean, isLoaded: Boolean) {
+                                if (isFinished) {
+                                    val fontDiffer = if (book.language == Languages.JAPANESE) DocumentParse.BOOK_FONT_JAPANESE_SIZE_DIFFER else DocumentParse.BOOK_FONT_SIZE_DIFFER
+                                    parse!!.getPageCount((size + fontDiffer).toInt())
+                                    mPaths = parse!!.getChapters()
+                                    val chapters = mPaths.entries.sortedBy { it.value }.map { it.key }.toMutableList()
+                                    mListChapters.value = chapters
+                                    parse?.clear()
+                                    parse = null
+                                }
+                            }
+
+                            override fun onSearching(isSearching: Boolean) { }
+
+                            override fun onConverting(isConverting: Boolean) { }
+
+                        }
+                    )
                 }
             } catch (e: Exception) {
                 mLOGGER.error("Error to generate new cover and update meta on book", e)
@@ -138,8 +173,8 @@ class BookDetailViewModel(var app: Application) : AndroidViewModel(app) {
         mWebInformationRelations.value = list
     }
 
-    fun getPage(folder: String): Int {
-        return mPaths[folder]?.plus(1) ?: mBook.value?.bookMark ?: 1
+    fun getPage(chapter: String): Int {
+        return mPaths[chapter] ?: mBook.value?.bookMark ?: 1
     }
 
     fun clear() {

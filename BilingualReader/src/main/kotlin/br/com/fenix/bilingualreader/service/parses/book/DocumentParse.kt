@@ -142,17 +142,16 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
         return chapter
     }
 
-    fun getChapters(): List<Pair<Int, String>> {
-        val chapter: MutableList<Pair<Int, String>> = mutableListOf()
+    fun getChapters(): Map<String, Int> {
+        val chapter: MutableMap<String, Int> = mutableMapOf()
         if (mCodecDocument != null && mCodecDocument?.outline != null && mCodecDocument?.outline!!.isNotEmpty())
             for (link in mCodecDocument!!.outline!!) {
                 val number = link.link.replace(Regex("[^\\d+]"), "")
-                if (number.isNotEmpty()) {
-                    chapter.add(Pair(number.toInt(), link.title))
-                }
+                if (number.isNotEmpty())
+                    chapter[link.title] = number.toInt()
             }
 
-        return chapter.toList()
+        return chapter
     }
 
     override fun getDocumentHandle(): Long {

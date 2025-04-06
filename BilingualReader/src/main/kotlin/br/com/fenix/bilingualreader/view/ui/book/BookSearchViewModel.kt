@@ -116,9 +116,9 @@ class BookSearchViewModel(var app: Application) : AndroidViewModel(app) {
 
                         for (line in lines)
                             if (line.contains(text, true)) {
-                                val chapter = chapters.lastOrNull { it.first <= i }
-                                if (chapter != null && title.chapter != chapter.first.toFloat()) {
-                                    title = BookSearch(book!!.id!!, chapter.second, chapter.first.toFloat())
+                                val chapter = chapters.entries.lastOrNull { it.value <= i }
+                                if (chapter != null && title.chapter != chapter.value.toFloat()) {
+                                    title = BookSearch(book!!.id!!, chapter.key, chapter.value.toFloat())
                                     texts.add(title)
                                 }
 

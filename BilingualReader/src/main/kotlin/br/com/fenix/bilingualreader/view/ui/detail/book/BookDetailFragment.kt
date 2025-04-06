@@ -27,7 +27,7 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
-import br.com.fenix.bilingualreader.service.controller.MangaImageController
+import br.com.fenix.bilingualreader.service.controller.ImageController
 import br.com.fenix.bilingualreader.service.listener.InformationCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ColorUtil
@@ -38,7 +38,7 @@ import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.detail.manga.InformationRelatedCardAdapter
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
-import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
+import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -228,16 +228,16 @@ class BookDetailFragment : Fragment() {
         mChaptersList.setOnItemClickListener { _, _, index, _ ->
             mViewModel.book.value?.let {
                 if (index >= 0 && mChapters.size > index) {
-                    val folder = mChapters[index]
-                    val page = mViewModel.getPage(folder)
+                    val chapter = mChapters[index]
+                    val page = mViewModel.getPage(chapter)
                     it.bookMark = page
                     mViewModel.save(it)
-                    val intent = Intent(context, MangaReaderActivity::class.java)
+                    val intent = Intent(context, BookReaderActivity::class.java)
                     val bundle = Bundle()
                     bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mViewModel.library)
-                    bundle.putString(GeneralConsts.KEYS.MANGA.NAME, it.title)
-                    bundle.putInt(GeneralConsts.KEYS.MANGA.MARK, it.bookMark)
-                    bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, it)
+                    bundle.putString(GeneralConsts.KEYS.BOOK.NAME, it.title)
+                    bundle.putInt(GeneralConsts.KEYS.BOOK.MARK, it.bookMark)
+                    bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, it)
                     intent.putExtras(bundle)
                     context?.startActivity(intent)
                 }
@@ -417,7 +417,7 @@ class BookDetailFragment : Fragment() {
                 mWebInformationImage.setImageBitmap(null)
 
                 if (it.imageLink != null)
-                    MangaImageController.instance.setImageAsync(requireContext(), it.imageLink!!, mWebInformationImage)
+                    ImageController.instance.setImageAsync(requireContext(), it.imageLink!!, mWebInformationImage)
 
                 mWebInformationAlternativeTitles.text = HtmlCompat.fromHtml(it.alternativeTitles, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mWebInformationStatus.text = HtmlCompat.fromHtml(it.status, HtmlCompat.FROM_HTML_MODE_COMPACT)

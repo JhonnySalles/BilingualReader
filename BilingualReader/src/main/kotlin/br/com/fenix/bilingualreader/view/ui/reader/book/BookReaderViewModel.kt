@@ -771,7 +771,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             SharedData.clearChapters()
             stopLoadChapters = false
             val list = arrayListOf<Chapters>()
-            val chapters = parse.getChapters()
+            val chapters = parse.getChapters().map { Pair(it.value, it.key) }.sortedBy { it.first }
             val pages = parse.pageCount
             var c = 0
             var p = parse.pageCount

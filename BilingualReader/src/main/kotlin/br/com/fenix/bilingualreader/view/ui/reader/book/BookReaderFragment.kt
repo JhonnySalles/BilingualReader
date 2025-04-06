@@ -1319,8 +1319,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         mParse?.getChapters()?.let {
             for (chapter in it) {
-                inverse.add(pages - chapter.first)
-                dots.add(chapter.first)
+                inverse.add(pages - chapter.value)
+                dots.add(chapter.value)
             }
         }
 
