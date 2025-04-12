@@ -133,21 +133,69 @@
                 style="@style/TextNormal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/help_library_description_1"
+                android:text="@string/help_library_description_01"
+                android:textSize="@dimen/help_content_size" />
+
+            <ImageView
+                android:layout_width="@dimen/help_image_width"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/margin"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                app:srcCompat="@mipmap/tutorial_libraries_select" />
+
+            <TextView
+                style="@style/TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_library_description_02"
+                android:textSize="@dimen/help_content_size" />
+
+            <ImageView
+                android:layout_width="@dimen/help_image_width"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/margin"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                app:srcCompat="@mipmap/tutorial_library_default" />
+
+            <TextView
+                style="@style/TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_library_description_03"
+                android:textSize="@dimen/help_content_size" />
+
+            <ImageView
+                android:layout_width="@dimen/help_image_width"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/margin"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                app:srcCompat="@mipmap/tutorial_libraries_add" />
+
+            <TextView
+                style="@style/TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_library_description_04"
                 android:textSize="@dimen/help_content_size" />
 
             <TextView
                 style="@style/TextNormal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/help_library_description_2"
+                android:text="@string/help_library_description_05"
                 android:textSize="@dimen/help_content_size" />
 
             <TextView
                 style="@style/TextNormal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/help_library_description_3"
+                android:text="@string/help_library_description_06"
                 android:textSize="@dimen/help_content_size" />
 
             <ImageView
@@ -158,6 +206,101 @@
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
                 app:srcCompat="@mipmap/tutorial_library" />
+
+            <TextView
+                style="@style/TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_library_description_07"
+                android:textSize="@dimen/help_content_size" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="@dimen/margin"
+                android:layout_marginBottom="@dimen/margin">
+                <ImageView
+                    android:layout_width="@dimen/help_image_width"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    android:layout_marginEnd="3dp"
+                    app:srcCompat="@mipmap/tutorial_library_list" />
+                <ImageView
+                    android:layout_width="@dimen/help_image_width"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@mipmap/tutorial_library_grid" />
+            </LinearLayout>
+
+            <TextView
+                style="@style/TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_library_description_08"
+                android:textSize="@dimen/help_content_size" />
+
+            <ImageView
+                android:layout_width="@dimen/help_image_width"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/margin"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                app:srcCompat="@mipmap/tutorial_library_filter" />
+
+            <TextView
+                style="@style/TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_library_description_09"
+                android:textSize="@dimen/help_content_size" />
+
+            <ImageView
+                android:layout_width="@dimen/help_image_width"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/margin"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                app:srcCompat="@mipmap/tutorial_library_filter_author" />
+
+            <TextView
+                style="@style/TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_library_description_10"
+                android:textSize="@dimen/help_content_size" />
+
+            <ImageView
+                android:layout_width="@dimen/help_image_width"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/margin"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                app:srcCompat="@mipmap/tutorial_library_filter_volume" />
+
+            <TextView
+                style="@style/TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_library_description_11"
+                android:textSize="@dimen/help_content_size" />
+
+            <ImageView
+                android:layout_width="@dimen/help_image_width"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/margin"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                app:srcCompat="@mipmap/tutorial_library_filter_text" />
+
 
             <com.google.android.material.divider.MaterialDivider
                 style="@style/MaterialDivider"
