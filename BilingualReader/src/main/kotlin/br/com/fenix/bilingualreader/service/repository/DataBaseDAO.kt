@@ -785,11 +785,20 @@ abstract class StatisticsDAO {
         private const val GROUP_BY_YEAR = " WHERE " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " >= :dateStart" +
                 "   AND " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " <= :dateEnd GROUP BY SUBSTR(" + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 6,2) "
 
+        private const val WHERE_MANGA_LIBRARY = " WHERE M." + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY + " = :library "
+        private const val WHERE_BOOK_LIBRARY = " WHERE B." + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + " = :library "
+
         const val SELECT_YEAR_MANGA = "SELECT " + SELECT_FIELDS + ", 'MANGA' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE +
                 " FROM (" + SELECT_MANGA +  ") " + GROUP_BY_YEAR
 
         const val SELECT_YEAR_BOOK = "  SELECT " + SELECT_FIELDS + ", 'BOOK' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE +
                 " FROM (" + SELECT_BOOK +  ") " + GROUP_BY_YEAR
+
+        const val SELECT_YEAR_LIBRARY_MANGA = "SELECT " + SELECT_FIELDS + ", 'MANGA' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE +
+                " FROM (" + SELECT_MANGA + WHERE_MANGA_LIBRARY +  ") " + GROUP_BY_YEAR
+
+        const val SELECT_YEAR_LIBRARY_BOOK = "  SELECT " + SELECT_FIELDS + ", 'BOOK' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE +
+                " FROM (" + SELECT_BOOK + WHERE_BOOK_LIBRARY +  ") " + GROUP_BY_YEAR
     }
 
     @Query(SELECT)
@@ -801,8 +810,14 @@ abstract class StatisticsDAO {
     @Query(SELECT_YEAR_MANGA)
     abstract fun statisticsManga(dateStart: LocalDateTime, dateEnd: LocalDateTime): List<Statistics>
 
-    @Query("SELECT SUBSTR(" + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 1, 4) AS YEAR FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " GROUP BY YEAR")
-    abstract fun listYears(): MutableList<Int>
+    @Query(SELECT_YEAR_LIBRARY_BOOK)
+    abstract fun statisticsBook(dateStart: LocalDateTime, dateEnd: LocalDateTime, library: Long): List<Statistics>
+
+    @Query(SELECT_YEAR_LIBRARY_MANGA)
+    abstract fun statisticsManga(dateStart: LocalDateTime, dateEnd: LocalDateTime, library: Long): List<Statistics>
+
+    @Query("SELECT SUBSTR(" + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 1, 4) AS YEAR FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " WHERE " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " = :type GROUP BY YEAR")
+    abstract fun listYears(type : String): MutableList<Int>
 
 }
 

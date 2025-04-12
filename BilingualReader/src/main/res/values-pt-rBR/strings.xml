@@ -70,7 +70,7 @@
     <!-- STATISTICS -->
     <string name="statistics_sector_system">Statistics</string>
     <string name="statistics_sector_manga">Manga / Comic</string>
-    <string name="statistics_sector_book">Book</string>
+    <string name="statistics_sector_book">Livro</string>
 
     <string name="statistics_reading">Lendo</string>
     <string name="statistics_to_read">Pendentes</string>
@@ -89,6 +89,8 @@
 
     <string name="statistics_read_by_month">%s leituras / mês</string>
     <string name="statistics_chart_year">Ano</string>
+    <string name="statistics_chart_library">Biblioteca</string>
+    <string name="statistics_chart_library_all">Todos</string>
     <string name="statistics_average">%d minutos por página</string>
 
     <string name="statistics_format_days">%d dias</string>
@@ -776,9 +778,10 @@
     <string name="book_detail_web_information_publish_from_to"><![CDATA[<b>Publicação:</b> %s até %s]]></string>
 
     <!-- HISTORY -->
+    <string name="menu_history_library">Biblioteca</string>
+    <string name="menu_history_type">Tipo</string>
     <string name="history_last_access">Último acesso</string>
     <string name="history_delete_description">Deseja realmente excluir o histórico?</string>
-    <string name="menu_manga_history_library">Biblioteca</string>
     <string name="history_menu_choice_all">Todos</string>
     <string name="history_library_default">Padrão</string>
     <string name="history_manga">Manga / Comic</string>

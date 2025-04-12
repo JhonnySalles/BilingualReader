@@ -427,22 +427,48 @@
                 android:gravity="center"
                 android:text="@string/statistics_read_by_month" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/statistics_book_chart_year"
-                style="@style/TextInputDropMenu"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/margin_small"
-                android:hint="@string/statistics_chart_year"
-                app:startIconDrawable="@drawable/ic_statistics_chart_year">
+                android:layout_marginTop="@dimen/margin_big"
+                android:orientation="horizontal">
 
-                <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                    android:id="@+id/statistics_book_chart_year_auto_complete"
-                    style="@style/AutoCompleteDropMenu"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/statistics_book_chart_year"
+                    style="@style/TextInputDropMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_margin="@dimen/margin_small"
+                    android:hint="@string/statistics_chart_year"
+                    app:startIconDrawable="@drawable/ic_statistics_chart_year">
 
-            </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/statistics_book_chart_year_auto_complete"
+                        style="@style/AutoCompleteDropMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/statistics_book_chart_library"
+                    style="@style/TextInputDropMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_margin="@dimen/margin_small"
+                    android:hint="@string/statistics_chart_library"
+                    app:startIconDrawable="@drawable/ic_statistics_chart_book_library">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/statistics_book_chart_library_auto_complete"
+                        style="@style/AutoCompleteDropMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
 
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/statistics_book_chart"
