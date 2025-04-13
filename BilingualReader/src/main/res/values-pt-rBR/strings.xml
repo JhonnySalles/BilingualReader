@@ -901,6 +901,10 @@
     <string name="help_library_title">Biblioteca</string>
     <string name="help_reader_content">• Leitor</string>
     <string name="help_reader_title">Leitor</string>
+    <string name="help_reader_manga_content">- Mangas/Comics</string>
+    <string name="help_reader_manga_title">Mangas/Comics</string>
+    <string name="help_reader_book_content">- Livros</string>
+    <string name="help_reader_book_title">Livros</string>
     <string name="help_subtitle_content">• Legendas</string>
     <string name="help_subtitle_title">Legendas</string>
     <string name="help_subtitle_import_content">- Importação</string>
@@ -917,6 +921,12 @@
     <string name="help_floating_popup_title">Popup flutuante</string>
     <string name="help_languages_support_content">• Idiomas suportados</string>
     <string name="help_languages_support_title">Idiomas suportados</string>
+    <string name="help_statistics_content">• Estatística</string>
+    <string name="help_statistics_title">Estatística</string>
+    <string name="help_themes_content">• Temas</string>
+    <string name="help_themes_title">Temas</string>
+    <string name="help_share_content">• Compartilhamento</string>
+    <string name="help_share_title">Compartilhamento</string>
 
     <string name="help_library_description_01">O aplicativo está preparado para ter diversas bibliotecas, sendo considerada ao menos uma biblioteca padrão e outras customizada, onde também é separada entre livros e mangas/comics.</string>
     <string name="help_library_description_02">Para a configuração é simples, basta selecionar uma biblioteca padrão nas configurações do setor desejado.</string>
@@ -925,14 +935,34 @@
     <string name="help_library_description_05">Estes arquivos serão então exibidos em formato de lista e poderá ser excluido ou adicionado aos favoritos.</string>
     <string name="help_library_description_06">Para melhor desempenho, será mantido uma cópia da primeira página, no qual será exibida como capa, será necessário devido a limitação de arquivos rar/cbr em utilizar muito do recurso computacional disponível apenas para a exibição de uma única página.</string>
     <string name="help_library_description_07">As bibliotecas podem ser exibidas de várias formas, como uma lista simples, uma gride simples ou com separador, separador este que terá o agrupamento conforme a ordenação da lista, ou seja, agrupado por autor, série, gênero, data ou último acesso.</string>
-    <string name="help_library_description_08">É possível estar filtrando os conteudos da biblioteca, realizando uma consulta simples pelo nome do arquivo ou titulo, ou então por alguns atributos que são importada do livro ou mangas/comics (comicinfo).</string>
+    <string name="help_library_description_08">É possível estar filtrando os conteudos da biblioteca, realizando uma consulta simples pelo nome do arquivo ou titulo, ou então por alguns atributos que são importada do livro ou mangas/comics (ComicInfo).</string>
     <string name="help_library_description_09">A pesquisa composta sempre iniciará com a letra @ e seguirá com o atributo como autor, série, tipo e volume por exemplo, e seu conteúdo irá mostrar uma sugestão conforme os atributos conforme arquivos da biblioteca que estão disponíveis na bilblioteca.</string>
     <string name="help_library_description_10">É possível concatenar diversos atributos, sendo separados por espaço e a adição de um novo atributo.</string>
     <string name="help_library_description_11">Ao final de todos os atributos selecionado, ainda é possível adicionar a pesquisa simples, que será buscado pelo nome ou titulo do arquivo.</string>
+    <string name="help_library_description_12">Com o toque longo poderá ser exibido detalhes do arquivo, no qual terá as informações referente ao mangas/comics ou livro, bem como série, autor, volume, entre outros. Também é exibido os capítulos e pastas do arquivo ou legendas que possam ter o arquivo. Também possui a funcionalidade integrada ao MyAnimelist para obtenção de informação sobre o volume e outros que também possam interessar.</string>
 
-    <string name="help_reader_description_1">O leitor possui recursos de rolagem entre as páginas e movimentação para uma página específica. Será armazenado em memória uma marcação da página aberta na última leitura, que por sua vez será carregado na abertura.</string>
-    <string name="help_reader_description_2">Também possui recursos para realizar a leitura de arquivos json embutidos no arquivo ou externo, no qual contém textos extraidos das páginas.</string>
+    <string name="help_reader_description_1">Existe dois tipos de leitores, sendo um para mangas/comics e outro para livros. Em ambos os casos possuem as mesmas funcionalidades, porém com situações específicas para os livros, onde terá marcações em texto e páginas, bem como analise de textos em japonês para auxilio a um dicionário de kanjis.</string>
+    <string name="help_reader_description_2">Quanto ao mangas/comics possui integração com OCR e impessão de textos extraidos e traduzidos em json, bem como a abertura simultânea de dois livros distintos que serão descritos mais abaixo. Ambos possuem marcação da última página aberta na leitura para que possa continuar de onde parou.</string>
     <string name="help_reader_description_3">Para facilitar a utilização será exibido abaixo do nome do arquivo estará o nome da página que está sendo exibida no momento, será muito útil para identificar qual legenda selecionar quando a seleção automática não funcionar.</string>
+
+    <string name="help_reader_manga_1">O leitor de mangas/comics, possui algumas funcionalides, como a marcação de favoritos, página atual e a quantidade de página, bem como marcadores de capítulos que podem ser importados do ComicInfo ou na identificação de capítulos separado por pastas.</string>
+    <string name="help_reader_manga_2">Os botões de atalho rapido permite que possa estar trocando para o arquivo anterior ou posterior, OCR da página, melhoria de cores ou modo noturno que aplica um tom avermelhado as páginas para evitar cansar a vista.</string>
+    <string name="help_reader_manga_3">Também possui um popup flutuante com os principais botões de ação ou a troca entre as imagens em dois arquivos que estão aberto em simultâneo para facilitar na leitura e compreensão em idiomas distintos.</string>
+    <string name="help_reader_manga_4">Com um toque longo é possível exibir um zoom da página que irá sempre estar em um dos cantos da tela para que não atrapalhe a leitura. Um toque duplo estará alternando o zoom da pagina, mas que também pode ser ajustado com o comando em pinça com dois dedos na tela.</string>
+    <string name="help_reader_manga_5">Ao realizar um toque no centro inferior será exibidos uma lista de páginas, para que possa facilmente ser localizado a página desejada.</string>
+    <string name="help_reader_manga_6">Ao clicar no titulo será exibida uma lista simples de todos os capítulos disponíveis com sua descrição podendo ser do arquivo do ComicInfo ou então o nome da pasta.</string>
+    <string name="help_reader_manga_7">Caso desejar uma informação maior com separação entre os capítulos, no menu superior existe um botão chamado "Lista de capítulos", onde irá abrir um tela com uma lista com seções dividas entre os capítulos e as imagens em miniatura das páginas.</string>
+
+    <string name="help_reader_book_01">O leitor de livros, possui algumas funcionalides, como a marcação de página, destaque no texto dentro da página, busca por palavra em todo o livro e exibição dos capítulos presente no livro, bem como marcações dos capítulos na barra de progresso.</string>
+    <string name="help_reader_book_02">É possível também mudança de espaçamento, fonte e tamanho das letras em cada arquivo, mas caso não o tenha será obtida da configuração padrão.</string>
+    <string name="help_reader_book_03">Ao selecionar um texto da página, é possível fazer um destaque para o texto, no qual será guardado e compartilhado junto as informações de leitura do livro.</string>
+    <string name="help_reader_book_04">Inclusive pode estar adicionando anotações ao texto selecionado, ou realizar mudanças nas cores das marcações.</string>
+    <string name="help_reader_book_05">As anotações são facilmente encontrada no menu do livro, no qual pode-se identificar todas as anotações que foram feitas ou páginas marcadas.</string>
+    <string name="help_reader_book_06">Para uma maior comodidade, existe um menu principal, onde poderá ser observada todas as anotações feitas separado por livros, que permite facilmente a abertura dele já na página da marcação.</string>
+    <string name="help_reader_book_07">Assim como o leitor de mangas/comics, o livro possui um menu que irá exibir as páginas em miniatura separada por capítulos.</string>
+    <string name="help_reader_book_08">Outra funcionalidade é o reconhecimento de kanjis para livros em japonês, que mostra em destaque o kanji com cores que diferênciam pelo nível do jlpt e a importação do vocabulário se desejar.</string>
+    <string name="help_reader_book_09">Junto da importação do vocabulário é possível ativar um processamento do texto que irá exibir o furigana do kanji, para que auxilie a leitura em japonês.</string>
+    <string name="help_reader_book_10">Ao clicar em qualquer kanji, será exibido um popup com a definição e significado do kanji e outras informações relevantes.</string>
 
     <string name="help_subtitle_description_1">O aplicativo é capaz de carregar arquivos de json devidamente formatado com textos que foram previamente extraidos das páginas, junto com os textos o arquivo pode também conter uma lista de vocabulários no qual poderá ser reconhecido e localizado na exibição.</string>
     <string name="help_subtitle_description_2">A tela principal das legendas será a aba de importação, onde irá mostrar os capítulos que contem o arquivo e também poderá ser importado um arquivo de json com as legendas.</string>
@@ -960,6 +990,11 @@
 
     <string name="help_languages_support_description">O aplicativo suporta arquivos json de linguagens inglês, português e japonês.</string>
 
+    <string name="help_statistics_01">O aplicativo mantém algumas estatísticas, como a quantidade de mangas/comics ou livros separados por seções, bem como o tempo da leitura e quanto tempo foi gasto em cadas página.</string>
+    <string name="help_statistics_02">Também é possível verificar em um gráfico a quantidade de leitura feita anualmente separado por mês. Também pode-se exibir o gráfico conforme as bibliotecas.</string>
+
+    <string name="help_themes_description">O aplicativo também possui a funcionalidade de temas, que pode ser escolhida entre diversas disponíveis, também é possível manter tema noturno conforme o sistema ou forçado conforme sua escolha.</string>
+    <string name="help_share_description">O aplicativo pode estar compartilhando algumas informações entre dois aparelhos, no qual apenas é necessário que esteja realizando o login com uma conta do Google. É compartilhado a marcação de página e anotações feitas nos livros, bem como algumas estatísticas de leitura.</string>
 
     <!-- ABOUT -->
     <string name="about_app_name">Bilingual Reader</string>
