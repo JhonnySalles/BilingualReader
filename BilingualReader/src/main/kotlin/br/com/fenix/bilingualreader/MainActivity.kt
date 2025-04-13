@@ -182,6 +182,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
 
             intent.dataString?.let {
+                mMangaLibraryModel.isLaunch = false
+                mBookLibraryModel.isLaunch = false
                 fragment = when (it) {
                     "history" -> HistoryFragment()
                     else -> fragment

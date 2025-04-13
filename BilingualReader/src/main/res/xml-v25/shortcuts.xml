@@ -29,7 +29,6 @@
             android:targetPackage="br.com.fenix.bilingualreader"
             android:targetClass="br.com.fenix.bilingualreader.MainActivity"
             android:data="history"/>
-
         <categories android:name="android.shortcut.conversation" />
         <capability-binding android:key="actions.intent.CREATE_MESSAGE" />
     </shortcut>

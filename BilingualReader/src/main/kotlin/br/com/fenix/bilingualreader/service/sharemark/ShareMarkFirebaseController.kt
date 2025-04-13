@@ -66,7 +66,8 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                 mLOGGER.error(e.message, e)
                 ending(ShareMarkType.ERROR)
             }
-        }
+        } else
+            ending(ShareMarkType.SUCCESS)
     }
 
     override val mNotConnectErrorType: ShareMarkType get() = ShareMarkType.NOT_CONNECT_FIREBASE
