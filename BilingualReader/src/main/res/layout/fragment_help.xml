@@ -385,7 +385,6 @@
                 android:text="@string/help_reader_description_2"
                 android:textSize="@dimen/help_content_size" />
 
-
             <TextView
                 style="@style/TextNormal"
                 android:layout_width="wrap_content"
@@ -412,22 +411,21 @@
                 style="@style/TextNormal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/help_reader_manga_1"
+                android:text="@string/help_reader_manga_01"
                 android:textSize="@dimen/help_content_size" />
 
             <TextView
                 style="@style/TextNormal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/help_reader_manga_2"
+                android:text="@string/help_reader_manga_02"
                 android:textSize="@dimen/help_content_size" />
-
 
             <TextView
                 style="@style/TextNormal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/help_reader_manga_3"
+                android:text="@string/help_reader_manga_03"
                 android:textSize="@dimen/help_content_size" />
 
             <ImageView
@@ -443,7 +441,7 @@
                 style="@style/TextNormal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/help_reader_manga_4"
+                android:text="@string/help_reader_manga_04"
                 android:textSize="@dimen/help_content_size" />
 
             <ImageView
@@ -459,7 +457,7 @@
                 style="@style/TextNormal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/help_reader_manga_5"
+                android:text="@string/help_reader_manga_05"
                 android:textSize="@dimen/help_content_size" />
 
             <ImageView
@@ -475,7 +473,7 @@
                 style="@style/TextNormal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/help_reader_manga_6"
+                android:text="@string/help_reader_manga_06"
                 android:textSize="@dimen/help_content_size" />
 
             <ImageView
@@ -491,7 +489,7 @@
                 style="@style/TextNormal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/help_reader_manga_7"
+                android:text="@string/help_reader_manga_07"
                 android:textSize="@dimen/help_content_size" />
 
             <ImageView
@@ -502,6 +500,134 @@
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
                 app:srcCompat="@mipmap/tutorial_manga_chapter" />
+
+            <TextView
+                style="@style/TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_reader_manga_08"
+                android:textSize="@dimen/help_content_size" />
+
+            <TextView
+                style="@style/TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_reader_manga_09"
+                android:textSize="@dimen/help_content_size" />
+
+            <ImageView
+                android:layout_width="@dimen/help_image_width"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/margin"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                app:srcCompat="@mipmap/tutorial_dual_manga" />
+
+            <TextView
+                style="@style/TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_reader_manga_10"
+                android:textSize="@dimen/help_content_size" />
+
+            <ImageView
+                android:layout_width="@dimen/help_image_width"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/margin"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                app:srcCompat="@mipmap/tutorial_dual_manga_ajusts" />
+
+            <TextView
+                style="@style/TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_reader_manga_11"
+                android:textSize="@dimen/help_content_size" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="@dimen/margin"
+                android:layout_marginBottom="@dimen/margin">
+                <ImageView
+                    android:layout_width="@dimen/help_image_width"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    android:layout_marginEnd="3dp"
+                    app:srcCompat="@mipmap/tutorial_dual_manga_sorted" />
+                <ImageView
+                    android:layout_width="@dimen/help_image_width"
+                    android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@mipmap/tutorial_dual_manga_automatic" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="@dimen/help_image_width"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/margin"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                app:srcCompat="@mipmap/tutorial_dual_manga_dual_page" />
+
+            <TextView
+                style="@style/TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_reader_manga_12"
+                android:textSize="@dimen/help_content_size" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="@dimen/margin"
+                android:layout_marginBottom="@dimen/margin">
+                <ImageView
+                    android:layout_width="@dimen/help_image_width"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    android:layout_marginEnd="3dp"
+                    app:srcCompat="@mipmap/tutorial_dual_manga_language_01_original" />
+                <ImageView
+                    android:layout_width="@dimen/help_image_width"
+                    android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@mipmap/tutorial_dual_manga_language_01_translated" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="@dimen/margin"
+                android:layout_marginBottom="@dimen/margin">
+                <ImageView
+                    android:layout_width="@dimen/help_image_width"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    android:layout_marginEnd="3dp"
+                    app:srcCompat="@mipmap/tutorial_dual_manga_language_02_original" />
+                <ImageView
+                    android:layout_width="@dimen/help_image_width"
+                    android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@mipmap/tutorial_dual_manga_language_02_translated" />
+            </LinearLayout>
 
             <com.google.android.material.divider.MaterialDivider
                 style="@style/MaterialDivider"
