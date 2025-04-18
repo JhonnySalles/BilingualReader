@@ -77,6 +77,7 @@ import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
+import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
@@ -160,6 +161,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mHistoryRepository: HistoryRepository
     private lateinit var mSubtitleController: SubTitleController
     private var mDialog: AlertDialog? = null
+    private var mMenuPopupBottomSheet: Boolean = false
 
     private val mLastPage = LinkedList<Pair<Int, Bitmap>>()
     private val mHandler = Handler(Looper.getMainLooper())
@@ -417,6 +419,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             mHandler.postDelayed({ MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mManga!!, mCoverImage, null, false) }, 300)
         }
 
+        mMenuPopupBottomSheet = requireActivity().findViewById<ImageView>(R.id.popup_manga_translate_center_button) == null
+
         mHandler.postDelayed({
             mCoverContent.animate().alpha(0.0f)
                 .setDuration(600L).setListener(object : AnimatorListenerAdapter() {
@@ -553,14 +557,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean(ReaderConsts.STATES.STATE_FULLSCREEN, isFullscreen())
-        outState.putLong(
-            ReaderConsts.STATES.STATE_NEW_COMIC,
-            (if (mNewManga != null) mNewManga!!.id else -1)!!
-        )
-        outState.putInt(
-            ReaderConsts.STATES.STATE_NEW_COMIC_TITLE,
-            if (mNewManga != null) mNewMangaTitle else -1
-        )
+        outState.putLong(ReaderConsts.STATES.STATE_NEW_COMIC, (if (mNewManga != null) mNewManga!!.id else -1)!!)
+        outState.putInt(ReaderConsts.STATES.STATE_NEW_COMIC_TITLE, if (mNewManga != null) mNewMangaTitle else -1)
         super.onSaveInstanceState(outState)
     }
 
@@ -998,9 +996,12 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     }, ANIMATION_DURATION + 100)
                 }
 
-                mPopupSubtitle.visibility = View.GONE
-                mPopupColor.visibility = View.GONE
-             }, ANIMATION_DURATION)
+                if (mPopupSubtitle.visibility != View.GONE)
+                    AnimationUtil.animatePopupClose(requireActivity(), mPopupSubtitle, !mMenuPopupBottomSheet, navigationColor = false)
+
+                if (mPopupColor.visibility != View.GONE)
+                    AnimationUtil.animatePopupClose(requireActivity(), mPopupColor, !mMenuPopupBottomSheet, navigationColor = false)
+            }, ANIMATION_DURATION)
         } else {
             Handler(Looper.getMainLooper()).postDelayed({ changeContentsVisibility(fullscreen) }, ANIMATION_DURATION)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

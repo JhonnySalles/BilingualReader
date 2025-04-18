@@ -210,12 +210,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             }
         }
 
-        findViewById<ImageView>(R.id.popup_manga_translate_close_button).setOnClickListener {
-            AnimationUtil.animatePopupClose(this, mMenuPopupTranslate, !mMenuPopupBottomSheet, navigationColor = false)
-        }
-        findViewById<ImageView>(R.id.popup_manga_color_close_button).setOnClickListener {
-            AnimationUtil.animatePopupClose(this, mMenuPopupColor, !mMenuPopupBottomSheet, navigationColor = false)
-        }
         val btnMenuFloating = findViewById<ImageView>(R.id.popup_manga_translate_floating_button)
         btnMenuFloating.setOnClickListener {
             (btnMenuFloating.drawable as AnimatedVectorDrawable).start()
@@ -228,16 +222,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             openFileLink()
         }
 
-        val btnPopupSubtitle = findViewById<MaterialButton>(R.id.reader_manga_btn_popup_subtitle)
-        btnPopupSubtitle.setOnClickListener {
-            (btnPopupSubtitle.icon as AnimatedVectorDrawable).start()
-            mMenuPopupColor.visibility = View.GONE
-            mMenuPopupTranslate.visibility = View.VISIBLE
-            if (!mMenuPopupBottomSheet)
-                mBottomSheetTranslate.state = BottomSheetBehavior.STATE_EXPANDED
-
-            AnimationUtil.animatePopupOpen(this, mMenuPopupTranslate, !mMenuPopupBottomSheet, navigationColor = false)
-        }
         findViewById<MaterialButton>(R.id.reader_manga_btn_popup_color).setOnClickListener {
             mMenuPopupTranslate.visibility = View.GONE
             mMenuPopupColor.visibility = View.VISIBLE

@@ -85,6 +85,7 @@ import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
+import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
@@ -136,7 +137,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private lateinit var mCoverImage: ImageView
     private lateinit var mCoverMessage: TextView
 
-    private lateinit var mConfiguration: FrameLayout
+    private lateinit var mPopupConfiguration: FrameLayout
 
     private lateinit var mPageSeekBar: DottedSeekBar
     private lateinit var mGestureDetector: GestureDetector
@@ -159,6 +160,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private lateinit var mHistoryRepository : HistoryRepository
     private var mTextToSpeech: TextToSpeechController? = null
     private var mDialog: AlertDialog? = null
+    private var mMenuPopupBottomSheet: Boolean = false
 
     private var mIsSeekBarChange = false
     private var mPageStartReading = LocalDateTime.now()
@@ -254,7 +256,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         mRoot = requireActivity().findViewById(R.id.root_activity_book_reader)
         mViewPager = view.findViewById(R.id.fragment_book_reader)
         mPageSeekBar = requireActivity().findViewById(R.id.reader_book_bottom_progress)
-        mConfiguration = requireActivity().findViewById(R.id.popup_book_configuration)
+        mPopupConfiguration = requireActivity().findViewById(R.id.popup_book_configuration)
 
         mCoverContent = view.findViewById(R.id.reader_book_cover_content)
         mCoverImage = view.findViewById(R.id.reader_book_cover)
@@ -286,6 +288,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             mCoverMessage.text = getString(R.string.reading_manga_open_exception)
         }
 
+        mMenuPopupBottomSheet = requireActivity().findViewById<ImageView>(R.id.popup_book_configuration_center_button) == null
         mPageStartReading = LocalDateTime.now()
         mPagesAverage = mutableListOf()
 
@@ -570,6 +573,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
             R.id.menu_item_reader_book_mark_page -> {
                 markCurrentPage()
+                (miMarkPage.icon as AnimatedVectorDrawable).reset()
                 (miMarkPage.icon as AnimatedVectorDrawable).start()
             }
 
@@ -763,7 +767,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     }, ANIMATION_DURATION + 100)
                 }
 
-                mConfiguration.visibility = View.GONE
+                if (mPopupConfiguration.visibility != View.GONE)
+                    AnimationUtil.animatePopupClose(requireActivity(), mPopupConfiguration, !mMenuPopupBottomSheet, navigationColor = false)
             }, ANIMATION_DURATION)
         } else {
             Handler(Looper.getMainLooper()).postDelayed({ changeContentsVisibility(fullscreen)  }, ANIMATION_DURATION)

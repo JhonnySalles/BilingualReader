@@ -45,17 +45,6 @@
             android:visibility="gone">
 
             <ImageView
-                android:id="@+id/popup_manga_translate_close_button"
-                style="@style/TextTitle.Popup"
-                android:layout_width="70dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|top"
-                android:layout_marginEnd="@dimen/margin_small"
-                android:contentDescription="@string/popup_reading_manga_close"
-                android:scaleType="center"
-                android:src="@drawable/ic_close" />
-
-            <ImageView
                 android:id="@+id/popup_manga_translate_floating_button"
                 style="@style/TextTitle.Popup"
                 android:layout_width="70dp"
@@ -123,17 +112,6 @@
             android:orientation="vertical"
             android:paddingTop="30dp"
             android:visibility="gone">
-
-            <ImageView
-                android:id="@+id/popup_manga_color_close_button"
-                style="@style/TextTitle.Popup"
-                android:layout_width="70dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|top"
-                android:layout_marginEnd="@dimen/margin_small"
-                android:contentDescription="@string/popup_reading_manga_close"
-                android:scaleType="center"
-                android:src="@drawable/ic_close" />
 
             <LinearLayout
                 android:layout_width="match_parent"

@@ -101,9 +101,6 @@ class MangaReaderActivityTest {
         onView(withId(R.id.root_frame_manga_reader)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
-        onView(withId(R.id.reader_manga_btn_popup_subtitle)).perform(click())
-
-        waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
         onView(withId(R.id.root_frame_manga_reader)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
