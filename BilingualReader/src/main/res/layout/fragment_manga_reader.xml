@@ -7,18 +7,43 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/image_error"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone"
-        app:srcCompat="@mipmap/book_not_found"
-        android:contentDescription="@string/reader_not_found" />
-
     <br.com.fenix.bilingualreader.view.components.manga.ImageViewPager
-        android:id="@+id/fragment_reader"
+        android:id="@+id/fragment_manga_reader"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/reader_manga_cover_content"
+        style="@style/AppBackground.Reader"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/reader_manga_cover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:transitionName="transition_manga_cover"
+            android:layout_marginStart="@dimen/manga_reader_cover_margin_start_end"
+            android:layout_marginEnd="@dimen/manga_reader_cover_margin_start_end"
+            android:layout_marginTop="@dimen/manga_reader_cover_margin_top_bottom"
+            android:layout_marginBottom="@dimen/manga_reader_cover_margin_top_bottom"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:clipToOutline="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/reader_manga_cover_message"
+            style="@style/TextMangaCoverMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/manga_reader_cover_message"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

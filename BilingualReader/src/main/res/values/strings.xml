@@ -469,7 +469,7 @@
 
     <!-- READER - MANGA / COMIC -->
     <string name="reader_reload">Reload</string>
-    <string name="reader_not_found">Not found</string>
+    <string name="reader_manga_not_found">Not found</string>
     <string name="file_not_found">File not found</string>
 
     <string name="manga_share_mark_processed">Bookmarks syncs. Send %d, Receive %d</string>
@@ -533,6 +533,7 @@
 
     <string name="reading_manga_page_index">Page index</string>
     <string name="reading_manga_page_empty">File has no folders</string>
+    <string name="reading_manga_open_exception">Could not open selected manga/comic</string>
 
     <string name="reading_manga_touch_demonstration_aspect_fit">Aspect Fill</string>
     <string name="reading_manga_touch_demonstration_fit_width">Aspect Fit</string>
@@ -1006,7 +1007,9 @@
     <string name="help_reader_manga_07">If you want more information with separation between chapters, in the top menu there is a button called "Chapter List", which will open a screen with a list of sections divided between chapters and thumbnail images of the pages.</string>
     <string name="help_reader_manga_08">Another feature of the reader is the simultaneous opening of two files, where with just one click it is possible to switch between the same pages in two different languages, only needing to link the pages once.</string>
     <string name="help_reader_manga_09">As two files may have different amounts of images, and double pages may also occur, the application is prepared to work with these differences, where the linked file may have a list of images that were not linked and ended up being left over, or join two pages to form one.</string>
+    <string name="help_reader_manga_10">To link pages, simply drag and drop, and the pages in the sequence will automatically organize themselves. If the page does not exist in the original file, it may be added to the list of unlinked pages.</string>
     <string name="help_reader_manga_11">There are controls that will help you reorder the images, organize them into double pages or an automatic organization that will try to find the chapters of the original file and leave the images of the destination file starting with the same images of the chapter, where the excess will be added to the unlinked list.</string>
+    <string name="help_reader_manga_12">With this feature, while reading each page, simply click the link button to switch between pages, in which the application will even maintain the zoom and scrolling proportion of the page so that it remains correctly in the current position and has less impact on the reading pace. To avoid having to open the menu, the floating action popup also has a button for this purpose.</string>
 
     <string name="help_reader_book_01">The book reader has some features, such as page marking, highlighting text within the page, searching for words throughout the book and displaying the chapters present in the book, as well as chapter markings on the progress bar.</string>
     <string name="help_reader_book_02">It is also possible to change the spacing, font and letter size in each file, but if you do not have it, it will be obtained from the default configuration.</string>

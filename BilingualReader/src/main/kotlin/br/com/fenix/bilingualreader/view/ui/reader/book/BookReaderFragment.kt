@@ -281,6 +281,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, true)
             mHandler.postDelayed({ BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, false) }, 300)
             generateHistory(mBook!!)
+        } else {
+            mCoverImage.setImageResource(R.mipmap.book_cover_not_found)
+            mCoverMessage.text = getString(R.string.reading_manga_open_exception)
         }
 
         mPageStartReading = LocalDateTime.now()

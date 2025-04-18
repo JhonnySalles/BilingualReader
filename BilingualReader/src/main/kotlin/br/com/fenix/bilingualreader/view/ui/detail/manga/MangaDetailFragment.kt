@@ -276,12 +276,11 @@ class MangaDetailFragment : Fragment() {
 
     private fun observer() {
         mViewModel.cover.observe(viewLifecycleOwner) {
-            mBackgroundImage.setImageBitmap(it)
-            mImage.setImageBitmap(it)
-
             val isDark = resources.getBoolean(R.bool.isNight)
             ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, false, isDark)
             if (it != null) {
+                mBackgroundImage.setImageBitmap(it)
+                mImage.setImageBitmap(it)
                 ColorUtil.isDarkColor(it) { l ->
                     ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, l, isDark)
                 }

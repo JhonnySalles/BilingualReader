@@ -45,6 +45,7 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
@@ -66,6 +67,8 @@ import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
+import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
@@ -121,6 +124,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mViewPager: ImageViewPager
     private lateinit var mPreviousButton: MaterialButton
     private lateinit var mNextButton: MaterialButton
+
+    private lateinit var mCoverContent: ConstraintLayout
+    private lateinit var mCoverImage: ImageView
+    private lateinit var mCoverMessage: TextView
 
     private lateinit var mLastPageContainer: MaterialCardView
     private lateinit var mLastPageImage: ImageView
@@ -380,7 +387,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mToolbarBottom = requireActivity().findViewById(R.id.reader_manga_toolbar_reader_bottom)
         mPreviousButton = requireActivity().findViewById(R.id.reader_manga_nav_previous_file)
         mNextButton = requireActivity().findViewById(R.id.reader_manga_nav_next_file)
-        mViewPager = view.findViewById<View>(R.id.fragment_reader) as ImageViewPager
+        mViewPager = view.findViewById<View>(R.id.fragment_manga_reader) as ImageViewPager
+
+        mCoverContent = view.findViewById(R.id.reader_manga_cover_content)
+        mCoverImage = view.findViewById(R.id.reader_manga_cover)
+        mCoverMessage = view.findViewById(R.id.reader_manga_cover_message)
 
         mLastPageContainer = requireActivity().findViewById(R.id.reader_last_page)
         mLastPageImage = requireActivity().findViewById(R.id.last_page_image)
@@ -397,11 +408,23 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mPageNavTextView = mPageNavLayout.findViewById<View>(R.id.reader_manga_bottom_progress_title) as TextView
 
         if (mParse == null) {
-            view.findViewById<ImageView>(R.id.image_error).visibility = View.VISIBLE
+            mCoverImage.setImageResource(R.mipmap.book_cover_not_found)
+            mCoverMessage.text = getString(R.string.reading_book_open_exception)
             mPageNavTextView.text = ""
             return view
-        } else
-            view.findViewById<ImageView>(R.id.image_error).visibility = View.GONE
+        } else {
+            MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mManga!!, mCoverImage, null, true)
+            mHandler.postDelayed({ MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mManga!!, mCoverImage, null, false) }, 300)
+        }
+
+        mHandler.postDelayed({
+            mCoverContent.animate().alpha(0.0f)
+                .setDuration(600L).setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        super.onAnimationEnd(animation)
+                        mCoverContent.visibility = View.GONE
+                    }
+                }) }, 1000)
 
         mPageSeekBar.max = (mParse?.numPages() ?: 2) - 1
         mPageSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
