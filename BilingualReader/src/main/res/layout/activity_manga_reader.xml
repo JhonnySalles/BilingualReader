@@ -32,43 +32,6 @@
             layout="@layout/reader_manga_content"/>
 
         <FrameLayout
-            android:id="@+id/popup_manga_annotations"
-            style="@style/AppBackground.PopupBottom"
-            android:layout_width="match_parent"
-            android:layout_height="350dp"
-            android:layout_alignParentBottom="true"
-            android:fitsSystemWindows="false"
-            android:layout_gravity="center_horizontal"
-            android:orientation="vertical"
-            android:paddingTop="1dp"
-            android:visibility="gone"
-            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
-
-            <ImageView
-                android:id="@+id/popup_manga_annotations_center_button"
-                style="@style/TextTitle.Popup"
-                android:layout_width="70dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center|top"
-                android:contentDescription="@string/popup_reading_manga_open"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_line_popup"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/popup_manga_annotations_list"
-                android:layout_marginTop="25dp"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginStart="@dimen/margin"
-                android:layout_marginEnd="@dimen/margin"
-                android:paddingBottom="@dimen/margin_bottom"
-                android:clipToPadding="false"
-                android:orientation="horizontal"
-                android:scrollbarStyle="outsideOverlay"
-                android:scrollbars="horizontal" />
-        </FrameLayout>
-
-        <FrameLayout
             android:id="@+id/popup_manga_translate"
             style="@style/AppBackground.PopupBottom"
             android:layout_width="match_parent"
@@ -150,7 +113,7 @@
         </FrameLayout>
 
         <FrameLayout
-            android:id="@+id/popup_manga_color"
+            android:id="@+id/popup_manga_configurations"
             style="@style/AppBackground.PopupBottom"
             android:layout_width="match_parent"
             android:layout_height="350dp"
@@ -163,7 +126,7 @@
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
             <ImageView
-                android:id="@+id/popup_manga_color_center_button"
+                android:id="@+id/popup_manga_configurations_center_button"
                 style="@style/TextTitle.Popup"
                 android:layout_width="70dp"
                 android:layout_height="wrap_content"
@@ -179,7 +142,7 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/popup_manga_color_tab"
+                    android:id="@+id/popup_manga_configurations_tab"
                     style="@style/PopupTab"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -191,15 +154,21 @@
                     app:tabPaddingTop="0dp">
 
                     <com.google.android.material.tabs.TabItem
-                        android:id="@+id/popup_manga_color_tab_item_brightness"
+                        android:id="@+id/popup_manga_configurations_tab_item_brightness"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/popup_reading_manga_tab_item_brightness" />
 
+                    <com.google.android.material.tabs.TabItem
+                        android:id="@+id/popup_manga_configurations_tab_item_bookmarks"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/popup_reading_manga_tab_item_bookmarks" />
+
                 </com.google.android.material.tabs.TabLayout>
 
                 <androidx.viewpager.widget.ViewPager
-                    android:id="@+id/popup_manga_color_view_pager"
+                    android:id="@+id/popup_manga_configurations_view_pager"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:paddingTop="2dp"

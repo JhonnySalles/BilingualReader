@@ -1,0 +1,531 @@
+{
+  "version": 1,
+  "layers": {
+    "vectorLayer": {
+      "id": "2209",
+      "name": "vector",
+      "type": "vector",
+      "width": 6,
+      "height": 8,
+      "children": [
+        {
+          "id": "3328",
+          "name": "base_bookmark",
+          "type": "group",
+          "pivotX": 29,
+          "pivotY": 14,
+          "translateX": -24.71786,
+          "translateY": -10.00812,
+          "children": [
+            {
+              "id": "2532",
+              "name": "bookmark_marked",
+              "type": "path",
+              "pathData": "M 28.657 10.528 L 28.657 12.115 C 28.657 12.261 28.777 12.38 28.92 12.38 L 30.245 12.38 Z",
+              "fillColor": "#ffffff",
+              "fillType": "evenOdd"
+            },
+            {
+              "id": "2549",
+              "name": "bookmark_page",
+              "type": "path",
+              "pathData": "M 27.599 10.528 L 28.393 10.528 L 28.393 12.116 C 28.393 12.41 28.63 12.645 28.924 12.645 L 30.245 12.645 L 30.245 17.143 C 30.245 17.436 30.008 17.672 29.716 17.672 L 25.746 17.672 C 25.454 17.672 25.218 17.434 25.218 17.141 L 25.218 11.059 C 25.218 10.766 25.456 10.528 25.749 10.528 L 26.012 10.528 L 26.012 13.703 L 26.805 12.909 L 27.599 13.703 Z",
+              "fillColor": "#ffffff",
+              "fillType": "evenOdd"
+            },
+            {
+              "id": "3470",
+              "name": "bookmark_bookmark",
+              "type": "path",
+              "pathData": "M 26.276 10.528 L 26.276 13.068 L 26.805 12.539 L 27.335 13.068 L 27.335 10.528 Z",
+              "fillColor": "#ffffff"
+            }
+          ]
+        },
+        {
+          "id": "2711",
+          "name": "base_chapters",
+          "type": "group",
+          "pivotX": 35,
+          "pivotY": 15,
+          "translateX": -30.69918,
+          "translateY": -10.28149,
+          "children": [
+            {
+              "id": "2689",
+              "name": "chapters_marker",
+              "type": "path",
+              "pathData": "M 34.639 10.681 L 34.639 12.268 C 34.639 12.415 34.758 12.534 34.901 12.534 L 36.226 12.534 Z",
+              "fillColor": "#ffffff",
+              "fillType": "evenOdd"
+            },
+            {
+              "id": "3027",
+              "name": "chapters_page",
+              "type": "path",
+              "pathData": "M 34.374 10.681 L 31.731 10.681 C 31.437 10.681 31.199 10.919 31.199 11.213 L 31.199 17.294 C 31.199 17.587 31.435 17.825 31.728 17.825 L 35.698 17.825 C 35.99 17.825 36.226 17.59 36.226 17.297 L 36.226 12.798 L 34.905 12.798 C 34.612 12.798 34.374 12.564 34.374 12.27 Z",
+              "fillColor": "#ffffff"
+            },
+            {
+              "id": "137917",
+              "name": "chapters_point_animation_1",
+              "type": "group",
+              "pivotX": 32.3,
+              "pivotY": 13.7,
+              "children": [
+                {
+                  "id": "3035",
+                  "name": "chapters_point_1",
+                  "type": "path",
+                  "pathData": "M 31.993 13.327 L 31.993 14.121 L 32.787 14.121 L 32.787 13.327 Z",
+                  "fillColor": "#000000"
+                },
+                {
+                  "id": "3034",
+                  "name": "chapters_check_1",
+                  "type": "path",
+                  "pathData": "M 32.258 13.592 L 32.258 13.856 L 32.522 13.856 L 32.522 13.592 Z",
+                  "fillColor": "#ffffff"
+                }
+              ]
+            },
+            {
+              "id": "387828",
+              "name": "chapters_point_animation_2",
+              "type": "group",
+              "pivotX": 32.3,
+              "pivotY": 15,
+              "children": [
+                {
+                  "id": "3033",
+                  "name": "chapters_point_2",
+                  "type": "path",
+                  "pathData": "M 31.993 14.65 L 31.993 15.444 L 32.787 15.444 L 32.787 14.65 Z",
+                  "fillColor": "#000000"
+                },
+                {
+                  "id": "3036",
+                  "name": "chapters_check_2",
+                  "type": "path",
+                  "pathData": "M 32.258 14.915 L 32.258 15.179 L 32.522 15.179 L 32.522 14.915 Z",
+                  "fillColor": "#ffffff"
+                }
+              ]
+            },
+            {
+              "id": "387827",
+              "name": "chapters_point_animation_3",
+              "type": "group",
+              "pivotX": 32.3,
+              "pivotY": 16.4,
+              "children": [
+                {
+                  "id": "3037",
+                  "name": "chapters_point_3",
+                  "type": "path",
+                  "pathData": "M 31.993 15.973 L 31.993 16.767 L 32.787 16.767 L 32.787 15.973 Z",
+                  "fillColor": "#000000"
+                },
+                {
+                  "id": "3031",
+                  "name": "chapters_check_3",
+                  "type": "path",
+                  "pathData": "M 32.258 16.238 L 32.258 16.502 L 32.522 16.502 L 32.522 16.238 Z",
+                  "fillColor": "#ffffff"
+                }
+              ]
+            },
+            {
+              "id": "137918",
+              "name": "chapters_line_animation_1",
+              "type": "group",
+              "pivotX": 33.3,
+              "children": [
+                {
+                  "id": "3029",
+                  "name": "chapters_line_1",
+                  "type": "path",
+                  "pathData": "M 33.316 13.592 L 33.316 13.856 L 35.433 13.856 L 35.433 13.592 Z",
+                  "fillColor": "#000000"
+                }
+              ]
+            },
+            {
+              "id": "137919",
+              "name": "chapters_line_animation_2",
+              "type": "group",
+              "pivotX": 33.3,
+              "children": [
+                {
+                  "id": "3032",
+                  "name": "chapters_line_2",
+                  "type": "path",
+                  "pathData": "M 33.316 14.915 L 33.316 15.179 L 35.433 15.179 L 35.433 14.915 Z",
+                  "fillColor": "#000000"
+                }
+              ]
+            },
+            {
+              "id": "137920",
+              "name": "chapters_line_animation_3",
+              "type": "group",
+              "pivotX": 33.3,
+              "children": [
+                {
+                  "id": "3030",
+                  "name": "chapters_line_3",
+                  "type": "path",
+                  "pathData": "M 33.316 16.238 L 33.316 16.502 L 35.433 16.502 L 35.433 16.238 Z",
+                  "fillColor": "#000000"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "hiddenLayerIds": [
+      "3328",
+      "2711"
+    ]
+  },
+  "timeline": {
+    "animation": {
+      "id": "2",
+      "name": "anim",
+      "duration": 1000,
+      "blocks": [
+        {
+          "id": "9166",
+          "layerId": "3470",
+          "propertyName": "pathData",
+          "startTime": 15,
+          "endTime": 407,
+          "interpolator": "ANTICIPATE",
+          "type": "path",
+          "fromValue": "M 26.276 10.528 L 26.276 13.068 L 26.805 12.539 L 27.335 13.068 L 27.335 10.528 Z",
+          "toValue": "M 26.276 10.528 L 26.289 11.023 L 26.818 10.711 L 27.335 11.049 L 27.335 10.528 Z"
+        },
+        {
+          "id": "12512",
+          "layerId": "2549",
+          "propertyName": "pathData",
+          "startTime": 15,
+          "endTime": 407,
+          "interpolator": "ANTICIPATE",
+          "type": "path",
+          "fromValue": "M 27.599 10.528 L 28.393 10.528 L 28.393 12.116 C 28.393 12.41 28.63 12.645 28.924 12.645 L 30.245 12.645 L 30.245 17.143 C 30.245 17.436 30.008 17.672 29.716 17.672 L 25.746 17.672 C 25.454 17.672 25.218 17.434 25.218 17.141 L 25.218 11.059 C 25.218 10.766 25.456 10.528 25.749 10.528 L 26.012 10.528 L 26.012 13.703 L 26.805 12.909 L 27.599 13.703 Z",
+          "toValue": "M 27.599 10.528 L 28.393 10.528 L 28.393 12.116 C 28.393 12.41 28.63 12.645 28.924 12.645 L 30.245 12.645 L 30.245 17.143 C 30.245 17.436 30.008 17.672 29.716 17.672 L 25.746 17.672 C 25.454 17.672 25.218 17.434 25.218 17.141 L 25.218 11.059 C 25.218 10.766 25.456 10.528 25.749 10.528 L 26.012 10.528 L 25.999 11.479 L 26.805 11.043 L 27.586 11.518 Z"
+        },
+        {
+          "id": "18096",
+          "layerId": "3470",
+          "propertyName": "pathData",
+          "startTime": 541,
+          "endTime": 933,
+          "interpolator": "OVERSHOOT",
+          "type": "path",
+          "fromValue": "M 26.276 10.528 L 26.289 11.023 L 26.818 10.711 L 27.335 11.049 L 27.335 10.528 Z",
+          "toValue": "M 26.276 10.528 L 26.276 13.068 L 26.805 12.539 L 27.335 13.068 L 27.335 10.528 Z"
+        },
+        {
+          "id": "18097",
+          "layerId": "2549",
+          "propertyName": "pathData",
+          "startTime": 541,
+          "endTime": 933,
+          "interpolator": "OVERSHOOT",
+          "type": "path",
+          "fromValue": "M 27.599 10.528 L 28.393 10.528 L 28.393 12.116 C 28.393 12.41 28.63 12.645 28.924 12.645 L 30.245 12.645 L 30.245 17.143 C 30.245 17.436 30.008 17.672 29.716 17.672 L 25.746 17.672 C 25.454 17.672 25.218 17.434 25.218 17.141 L 25.218 11.059 C 25.218 10.766 25.456 10.528 25.749 10.528 L 26.012 10.528 L 25.999 11.479 L 26.805 11.043 L 27.586 11.518 Z",
+          "toValue": "M 27.599 10.528 L 28.393 10.528 L 28.393 12.116 C 28.393 12.41 28.63 12.645 28.924 12.645 L 30.245 12.645 L 30.245 17.143 C 30.245 17.436 30.008 17.672 29.716 17.672 L 25.746 17.672 C 25.454 17.672 25.218 17.434 25.218 17.141 L 25.218 11.059 C 25.218 10.766 25.456 10.528 25.749 10.528 L 26.012 10.528 L 26.012 13.703 L 26.805 12.909 L 27.599 13.703 Z"
+        },
+        {
+          "id": "93687",
+          "layerId": "3328",
+          "propertyName": "scaleX",
+          "startTime": 334,
+          "endTime": 508,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.9
+        },
+        {
+          "id": "93688",
+          "layerId": "3328",
+          "propertyName": "scaleY",
+          "startTime": 334,
+          "endTime": 508,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.9
+        },
+        {
+          "id": "93689",
+          "layerId": "3328",
+          "propertyName": "scaleX",
+          "startTime": 508,
+          "endTime": 682,
+          "interpolator": "OVERSHOOT",
+          "type": "number",
+          "fromValue": 0.9,
+          "toValue": 1
+        },
+        {
+          "id": "93690",
+          "layerId": "3328",
+          "propertyName": "scaleY",
+          "startTime": 508,
+          "endTime": 682,
+          "interpolator": "OVERSHOOT",
+          "type": "number",
+          "fromValue": 0.9,
+          "toValue": 1
+        },
+        {
+          "id": "141511",
+          "layerId": "137920",
+          "propertyName": "scaleX",
+          "startTime": 45,
+          "endTime": 425,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "144606",
+          "layerId": "2711",
+          "propertyName": "scaleX",
+          "startTime": 258,
+          "endTime": 484,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.9
+        },
+        {
+          "id": "144633",
+          "layerId": "2711",
+          "propertyName": "scaleY",
+          "startTime": 258,
+          "endTime": 484,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.9
+        },
+        {
+          "id": "170378",
+          "layerId": "2711",
+          "propertyName": "scaleX",
+          "startTime": 547,
+          "endTime": 773,
+          "interpolator": "ANTICIPATE_OVERSHOOT",
+          "type": "number",
+          "fromValue": 0.9,
+          "toValue": 1
+        },
+        {
+          "id": "170379",
+          "layerId": "2711",
+          "propertyName": "scaleY",
+          "startTime": 547,
+          "endTime": 773,
+          "interpolator": "ANTICIPATE_OVERSHOOT",
+          "type": "number",
+          "fromValue": 0.9,
+          "toValue": 1
+        },
+        {
+          "id": "338704",
+          "layerId": "137919",
+          "propertyName": "scaleX",
+          "startTime": 114,
+          "endTime": 488,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "338705",
+          "layerId": "137918",
+          "propertyName": "scaleX",
+          "startTime": 193,
+          "endTime": 567,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "346428",
+          "layerId": "137920",
+          "propertyName": "scaleX",
+          "startTime": 484,
+          "endTime": 864,
+          "interpolator": "DECELERATE",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "346429",
+          "layerId": "137919",
+          "propertyName": "scaleX",
+          "startTime": 547,
+          "endTime": 921,
+          "interpolator": "DECELERATE",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "346430",
+          "layerId": "137918",
+          "propertyName": "scaleX",
+          "startTime": 626,
+          "endTime": 1000,
+          "interpolator": "DECELERATE",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "363201",
+          "layerId": "137917",
+          "propertyName": "scaleX",
+          "startTime": 10,
+          "endTime": 328,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "363202",
+          "layerId": "137917",
+          "propertyName": "scaleY",
+          "startTime": 10,
+          "endTime": 328,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "363905",
+          "layerId": "137917",
+          "propertyName": "scaleY",
+          "startTime": 407,
+          "endTime": 725,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "363906",
+          "layerId": "137917",
+          "propertyName": "scaleX",
+          "startTime": 407,
+          "endTime": 725,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "389025",
+          "layerId": "387828",
+          "propertyName": "scaleX",
+          "startTime": 89,
+          "endTime": 407,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "389026",
+          "layerId": "387828",
+          "propertyName": "scaleY",
+          "startTime": 89,
+          "endTime": 407,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "389027",
+          "layerId": "387827",
+          "propertyName": "scaleX",
+          "startTime": 191,
+          "endTime": 509,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "389028",
+          "layerId": "387827",
+          "propertyName": "scaleY",
+          "startTime": 191,
+          "endTime": 509,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "389029",
+          "layerId": "387827",
+          "propertyName": "scaleY",
+          "startTime": 682,
+          "endTime": 1000,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "389030",
+          "layerId": "387827",
+          "propertyName": "scaleX",
+          "startTime": 682,
+          "endTime": 1000,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "389031",
+          "layerId": "387828",
+          "propertyName": "scaleX",
+          "startTime": 508,
+          "endTime": 826,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "389032",
+          "layerId": "387828",
+          "propertyName": "scaleY",
+          "startTime": 508,
+          "endTime": 826,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        }
+      ]
+    }
+  }
+}

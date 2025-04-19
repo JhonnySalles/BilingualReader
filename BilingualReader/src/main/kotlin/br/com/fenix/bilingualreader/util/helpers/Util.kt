@@ -61,6 +61,7 @@ import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Filter
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.model.enums.ShareMarkType
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
@@ -1159,7 +1160,7 @@ class TextUtil {
 class AnimationUtil {
     companion object AnimationUtils {
         const val duration = 200L
-        fun animatePopupOpen(activity: Activity, frame: FrameLayout, isVertical: Boolean = true, navigationColor: Boolean = true) {
+        fun animatePopupOpen(activity: Activity, frame: FrameLayout, isVertical: Boolean = true, navigationColor: Boolean = true, ending: () -> (Unit) = {}) {
             frame.visibility = View.VISIBLE
             if (isVertical) {
                 if (navigationColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
@@ -1173,14 +1174,22 @@ class AnimationUtil {
                 frame.animate()
                     .setDuration(duration)
                     .translationY(positionInitial)
-                    .setListener(object : AnimatorListenerAdapter() { })
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            super.onAnimationEnd(animation)
+                        }
+                    })
             } else {
                 val positionInitial = frame.translationX
                 frame.translationX = 200F
                 frame.animate()
                     .setDuration(duration)
                     .translationX(positionInitial)
-                    .setListener(object : AnimatorListenerAdapter() { })
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            super.onAnimationEnd(animation)
+                        }
+                    })
             }
         }
 

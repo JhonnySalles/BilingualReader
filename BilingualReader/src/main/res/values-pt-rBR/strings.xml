@@ -499,6 +499,12 @@
     <string name="reading_manga_touch_demonstration_previous_page">Página anterior</string>
     <string name="reading_manga_touch_demonstration_share_image">Compartilhar imagem</string>
 
+    <string name="reading_manga_popup_orientation_portrait">Retrato</string>
+    <string name="reading_manga_popup_orientation_portrait_locked">Retrato bloqueado</string>
+    <string name="reading_manga_popup_orientation_landscape">Paisagem</string>
+    <string name="reading_manga_popup_orientation_landscape_locked">Paisagem bloqueado</string>
+    <string name="reading_manga_popup_orientation_auto">Auto</string>
+
     <string name="open_app_kaku_not_founded">App Kaku não encontrado.</string>
 
     <string name="reading_manga_title_save_share_image">Salvar\\Compartilhar imagem</string>
@@ -524,6 +530,7 @@
     <string name="popup_reading_manga_floating_popup">Popup flutuante</string>
     <string name="popup_reading_manga_tab_item_subtitle">Legendas</string>
     <string name="popup_reading_manga_tab_item_brightness">Brilho</string>
+    <string name="popup_reading_manga_tab_item_bookmarks">Marcadores</string>
     <string name="popup_reading_manga_tab_item_subtitle_import">Importar</string>
     <string name="popup_reading_manga_tab_item_subtitle_vocabulary">Vocabulário</string>
 

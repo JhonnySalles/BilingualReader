@@ -118,7 +118,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mPageNavLayout: LinearLayout
     private lateinit var mPopupSubtitle: FrameLayout
     private lateinit var mPopupColor: FrameLayout
-    private lateinit var mPopupAnnotation: FrameLayout
     private lateinit var mToolbarBottom: LinearLayout
     private lateinit var mPageSeekBar: DottedSeekBar
     private lateinit var mPageNavTextView: TextView
@@ -387,8 +386,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mRoot = requireActivity().findViewById(R.id.root_activity_manga_reader)
         mToolbarTop = requireActivity().findViewById(R.id.reader_manga_toolbar_reader_top)
         mPopupSubtitle = requireActivity().findViewById(R.id.popup_manga_translate)
-        mPopupColor = requireActivity().findViewById(R.id.popup_manga_color)
-        mPopupAnnotation = requireActivity().findViewById(R.id.popup_manga_annotations)
+        mPopupColor = requireActivity().findViewById(R.id.popup_manga_configurations)
         mPageNavLayout = requireActivity().findViewById(R.id.reader_manga_bottom_progress_content)
         mToolbarBottom = requireActivity().findViewById(R.id.reader_manga_toolbar_reader_bottom)
         mPreviousButton = requireActivity().findViewById(R.id.reader_manga_nav_previous_file)
@@ -1050,9 +1048,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
                 if (mPopupColor.visibility != View.GONE)
                     AnimationUtil.animatePopupClose(requireActivity(), mPopupColor, !mMenuPopupBottomSheet, navigationColor = false)
-
-                if (mPopupAnnotation.visibility != View.GONE)
-                    AnimationUtil.animatePopupClose(requireActivity(), mPopupAnnotation, !mMenuPopupBottomSheet, navigationColor = false)
             }, ANIMATION_DURATION)
         } else {
             Handler(Looper.getMainLooper()).postDelayed({ changeContentsVisibility(fullscreen) }, ANIMATION_DURATION)
@@ -1293,8 +1288,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             val chapter = getChapterSelected(mCurrentPage)
             val annotation = MangaAnnotation(mManga!!.id!!, page, mParse!!.numPages(), MarkType.PageMark, chapter, path, "")
             getCurrencyImageView()?.let {
-                val bitmap = (it.drawable as BitmapDrawable).bitmap
-                annotation.image = bitmap.copy(bitmap.config, true)
+                if (it.drawable != null) {
+                    val bitmap = (it.drawable as BitmapDrawable).bitmap
+                    annotation.image = bitmap.copy(bitmap.config, true)
+                }
             }
             mViewModel.save(annotation)
             msg = getString(R.string.manga_annotation_page_marked, page)

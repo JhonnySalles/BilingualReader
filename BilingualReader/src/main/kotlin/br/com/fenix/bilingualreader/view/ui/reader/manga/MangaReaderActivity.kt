@@ -11,10 +11,10 @@ import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.AdaptiveIconDrawable
+import android.graphics.drawable.Animatable2
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -29,9 +29,9 @@ import android.provider.Settings
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
+import android.view.Surface
 import android.view.View
 import android.view.WindowManager
-import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -53,16 +53,12 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Chapters
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.PageMode
 import br.com.fenix.bilingualreader.model.enums.Position
@@ -74,7 +70,7 @@ import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.listener.ChapterCardListener
 import br.com.fenix.bilingualreader.service.listener.ChapterLoadListener
-import br.com.fenix.bilingualreader.service.listener.MangaAnnotationListener
+import br.com.fenix.bilingualreader.service.listener.ReaderListener
 import br.com.fenix.bilingualreader.service.ocr.GoogleVision
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
@@ -89,7 +85,6 @@ import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
-import br.com.fenix.bilingualreader.view.adapter.reader.MangaAnnotationsCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.reader.MangaChaptersCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
@@ -106,10 +101,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
 import java.io.File
-import kotlin.math.max
 
 
-class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener {
+class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener, ReaderListener {
 
     private val mLOGGER = LoggerFactory.getLogger(MangaReaderActivity::class.java)
 
@@ -123,17 +117,14 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     private lateinit var mLanguageOcrDescription: TextView
     private lateinit var mMenuPopupTranslate: FrameLayout
     private lateinit var mPopupTranslateView: ViewPager
-    private lateinit var mMenuPopupColor: FrameLayout
-    private lateinit var mPopupColorView: ViewPager
-    private lateinit var mPopupColorTab: TabLayout
+    private lateinit var mMenuPopupConfigurations: FrameLayout
+    private lateinit var mPopupConfigurationsView: ViewPager
+    private lateinit var mPopupConfigurationsTab: TabLayout
     private lateinit var mBottomSheetTranslate: BottomSheetBehavior<FrameLayout>
-    private lateinit var mBottomSheetColor: BottomSheetBehavior<FrameLayout>
-
-    private lateinit var mMenuPopupAnnotation: FrameLayout
-    private lateinit var mAnnotationList: RecyclerView
-    private lateinit var mBottomSheetAnnotation: BottomSheetBehavior<FrameLayout>
+    private lateinit var mBottomSheetConfigurations: BottomSheetBehavior<FrameLayout>
 
     private lateinit var mPopupMangaColorFilterFragment: PopupMangaColorFilterFragment
+    private lateinit var mPopupMangaAnnotationsFragment: PopupMangaAnnotationsFragment
     private lateinit var mPopupMangaSubtitleConfigurationFragment: PopupMangaSubtitleConfiguration
     private lateinit var mPopupMangaSubtitleReaderFragment: PopupMangaSubtitleReader
     private lateinit var mPopupMangaSubtitleVocabularyFragment: PopupMangaSubtitleVocabulary
@@ -205,7 +196,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         mReaderProgress = findViewById(R.id.reader_manga_bottom_progress)
         mProgressContent = findViewById(R.id.reader_manga_bottom_progress_content)
         mMenuPopupTranslate = findViewById(R.id.popup_manga_translate)
-        mMenuPopupColor = findViewById(R.id.popup_manga_color)
+        mMenuPopupConfigurations = findViewById(R.id.popup_manga_configurations)
 
         if (findViewById<ImageView>(R.id.popup_manga_translate_center_button) == null)
             mMenuPopupBottomSheet = true
@@ -237,37 +228,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             openFileLink()
         }
 
-        findViewById<MaterialButton>(R.id.reader_manga_btn_popup_color).setOnClickListener {
-            mMenuPopupTranslate.visibility = View.GONE
-            mMenuPopupAnnotation.visibility = View.GONE
-            if (!mMenuPopupBottomSheet)
-                mBottomSheetColor.state = BottomSheetBehavior.STATE_EXPANDED
-
-            AnimationUtil.animatePopupOpen(this, mMenuPopupColor, !mMenuPopupBottomSheet, navigationColor = false)
-        }
-
-        findViewById<ImageView>(R.id.popup_manga_color_close_button)?.setOnClickListener {
-            if (mMenuPopupColor.isVisible)
-                AnimationUtil.animatePopupClose(this, mMenuPopupColor, !mMenuPopupBottomSheet, navigationColor = false)
-        }
-
-        val buttonAnnotations = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_annotations)
-        buttonAnnotations.setOnClickListener {
-            (buttonAnnotations.icon as AnimatedVectorDrawable).start()
-            mMenuPopupTranslate.visibility = View.GONE
-            mMenuPopupColor.visibility = View.GONE
-            if (!mMenuPopupBottomSheet)
-                mBottomSheetAnnotation.state = BottomSheetBehavior.STATE_EXPANDED
-
-            mViewModel.refreshCover(mManga) { mAnnotationList.adapter?.notifyItemChanged(it) }
-            AnimationUtil.animatePopupOpen(this, mMenuPopupAnnotation, !mMenuPopupBottomSheet, navigationColor = false)
-        }
-
-        findViewById<ImageView>(R.id.popup_manga_annotations_close_button)?.setOnClickListener {
-            if (mMenuPopupAnnotation.isVisible)
-                AnimationUtil.animatePopupClose(this, mMenuPopupAnnotation, !mMenuPopupBottomSheet, navigationColor = false)
-        }
-
         val btnFloatingButtons = findViewById<MaterialButton>(R.id.reader_manga_btn_floating_buttons)
         btnFloatingButtons.setOnClickListener {
             (btnFloatingButtons.icon as AnimatedVectorDrawable).start()
@@ -276,22 +236,43 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
         val btnRotate = findViewById<MaterialButton>(R.id.reader_manga_btn_screen_rotate)
         btnRotate.setOnClickListener {
+            (btnRotate.icon as AnimatedVectorDrawable).clearAnimationCallbacks()
+            (btnRotate.icon as AnimatedVectorDrawable).registerAnimationCallback(object :
+                Animatable2.AnimationCallback() {
+                override fun onAnimationEnd(drawable: Drawable?) {
+                    super.onAnimationEnd(drawable)
+                    requestedOrientation = if (requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+                            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                        else
+                            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                }
+            })
+            (btnRotate.icon as AnimatedVectorDrawable).reset()
             (btnRotate.icon as AnimatedVectorDrawable).start()
-            requestedOrientation =
-                if (requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                else
-                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        }
+
+        btnRotate.setOnLongClickListener {
+            showMenuFromButton(btnRotate, it)
+            true
         }
 
         val buttonChapters = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_chapters)
         buttonChapters.setOnClickListener {
+            (buttonChapters.icon as AnimatedVectorDrawable).clearAnimationCallbacks()
+            (buttonChapters.icon as AnimatedVectorDrawable).registerAnimationCallback(object :
+                Animatable2.AnimationCallback() {
+                override fun onAnimationEnd(drawable: Drawable?) {
+                    super.onAnimationEnd(drawable)
+                    openChapters()
+                }
+            })
+            (buttonChapters.icon as AnimatedVectorDrawable).reset()
             (buttonChapters.icon as AnimatedVectorDrawable).start()
-            openChapters()
         }
 
         val buttonOcr = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_ocr)
         buttonOcr?.setOnClickListener {
+            (buttonOcr.icon as AnimatedVectorDrawable).reset()
             (buttonOcr.icon as AnimatedVectorDrawable).start()
             showMenuFromButton(buttonOcr, it)
         }
@@ -331,6 +312,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         mTouchView = findViewById(R.id.reader_manga_container_touch_demonstration)
 
         mPopupMangaColorFilterFragment = PopupMangaColorFilterFragment()
+        mPopupMangaAnnotationsFragment = PopupMangaAnnotationsFragment()
         mPopupMangaSubtitleConfigurationFragment = PopupMangaSubtitleConfiguration()
         mPopupMangaSubtitleReaderFragment = PopupMangaSubtitleReader()
         mPopupMangaSubtitleVocabularyFragment = PopupMangaSubtitleVocabulary()
@@ -359,58 +341,98 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
         mPopupTranslateView.adapter = viewTranslatePagerAdapter
 
-        mPopupColorTab = findViewById(R.id.popup_manga_color_tab)
-        mPopupColorView = findViewById(R.id.popup_manga_color_view_pager)
+        findViewById<ImageView>(R.id.popup_manga_translate_floating_close_button)?.setOnClickListener {
+            if (mMenuPopupTranslate.isVisible)
+                AnimationUtil.animatePopupClose(this, mMenuPopupTranslate, !mMenuPopupBottomSheet, navigationColor = false)
+        }
 
-        if (findViewById<ImageView>(R.id.popup_manga_color_center_button) != null) {
-            mBottomSheetColor = BottomSheetBehavior.from(mMenuPopupColor).apply {
+        mPopupConfigurationsTab = findViewById(R.id.popup_manga_configurations_tab)
+        mPopupConfigurationsView = findViewById(R.id.popup_manga_configurations_view_pager)
+
+        if (findViewById<ImageView>(R.id.popup_manga_configurations_center_button) != null) {
+            mBottomSheetConfigurations = BottomSheetBehavior.from(mMenuPopupConfigurations).apply {
                 peekHeight = 195
                 this.state = BottomSheetBehavior.STATE_COLLAPSED
-                mBottomSheetColor = this
+                mBottomSheetConfigurations = this
             }
-            mBottomSheetColor.isDraggable = false
+            mBottomSheetConfigurations.isDraggable = false
 
-            findViewById<ImageView>(R.id.popup_manga_color_center_button).setOnClickListener {
-                if (mBottomSheetColor.state == BottomSheetBehavior.STATE_COLLAPSED)
-                    mBottomSheetColor.state = BottomSheetBehavior.STATE_EXPANDED
+            findViewById<ImageView>(R.id.popup_manga_configurations_center_button).setOnClickListener {
+                if (mBottomSheetConfigurations.state == BottomSheetBehavior.STATE_COLLAPSED)
+                    mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_EXPANDED
                 else
-                    mBottomSheetColor.state = BottomSheetBehavior.STATE_COLLAPSED
+                    mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_COLLAPSED
             }
         }
 
-        mPopupColorTab.setupWithViewPager(mPopupColorView)
+        mPopupConfigurationsTab.setupWithViewPager(mPopupConfigurationsView)
 
         val viewColorPagerAdapter = ViewPagerAdapter(supportFragmentManager, 0)
         viewColorPagerAdapter.addFragment(
             mPopupMangaColorFilterFragment,
             resources.getString(R.string.popup_reading_manga_tab_item_brightness)
         )
-        mPopupColorView.adapter = viewColorPagerAdapter
-
-        mMenuPopupAnnotation = findViewById(R.id.popup_manga_annotations)
-        mAnnotationList = findViewById(R.id.popup_manga_annotations_list)
-        if (findViewById<ImageView>(R.id.popup_manga_annotations_center_button) != null) {
-            mBottomSheetAnnotation = BottomSheetBehavior.from(mMenuPopupTranslate).apply {
-                peekHeight = 195
-                this.state = BottomSheetBehavior.STATE_COLLAPSED
-                mBottomSheetAnnotation = this
+        viewColorPagerAdapter.addFragment(
+            mPopupMangaAnnotationsFragment,
+            resources.getString(R.string.popup_reading_manga_tab_item_bookmarks)
+        )
+        mPopupConfigurationsView.adapter = viewColorPagerAdapter
+        mPopupMangaAnnotationsFragment.setListener(this)
+        mPopupConfigurationsView.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+            override fun onPageSelected(position: Int) {
+                if (viewColorPagerAdapter.getItem(position) == mPopupMangaAnnotationsFragment)
+                    mViewModel.refreshCover(mManga) { mPopupMangaAnnotationsFragment.notifyItemChanged(it) }
             }
-            mBottomSheetAnnotation.isDraggable = false
+        })
 
-            findViewById<ImageView>(R.id.popup_manga_annotations_center_button).setOnClickListener {
-                if (mBottomSheetAnnotation.state == BottomSheetBehavior.STATE_COLLAPSED)
-                    mBottomSheetAnnotation.state = BottomSheetBehavior.STATE_EXPANDED
-                else
-                    mBottomSheetAnnotation.state = BottomSheetBehavior.STATE_COLLAPSED
-            }
+        findViewById<MaterialButton>(R.id.reader_manga_btn_popup_color).setOnClickListener {
+            mMenuPopupTranslate.visibility = View.GONE
+            if (!mMenuPopupBottomSheet)
+                mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_EXPANDED
+
+            var index = -1
+            for (i in 0 until viewColorPagerAdapter.count)
+                if (viewColorPagerAdapter.getItem(i) == mPopupMangaColorFilterFragment) {
+                    index = i
+                    break
+                }
+            if (index >= 0)
+                mPopupConfigurationsTab.selectTab(mPopupConfigurationsTab.getTabAt(index), true)
+
+            AnimationUtil.animatePopupOpen(this, mMenuPopupConfigurations, !mMenuPopupBottomSheet, navigationColor = false)
         }
 
-        findViewById<ImageView>(R.id.popup_manga_translate_floating_close_button)?.setOnClickListener {
-            if (mMenuPopupTranslate.isVisible)
-                AnimationUtil.animatePopupClose(this, mMenuPopupTranslate, !mMenuPopupBottomSheet, navigationColor = false)
+        findViewById<ImageView>(R.id.popup_manga_color_close_button)?.setOnClickListener {
+            if (mMenuPopupConfigurations.isVisible)
+                AnimationUtil.animatePopupClose(this, mMenuPopupConfigurations, !mMenuPopupBottomSheet, navigationColor = false)
         }
 
-        prepareAnnotations()
+        val buttonAnnotations = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_annotations)
+        buttonAnnotations.setOnClickListener {
+
+            var index = -1
+            for (i in 0 until viewColorPagerAdapter.count)
+                if (viewColorPagerAdapter.getItem(i) == mPopupMangaAnnotationsFragment) {
+                    index = i
+                    break
+                }
+            if (index >= 0)
+                mPopupConfigurationsTab.selectTab(mPopupConfigurationsTab.getTabAt(index), true)
+
+            (buttonAnnotations.icon as AnimatedVectorDrawable).clearAnimationCallbacks()
+            (buttonAnnotations.icon as AnimatedVectorDrawable).registerAnimationCallback(object :
+                Animatable2.AnimationCallback() {
+                override fun onAnimationEnd(drawable: Drawable?) {
+                    super.onAnimationEnd(drawable)
+                    mMenuPopupTranslate.visibility = View.GONE
+                    if (!mMenuPopupBottomSheet)
+                        mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_EXPANDED
+                    AnimationUtil.animatePopupOpen(this@MangaReaderActivity, mMenuPopupConfigurations, !mMenuPopupBottomSheet, navigationColor = false)
+                }
+            })
+            (buttonAnnotations.icon as AnimatedVectorDrawable).reset()
+            (buttonAnnotations.icon as AnimatedVectorDrawable).start()
+        }
 
         mRepository = MangaRepository(applicationContext)
 
@@ -858,8 +880,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             R.id.menu_item_reader_manga_mark_page -> {}
             R.id.menu_item_reader_manga_popup_subtitle -> {
                 if (mMenuPopupTranslate.isGone) {
-                    mMenuPopupColor.visibility = View.GONE
-                    mMenuPopupAnnotation.visibility = View.GONE
+                    mMenuPopupConfigurations.visibility = View.GONE
                     if (!mMenuPopupBottomSheet)
                         mBottomSheetTranslate.state = BottomSheetBehavior.STATE_EXPANDED
 
@@ -869,15 +890,14 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             }
 
             R.id.menu_item_reader_manga_popup_color -> {
-                if (mMenuPopupColor.isGone) {
+                if (mMenuPopupConfigurations.isGone) {
                     mMenuPopupTranslate.visibility = View.GONE
-                    mMenuPopupAnnotation.visibility = View.GONE
                     if (!mMenuPopupBottomSheet)
-                        mBottomSheetColor.state = BottomSheetBehavior.STATE_EXPANDED
+                        mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_EXPANDED
 
-                    AnimationUtil.animatePopupOpen(this, mMenuPopupColor, !mMenuPopupBottomSheet, navigationColor = false)
+                    AnimationUtil.animatePopupOpen(this, mMenuPopupConfigurations, !mMenuPopupBottomSheet, navigationColor = false)
                 } else
-                    AnimationUtil.animatePopupClose(this, mMenuPopupColor, !mMenuPopupBottomSheet, navigationColor = false)
+                    AnimationUtil.animatePopupClose(this, mMenuPopupConfigurations, !mMenuPopupBottomSheet, navigationColor = false)
             }
 
             R.id.menu_item_reader_manga_file_link -> openFileLink()
@@ -904,7 +924,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
     private fun showMenuFromButton(button: Button, view: View) {
         when (button.id) {
-            R.id.reader_manga_btn_menu_chapters -> {
+            R.id.reader_manga_btn_menu_ocr -> {
                 val popup = PopupMenu(this, view, 0, R.attr.popupMenuStyle, R.style.PopupMenu)
                 popup.menuInflater.inflate(R.menu.menu_ocr, popup.menu)
                 popup.setOnMenuItemClickListener { menuItem: MenuItem ->
@@ -918,17 +938,48 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 }
                 popup.show()
             }
+            R.id.reader_manga_btn_screen_rotate -> {
+                val popup = PopupMenu(this, view, 0, R.attr.popupMenuStyle, R.style.PopupMenu)
+                popup.menuInflater.inflate(R.menu.menu_orientation, popup.menu)
+                popup.setOnMenuItemClickListener { menuItem: MenuItem ->
+                    when (menuItem.itemId) {
+                        R.id.menu_popup_orientation_auto -> { requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR }
+                        R.id.menu_popup_orientation_portrait ->  { requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT }
+                        R.id.menu_popup_orientation_portrait_locked -> {
+                            val display = (getSystemService(WINDOW_SERVICE) as WindowManager).defaultDisplay
+                            val rotation = display.rotation
+
+                            requestedOrientation = if(rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_270)
+                                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                            else
+                                ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
+                        }
+                        R.id.menu_popup_orientation_landscape -> { requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE }
+                        R.id.menu_popup_orientation_landscape_locked -> {
+                            val display = (getSystemService(WINDOW_SERVICE) as WindowManager).defaultDisplay
+                            val rotation = display.rotation
+
+                            requestedOrientation = if(rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_90)
+                                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                            else
+                                ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+                        }
+                    }
+                    true
+                }
+                popup.setOnDismissListener {
+                }
+                popup.show()
+            }
         }
     }
 
     override fun onBackPressed() {
-        if (mMenuPopupTranslate.visibility != View.GONE || mMenuPopupColor.visibility != View.GONE || mMenuPopupAnnotation.visibility != View.GONE) {
+        if (mMenuPopupTranslate.visibility != View.GONE || mMenuPopupConfigurations.visibility != View.GONE) {
             if (mMenuPopupTranslate.visibility != View.GONE)
                 AnimationUtil.animatePopupClose(this, mMenuPopupTranslate, !mMenuPopupBottomSheet, navigationColor = false)
-            if (mMenuPopupColor.visibility != View.GONE)
-                AnimationUtil.animatePopupClose(this, mMenuPopupColor, !mMenuPopupBottomSheet, navigationColor = false)
-            if (mMenuPopupAnnotation.visibility != View.GONE)
-                AnimationUtil.animatePopupClose(this, mMenuPopupAnnotation, !mMenuPopupBottomSheet, navigationColor = false)
+            if (mMenuPopupConfigurations.visibility != View.GONE)
+                AnimationUtil.animatePopupClose(this, mMenuPopupConfigurations, !mMenuPopupBottomSheet, navigationColor = false)
             return
         }
 
@@ -1012,39 +1063,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         }
     }
 
-    private fun prepareAnnotations() {
-        val lineAdapter = MangaAnnotationsCardAdapter()
-        mAnnotationList.adapter = lineAdapter
-        val width = resources.getDimension(R.dimen.manga_annotation_layout_width).toInt()
-        val count: Int = max(1, (Resources.getSystem().displayMetrics.widthPixels -3) / width)
-        mAnnotationList.layoutManager = StaggeredGridLayoutManager(count, StaggeredGridLayoutManager.VERTICAL)
-        mAnnotationList.layoutAnimation = AnimationUtils.loadLayoutAnimation(this, R.anim.animation_manga_annotation_grid)
-
-        val itemTouchHelperCallback =
-            object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-                override fun onMove(recyclerView: RecyclerView, viewHolder: ViewHolder, target: ViewHolder): Boolean {
-                    return false
-                }
-
-                override fun onSwiped(viewHolder: ViewHolder, direction: Int) {
-                    mViewModel.deleteAnnotation(viewHolder.bindingAdapterPosition)
-                }
-            }
-
-        ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mAnnotationList)
-
-        val listener = object : MangaAnnotationListener {
-            override fun onClick(annotation: MangaAnnotation) {
-                mFragment?.setCurrentPage(annotation.page)
-            }
-        }
-
-        lineAdapter.attachListener(listener)
-        mViewModel.annotation.observe(this) {
-            lineAdapter.updateList(it)
-        }
-    }
-
     fun openFileLink() {
         if (mManga != null) {
             val intent = Intent(applicationContext, PagesLinkActivity::class.java)
@@ -1079,14 +1097,11 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     fun openFloatingSubtitle() {
-        if (mMenuPopupColor.isVisible)
-            AnimationUtil.animatePopupClose(this, mMenuPopupColor, !mMenuPopupBottomSheet, navigationColor = false)
+        if (mMenuPopupConfigurations.isVisible)
+            AnimationUtil.animatePopupClose(this, mMenuPopupConfigurations, !mMenuPopupBottomSheet, navigationColor = false)
 
         if (mMenuPopupTranslate.isVisible)
             AnimationUtil.animatePopupClose(this, mMenuPopupTranslate, !mMenuPopupBottomSheet, navigationColor = false)
-
-        if (mMenuPopupAnnotation.isVisible)
-            AnimationUtil.animatePopupClose(this, mMenuPopupAnnotation, !mMenuPopupBottomSheet, navigationColor = false)
 
         if (mFloatingSubtitleReader.isShowing)
             mFloatingSubtitleReader.dismiss()
@@ -1404,6 +1419,10 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     override fun onLoading(page: Int) {
         if (!mChapterList.isComputingLayout)
             mChapterList.adapter?.notifyItemChanged(page)
+    }
+
+    override fun setCurrentPage(page: Int) {
+        mFragment?.setCurrentPage(page)
     }
 
 }
