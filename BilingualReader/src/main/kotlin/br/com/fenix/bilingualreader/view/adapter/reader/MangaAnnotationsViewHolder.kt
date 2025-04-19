@@ -5,9 +5,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.Chapters
 import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
-import br.com.fenix.bilingualreader.service.listener.ChapterCardListener
 import br.com.fenix.bilingualreader.service.listener.MangaAnnotationListener
 import com.google.android.material.card.MaterialCardView
 

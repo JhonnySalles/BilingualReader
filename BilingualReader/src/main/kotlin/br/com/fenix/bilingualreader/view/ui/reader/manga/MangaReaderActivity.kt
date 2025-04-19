@@ -45,18 +45,24 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Chapters
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.PageMode
 import br.com.fenix.bilingualreader.model.enums.Position
@@ -68,6 +74,7 @@ import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.listener.ChapterCardListener
 import br.com.fenix.bilingualreader.service.listener.ChapterLoadListener
+import br.com.fenix.bilingualreader.service.listener.MangaAnnotationListener
 import br.com.fenix.bilingualreader.service.ocr.GoogleVision
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
@@ -82,6 +89,7 @@ import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.view.adapter.reader.MangaAnnotationsCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.reader.MangaChaptersCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
@@ -98,14 +106,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
 import java.io.File
-import androidx.core.view.isVisible
-import androidx.core.view.isGone
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
-import br.com.fenix.bilingualreader.service.listener.MangaAnnotationListener
-import br.com.fenix.bilingualreader.view.adapter.reader.MangaAnnotationsCardAdapter
 import kotlin.math.max
 
 

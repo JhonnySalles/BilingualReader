@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
-import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts

@@ -15,7 +15,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import br.com.fenix.bilingualreader.R
@@ -27,7 +26,6 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.view.adapter.chapters.ChaptersGridAdapter
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
-import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.slf4j.LoggerFactory
@@ -37,8 +35,6 @@ import kotlin.math.max
 class ChaptersFragment : Fragment(), ChapterLoadListener {
 
     private val mLOGGER = LoggerFactory.getLogger(ChaptersFragment::class.java)
-
-    private val mViewModel: MangaReaderViewModel by activityViewModels()
 
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var mScrollUp: FloatingActionButton

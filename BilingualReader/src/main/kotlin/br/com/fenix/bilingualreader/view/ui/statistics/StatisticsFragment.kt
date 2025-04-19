@@ -18,7 +18,6 @@ import androidx.fragment.app.Fragment
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Statistics
-import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.StatisticsRepository
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil

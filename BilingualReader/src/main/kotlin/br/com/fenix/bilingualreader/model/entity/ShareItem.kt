@@ -7,7 +7,6 @@ import com.google.firebase.firestore.PropertyName
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 

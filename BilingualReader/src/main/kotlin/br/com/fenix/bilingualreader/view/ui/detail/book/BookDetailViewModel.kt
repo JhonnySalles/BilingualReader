@@ -20,7 +20,6 @@ import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.listener.ApiListener
 import br.com.fenix.bilingualreader.service.listener.BookParseListener
-import br.com.fenix.bilingualreader.service.listener.LibrariesCardListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.FileLinkRepository

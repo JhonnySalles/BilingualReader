@@ -31,7 +31,6 @@ import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.listener.ApiListener
 import br.com.fenix.bilingualreader.service.listener.FontsListener
-import br.com.fenix.bilingualreader.service.listener.LibrariesCardListener
 import br.com.fenix.bilingualreader.service.listener.ThemesListener
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.service.repository.HistoryRepository
