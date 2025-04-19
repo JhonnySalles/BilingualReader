@@ -154,7 +154,8 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
 
         val count = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             max(4, (Resources.getSystem().displayMetrics.widthPixels) / resources.getDimension(R.dimen.chapters_grid_card_layout_width).toInt()) - 1
-        } else 3
+        } else
+            3
         mRecyclerView.layoutManager = StaggeredGridLayoutManager(count, StaggeredGridLayoutManager.VERTICAL)
 
         observer()

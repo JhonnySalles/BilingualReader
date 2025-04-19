@@ -38,16 +38,20 @@ class DataBaseConsts private constructor() {
         }
     }
 
-    object COVER {
-        const val TABLE_NAME = "Covers"
+    object MANGA_ANNOTATION {
+        const val TABLE_NAME = "MangaMark"
 
         object COLUMNS {
             const val ID = "id"
             const val FK_ID_MANGA = "id_manga"
-            const val NAME = "name"
-            const val SIZE = "size"
+            const val CHAPTER = "chapter"
+            const val FOLDER = "folder"
+            const val PAGE = "page"
+            const val PAGES = "pages"
             const val TYPE = "type"
-            const val IMAGE = "image"
+            const val ANNOTATION = "annotation"
+            const val ALTERATION = "alteration"
+            const val CREATED = "created"
         }
     }
 

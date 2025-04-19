@@ -21,6 +21,7 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.LinkedFile
 import br.com.fenix.bilingualreader.model.entity.LinkedPage
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
 import br.com.fenix.bilingualreader.model.entity.Statistics
 import br.com.fenix.bilingualreader.model.entity.SubTitle
 import br.com.fenix.bilingualreader.model.entity.Tags
@@ -630,24 +631,48 @@ abstract class LibrariesDAO : BaseDAO<Library, Long>(DataBaseConsts.LIBRARIES.TA
 
 
 @Dao
+abstract class MangaAnnotationDAO : BaseDAO<MangaAnnotation, Long>(DataBaseConsts.MANGA_ANNOTATION.TABLE_NAME, DataBaseConsts.MANGA_ANNOTATION.COLUMNS.ID) {
+
+    @Query(
+        "SELECT * FROM " + DataBaseConsts.MANGA_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.FK_ID_MANGA + " = :idManga " +
+                "ORDER BY ${DataBaseConsts.MANGA_ANNOTATION.COLUMNS.ALTERATION} DESC"
+    )
+    abstract fun findAllByManga(idManga: Long): List<MangaAnnotation>
+
+    @Query("SELECT * FROM " + DataBaseConsts.MANGA_ANNOTATION.TABLE_NAME + " ORDER BY " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.FK_ID_MANGA + ", ${DataBaseConsts.MANGA_ANNOTATION.COLUMNS.ALTERATION} DESC")
+    abstract fun findAllOrderByManga() : List<MangaAnnotation>
+
+    @Query(
+        "SELECT * FROM " + DataBaseConsts.MANGA_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.FK_ID_MANGA + " = :idManga " +
+                "ORDER BY ${DataBaseConsts.MANGA_ANNOTATION.COLUMNS.ALTERATION} DESC"
+    )
+    abstract fun findByManga(idManga: Long): List<MangaAnnotation>
+
+    @Query("SELECT * FROM " + DataBaseConsts.MANGA_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.FK_ID_MANGA + " = :idManga AND " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.PAGE + " = :page")
+    abstract fun findByPage(idManga: Long, page: Int): List<MangaAnnotation>
+
+}
+
+
+@Dao
 abstract class BookAnnotationDAO : BaseDAO<BookAnnotation, Long>(DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME, DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ID) {
 
     @Query(
-        "SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook " +
+        "SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + " = :idBook " +
         "ORDER BY ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION} DESC"
     )
     abstract fun findAllByBook(idBook: Long): List<BookAnnotation>
 
-    @Query("SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " ORDER BY " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + ", ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION} DESC")
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " ORDER BY " + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + ", ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION} DESC")
     abstract fun findAllOrderByBook() : List<BookAnnotation>
 
     @Query(
-        "SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook " +
+        "SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + " = :idBook " +
         "ORDER BY ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION} DESC"
     )
     abstract fun findByBook(idBook: Long): List<BookAnnotation>
 
-    @Query("SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook AND " + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGE + " = :page")
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + " = :idBook AND " + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGE + " = :page")
     abstract fun findByPage(idBook: Long, page: Int): List<BookAnnotation>
 
 }

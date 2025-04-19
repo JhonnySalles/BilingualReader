@@ -453,6 +453,7 @@
     <string name="menu_manga_reading_chapters_menu">Chapters list</string>
     <string name="menu_manga_reading_save_share_image">Save/Share image</string>
     <string name="menu_manga_reading_favorite">Favorite</string>
+    <string name="menu_manga_reading_book_mark">Book mark</string>
     <string name="menu_manga_reading_order">List order</string>
     <string name="menu_manga_reading_order_change">Sort: %s</string>
     <string name="menu_manga_vocabulary_import">Importing vocabulary</string>
@@ -480,6 +481,8 @@
     <string name="reading_manga_button_popup_floating">Popup floating</string>
     <string name="reading_manga_button_next_file">Next file</string>
     <string name="reading_manga_button_previous_file">Previous file</string>
+    <string name="reading_manga_button_menu_chapters">Chapters</string>
+    <string name="reading_manga_button_menu_annotations">Book Marks</string>
     <string name="reading_manga_button_menu_ocr">Menu OCR</string>
     <string name="reading_manga_button_floating_buttons">Floating buttons</string>
 
@@ -502,6 +505,10 @@
     <string name="reading_manga_choice_save_image">Save</string>
     <string name="reading_manga_choice_share_image">Share</string>
     <string name="reading_manga_choice_share_chose_app">Choose app</string>
+
+    <!-- MANGA ANNOTATION -->
+    <string name="manga_annotation_page_marked">Page %d marked.</string>
+    <string name="manga_annotation_page_unmarked">Page %d unmarked.</string>
 
     <!-- OCR -->
     <string name="ocr_tesseract_copy_data">Copying necessary data files, please wait…</string>

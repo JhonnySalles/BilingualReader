@@ -20,7 +20,7 @@ class ChaptersViewHolder(itemView: View, private val listener: ChapterCardListen
         mPageSelectStroke = itemView.resources.getDimension(R.dimen.manga_chapter_selected_stroke).toInt()
     }
 
-    fun bind(chapter: Chapters, position: Int) {
+    fun bind(chapter: Chapters) {
         val root = itemView.findViewById<LinearLayout>(R.id.chapter_root)
         val card = itemView.findViewById<MaterialCardView>(R.id.chapter_grid_card)
         val image = itemView.findViewById<ImageView>(R.id.chapters_page_image)

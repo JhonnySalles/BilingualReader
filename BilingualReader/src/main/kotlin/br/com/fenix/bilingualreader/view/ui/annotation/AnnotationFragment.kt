@@ -239,7 +239,7 @@ class AnnotationFragment : Fragment(), AnnotationListener {
 
         mListener = object : BookAnnotationListener {
             override fun onClick(annotation: BookAnnotation) {
-                val book = mViewModel.getBook(annotation.id_book) ?: return
+                val book = mViewModel.getBook(annotation.id_parent) ?: return
                 if (book.file.exists()) {
                     val intent = Intent(context, BookReaderActivity::class.java)
                     val bundle = Bundle()

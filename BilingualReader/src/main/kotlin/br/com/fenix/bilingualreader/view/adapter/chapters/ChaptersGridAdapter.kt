@@ -43,7 +43,7 @@ class ChaptersGridAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 (holder as ChaptersHeaderViewHolder).bind(mChaptersList[position])
             }
             else -> {
-                (holder as ChaptersViewHolder).bind(mChaptersList[position], position)
+                (holder as ChaptersViewHolder).bind(mChaptersList[position])
             }
         }
     }

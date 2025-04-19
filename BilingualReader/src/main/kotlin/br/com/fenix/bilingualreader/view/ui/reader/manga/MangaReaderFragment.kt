@@ -11,6 +11,7 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PorterDuff
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -41,6 +42,7 @@ import android.widget.RelativeLayout
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -62,12 +64,13 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.History
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
+import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.model.enums.PageMode
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.Type
-import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
@@ -116,6 +119,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mPageNavLayout: LinearLayout
     private lateinit var mPopupSubtitle: FrameLayout
     private lateinit var mPopupColor: FrameLayout
+    private lateinit var mPopupAnnotation: FrameLayout
     private lateinit var mToolbarBottom: LinearLayout
     private lateinit var mPageSeekBar: DottedSeekBar
     private lateinit var mPageNavTextView: TextView
@@ -125,6 +129,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mViewPager: ImageViewPager
     private lateinit var mPreviousButton: MaterialButton
     private lateinit var mNextButton: MaterialButton
+    private lateinit var miMarkPage: MenuItem
 
     private lateinit var mCoverContent: ConstraintLayout
     private lateinit var mCoverImage: ImageView
@@ -385,6 +390,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mToolbarTop = requireActivity().findViewById(R.id.reader_manga_toolbar_reader_top)
         mPopupSubtitle = requireActivity().findViewById(R.id.popup_manga_translate)
         mPopupColor = requireActivity().findViewById(R.id.popup_manga_color)
+        mPopupAnnotation = requireActivity().findViewById(R.id.popup_manga_annotations)
         mPageNavLayout = requireActivity().findViewById(R.id.reader_manga_bottom_progress_content)
         mToolbarBottom = requireActivity().findViewById(R.id.reader_manga_toolbar_reader_bottom)
         mPreviousButton = requireActivity().findViewById(R.id.reader_manga_nav_previous_file)
@@ -553,6 +559,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY,
             false
         )
+
+        miMarkPage = menu.findItem(R.id.menu_item_reader_manga_mark_page)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -576,7 +584,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     override fun onDestroy() {
-        mViewModel.stopLoadChapters = true
+        mViewModel.stopExecutions()
         mSubtitleController.clearControllers()
         if (mSubtitleController.mReaderFragment == this)
             mSubtitleController.mReaderFragment = null
@@ -661,6 +669,12 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             }
 
             R.id.menu_item_reader_manga_save_share_image -> openPopupSaveShareImage()
+
+            R.id.menu_item_reader_manga_mark_page -> {
+                markCurrentPage()
+                (miMarkPage.icon as AnimatedVectorDrawable).reset()
+                (miMarkPage.icon as AnimatedVectorDrawable).start()
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -1001,6 +1015,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
                 if (mPopupColor.visibility != View.GONE)
                     AnimationUtil.animatePopupClose(requireActivity(), mPopupColor, !mMenuPopupBottomSheet, navigationColor = false)
+
+                if (mPopupAnnotation.visibility != View.GONE)
+                    AnimationUtil.animatePopupClose(requireActivity(), mPopupAnnotation, !mMenuPopupBottomSheet, navigationColor = false)
             }, ANIMATION_DURATION)
         } else {
             Handler(Looper.getMainLooper()).postDelayed({ changeContentsVisibility(fullscreen) }, ANIMATION_DURATION)
@@ -1136,7 +1153,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 }
 
                 confirm = true
-                mViewModel.stopLoadChapters = true
+                mViewModel.stopExecutions()
                 val activity = requireActivity() as MangaReaderActivity
                 activity.changeManga(mNewManga!!)
             }
@@ -1226,6 +1243,42 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 Util.closeInputStream(it)
             }
         }
+    }
+
+    fun markCurrentPage() {
+        val msg: String
+
+        val page = mCurrentPage + 1
+        val mark = mViewModel.findAnnotationByPage(mManga!!, page).find { it.type == MarkType.PageMark }
+        if (mark != null) {
+            mViewModel.delete(mark)
+            msg = getString(R.string.manga_annotation_page_unmarked, page)
+        } else {
+            val path = mParse!!.getPagePath(mCurrentPage) ?: ""
+            var chapter = Util.getFolderFromPath(path)
+            mParse!!.getComicInfo()?.let {
+                if (it.pages != null && it.pages!!.size > mCurrentPage) {
+                    var indexChapter = -1
+                    for ((index, page) in it.pages!!.withIndex()) {
+                        if (page.bookmark != null)
+                            indexChapter = index
+
+                        if (index >= mCurrentPage)
+                            break
+                    }
+                    chapter = if (indexChapter >= 0) it.pages!![indexChapter].bookmark ?: chapter else chapter
+                }
+            }
+            val annotation = MangaAnnotation(mManga!!.id!!, page, mParse!!.numPages(), MarkType.PageMark, chapter, path, "")
+            getCurrencyImageView()?.let {
+                val bitmap = (it.drawable as BitmapDrawable).bitmap
+                annotation.image = bitmap.copy(bitmap.config, true)
+            }
+            mViewModel.save(annotation)
+            msg = getString(R.string.manga_annotation_page_marked, page)
+        }
+
+        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
     }
 
     private fun generateHistory(manga: Manga) {

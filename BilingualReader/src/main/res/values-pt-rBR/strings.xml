@@ -453,6 +453,7 @@
     <string name="menu_manga_reading_chapters_menu">Lista de capítulos</string>
     <string name="menu_manga_reading_save_share_image">Salvar/Compartilhar</string>
     <string name="menu_manga_reading_favorite">Favorito</string>
+    <string name="menu_manga_reading_book_mark">Marcador</string>
     <string name="menu_manga_reading_order">Ordem da lista</string>
     <string name="menu_manga_reading_order_change">Ordernado: %s</string>
     <string name="menu_manga_vocabulary_import">Importar vocabulário</string>
@@ -480,6 +481,8 @@
     <string name="reading_manga_button_popup_floating">Popup flutuante</string>
     <string name="reading_manga_button_next_file">Próximo arquivo</string>
     <string name="reading_manga_button_previous_file">Arquivo anterior</string>
+    <string name="reading_manga_button_menu_chapters">Capítulos</string>
+    <string name="reading_manga_button_menu_annotations">Marcações</string>
     <string name="reading_manga_button_menu_ocr">Menu OCR</string>
     <string name="reading_manga_button_floating_buttons">Botões flutuante</string>
 
@@ -502,6 +505,10 @@
     <string name="reading_manga_choice_save_image">Salvar</string>
     <string name="reading_manga_choice_share_image">Compartilhar</string>
     <string name="reading_manga_choice_share_chose_app">Escolha o aplicativo</string>
+
+    <!-- MANGA ANNOTATION -->
+    <string name="manga_annotation_page_marked">Página %d marcada.</string>
+    <string name="manga_annotation_page_unmarked">Página %d desmarcada.</string>
 
     <!-- OCR -->
     <string name="ocr_tesseract_copy_data">Copiando arquivos necessários, aguarde…</string>

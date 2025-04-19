@@ -9,6 +9,13 @@
     </item>
 
     <item
+        android:id="@+id/menu_item_reader_manga_mark_page"
+        android:icon="@drawable/ico_animated_book_mark"
+        android:orderInCategory="101"
+        android:title="@string/menu_manga_reading_book_mark"
+        app:showAsAction="always"/>
+
+    <item
         android:id="@+id/menu_item_reader_manga_reading_mode"
         android:icon="@drawable/ic_book_open"
         android:orderInCategory="101"

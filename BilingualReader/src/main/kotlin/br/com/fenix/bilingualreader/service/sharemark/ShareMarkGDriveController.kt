@@ -7,6 +7,7 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.History
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
 import br.com.fenix.bilingualreader.model.entity.ShareItem
 import br.com.fenix.bilingualreader.model.entity.ShareMark
 import br.com.fenix.bilingualreader.model.enums.Color
@@ -19,6 +20,7 @@ import br.com.fenix.bilingualreader.model.exceptions.ShareMarkNotConnectCloudExc
 import br.com.fenix.bilingualreader.service.repository.BookAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.HistoryRepository
+import br.com.fenix.bilingualreader.service.repository.MangaAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
@@ -386,6 +388,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                     .create()
                 val repositoryManga = MangaRepository(context)
                 val repositoryHistory = HistoryRepository(context)
+                val repositoryAnnotation = MangaAnnotationRepository(context)
 
                 val reader = JsonReader(FileReader(getFile(GeneralConsts.SHARE_MARKS.MANGA_FILE_WITH_EXTENSION)))
                 val share: ShareMark = gson.fromJson(reader, ShareMark::class.java) ?: ShareMark(Type.MANGA)
@@ -411,7 +414,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                                     }
                                 }
                             } else if (share.marks!!.none { s -> s.file == manga.name })
-                                share.marks!!.add(ShareItem(manga, repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!)))
+                                share.marks!!.add(ShareItem(manga, repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!), repositoryAnnotation.findByManga(manga.id!!)))
                         }
                 }
 
@@ -439,6 +442,28 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                                             shared.secondsRead.toLong(), shared.averageTimeByPage.toLong(), shared.useTTS, isNotify = false
                                         )
                                     )
+                        }
+
+                        it.annotation?.let { a ->
+                            val annotations = repositoryAnnotation.findByManga(manga.id!!)
+                            for (shared in  a.values) {
+                                val created = GeneralConsts.dateToDateTime(shared.created)
+                                val annotation = annotations.find { f -> f.created.compareTo(created) == 0 }
+
+                                if (annotation != null) {
+                                    annotation.chapter = shared.chapter
+                                    annotation.folder = shared.text
+                                    annotation.page = shared.page
+                                    annotation.pages = shared.pages
+                                    annotation.annotation = shared.annotation
+                                    repositoryAnnotation.update(annotation)
+                                } else
+                                    repositoryAnnotation.save(
+                                        MangaAnnotation(null, manga.id!!, shared.page, shared.pages, MarkType.valueOf(shared.type),
+                                            shared.chapter, shared.text, shared.annotation, LocalDateTime.now(), created
+                                        )
+                                    )
+                            }
                         }
                     }
                 }

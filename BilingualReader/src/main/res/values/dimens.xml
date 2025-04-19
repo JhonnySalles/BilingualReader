@@ -117,6 +117,12 @@
     <dimen name="manga_chapter_margin_bottom">20dp</dimen>
     <dimen name="manga_chapter_selected_stroke">3dp</dimen>
 
+    <dimen name="manga_annotation_layout_width">100dp</dimen>
+    <dimen name="manga_annotation_layout_height">150dp</dimen>
+    <dimen name="manga_annotation_number_size">12sp</dimen>
+    <dimen name="manga_annotation_margin_bottom">20dp</dimen>
+    <dimen name="manga_annotation_selected_stroke">3dp</dimen>
+
     <dimen name="manga_detail_card_layout_width">150dp</dimen>
     <dimen name="manga_detail_card_layout_height">200dp</dimen>
     <dimen name="manga_detail_card_layout_width_tablet">200dp</dimen>

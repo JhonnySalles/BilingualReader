@@ -1,7 +1,7 @@
 package br.com.fenix.bilingualreader.model.interfaces
 
 interface Annotation {
-    val id_book: Long
+    val id_parent: Long
     val chapterNumber: Float
     var parent: Annotation?
     var isRoot: Boolean

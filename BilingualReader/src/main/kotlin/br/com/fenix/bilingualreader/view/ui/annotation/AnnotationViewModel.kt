@@ -61,15 +61,15 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
         var root: Annotation? = null
         var parent: Annotation? = null
         for (annotation in annotations) {
-            if (list.none { it.isRoot && it.id_book == annotation.id_book }) {
-                val book = mRepositoryBook.get(annotation.id_book) ?: continue
+            if (list.none { it.isRoot && it.id_parent == annotation.id_parent }) {
+                val book = mRepositoryBook.get(annotation.id_parent) ?: continue
                 root = BookAnnotation(book.id!!, 0f, "", book.title, book.fileName, isRoot = true, isTitle = true)
                 list.add(root)
                 parent = null
             }
 
             if (list.none { it.isTitle && it.chapterNumber == annotation.chapterNumber }) {
-                parent = BookAnnotation(parent?.id_book ?: 0, annotation.chapterNumber, annotation.chapter, "", "", isTitle = true)
+                parent = BookAnnotation(parent?.id_parent ?: 0, annotation.chapterNumber, annotation.chapter, "", "", isTitle = true)
                 parent.parent = root
                 list.add(parent)
             }

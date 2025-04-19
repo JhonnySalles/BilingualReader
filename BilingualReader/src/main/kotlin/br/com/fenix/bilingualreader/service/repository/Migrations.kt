@@ -40,6 +40,8 @@ class Migrations {
             override fun migrate(database: SupportSQLiteDatabase) {
                 mLOGGER.info("Start migration 1 - 2...")
 
+                database.execSQL("CREATE TABLE IF NOT EXISTS MangaMark (id INTEGER PRIMARY KEY AUTOINCREMENT, id_manga INTEGER NOT NULL, page INTEGER NOT NULL, pages INTEGER NOT NULL, type TEXT NOT NULL, chapter TEXT NOT NULL, folder TEXT NOT NULL, annotation TEXT NOT NULL, alteration TEXT NOT NULL, created TEXT NOT NULL)")
+
                 mLOGGER.info("Completed migration 1 - 2.")
             }
         }

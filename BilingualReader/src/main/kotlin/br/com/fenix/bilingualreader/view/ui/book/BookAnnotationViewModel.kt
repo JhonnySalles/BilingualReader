@@ -61,7 +61,7 @@ class BookAnnotationViewModel(var app: Application) : AndroidViewModel(app), Fil
         var parent: Annotation? = null
         for (annotation in annotations) {
             if (list.none { it.isTitle && it.chapterNumber == annotation.chapterNumber }) {
-                val title = BookAnnotation(parent?.id_book ?: 0, annotation.chapterNumber, annotation.chapter, "", "", isTitle = true)
+                val title = BookAnnotation(parent?.id_parent ?: 0, annotation.chapterNumber, annotation.chapter, "", "", isTitle = true)
                 title.parent = parent
                 parent = title
                 list.add(title)

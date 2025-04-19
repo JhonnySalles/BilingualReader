@@ -375,10 +375,10 @@ class GeneralConsts private constructor() {
         const val CONFIG_LIBRARIES = 600
         const val SELECT_MANGA = 601
         const val MANGA_DETAIL = 602
-        const val BOOK_DETAIL = 603
-        const val BOOK_SEARCH = 604
-        const val BOOK_ANNOTATION = 606
-        const val CHAPTERS = 610
+        const val BOOK_DETAIL = 610
+        const val BOOK_SEARCH = 611
+        const val BOOK_ANNOTATION = 612
+        const val CHAPTERS = 620
         const val GOOGLE_SIGN_IN = 700
         const val DRIVE_AUTHORIZATION = 701
     }

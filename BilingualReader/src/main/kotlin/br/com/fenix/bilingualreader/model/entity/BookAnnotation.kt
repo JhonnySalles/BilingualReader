@@ -22,7 +22,7 @@ data class BookAnnotation(
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ID)
     var id: Long?,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK)
-    override val id_book: Long,
+    override val id_parent: Long,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGE)
     var page: Int,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGES)
@@ -81,7 +81,7 @@ data class BookAnnotation(
 
     @Ignore
     constructor(other: BookAnnotation) : this(
-        other.id, other.id_book, other.page, other.pages, other.fontSize, other.type, other.chapterNumber, other.chapter, other.text, other.range,
+        other.id, other.id_parent, other.page, other.pages, other.fontSize, other.type, other.chapterNumber, other.chapter, other.text, other.range,
         other.annotation, other.favorite, other.color, other.alteration, other.created
     ) {
         this.count = other.count
@@ -111,7 +111,7 @@ data class BookAnnotation(
         other as BookAnnotation
 
         if (id != other.id) return false
-        if (id_book != other.id_book) return false
+        if (id_parent != other.id_parent) return false
         if (page != other.page) return false
         if (pages != other.pages) return false
         if (type != other.type) return false
@@ -121,7 +121,7 @@ data class BookAnnotation(
 
     override fun hashCode(): Int {
         var result = id?.hashCode() ?: 0
-        result = 31 * result + id_book.hashCode()
+        result = 31 * result + id_parent.hashCode()
         result = 31 * result + page
         result = 31 * result + pages
         result = 31 * result + type.hashCode()

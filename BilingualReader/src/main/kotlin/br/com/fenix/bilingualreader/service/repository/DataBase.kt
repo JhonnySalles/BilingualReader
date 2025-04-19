@@ -25,6 +25,7 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.LinkedFile
 import br.com.fenix.bilingualreader.model.entity.LinkedPage
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
 import br.com.fenix.bilingualreader.model.entity.SubTitle
 import br.com.fenix.bilingualreader.model.entity.Tags
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
@@ -40,8 +41,8 @@ import java.io.File
 
 
 @Database(
-    version = 1, exportSchema = true,
-    entities = [Manga::class, Library::class, SubTitle::class, KanjiJLPT::class, Kanjax::class,
+    version = 2, exportSchema = true,
+    entities = [Manga::class, MangaAnnotation::class, Library::class, SubTitle::class, KanjiJLPT::class, Kanjax::class,
         LinkedFile::class, LinkedPage::class, Vocabulary::class, VocabularyManga::class, VocabularyBook::class,
         Book::class, BookAnnotation::class, BookConfiguration::class, BookSearch::class, Tags::class, History::class]
 )
@@ -49,6 +50,7 @@ import java.io.File
 abstract class DataBase : RoomDatabase() {
 
     abstract fun getMangaDao(): MangaDAO
+    abstract fun getMangaAnnotation(): MangaAnnotationDAO
     abstract fun getBookDao(): BookDAO
     abstract fun getBookAnnotation(): BookAnnotationDAO
     abstract fun getBookSearch(): BookSearchDAO
