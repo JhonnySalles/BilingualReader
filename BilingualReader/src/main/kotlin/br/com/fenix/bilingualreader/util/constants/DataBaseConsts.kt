@@ -10,6 +10,7 @@ class DataBaseConsts private constructor() {
             const val TITLE = "title"
             const val PAGES = "pages"
             const val CHAPTERS = "chapters"
+            const val CHAPTERS_PAGES = "chapters_pages"
             const val BOOK_MARK = "book_mark"
             const val COMPLETED = "completed"
             const val FILE_PATH = "path"

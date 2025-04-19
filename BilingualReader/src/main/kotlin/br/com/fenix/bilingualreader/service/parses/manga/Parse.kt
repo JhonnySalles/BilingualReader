@@ -15,5 +15,6 @@ interface Parse {
     fun getPagePath(num: Int): String?
     fun getPagePaths(): Map<String, Int>
     fun getChapters(): IntArray
+    fun isComicInfo(): Boolean
     fun getComicInfo() : ComicInfo?
 }

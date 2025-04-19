@@ -76,7 +76,6 @@ import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
-import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
@@ -157,13 +156,13 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private var mIsSeekBarChange = false
     private var mPageStartReading = LocalDateTime.now()
     private var mPagesAverage = mutableListOf<Long>()
+    private var mChapterSelected = ""
 
     private lateinit var mLibrary: Library
     private var mManga: Manga? = null
     private var mNewManga: Manga? = null
     private var mNewMangaTitle = 0
     private lateinit var mStorage: Storage
-    private lateinit var mHistoryRepository: HistoryRepository
     private lateinit var mSubtitleController: SubTitleController
     private var mDialog: AlertDialog? = null
     private var mMenuPopupBottomSheet: Boolean = false
@@ -261,7 +260,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mLibrary = LibraryUtil.getDefault(requireContext(), Type.MANGA)
         mPreferences = GeneralConsts.getSharedPreferences(requireContext())
         mSubtitleController = SubTitleController.getInstance(requireContext())
-        mHistoryRepository = HistoryRepository(requireContext())
 
         val bundle: Bundle? = arguments
         if (bundle != null && !bundle.isEmpty) {
@@ -578,7 +576,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mViewModel.history?.let {
             it.setPageEnd(mCurrentPage + 1)
             it.setEnd(LocalDateTime.now())
-            it.id = mHistoryRepository.save(it)
+            it.id = mViewModel.save(it)
         }
         super.onPause()
     }
@@ -716,7 +714,44 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         if (mManga != null)
             mSubtitleController.changeSubtitleInReader(mManga!!, mCurrentPage)
 
-        (requireActivity() as MangaReaderActivity).changePage(mManga?.title ?: "", mParse?.getPagePath(mCurrentPage) ?: "", mCurrentPage + 1)
+        (requireActivity() as MangaReaderActivity).changePage(mManga?.title ?: "", getChapterSelected(mCurrentPage), mCurrentPage + 1)
+    }
+
+    private fun getChapterSelected(page: Int) : String {
+        var chapter = ""
+
+        if (mManga != null && mManga!!.chaptersPages.isEmpty() && mParse != null) {
+            if (mParse!!.isComicInfo()) {
+                mParse!!.getComicInfo()?.let {
+                    val chapters = mutableMapOf<Int, String>()
+                    if (it.pages != null && it.pages!!.size > mCurrentPage) {
+                        for ((index, comic) in it.pages!!.withIndex()) {
+                            if (comic.bookmark != null)
+                                chapters[index] = comic.bookmark!!
+
+                        }
+                    }
+                    mManga!!.chaptersPages = chapters
+                    mViewModel.save(mManga!!)
+                }
+            }
+        }
+
+        if (mManga != null && mManga!!.chaptersPages.isNotEmpty()) {
+            var last = mManga!!.chaptersPages.keys.first()
+            for (chapter in mManga!!.chaptersPages.keys) {
+                if (chapter > page)
+                    break
+                last = chapter
+            }
+
+            chapter = mManga!!.chaptersPages[last] ?: ""
+        }
+
+        if (chapter.isEmpty())
+            chapter = mParse?.getPagePath(page) ?: ""
+
+        return chapter
     }
 
     inner class ComicPagerAdapter : PagerAdapter() {
@@ -1149,7 +1184,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 mViewModel.history?.let {
                     it.setPageEnd(mCurrentPage + 1)
                     it.setEnd(LocalDateTime.now())
-                    it.id = mHistoryRepository.save(it)
+                    it.id = mViewModel.save(it)
                 }
 
                 confirm = true
@@ -1245,7 +1280,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
     }
 
-    fun markCurrentPage() {
+    private fun markCurrentPage() {
         val msg: String
 
         val page = mCurrentPage + 1
@@ -1255,20 +1290,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             msg = getString(R.string.manga_annotation_page_unmarked, page)
         } else {
             val path = mParse!!.getPagePath(mCurrentPage) ?: ""
-            var chapter = Util.getFolderFromPath(path)
-            mParse!!.getComicInfo()?.let {
-                if (it.pages != null && it.pages!!.size > mCurrentPage) {
-                    var indexChapter = -1
-                    for ((index, page) in it.pages!!.withIndex()) {
-                        if (page.bookmark != null)
-                            indexChapter = index
-
-                        if (index >= mCurrentPage)
-                            break
-                    }
-                    chapter = if (indexChapter >= 0) it.pages!![indexChapter].bookmark ?: chapter else chapter
-                }
-            }
+            val chapter = getChapterSelected(mCurrentPage)
             val annotation = MangaAnnotation(mManga!!.id!!, page, mParse!!.numPages(), MarkType.PageMark, chapter, path, "")
             getCurrencyImageView()?.let {
                 val bitmap = (it.drawable as BitmapDrawable).bitmap
@@ -1285,7 +1307,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         if (mViewModel.history != null) {
             if (mViewModel.history!!.fkLibrary != manga.fkLibrary || mViewModel.history!!.fkReference != manga.id) {
                 mViewModel.history!!.setEnd(LocalDateTime.now())
-                mHistoryRepository.save(mViewModel.history!!)
+                mViewModel.save(mViewModel.history!!)
                 mViewModel.history = History(manga.fkLibrary!!, manga.id!!, Type.MANGA, manga.bookMark, manga.pages, manga.volume)
             }
         } else
@@ -1334,7 +1356,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             it.setPageEnd(mCurrentPage + 1)
             it.setEnd(LocalDateTime.now())
             it.averageTimeByPage = average
-            it.id = mHistoryRepository.save(it)
+            it.id = mViewModel.save(it)
         }
     }
 

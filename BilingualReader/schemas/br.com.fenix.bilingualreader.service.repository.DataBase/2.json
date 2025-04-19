@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "45d15a696c50f4a679bb3b530abf4091",
+    "identityHash": "c85018b3f2bd5f505d2f7ecbbf680ca9",
     "entities": [
       {
         "tableName": "Manga",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `pages` INTEGER NOT NULL, `chapters` TEXT NOT NULL, `book_mark` INTEGER NOT NULL, `completed` INTEGER NOT NULL, `path` TEXT NOT NULL, `size` INTEGER NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `folder` TEXT NOT NULL, `favorite` INTEGER NOT NULL, `has_subtitle` INTEGER NOT NULL, `author` TEXT NOT NULL, `series` TEXT NOT NULL, `genre` TEXT NOT NULL, `publisher` TEXT NOT NULL, `volume` TEXT NOT NULL, `release` TEXT, `excluded` INTEGER NOT NULL, `id_library` INTEGER, `date_create` TEXT, `last_access` TEXT, `last_alteration` TEXT, `file_alteration` INTEGER NOT NULL, `last_vocabulary_import` TEXT, `last_verify` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `pages` INTEGER NOT NULL, `chapters` TEXT NOT NULL, `chapters_pages` TEXT NOT NULL, `book_mark` INTEGER NOT NULL, `completed` INTEGER NOT NULL, `path` TEXT NOT NULL, `size` INTEGER NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `folder` TEXT NOT NULL, `favorite` INTEGER NOT NULL, `has_subtitle` INTEGER NOT NULL, `author` TEXT NOT NULL, `series` TEXT NOT NULL, `genre` TEXT NOT NULL, `publisher` TEXT NOT NULL, `volume` TEXT NOT NULL, `release` TEXT, `excluded` INTEGER NOT NULL, `id_library` INTEGER, `date_create` TEXT, `last_access` TEXT, `last_alteration` TEXT, `file_alteration` INTEGER NOT NULL, `last_vocabulary_import` TEXT, `last_verify` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -29,6 +29,12 @@
           {
             "fieldPath": "chapters",
             "columnName": "chapters",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chaptersPages",
+            "columnName": "chapters_pages",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -1732,7 +1738,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '45d15a696c50f4a679bb3b530abf4091')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c85018b3f2bd5f505d2f7ecbbf680ca9')"
     ]
   }
 }

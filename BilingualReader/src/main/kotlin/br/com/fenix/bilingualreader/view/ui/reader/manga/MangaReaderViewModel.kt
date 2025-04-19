@@ -16,7 +16,9 @@ import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
+import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaAnnotationRepository
+import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
@@ -40,6 +42,8 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private var mPreferences: SharedPreferences = GeneralConsts.getSharedPreferences(app.applicationContext)
     private val mLOGGER = LoggerFactory.getLogger(MangaReaderViewModel::class.java)
 
+    private val mRepository = MangaRepository(app.applicationContext)
+    private val mHistoryRepository  = HistoryRepository(app.applicationContext)
     private val mAnnotationRepository = MangaAnnotationRepository(app.applicationContext)
 
     // --------------------------------------------------------- Colors / Layout ---------------------------------------------------------
@@ -274,6 +278,17 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
             filters.add(SepiaFilterTransformation(app.applicationContext))
 
         mFilters.value = filters
+    }
+
+    // --------------------------------------------------------- Manga ---------------------------------------------------------
+    fun save(manga: Manga) {
+        mRepository.update(manga)
+    }
+
+    // --------------------------------------------------------- History ---------------------------------------------------------
+    fun save(history: History) : Long {
+        history.id = mHistoryRepository.save(history)
+        return history.id!!
     }
 
     // --------------------------------------------------------- Chapters ---------------------------------------------------------

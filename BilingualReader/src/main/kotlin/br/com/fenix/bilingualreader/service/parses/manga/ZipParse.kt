@@ -108,8 +108,10 @@ class ZipParse : Parse {
         return getPagePaths().filter { it.value != 0 }.map { it.value }.toIntArray()
     }
 
+    override fun isComicInfo(): Boolean = mComicInfo != null
+
     override fun getComicInfo(): ComicInfo? {
-        return if (mComicInfo != null) {
+        return if (isComicInfo()) {
             val page = mZipFile!!.getInputStream(mComicInfo!!)
             val serializer: Serializer = Persister()
             try {

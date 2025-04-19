@@ -33,6 +33,7 @@ class Manga(
     fileType: FileType,
     pages: Int,
     chapters: IntArray,
+    chaptersPages: Map<Int, String>,
     bookMark: Int,
     completed: Boolean,
     favorite: Boolean,
@@ -55,12 +56,12 @@ class Manga(
 
     constructor( id: Long?, title: String,
         path: String, folder: String, name: String, size: Long, fileType: FileType,
-        pages: Int, chapters: IntArray, bookMark: Int, completed: Boolean, favorite: Boolean, hasSubtitle: Boolean,
+        pages: Int, chapters: IntArray, chaptersPages: Map<Int, String>, bookMark: Int, completed: Boolean, favorite: Boolean, hasSubtitle: Boolean,
         author: String , series: String, genre: String, publisher: String, volume: String, idLibrary: Long?,
         excluded: Boolean, dateCreate: LocalDateTime?, fileAlteration: Date, lastVocabularyImport: LocalDateTime?,
         lastVerify: LocalDate?, release: LocalDate?, lastAlteration: LocalDateTime?,
         lastAccess: LocalDateTime?, sort: LocalDateTime? = null
-    ) : this( id, title, path, folder, name, size, fileType, pages, chapters, bookMark, completed, favorite,
+    ) : this( id, title, path, folder, name, size, fileType, pages, chapters, chaptersPages, bookMark, completed, favorite,
         hasSubtitle, author, series, genre, publisher, volume, release, idLibrary, excluded,
         dateCreate, lastAccess, lastAlteration, fileAlteration, lastVocabularyImport, lastVerify
     ) {
@@ -70,7 +71,7 @@ class Manga(
     @Ignore
     constructor(fkLibrary: Long?, id: Long?, file: File) : this(
         id, file.nameWithoutExtension, file.path, file.parent, file.name, file.length(), FileType.UNKNOWN,
-        1, intArrayOf(), 0, false, false, false, "", "", "", "",
+        1, intArrayOf(), mapOf(), 0, false, false, false, "", "", "", "",
         "", null, fkLibrary, false, LocalDateTime.now(), null, null, Date(file.lastModified()),
         null, null
     ) {
@@ -90,6 +91,9 @@ class Manga(
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.CHAPTERS)
     var chapters: IntArray = chapters
+
+    @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.CHAPTERS_PAGES)
+    var chaptersPages: Map<Int, String> = chaptersPages
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.BOOK_MARK)
     override var bookMark: Int = bookMark
@@ -245,6 +249,7 @@ class Manga(
         if (isFull) {
             this.title = manga.title
             this.chapters = manga.chapters
+            this.chaptersPages = manga.chaptersPages
             this.pages = manga.pages
             this.pages = manga.pages
         }
@@ -284,6 +289,16 @@ class Manga(
 
         val updated = this.author != author || this.series != comic.series .toString()|| this.publisher != comic.publisher.toString() ||
                 this.genre != comic.genre.toString() || this.volume != comic.volume.toString() || this.release != release
+
+        this.chaptersPages = if (comic.pages != null && comic.pages!!.any { it.bookmark != null }) {
+            val map = mutableMapOf<Int, String>()
+            for ((index, page) in comic.pages!!.withIndex()) {
+                if (page.bookmark != null)
+                    map[index] = page.bookmark!!
+            }
+            map.toMap()
+        } else
+            mapOf()
 
         this.publisher = comic.publisher.toString()
         this.volume = comic.volume.toString()

@@ -40,7 +40,21 @@ class Migrations {
             override fun migrate(database: SupportSQLiteDatabase) {
                 mLOGGER.info("Start migration 1 - 2...")
 
-                database.execSQL("CREATE TABLE IF NOT EXISTS MangaMark (id INTEGER PRIMARY KEY AUTOINCREMENT, id_manga INTEGER NOT NULL, page INTEGER NOT NULL, pages INTEGER NOT NULL, type TEXT NOT NULL, chapter TEXT NOT NULL, folder TEXT NOT NULL, annotation TEXT NOT NULL, alteration TEXT NOT NULL, created TEXT NOT NULL)")
+                database.execSQL("CREATE TABLE IF NOT EXISTS " + DataBaseConsts.MANGA_ANNOTATION.TABLE_NAME + " (" +
+                        DataBaseConsts.MANGA_ANNOTATION.COLUMNS.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.FK_ID_MANGA + " INTEGER NOT NULL, " +
+                        DataBaseConsts.MANGA_ANNOTATION.COLUMNS.PAGE + " INTEGER NOT NULL, " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.PAGES + " INTEGER NOT NULL, " +
+                        DataBaseConsts.MANGA_ANNOTATION.COLUMNS.TYPE+ " TEXT NOT NULL, " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.CHAPTER + " TEXT NOT NULL, " +
+                        DataBaseConsts.MANGA_ANNOTATION.COLUMNS.FOLDER + " TEXT NOT NULL, " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.ANNOTATION + " TEXT NOT NULL, " +
+                        DataBaseConsts.MANGA_ANNOTATION.COLUMNS.ALTERATION + " TEXT NOT NULL, " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.CREATED + " TEXT NOT NULL)")
+
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_" + DataBaseConsts.MANGA_ANNOTATION.TABLE_NAME + "_" + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.FK_ID_MANGA + "_" + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.CHAPTER +
+                        " ON " + DataBaseConsts.MANGA_ANNOTATION.TABLE_NAME + "(" + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.FK_ID_MANGA + ", " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.CHAPTER + ")")
+
+                try {
+                    database.execSQL("ALTER TABLE " + DataBaseConsts.MANGA.TABLE_NAME + " ADD COLUMN " + DataBaseConsts.MANGA.COLUMNS.CHAPTERS_PAGES + " TEXT DEFAULT '' NOT NULL")
+                } catch (e : Exception) {
+                    mLOGGER.error("Error to alter table and create column chapters page.", e)
+                }
 
                 mLOGGER.info("Completed migration 1 - 2.")
             }
