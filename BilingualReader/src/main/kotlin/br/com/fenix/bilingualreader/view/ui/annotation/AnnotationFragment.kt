@@ -128,11 +128,16 @@ class AnnotationFragment : Fragment(), AnnotationListener {
                 return false
             }
 
+            private var runFilter = Runnable { }
             override fun onQueryTextChange(newText: String?): Boolean {
-                if (newText != null)
-                    mViewModel.search(newText)
-                else
-                    mViewModel.clearSearch()
+                mHandler.removeCallbacks(runFilter)
+                runFilter = Runnable {
+                    if (newText != null)
+                        mViewModel.search(newText)
+                    else
+                        mViewModel.clearSearch()
+                }
+                mHandler.postDelayed(runFilter, GeneralConsts.DEFAULTS.DEFAULT_HANDLE_SEARCH_FILTER)
                 return false
             }
         })

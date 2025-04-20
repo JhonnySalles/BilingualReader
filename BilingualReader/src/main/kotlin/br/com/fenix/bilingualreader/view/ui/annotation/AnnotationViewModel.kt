@@ -391,7 +391,7 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
 
 
         val condition = when (annotation) {
-            is BookAnnotation -> annotation.text.lowercase(Locale.getDefault()).contains(filterPattern) || annotation.annotation.lowercase(Locale.getDefault()).contains(filterPattern)
+            is BookAnnotation -> annotation.text.lowercase(Locale.getDefault()).contains(filterPattern) || annotation.chapter.lowercase(Locale.getDefault()).contains(filterPattern) || annotation.annotation.lowercase(Locale.getDefault()).contains(filterPattern)
             is MangaAnnotation -> annotation.chapter.lowercase(Locale.getDefault()).contains(filterPattern) || annotation.page.toString().contains(filterPattern)
             else -> false
         }
