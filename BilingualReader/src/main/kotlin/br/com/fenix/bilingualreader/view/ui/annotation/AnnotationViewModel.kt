@@ -390,13 +390,13 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
         }
 
 
-        val text = when (annotation) {
-            is BookAnnotation -> annotation.text.lowercase(Locale.getDefault()).contains(filterPattern)
-            is MangaAnnotation -> annotation.chapter.lowercase(Locale.getDefault()).contains(filterPattern)
+        val condition = when (annotation) {
+            is BookAnnotation -> annotation.text.lowercase(Locale.getDefault()).contains(filterPattern) || annotation.annotation.lowercase(Locale.getDefault()).contains(filterPattern)
+            is MangaAnnotation -> annotation.chapter.lowercase(Locale.getDefault()).contains(filterPattern) || annotation.page.toString().contains(filterPattern)
             else -> false
         }
 
-        return filterPattern.isEmpty() || text || annotation.annotation.lowercase(Locale.getDefault()).contains(filterPattern)
+        return filterPattern.isEmpty() || condition
     }
 
     private fun addParent(list: MutableList<Annotation>, annotation: Annotation) {
