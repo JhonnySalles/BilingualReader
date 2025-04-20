@@ -203,11 +203,6 @@ class VocabularyBookFragment : Fragment(), PopupOrderListener, SwipeRefreshLayou
         mPopupFilterOrderView =
             root.findViewById(R.id.vocabulary_book_popup_order_filter_view_pager)
 
-        root.findViewById<ImageView>(R.id.vocabulary_book_popup_menu_order_filter_close)
-            .setOnClickListener {
-                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupFilterOrder)
-            }
-
         mScrollUp.visibility = View.GONE
         mScrollDown.visibility = View.GONE
 

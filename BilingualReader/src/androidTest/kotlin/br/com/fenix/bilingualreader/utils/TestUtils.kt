@@ -20,6 +20,7 @@ import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.utils.MangaTestUtil.MangaTestUtils.generateCovers
 import java.io.File
 import java.time.LocalDate
 import java.time.LocalDateTime

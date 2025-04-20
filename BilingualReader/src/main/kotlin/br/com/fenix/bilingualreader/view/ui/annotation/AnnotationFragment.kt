@@ -34,7 +34,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
 import br.com.fenix.bilingualreader.model.enums.Color
@@ -46,6 +45,7 @@ import br.com.fenix.bilingualreader.service.listener.AnnotationListener
 import br.com.fenix.bilingualreader.service.listener.AnnotationsListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
+import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.annotation.AnnotationLineAdapter
@@ -59,7 +59,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
 
 
 class AnnotationFragment : Fragment(), AnnotationListener {
@@ -72,6 +71,7 @@ class AnnotationFragment : Fragment(), AnnotationListener {
     private lateinit var mScrollDown: FloatingActionButton
     private lateinit var miSearch: MenuItem
     private lateinit var searchView: SearchView
+    private lateinit var miFilterType: MenuItem
 
     private lateinit var mMenuPopupFilter: FrameLayout
     private lateinit var mPopupFilterView: ViewPager
@@ -85,7 +85,7 @@ class AnnotationFragment : Fragment(), AnnotationListener {
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var mListener: AnnotationsListener
 
-    private lateinit var mBook: Book
+    private var mFilterType: Type? = null
 
     private val mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
@@ -102,9 +102,9 @@ class AnnotationFragment : Fragment(), AnnotationListener {
         inflater.inflate(R.menu.menu_annotation, menu)
         super.onCreateOptionsMenu(menu, inflater)
 
-        val miTypes = menu.findItem(R.id.menu_annotation_type)
-        miTypes.subMenu?.clear()
-        miTypes.subMenu?.add(requireContext().getString(R.string.annotation_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
+        miFilterType = menu.findItem(R.id.menu_annotation_type)
+        miFilterType.subMenu?.clear()
+        miFilterType.subMenu?.add(requireContext().getString(R.string.annotation_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
             filterType(null)
             true
         }
@@ -114,11 +114,20 @@ class AnnotationFragment : Fragment(), AnnotationListener {
                 Type.MANGA -> requireContext().getString(R.string.annotation_manga)
                 Type.BOOK -> requireContext().getString(R.string.annotation_book)
             }
-            miTypes.subMenu?.add(title)?.setOnMenuItemClickListener { _: MenuItem? ->
+            miFilterType.subMenu?.add(title)?.setOnMenuItemClickListener { _: MenuItem? ->
                 filterType(type)
                 true
             }
         }
+
+        val iconType: Int = if (mFilterType == null)
+            R.drawable.ico_menu_type_all
+        else when (mFilterType) {
+            Type.MANGA -> R.drawable.ico_menu_type_manga
+            Type.BOOK -> R.drawable.ico_menu_type_book
+            else -> R.drawable.ico_menu_type_all
+        }
+        miFilterType.setIcon(iconType)
 
         miSearch = menu.findItem(R.id.menu_annotation_search)
         searchView = miSearch.actionView as SearchView
@@ -216,11 +225,6 @@ class AnnotationFragment : Fragment(), AnnotationListener {
         mMenuPopupFilter = root.findViewById(R.id.annotation_popup_filter)
         mPopupFilterTab = root.findViewById(R.id.annotation_popup_filter_tab)
         mPopupFilterView = root.findViewById(R.id.annotation_popup_order_filter_view_pager)
-
-        root.findViewById<ImageView>(R.id.annotation_popup_filter_close)
-            .setOnClickListener {
-                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupFilter)
-            }
 
         mPopupFilterTab.setupWithViewPager(mPopupFilterView)
 
@@ -433,10 +437,42 @@ class AnnotationFragment : Fragment(), AnnotationListener {
             mPopupFilterChapterFragment.setChapters(it)
         }
 
-
         mViewModel.chapterFilter.observe(viewLifecycleOwner) {
             mPopupFilterChapterFragment.setChaptersFilter(it)
         }
+
+        mViewModel.type.observe(viewLifecycleOwner) {
+            onChangeIconFilterType(it)
+        }
+    }
+
+    private fun onChangeIconFilterType(type: Type?) {
+        if (!::miFilterType.isInitialized || mFilterType == type)
+            return
+
+        val icon: Int? = if (type == null)  {
+            when (mFilterType) {
+                Type.MANGA -> R.drawable.ico_animated_menu_type_filter_manga_to_all
+                Type.BOOK -> R.drawable.ico_animated_menu_type_filter_book_to_all
+                else -> null
+            }
+        } else if (mFilterType == null)  {
+            when (type) {
+                Type.MANGA -> R.drawable.ico_animated_menu_type_filter_all_to_manga
+                Type.BOOK -> R.drawable.ico_animated_menu_type_filter_all_to_book
+            }
+        } else {
+            when (type) {
+                Type.MANGA -> R.drawable.ico_animated_menu_type_filter_book_to_manga
+                Type.BOOK -> R.drawable.ico_animated_menu_type_filter_manga_to_book
+            }
+        }
+
+
+        if (icon != null)
+            MenuUtil.animatedSequenceDrawable(miFilterType, icon)
+
+        mFilterType = type
     }
 
     private fun notifyDataSet(indexes: MutableList<Pair<ListMode, Int>>) {

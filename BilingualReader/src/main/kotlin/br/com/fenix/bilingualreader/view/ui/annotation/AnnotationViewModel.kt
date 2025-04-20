@@ -14,12 +14,10 @@ import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.Annotation
-import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.repository.BookAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.MangaAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
-import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import org.slf4j.LoggerFactory
 import java.util.Locale
 import java.util.Objects
@@ -40,7 +38,8 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
     val annotation: LiveData<MutableList<Annotation>> = mAnnotation
     private var mWordFilter = ""
 
-    private var mType: Type? = null
+    private var mType = MutableLiveData<Type?>(null)
+    val type: LiveData<Type?> = mType
 
     private var mChapters: MutableLiveData<Map<String, Float>> = MutableLiveData(mapOf())
     val chapters: LiveData<Map<String, Float>> = mChapters
@@ -153,13 +152,13 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
         }
 
         if (list.isNotEmpty()) {
-            val books = if (isInitial || mType == null || mType == Type.BOOK)
+            val books = if (isInitial || mType.value == null || mType.value == Type.BOOK)
                 list.filterIsInstance<BookAnnotation>().filter { !it.isTitle && !it.isRoot && it.chapter.isNotEmpty() }.sortedBy { it.chapter }.associate { it.chapter to it.chapterNumber }
             else
                 mapOf()
             chapters.putAll(books)
 
-            val mangas = if (isInitial || mType == null || mType == Type.MANGA)
+            val mangas = if (isInitial || mType.value == null || mType.value == Type.MANGA)
                 list.filterIsInstance<MangaAnnotation>().filter { !it.isTitle && !it.isRoot && it.chapter.isNotEmpty() }.sortedBy { it.chapter }.associate { it.chapter to it.page.toFloat() }
             else
                 mapOf()
@@ -236,16 +235,16 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
     }
 
     fun filterType(type: Type?) {
-        if (type == mType)
+        if (type == mType.value)
             return
 
-        mType = type
+        mType.value = type
         mAnnotation.value = filterList()
         getChapters(mAnnotationFull.value!!)
     }
 
     private fun filterList(): MutableList<Annotation> {
-        if (mType == null && mWordFilter.isEmpty())
+        if (mType.value == null && mWordFilter.isEmpty())
             return mAnnotationFull.value!!
         else {
             val list = mutableListOf<Annotation>()
@@ -323,7 +322,7 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
         if (annotation == null || annotation.isTitle)
             return false
 
-        if (mType != null && annotation.type != mType)
+        if (mType.value != null && annotation.type != mType.value)
             return false
 
         val annotation = annotation

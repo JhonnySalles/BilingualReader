@@ -12,7 +12,7 @@
 
     <item android:id="@+id/menu_history_library"
         android:title="@string/menu_history_library"
-        android:icon="@drawable/ic_history_library_filter"
+        android:icon="@drawable/ico_animated_menu_type_library"
         android:orderInCategory="101"
         app:showAsAction="always">
         <menu/>
@@ -20,7 +20,7 @@
 
     <item android:id="@+id/menu_history_type"
         android:title="@string/menu_history_type"
-        android:icon="@drawable/ic_history_type_filter"
+        android:icon="@drawable/ico_menu_type_all"
         android:orderInCategory="102"
         app:showAsAction="always">
         <menu/>

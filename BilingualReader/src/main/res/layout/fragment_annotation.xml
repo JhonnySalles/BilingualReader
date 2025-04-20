@@ -96,18 +96,6 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_line_popup"/>
 
-            <ImageView
-                android:id="@+id/annotation_popup_filter_close"
-                style="@style/TextTitle.Popup"
-                android:layout_width="70dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|top"
-                android:layout_marginTop="1dp"
-                android:layout_marginEnd="@dimen/margin_small"
-                android:contentDescription="@string/annotation_popup_filter_close"
-                android:scaleType="center"
-                android:src="@drawable/ic_close"/>
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

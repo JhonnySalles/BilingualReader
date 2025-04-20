@@ -41,6 +41,7 @@ import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.history.HistoryCardAdapter
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
@@ -58,6 +59,9 @@ class HistoryFragment : Fragment() {
     private lateinit var mScrollDown: FloatingActionButton
     private lateinit var miSearch: MenuItem
     private lateinit var searchView: SearchView
+    private lateinit var miFilterType: MenuItem
+
+    private var mFilterType: Type? = null
 
     private val mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
@@ -77,11 +81,13 @@ class HistoryFragment : Fragment() {
         miLibrary.subMenu?.clear()
         miLibrary.subMenu?.add(Menu.NONE, Menu.NONE, 100, requireContext().getString(R.string.history_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
                 filterLibrary(null)
+                (miLibrary.icon as AnimatedVectorDrawable).start()
                 true
             }
 
         miLibrary.subMenu?.add(Menu.NONE, Menu.NONE, 101, mViewModel.mDefaultLibrary.title)?.setOnMenuItemClickListener { _: MenuItem? ->
             filterLibrary(mViewModel.mDefaultLibrary)
+            (miLibrary.icon as AnimatedVectorDrawable).start()
             true
         }
 
@@ -91,18 +97,20 @@ class HistoryFragment : Fragment() {
             when (library.type) {
                 Type.BOOK -> book!!.add(library.title)?.setOnMenuItemClickListener { _: MenuItem? ->
                     filterLibrary(library)
+                    (miLibrary.icon as AnimatedVectorDrawable).start()
                     true
                 }
 
                 Type.MANGA -> manga!!.add(library.title)?.setOnMenuItemClickListener { _: MenuItem? ->
                     filterLibrary(library)
+                    (miLibrary.icon as AnimatedVectorDrawable).start()
                     true
                 }
             }
 
-        val miTypes = menu.findItem(R.id.menu_history_type)
-        miTypes.subMenu?.clear()
-        miTypes.subMenu?.add(requireContext().getString(R.string.history_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
+        miFilterType = menu.findItem(R.id.menu_history_type)
+        miFilterType.subMenu?.clear()
+        miFilterType.subMenu?.add(requireContext().getString(R.string.history_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
             filterType(null)
             true
         }
@@ -112,11 +120,20 @@ class HistoryFragment : Fragment() {
                 Type.MANGA -> requireContext().getString(R.string.history_manga)
                 Type.BOOK -> requireContext().getString(R.string.history_book)
             }
-            miTypes.subMenu?.add(title)?.setOnMenuItemClickListener { _: MenuItem? ->
+            miFilterType.subMenu?.add(title)?.setOnMenuItemClickListener { _: MenuItem? ->
                 filterType(type)
                 true
             }
         }
+
+        val iconType: Int = if (mFilterType == null)
+            R.drawable.ico_menu_type_all
+        else when (mFilterType) {
+            Type.MANGA -> R.drawable.ico_menu_type_manga
+            Type.BOOK -> R.drawable.ico_menu_type_book
+            else -> R.drawable.ico_menu_type_all
+        }
+        miFilterType.setIcon(iconType)
 
         miSearch = menu.findItem(R.id.menu_history_search)
         searchView = miSearch.actionView as SearchView
@@ -384,6 +401,39 @@ class HistoryFragment : Fragment() {
         mViewModel.history.observe(viewLifecycleOwner) {
             updateList(it)
         }
+
+        mViewModel.type.observe(viewLifecycleOwner) {
+            onChangeIconFilterType(it)
+        }
+    }
+
+    private fun onChangeIconFilterType(type: Type?) {
+        if (!::miFilterType.isInitialized || mFilterType == type)
+            return
+
+        val icon: Int? = if (type == null)  {
+            when (mFilterType) {
+                Type.MANGA -> R.drawable.ico_animated_menu_type_filter_manga_to_all
+                Type.BOOK -> R.drawable.ico_animated_menu_type_filter_book_to_all
+                else -> null
+            }
+        } else if (mFilterType == null)  {
+            when (type) {
+                Type.MANGA -> R.drawable.ico_animated_menu_type_filter_all_to_manga
+                Type.BOOK -> R.drawable.ico_animated_menu_type_filter_all_to_book
+            }
+        } else {
+            when (type) {
+                Type.MANGA -> R.drawable.ico_animated_menu_type_filter_book_to_manga
+                Type.BOOK -> R.drawable.ico_animated_menu_type_filter_manga_to_book
+            }
+        }
+
+
+        if (icon != null)
+            MenuUtil.animatedSequenceDrawable(miFilterType, icon)
+
+        mFilterType = type
     }
 
     private fun open(manga: Manga) {

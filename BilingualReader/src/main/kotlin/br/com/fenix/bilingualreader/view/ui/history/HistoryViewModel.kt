@@ -11,7 +11,6 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.FileType
-import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.repository.BookRepository
@@ -31,6 +30,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.Objects
 import java.util.stream.Collectors
+import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 
 class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable {
 
@@ -46,8 +46,10 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
     val mDefaultLibrary = Library(mDefaultKey, app.applicationContext.getString(R.string.history_library_default), "", excluded = true)
 
     private var mLibrary: Library? = null
-    private var mType: Type? = null
     private var mWordFilter: String = ""
+
+    private var mType = MutableLiveData<Type?>(null)
+    val type: LiveData<Type?> = mType
 
     private var mListFull = MutableLiveData<ArrayList<History>>(arrayListOf())
     private var mList = MutableLiveData<ArrayList<History>>(arrayListOf())
@@ -208,7 +210,7 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
                     continue
                 }
 
-                if (mType != null && history.type != mType)
+                if (mType.value != null && history.type != mType.value)
                     continue
 
                 if (mLibrary != null) {
@@ -254,10 +256,10 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
     }
 
     fun filterType(type: Type?) {
-        if (type == mType)
+        if (type == mType.value)
             return
 
-        mType = type
+        mType.value = type
         mList.value = filterList()
     }
 

@@ -368,7 +368,6 @@
 
     <!-- ANNOTATION POPUP LAYOUT -->
     <string name="annotation_popup_filter_open">Abrir</string>
-    <string name="annotation_popup_filter_close">Fechar</string>
     <string name="annotation_tab_item_filter">Filtros</string>
     <string name="annotation_tab_item_color">Cores</string>
     <string name="annotation_tab_item_chapters">Capítulos</string>

@@ -201,11 +201,6 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         mPopupFilterTab = root.findViewById(R.id.book_annotation_popup_filter_tab)
         mPopupFilterView = root.findViewById(R.id.book_annotation_popup_order_filter_view_pager)
 
-        root.findViewById<ImageView>(R.id.book_annotation_popup_filter_close)
-            .setOnClickListener {
-                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupFilter)
-            }
-
         mPopupFilterTab.setupWithViewPager(mPopupFilterView)
 
         BottomSheetBehavior.from(mMenuPopupFilter).apply {
