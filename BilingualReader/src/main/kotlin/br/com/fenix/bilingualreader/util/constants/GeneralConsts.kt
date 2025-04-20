@@ -141,6 +141,10 @@ class GeneralConsts private constructor() {
         }
     }
 
+    object DEFAULTS {
+        const val DEFAULT_HANDLE_SEARCH_FILTER = 500L
+    }
+
     object PATTERNS {
         const val DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss"
         const val BACKUP_DATE_PATTERN = "yyyy-MM-dd_HH-mm-ss"

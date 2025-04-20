@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.view.adapter.history
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.interfaces.History
@@ -12,6 +13,7 @@ class HistoryCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private lateinit var mListener: HistoryCardListener
     private var mHistoryList: ArrayList<History> = arrayListOf()
+    var isAnimation: Boolean = true
 
     companion object {
         private const val HEADER = 1
@@ -24,9 +26,15 @@ class HistoryCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         when (getItemViewType(position)) {
             HEADER -> {
                 (holder as HistoryHeaderViewHolder).bind(mHistoryList[position])
+
+                if (isAnimation)
+                    holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_history_holder)
             }
             else -> {
                 (holder as HistoryViewHolder).bind(mHistoryList[position])
+
+                if (isAnimation)
+                    holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_history)
             }
         }
     }

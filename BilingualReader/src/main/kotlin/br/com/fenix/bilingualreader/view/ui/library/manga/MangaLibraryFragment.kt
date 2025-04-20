@@ -190,14 +190,10 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                 return false
             }
 
-            var lastSuggestion = ""
+            private var runFilter = Runnable { }
+            private var lastSuggestion = ""
             override fun onQueryTextChange(newText: String?): Boolean {
-                val cursor = MatrixCursor(
-                    arrayOf(
-                        BaseColumns._ID,
-                        SearchManager.SUGGEST_COLUMN_TEXT_1
-                    )
-                )
+                val cursor = MatrixCursor(arrayOf(BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1))
                 cursorAdapter.changeCursor(cursor)
 
                 if (newText != null) {
@@ -239,7 +235,10 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                 lastSuggestion = newText?.trim() ?: ""
 
                 mRefreshLayout.isEnabled = newText.isNullOrEmpty()
-                filter(newText)
+
+                mHandler.removeCallbacks(runFilter)
+                runFilter = Runnable { filter(newText) }
+                mHandler.postDelayed(runFilter, GeneralConsts.DEFAULTS.DEFAULT_HANDLE_SEARCH_FILTER)
                 return false
             }
         })
@@ -535,11 +534,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         mGridType = type
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_manga_library, container, false)
 
         mRoot = root.findViewById(R.id.frame_manga_library_root)

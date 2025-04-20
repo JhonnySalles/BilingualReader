@@ -159,17 +159,6 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
         searchView = miSearch.actionView as SearchView
         searchView.imeOptions = EditorInfo.IME_ACTION_DONE
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return false
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                mRefreshLayout.isEnabled = newText == null || newText.isEmpty()
-                filter(newText)
-                return false
-            }
-        })
 
         val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
         searchSrcTextView.threshold = 1
@@ -205,7 +194,8 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                 return false
             }
 
-            var lastSuggestion = ""
+            private var runFilter = Runnable { }
+            private var lastSuggestion = ""
             override fun onQueryTextChange(newText: String?): Boolean {
                 val cursor = MatrixCursor(
                     arrayOf(
@@ -254,7 +244,9 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                 lastSuggestion = newText?.trim() ?: ""
 
                 mRefreshLayout.isEnabled = newText.isNullOrEmpty()
-                filter(newText)
+                mHandler.removeCallbacks(runFilter)
+                runFilter = Runnable { filter(newText) }
+                mHandler.postDelayed(runFilter, GeneralConsts.DEFAULTS.DEFAULT_HANDLE_SEARCH_FILTER)
                 return false
             }
         })

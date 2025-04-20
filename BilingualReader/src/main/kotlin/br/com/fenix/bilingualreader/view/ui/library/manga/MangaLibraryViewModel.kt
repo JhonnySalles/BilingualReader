@@ -415,6 +415,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
             }
         }
     }
+
     fun getSuggestions(filter : String): List<String> {
         val type = filter.substringBeforeLast(':')
         val condition = filter.substringAfterLast(':')

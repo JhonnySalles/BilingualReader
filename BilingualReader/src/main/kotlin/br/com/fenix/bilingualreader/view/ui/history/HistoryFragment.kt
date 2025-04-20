@@ -1,9 +1,17 @@
 package br.com.fenix.bilingualreader.view.ui.history
 
 import android.annotation.SuppressLint
+import android.app.SearchManager
 import android.content.Intent
 import android.content.res.Resources
+import android.database.Cursor
+import android.database.MatrixCursor
+import android.graphics.drawable.AnimatedVectorDrawable
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.provider.BaseColumns
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.Menu
@@ -12,9 +20,12 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.widget.AbsListView
 import android.widget.AutoCompleteTextView
+import android.widget.CursorAdapter
 import android.widget.PopupMenu
 import android.widget.SearchView
+import android.widget.SimpleCursorAdapter
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -30,10 +41,13 @@ import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.history.HistoryCardAdapter
+import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.time.LocalDateTime
 
 
@@ -41,8 +55,14 @@ class HistoryFragment : Fragment() {
 
     private lateinit var mViewModel: HistoryViewModel
     private lateinit var mRecyclerView: RecyclerView
+    private lateinit var mScrollUp: FloatingActionButton
+    private lateinit var mScrollDown: FloatingActionButton
     private lateinit var miSearch: MenuItem
     private lateinit var searchView: SearchView
+
+    private val mHandler = Handler(Looper.getMainLooper())
+    private val mDismissUpButton = Runnable { mScrollUp.hide() }
+    private val mDismissDownButton = Runnable { mScrollDown.hide() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,19 +122,91 @@ class HistoryFragment : Fragment() {
         miSearch = menu.findItem(R.id.menu_history_search)
         searchView = miSearch.actionView as SearchView
         searchView.imeOptions = EditorInfo.IME_ACTION_DONE
+
+        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
+        searchSrcTextView.threshold = 1
+        searchSrcTextView.setDropDownBackgroundResource(R.drawable.list_item_suggestion_background)
+        searchSrcTextView.setTextAppearance(R.style.SearchShadow)
+
+        val from = arrayOf(SearchManager.SUGGEST_COLUMN_TEXT_1)
+        val to = intArrayOf(R.id.list_item_suggestion)
+        val suggestions = Util.getHistoryFilters(requireContext()).keys.toList()
+        val cursorAdapter = SimpleCursorAdapter(requireContext(), R.layout.list_item_suggestion, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER)
+
+        searchView.suggestionsAdapter = cursorAdapter
+        searchView.setOnSuggestionListener(object: SearchView.OnSuggestionListener {
+            override fun onSuggestionSelect(position: Int): Boolean {
+                return false
+            }
+
+            override fun onSuggestionClick(position: Int): Boolean {
+                val cursor = searchView.suggestionsAdapter.getItem(position) as Cursor?
+                if( cursor != null) {
+                    val colum = cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1)
+                    val selection = cursor.getString(colum)
+                    val query = searchView.query.toString().substringBeforeLast('@', "") + " " + selection
+                    searchView.setQuery(query.trim(), false)
+                }
+                return true
+            }
+        })
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
             }
 
+            private var runFilter = Runnable { }
+            private var lastSuggestion = ""
             override fun onQueryTextChange(newText: String?): Boolean {
-                filter(newText)
+                val cursor = MatrixCursor(arrayOf(BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1))
+                cursorAdapter.changeCursor(cursor)
+
+                if (newText != null) {
+                    var substring = newText.substringAfterLast('@', "")
+                    if (substring.isNotEmpty()) {
+                        if (!substring.contains(':')) {
+                            substring = substring.replace("@", "")
+                            suggestions.forEachIndexed { index, suggestion ->
+                                if (substring.isEmpty())
+                                    cursor.addRow(arrayOf(index, "@$suggestion:"))
+                                else if (suggestion.contains(substring, true))
+                                    cursor.addRow(arrayOf(index, "@$suggestion:"))
+                            }
+                            return false
+                        } else if (!substring.contains(' ')) {
+                            mViewModel.getSuggestions(substring).let{
+                                substring = substring.substringBefore(":")
+                                it.forEachIndexed { index, suggestion ->
+                                    run {
+                                        if (suggestion.contains(' '))
+                                            cursor.addRow(arrayOf(index, "@$substring:\"$suggestion\" "))
+                                        else
+                                            cursor.addRow(arrayOf(index, "@$substring:$suggestion "))
+                                    }
+                                }
+                            }
+                            return false
+                        }
+                    } else if (newText.endsWith("@", true)) {
+                        suggestions.forEachIndexed { index, suggestion ->
+                            cursor.addRow(arrayOf(index, "@$suggestion:"))
+                        }
+                        return false
+                    }
+                }
+
+                if (newText?.trim().equals(lastSuggestion, true))
+                    return false
+                lastSuggestion = newText?.trim() ?: ""
+
+                mHandler.removeCallbacks(runFilter)
+                runFilter = Runnable { filter(newText) }
+                mHandler.postDelayed(runFilter, GeneralConsts.DEFAULTS.DEFAULT_HANDLE_SEARCH_FILTER)
+
                 return false
             }
         })
-
-        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
-        searchSrcTextView.setTextAppearance(R.style.SearchShadow)
     }
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
@@ -122,6 +214,11 @@ class HistoryFragment : Fragment() {
             R.id.menu_history_library -> {}
         }
         return super.onOptionsItemSelected(menuItem)
+    }
+
+    override fun onDestroyOptionsMenu() {
+        mViewModel.clearFilter()
+        super.onDestroyOptionsMenu()
     }
 
     private fun filter(text: String?) {
@@ -138,15 +235,18 @@ class HistoryFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mViewModel = ViewModelProvider(this)[HistoryViewModel::class.java]
+
         val root = inflater.inflate(R.layout.fragment_history, container, false)
         mRecyclerView = root.findViewById(R.id.history_list)
+        mScrollUp = root.findViewById(R.id.history_scroll_up)
+        mScrollDown = root.findViewById(R.id.history_scroll_down)
+
         ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecyclerView)
         observer()
         return root
     }
 
-    private var itemTouchHelperCallback =
-        object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+    private var itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
                 return false
             }
@@ -197,6 +297,73 @@ class HistoryFragment : Fragment() {
             }
         }
         historyAdapter.attachListener(listener)
+
+        mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState != AbsListView.OnScrollListener.SCROLL_STATE_FLING)
+                    setAnimationRecycler(true)
+            }
+        })
+
+        mRecyclerView.setOnScrollChangeListener { _, _, _, _, yOld ->
+            if (yOld > 20 && mScrollDown.visibility == View.VISIBLE) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (mHandler.hasCallbacks(mDismissDownButton))
+                        mHandler.removeCallbacks(mDismissDownButton)
+                } else
+                    mHandler.removeCallbacks(mDismissDownButton)
+
+                mScrollDown.hide()
+            } else if (yOld < -20 && mScrollUp.visibility == View.VISIBLE) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (mHandler.hasCallbacks(mDismissUpButton))
+                        mHandler.removeCallbacks(mDismissUpButton)
+                } else
+                    mHandler.removeCallbacks(mDismissUpButton)
+
+                mScrollUp.hide()
+            }
+
+            if (yOld > 180) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (mHandler.hasCallbacks(mDismissUpButton))
+                        mHandler.removeCallbacks(mDismissUpButton)
+                } else
+                    mHandler.removeCallbacks(mDismissUpButton)
+
+                mHandler.postDelayed(mDismissUpButton, 3000)
+                mScrollUp.show()
+            } else if (yOld < -180) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (mHandler.hasCallbacks(mDismissDownButton))
+                        mHandler.removeCallbacks(mDismissDownButton)
+                } else
+                    mHandler.removeCallbacks(mDismissDownButton)
+
+                mHandler.postDelayed(mDismissDownButton, 3000)
+                mScrollDown.show()
+            }
+        }
+
+        mScrollUp.visibility = View.GONE
+        mScrollDown.visibility = View.GONE
+
+        mScrollUp.setOnClickListener {
+            setAnimationRecycler(false)
+            (mScrollUp.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.smoothScrollToPosition(0)
+        }
+        mScrollDown.setOnClickListener {
+            setAnimationRecycler(false)
+            (mScrollDown.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.smoothScrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount)
+        }
+
+    }
+
+    private fun setAnimationRecycler(isAnimate: Boolean) {
+        (mRecyclerView.adapter as HistoryCardAdapter).isAnimation = isAnimate
     }
 
     @SuppressLint("NotifyDataSetChanged")

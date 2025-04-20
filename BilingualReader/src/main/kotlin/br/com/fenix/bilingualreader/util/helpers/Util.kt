@@ -469,6 +469,36 @@ class Util {
             return filter
         }
 
+        private var mapHistoryFilter: HashMap<String, Filter>? = null
+        fun getHistoryFilters(context: Context): HashMap<String, Filter> {
+            return if (mapHistoryFilter != null)
+                mapHistoryFilter!!
+            else {
+                mapHistoryFilter = hashMapOf<String, Filter>()
+
+                for (item in getMangaFilters(context))
+                    if (!mapHistoryFilter!!.containsValue(item.value))
+                        mapHistoryFilter!!.put(item.key, item.value)
+
+                for (item in getBookFilters(context))
+                    if (!mapHistoryFilter!!.containsValue(item.value))
+                        mapHistoryFilter!!.put(item.key, item.value)
+
+                mapHistoryFilter!!
+            }
+        }
+
+        fun historyStringToFilter(context: Context, text : String, contains: Boolean = false): Filter {
+            var filter = Filter.None
+            val mapFilters = getHistoryFilters(context)
+            for (item in mapFilters)
+                if ((contains && item.key.contains(text, true)) || (!contains && item.key.equals(text, true))) {
+                    filter = item.value
+                    break
+                }
+            return filter
+        }
+
         fun filterToString(context: Context, type: Type, filter: Filter): String {
             val mapFilters = when (type) {
                 Type.MANGA -> getMangaFilters(context)

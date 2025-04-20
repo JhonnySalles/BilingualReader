@@ -379,9 +379,22 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         mPopupConfigurationsView.adapter = viewColorPagerAdapter
         mPopupMangaAnnotationsFragment.setListener(this)
         mPopupConfigurationsView.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+            private fun refreshCover() = mViewModel.refreshCover(mManga) { mPopupMangaAnnotationsFragment.notifyItemChanged(it) }
+
             override fun onPageSelected(position: Int) {
-                if (viewColorPagerAdapter.getItem(position) == mPopupMangaAnnotationsFragment)
-                    mViewModel.refreshCover(mManga) { mPopupMangaAnnotationsFragment.notifyItemChanged(it) }
+                if (viewColorPagerAdapter.getItem(position) == mPopupMangaAnnotationsFragment) {
+                    if (!mMenuPopupConfigurations.isVisible) {
+                        var afterVisible: Runnable? = null
+                        afterVisible = Runnable {
+                            if (!mMenuPopupConfigurations.isVisible)
+                                mHandler.postDelayed(afterVisible!!, 300)
+                            else
+                                refreshCover()
+                        }
+                        mHandler.postDelayed(afterVisible, 300)
+                    } else
+                        refreshCover()
+                }
             }
         })
 
