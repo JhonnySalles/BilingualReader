@@ -43,7 +43,6 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.history.HistoryCardAdapter
-import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -71,7 +70,7 @@ class HistoryFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         menu.clear()
-        inflater.inflate(R.menu.menu_history_manga, menu)
+        inflater.inflate(R.menu.menu_history, menu)
         super.onCreateOptionsMenu(menu, inflater)
 
         val miLibrary = menu.findItem(R.id.menu_history_library)

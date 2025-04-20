@@ -99,10 +99,28 @@ class AnnotationFragment : Fragment(), AnnotationListener {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         menu.clear()
-        inflater.inflate(R.menu.menu_book_annotation, menu)
+        inflater.inflate(R.menu.menu_annotation, menu)
         super.onCreateOptionsMenu(menu, inflater)
 
-        miSearch = menu.findItem(R.id.menu_book_annotation_search)
+        val miTypes = menu.findItem(R.id.menu_annotation_type)
+        miTypes.subMenu?.clear()
+        miTypes.subMenu?.add(requireContext().getString(R.string.annotation_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
+            filterType(null)
+            true
+        }
+
+        for (type in Type.values()) {
+            val title = when (type) {
+                Type.MANGA -> requireContext().getString(R.string.annotation_manga)
+                Type.BOOK -> requireContext().getString(R.string.annotation_book)
+            }
+            miTypes.subMenu?.add(title)?.setOnMenuItemClickListener { _: MenuItem? ->
+                filterType(type)
+                true
+            }
+        }
+
+        miSearch = menu.findItem(R.id.menu_annotation_search)
         searchView = miSearch.actionView as SearchView
         searchView.imeOptions = EditorInfo.IME_ACTION_DONE
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -125,7 +143,7 @@ class AnnotationFragment : Fragment(), AnnotationListener {
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
-            R.id.menu_book_annotation_filters -> onOpenMenuFilter()
+            R.id.menu_annotation_filters -> onOpenMenuFilter()
         }
         return super.onOptionsItemSelected(menuItem)
     }
@@ -528,6 +546,10 @@ class AnnotationFragment : Fragment(), AnnotationListener {
 
     override fun filterType(filter: Filter, isRemove: Boolean) {
         mViewModel.filterType(filter, isRemove)
+    }
+
+    private fun filterType(type: Type?) {
+        mViewModel.filterType(type)
     }
 
     override fun getColors(): Set<Color> = mViewModel.colorFilter.value!!

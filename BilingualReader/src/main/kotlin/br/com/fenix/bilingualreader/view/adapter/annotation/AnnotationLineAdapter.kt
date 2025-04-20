@@ -46,7 +46,8 @@ class AnnotationLineAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 (holder as AnnotationRootViewHolder).bind((mAnnotationList[position]), pos == 0)
             }
             TITLE -> {
-                (holder as AnnotationTitleViewHolder).bind((mAnnotationList[position]), mAnnotationList[position-1].isRoot)
+                val isRoot = if (position == 0) true else mAnnotationList[position-1].isRoot
+                (holder as AnnotationTitleViewHolder).bind((mAnnotationList[position]), isRoot)
             }
             BOOK -> {
                 (holder as AnnotationBookViewHolder).bind((mAnnotationList[position] as BookAnnotation), pos)

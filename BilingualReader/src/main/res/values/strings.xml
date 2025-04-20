@@ -630,6 +630,13 @@
     <!-- READER FLOATING -->
     <string name="floating_reading_not_permission">Permission is not granted!</string>
 
+    <!-- ANNOTATION -->
+    <string name="menu_annotation_type">Type</string>
+    <string name="annotation_menu_choice_all">All</string>
+    <string name="annotation_manga">Manga / Comic</string>
+    <string name="annotation_book">Book</string>
+    <string name="annotation_filters">Filters</string>
+
     <!-- ALERT -->
     <string name="alert_title">Alert</string>
     <string name="manga_excluded">Manga not found or excluded</string>

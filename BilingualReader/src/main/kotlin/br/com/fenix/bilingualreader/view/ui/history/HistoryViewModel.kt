@@ -252,6 +252,7 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
         mLibrary = library
         mList.value = filterList()
     }
+
     fun filterType(type: Type?) {
         if (type == mType)
             return

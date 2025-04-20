@@ -582,6 +582,13 @@
     <!-- READER FLOATING -->
     <string name="floating_reading_not_permission">Permissão não concedida!</string>
 
+    <!-- ANNOTATION -->
+    <string name="menu_annotation_type">Type</string>
+    <string name="annotation_menu_choice_all">Todos</string>
+    <string name="annotation_manga">Manga / Comic</string>
+    <string name="annotation_book">Livro</string>
+    <string name="annotation_filters">Filtros</string>
+
     <!-- ALERT -->
     <string name="alert_title">Aviso</string>
     <string name="manga_excluded">Manga não localizado ou excluído</string>
@@ -794,7 +801,7 @@
     <string name="book_detail_web_information_genre"><![CDATA[<b>Gêneros:</b> %s]]></string>
     <string name="book_detail_web_information_publish_from_to"><![CDATA[<b>Publicação:</b> %s até %s]]></string>
 
-    <!-- HISTORY -->
+    <!-- HISTORY - Manga / Comic / Book -->
     <string name="menu_history_library">Biblioteca</string>
     <string name="menu_history_type">Tipo</string>
     <string name="history_last_access">Último acesso</string>

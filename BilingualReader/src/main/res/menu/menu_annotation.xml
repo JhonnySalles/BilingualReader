@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_annotation_search"
+        android:icon="@drawable/ic_search"
+        android:orderInCategory="100"
+        android:title="@string/book_annotation_menu_search"
+        android:visible="true"
+        app:actionViewClass="android.widget.SearchView"
+        app:showAsAction="always" />
+
+    <item android:id="@+id/menu_annotation_type"
+        android:title="@string/menu_annotation_type"
+        android:icon="@drawable/ic_history_type_filter"
+        android:orderInCategory="101"
+        app:showAsAction="always">
+        <menu/>
+    </item>
+
+    <item android:id="@+id/menu_annotation_filters"
+        android:title="@string/annotation_filters"
+        android:icon="@drawable/ico_animated_book_annotation_filter"
+        android:orderInCategory="110"
+        app:showAsAction="always"/>
+</menu>

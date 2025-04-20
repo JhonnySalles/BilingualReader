@@ -14,10 +14,12 @@ import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.Annotation
+import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.repository.BookAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.MangaAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import org.slf4j.LoggerFactory
 import java.util.Locale
 import java.util.Objects
@@ -38,6 +40,8 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
     val annotation: LiveData<MutableList<Annotation>> = mAnnotation
     private var mWordFilter = ""
 
+    private var mType: Type? = null
+
     private var mChapters: MutableLiveData<Map<String, Float>> = MutableLiveData(mapOf())
     val chapters: LiveData<Map<String, Float>> = mChapters
 
@@ -47,6 +51,8 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
     private var mColorFilter = MutableLiveData(setOf<Color>())
     val colorFilter: LiveData<Set<Color>> = mColorFilter
 
+    private val mChapterManga = mutableMapOf<String, Float>()
+    private val mChapterBook = mutableMapOf<String, Float>()
     private var mChapterFilter: MutableLiveData<Map<String, Float>> = MutableLiveData(mapOf())
     val chapterFilter: LiveData<Map<String, Float>> = mChapterFilter
 
@@ -90,15 +96,15 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
         var root: Annotation? = null
         var parent: Annotation? = null
         for (annotation in annotationsBook) {
-            if (list.none { it.isRoot && it.id_parent == annotation.id_parent }) {
+            if (list.none { it.isRoot && it.type == Type.BOOK && it.id_parent == annotation.id_parent }) {
                 val book = mBookRepository.get(annotation.id_parent) ?: continue
                 root = BookAnnotation(book.id!!, 0f, book.title, "", book.fileName, isRoot = true, isTitle = true)
                 list.add(root)
                 parent = null
             }
 
-            if (list.none { it.isTitle && it.chapterNumber == annotation.chapterNumber }) {
-                parent = BookAnnotation(parent?.id_parent ?: 0, annotation.chapterNumber, annotation.chapter, "", "", isTitle = true)
+            if (list.none { it.isTitle && it.type == Type.BOOK && it.chapterNumber == annotation.chapterNumber }) {
+                parent = BookAnnotation(parent?.id_parent ?: root?.id_parent ?: 0, annotation.chapterNumber, annotation.chapter, "", "", isTitle = true)
                 parent.parent = root
                 list.add(parent)
             }
@@ -113,15 +119,15 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
         root = null
         parent = null
         for (annotation in annotationsManga) {
-            if (list.none { it.isRoot && it.id_parent == annotation.id_parent }) {
+            if (list.none { it.isRoot && it.type == Type.MANGA && it.id_parent == annotation.id_parent }) {
                 val manga = mMangaRepository.get(annotation.id_parent) ?: continue
                 root = MangaAnnotation(manga.id!!, manga.title, manga.fileName, "", isRoot = true, isTitle = true)
                 list.add(root)
                 parent = null
             }
 
-            if (list.none { it.isTitle && it.chapter == annotation.chapter }) {
-                parent = MangaAnnotation(parent?.id_parent ?: 0, annotation.chapter, "", "", isTitle = true)
+            if (list.none { it.isTitle && it.type == Type.MANGA && it.chapter == annotation.chapter }) {
+                parent = MangaAnnotation(parent?.id_parent ?: root?.id_parent ?: 0, annotation.chapter, "", "", isTitle = true)
                 parent.parent = root
                 list.add(parent)
             }
@@ -135,17 +141,35 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
         mAnnotationFull.value = list.toMutableList()
         mAnnotation.value = list.toMutableList()
 
-        getChapters(mAnnotationFull.value!!)
+        getChapters(mAnnotationFull.value!!, isInitial = true)
     }
 
-    private fun getChapters(list: List<Annotation>) {
+    private fun getChapters(list: List<Annotation>, isInitial : Boolean = false) {
         val chapters = mutableMapOf<String, Float>()
 
+        if (isInitial) {
+            mChapterBook.clear()
+            mChapterManga.clear()
+        }
+
         if (list.isNotEmpty()) {
-            val books = list.filterIsInstance<BookAnnotation>().sortedBy { it.chapter }.filter { it.chapter.isNotEmpty() }.associate { it.chapter to it.chapterNumber }
+            val books = if (isInitial || mType == null || mType == Type.BOOK)
+                list.filterIsInstance<BookAnnotation>().filter { !it.isTitle && !it.isRoot && it.chapter.isNotEmpty() }.sortedBy { it.chapter }.associate { it.chapter to it.chapterNumber }
+            else
+                mapOf()
             chapters.putAll(books)
-            val mangas = list.filterIsInstance<MangaAnnotation>().sortedBy { it.chapter }.filter { it.chapter.isNotEmpty() }.associate { it.chapter to it.page.toFloat() }
+
+            val mangas = if (isInitial || mType == null || mType == Type.MANGA)
+                list.filterIsInstance<MangaAnnotation>().filter { !it.isTitle && !it.isRoot && it.chapter.isNotEmpty() }.sortedBy { it.chapter }.associate { it.chapter to it.page.toFloat() }
+            else
+                mapOf()
+
             chapters.putAll(mangas)
+
+            if (isInitial) {
+                mChapterBook.putAll(books)
+                mChapterManga.putAll(mangas)
+            }
         }
 
         mChapters.value = chapters
@@ -211,6 +235,30 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
         getFilter().filter(mWordFilter)
     }
 
+    fun filterType(type: Type?) {
+        if (type == mType)
+            return
+
+        mType = type
+        mAnnotation.value = filterList()
+        getChapters(mAnnotationFull.value!!)
+    }
+
+    private fun filterList(): MutableList<Annotation> {
+        if (mType == null && mWordFilter.isEmpty())
+            return mAnnotationFull.value!!
+        else {
+            val list = mutableListOf<Annotation>()
+            val newList = mAnnotationFull.value!!.filter { filtered(it, mWordFilter) }
+            for (annotation in newList) {
+                addParent(list, annotation)
+                list.add(annotation)
+                annotation.parent?.let { it.count++ }
+            }
+            return list
+        }
+    }
+
     fun filterType(filter: FilterType, isRemove: Boolean = false) {
         val types = mTypeFilter.value!!.toMutableSet()
         if (isRemove)
@@ -273,6 +321,9 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
 
     private fun filtered(annotation: Annotation?, filterPattern: String): Boolean {
         if (annotation == null || annotation.isTitle)
+            return false
+
+        if (mType != null && annotation.type != mType)
             return false
 
         val annotation = annotation
@@ -349,12 +400,30 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
     }
 
     private fun addParent(list: MutableList<Annotation>, annotation: Annotation) {
-        if (annotation.parent == null || list.contains(annotation.parent))
+        if (annotation.parent == null)
             return
 
-        addParent(list, annotation.parent!!)
-        annotation.parent!!.count = 0
-        list.add(annotation.parent!!)
+        val parent = annotation.parent!!
+        if (parent.isRoot && list.any { it.isRoot && it.type == parent.type && it.id_parent == parent.id_parent })
+            return
+
+        if (!parent.isRoot && parent.isTitle) {
+            when (annotation.type) {
+                Type.BOOK -> {
+                    if (list.any { it.isTitle && it.type == parent.type && it.chapterNumber == parent.chapterNumber })
+                        return
+                }
+                Type.MANGA -> {
+                    if (list.any { it.isTitle && it.type == parent.type && it.chapter == parent.chapter })
+                        return
+                }
+
+            }
+        }
+
+        addParent(list, parent)
+        parent.count = 0
+        list.add(parent)
     }
 
     private val mAnnotationFilter = object : Filter() {
