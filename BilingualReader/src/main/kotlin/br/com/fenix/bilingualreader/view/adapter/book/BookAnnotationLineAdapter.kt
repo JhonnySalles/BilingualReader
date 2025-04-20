@@ -5,12 +5,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
-import br.com.fenix.bilingualreader.service.listener.BookAnnotationListener
+import br.com.fenix.bilingualreader.service.listener.AnnotationsListener
 
 
 class BookAnnotationLineAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private lateinit var mListener: BookAnnotationListener
+    private lateinit var mListener: AnnotationsListener
     private var mBookAnnotationList: MutableList<BookAnnotation> = arrayListOf()
 
     companion object {
@@ -35,7 +35,7 @@ class BookAnnotationLineAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             HEADER -> BookAnnotationHeaderViewHolder(
-                LayoutInflater.from(parent.context).inflate(R.layout.line_card_divider_book_annotation, parent, false), mListener
+                LayoutInflater.from(parent.context).inflate(R.layout.line_card_divider_annotation_title, parent, false), mListener
             )
             else -> BookAnnotationViewHolder(
                 LayoutInflater.from(parent.context).inflate(R.layout.line_card_book_annotation, parent, false), mListener
@@ -52,7 +52,7 @@ class BookAnnotationLineAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(
         notifyDataSetChanged()
     }
 
-    fun attachListener(listener: BookAnnotationListener) {
+    fun attachListener(listener: AnnotationsListener) {
         mListener = listener
     }
 

@@ -570,7 +570,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     }
 
     fun prepareHtml(context: Context, parse: DocumentParse?, page: Int, holder: TextViewPager.TextViewPagerHolder, listener: TextSelectCallbackListener?) {
-        holder.pageMark.visibility = if (mAnnotation.any { it.page == page && it.type == MarkType.PageMark }) View.VISIBLE else View.GONE
+        holder.pageMark.visibility = if (mAnnotation.any { it.page == page && it.markType == MarkType.PageMark }) View.VISIBLE else View.GONE
 
         var text = parse?.getPage(page)?.pageHTMLWithImages.orEmpty()
 

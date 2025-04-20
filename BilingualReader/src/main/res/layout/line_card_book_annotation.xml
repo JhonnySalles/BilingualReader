@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/book_annotation_margin"
-    android:background="@drawable/book_mark_custom_ripple"
+    android:background="@drawable/annotation_custom_ripple"
     android:clickable="true"
     android:focusable="true"
     android:orientation="vertical">

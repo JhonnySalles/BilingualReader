@@ -7,6 +7,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.MarkType
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.Annotation
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.Serializable
@@ -30,17 +31,17 @@ data class BookAnnotation(
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FONT_SIZE)
     var fontSize: Float,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TYPE)
-    val type: MarkType,
+    override val markType: MarkType,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER_NUMBER)
     override val chapterNumber: Float,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER)
-    val chapter: String,
+    override val chapter: String,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TEXT)
     var text: String,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.RANGE)
     var range: IntArray,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ANNOTATION)
-    var annotation: String,
+    override var annotation: String,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FAVORITE)
     var favorite: Boolean,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COLOR)
@@ -52,6 +53,8 @@ data class BookAnnotation(
 ) : Serializable, Annotation {
 
     //For a annotation title
+    @Ignore
+    override val type: Type = Type.BOOK
     @Ignore
     override var isRoot: Boolean = false
     @Ignore
@@ -71,7 +74,7 @@ data class BookAnnotation(
     )
     @Ignore //For a annotation title
     constructor(id_book: Long, chapterNumber: Float, chapter: String, text: String, annotation: String, isRoot: Boolean = false, isTitle: Boolean = false) : this(
-        null, id_book, 0, 0, 0f, MarkType.Annotation, chapterNumber, chapter, text, intArrayOf(), annotation, false,
+        null, id_book, -1, -1, 0f, MarkType.Annotation, chapterNumber, chapter, text, intArrayOf(), annotation, false,
         Color.None, LocalDateTime.now(), LocalDateTime.now()
     ) {
         this.isRoot = isRoot
@@ -81,7 +84,7 @@ data class BookAnnotation(
 
     @Ignore
     constructor(other: BookAnnotation) : this(
-        other.id, other.id_parent, other.page, other.pages, other.fontSize, other.type, other.chapterNumber, other.chapter, other.text, other.range,
+        other.id, other.id_parent, other.page, other.pages, other.fontSize, other.markType, other.chapterNumber, other.chapter, other.text, other.range,
         other.annotation, other.favorite, other.color, other.alteration, other.created
     ) {
         this.count = other.count
@@ -114,7 +117,7 @@ data class BookAnnotation(
         if (id_parent != other.id_parent) return false
         if (page != other.page) return false
         if (pages != other.pages) return false
-        if (type != other.type) return false
+        if (markType != other.markType) return false
 
         return true
     }
@@ -124,7 +127,7 @@ data class BookAnnotation(
         result = 31 * result + id_parent.hashCode()
         result = 31 * result + page
         result = 31 * result + pages
-        result = 31 * result + type.hashCode()
+        result = 31 * result + markType.hashCode()
         return result
     }
 

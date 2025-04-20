@@ -20,9 +20,9 @@ import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 
 class BookAnnotationViewModel(var app: Application) : AndroidViewModel(app), Filterable {
 
-    private val mRepository: BookAnnotationRepository = BookAnnotationRepository(app.applicationContext)
-
     private val mLOGGER = LoggerFactory.getLogger(BookAnnotationViewModel::class.java)
+
+    private val mRepository: BookAnnotationRepository = BookAnnotationRepository(app.applicationContext)
 
     val book: Book? = null
 
@@ -206,17 +206,17 @@ class BookAnnotationViewModel(var app: Application) : AndroidViewModel(app), Fil
                     }
 
                     FilterType.Detach -> {
-                        if (annotation.type == MarkType.Annotation)
+                        if (annotation.markType == MarkType.Annotation)
                             condition = true
                     }
 
                     FilterType.PageMark -> {
-                        if (annotation.type == MarkType.PageMark)
+                        if (annotation.markType == MarkType.PageMark)
                             condition = true
                     }
 
                     FilterType.BookMark -> {
-                        if (annotation.type == MarkType.BookMark)
+                        if (annotation.markType == MarkType.BookMark)
                             condition = true
                     }
 

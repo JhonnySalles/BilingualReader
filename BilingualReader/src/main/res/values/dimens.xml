@@ -123,6 +123,8 @@
     <dimen name="manga_annotation_margin_bottom">20dp</dimen>
     <dimen name="manga_annotation_selected_stroke">3dp</dimen>
 
+    <dimen name="manga_annotation_margin">10dp</dimen>
+
     <dimen name="manga_detail_card_layout_width">150dp</dimen>
     <dimen name="manga_detail_card_layout_height">200dp</dimen>
     <dimen name="manga_detail_card_layout_width_tablet">200dp</dimen>

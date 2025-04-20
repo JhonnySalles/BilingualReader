@@ -1151,7 +1151,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     fun markCurrentPage() {
         val msg: String
 
-        val mark = mViewModel.findAnnotationByPage(mBook!!, mCurrentPage).find { it.type == MarkType.PageMark }
+        val mark = mViewModel.findAnnotationByPage(mBook!!, mCurrentPage).find { it.markType == MarkType.PageMark }
         if (mark != null) {
             mViewModel.delete(mark)
             msg = getString(R.string.book_annotation_page_unmarked, mCurrentPage)

@@ -639,7 +639,7 @@ abstract class MangaAnnotationDAO : BaseDAO<MangaAnnotation, Long>(DataBaseConst
     )
     abstract fun findAllByManga(idManga: Long): List<MangaAnnotation>
 
-    @Query("SELECT * FROM " + DataBaseConsts.MANGA_ANNOTATION.TABLE_NAME + " ORDER BY " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.FK_ID_MANGA + ", ${DataBaseConsts.MANGA_ANNOTATION.COLUMNS.ALTERATION} DESC")
+    @Query("SELECT * FROM " + DataBaseConsts.MANGA_ANNOTATION.TABLE_NAME + " ORDER BY " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.FK_ID_MANGA + ", ${DataBaseConsts.MANGA_ANNOTATION.COLUMNS.PAGE} ASC")
     abstract fun findAllOrderByManga() : List<MangaAnnotation>
 
     @Query(

@@ -8,7 +8,7 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/book_title_divider_title"
+        android:id="@+id/annotation_title_divider_title"
         style="@style/TextTitle.Annotation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,7 +16,7 @@
         android:textSize="@dimen/book_padding_divider_title" />
 
     <TextView
-        android:id="@+id/book_title_divider_sub_title"
+        android:id="@+id/annotation_title_divider_sub_title"
         style="@style/TextNormal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

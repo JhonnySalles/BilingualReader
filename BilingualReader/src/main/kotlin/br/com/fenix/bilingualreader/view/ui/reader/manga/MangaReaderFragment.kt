@@ -1279,7 +1279,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         val msg: String
 
         val page = mCurrentPage + 1
-        val mark = mViewModel.findAnnotationByPage(mManga!!, page).find { it.type == MarkType.PageMark }
+        val mark = mViewModel.findAnnotationByPage(mManga!!, page).find { it.markType == MarkType.PageMark }
         if (mark != null) {
             mViewModel.delete(mark)
             msg = getString(R.string.manga_annotation_page_unmarked, page)

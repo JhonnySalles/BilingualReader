@@ -5,10 +5,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
-import br.com.fenix.bilingualreader.service.listener.BookAnnotationListener
+import br.com.fenix.bilingualreader.service.listener.AnnotationsListener
 
 
-class BookAnnotationHeaderViewHolder(itemView: View, private val listener: BookAnnotationListener) : RecyclerView.ViewHolder(itemView) {
+class BookAnnotationHeaderViewHolder(itemView: View, private val listener: AnnotationsListener) : RecyclerView.ViewHolder(itemView) {
 
     fun bind(annotation: BookAnnotation, isFirst: Boolean) {
         itemView.findViewById<View>(R.id.book_annotation_divider_separator).visibility = if (isFirst) View.GONE else View.VISIBLE

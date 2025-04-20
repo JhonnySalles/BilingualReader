@@ -516,6 +516,8 @@
     <string name="manga_annotation_page_marked">Página %d marcada.</string>
     <string name="manga_annotation_page_unmarked">Página %d desmarcada.</string>
 
+    <string name="manga_annotation_title_mark">Página %d de %d</string>
+
     <!-- OCR -->
     <string name="ocr_tesseract_copy_data">Copiando arquivos necessários, aguarde…</string>
     <string name="ocr_tesseract_copy_data_done">Cópia de arquivos do Tesseract concluído.</string>

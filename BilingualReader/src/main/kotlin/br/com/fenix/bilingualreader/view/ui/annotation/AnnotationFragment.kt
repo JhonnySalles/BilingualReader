@@ -36,24 +36,30 @@ import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
+import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
 import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.Filter
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.MarkType
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.listener.AnnotationListener
-import br.com.fenix.bilingualreader.service.listener.BookAnnotationListener
+import br.com.fenix.bilingualreader.service.listener.AnnotationsListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.annotation.AnnotationLineAdapter
+import br.com.fenix.bilingualreader.view.adapter.annotation.AnnotationRootViewHolder
+import br.com.fenix.bilingualreader.view.adapter.annotation.AnnotationTitleViewHolder
 import br.com.fenix.bilingualreader.view.ui.popup.PopupAnnotations
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
+import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 
 
 class AnnotationFragment : Fragment(), AnnotationListener {
@@ -77,7 +83,7 @@ class AnnotationFragment : Fragment(), AnnotationListener {
     private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
 
     private lateinit var mRecyclerView: RecyclerView
-    private lateinit var mListener: BookAnnotationListener
+    private lateinit var mListener: AnnotationsListener
 
     private lateinit var mBook: Book
 
@@ -237,99 +243,141 @@ class AnnotationFragment : Fragment(), AnnotationListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mListener = object : BookAnnotationListener {
-            override fun onClick(annotation: BookAnnotation) {
-                val book = mViewModel.getBook(annotation.id_parent) ?: return
-                if (book.file.exists()) {
-                    val intent = Intent(context, BookReaderActivity::class.java)
-                    val bundle = Bundle()
-                    bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, book.library)
-                    bundle.putString(GeneralConsts.KEYS.BOOK.NAME, book.title)
-                    bundle.putInt(GeneralConsts.KEYS.BOOK.MARK, book.bookMark)
-                    bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
-                    intent.putExtras(bundle)
-                    context?.startActivity(intent)
-                    requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
-                } else {
-                    MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
-                        .setTitle(getString(R.string.book_excluded))
-                        .setMessage(getString(R.string.file_not_found))
-                        .setPositiveButton(
-                            R.string.action_neutral
-                        ) { _, _ -> }
-                        .create()
-                        .show()
-                }
-            }
+        mListener = object : AnnotationsListener {
+            override fun onClick(annotation: br.com.fenix.bilingualreader.model.interfaces.Annotation) {
+                when (annotation.type) {
+                    Type.BOOK -> {
+                        val book = mViewModel.getBook(annotation.id_parent) ?: return
+                        if (book.file.exists()) {
+                            val intent = Intent(context, BookReaderActivity::class.java)
+                            val bundle = Bundle()
+                            bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, book.library)
+                            bundle.putString(GeneralConsts.KEYS.BOOK.NAME, book.title)
 
-            override fun onClickFavorite(annotation: BookAnnotation) {
-                mViewModel.save(annotation)
-            }
+                            if ((annotation as BookAnnotation).page >= 0 && annotation.page < book.pages)
+                                bundle.putInt(GeneralConsts.KEYS.BOOK.MARK, annotation.page +1)
+                            else
+                                bundle.putInt(GeneralConsts.KEYS.BOOK.MARK, book.bookMark)
 
-            override fun onClickOptions(annotation: BookAnnotation, view: View, position: Int) {
-                val wrapper = ContextThemeWrapper(requireContext(), R.style.PopupMenu)
-                val popup = PopupMenu(wrapper, view, 0, R.attr.popupMenuStyle, R.style.PopupMenu)
-                popup.menuInflater.inflate(R.menu.menu_item_book_annotation, popup.menu)
-
-                if (annotation.type != MarkType.Annotation)
-                    popup.menu.removeItem(R.id.menu_item_item_book_annotation_change_detach)
-
-                popup.setOnMenuItemClickListener { item ->
-                    when (item.itemId) {
-                        R.id.menu_item_book_annotation_favorite -> {
-                            annotation.favorite = !annotation.favorite
-                            mViewModel.save(annotation)
-                            notifyDataSet(position)
-                        }
-
-                        R.id.menu_item_item_book_annotation_delete -> {
-                            deleteAnnotation(annotation, position)
-                        }
-
-                        R.id.menu_item_item_book_annotation_change_detach -> {
-                            val colors = Util.getColors(requireContext())
-                            val items = colors.keys.toTypedArray()
-
-                            val title = LinearLayout(requireContext())
-                            title.orientation = LinearLayout.VERTICAL
-                            title.setPadding(resources.getDimensionPixelOffset(R.dimen.title_index_dialog_padding))
-                            val name = TextView(requireContext())
-                            name.text = getString(R.string.book_annotation_change_detach_title)
-                            name.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_index_dialog_size))
-                            name.setTextColor(requireContext().getColorFromAttr(R.attr.colorOnBackground))
-                            title.addView(name)
-                            val index = TextView(requireContext())
-                            index.text = getString(R.string.book_annotation_change_detach_description)
-                            index.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_small_index_dialog_size))
-                            index.setTextColor(requireContext().getColorFromAttr(R.attr.colorOnSecondary))
-                            title.addView(index)
-
+                            bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
+                            intent.putExtras(bundle)
+                            context?.startActivity(intent)
+                            requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+                        } else {
                             MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
-                                .setCustomTitle(title)
-                                .setItems(items) { _, selected ->
-                                    val color = colors[items[selected]]
-                                    if (color != null) {
-                                        annotation.color = color
-                                        mViewModel.save(annotation)
-                                        notifyDataSet(position)
-                                    }
-                                }.show()
+                                .setTitle(getString(R.string.book_excluded))
+                                .setMessage(getString(R.string.file_not_found))
+                                .setPositiveButton(
+                                    R.string.action_neutral
+                                ) { _, _ -> }
+                                .create()
+                                .show()
                         }
                     }
-                    true
-                }
+                    Type.MANGA -> {
+                        val manga = mViewModel.getManga(annotation.id_parent) ?: return
+                        if (manga.file.exists()) {
+                            val intent = Intent(context, MangaReaderActivity::class.java)
+                            val bundle = Bundle()
+                            bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, manga.library)
+                            bundle.putString(GeneralConsts.KEYS.MANGA.NAME, manga.title)
 
-                popup.show()
+                            if ((annotation as MangaAnnotation).page >= 0 && annotation.page < manga.pages)
+                                bundle.putInt(GeneralConsts.KEYS.MANGA.MARK, annotation.page)
+                            else
+                                bundle.putInt(GeneralConsts.KEYS.MANGA.MARK, manga.bookMark)
+
+                            bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
+                            intent.putExtras(bundle)
+                            context?.startActivity(intent)
+                            requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+                        } else {
+                            MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+                                .setTitle(getString(R.string.manga_excluded))
+                                .setMessage(getString(R.string.file_not_found))
+                                .setPositiveButton(
+                                    R.string.action_neutral
+                                ) { _, _ -> }
+                                .create()
+                                .show()
+                        }
+                    }
+                }
             }
 
-            override fun onClickNote(annotation: BookAnnotation, position: Int) {
-                val onDelete = { obj: BookAnnotation ->
-                    mViewModel.delete(obj)
-                    true
+            override fun onClickFavorite(annotation: br.com.fenix.bilingualreader.model.interfaces.Annotation) {
+                if (annotation.type == Type.BOOK)
+                    mViewModel.save(annotation as BookAnnotation)
+            }
+
+            override fun onClickOptions(annotation: br.com.fenix.bilingualreader.model.interfaces.Annotation, view: View, position: Int) {
+                if (annotation.type == Type.BOOK) {
+                    val wrapper = ContextThemeWrapper(requireContext(), R.style.PopupMenu)
+                    val popup = PopupMenu(wrapper, view, 0, R.attr.popupMenuStyle, R.style.PopupMenu)
+                    popup.menuInflater.inflate(R.menu.menu_item_book_annotation, popup.menu)
+
+                    if ((annotation as BookAnnotation).markType != MarkType.Annotation)
+                        popup.menu.removeItem(R.id.menu_item_item_book_annotation_change_detach)
+
+                    popup.setOnMenuItemClickListener { item ->
+                        when (item.itemId) {
+                            R.id.menu_item_book_annotation_favorite -> {
+                                annotation.favorite = !annotation.favorite
+                                mViewModel.save(annotation)
+                                notifyDataSet(position)
+                            }
+
+                            R.id.menu_item_item_book_annotation_delete -> {
+                                deleteAnnotation(annotation, position)
+                            }
+
+                            R.id.menu_item_item_book_annotation_change_detach -> {
+                                val colors = Util.getColors(requireContext())
+                                val items = colors.keys.toTypedArray()
+
+                                val title = LinearLayout(requireContext())
+                                title.orientation = LinearLayout.VERTICAL
+                                title.setPadding(resources.getDimensionPixelOffset(R.dimen.title_index_dialog_padding))
+                                val name = TextView(requireContext())
+                                name.text = getString(R.string.book_annotation_change_detach_title)
+                                name.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_index_dialog_size))
+                                name.setTextColor(requireContext().getColorFromAttr(R.attr.colorOnBackground))
+                                title.addView(name)
+                                val index = TextView(requireContext())
+                                index.text = getString(R.string.book_annotation_change_detach_description)
+                                index.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_small_index_dialog_size))
+                                index.setTextColor(requireContext().getColorFromAttr(R.attr.colorOnSecondary))
+                                title.addView(index)
+
+                                MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+                                    .setCustomTitle(title)
+                                    .setItems(items) { _, selected ->
+                                        val color = colors[items[selected]]
+                                        if (color != null) {
+                                            annotation.color = color
+                                            mViewModel.save(annotation)
+                                            notifyDataSet(position)
+                                        }
+                                    }.show()
+                            }
+                        }
+                        true
+                    }
+
+                    popup.show()
                 }
-                PopupAnnotations(requireContext()).popup(annotation, onDelete) { alter ->
-                    if (alter)
-                        notifyDataSet(position)
+            }
+
+            override fun onClickNote(annotation: br.com.fenix.bilingualreader.model.interfaces.Annotation, position: Int) {
+                if (annotation.type == Type.BOOK) {
+                    val onDelete = { obj: BookAnnotation ->
+                        mViewModel.delete(obj)
+                        true
+                    }
+                    PopupAnnotations(requireContext()).popup(annotation as BookAnnotation, onDelete) { alter ->
+                        if (alter)
+                            notifyDataSet(position)
+                    }
                 }
             }
 
@@ -418,9 +466,16 @@ class AnnotationFragment : Fragment(), AnnotationListener {
             val position = viewHolder.bindingAdapterPosition
             deleteAnnotation(annotation, position)
         }
+
+        override fun getSwipeDirs (recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
+            if (viewHolder is AnnotationRootViewHolder || viewHolder is AnnotationTitleViewHolder)
+                return 0
+
+            return super.getSwipeDirs(recyclerView, viewHolder)
+        }
     }
 
-    private fun deleteAnnotation(annotation: BookAnnotation, position: Int) {
+    private fun deleteAnnotation(annotation: br.com.fenix.bilingualreader.model.interfaces.Annotation, position: Int) {
         var excluded = false
         val dialog: AlertDialog =
             MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
@@ -428,7 +483,7 @@ class AnnotationFragment : Fragment(), AnnotationListener {
                 .setMessage(
                     getString(
                         R.string.book_annotation_delete_description,
-                        getString(annotation.type.getDescription()).lowercase()
+                        getString(annotation.markType.getDescription()).lowercase()
                     )
                 )
                 .setPositiveButton(

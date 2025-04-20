@@ -7,6 +7,7 @@ import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.model.enums.MarkType
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.Annotation
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.Serializable
@@ -28,13 +29,13 @@ data class MangaAnnotation(
     @ColumnInfo(name = DataBaseConsts.MANGA_ANNOTATION.COLUMNS.PAGES)
     var pages: Int,
     @ColumnInfo(name = DataBaseConsts.MANGA_ANNOTATION.COLUMNS.TYPE)
-    val type: MarkType,
+    override val markType: MarkType,
     @ColumnInfo(name = DataBaseConsts.MANGA_ANNOTATION.COLUMNS.CHAPTER)
-    var chapter: String,
+    override var chapter: String,
     @ColumnInfo(name = DataBaseConsts.MANGA_ANNOTATION.COLUMNS.FOLDER)
     var folder: String,
     @ColumnInfo(name = DataBaseConsts.MANGA_ANNOTATION.COLUMNS.ANNOTATION)
-    var annotation: String,
+    override var annotation: String,
     @ColumnInfo(name = DataBaseConsts.MANGA_ANNOTATION.COLUMNS.ALTERATION)
     var alteration: LocalDateTime,
     @ColumnInfo(name = DataBaseConsts.MANGA_ANNOTATION.COLUMNS.CREATED)
@@ -42,6 +43,8 @@ data class MangaAnnotation(
 ) : Serializable, Annotation {
 
     //For a annotation title
+    @Ignore
+    override val type: Type = Type.MANGA
     @Ignore
     override var isRoot: Boolean = false
     @Ignore
@@ -68,7 +71,7 @@ data class MangaAnnotation(
     
     @Ignore //For a annotation title
     constructor(id_manga: Long, chapter: String, folder: String, annotation: String, isRoot: Boolean = false, isTitle: Boolean = false) : this(
-        null, id_manga, 0, 0, MarkType.Annotation, chapter, folder, annotation, LocalDateTime.now(), LocalDateTime.now()
+        null, id_manga, -1, -1, MarkType.PageMark, chapter, folder, annotation, LocalDateTime.now(), LocalDateTime.now()
     ) {
         this.isRoot = isRoot
         this.isTitle = isTitle
@@ -77,7 +80,7 @@ data class MangaAnnotation(
 
     @Ignore
     constructor(other: MangaAnnotation) : this(
-        other.id, other.id_parent, other.page, other.pages, other.type, other.chapter, other.folder, other.annotation, other.alteration, other.created
+        other.id, other.id_parent, other.page, other.pages, other.markType, other.chapter, other.folder, other.annotation, other.alteration, other.created
     ) {
         this.count = other.count
         this.isTitle = other.isTitle
@@ -105,7 +108,7 @@ data class MangaAnnotation(
         if (id_parent != other.id_parent) return false
         if (page != other.page) return false
         if (pages != other.pages) return false
-        if (type != other.type) return false
+        if (markType != other.markType) return false
 
         return true
     }
@@ -115,7 +118,7 @@ data class MangaAnnotation(
         result = 31 * result + id_parent.hashCode()
         result = 31 * result + page
         result = 31 * result + pages
-        result = 31 * result + type.hashCode()
+        result = 31 * result + markType.hashCode()
         return result
     }
 

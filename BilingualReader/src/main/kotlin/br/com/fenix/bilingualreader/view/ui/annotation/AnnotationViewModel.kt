@@ -8,11 +8,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
+import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
 import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.MarkType
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.Annotation
 import br.com.fenix.bilingualreader.service.repository.BookAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.BookRepository
+import br.com.fenix.bilingualreader.service.repository.MangaAnnotationRepository
+import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import org.slf4j.LoggerFactory
 import java.util.Locale
 import java.util.Objects
@@ -21,10 +26,12 @@ import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 
 class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filterable {
 
-    private val mRepository: BookAnnotationRepository = BookAnnotationRepository(app.applicationContext)
-    private val mRepositoryBook: BookRepository = BookRepository(app.applicationContext)
-
     private val mLOGGER = LoggerFactory.getLogger(AnnotationViewModel::class.java)
+
+    private val mBookAnnotationRepository: BookAnnotationRepository = BookAnnotationRepository(app.applicationContext)
+    private val mBookRepository: BookRepository = BookRepository(app.applicationContext)
+    private val mMangaAnnotationRepository: MangaAnnotationRepository = MangaAnnotationRepository(app.applicationContext)
+    private val mMangaRepository: MangaRepository = MangaRepository(app.applicationContext)
 
     private var mAnnotationFull = MutableLiveData<MutableList<Annotation>>(mutableListOf())
     private var mAnnotation: MutableLiveData<MutableList<Annotation>> = MutableLiveData(arrayListOf())
@@ -43,27 +50,49 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
     private var mChapterFilter: MutableLiveData<Map<String, Float>> = MutableLiveData(mapOf())
     val chapterFilter: LiveData<Map<String, Float>> = mChapterFilter
 
+    // --------------------------------------------------------- BOOK ANNOTATION ---------------------------------------------------------
+
     fun save(obj: BookAnnotation) {
         if (obj.id != null)
-            mRepository.update(obj)
+            mBookAnnotationRepository.update(obj)
         else
-            mRepository.save(obj)
+            mBookAnnotationRepository.save(obj)
     }
 
     fun delete(obj: BookAnnotation) {
-        mRepository.delete(obj)
+        mBookAnnotationRepository.delete(obj)
         remove(obj)
     }
 
+    fun getBook(id: Long): Book? = mBookRepository.get(id)
+
+    // --------------------------------------------------------- MANGA ANNOTATION ---------------------------------------------------------
+
+    fun save(obj: MangaAnnotation) {
+        if (obj.id != null)
+            mMangaAnnotationRepository.update(obj)
+        else
+            mMangaAnnotationRepository.save(obj)
+    }
+
+    fun delete(obj: MangaAnnotation) {
+        mMangaAnnotationRepository.delete(obj)
+        remove(obj)
+    }
+
+    fun getManga(id: Long): Manga? = mMangaRepository.get(id)
+
+    // --------------------------------------------------------- ANNOTATION ---------------------------------------------------------
+
     fun findAll() {
         val list = mutableListOf<Annotation>()
-        val annotations = mRepository.findAllOrderByBook()
+        val annotationsBook = mBookAnnotationRepository.findAllOrderByBook()
         var root: Annotation? = null
         var parent: Annotation? = null
-        for (annotation in annotations) {
+        for (annotation in annotationsBook) {
             if (list.none { it.isRoot && it.id_parent == annotation.id_parent }) {
-                val book = mRepositoryBook.get(annotation.id_parent) ?: continue
-                root = BookAnnotation(book.id!!, 0f, "", book.title, book.fileName, isRoot = true, isTitle = true)
+                val book = mBookRepository.get(annotation.id_parent) ?: continue
+                root = BookAnnotation(book.id!!, 0f, book.title, "", book.fileName, isRoot = true, isTitle = true)
                 list.add(root)
                 parent = null
             }
@@ -80,19 +109,44 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
             list.add(annotation)
         }
 
+        val annotationsManga = mMangaAnnotationRepository.findAllOrderByManga()
+        root = null
+        parent = null
+        for (annotation in annotationsManga) {
+            if (list.none { it.isRoot && it.id_parent == annotation.id_parent }) {
+                val manga = mMangaRepository.get(annotation.id_parent) ?: continue
+                root = MangaAnnotation(manga.id!!, manga.title, manga.fileName, "", isRoot = true, isTitle = true)
+                list.add(root)
+                parent = null
+            }
+
+            if (list.none { it.isTitle && it.chapter == annotation.chapter }) {
+                parent = MangaAnnotation(parent?.id_parent ?: 0, annotation.chapter, "", "", isTitle = true)
+                parent.parent = root
+                list.add(parent)
+            }
+
+            annotation.parent = parent ?: root
+            parent?.let { it.count++ }
+
+            list.add(annotation)
+        }
+
         mAnnotationFull.value = list.toMutableList()
         mAnnotation.value = list.toMutableList()
 
         getChapters(mAnnotationFull.value!!)
     }
 
-    fun getBook(id: Long): Book? = mRepositoryBook.get(id)
-
     private fun getChapters(list: List<Annotation>) {
-        val chapters = if (list.isNotEmpty())
-            list.filterIsInstance<BookAnnotation>().sortedBy { it.chapter }.filter { it.chapter.isNotEmpty() }.associate { it.chapter to it.chapterNumber }
-        else
-            mapOf()
+        val chapters = mutableMapOf<String, Float>()
+
+        if (list.isNotEmpty()) {
+            val books = list.filterIsInstance<BookAnnotation>().sortedBy { it.chapter }.filter { it.chapter.isNotEmpty() }.associate { it.chapter to it.chapterNumber }
+            chapters.putAll(books)
+            val mangas = list.filterIsInstance<MangaAnnotation>().sortedBy { it.chapter }.filter { it.chapter.isNotEmpty() }.associate { it.chapter to it.page.toFloat() }
+            chapters.putAll(mangas)
+        }
 
         mChapters.value = chapters
 
@@ -104,17 +158,17 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
         }
     }
 
-    fun getAndRemove(position: Int): BookAnnotation? {
+    fun getAndRemove(position: Int): Annotation? {
         if (mAnnotation.value!![position].isTitle)
             return null
 
         val annotation = if (mAnnotation.value != null) mAnnotation.value!!.removeAt(position) else return null
         mAnnotationFull.value!!.remove(annotation)
         getChapters(mAnnotationFull.value!!)
-        return annotation as BookAnnotation
+        return annotation
     }
 
-    fun add(annotation: BookAnnotation, position: Int = -1) {
+    fun add(annotation: Annotation, position: Int = -1) {
         if (position > -1) {
             mAnnotation.value!!.add(position, annotation)
             mAnnotationFull.value!!.add(position, annotation)
@@ -125,7 +179,21 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
         getChapters(mAnnotationFull.value!!)
     }
 
-    fun remove(annotation: BookAnnotation) {
+    fun save(obj: Annotation) {
+        when (obj.type) {
+            Type.BOOK -> save(obj as BookAnnotation)
+            Type.MANGA -> save(obj as MangaAnnotation)
+        }
+    }
+
+    fun delete(obj: Annotation) {
+        when (obj.type) {
+            Type.BOOK -> delete(obj as BookAnnotation)
+            Type.MANGA -> delete(obj as MangaAnnotation)
+        }
+    }
+
+    fun remove(annotation: Annotation) {
         if (mAnnotationFull.value != null) {
             mAnnotation.value!!.remove(annotation)
             mAnnotationFull.value!!.remove(annotation)
@@ -207,28 +275,28 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
         if (annotation == null || annotation.isTitle)
             return false
 
-        val annotation = annotation as BookAnnotation
+        val annotation = annotation
         if (mTypeFilter.value!!.isNotEmpty()) {
             var condition = false
             mTypeFilter.value!!.forEach {
                 when (it) {
                     FilterType.Favorite -> {
-                        if (annotation.favorite)
+                        if (annotation is BookAnnotation && annotation.favorite)
                             condition = true
                     }
 
                     FilterType.Detach -> {
-                        if (annotation.type == MarkType.Annotation)
+                        if (annotation.markType == MarkType.Annotation)
                             condition = true
                     }
 
                     FilterType.PageMark -> {
-                        if (annotation.type == MarkType.PageMark)
+                        if (annotation.markType == MarkType.PageMark)
                             condition = true
                     }
 
                     FilterType.BookMark -> {
-                        if (annotation.type == MarkType.BookMark)
+                        if (annotation.markType == MarkType.BookMark)
                             condition = true
                     }
 
@@ -243,7 +311,7 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
         if (mColorFilter.value!!.isNotEmpty()) {
             var condition = false
             mColorFilter.value!!.forEach {
-                if (annotation.color == it)
+                if (annotation is BookAnnotation && annotation.color == it)
                     condition = true
             }
 
@@ -254,21 +322,36 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
         if (mChapterFilter.value!!.isNotEmpty()) {
             var condition = false
             mChapterFilter.value!!.forEach {
-                if (annotation.chapterNumber == it.value)
-                    condition = true
+                when (annotation.type) {
+                    Type.BOOK -> {
+                        if (annotation.chapterNumber == it.value)
+                            condition = true
+                    }
+                    Type.MANGA -> {
+                        if (annotation.chapter == it.key)
+                            condition = true
+                    }
+                }
             }
 
             if (!condition)
                 return false
         }
 
-        val text = annotation.text.lowercase(Locale.getDefault()).contains(filterPattern) || annotation.annotation.lowercase(Locale.getDefault()).contains(filterPattern)
-        return filterPattern.isEmpty() || text
+
+        val text = when (annotation) {
+            is BookAnnotation -> annotation.text.lowercase(Locale.getDefault()).contains(filterPattern)
+            is MangaAnnotation -> annotation.chapter.lowercase(Locale.getDefault()).contains(filterPattern)
+            else -> false
+        }
+
+        return filterPattern.isEmpty() || text || annotation.annotation.lowercase(Locale.getDefault()).contains(filterPattern)
     }
 
     private fun addParent(list: MutableList<Annotation>, annotation: Annotation) {
         if (annotation.parent == null || list.contains(annotation.parent))
             return
+
         addParent(list, annotation.parent!!)
         annotation.parent!!.count = 0
         list.add(annotation.parent!!)

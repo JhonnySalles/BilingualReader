@@ -9,11 +9,11 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.MarkType
-import br.com.fenix.bilingualreader.service.listener.BookAnnotationListener
+import br.com.fenix.bilingualreader.service.listener.AnnotationsListener
 import com.google.android.material.button.MaterialButton
 
 
-class BookAnnotationViewHolder(itemView: View, private val listener: BookAnnotationListener) : RecyclerView.ViewHolder(itemView) {
+class BookAnnotationViewHolder(itemView: View, private val listener: AnnotationsListener) : RecyclerView.ViewHolder(itemView) {
 
     fun bind(mark: BookAnnotation, position: Int) {
         val root = itemView.findViewById<LinearLayout>(R.id.book_annotation_root)
@@ -48,7 +48,7 @@ class BookAnnotationViewHolder(itemView: View, private val listener: BookAnnotat
 
         text.text = mark.text
 
-        if (mark.type == MarkType.PageMark) {
+        if (mark.markType == MarkType.PageMark) {
             title.text = itemView.context.getString(R.string.book_annotation_list_title_mark, mark.page + 1, mark.pages)
             note.text = ""
             color.visibility = View.GONE

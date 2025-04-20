@@ -123,12 +123,12 @@ data class ShareAnnotation(
     )
 
     constructor(annotation: BookAnnotation) : this(
-        annotation.page, annotation.pages, annotation.fontSize, annotation.type.toString(), annotation.chapterNumber, annotation.chapter, annotation.text,
+        annotation.page, annotation.pages, annotation.fontSize, annotation.markType.toString(), annotation.chapterNumber, annotation.chapter, annotation.text,
         Util.intArrayToString(annotation.range), annotation.annotation, annotation.favorite, annotation.color.toString(), GeneralConsts.dateTimeToDate(annotation.created)
     )
 
     constructor(annotation: MangaAnnotation) : this(
-        annotation.page, annotation.pages, 0f, annotation.type.toString(), 0f, annotation.chapter, annotation.folder,
+        annotation.page, annotation.pages, 0f, annotation.markType.toString(), 0f, annotation.chapter, annotation.folder,
         "", annotation.annotation, false, "", GeneralConsts.dateTimeToDate(annotation.created)
     )
 

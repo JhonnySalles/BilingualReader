@@ -41,7 +41,7 @@ import br.com.fenix.bilingualreader.model.enums.Filter
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.service.listener.AnnotationListener
-import br.com.fenix.bilingualreader.service.listener.BookAnnotationListener
+import br.com.fenix.bilingualreader.service.listener.AnnotationsListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
@@ -82,7 +82,7 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
     private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
 
     private lateinit var mRecyclerView: RecyclerView
-    private lateinit var mListener: BookAnnotationListener
+    private lateinit var mListener: AnnotationsListener
 
     private lateinit var mBook: Book
 
@@ -250,23 +250,23 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mListener = object : BookAnnotationListener {
-            override fun onClick(annotation: BookAnnotation) {
+        mListener = object : AnnotationsListener {
+            override fun onClick(annotation: br.com.fenix.bilingualreader.model.interfaces.Annotation) {
                 val bundle = Bundle()
-                bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK_ANNOTATION, annotation)
+                bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK_ANNOTATION, annotation as BookAnnotation)
                 (requireActivity() as MenuActivity).onBack(bundle)
             }
 
-            override fun onClickFavorite(annotation: BookAnnotation) {
-                mViewModel.save(annotation)
+            override fun onClickFavorite(annotation: br.com.fenix.bilingualreader.model.interfaces.Annotation) {
+                mViewModel.save(annotation as BookAnnotation)
             }
 
-            override fun onClickOptions(annotation: BookAnnotation, view: View, position: Int) {
+            override fun onClickOptions(annotation: br.com.fenix.bilingualreader.model.interfaces.Annotation, view: View, position: Int) {
                 val wrapper = ContextThemeWrapper(requireContext(), R.style.PopupMenu)
                 val popup = PopupMenu(wrapper, view, 0, R.attr.popupMenuStyle, R.style.PopupMenu)
                 popup.menuInflater.inflate(R.menu.menu_item_book_annotation, popup.menu)
 
-                if (annotation.type != MarkType.Annotation)
+                if ((annotation as BookAnnotation).markType != MarkType.Annotation)
                     popup.menu.removeItem(R.id.menu_item_item_book_annotation_change_detach)
 
                 popup.setOnMenuItemClickListener { item ->
@@ -315,12 +315,12 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
                 popup.show()
             }
 
-            override fun onClickNote(annotation: BookAnnotation, position: Int) {
+            override fun onClickNote(annotation: br.com.fenix.bilingualreader.model.interfaces.Annotation, position: Int) {
                 val onDelete = { obj: BookAnnotation ->
                     mViewModel.delete(obj)
                     true
                 }
-                PopupAnnotations(requireContext()).popup(annotation, onDelete) { alter ->
+                PopupAnnotations(requireContext()).popup(annotation as BookAnnotation, onDelete) { alter ->
                     if (alter)
                         notifyDataSet(position)
                 }
@@ -421,7 +421,7 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
                 .setMessage(
                     getString(
                         R.string.book_annotation_delete_description,
-                        getString(annotation.type.getDescription()).lowercase()
+                        getString(annotation.markType.getDescription()).lowercase()
                     )
                 )
                 .setPositiveButton(
