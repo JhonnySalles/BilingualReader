@@ -30,7 +30,7 @@
                     <path
                         android:name="chapters_point_1"
                         android:pathData="M 31.993 13.327 L 31.993 14.121 L 32.787 14.121 L 32.787 13.327 Z"
-                        android:fillColor="?attr/colorPrimary"/>
+                        android:fillColor="@android:color/black"/>
                     <path
                         android:name="chapters_check_1"
                         android:pathData="M 32.258 13.592 L 32.258 13.856 L 32.522 13.856 L 32.522 13.592 Z"
@@ -43,7 +43,7 @@
                     <path
                         android:name="chapters_point_2"
                         android:pathData="M 31.993 14.65 L 31.993 15.444 L 32.787 15.444 L 32.787 14.65 Z"
-                        android:fillColor="?attr/colorPrimary"/>
+                        android:fillColor="@android:color/black"/>
                     <path
                         android:name="chapters_check_2"
                         android:pathData="M 32.258 14.915 L 32.258 15.179 L 32.522 15.179 L 32.522 14.915 Z"
@@ -56,7 +56,7 @@
                     <path
                         android:name="chapters_point_3"
                         android:pathData="M 31.993 15.973 L 31.993 16.767 L 32.787 16.767 L 32.787 15.973 Z"
-                        android:fillColor="?attr/colorPrimary"/>
+                        android:fillColor="@android:color/black"/>
                     <path
                         android:name="chapters_check_3"
                         android:pathData="M 32.258 16.238 L 32.258 16.502 L 32.522 16.502 L 32.522 16.238 Z"
@@ -68,7 +68,7 @@
                     <path
                         android:name="chapters_line_1"
                         android:pathData="M 33.316 13.592 L 33.316 13.856 L 35.433 13.856 L 35.433 13.592 Z"
-                        android:fillColor="?attr/colorPrimary"/>
+                        android:fillColor="@android:color/black"/>
                 </group>
                 <group
                     android:name="chapters_line_animation_2"
@@ -76,7 +76,7 @@
                     <path
                         android:name="chapters_line_2"
                         android:pathData="M 33.316 14.915 L 33.316 15.179 L 35.433 15.179 L 35.433 14.915 Z"
-                        android:fillColor="?attr/colorPrimary"/>
+                        android:fillColor="@android:color/black"/>
                 </group>
                 <group
                     android:name="chapters_line_animation_3"
@@ -84,7 +84,7 @@
                     <path
                         android:name="chapters_line_3"
                         android:pathData="M 33.316 16.238 L 33.316 16.502 L 35.433 16.502 L 35.433 16.238 Z"
-                        android:fillColor="?attr/colorPrimary"/>
+                        android:fillColor="@android:color/black"/>
                 </group>
             </group>
         </vector>

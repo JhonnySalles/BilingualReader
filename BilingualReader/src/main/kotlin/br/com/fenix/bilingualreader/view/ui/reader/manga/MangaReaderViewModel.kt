@@ -398,9 +398,43 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
                     Util.destroyParse(parse)
                 }
             }
-        }
+        } else if (SharedData.isImageNull())
+            refreshImageChapter(manga)
 
         return true
+    }
+
+    private fun refreshImageChapter(manga: Manga) {
+        val parse = ParseFactory.create(manga.file) ?: return
+        isLoadChapters = true
+        stopLoadChapters = false
+
+        if (parse is RarParse) {
+            val cacheDir = File(GeneralConsts.getCacheDir(app.applicationContext), GeneralConsts.CACHE_FOLDER.IMAGE)
+            (parse as RarParse?)!!.setCacheDirectory(cacheDir)
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val deferred = async {
+                    for (page in SharedData.chapters.value!!) {
+                        if (stopLoadChapters)
+                            break
+
+                        if (page.image != null)
+                            continue
+
+                        page.image = loadImage(parse, page.number, false)
+                        withContext(Dispatchers.Main) { SharedData.callListeners(page.number) }
+                    }
+                }
+
+                deferred.await()
+                isLoadChapters = false
+            } finally {
+                Util.destroyParse(parse)
+            }
+        }
     }
 
     // --------------------------------------------------------- Manga - Annottation ---------------------------------------------------------

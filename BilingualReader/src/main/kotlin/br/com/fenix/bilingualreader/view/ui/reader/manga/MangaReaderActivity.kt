@@ -355,11 +355,11 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 this.state = BottomSheetBehavior.STATE_COLLAPSED
                 mBottomSheetConfigurations = this
             }
-            mBottomSheetConfigurations.isDraggable = false
+            mBottomSheetConfigurations.isDraggable = true
 
             findViewById<ImageView>(R.id.popup_manga_configurations_center_button).setOnClickListener {
                 if (mBottomSheetConfigurations.state == BottomSheetBehavior.STATE_COLLAPSED)
-                    mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_EXPANDED
+                    mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_HALF_EXPANDED
                 else
                     mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_COLLAPSED
             }

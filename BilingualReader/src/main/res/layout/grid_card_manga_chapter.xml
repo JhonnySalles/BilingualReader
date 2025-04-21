@@ -37,7 +37,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="?attr/textAppearanceHeadline6"
-            android:textColor="?attr/colorPrimaryInverse"
+            android:textColor="?attr/colorOutline"
             android:textSize="@dimen/manga_chapter_number_size"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

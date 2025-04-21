@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
+        android:animateLayoutChanges="true"
         tools:context=".view.ui.reader.manga.MangaReaderActivity">
 
         <FrameLayout
@@ -116,7 +117,7 @@
             android:id="@+id/popup_manga_configurations"
             style="@style/AppBackground.PopupBottom"
             android:layout_width="match_parent"
-            android:layout_height="350dp"
+            android:layout_height="500dp"
             android:layout_alignParentBottom="true"
             android:fitsSystemWindows="false"
             android:layout_gravity="center_horizontal"

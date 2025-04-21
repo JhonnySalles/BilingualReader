@@ -827,9 +827,38 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 }
                 isLoadChapters = false
             }
-        }
+        } else if (SharedData.isImageNull())
+            refreshImageChapter(context, parse)
 
         return true
+    }
+
+    private fun refreshImageChapter(context: Context, parse: DocumentParse) {
+        val textView = TextView(context)
+        changeTextStyle(textView)
+        textView.layoutParams.width = Resources.getSystem().displayMetrics.widthPixels
+        textView.layoutParams.height = Resources.getSystem().displayMetrics.heightPixels
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val deferred = async {
+                for (chapter in SharedData.chapters.value!!) {
+                    if (stopLoadChapters)
+                        break
+
+                    if (chapter.isTitle || chapter.image != null)
+                        continue
+
+                    chapter.image = loadImage(context, parse, chapter.number, textView)
+                    withContext(Dispatchers.Main) {
+                        if (!stopLoadChapters)
+                            SharedData.callListeners(chapter.number)
+                    }
+                }
+            }
+
+            deferred.await()
+            isLoadChapters = false
+        }
     }
 
 }
