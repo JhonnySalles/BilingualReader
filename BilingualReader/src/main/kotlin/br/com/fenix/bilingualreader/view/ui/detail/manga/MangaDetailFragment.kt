@@ -456,11 +456,13 @@ class MangaDetailFragment : Fragment() {
                 } else
                     mLocalInformationComicInfoBookMarksContent.visibility = View.GONE
 
-                val genres = ListUtil.listFromString(it.genres)
-                if (genres.isNotEmpty())
-                    (mLocalInformationComicInfoTags.adapter as TagsCardAdapter).updateList(genres.toMutableList())
-                else
-                    (mLocalInformationComicInfoTags.adapter as TagsCardAdapter).clearList()
+                mViewModel.manga.value.let { m ->
+                    val genres = ListUtil.listFromString(m?.genre ?: "")
+                    if (genres.isNotEmpty())
+                        (mLocalInformationComicInfoTags.adapter as TagsCardAdapter).updateList(genres.toMutableList())
+                    else
+                        (mLocalInformationComicInfoTags.adapter as TagsCardAdapter).clearList()
+                }
 
                 mLocalInformationComicInfo.visibility =
                     if (mLocalInformationComicInfoStoryArch.visibility == View.VISIBLE ||
