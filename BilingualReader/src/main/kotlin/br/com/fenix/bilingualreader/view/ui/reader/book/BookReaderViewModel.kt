@@ -147,7 +147,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private fun getFontColor(): String = if (isDark) "#ffffff" else "#000000"
     private fun getFontType(): String = fontType.value?.name ?: FontType.TimesNewRoman.name
 
-    private fun getDiffer(): Float = if (isJapanese) DocumentParse.BOOK_FONT_JAPANESE_SIZE_DIFFER else DocumentParse.BOOK_FONT_SIZE_DIFFER
+    private fun getDiffer(): Float = if (isJapanese) (DocumentParse.BOOK_FONT_JAPANESE_SIZE_DIFFER * if (isFurigana) 1.5f else 1f ) else DocumentParse.BOOK_FONT_SIZE_DIFFER
     fun getFontSize(isBook: Boolean = false): Float = (if (isBook) fontSize.value!! + getDiffer() else fontSize.value!!)
 
     fun isJapaneseStyle() = isJapanese && isJapaneseStyle
