@@ -51,11 +51,11 @@
         </ScrollView>
 
         <eightbitlab.com.blurview.BlurView
-            android:id="@+id/fragment_statistics_progress"
+            android:id="@+id/statistics_progress"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
-            app:blurOverlayColor="@color/statistics_overlay_semi_transparent"
+            app:blurOverlayColor="@color/overlay_semi_transparent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -67,7 +67,7 @@
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:indeterminate="true"
-                app:indicatorSize="@dimen/statistics_loading_size"
+                app:indicatorSize="@dimen/overlay_loading_size"
                 app:rippleColor="?attr/colorPrimaryContainer"
                 app:indicatorColor="?attr/colorPrimaryContainer" />
 

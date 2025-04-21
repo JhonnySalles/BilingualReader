@@ -4,6 +4,8 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +17,8 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Statistics
@@ -104,6 +108,8 @@ class StatisticsFragment : Fragment() {
     private lateinit var mBookChartLibraryAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mBookChart: LineChart
 
+    private var mLoading = MutableLiveData(false)
+
     private var mBookSelectYear = LocalDateTime.now().year
     private lateinit var mBookSelectLibrary: Library
 
@@ -116,7 +122,7 @@ class StatisticsFragment : Fragment() {
 
         mRoot = view.findViewById(R.id.frame_statistics_root)
         mContent = view.findViewById(R.id.frame_statistics_content)
-        mProgress = view.findViewById(R.id.fragment_statistics_progress)
+        mProgress = view.findViewById(R.id.statistics_progress)
 
         mBookReading = view.findViewById(R.id.statistics_book_reading)
         mBookToRead = view.findViewById(R.id.statistics_book_to_read)
@@ -160,19 +166,24 @@ class StatisticsFragment : Fragment() {
         mMangaSelectLibrary = Library(null, mDefaultAllLibraries)
         mBookSelectLibrary = Library(null, mDefaultAllLibraries)
 
+
         val background = requireActivity().window.decorView.background
 
         mProgress.setupWith(mRoot, RenderScriptBlur(requireContext()))
             .setFrameClearDrawable(background)
             .setBlurRadius(10F)
+        mLoading.value = true
+
+        mLoading.observe(viewLifecycleOwner) {
+            mProgress.visibility = if (it) View.VISIBLE else View.GONE
+        }
 
         loadStatistics()
     }
 
     private fun loadStatistics() {
         try {
-            mProgress.visibility = View.VISIBLE
-
+            mLoading.value = true
             val statistics = mRepository.statistics()
 
             for (statistic in statistics) {
@@ -230,11 +241,11 @@ class StatisticsFragment : Fragment() {
                 if (librariesBook.contains(selected)) {
                     mBookSelectLibrary = librariesBook[selected]!!
                     try {
-                        mProgress.visibility = View.VISIBLE
+                        mLoading.value = true
                         val id = if (mDefaultAllLibraries == mBookSelectLibrary.title) null else mBookSelectLibrary.id
                         setChartData(mBookChart, getData(mRepository.statistics(Type.BOOK, mBookSelectYear, id), mBookSelectYear))
                     } finally {
-                        mProgress.visibility = View.GONE
+                        mLoading.value = false
                     }
                 }
             }
@@ -251,11 +262,11 @@ class StatisticsFragment : Fragment() {
                 if (librariesManga.contains(selected)) {
                     mMangaSelectLibrary = librariesManga[selected]!!
                     try {
-                        mProgress.visibility = View.VISIBLE
+                        mLoading.value = true
                         val id = if (mDefaultAllLibraries == mMangaSelectLibrary.title) null else mMangaSelectLibrary.id
                         setChartData(mMangaChart, getData(mRepository.statistics(Type.MANGA, mMangaSelectYear, id), mMangaSelectYear))
                     } finally {
-                        mProgress.visibility = View.GONE
+                        mLoading.value = false
                     }
                 }
             }
@@ -270,12 +281,12 @@ class StatisticsFragment : Fragment() {
             mMangaYearAutoComplete.setAdapter(ArrayAdapter(requireContext(), R.layout.list_item, years.sortedDescending().toTypedArray()))
             mMangaYearAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
                 try {
-                    mProgress.visibility = View.VISIBLE
+                    mLoading.value = true
                     val selected = parent.getItemAtPosition(position).toString().toInt()
                     val id = if (mDefaultAllLibraries == mMangaSelectLibrary.title) null else mMangaSelectLibrary.id
                     setChartData(mMangaChart, getData(mRepository.statistics(Type.MANGA, selected, id), selected))
                 } finally {
-                    mProgress.visibility = View.GONE
+                    mLoading.value = false
                 }
             }
             val mangaYear = years.last()
@@ -289,12 +300,12 @@ class StatisticsFragment : Fragment() {
             mBookYearAutoComplete.setAdapter(ArrayAdapter(requireContext(), R.layout.list_item, years.sortedDescending().toTypedArray()))
             mBookYearAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
                 try {
-                    mProgress.visibility = View.VISIBLE
+                    mLoading.value = true
                     val selected = parent.getItemAtPosition(position).toString().toInt()
                     val id = if (mDefaultAllLibraries == mBookSelectLibrary.title) null else mBookSelectLibrary.id
                     setChartData(mBookChart, getData(mRepository.statistics(Type.BOOK, selected, id), selected))
                 } finally {
-                    mProgress.visibility = View.GONE
+                    mLoading.value = false
                 }
             }
             val bookYear = years.last()
@@ -303,7 +314,7 @@ class StatisticsFragment : Fragment() {
             setChartData(mBookChart, getData(mRepository.statistics(Type.BOOK, bookYear, null), bookYear))
             setChartData(mMangaChart, getData(mRepository.statistics(Type.MANGA, mangaYear, null), mangaYear))
         } finally {
-            mProgress.visibility = View.GONE
+            Handler(Looper.getMainLooper()).postDelayed({ mLoading.value = false }, 1000)
         }
     }
 
