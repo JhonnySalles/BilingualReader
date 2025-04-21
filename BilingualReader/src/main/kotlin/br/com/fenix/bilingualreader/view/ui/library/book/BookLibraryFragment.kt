@@ -554,11 +554,6 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         mPopupLibraryTab = root.findViewById(R.id.book_library_popup_library_tab)
         mPopupLibraryView = root.findViewById(R.id.book_library_popup_library_view_pager)
 
-        root.findViewById<ImageView>(R.id.book_library_popup_menu_library_close)
-            .setOnClickListener {
-                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupLibrary)
-            }
-
         ComponentsUtil.setThemeColor(requireContext(), mRefreshLayout)
         mRefreshLayout.setOnRefreshListener(this)
         mRefreshLayout.isEnabled = true
@@ -599,13 +594,18 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         }
         mBottomSheet.isDraggable = true
 
-        root.findViewById<ImageView>(R.id.book_library_popup_menu_order_filter_touch)
-            .setOnClickListener {
+        root.findViewById<ImageView>(R.id.book_library_popup_menu_order_filter_touch).let {
+            it.setOnClickListener {
                 if (mBottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED)
                     mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
                 else
                     mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
             }
+            it.setOnLongClickListener {
+                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupLibrary)
+                true
+            }
+        }
 
         val viewFilterOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
         viewFilterOrderPagerAdapter.addFragment(

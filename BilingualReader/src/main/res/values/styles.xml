@@ -654,10 +654,6 @@
         <item name="android:textSize">12sp</item>
     </style>
 
-    <style name="TextNormal.BookAnnotation" parent="TextNormal">
-        <item name="tint">?attr/colorOnBackground</item>
-    </style>
-
     <style name="TextTitle.Statistics.Sector" parent="TextTitle">
         <item name="android:textAppearance">?attr/textAppearanceHeadlineMedium</item>
         <item name="android:textStyle">bold</item>

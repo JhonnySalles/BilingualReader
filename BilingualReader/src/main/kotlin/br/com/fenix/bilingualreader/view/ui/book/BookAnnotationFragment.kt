@@ -216,13 +216,18 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         }
         mBottomSheet.isDraggable = true
 
-        root.findViewById<ImageView>(R.id.book_annotation_popup_filter_touch)
-            .setOnClickListener {
+        root.findViewById<ImageView>(R.id.book_annotation_popup_filter_touch).let {
+            it.setOnClickListener {
                 if (mBottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED)
                     mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
                 else
                     mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
             }
+            it.setOnLongClickListener {
+                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupFilter)
+                true
+            }
+        }
 
         mPopupFilterTypeFragment = AnnotationPopupFilterType()
         mPopupFilterColorFragment = AnnotationPopupFilterColor()

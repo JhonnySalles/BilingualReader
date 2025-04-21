@@ -208,11 +208,17 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             }
             mBottomSheetTranslate.isDraggable = false
 
-            findViewById<ImageView>(R.id.popup_manga_translate_center_button).setOnClickListener {
-                if (mBottomSheetTranslate.state == BottomSheetBehavior.STATE_COLLAPSED)
-                    mBottomSheetTranslate.state = BottomSheetBehavior.STATE_EXPANDED
-                else
-                    mBottomSheetTranslate.state = BottomSheetBehavior.STATE_COLLAPSED
+            findViewById<ImageView>(R.id.popup_manga_translate_center_button).let {
+                it.setOnClickListener {
+                    if (mBottomSheetTranslate.state == BottomSheetBehavior.STATE_COLLAPSED)
+                        mBottomSheetTranslate.state = BottomSheetBehavior.STATE_EXPANDED
+                    else
+                        mBottomSheetTranslate.state = BottomSheetBehavior.STATE_COLLAPSED
+                }
+                it.setOnLongClickListener {
+                    AnimationUtil.animatePopupClose(this, mMenuPopupTranslate, !mMenuPopupBottomSheet, navigationColor = false)
+                    true
+                }
             }
         }
 
@@ -357,11 +363,17 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             }
             mBottomSheetConfigurations.isDraggable = true
 
-            findViewById<ImageView>(R.id.popup_manga_configurations_center_button).setOnClickListener {
-                if (mBottomSheetConfigurations.state == BottomSheetBehavior.STATE_COLLAPSED)
-                    mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_HALF_EXPANDED
-                else
-                    mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_COLLAPSED
+            findViewById<ImageView>(R.id.popup_manga_configurations_center_button).let {
+                it.setOnClickListener {
+                    if (mBottomSheetConfigurations.state == BottomSheetBehavior.STATE_COLLAPSED)
+                        mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+                    else
+                        mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_COLLAPSED
+                }
+                it.setOnLongClickListener {
+                    AnimationUtil.animatePopupClose(this, mMenuPopupConfigurations, !mMenuPopupBottomSheet, navigationColor = false)
+                    true
+                }
             }
         }
 

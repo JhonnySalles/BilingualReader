@@ -156,16 +156,18 @@ class BookReaderActivity : AppCompatActivity() {
             }
             mBottomSheetConfiguration.isDraggable = false
 
-            findViewById<ImageView>(R.id.popup_book_configuration_center_button).setOnClickListener {
-                if (mBottomSheetConfiguration.state == BottomSheetBehavior.STATE_COLLAPSED)
-                    mBottomSheetConfiguration.state = BottomSheetBehavior.STATE_EXPANDED
-                else
-                    mBottomSheetConfiguration.state = BottomSheetBehavior.STATE_COLLAPSED
+            findViewById<ImageView>(R.id.popup_book_configuration_center_button).let {
+                it.setOnClickListener {
+                    if (mBottomSheetConfiguration.state == BottomSheetBehavior.STATE_COLLAPSED)
+                        mBottomSheetConfiguration.state = BottomSheetBehavior.STATE_EXPANDED
+                    else
+                        mBottomSheetConfiguration.state = BottomSheetBehavior.STATE_COLLAPSED
+                }
+                it.setOnLongClickListener {
+                    AnimationUtil.animatePopupClose(this, mMenuPopupConfiguration, !mMenuPopupBottomSheet, navigationColor = false)
+                    true
+                }
             }
-        }
-
-        findViewById<ImageView>(R.id.popup_book_configuration_close_button).setOnClickListener {
-            AnimationUtil.animatePopupClose(this, mMenuPopupConfiguration, !mMenuPopupBottomSheet, navigationColor = false)
         }
 
         mPopupReaderFont = PopupBookFont()

@@ -143,8 +143,7 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
             }
         })
 
-        val searchSrcTextView =
-            miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
+        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
         searchSrcTextView.setTextAppearance(R.style.SearchShadow)
 
         MenuUtil.longClick(requireActivity(), R.id.menu_vocabulary_list_order) {
@@ -175,11 +174,7 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
         return super.onOptionsItemSelected(menuItem)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_vocabulary_manga, container, false)
 
         mMapOrder = hashMapOf(
@@ -292,13 +287,18 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
         }
         mBottomSheet.isDraggable = true
 
-        root.findViewById<ImageView>(R.id.vocabulary_manga_popup_menu_order_filter_touch)
-            .setOnClickListener {
+        root.findViewById<ImageView>(R.id.vocabulary_manga_popup_menu_order_filter_touch).let {
+            it.setOnClickListener {
                 if (mBottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED)
                     mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
                 else
                     mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
             }
+            it.setOnLongClickListener {
+                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupFilterOrder)
+                true
+            }
+        }
 
         val viewOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
         viewOrderPagerAdapter.addFragment(

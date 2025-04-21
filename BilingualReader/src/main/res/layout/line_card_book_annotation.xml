@@ -77,11 +77,11 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical">
                 <ImageView
-                    style="@style/TextNormal.BookAnnotation"
+                    android:id="@+id/book_annotation_note_icon"
                     android:layout_width="@dimen/book_annotation_note_icon_size"
                     android:layout_height="@dimen/book_annotation_note_icon_size"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/ic_book_mark_note"/>
+                    android:background="@drawable/ico_animated_book_mark_note"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/book_annotation_without_note"

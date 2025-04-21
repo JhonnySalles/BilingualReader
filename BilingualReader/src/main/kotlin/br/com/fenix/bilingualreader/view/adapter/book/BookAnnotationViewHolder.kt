@@ -1,7 +1,9 @@
 package br.com.fenix.bilingualreader.view.adapter.book
 
 import android.graphics.drawable.AnimatedVectorDrawable
+import android.graphics.drawable.AnimationDrawable
 import android.view.View
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -29,12 +31,24 @@ class BookAnnotationViewHolder(itemView: View, private val listener: Annotations
         val addNote = itemView.findViewById<MaterialButton>(R.id.book_annotation_without_note)
         val note = itemView.findViewById<TextView>(R.id.book_annotation_note)
 
+        var icoAnimation: AnimatedVectorDrawable
+        val iconNote = itemView.findViewById<ImageView>(R.id.book_annotation_note_icon).apply {
+            icoAnimation = background as AnimatedVectorDrawable
+        }
+
         root.setOnClickListener { listener.onClick(mark) }
-        addNote.setOnClickListener { listener.onClickNote(mark, position) }
+        addNote.setOnClickListener {
+            icoAnimation.start()
+            listener.onClickNote(mark, position)
+        }
         note.setOnClickListener { listener.onClickNote(mark, position) }
         options.setOnClickListener {
             (options.icon as AnimatedVectorDrawable).start()
             listener.onClickOptions(mark, options, position)
+        }
+
+        iconNote.setOnClickListener {
+            icoAnimation.start()
         }
 
         favorite.setOnClickListener {

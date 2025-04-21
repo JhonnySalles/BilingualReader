@@ -292,13 +292,18 @@ class VocabularyBookFragment : Fragment(), PopupOrderListener, SwipeRefreshLayou
         }
         mBottomSheet.isDraggable = true
 
-        root.findViewById<ImageView>(R.id.vocabulary_book_popup_menu_order_filter_touch)
-            .setOnClickListener {
+        root.findViewById<ImageView>(R.id.vocabulary_book_popup_menu_order_filter_touch).let {
+            it.setOnClickListener {
                 if (mBottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED)
                     mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
                 else
                     mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
             }
+            it.setOnLongClickListener {
+                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupFilterOrder)
+                true
+            }
+        }
 
         val viewOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
         viewOrderPagerAdapter.addFragment(
