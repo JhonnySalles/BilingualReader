@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.view.ui.annotation
 
 import android.app.Application
+import android.graphics.Bitmap
 import android.widget.Filter
 import android.widget.Filterable
 import androidx.lifecycle.AndroidViewModel
@@ -64,9 +65,15 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
             mBookAnnotationRepository.save(obj)
     }
 
-    fun delete(obj: BookAnnotation) {
+    /**
+     * Delete item on database and remove from list
+     *
+     * @param annotation Item remove
+     * @param refresh Callback function of refresh item, primary has index and second true if is remove
+     */
+    fun delete(obj: BookAnnotation, refresh: (index: Int, isRemove : Boolean) -> (Unit)) {
         mBookAnnotationRepository.delete(obj)
-        remove(obj)
+        remove(obj, refresh)
     }
 
     fun getBook(id: Long): Book? = mBookRepository.get(id)
@@ -80,9 +87,15 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
             mMangaAnnotationRepository.save(obj)
     }
 
-    fun delete(obj: MangaAnnotation) {
+    /**
+     * Delete item on database and remove from list
+     *
+     * @param annotation Item remove
+     * @param refresh Callback function of refresh item, primary has index and second true if is remove
+     */
+    fun delete(obj: MangaAnnotation, refresh: (index: Int, isRemove : Boolean) -> (Unit)) {
         mMangaAnnotationRepository.delete(obj)
-        remove(obj)
+        remove(obj, refresh)
     }
 
     fun getManga(id: Long): Manga? = mMangaRepository.get(id)
@@ -209,15 +222,50 @@ class AnnotationViewModel(var app: Application) : AndroidViewModel(app), Filtera
         }
     }
 
-    fun delete(obj: Annotation) {
+    /**
+     * Delete item on database and remove from list
+     *
+     * @param annotation Item remove
+     * @param refresh Callback function of refresh item, primary has index and second true if is remove
+     */
+    fun delete(obj: Annotation, refresh: (index: Int, isRemove : Boolean) -> (Unit)) {
         when (obj.type) {
-            Type.BOOK -> delete(obj as BookAnnotation)
-            Type.MANGA -> delete(obj as MangaAnnotation)
+            Type.BOOK -> delete(obj as BookAnnotation, refresh)
+            Type.MANGA -> delete(obj as MangaAnnotation, refresh)
         }
     }
 
-    fun remove(annotation: Annotation) {
+    /**
+     * Remove a item on list, and if necessary refresh or remove parent
+     *
+     * @param annotation Item remove
+     * @param refresh Callback function of refresh item, primary has index and second true if is remove
+     */
+    fun remove(annotation: Annotation, refresh: (index: Int, isRemove : Boolean) -> (Unit)) {
         if (mAnnotationFull.value != null) {
+            if (annotation.parent != null) {
+                val parent = annotation.parent!!
+                val index = mAnnotation.value!!.indexOf(parent)
+                parent.count--
+
+                if (parent.count <= 0) {
+                    mAnnotation.value!!.remove(parent)
+                    mAnnotationFull.value!!.remove(parent)
+                    refresh(index, true)
+
+                    if (parent.parent != null && parent.parent!!.isRoot) {
+                        val root = parent.parent!!
+                        if (mAnnotation.value!!.none { it.isTitle && it.type == root.type && it.parent != null && it.parent!!.id_parent == root.id_parent }) {
+                            val index = mAnnotation.value!!.indexOf(parent)
+                            mAnnotation.value!!.remove(root)
+                            mAnnotationFull.value!!.remove(root)
+                            refresh(index, true)
+                        }
+                    }
+                } else
+                    refresh(index, false)
+            }
+
             mAnnotation.value!!.remove(annotation)
             mAnnotationFull.value!!.remove(annotation)
             getChapters(mAnnotationFull.value!!)

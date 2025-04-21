@@ -116,7 +116,18 @@ class BookAnnotationViewModel(var app: Application) : AndroidViewModel(app), Fil
 
     fun remove(annotation: BookAnnotation) {
         if (mAnnotationFull.value != null) {
+            if (annotation.parent != null) {
+                val parent = annotation.parent!!
+                parent.count--
+
+                if (parent.count <= 0) {
+                    mAnnotation.value!!.remove(parent)
+                    mAnnotationFull.value!!.remove(parent)
+                }
+            }
+
             mAnnotation.value!!.remove(annotation)
+            mAnnotation.value = mAnnotation.value
             mAnnotationFull.value!!.remove(annotation)
             getChapters(mAnnotationFull.value!!)
         }

@@ -117,7 +117,13 @@ data class BookAnnotation(
         if (id_parent != other.id_parent) return false
         if (page != other.page) return false
         if (pages != other.pages) return false
+        if (chapterNumber != other.chapterNumber) return false
+        if (isRoot != other.isRoot) return false
+        if (isTitle != other.isTitle) return false
         if (markType != other.markType) return false
+        if (alteration != other.alteration) return false
+        if (created != other.created) return false
+        if (type != other.type) return false
 
         return true
     }
@@ -127,8 +133,15 @@ data class BookAnnotation(
         result = 31 * result + id_parent.hashCode()
         result = 31 * result + page
         result = 31 * result + pages
+        result = 31 * result + chapterNumber.hashCode()
+        result = 31 * result + isRoot.hashCode()
+        result = 31 * result + isTitle.hashCode()
         result = 31 * result + markType.hashCode()
+        result = 31 * result + alteration.hashCode()
+        result = 31 * result + created.hashCode()
+        result = 31 * result + type.hashCode()
         return result
     }
+
 
 }

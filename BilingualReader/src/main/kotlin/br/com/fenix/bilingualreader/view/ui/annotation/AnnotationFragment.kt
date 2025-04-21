@@ -398,7 +398,9 @@ class AnnotationFragment : Fragment(), AnnotationListener {
             override fun onClickNote(annotation: br.com.fenix.bilingualreader.model.interfaces.Annotation, position: Int) {
                 if (annotation.type == Type.BOOK) {
                     val onDelete = { obj: BookAnnotation ->
-                        mViewModel.delete(obj)
+                        mViewModel.delete(obj) { index, isRemove ->
+                            notifyDataSet(index, removed = isRemove)
+                        }
                         true
                     }
                     PopupAnnotations(requireContext()).popup(annotation as BookAnnotation, onDelete) { alter ->
@@ -548,7 +550,9 @@ class AnnotationFragment : Fragment(), AnnotationListener {
                 .setPositiveButton(
                     R.string.action_delete
                 ) { _, _ ->
-                    mViewModel.delete(annotation)
+                    mViewModel.delete(annotation) { index, isRemove ->
+                        notifyDataSet(index, removed = isRemove)
+                    }
                     notifyDataSet(position, removed = true)
                     excluded = true
                 }.setOnDismissListener {
