@@ -157,7 +157,10 @@ class AnnotationFragment : Fragment(), AnnotationListener {
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
-            R.id.menu_annotation_filters -> onOpenMenuFilter()
+            R.id.menu_annotation_filters -> {
+                (menuItem.icon as AnimatedVectorDrawable).start()
+                onOpenMenuFilter()
+            }
         }
         return super.onOptionsItemSelected(menuItem)
     }

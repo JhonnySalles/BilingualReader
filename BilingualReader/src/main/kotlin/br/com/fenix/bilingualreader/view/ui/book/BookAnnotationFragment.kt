@@ -131,7 +131,10 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
-            R.id.menu_book_annotation_filters -> onOpenMenuFilter()
+            R.id.menu_book_annotation_filters -> {
+                (menuItem.icon as AnimatedVectorDrawable).start()
+                onOpenMenuFilter()
+            }
         }
         return super.onOptionsItemSelected(menuItem)
     }
