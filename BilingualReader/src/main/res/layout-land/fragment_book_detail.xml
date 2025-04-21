@@ -98,7 +98,7 @@
                             style="@style/TextTitle.BookDetailSubTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
+                            android:layout_marginTop="@dimen/margin"
                             android:layout_marginBottom="2dp"
                             android:transitionName="transition_book_author"
                             android:textSize="@dimen/book_detail_author_size"/>
@@ -108,7 +108,7 @@
                             style="@style/TextNormal.BookDetail"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="10dp"
+                            android:layout_marginBottom="@dimen/margin"
                             android:textSize="@dimen/book_detail_chapter_size"/>
 
                         <LinearLayout
@@ -152,7 +152,7 @@
                             style="@style/TextNormal.BookDetail"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
+                            android:layout_marginTop="@dimen/margin"
                             android:layout_marginBottom="2dp"
                             android:textSize="@dimen/book_detail_folder_size"/>
 
@@ -174,7 +174,7 @@
                     style="@style/ProgressBar"
                     android:layout_width="match_parent"
                     android:layout_height="5dp"
-                    android:layout_margin="5dp"
+                    android:layout_margin="@dimen/margin_small"
                     android:transitionName="transition_progress_bar"/>
 
             </LinearLayout>
@@ -327,7 +327,7 @@
                     android:id="@+id/book_detail_information"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="@dimen/margin_small"
                     android:orientation="vertical">
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -351,7 +351,7 @@
                         style="@style/MaterialDivider"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="@dimen/margin"
                         android:layout_marginLeft="@dimen/margin"
                         android:layout_marginRight="@dimen/margin" />
 
@@ -359,16 +359,16 @@
                         style="@style/TextTitle.BookDetail"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="@dimen/margin_small"
                         android:text="@string/book_detail_information"
                         android:gravity="center_horizontal"/>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp">
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin">
 
                         <ImageView
                             android:id="@+id/book_detail_information_image"
@@ -377,7 +377,7 @@
                             android:maxHeight="@dimen/book_detail_information_related_image_max_size"
                             android:adjustViewBounds="true"
                             android:scaleType="centerCrop"
-                            android:layout_marginEnd="5dp"
+                            android:layout_marginEnd="@dimen/margin_small"
                             android:visibility="gone"/>
 
                         <TextView
@@ -395,9 +395,9 @@
                         style="@style/TextNormal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textSize="@dimen/book_detail_information_texts_size" />
 
                     <TextView
@@ -405,9 +405,9 @@
                         style="@style/TextNormal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textSize="@dimen/book_detail_information_texts_size" />
 
                     <TextView
@@ -415,18 +415,18 @@
                         style="@style/TextNormal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textSize="@dimen/book_detail_information_texts_size" />
 
                     <LinearLayout
                         android:id="@+id/book_detail_information_volume_book"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:orientation="horizontal">
                         <TextView
                             android:id="@+id/book_detail_information_isbn"
@@ -450,9 +450,9 @@
                         android:id="@+id/book_detail_information_volume_release"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:orientation="horizontal">
                         <TextView
                             android:id="@+id/book_detail_information_volume"
@@ -485,9 +485,9 @@
                         style="@style/TextNormal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textSize="@dimen/book_detail_information_texts_size" />
 
                     <TextView
@@ -495,17 +495,28 @@
                         style="@style/TextNormal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textSize="@dimen/book_detail_information_texts_size" />
+
+                    <org.lucasr.twowayview.TwoWayView
+                        android:id="@+id/book_detail_information_tags"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/book_detail_information_tags_height"
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:clipToPadding="false"
+                        android:drawSelectorOnTop="false"
+                        android:orientation="horizontal"
+                        android:scrollbarStyle="outsideOverlay"
+                        android:scrollbars="horizontal" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/book_detail_tags"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="@dimen/margin_small"
                     android:orientation="vertical">
 
                     <com.google.android.material.divider.MaterialDivider
@@ -522,7 +533,7 @@
                         style="@style/TextTitle.BookDetail"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="@dimen/margin_small"
                         android:layout_gravity="center_horizontal"
                         android:text="@string/book_detail_tags"/>
 
@@ -530,7 +541,7 @@
                         android:id="@+id/book_detail_information_tags_list"
                         android:layout_width="match_parent"
                         android:layout_height="120dp"
-                        android:layout_margin="5dp"
+                        android:layout_margin="@dimen/margin_small"
                         android:nestedScrollingEnabled="true"
                         android:divider="@drawable/line_list_divider"
                         android:dividerHeight="1dp"/>
@@ -540,7 +551,7 @@
                     android:id="@+id/book_detail_chapters"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="@dimen/margin_small"
                     android:orientation="vertical">
 
                     <com.google.android.material.divider.MaterialDivider
@@ -557,7 +568,7 @@
                         style="@style/TextTitle.BookDetail"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="@dimen/margin_small"
                         android:layout_gravity="center_horizontal"
                         android:text="@string/book_detail_chapters_title"/>
 
@@ -565,7 +576,7 @@
                         android:id="@+id/book_detail_chapters_list"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
-                        android:layout_margin="5dp"
+                        android:layout_margin="@dimen/margin_small"
                         android:nestedScrollingEnabled="true"
                         android:divider="@drawable/line_list_divider"
                         android:dividerHeight="1dp"/>
@@ -576,7 +587,7 @@
                     android:id="@+id/book_detail_files_link_detail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="@dimen/margin_small"
                     android:orientation="vertical"
                     android:visibility="gone">
 
@@ -584,7 +595,7 @@
                         style="@style/MaterialDivider"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="@dimen/margin"
                         android:layout_marginLeft="@dimen/margin"
                         android:layout_marginRight="@dimen/margin" />
 
@@ -596,13 +607,13 @@
                         android:layout_marginBottom="@dimen/margin_small"
                         android:text="@string/book_detail_file_links_title"
                         android:gravity="center_horizontal"
-                        android:layout_marginTop="5dp"/>
+                        android:layout_marginTop="@dimen/margin_small"/>
 
                     <ListView
                         android:id="@+id/book_detail_files_links_list"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
-                        android:layout_margin="5dp"
+                        android:layout_margin="@dimen/margin_small"
                         android:nestedScrollingEnabled="true"
                         android:divider="@drawable/line_list_divider"
                         android:dividerHeight="2dip"/>
@@ -613,7 +624,7 @@
                     android:id="@+id/book_detail_web_information"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="@dimen/margin_small"
                     android:orientation="vertical"
                     android:visibility="gone">
 
@@ -621,7 +632,7 @@
                         style="@style/MaterialDivider"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="@dimen/margin"
                         android:layout_marginLeft="@dimen/margin"
                         android:layout_marginRight="@dimen/margin" />
 
@@ -629,16 +640,16 @@
                         style="@style/TextTitle.BookDetail"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="@dimen/margin_small"
                         android:text="@string/book_detail_web_information"
                         android:gravity="center_horizontal"/>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp">
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin">
 
                         <ImageView
                             android:id="@+id/book_detail_web_information_image"
@@ -647,7 +658,7 @@
                             android:maxHeight="@dimen/book_detail_web_information_related_image_max_size"
                             android:adjustViewBounds="true"
                             android:scaleType="centerCrop"
-                            android:layout_marginEnd="5dp"
+                            android:layout_marginEnd="@dimen/margin_small"
                             android:visibility="gone"/>
 
                         <TextView
@@ -666,8 +677,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textAppearance="?attr/textAppearanceSubtitle2"
                         android:textSize="@dimen/book_detail_information_texts_size" />
 
@@ -677,8 +688,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textAppearance="?attr/textAppearanceSubtitle2"
                         android:textSize="@dimen/book_detail_information_texts_size" />
 
@@ -688,8 +699,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textAppearance="?attr/textAppearanceSubtitle2"
                         android:textSize="@dimen/book_detail_information_texts_size" />
 
@@ -699,8 +710,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textAppearance="?attr/textAppearanceSubtitle2"
                         android:textSize="@dimen/book_detail_information_texts_size" />
 
@@ -710,8 +721,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textAppearance="?attr/textAppearanceSubtitle2"
                         android:textSize="@dimen/book_detail_information_texts_size" />
 
@@ -721,8 +732,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textAppearance="?attr/textAppearanceSubtitle2"
                         android:textSize="@dimen/book_detail_information_texts_size" />
 
@@ -731,8 +742,8 @@
                         style="@style/TextTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:layout_marginTop="1dp"
                         android:textAppearance="?attr/textAppearanceSubtitle2"
                         android:textSize="@dimen/book_detail_web_information_origin_size" />
@@ -743,7 +754,7 @@
                     android:id="@+id/book_detail_web_information_relations"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="@dimen/margin_small"
                     android:orientation="vertical"
                     android:visibility="gone">
 
@@ -751,7 +762,7 @@
                         style="@style/MaterialDivider"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="@dimen/margin"
                         android:layout_marginLeft="@dimen/margin"
                         android:layout_marginRight="@dimen/margin"/>
 
@@ -761,15 +772,15 @@
                         android:layout_width="match_parent"
                         android:text="@string/book_detail_related"
                         android:gravity="center_horizontal"
-                        android:layout_marginTop="5dp"/>
+                        android:layout_marginTop="@dimen/margin_small"/>
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/book_detail_relations_lists"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginTop="@dimen/margin"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:nestedScrollingEnabled="true"
                         android:divider="@drawable/line_list_divider"
                         android:dividerHeight="1dip"/>
@@ -779,8 +790,8 @@
                         style="@style/TextTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textAppearance="?attr/textAppearanceSubtitle2"
                         android:textSize="@dimen/book_detail_web_information_origin_size" />
 

@@ -20,7 +20,7 @@
     <color name="text_select_blue">#002db3</color>
 
     <color name="manga_reader_detailTextInverse">#000000</color>
-    <color name="statistics_overlay_semi_transparent">#1a1a1aAA</color>
+    <color name="overlay_semi_transparent">#1a1a1aAA</color>
 
     <color name="manga_reader_fileLinkedBackground">#212121</color>
 

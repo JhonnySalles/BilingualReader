@@ -83,7 +83,7 @@
     <color name="manga_reader_splash_light_screen">#79f300</color>
     <color name="manga_reader_splash_night_screen">#59b300</color>
 
-    <color name="statistics_overlay_semi_transparent">#333333AA</color>
+    <color name="overlay_semi_transparent">#333333AA</color>
 
     <color name="manga_reader_detailTextInverse">#ffffff</color>
     <color name="manga_reader_readerTextTitleColor">#ffffff</color>

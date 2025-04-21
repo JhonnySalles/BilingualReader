@@ -31,7 +31,9 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ColorUtil
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
+import br.com.fenix.bilingualreader.util.helpers.ListUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
+import br.com.fenix.bilingualreader.view.adapter.detail.TagsCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.detail.manga.InformationRelatedCardAdapter
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
@@ -39,6 +41,7 @@ import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.lucasr.twowayview.TwoWayView
 import org.slf4j.LoggerFactory
 
 
@@ -104,6 +107,7 @@ class MangaDetailFragment : Fragment() {
     private lateinit var mLocalInformationComicInfoCharacters: TextView
     private lateinit var mLocalInformationComicInfoTeams: TextView
     private lateinit var mLocalInformationComicInfoLocations: TextView
+    private lateinit var mLocalInformationComicInfoTags: TwoWayView
 
     private lateinit var mLocalInformationComicInfoBookMarksContent: LinearLayout
     private lateinit var mLocalInformationComicInfoBookMarks: ListView
@@ -157,6 +161,7 @@ class MangaDetailFragment : Fragment() {
         mLocalInformationComicInfoCharacters = root.findViewById(R.id.manga_detail_local_information_comic_info_characters)
         mLocalInformationComicInfoTeams = root.findViewById(R.id.manga_detail_local_information_comic_info_teams)
         mLocalInformationComicInfoLocations = root.findViewById(R.id.manga_detail_local_information_comic_info_locations)
+        mLocalInformationComicInfoTags = root.findViewById(R.id.manga_detail_local_information_comic_info_tags)
 
         mLocalInformationComicInfoBookMarksContent = root.findViewById(R.id.manga_detail_local_information_comic_info_book_marks_content)
         mLocalInformationComicInfoBookMarks = root.findViewById(R.id.manga_detail_local_information_comic_info_book_marks)
@@ -199,10 +204,11 @@ class MangaDetailFragment : Fragment() {
 
         mImportVocabulary.setOnClickListener { mViewModel.importVocabulary() }
 
-        mSubtitlesList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mSubtitles)
-        mFileLinksList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mFileLinks)
-        mChaptersList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mChapters)
-        mLocalInformationComicInfoBookMarks.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mBookMarks)
+        mSubtitlesList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_detail, mSubtitles)
+        mFileLinksList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_detail, mFileLinks)
+        mChaptersList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_detail, mChapters)
+        mLocalInformationComicInfoBookMarks.adapter = ArrayAdapter(requireContext(), R.layout.list_item_detail, mBookMarks)
+        mLocalInformationComicInfoTags.adapter = TagsCardAdapter(requireContext(), mutableListOf())
 
         mWebInfoRelatedRelatedList.adapter = InformationRelatedCardAdapter()
         mWebInfoRelatedRelatedList.layoutManager = LinearLayoutManager(requireContext())
@@ -450,6 +456,12 @@ class MangaDetailFragment : Fragment() {
                 } else
                     mLocalInformationComicInfoBookMarksContent.visibility = View.GONE
 
+                val genres = ListUtil.listFromString(it.genres)
+                if (genres.isNotEmpty())
+                    (mLocalInformationComicInfoTags.adapter as TagsCardAdapter).updateList(genres.toMutableList())
+                else
+                    (mLocalInformationComicInfoTags.adapter as TagsCardAdapter).clearList()
+
                 mLocalInformationComicInfo.visibility =
                     if (mLocalInformationComicInfoStoryArch.visibility == View.VISIBLE ||
                         mLocalInformationComicInfoGenre.visibility == View.VISIBLE || mLocalInformationComicInfoCharacters.visibility == View.VISIBLE ||
@@ -472,6 +484,7 @@ class MangaDetailFragment : Fragment() {
                 mLocalInformationComicInfoCharacters.text = ""
                 mLocalInformationComicInfoTeams.text = ""
                 mLocalInformationComicInfoLocations.text = ""
+                (mLocalInformationComicInfoTags.adapter as TagsCardAdapter).clearList()
 
                 mLocalInformationVolumeReleasePublisherContent.visibility = View.GONE
                 mLocalInformationComicInfo.visibility = View.GONE

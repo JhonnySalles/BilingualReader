@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/list_item_tag_content"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/detail_list_tag_margin"
+    android:layout_marginEnd="@dimen/detail_list_tag_margin"
+    android:background="@drawable/item_list_tag"
+    android:orientation="vertical"
+    android:gravity="center">
+    <TextView
+        android:id="@+id/list_item_tag"
+        style="@style/TextNormal.ListTag"
+        android:textColor="@android:color/black"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/detail_list_tag_size"/>
+</LinearLayout>

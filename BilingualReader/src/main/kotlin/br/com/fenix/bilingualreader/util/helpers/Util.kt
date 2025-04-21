@@ -88,6 +88,7 @@ import kotlin.experimental.and
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlin.random.Random
 
 
 class Util {
@@ -1327,6 +1328,14 @@ class ColorUtil {
 
         fun getColor(exadecimal: String) : Int = android.graphics.Color.parseColor(exadecimal)
         fun getColor(@ColorInt color: Int) : String = String.format("#%06X", (0xFFFFFF and color))
+
+        fun randomColor(): Int {
+            val red = Random.nextInt(100, 256)
+            val green = Random.nextInt(100, 256)
+            val blue = Random.nextInt(100, 256)
+
+            return (0xFF shl 24) or (red shl 16) or (green shl 8) or blue
+        }
     }
 }
 
@@ -1371,6 +1380,19 @@ class PopupUtil {
 class ListUtil {
     companion object ListUtils {
         inline fun <T, R> Iterable<T>.mapToSet(transform: (T) -> R): Set<R> = mapTo(HashSet(), transform)
+
+        private val delimiters = listOf(';',',')
+        fun listFromString(value : String, delimiter: Char = ';') : List<String> = if (value.isEmpty()) listOf() else value.split(delimiter).filter { it.isNotEmpty() }
+
+        fun listFromString(value : String) : List<String> {
+            var list = listOf<String>()
+            for (delimiter in delimiters)
+                if (value.contains(delimiter)){
+                    list = listFromString(value, delimiter)
+                    break
+                }
+            return list
+        }
 
     }
 }

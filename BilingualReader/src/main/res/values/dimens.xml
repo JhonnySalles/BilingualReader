@@ -111,6 +111,10 @@
 
     <dimen name="book_list_padding">80dp</dimen>
 
+    <dimen name="detail_local_information_tags_radius">50dp</dimen>
+    <dimen name="detail_list_tag_size">10sp</dimen>
+    <dimen name="detail_list_tag_margin">5dp</dimen>
+
     <dimen name="manga_chapter_layout_width">100dp</dimen>
     <dimen name="manga_chapter_layout_height">150dp</dimen>
     <dimen name="manga_chapter_number_size">12sp</dimen>
@@ -153,7 +157,9 @@
     <dimen name="manga_detail_web_information_related_texts_size">10sp</dimen>
 
     <dimen name="manga_detail_local_information_comic_info_book_marks_size">12sp</dimen>
+    <dimen name="manga_detail_local_information_tags_height">25dp</dimen>
     <dimen name="manga_detail_local_information_texts_size">10sp</dimen>
+    <dimen name="manga_detail_list_texts_size">12sp</dimen>
 
     <dimen name="manga_page_link_layout_width">200dp</dimen>
     <dimen name="manga_page_link_layout_height">250dp</dimen>
@@ -187,6 +193,7 @@
     <dimen name="book_detail_information_related_title_size">14sp</dimen>
     <dimen name="book_detail_information_related_synopsis_size">12sp</dimen>
     <dimen name="book_detail_information_related_texts_size">10sp</dimen>
+    <dimen name="book_detail_information_tags_height">25dp</dimen>
 
     <dimen name="book_detail_web_information_synopsis_size">12sp</dimen>
     <dimen name="book_detail_web_information_origin_size">8sp</dimen>
@@ -371,7 +378,7 @@
     <dimen name="annotation_button_margin">5dp</dimen>
     <dimen name="annotation_list_padding">10dp</dimen>
 
-    <dimen name="statistics_loading_size">90dp</dimen>
+    <dimen name="overlay_loading_size">90dp</dimen>
     <dimen name="statistics_icon_size">30dp</dimen>
     <dimen name="statistics_chart_height">300dp</dimen>
     <dimen name="statistics_chart_label_font_size">3dp</dimen>

@@ -33,8 +33,10 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ColorUtil
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
+import br.com.fenix.bilingualreader.util.helpers.ListUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.view.adapter.detail.TagsCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.detail.manga.InformationRelatedCardAdapter
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
@@ -45,6 +47,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
+import org.lucasr.twowayview.TwoWayView
 import org.slf4j.LoggerFactory
 
 
@@ -91,6 +94,7 @@ class BookDetailFragment : Fragment() {
     private lateinit var mInformationIsbn: TextView
     private lateinit var mInformationGenres: TextView
     private lateinit var mInformationFile: TextView
+    private lateinit var mInformationTags: TwoWayView
     private lateinit var mTagsList: ListView
 
     private lateinit var mWebInformationContent: LinearLayout
@@ -166,6 +170,7 @@ class BookDetailFragment : Fragment() {
         mInformationIsbn = root.findViewById(R.id.book_detail_information_isbn)
         mInformationGenres = root.findViewById(R.id.book_detail_information_genres)
         mInformationFile = root.findViewById(R.id.book_detail_information_file)
+        mInformationTags = root.findViewById(R.id.book_detail_information_tags)
         mTagsList = root.findViewById(R.id.book_detail_information_tags_list)
 
         mWebInformationContent = root.findViewById(R.id.book_detail_web_information)
@@ -229,9 +234,10 @@ class BookDetailFragment : Fragment() {
             openVocabulary()
         }
 
-        mFileLinksList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mFileLinks)
-        mChaptersList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mChapters)
-        mTagsList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mTags)
+        mFileLinksList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_detail, mFileLinks)
+        mChaptersList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_detail, mChapters)
+        mTagsList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_detail, mTags)
+        mInformationTags.adapter = TagsCardAdapter(requireContext(), mutableListOf())
 
         mWebInfoRelatedRelatedList.adapter = InformationRelatedCardAdapter()
         mWebInfoRelatedRelatedList.layoutManager = LinearLayoutManager(requireContext())
@@ -411,6 +417,13 @@ class BookDetailFragment : Fragment() {
                 mInformationIsbn.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_isbn, it.isbn), HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mInformationGenres.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_genres, it.genres), HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mInformationFile.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_file, it.file), HtmlCompat.FROM_HTML_MODE_COMPACT)
+
+                val genres = ListUtil.listFromString(it.genres)
+                if (genres.isNotEmpty())
+                    (mInformationTags.adapter as TagsCardAdapter).updateList(genres.toMutableList())
+                else
+                    (mInformationTags.adapter as TagsCardAdapter).clearList()
+
             } else {
                 mInformationContent.visibility = View.GONE
                 mInformationImage.visibility = View.GONE
@@ -426,6 +439,8 @@ class BookDetailFragment : Fragment() {
                 mInformationIsbn.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_isbn, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mInformationGenres.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_genres, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mInformationFile.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_file, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
+
+                (mInformationTags.adapter as TagsCardAdapter).clearList()
             }
         }
 
