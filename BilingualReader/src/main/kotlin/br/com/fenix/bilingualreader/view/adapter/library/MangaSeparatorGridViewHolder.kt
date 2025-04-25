@@ -86,7 +86,7 @@ class MangaSeparatorGridViewHolder(var type: LibraryMangaType, itemView: View, p
         }
 
         favoriteIcon.setImageResource(if (manga.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
-        config.setOnClickListener { listener.onClickConfig(manga, cardView, it, layoutPosition) }
+        config.setOnClickListener { listener.onClickConfig(manga, cardView, itemView, layoutPosition) }
 
         cardView.layoutParams.height = mMangaCardHeight
         mangaImage.layoutParams.height = mMangaImage
@@ -95,9 +95,9 @@ class MangaSeparatorGridViewHolder(var type: LibraryMangaType, itemView: View, p
             else ->  mMangaCardWidth
         }
 
-        cardView.setOnClickListener { listener.onClick(manga) }
+        cardView.setOnClickListener { listener.onClick(manga, itemView) }
         cardView.setOnLongClickListener {
-            listener.onClickLong(manga, it, layoutPosition)
+            listener.onClickLong(manga, itemView, layoutPosition)
             true
         }
 

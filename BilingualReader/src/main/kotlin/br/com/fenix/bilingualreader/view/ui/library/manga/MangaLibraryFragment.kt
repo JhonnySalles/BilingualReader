@@ -25,6 +25,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
 import android.widget.AbsListView
@@ -668,23 +669,39 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecyclerView)
 
         mListener = object : MangaCardListener {
-            override fun onClick(manga: Manga) {
+            override fun onClick(manga: Manga, root: View) {
                 if (manga.file.exists()) {
                     val intent = Intent(context, MangaReaderActivity::class.java)
                     val bundle = Bundle()
-                    bundle.putSerializable(
-                        GeneralConsts.KEYS.OBJECT.LIBRARY,
-                        mViewModel.getLibrary()
-                    )
+                    bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mViewModel.getLibrary())
                     bundle.putString(GeneralConsts.KEYS.MANGA.NAME, manga.title)
                     bundle.putInt(GeneralConsts.KEYS.MANGA.MARK, manga.bookMark)
                     bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
                     intent.putExtras(bundle)
-                    context?.startActivity(intent)
-                    requireActivity().overridePendingTransition(
-                        R.anim.fade_in_fragment_add_enter,
-                        R.anim.fade_out_fragment_remove_exit
-                    )
+
+                    val idText = if (mViewModel.libraryType.value != LibraryMangaType.LINE)
+                        R.id.manga_grid_text_title
+                    else
+                        R.id.manga_line_text_title
+
+                    val idProgress = if (mViewModel.libraryType.value != LibraryMangaType.LINE)
+                        R.id.manga_grid_progress
+                    else
+                        R.id.manga_line_progress
+
+                    val idCover = if (mViewModel.libraryType.value != LibraryMangaType.LINE)
+                        R.id.manga_grid_image_cover
+                    else
+                        R.id.manga_line_image_cover
+
+                    val pImageCover: Pair<View, String> = Pair(root.findViewById<ImageView>(idCover), "transition_manga_cover")
+                    val pTitle: Pair<View, String> = Pair(root.findViewById<TextView>(idText), "transition_manga_title")
+                    val pProgress: Pair<View, String> = Pair(root.findViewById<ProgressBar>(idProgress), "transition_progress_bar")
+
+                    val options = ActivityOptions.makeSceneTransitionAnimation(requireActivity(), *arrayOf(pImageCover, pTitle, pProgress))
+
+                    context?.startActivity(intent, options.toBundle())
+                    requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
                 } else {
                     removeList(manga)
                     mViewModel.delete(manga)
@@ -791,6 +808,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mViewModel.getLibrary())
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
         intent.putExtras(bundle)
+
         val idText = if (mViewModel.libraryType.value != LibraryMangaType.LINE)
             R.id.manga_grid_text_title
         else

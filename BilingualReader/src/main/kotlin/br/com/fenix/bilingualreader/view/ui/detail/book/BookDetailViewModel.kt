@@ -18,6 +18,7 @@ import br.com.fenix.bilingualreader.model.entity.LinkedFile
 import br.com.fenix.bilingualreader.model.entity.Tags
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
+import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.ApiListener
 import br.com.fenix.bilingualreader.service.listener.BookParseListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
@@ -35,6 +36,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 class BookDetailViewModel(var app: Application) : AndroidViewModel(app) {
 
@@ -86,13 +89,11 @@ class BookDetailViewModel(var app: Application) : AndroidViewModel(app) {
         mTags.value = mTagsRepository.list().filter { t -> book.tags.any { b -> b.compareTo(t.id!!) == 0 } }
         mWebInformationRelations.value = mutableListOf()
 
-        BookImageCoverController.instance.setImageCoverAsync(context, book,  false) { mCover.value = it }
+        BookImageCoverController.instance.setImageCoverAsync(context, book, false) { mCover.value = it }
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 async {
-                    BookImageCoverController.instance.getCoverFromFile(context, book.file)
-
                     val ebookMeta = FileMetaCore.get().getEbookMeta(book.path, CacheZipUtils.CacheDir.ZipApp, false)
                     FileMetaCore.get().udpateFullMeta(FileMeta(book.path), ebookMeta)
 
@@ -136,6 +137,16 @@ class BookDetailViewModel(var app: Application) : AndroidViewModel(app) {
 
                         }
                     )
+                }
+
+                var image: Bitmap? = null
+                val deferred = async {
+                    image = BookImageCoverController.instance.getCoverFromFile(context, book.file)
+                }
+                deferred.await()
+                CountDownLatch(1).await(1, TimeUnit.SECONDS)
+                withContext(Dispatchers.Main) {
+                    mCover.value = image
                 }
             } catch (e: Exception) {
                 mLOGGER.error("Error to generate new cover and update meta on book", e)

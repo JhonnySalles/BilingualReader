@@ -54,9 +54,9 @@ class BookLineViewHolder(itemView: View, private val listener: BookCardListener)
         bookImage.setImageBitmap(null)
         BookImageCoverController.instance.setImageCoverAsync(itemView.context, book, bookImage, mDefaultImageCover)
 
-        cardView.setOnClickListener { listener.onClick(book) }
+        cardView.setOnClickListener { listener.onClick(book, itemView) }
         cardView.setOnLongClickListener {
-            listener.onClickLong(book, it, layoutPosition)
+            listener.onClickLong(book, itemView, layoutPosition)
             true
         }
 
@@ -68,7 +68,7 @@ class BookLineViewHolder(itemView: View, private val listener: BookCardListener)
         }
 
         favoriteIcon.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
-        config.setOnClickListener { listener.onClickConfig(book, cardView, it, layoutPosition) }
+        config.setOnClickListener { listener.onClickConfig(book, cardView, itemView, layoutPosition) }
 
         bookImage.setImageBitmap(null)
         BookImageCoverController.instance.setImageCoverAsync(itemView.context, book, bookImage, mDefaultImageCover)

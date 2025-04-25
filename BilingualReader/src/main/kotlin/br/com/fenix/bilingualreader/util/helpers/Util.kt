@@ -249,7 +249,7 @@ class Util {
                 path
 
             name = if (name.contains('.'))
-                name.substringBefore(".")
+                name.substringBeforeLast(".")
             else
                 name
 

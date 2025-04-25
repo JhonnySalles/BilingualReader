@@ -677,7 +677,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecyclerView)
 
         mListener = object : BookCardListener {
-            override fun onClick(book: Book) {
+            override fun onClick(book: Book, root: View) {
                 if (book.file.exists()) {
                     val intent = Intent(context, BookReaderActivity::class.java)
                     val bundle = Bundle()
@@ -686,7 +686,35 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                     bundle.putInt(GeneralConsts.KEYS.BOOK.MARK, book.bookMark)
                     bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
                     intent.putExtras(bundle)
-                    context?.startActivity(intent)
+
+                    val idText = if (mViewModel.libraryType.value != LibraryBookType.LINE)
+                        R.id.book_grid_title
+                    else
+                        R.id.book_line_title
+
+                    val idAuthor = if (mViewModel.libraryType.value != LibraryBookType.LINE)
+                        R.id.book_grid_sub_title
+                    else
+                        R.id.book_line_author
+
+                    val idProgress = if (mViewModel.libraryType.value != LibraryBookType.LINE)
+                        R.id.book_grid_progress
+                    else
+                        R.id.book_line_progress
+
+                    val idCover = if (mViewModel.libraryType.value != LibraryBookType.LINE)
+                        R.id.book_grid_image_cover
+                    else
+                        R.id.book_line_image_cover
+
+                    val pImageCover: Pair<View, String> = Pair(root.findViewById<ImageView>(idCover), "transition_book_cover")
+                    val pTitle: Pair<View, String> = Pair(root.findViewById<TextView>(idText), "transition_book_title")
+                    val pAuthor: Pair<View, String> = Pair(root.findViewById<TextView>(idAuthor), "transition_book_author")
+                    val pProgress: Pair<View, String> = Pair(root.findViewById<ProgressBar>(idProgress), "transition_progress_bar")
+
+                    val options = ActivityOptions.makeSceneTransitionAnimation(requireActivity(), *arrayOf(pImageCover, pTitle, pAuthor, pProgress))
+
+                    context?.startActivity(intent, options.toBundle())
                     requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
                 } else {
                     removeList(book)

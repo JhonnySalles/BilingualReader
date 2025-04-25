@@ -526,8 +526,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 initialize(manga)
             }
         } else
-            mFragment =
-                supportFragmentManager.findFragmentById(R.id.root_frame_manga_reader) as MangaReaderFragment?
+            mFragment = supportFragmentManager.findFragmentById(R.id.root_frame_manga_reader) as MangaReaderFragment?
     }
 
     private fun initialize(manga: Manga?) {
@@ -575,7 +574,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
         mDialog = MaterialAlertDialogBuilder(this, R.style.AppCompatAlertDialogStyle)
                 .setTitle(title)
-                .setMessage(changeManga.file.name)
+                .setMessage(changeManga.fileName)
                 .setPositiveButton(R.string.switch_action_positive) { _, _ -> changeManga(changeManga) }
                 .setNegativeButton(R.string.switch_action_negative) { _, _ -> }
                 .setOnDismissListener { mDialog = null }
@@ -738,19 +737,13 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         title.setPadding(resources.getDimensionPixelOffset(R.dimen.page_link_page_index_title_padding))
         val name = TextView(this)
         name.text = mToolBar.title
-        name.setTextSize(
-            TypedValue.COMPLEX_UNIT_PX,
-            resources.getDimension(R.dimen.title_index_dialog_size)
-        )
+        name.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_index_dialog_size))
         name.setTextColor(getColorFromAttr(R.attr.colorOnBackground))
         title.addView(name)
         val index = TextView(this)
         index.text = resources.getString(R.string.reading_manga_page_index)
-        index.setTextSize(
-            TypedValue.COMPLEX_UNIT_PX,
-            resources.getDimension(R.dimen.title_small_index_dialog_size)
-        )
-        index.setTextColor(getColorFromAttr(R.attr.colorOnSecondary))
+        index.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_small_index_dialog_size))
+        index.setTextColor(getColorFromAttr(R.attr.colorPrimary))
         title.addView(index)
         title.setOnLongClickListener {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager

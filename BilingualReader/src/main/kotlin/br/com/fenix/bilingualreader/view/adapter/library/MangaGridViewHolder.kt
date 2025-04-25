@@ -87,7 +87,7 @@ class MangaGridViewHolder(var type: LibraryMangaType, itemView: View, private va
         }
 
         favoriteIcon.setImageResource(if (manga.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
-        config.setOnClickListener { listener.onClickConfig(manga, cardView, it, layoutPosition) }
+        config.setOnClickListener { listener.onClickConfig(manga, cardView, itemView, layoutPosition) }
 
         when (type) {
             LibraryMangaType.GRID_MEDIUM -> cardView.layoutParams.width = if (mIsLandscape) mMangaCardWidthLandscapeMedium else mMangaCardWidthMedium
@@ -104,9 +104,9 @@ class MangaGridViewHolder(var type: LibraryMangaType, itemView: View, private va
             }
         }
 
-        cardView.setOnClickListener { listener.onClick(manga) }
+        cardView.setOnClickListener { listener.onClick(manga, itemView) }
         cardView.setOnLongClickListener {
-            listener.onClickLong(manga, it, layoutPosition)
+            listener.onClickLong(manga, itemView, layoutPosition)
             true
         }
 

@@ -73,9 +73,9 @@ class BookSeparatorGridViewHolder(var type: LibraryBookType, itemView: View, pri
             else -> mBookCardWidth
         }
 
-        cardView.setOnClickListener { listener.onClick(book) }
+        cardView.setOnClickListener { listener.onClick(book, itemView) }
         cardView.setOnLongClickListener {
-            listener.onClickLong(book, it, layoutPosition)
+            listener.onClickLong(book, itemView, layoutPosition)
             true
         }
 
@@ -86,7 +86,7 @@ class BookSeparatorGridViewHolder(var type: LibraryBookType, itemView: View, pri
         }
 
         favoriteIcon.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
-        config.setOnClickListener { listener.onClickConfig(book, cardView, it, layoutPosition) }
+        config.setOnClickListener { listener.onClickConfig(book, cardView, itemView, layoutPosition) }
 
         val image = when ((1..5).random()) {
             1 -> mDefaultImageCover1

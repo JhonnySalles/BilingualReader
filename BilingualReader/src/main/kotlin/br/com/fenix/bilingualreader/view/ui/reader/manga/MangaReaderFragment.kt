@@ -38,6 +38,7 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
@@ -53,6 +54,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.transition.Slide
@@ -413,7 +415,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         if (mParse == null) {
             mCoverImage.setImageResource(R.mipmap.book_cover_not_found)
-            mCoverMessage.text = getString(R.string.reading_book_open_exception)
+            mCoverMessage.text = getString(R.string.reading_manga_open_exception)
             mPageNavTextView.text = ""
             return view
         } else {
@@ -423,14 +425,22 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         mMenuPopupBottomSheet = requireActivity().findViewById<ImageView>(R.id.popup_manga_translate_center_button) == null
 
-        mHandler.postDelayed({
-            mCoverContent.animate().alpha(0.0f)
-                .setDuration(600L).setListener(object : AnimatorListenerAdapter() {
+
+        var run : Runnable? = null
+        run = Runnable {
+            if (mCurrentFragment == null || mCurrentFragment!!.findViewById<ProgressBar>(R.id.load_progress_bar).isVisible)
+                mHandler.postDelayed(run!!, 800)
+            else {
+                mCoverContent.animate().alpha(0.0f).setDuration(600L).setListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: Animator) {
                         super.onAnimationEnd(animation)
                         mCoverContent.visibility = View.GONE
                     }
-                }) }, 1000)
+                })
+            }
+        }
+
+        mHandler.postDelayed(run, 2000)
 
         mPageSeekBar.max = (mParse?.numPages() ?: 2) - 1
         mPageSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {

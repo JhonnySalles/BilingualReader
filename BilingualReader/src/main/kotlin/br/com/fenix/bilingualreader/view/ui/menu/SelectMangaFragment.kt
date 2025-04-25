@@ -190,7 +190,7 @@ class SelectMangaFragment : Fragment() {
         }
 
         mListener = object : MangaCardListener {
-            override fun onClick(manga: Manga) {
+            override fun onClick(manga: Manga, root: View) {
                 val bundle = Bundle()
                 bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
                 (requireActivity() as MenuActivity).onBack(bundle)

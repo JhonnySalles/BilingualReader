@@ -821,7 +821,7 @@ class PagesLinkFragment : Fragment() {
         val index = TextView(requireContext())
         index.text = resources.getString(R.string.reading_manga_page_index)
         index.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_small_index_dialog_size))
-        index.setTextColor(requireContext().getColorFromAttr(R.attr.colorOnSecondary))
+        index.setTextColor(requireContext().getColorFromAttr(R.attr.colorPrimary))
         title.addView(index)
 
         MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
