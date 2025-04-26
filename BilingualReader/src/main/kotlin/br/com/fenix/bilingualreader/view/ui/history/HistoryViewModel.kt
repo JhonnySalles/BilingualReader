@@ -112,7 +112,7 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
 
                 val format = DateTimeFormatter.ofPattern(GeneralConsts.PATTERNS.DATE_TIME_PATTERN)
                 list = list.sortedByDescending { it.lastAccess }.distinctBy { it.lastAccess!!.format(format) }.toMutableList()
-                
+
                 withContext(Dispatchers.Main) {
                     mLoading.value = false
 
