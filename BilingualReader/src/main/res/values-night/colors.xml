@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <color name="skeleton">#1B1B1B</color>
+    <color name="shimmer">#0F0F0F</color>
+
     <!-- - - - - - - - - - - - - - - - - - - - -  JLPT Colors  - - - - - - - - - - - - - - - - - - - - -->
     <color name="JLPT0">#b3b3b3</color>
     <color name="JLPT1">#ff4d4d</color>

@@ -156,6 +156,9 @@ dependencies {
     implementation 'com.github.Dimezis:BlurView:version-2.0.6'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
+    //Loading Skeleton
+    implementation 'io.supercharge:shimmerlayout:2.1.0'
+
     / ** BOOK **/
     implementation project(':ebook')
 

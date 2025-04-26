@@ -16,6 +16,8 @@
         android:layout_height="match_parent"
         android:clipChildren="false"
         android:clipToPadding="false">
+
+        <include layout="@layout/skeleton_shimmer_layout"/>
     
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/history_list"
@@ -27,6 +29,7 @@
             android:layoutAnimation="@anim/layout_animation_library_line"
             android:clipToPadding="false"
             android:paddingBottom="@dimen/history_padding"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

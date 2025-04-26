@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.Objects
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
 import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 
@@ -48,6 +50,9 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
     private var mLibrary: Library? = null
     private var mWordFilter: String = ""
 
+    private var mLoading = MutableLiveData<Boolean>(false)
+    val loading: LiveData<Boolean> = mLoading
+
     private var mType = MutableLiveData<Type?>(null)
     val type: LiveData<Type?> = mType
 
@@ -62,46 +67,67 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
     private var mSuggestionTags = mTagsRepository.list()
 
     fun list() {
-        var list = mutableListOf<History>()
+        mLoading.value = true
 
-        val mangas = mMangaRepository.listHistory()
-        if (mangas != null)
-            list.addAll(mangas)
+        CoroutineScope(Dispatchers.IO).launch {
+            async {
+                var list = mutableListOf<History>()
 
-        val books = mBookRepository.listHistory()
-        if (books != null)
-            list.addAll(books)
+                val mangas = mMangaRepository.listHistory()
+                if (mangas != null)
+                    list.addAll(mangas)
 
-        val format = DateTimeFormatter.ofPattern(GeneralConsts.PATTERNS.DATE_TIME_PATTERN)
-        list = list.sortedByDescending { it.lastAccess }.distinctBy { it.lastAccess!!.format(format) }.toMutableList()
+                val books = mBookRepository.listHistory()
+                if (books != null)
+                    list.addAll(books)
 
-        mListFull.value = ArrayList(list)
-        mList.value = ArrayList(list)
-        setSuggestions(mListFull.value)
+                val format = DateTimeFormatter.ofPattern(GeneralConsts.PATTERNS.DATE_TIME_PATTERN)
+                list = list.sortedByDescending { it.lastAccess }.distinctBy { it.lastAccess!!.format(format) }.toMutableList()
+
+                withContext(Dispatchers.Main) {
+                    mLoading.value = false
+
+                    mListFull.value = ArrayList(list)
+                    mList.value = ArrayList(list)
+                    setSuggestions(mListFull.value)
+                }
+            }
+        }
     }
 
     fun list(refreshComplete: (Int) -> (Unit)) {
-        var list = mutableListOf<History>()
+        mLoading.value = true
 
-        val mangas = mMangaRepository.listHistory()
-        if (mangas != null)
-            list.addAll(mangas)
+        CoroutineScope(Dispatchers.IO).launch {
+            async {
+                var list = mutableListOf<History>()
 
-        val books = mBookRepository.listHistory()
-        if (books != null)
-            list.addAll(books)
+                val mangas = mMangaRepository.listHistory()
+                if (mangas != null)
+                    list.addAll(mangas)
 
-        val format = DateTimeFormatter.ofPattern(GeneralConsts.PATTERNS.DATE_TIME_PATTERN)
-        list = list.sortedByDescending { it.lastAccess }.distinctBy { it.lastAccess!!.format(format) }.toMutableList()
+                val books = mBookRepository.listHistory()
+                if (books != null)
+                    list.addAll(books)
 
-        if (mList.value == null || mList.value!!.isEmpty()) {
-            mList.value = ArrayList(list)
-            mListFull.value = ArrayList(list)
-        } else
-            update(list)
+                val format = DateTimeFormatter.ofPattern(GeneralConsts.PATTERNS.DATE_TIME_PATTERN)
+                list = list.sortedByDescending { it.lastAccess }.distinctBy { it.lastAccess!!.format(format) }.toMutableList()
+                
+                withContext(Dispatchers.Main) {
+                    mLoading.value = false
 
-        setSuggestions(mListFull.value)
-        refreshComplete(mList.value!!.size - 1)
+                    if (mList.value == null || mList.value!!.isEmpty()) {
+                        mList.value = ArrayList(list)
+                        mListFull.value = ArrayList(list)
+                    } else
+                        update(list)
+
+                    setSuggestions(mListFull.value)
+
+                    refreshComplete(mList.value!!.size - 1)
+                }
+            }
+        }
     }
 
     fun update(list: List<History>) {

@@ -23,6 +23,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.AbsListView
 import android.widget.AutoCompleteTextView
 import android.widget.CursorAdapter
+import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.SearchView
 import android.widget.SimpleCursorAdapter
@@ -48,7 +49,9 @@ import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import io.supercharge.shimmerlayout.ShimmerLayout
 import java.time.LocalDateTime
+import kotlin.math.ceil
 
 
 class HistoryFragment : Fragment() {
@@ -60,6 +63,10 @@ class HistoryFragment : Fragment() {
     private lateinit var miSearch: MenuItem
     private lateinit var searchView: SearchView
     private lateinit var miFilterType: MenuItem
+
+    private lateinit var mSkeletonLayout: LinearLayout
+    private lateinit var mShimmer: ShimmerLayout
+    private lateinit var mInflater: LayoutInflater
 
     private var mFilterType: Type? = null
 
@@ -257,6 +264,10 @@ class HistoryFragment : Fragment() {
         mScrollUp = root.findViewById(R.id.history_scroll_up)
         mScrollDown = root.findViewById(R.id.history_scroll_down)
 
+        mSkeletonLayout = root.findViewById(R.id.skeleton_layout)
+        mShimmer = root.findViewById(R.id.shimmer_skeleton)
+        mInflater = inflater
+
         ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecyclerView)
         observer()
         return root
@@ -398,6 +409,13 @@ class HistoryFragment : Fragment() {
     }
 
     private fun observer() {
+        mViewModel.loading.observe(viewLifecycleOwner) {
+            if (it)
+                showSkeleton(true)
+            else
+                animateReplaceSkeleton()
+        }
+
         mViewModel.history.observe(viewLifecycleOwner) {
             updateList(it)
         }
@@ -599,6 +617,40 @@ class HistoryFragment : Fragment() {
         }
 
         popup.show()
+    }
+
+    private fun getSkeletonRowCount(): Int {
+        val pxHeight: Int = Resources.getSystem().displayMetrics.heightPixels
+        val skeletonTitleHeight = resources.getDimension(R.dimen.history_skeleton_title_height).toInt()
+        val skeletonRowHeight = resources.getDimension(R.dimen.history_skeleton_height).toInt()
+        return ceil(((pxHeight - skeletonTitleHeight) / skeletonRowHeight).toDouble()).toInt()
+    }
+
+    private fun showSkeleton(show: Boolean) {
+        if (show) {
+            mSkeletonLayout.removeAllViews()
+
+            mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_history_skeleton_title, null))
+            for (i in 0..getSkeletonRowCount())
+                mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_history_skeleton, null))
+
+            mRecyclerView.animate().cancel()
+            mSkeletonLayout.animate().cancel()
+
+            mShimmer.visibility = View.VISIBLE
+            mRecyclerView.visibility = View.GONE
+            mSkeletonLayout.visibility = View.VISIBLE
+            mShimmer.startShimmerAnimation()
+            mSkeletonLayout.bringToFront()
+        } else {
+            mShimmer.stopShimmerAnimation()
+            mShimmer.visibility = View.GONE
+        }
+    }
+
+    private fun animateReplaceSkeleton() {
+        mRecyclerView.visibility = View.VISIBLE
+        showSkeleton(false)
     }
 
 }
