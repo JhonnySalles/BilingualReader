@@ -25,7 +25,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
 import android.widget.AbsListView
@@ -58,6 +57,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.Import
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.ListMode
@@ -388,7 +388,25 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         when (menuItem.itemId) {
             R.id.menu_manga_library_type -> mViewModel.changeLibraryType()
             R.id.menu_manga_library_list_order -> onChangeSort()
-            R.id.menu_manga_library_import_vocab -> mViewModel.importVocabulary()
+            R.id.menu_manga_library_import_vocab ->  {
+                val imports = requireContext().resources.getStringArray(R.array.import_vocabulary)
+                val mapImports = hashMapOf(
+                    imports[0] to Import.DEFAULT,
+                    imports[1] to Import.FULL_ITEMS,
+                    imports[2] to Import.NEW_ITEMS,
+                    imports[3] to Import.RE_IMPORT
+                )
+                val items = mapImports.keys.toTypedArray()
+
+                MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertList)
+                    .setTitle(requireContext().resources.getString(R.string.vocabulary_import_title))
+                    .setItems(items) { _, selected ->
+                        mapImports[items[selected]]?.run {
+                            mViewModel.importVocabulary(this)
+                        }
+                    }
+                    .show()
+            }
         }
         return super.onOptionsItemSelected(menuItem)
     }

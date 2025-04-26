@@ -873,6 +873,12 @@
     <string name="vocabulary_import">Importando vocabulário de %s.</string>
     <string name="vocabulary_imported">Concluído importação do vocabulário.</string>
     <string name="vocabulary_import_error">Erro ao importar o vocabulário.</string>
+    <string-array name="import_vocabulary">
+        <item>Padrão</item>
+        <item>Todos arquivos</item>
+        <item>Apenas novos arquivos</item>
+        <item>Reimportar arquivos</item>
+    </string-array>
 
     <string name="menu_vocabulary_search">Procurar</string>
     <string name="menu_vocabulary_order">Ordem</string>

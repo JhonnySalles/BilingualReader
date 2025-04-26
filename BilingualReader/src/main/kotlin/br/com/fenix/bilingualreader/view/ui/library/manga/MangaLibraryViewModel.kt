@@ -17,6 +17,7 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.SubTitleChapter
 import br.com.fenix.bilingualreader.model.enums.FileType
+import br.com.fenix.bilingualreader.model.enums.Import
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.ListMode
@@ -573,7 +574,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     }
 
     var mImportingVocab = false
-    fun importVocabulary() {
+    fun importVocabulary(import: Import = Import.FULL_ITEMS) {
         if (mImportingVocab)
             return
 
@@ -598,8 +599,21 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                 try {
                     val size = list.size
                     for ((index, manga) in list.withIndex()) {
-                        if (manga.lastVocabImport != null && manga.lastVocabImport!!.isAfter(LocalDateTime.now().minusDays(1)))
-                            continue;
+                        when (import) {
+                            Import.DEFAULT ->  {
+                                if (manga.lastVocabImport != null && manga.lastVocabImport!!.isAfter(LocalDateTime.now().minusDays(1)))
+                                    continue
+                            }
+                            Import.RE_IMPORT -> {
+                                if (manga.lastVocabImport == null)
+                                    continue
+                            }
+                            Import.NEW_ITEMS -> {
+                                if (manga.lastVocabImport != null)
+                                    continue
+                            }
+                            Import.FULL_ITEMS -> { }
+                        }
 
                         withContext(Dispatchers.Main) {
                             notification.setContentText(manga.name).setProgress(size, index, false).setOngoing(true)
