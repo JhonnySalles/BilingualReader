@@ -70,7 +70,8 @@
                 app:indicatorSize="@dimen/overlay_loading_size"
                 app:rippleColor="?attr/colorPrimaryContainer"
                 app:indicatorColor="?attr/colorPrimaryContainer"
-                app:trackThickness="8dp"/>
+                app:trackThickness="8dp"
+                app:trackCornerRadius="5dp"/>
 
         </eightbitlab.com.blurview.BlurView>
     </androidx.constraintlayout.widget.ConstraintLayout>
