@@ -31,6 +31,8 @@ import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.util.Locale
 import java.util.Objects
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 import java.util.stream.Collectors
 import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
@@ -46,6 +48,9 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     private val mBookRepository: BookRepository = BookRepository(app.applicationContext)
     private val mTagsRepository: TagsRepository = TagsRepository(app.applicationContext)
     private val mPreferences = GeneralConsts.getSharedPreferences(app.applicationContext)
+
+    private var mLoading = MutableLiveData<Boolean>(false)
+    val loading: LiveData<Boolean> = mLoading
 
     private var mWordFilter = ""
 
@@ -223,7 +228,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         val indexes = mutableListOf<Pair<ListMode, Int>>()
         if (mListBookFull.value != null && mListBookFull.value!!.isNotEmpty()) {
             val list = mBookRepository.listRecentChange(mLibrary)
-            if (list != null && list.isNotEmpty()) {
+            if (list.isNotEmpty()) {
                 change = true
                 for (Book in list) {
                     if (mListBookFull.value!!.contains(Book)) {
@@ -240,7 +245,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                 }
             }
             val listDel = mBookRepository.listRecentDeleted(mLibrary)
-            if (listDel != null && listDel.isNotEmpty()) {
+            if (listDel.isNotEmpty()) {
                 change = true
                 for (Book in listDel) {
                     if (mListBookFull.value!!.contains(Book)) {
@@ -253,15 +258,9 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             }
         } else {
             val list = mBookRepository.list(mLibrary)
-            if (list != null) {
-                indexes.add(Pair(ListMode.FULL, list.size))
-                mListBook.value = list.toMutableList()
-                mListBookFull.value = list.toMutableList()
-            } else {
-                mListBook.value = mutableListOf()
-                mListBookFull.value = mutableListOf()
-                indexes.add(Pair(ListMode.FULL, 0))
-            }
+            indexes.add(Pair(ListMode.FULL, list.size))
+            mListBook.value = list.toMutableList()
+            mListBookFull.value = list.toMutableList()
             //Receive value force refresh, not necessary notify
             change = false
         }
@@ -271,21 +270,24 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     }
 
     fun list(refreshComplete: (Boolean) -> (Unit)) {
-        val list = mBookRepository.list(mLibrary)
-        if (list != null) {
-            if (mListBookFull.value == null || mListBookFull.value!!.isEmpty()) {
-                mListBook.value = list.toMutableList()
-                mListBookFull.value = list.toMutableList()
-                setSuggestions(mListBookFull.value)
-            } else
-                update(list)
-        } else {
-            mListBookFull.value = mutableListOf()
-            mListBook.value = mutableListOf()
-            setSuggestions(mListBookFull.value)
-        }
+        mLoading.value = true
+        CoroutineScope(Dispatchers.IO).launch {
+            async {
+                val list = mBookRepository.list(mLibrary)
+                withContext(Dispatchers.Main) {
+                    mLoading.value = false
 
-        refreshComplete(mListBook.value!!.isNotEmpty())
+                    if (mListBookFull.value == null || mListBookFull.value!!.isEmpty()) {
+                        mListBook.value = list.toMutableList()
+                        mListBookFull.value = list.toMutableList()
+                        setSuggestions(mListBookFull.value)
+                    } else
+                        update(list)
+
+                    refreshComplete(mListBook.value!!.isNotEmpty())
+                }
+            }
+        }
     }
 
     fun clearHistory(book: Book) {

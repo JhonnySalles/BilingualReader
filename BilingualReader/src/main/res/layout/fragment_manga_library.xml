@@ -36,17 +36,25 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/manga_library_recycler_view"
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_centerHorizontal="true"
-                    android:layout_margin="@dimen/margin_small"
-                    android:clipToPadding="false"
-                    android:columnCount="3"
-                    android:layoutAnimation="@anim/layout_animation_library_line"
-                    android:paddingBottom="@dimen/manga_library_padding"
-                    android:scrollbars="vertical" />
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
+                    <include layout="@layout/skeleton_shimmer_layout"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/manga_library_recycler_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_centerHorizontal="true"
+                        android:layout_margin="@dimen/margin_small"
+                        android:clipToPadding="false"
+                        android:columnCount="3"
+                        android:layoutAnimation="@anim/layout_animation_library_line"
+                        android:paddingBottom="@dimen/manga_library_padding"
+                        android:scrollbars="vertical"/>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

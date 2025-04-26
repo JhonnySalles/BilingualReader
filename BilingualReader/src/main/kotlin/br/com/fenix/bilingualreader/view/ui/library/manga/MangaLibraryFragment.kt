@@ -32,6 +32,7 @@ import android.widget.AutoCompleteTextView
 import android.widget.CursorAdapter
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.ProgressBar
 import android.widget.SearchView
@@ -86,9 +87,12 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
+import io.supercharge.shimmerlayout.ShimmerLayout
 import org.slf4j.LoggerFactory
 import java.util.UUID
+import kotlin.math.ceil
 import kotlin.math.max
+import androidx.core.view.isVisible
 
 
 class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener {
@@ -117,6 +121,10 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     private lateinit var mPopupOrderFragment: LibraryMangaPopupOrder
     private lateinit var mPopupTypeFragment: LibraryMangaPopupType
     private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
+
+    private lateinit var mSkeletonLayout: LinearLayout
+    private lateinit var mShimmer: ShimmerLayout
+    private lateinit var mInflater: LayoutInflater
 
     private val mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
@@ -447,7 +455,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             mViewModel.sorted(orderBy)
             when (mViewModel.libraryType.value) {
                 LibraryMangaType.SEPARATOR_BIG,
-                LibraryMangaType.SEPARATOR_MEDIUM -> updateList(mViewModel.listMangas.value!!)
+                LibraryMangaType.SEPARATOR_MEDIUM,
+                    -> updateList(mViewModel.listMangas.value!!)
                 else -> notifyDataSet(0, (mViewModel.listMangas.value?.size ?: 1))
             }
         }
@@ -566,14 +575,14 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         mPopupLibraryTab = root.findViewById(R.id.manga_library_popup_library_tab)
         mPopupLibraryView = root.findViewById(R.id.manga_library_popup_library_view_pager)
 
+        mSkeletonLayout = root.findViewById(R.id.skeleton_layout)
+        mShimmer = root.findViewById(R.id.shimmer_skeleton)
+        mInflater = inflater
+
         ComponentsUtil.setThemeColor(requireContext(), mRefreshLayout)
         mRefreshLayout.setOnRefreshListener(this)
         mRefreshLayout.isEnabled = true
-        mRefreshLayout.setProgressViewOffset(
-            false,
-            (resources.getDimensionPixelOffset(R.dimen.default_navigator_header_margin_top) + 60) * -1,
-            10
-        )
+        mRefreshLayout.setProgressViewOffset(false, (resources.getDimensionPixelOffset(R.dimen.default_navigator_header_margin_top) + 60) * -1, 10)
 
         mScrollUp.visibility = View.GONE
         mScrollDown.visibility = View.GONE
@@ -901,7 +910,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         val spaceCount: Int = max(1, (Resources.getSystem().displayMetrics.widthPixels -3) / columnWidth)
         return when (type) {
             LibraryMangaType.SEPARATOR_BIG,
-            LibraryMangaType.SEPARATOR_MEDIUM -> StaggeredGridLayoutManager(spaceCount, StaggeredGridLayoutManager.VERTICAL)
+            LibraryMangaType.SEPARATOR_MEDIUM,
+                -> StaggeredGridLayoutManager(spaceCount, StaggeredGridLayoutManager.VERTICAL)
             else -> GridLayoutManager(requireContext(), spaceCount)
         }
     }
@@ -916,7 +926,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         } else {
             val gridAdapter = when (type) {
                 LibraryMangaType.SEPARATOR_BIG,
-                LibraryMangaType.SEPARATOR_MEDIUM -> MangaSeparatorGridCardAdapter(requireContext(), type)
+                LibraryMangaType.SEPARATOR_MEDIUM,
+                    -> MangaSeparatorGridCardAdapter(requireContext(), type)
                 else -> MangaGridCardAdapter(type)
             }
             mRecyclerView.adapter = gridAdapter
@@ -939,11 +950,17 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     private fun observer() {
+        mViewModel.loading.observe(viewLifecycleOwner) {
+            showSkeleton(it)
+        }
+
         mViewModel.listMangas.observe(viewLifecycleOwner) {
             updateList(it)
         }
         mViewModel.libraryType.observe(viewLifecycleOwner) {
             onChangeLayout(it)
+            if (mSkeletonLayout.isVisible)
+                showSkeleton(true)
         }
     }
 
@@ -1056,7 +1073,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             override fun onMove(
                 recyclerView: RecyclerView,
-                viewHolder: ViewHolder, target: ViewHolder
+                viewHolder: ViewHolder, target: ViewHolder,
             ): Boolean {
                 return false
             }
@@ -1101,7 +1118,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     override fun popupOrderOnChange() {
         when (mViewModel.libraryType.value) {
             LibraryMangaType.SEPARATOR_BIG,
-            LibraryMangaType.SEPARATOR_MEDIUM -> updateList(mViewModel.listMangas.value!!)
+            LibraryMangaType.SEPARATOR_MEDIUM,
+                -> updateList(mViewModel.listMangas.value!!)
             else -> notifyDataSet(0, (mViewModel.listMangas.value?.size ?: 1))
         }
     }
@@ -1164,6 +1182,81 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                 else
                     mRecyclerView.layoutManager = getGridLayout()
             }
+        }
+    }
+
+    private fun getSkeletonRowCount(type: LibraryMangaType): Int {
+        val pxHeight: Int = Resources.getSystem().displayMetrics.heightPixels
+        val skeletonTitleHeight = if (type == LibraryMangaType.SEPARATOR_MEDIUM || type == LibraryMangaType.SEPARATOR_BIG) resources.getDimension(R.dimen.manga_grid_skeleton_title_height).toInt() else 0
+        val resource = when(type) {
+            LibraryMangaType.LINE -> R.dimen.manga_line_skeleton_height
+            LibraryMangaType.SEPARATOR_BIG,
+            LibraryMangaType.GRID_BIG -> R.dimen.manga_grid_skeleton_height_big
+            else -> R.dimen.manga_grid_skeleton_height_medium
+        }
+        val skeletonRowHeight = resources.getDimension(resource).toInt()
+        return ceil(((pxHeight - skeletonTitleHeight) / skeletonRowHeight).toDouble()).toInt()
+    }
+
+    private fun getSkeletonGridItemPerRow(type: LibraryMangaType): Int {
+        val columnWidth = resources.getDimension(getSkeletonItemWidth(type)) + resources.getDimension(R.dimen.manga_grid_skeleton_divider) + 1
+        return max(1, Resources.getSystem().displayMetrics.widthPixels / columnWidth.toInt())
+    }
+
+    private fun getSkeletonItemHeight(type: LibraryMangaType) : Int {
+        return if (type == LibraryMangaType.SEPARATOR_BIG || type == LibraryMangaType.GRID_BIG) R.dimen.manga_grid_skeleton_card_image_big_height else R.dimen.manga_grid_skeleton_card_image_medium_height
+    }
+
+    private fun getSkeletonItemWidth(type: LibraryMangaType) : Int {
+        return if (type == LibraryMangaType.SEPARATOR_BIG || type == LibraryMangaType.GRID_BIG) R.dimen.manga_grid_skeleton_card_image_big_width else R.dimen.manga_grid_skeleton_card_image_medium_width
+    }
+
+    private fun showSkeleton(show: Boolean) {
+        if (show) {
+            mSkeletonLayout.removeAllViews()
+
+            val type = mViewModel.libraryType.value ?: LibraryMangaType.LINE
+
+            if (type == LibraryMangaType.SEPARATOR_BIG || type == LibraryMangaType.SEPARATOR_MEDIUM)
+                mSkeletonLayout.addView(mInflater.inflate(R.layout.grid_card_manga_skeleton_title, null))
+
+            for (i in 0..getSkeletonRowCount(type)) {
+                if (type == LibraryMangaType.LINE)
+                    mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_manga_skeleton, null))
+                else {
+                    val row = mInflater.inflate(R.layout.grid_card_manga_skeleton, null)
+                    var container = row.findViewById<LinearLayout>(R.id.grid_skeleton_items)
+                    val height = resources.getDimension(getSkeletonItemHeight(type)).toInt()
+                    val width = resources.getDimension(getSkeletonItemWidth(type)).toInt()
+                    val margin = resources.getDimension(R.dimen.manga_grid_skeleton_divider).toInt()
+                    val items = getSkeletonGridItemPerRow(type)
+                    val divider = ((Resources.getSystem().displayMetrics.widthPixels.toFloat() - (items * (width + margin))) / items).toInt()
+                    container.removeAllViews()
+                    for (i in 0..items) {
+                        val item = mInflater.inflate(R.layout.grid_card_manga_skeleton_item, null)
+                        val params = FrameLayout.LayoutParams(width, height)
+                        params.setMargins(margin, margin, divider, 0)
+                        item.layoutParams = params
+                        container.addView(item)
+                    }
+                    container.invalidate()
+                    mSkeletonLayout.addView(row)
+                }
+            }
+
+            mRecyclerView.animate().cancel()
+            mSkeletonLayout.animate().cancel()
+
+            mShimmer.visibility = View.VISIBLE
+            mRecyclerView.visibility = View.GONE
+            mSkeletonLayout.visibility = View.VISIBLE
+            mShimmer.startShimmerAnimation()
+            mSkeletonLayout.bringToFront()
+        } else {
+            mShimmer.stopShimmerAnimation()
+            mShimmer.visibility = View.GONE
+            mSkeletonLayout.visibility = View.GONE
+            mRecyclerView.visibility = View.VISIBLE
         }
     }
 

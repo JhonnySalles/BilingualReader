@@ -32,6 +32,7 @@ import android.widget.AutoCompleteTextView
 import android.widget.CursorAdapter
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.ProgressBar
 import android.widget.SearchView
@@ -43,6 +44,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.edit
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -59,6 +61,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
+import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
@@ -86,8 +89,10 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
+import io.supercharge.shimmerlayout.ShimmerLayout
 import org.slf4j.LoggerFactory
 import java.util.UUID
+import kotlin.math.ceil
 import kotlin.math.max
 
 
@@ -118,6 +123,10 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     private lateinit var mPopupOrderFragment: LibraryBookPopupOrder
     private lateinit var mPopupTypeFragment: LibraryBookPopupType
     private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
+
+    private lateinit var mSkeletonLayout: LinearLayout
+    private lateinit var mShimmer: ShimmerLayout
+    private lateinit var mInflater: LayoutInflater
 
     private lateinit var mPopupTag: PopupTags
 
@@ -542,7 +551,6 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_book_library, container, false)
-        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
 
         mRoot = root.findViewById(R.id.frame_book_library_root)
         mRecyclerView = root.findViewById(R.id.book_library_recycler_view)
@@ -554,14 +562,14 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         mPopupLibraryTab = root.findViewById(R.id.book_library_popup_library_tab)
         mPopupLibraryView = root.findViewById(R.id.book_library_popup_library_view_pager)
 
+        mSkeletonLayout = root.findViewById(R.id.skeleton_layout)
+        mShimmer = root.findViewById(R.id.shimmer_skeleton)
+        mInflater = inflater
+
         ComponentsUtil.setThemeColor(requireContext(), mRefreshLayout)
         mRefreshLayout.setOnRefreshListener(this)
         mRefreshLayout.isEnabled = true
-        mRefreshLayout.setProgressViewOffset(
-            false,
-            (resources.getDimensionPixelOffset(R.dimen.default_navigator_header_margin_top) + 60) * -1,
-            10
-        )
+        mRefreshLayout.setProgressViewOffset(false, (resources.getDimensionPixelOffset(R.dimen.default_navigator_header_margin_top) + 60) * -1, 10)
 
         mPopupTag = PopupTags(requireContext())
 
@@ -935,11 +943,18 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     }
 
     private fun observer() {
+        mViewModel.loading.observe(viewLifecycleOwner) {
+            showSkeleton(it)
+        }
+
         mViewModel.listBook.observe(viewLifecycleOwner) {
             updateList(it)
         }
         mViewModel.libraryType.observe(viewLifecycleOwner) {
             onChangeLayout(it)
+
+            if (mSkeletonLayout.isVisible)
+                showSkeleton(true)
         }
     }
 
@@ -1075,10 +1090,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     }
 
     private var itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-        override fun onMove(
-            recyclerView: RecyclerView,
-            viewHolder: ViewHolder, target: ViewHolder
-        ): Boolean {
+        override fun onMove(recyclerView: RecyclerView, viewHolder: ViewHolder, target: ViewHolder): Boolean {
             return false
         }
 
@@ -1158,4 +1170,80 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             return fragmentTitle[position]
         }
     }
+
+    private fun getSkeletonRowCount(type: LibraryBookType): Int {
+        val pxHeight: Int = Resources.getSystem().displayMetrics.heightPixels
+        val skeletonTitleHeight = if (type == LibraryBookType.SEPARATOR_MEDIUM || type == LibraryBookType.SEPARATOR_BIG) resources.getDimension(R.dimen.book_grid_skeleton_title_height).toInt() else 0
+        val resource = when(type) {
+            LibraryBookType.LINE -> R.dimen.book_line_skeleton_height
+            LibraryBookType.SEPARATOR_BIG,
+            LibraryBookType.GRID_BIG -> R.dimen.book_grid_skeleton_height_big
+            else -> R.dimen.book_grid_skeleton_height_medium
+        }
+        val skeletonRowHeight = resources.getDimension(resource).toInt()
+        return ceil(((pxHeight - skeletonTitleHeight) / skeletonRowHeight).toDouble()).toInt()
+    }
+
+    private fun getSkeletonGridItemPerRow(type: LibraryBookType): Int {
+        val columnWidth = resources.getDimension(getSkeletonItemWidth(type)) + resources.getDimension(R.dimen.manga_grid_skeleton_divider) + 1
+        return max(1, Resources.getSystem().displayMetrics.widthPixels / columnWidth.toInt())
+    }
+
+    private fun getSkeletonItemHeight(type: LibraryBookType) : Int {
+        return if (type == LibraryBookType.SEPARATOR_BIG || type == LibraryBookType.GRID_BIG) R.dimen.book_grid_skeleton_card_image_big_height else R.dimen.book_grid_skeleton_card_image_medium_height
+    }
+
+    private fun getSkeletonItemWidth(type: LibraryBookType) : Int {
+        return if (type == LibraryBookType.SEPARATOR_BIG || type == LibraryBookType.GRID_BIG) R.dimen.book_grid_skeleton_card_image_big_width else R.dimen.book_grid_skeleton_card_image_medium_width
+    }
+
+    private fun showSkeleton(show: Boolean) {
+        if (show) {
+            mSkeletonLayout.removeAllViews()
+
+            val type = mViewModel.libraryType.value ?: LibraryBookType.LINE
+
+            if (type == LibraryBookType.SEPARATOR_BIG || type == LibraryBookType.SEPARATOR_MEDIUM)
+                mSkeletonLayout.addView(mInflater.inflate(R.layout.grid_card_book_skeleton_title, null))
+
+            for (i in 0..getSkeletonRowCount(type)) {
+                if (type == LibraryBookType.LINE)
+                    mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_book_skeleton, null))
+                else {
+                    val row = mInflater.inflate(R.layout.grid_card_book_skeleton, null)
+                    var container = row.findViewById<LinearLayout>(R.id.grid_skeleton_items)
+                    val height = resources.getDimension(getSkeletonItemHeight(type)).toInt()
+                    val width = resources.getDimension(getSkeletonItemWidth(type)).toInt()
+                    val margin = resources.getDimension(R.dimen.book_grid_skeleton_divider).toInt()
+                    val items = getSkeletonGridItemPerRow(type)
+                    val divider = ((Resources.getSystem().displayMetrics.widthPixels.toFloat() - (items * (width + margin))) / items).toInt()
+                    container.removeAllViews()
+                    for (i in 0.. items) {
+                        val item = mInflater.inflate(R.layout.grid_card_book_skeleton_item, null)
+                        val params = FrameLayout.LayoutParams(width, height)
+                        params.setMargins(margin, margin, divider, 0)
+                        item.layoutParams = params
+                        container.addView(item)
+                    }
+                    container.invalidate()
+                    mSkeletonLayout.addView(row)
+                }
+            }
+
+            mRecyclerView.animate().cancel()
+            mSkeletonLayout.animate().cancel()
+
+            mShimmer.visibility = View.VISIBLE
+            mRecyclerView.visibility = View.GONE
+            mSkeletonLayout.visibility = View.VISIBLE
+            mShimmer.startShimmerAnimation()
+            mSkeletonLayout.bringToFront()
+        } else {
+            mShimmer.stopShimmerAnimation()
+            mShimmer.visibility = View.GONE
+            mSkeletonLayout.visibility = View.GONE
+            mRecyclerView.visibility = View.VISIBLE
+        }
+    }
+
 }

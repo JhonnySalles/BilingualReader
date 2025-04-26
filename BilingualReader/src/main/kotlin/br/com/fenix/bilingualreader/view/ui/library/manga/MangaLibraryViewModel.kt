@@ -46,6 +46,8 @@ import java.util.Collections
 import java.util.Date
 import java.util.Locale
 import java.util.Objects
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 import java.util.stream.Collectors
 import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
@@ -61,6 +63,9 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     private var mLibrary: Library = Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
     private val mMangaRepository: MangaRepository = MangaRepository(app.applicationContext)
     private val mPreferences = GeneralConsts.getSharedPreferences(app.applicationContext)
+
+    private var mLoading = MutableLiveData<Boolean>(false)
+    val loading: LiveData<Boolean> = mLoading
 
     private var mWordFilter = ""
 
@@ -291,21 +296,30 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     }
 
     fun list(refreshComplete: (Boolean) -> (Unit)) {
-        val list = mMangaRepository.list(mLibrary)
-        if (list != null) {
-            if (mListMangasFull.value == null || mListMangasFull.value!!.isEmpty()) {
-                mListMangas.value = list.toMutableList()
-                mListMangasFull.value = list.toMutableList()
-                setSuggestions(mListMangasFull.value)
-            } else
-                update(list)
-        } else {
-            mListMangasFull.value = mutableListOf()
-            mListMangas.value = mutableListOf()
-            setSuggestions(mListMangasFull.value)
-        }
+        mLoading.value = true
+        CoroutineScope(Dispatchers.IO).launch {
+            async {
+                val list = mMangaRepository.list(mLibrary)
+                withContext(Dispatchers.Main) {
+                    mLoading.value = false
 
-        refreshComplete(mListMangas.value!!.isNotEmpty())
+                    if (list != null) {
+                        if (mListMangasFull.value == null || mListMangasFull.value!!.isEmpty()) {
+                            mListMangas.value = list.toMutableList()
+                            mListMangasFull.value = list.toMutableList()
+                            setSuggestions(mListMangasFull.value)
+                        } else
+                            update(list)
+                    } else {
+                        mListMangasFull.value = mutableListOf()
+                        mListMangas.value = mutableListOf()
+                        setSuggestions(mListMangasFull.value)
+                    }
+
+                    refreshComplete(mListMangas.value!!.isNotEmpty())
+                }
+            }
+        }
     }
 
     fun changeLibraryType() {
