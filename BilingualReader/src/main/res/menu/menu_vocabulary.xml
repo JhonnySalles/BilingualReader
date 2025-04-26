@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/menu_vocabulary_search"
-        android:icon="@drawable/ic_search"
+        android:icon="@drawable/ico_search"
         android:orderInCategory="100"
         android:title="@string/menu_vocabulary_search"
         android:visible="true"

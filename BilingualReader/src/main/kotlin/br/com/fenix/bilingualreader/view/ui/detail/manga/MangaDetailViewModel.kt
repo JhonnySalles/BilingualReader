@@ -79,7 +79,7 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
         mLocalInformation.value = null
         mWebInformationRelations.value = mutableListOf()
 
-        MangaImageCoverController.instance.setImageCoverAsync(app.applicationContext, manga, false) { mCover.value = it }
+        MangaImageCoverController.instance.setImageCoverAsync(app.applicationContext, manga, true) { mCover.value = it }
 
         CoroutineScope(Dispatchers.IO).launch {
             val parse = ParseFactory.create(manga.file) ?: return@launch

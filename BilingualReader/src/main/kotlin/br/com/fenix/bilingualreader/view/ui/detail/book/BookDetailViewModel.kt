@@ -89,7 +89,7 @@ class BookDetailViewModel(var app: Application) : AndroidViewModel(app) {
         mTags.value = mTagsRepository.list().filter { t -> book.tags.any { b -> b.compareTo(t.id!!) == 0 } }
         mWebInformationRelations.value = mutableListOf()
 
-        BookImageCoverController.instance.setImageCoverAsync(context, book, false) { mCover.value = it }
+        BookImageCoverController.instance.setImageCoverAsync(context, book, true) { mCover.value = it }
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
