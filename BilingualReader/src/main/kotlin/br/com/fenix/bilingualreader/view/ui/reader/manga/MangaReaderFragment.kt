@@ -1010,9 +1010,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
     }
 
-    private fun getActionBar(): ActionBar? {
-        return (requireActivity() as AppCompatActivity).supportActionBar
-    }
+    private fun getActionBar(): ActionBar? = if (activity != null) (requireActivity() as AppCompatActivity).supportActionBar else null
 
     private val windowInsetsController by lazy {
         WindowInsetsControllerCompat(requireActivity().window, mViewPager)
