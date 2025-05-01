@@ -26,7 +26,7 @@
             android:scrollbars="vertical"
             android:layout_margin="@dimen/margin_small"
             android:layout_centerHorizontal="true"
-            android:layoutAnimation="@anim/layout_animation_library_line"
+            android:layoutAnimation="@anim/layout_animation_history"
             android:clipToPadding="false"
             android:paddingBottom="@dimen/history_padding"
             android:visibility="gone"

@@ -1270,8 +1270,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         setAnimationRecycler(false)
         mRecyclerView.visibility = View.VISIBLE
         mRecyclerView.alpha = 0f
-        mRecyclerView.animate().alpha(1f).setDuration(1500).start()
-        mSkeletonLayout.animate().alpha(0f).setDuration(1500).withEndAction { showSkeleton(false) }.start()
+        mRecyclerView.animate().alpha(1f).setDuration(700).start()
+        mSkeletonLayout.animate().alpha(0f).setDuration(1000).withEndAction { showSkeleton(false) }.start()
     }
 
 }
