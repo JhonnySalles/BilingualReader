@@ -411,7 +411,7 @@ class HistoryFragment : Fragment() {
     private fun observer() {
         mViewModel.loading.observe(viewLifecycleOwner) {
             if (it)
-                showSkeleton(true)
+                showSkeleton(it)
             else
                 animateReplaceSkeleton()
         }
@@ -650,7 +650,9 @@ class HistoryFragment : Fragment() {
 
     private fun animateReplaceSkeleton() {
         mRecyclerView.visibility = View.VISIBLE
-        showSkeleton(false)
+        mRecyclerView.alpha = 0f
+        mRecyclerView.animate().alpha(1f).setDuration(1500).start()
+        mSkeletonLayout.animate().alpha(0f).setDuration(1500).withEndAction { showSkeleton(false) }.start()
     }
 
 }

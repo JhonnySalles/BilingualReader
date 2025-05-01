@@ -944,7 +944,10 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
     private fun observer() {
         mViewModel.loading.observe(viewLifecycleOwner) {
-            showSkeleton(it)
+            if (!it)
+                animateReplaceSkeleton()
+            else
+                showSkeleton(it)
         }
 
         mViewModel.listBook.observe(viewLifecycleOwner) {
@@ -1243,7 +1246,16 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             mShimmer.visibility = View.GONE
             mSkeletonLayout.visibility = View.GONE
             mRecyclerView.visibility = View.VISIBLE
+            setAnimationRecycler(true)
         }
+    }
+
+    private fun animateReplaceSkeleton() {
+        setAnimationRecycler(false)
+        mRecyclerView.visibility = View.VISIBLE
+        mRecyclerView.alpha = 0f
+        mRecyclerView.animate().alpha(1f).setDuration(1500).start()
+        mSkeletonLayout.animate().alpha(0f).setDuration(1500).withEndAction { showSkeleton(false) }.start()
     }
 
 }

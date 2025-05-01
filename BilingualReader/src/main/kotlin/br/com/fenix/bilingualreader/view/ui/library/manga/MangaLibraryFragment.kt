@@ -44,6 +44,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.edit
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -53,6 +54,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewpager.widget.ViewPager
@@ -92,7 +94,6 @@ import org.slf4j.LoggerFactory
 import java.util.UUID
 import kotlin.math.ceil
 import kotlin.math.max
-import androidx.core.view.isVisible
 
 
 class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener {
@@ -951,7 +952,10 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     private fun observer() {
         mViewModel.loading.observe(viewLifecycleOwner) {
-            showSkeleton(it)
+            if (!it)
+                animateReplaceSkeleton()
+            else
+                showSkeleton(it)
         }
 
         mViewModel.listMangas.observe(viewLifecycleOwner) {
@@ -1191,7 +1195,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         val resource = when(type) {
             LibraryMangaType.LINE -> R.dimen.manga_line_skeleton_height
             LibraryMangaType.SEPARATOR_BIG,
-            LibraryMangaType.GRID_BIG -> R.dimen.manga_grid_skeleton_height_big
+            LibraryMangaType.GRID_BIG,
+                -> R.dimen.manga_grid_skeleton_height_big
             else -> R.dimen.manga_grid_skeleton_height_medium
         }
         val skeletonRowHeight = resources.getDimension(resource).toInt()
@@ -1257,7 +1262,16 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             mShimmer.visibility = View.GONE
             mSkeletonLayout.visibility = View.GONE
             mRecyclerView.visibility = View.VISIBLE
+            setAnimationRecycler(true)
         }
+    }
+
+    private fun animateReplaceSkeleton() {
+        setAnimationRecycler(false)
+        mRecyclerView.visibility = View.VISIBLE
+        mRecyclerView.alpha = 0f
+        mRecyclerView.animate().alpha(1f).setDuration(1500).start()
+        mSkeletonLayout.animate().alpha(0f).setDuration(1500).withEndAction { showSkeleton(false) }.start()
     }
 
 }
