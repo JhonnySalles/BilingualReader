@@ -20,17 +20,16 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
         const val TEXT_MAX_SIZE = 140f
         const val TEXT_MIN_SIZE = 40f
         const val STEP = 4
-
-        private val mLOGGER = LoggerFactory.getLogger(TextViewPage::class.java)
     }
 
     constructor(context: Context) : this(context, null) {}
+
+    private val mLOGGER = LoggerFactory.getLogger(TextViewPage::class.java)
 
     override fun performClick(): Boolean {
         super.performClick()
         return true
     }
-
 
     private var mCustomMovement: MovementMethod? = null
     private var mGestureDetector: GestureDetector
@@ -47,7 +46,7 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
         super.setOnTouchListener { view, event ->
             view.performClick()
 
-            if (mCustomMovement != null) {
+            if (mCustomMovement != null && event.pointerCount <= 1) {
                 if (text is Spannable && mCustomMovement!!.onTouchEvent(this, text as Spannable, event))
                     return@setOnTouchListener true
             }

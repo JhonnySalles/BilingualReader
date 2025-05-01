@@ -622,7 +622,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 processed = prepareSpan(context, processed, page, listener)
                 holder.textView.isClickable = true
                 holder.textView.linksClickable = true
-                holder.textView.setCustomMovement(TextViewClickMovement.getInstance())
+                holder.textView.setCustomMovement(TextViewClickMovement.getInstance(holder))
             } finally {
                 holder.textView.text = processed
             }

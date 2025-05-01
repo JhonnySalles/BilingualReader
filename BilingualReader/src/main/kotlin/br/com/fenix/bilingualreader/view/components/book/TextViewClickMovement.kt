@@ -9,6 +9,7 @@ import android.text.style.ClickableSpan
 import android.view.MotionEvent
 import android.widget.TextView
 import br.com.fenix.bilingualreader.model.interfaces.LongClickableSpan
+import br.com.fenix.bilingualreader.service.listener.SelectionChangeListener
 import org.slf4j.LoggerFactory
 import kotlin.math.abs
 
@@ -19,14 +20,17 @@ class TextViewClickMovement : LinkMovementMethod() {
         private var sInstance: TextViewClickMovement? = null
 
         private const val LONG_CLICK_TIME = 1000L
-        private val mLOGGER = LoggerFactory.getLogger(TextViewClickMovement::class.java)
+        private var mSelectionListener: SelectionChangeListener? = null
 
-        fun getInstance(): MovementMethod {
+        fun getInstance(selectionListener: SelectionChangeListener?): MovementMethod {
             if (sInstance == null)
                 sInstance = TextViewClickMovement()
+            mSelectionListener = selectionListener
             return sInstance!!
         }
     }
+
+    private val mLOGGER = LoggerFactory.getLogger(TextViewClickMovement::class.java)
 
     private var mLongClickHandler: Handler = Handler()
     private var mIsLongPressed = false
@@ -37,6 +41,14 @@ class TextViewClickMovement : LinkMovementMethod() {
 
         if (mPressedCoordinate != null && abs(mPressedCoordinate!![0] - event.x) >= 10 && abs(mPressedCoordinate!![1] - event.y) >= 10)
             mLongClickHandler.removeCallbacksAndMessages(null)
+
+        if (event.pointerCount > 1) {
+            mLongClickHandler.removeCallbacksAndMessages(null)
+            return false
+        }
+
+        if (mSelectionListener != null && mSelectionListener!!.isShowingPopup())
+            return false
 
         var consume = false
         if (action == MotionEvent.ACTION_CANCEL)

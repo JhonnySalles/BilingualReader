@@ -170,6 +170,8 @@ class TextViewPager(
                 textView.clearFocus()
         }
 
+        override fun isShowingPopup(): Boolean = popupTextSelect.isShowing
+
         override fun onTextSelected() {
             if (ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT)
                 return
