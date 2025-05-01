@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/menu_text_select_functions_tts"
-        android:icon="@drawable/ic_tts_audio"
+        android:icon="@drawable/ico_tts_audio"
         android:title="@string/reading_book_menu_text_functions_read_from"
         android:orderInCategory="100"
         app:showAsAction="always" />
@@ -15,31 +15,31 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/menu_text_select_colors_yellow"
-            android:icon="@drawable/ic_text_view_select_yellow"
+            android:icon="@drawable/ico_text_view_select_yellow"
             android:title="@string/annotation_colors_yellow"
             android:orderInCategory="111"
             app:showAsAction="always" />
         <item
             android:id="@+id/menu_text_select_colors_green"
-            android:icon="@drawable/ic_text_view_select_green"
+            android:icon="@drawable/ico_text_view_select_green"
             android:title="@string/annotation_colors_green"
             android:orderInCategory="112"
             app:showAsAction="always" />
         <item
             android:id="@+id/menu_text_select_colors_blue"
-            android:icon="@drawable/ic_text_view_select_blue"
+            android:icon="@drawable/ico_text_view_select_blue"
             android:title="@string/annotation_colors_blue"
             android:orderInCategory="113"
             app:showAsAction="always" />
         <item
             android:id="@+id/menu_text_select_colors_red"
-            android:icon="@drawable/ic_text_view_select_red"
+            android:icon="@drawable/ico_text_view_select_red"
             android:title="@string/annotation_colors_red"
             android:orderInCategory="114"
             app:showAsAction="always" />
         <item
             android:id="@+id/menu_text_select_colors_erase"
-            android:icon="@drawable/ic_text_view_select_erase"
+            android:icon="@drawable/ico_text_view_select_erase"
             android:title="@string/annotation_colors_erase"
             android:orderInCategory="120"
             app:showAsAction="always" />

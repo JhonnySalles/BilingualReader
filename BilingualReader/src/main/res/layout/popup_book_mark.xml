@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/popup_book_mark_page"
-            app:startIconDrawable="@drawable/ic_book_mark_page">
+            app:startIconDrawable="@drawable/ico_book_mark_page">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/popup_book_mark_page_edit"
@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/popup_book_mark_date"
-            app:startIconDrawable="@drawable/ic_book_mark_date">
+            app:startIconDrawable="@drawable/ico_book_mark_date">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/popup_book_mark_date_edit"
@@ -54,7 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/popup_book_mark_date"
-            app:startIconDrawable="@drawable/ic_book_mark_time">
+            app:startIconDrawable="@drawable/ico_book_mark_time">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/popup_book_mark_time_edit"

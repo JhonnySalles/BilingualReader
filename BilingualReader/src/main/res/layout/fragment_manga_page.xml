@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            android:src="@drawable/ic_broken"
+            android:src="@drawable/ico_broken"
             android:contentDescription="@string/reader_reload" />
 
     </RelativeLayout>

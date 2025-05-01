@@ -15,7 +15,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/popup_reading_language_tts_voice"
-            app:startIconDrawable="@drawable/ic_book_tts">
+            app:startIconDrawable="@drawable/ico_book_tts">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/popup_menu_autocomplete_tts_voice"

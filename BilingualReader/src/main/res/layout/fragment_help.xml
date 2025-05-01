@@ -979,7 +979,7 @@
                     android:layout_width="@dimen/help_button_example_width"
                     android:layout_height="@dimen/help_button_example_width"
                     android:layout_margin="@dimen/margin"
-                    app:srcCompat="@drawable/ic_translate" />
+                    app:srcCompat="@drawable/ico_translate" />
 
                 <TextView
                     style="@style/TextNormal"

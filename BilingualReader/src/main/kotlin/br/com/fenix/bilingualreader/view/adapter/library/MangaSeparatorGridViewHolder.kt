@@ -73,9 +73,9 @@ class MangaSeparatorGridViewHolder(var type: LibraryMangaType, itemView: View, p
 
         subtitle.visibility  = if (manga.hasSubtitle) {
             if (manga.lastVocabImport != null)
-                subtitle.setImageResource(R.drawable.ic_subtitles_imported)
+                subtitle.setImageResource(R.drawable.ico_subtitles_imported)
             else
-                subtitle.setImageResource(R.drawable.ic_subtitles_exist)
+                subtitle.setImageResource(R.drawable.ico_subtitles_exist)
             View.VISIBLE
         } else View.GONE
 

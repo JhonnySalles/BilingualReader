@@ -336,7 +336,7 @@
             <ImageView
                 android:layout_width="@dimen/statistics_icon_size"
                 android:layout_height="@dimen/statistics_icon_size"
-                android:src="@drawable/ic_statistics_book" />
+                android:src="@drawable/ico_statistics_book" />
 
             <TextView
                 style="@style/TextNormal"
@@ -364,7 +364,7 @@
             <ImageView
                 android:layout_width="@dimen/statistics_icon_size"
                 android:layout_height="@dimen/statistics_icon_size"
-                android:src="@drawable/ic_statistics_time" />
+                android:src="@drawable/ico_statistics_time" />
 
             <TextView
                 style="@style/TextNormal"
@@ -392,7 +392,7 @@
             <ImageView
                 android:layout_width="@dimen/statistics_icon_size"
                 android:layout_height="@dimen/statistics_icon_size"
-                android:src="@drawable/ic_statistics_average" />
+                android:src="@drawable/ico_statistics_average" />
 
             <TextView
                 style="@style/TextNormal"
@@ -441,7 +441,7 @@
                     android:layout_weight="1"
                     android:layout_margin="@dimen/margin_small"
                     android:hint="@string/statistics_chart_year"
-                    app:startIconDrawable="@drawable/ic_statistics_chart_year">
+                    app:startIconDrawable="@drawable/ico_statistics_chart_year">
 
                     <com.google.android.material.textfield.MaterialAutoCompleteTextView
                         android:id="@+id/statistics_book_chart_year_auto_complete"
@@ -459,7 +459,7 @@
                     android:layout_weight="1"
                     android:layout_margin="@dimen/margin_small"
                     android:hint="@string/statistics_chart_library"
-                    app:startIconDrawable="@drawable/ic_statistics_chart_book_library">
+                    app:startIconDrawable="@drawable/ico_statistics_chart_book_library">
 
                     <com.google.android.material.textfield.MaterialAutoCompleteTextView
                         android:id="@+id/statistics_book_chart_library_auto_complete"

@@ -77,7 +77,7 @@ class Notifications {
 
             val mediaSession = MediaSessionCompat(context, "TtsReading", null, pendingIntent)
             val notification = NotificationCompat.Builder(context, NOTIFICATIONS_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_tts_audio)
+                .setSmallIcon(R.drawable.ico_tts_audio)
                 .setContentTitle(title)
                 .setContentText(content)
                 .setOnlyAlertOnce(true)

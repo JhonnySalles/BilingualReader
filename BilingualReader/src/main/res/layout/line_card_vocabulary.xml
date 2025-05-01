@@ -133,7 +133,7 @@
                 android:contentDescription="@string/vocabulary_tatoeba_button"
                 android:text="@string/vocabulary_tatoeba_button"
                 android:textSize="14sp"
-                app:icon="@mipmap/site_tatoeba"
+                app:icon="@mipmap/ico_site_tatoeba"
                 app:iconSize="20dp"
                 app:iconTint="@null"
                 app:iconPadding="1dp"/>

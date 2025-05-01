@@ -31,7 +31,7 @@
 
         <item
             android:id="@+id/menu_history"
-            android:icon="@drawable/ic_history"
+            android:icon="@drawable/ico_history"
             android:orderInCategory="100"
             android:title="@string/menu_history" />
 
@@ -49,25 +49,25 @@
 
         <item
             android:id="@+id/menu_statistics"
-            android:icon="@drawable/ic_statistics"
+            android:icon="@drawable/ico_statistics"
             android:orderInCategory="100"
             android:title="@string/menu_statistics" />
 
         <item
             android:id="@+id/menu_configuration"
-            android:icon="@drawable/ic_settings"
+            android:icon="@drawable/ico_settings"
             android:orderInCategory="100"
             android:title="@string/menu_config" />
 
         <item
             android:id="@+id/menu_help"
-            android:icon="@drawable/ic_help"
+            android:icon="@drawable/ico_help"
             android:orderInCategory="100"
             android:title="@string/menu_help" />
 
         <item
             android:id="@+id/menu_about"
-            android:icon="@drawable/ic_about"
+            android:icon="@drawable/ico_about"
             android:orderInCategory="100"
             android:title="@string/menu_about" />
     </group>

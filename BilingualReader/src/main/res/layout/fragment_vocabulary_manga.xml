@@ -61,7 +61,7 @@
                     android:layout_height="match_parent"
                     android:enabled="true"
                     android:hint="@string/vocabulary_manga"
-                    app:startIconDrawable="@drawable/ic_file">
+                    app:startIconDrawable="@drawable/ico_file">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/vocabulary_manga_edittext"
@@ -128,7 +128,7 @@
                 android:layout_gravity="center|top"
                 android:contentDescription="@string/popup_reading_manga_open"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_line_popup"/>
+                android:src="@drawable/ico_line_popup"/>
 
             <LinearLayout
                 android:layout_width="match_parent"

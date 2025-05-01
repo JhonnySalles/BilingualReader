@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/menu_popup_orientation_portrait"
-        android:icon="@drawable/ic_ocr_google_vision"
+        android:icon="@drawable/ico_ocr_google_vision"
         android:title="@string/reading_manga_popup_orientation_portrait" />
     <item android:id="@+id/menu_popup_orientation_portrait_locked"
-        android:icon="@drawable/ic_ocr_google_vision"
+        android:icon="@drawable/ico_ocr_google_vision"
         android:title="@string/reading_manga_popup_orientation_portrait_locked" />
     <item android:id="@+id/menu_popup_orientation_landscape"
-        android:icon="@drawable/ic_ocr_google_vision"
+        android:icon="@drawable/ico_ocr_google_vision"
         android:title="@string/reading_manga_popup_orientation_landscape" />
     <item android:id="@+id/menu_popup_orientation_landscape_locked"
-        android:icon="@drawable/ic_ocr_google_vision"
+        android:icon="@drawable/ico_ocr_google_vision"
         android:title="@string/reading_manga_popup_orientation_landscape_locked" />
     <item android:id="@+id/menu_popup_orientation_auto"
-        android:icon="@drawable/ic_ocr_google_vision"
+        android:icon="@drawable/ico_ocr_google_vision"
         android:title="@string/reading_manga_popup_orientation_auto" />
 </menu>

@@ -1208,7 +1208,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     private fun updateSeekBar() {
-        val seekRes: Int = if (mIsLeftToRight) R.drawable.reader_nav_progress else R.drawable.reader_nav_progress_inverse
+        val seekRes: Int = if (mIsLeftToRight) R.drawable.reader_progress_pointer else R.drawable.reader_progress_pointer_inverse
         val d: Drawable? = ContextCompat.getDrawable(requireActivity(), seekRes)
         val bounds = mPageSeekBar.progressDrawable.bounds
         mPageSeekBar.progressDrawable = d
@@ -1225,7 +1225,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         mDialog = MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertList)
             .setTitle(getString(R.string.reading_manga_title_save_share_image))
-            .setIcon(R.drawable.ic_save_share_image)
+            .setIcon(R.drawable.ico_save_share_image)
             .setItems(items) { _, selectItem ->
                 val language = items[selectItem]
                 shareImage(

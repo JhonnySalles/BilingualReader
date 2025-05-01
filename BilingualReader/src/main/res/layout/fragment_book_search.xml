@@ -140,7 +140,7 @@
                         android:contentDescription="@string/book_search_stop"
                         app:iconSize="15dp"
                         app:iconTint="?attr/colorPrimaryContainer"
-                        app:icon="@drawable/ic_close" />
+                        app:icon="@drawable/ico_close" />
                 </androidx.coordinatorlayout.widget.CoordinatorLayout>
             </com.google.android.material.appbar.MaterialToolbar>
         </com.google.android.material.appbar.AppBarLayout>

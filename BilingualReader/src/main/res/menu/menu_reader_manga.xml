@@ -17,7 +17,7 @@
 
     <item
         android:id="@+id/menu_item_reader_manga_reading_mode"
-        android:icon="@drawable/ic_book_open"
+        android:icon="@drawable/ico_book_open"
         android:orderInCategory="101"
         android:title="@string/menu_manga_reading_mode"
         app:showAsAction="never">
@@ -35,7 +35,7 @@
 
     <item
         android:id="@+id/menu_item_reader_manga_scrolling_mode"
-        android:icon="@drawable/ic_reading_mode"
+        android:icon="@drawable/ico_reading_mode"
         android:orderInCategory="102"
         android:title="@string/menu_manga_scrolling_mode"
         app:showAsAction="never">
@@ -53,7 +53,7 @@
 
     <item
         android:id="@+id/menu_item_reader_manga_aspect_ratio"
-        android:icon="@drawable/ic_reader_mode"
+        android:icon="@drawable/ico_reader_mode"
         android:orderInCategory="103"
         android:title="@string/menu_manga_view_mode"
         app:showAsAction="never">
@@ -73,14 +73,14 @@
     </item>
 
     <item
-        android:icon="@drawable/ic_reading_options"
+        android:icon="@drawable/ico_reading_options"
         android:orderInCategory="104"
         android:title="@string/menu_manga_reading_options"
         app:showAsAction="never">
         <menu>
             <item
                 android:id="@+id/menu_item_reader_manga_use_magnifier_type"
-                android:icon="@drawable/ic_use_magnifier_type"
+                android:icon="@drawable/ico_use_magnifier_type"
                 android:orderInCategory="101"
                 android:title="@string/menu_manga_reading_use_magnifier_type"
                 android:checkable="true"
@@ -88,7 +88,7 @@
 
             <item
                 android:id="@+id/menu_item_reader_manga_show_clock_and_battery"
-                android:icon="@drawable/ic_show_clock_and_battery"
+                android:icon="@drawable/ico_show_clock_and_battery"
                 android:orderInCategory="102"
                 android:title="@string/menu_manga_reading_show_clock_and_battery"
                 android:checkable="true"
@@ -96,7 +96,7 @@
 
             <item
                 android:id="@+id/menu_item_reader_manga_keep_zoom_between_pages"
-                android:icon="@drawable/ic_keep_zoom_between_pages"
+                android:icon="@drawable/ico_keep_zoom_between_pages"
                 android:orderInCategory="103"
                 android:title="@string/menu_manga_reading_keep_zoom_between_pages"
                 android:checkable="true"
@@ -104,14 +104,14 @@
 
             <item
                 android:id="@+id/menu_item_reader_manga_popup_color"
-                android:icon="@drawable/ic_color_settings"
+                android:icon="@drawable/ico_color_settings"
                 android:orderInCategory="104"
                 android:title="@string/menu_manga_reading_color"
                 app:showAsAction="never"/>
 
             <item
                 android:id="@+id/menu_item_reader_manga_view_touch_screen"
-                android:icon="@drawable/ic_view_touch_screen"
+                android:icon="@drawable/ico_view_touch_screen"
                 android:orderInCategory="105"
                 android:title="@string/menu_manga_reading_view_touch"
                 app:showAsAction="never"/>
@@ -119,28 +119,28 @@
     </item>
 
     <item
-        android:icon="@drawable/ic_ocr_file_linked"
+        android:icon="@drawable/ico_ocr_file_linked"
         android:orderInCategory="105"
         android:title="@string/menu_manga_reading_ocr_file_linked"
         app:showAsAction="never">
         <menu>
             <item
                 android:id="@+id/menu_item_reader_manga_popup_subtitle"
-                android:icon="@drawable/ic_change_language"
+                android:icon="@drawable/ico_change_language"
                 android:orderInCategory="102"
                 android:title="@string/menu_manga_reading_subtitle"
                 app:showAsAction="never"/>
 
             <item
                 android:id="@+id/menu_item_reader_manga_file_link"
-                android:icon="@drawable/ic_file_link"
+                android:icon="@drawable/ico_file_link"
                 android:orderInCategory="103"
                 android:title="@string/menu_manga_reading_file_link"
                 app:showAsAction="never"/>
 
             <item
                 android:id="@+id/menu_item_reader_manga_open_kaku"
-                android:icon="@mipmap/app_kaku"
+                android:icon="@mipmap/ico_app_kaku"
                 android:orderInCategory="104"
                 android:title="@string/menu_manga_reading_open_kaku"
                 app:showAsAction="never"/>
@@ -149,28 +149,28 @@
 
     <item
         android:id="@+id/menu_item_reader_manga_popup_open_floating"
-        android:icon="@drawable/ic_floating_window"
+        android:icon="@drawable/ico_floating_window"
         android:orderInCategory="106"
         android:title="@string/menu_manga_reading_floating"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/menu_item_reader_manga_floating_buttons"
-        android:icon="@drawable/ic_item_floating_buttons"
+        android:icon="@drawable/ico_item_floating_buttons"
         android:orderInCategory="107"
         android:title="@string/menu_manga_reading_floating_buttons"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/menu_item_reader_manga_chapters_menu"
-        android:icon="@drawable/ic_item_chapters_menu"
+        android:icon="@drawable/ico_item_chapters_menu"
         android:orderInCategory="108"
         android:title="@string/menu_manga_reading_chapters_menu"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/menu_item_reader_manga_save_share_image"
-        android:icon="@drawable/ic_save_share_image"
+        android:icon="@drawable/ico_save_share_image"
         android:orderInCategory="109"
         android:title="@string/menu_manga_reading_save_share_image"
         app:showAsAction="never"/>

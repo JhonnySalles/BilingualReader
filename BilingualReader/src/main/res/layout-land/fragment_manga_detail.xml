@@ -588,7 +588,7 @@
                         android:layout_marginEnd="@dimen/margin"
                         android:layout_marginBottom="@dimen/margin"
                         android:text="@string/manga_detail_subtitles_import_vocabulary"
-                        app:icon="@drawable/ic_subtitles_exist" />
+                        app:icon="@drawable/ico_subtitles_exist" />
 
                     <ListView
                         android:id="@+id/manga_detail_subtitles_list"

@@ -46,7 +46,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/config_book_library_order"
-            app:startIconDrawable="@drawable/ic_order">
+            app:startIconDrawable="@drawable/ico_order">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_book_menu_autocomplete_library_order"
@@ -64,7 +64,7 @@
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/config_book_library_folder"
             app:endIconMode="clear_text"
-            app:startIconDrawable="@drawable/ic_sd_storage">
+            app:startIconDrawable="@drawable/ico_sd_storage">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_book_menu_autocomplete_library_path"
@@ -83,7 +83,7 @@
             android:layout_height="60dp"
             android:layout_margin="@dimen/margin_small"
             android:text="@string/config_title_libraries"
-            app:icon="@drawable/ic_library_small" />
+            app:icon="@drawable/ico_library_small" />
 
         <com.google.android.material.divider.MaterialDivider
             style="@style/MaterialDivider"
@@ -109,7 +109,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/config_book_scrolling_mode"
-            app:startIconDrawable="@drawable/ic_reading_mode">
+            app:startIconDrawable="@drawable/ico_reading_mode">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_book_menu_autocomplete_scrolling_mode"
@@ -164,7 +164,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/config_book_tts_voice_normal"
-            app:startIconDrawable="@drawable/ic_book_tts">
+            app:startIconDrawable="@drawable/ico_book_tts">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_book_menu_autocomplete_tts_voice_normal"
@@ -181,7 +181,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/config_book_tts_voice_japanese"
-            app:startIconDrawable="@drawable/ic_book_tts">
+            app:startIconDrawable="@drawable/ico_book_tts">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_book_menu_autocomplete_tts_voice_japanese"

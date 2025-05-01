@@ -173,6 +173,23 @@
                 app:icon="@drawable/ico_animated_screen_rotation_portrait" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/reader_manga_btn_menu_ocr"
+                style="@style/Button.ReaderButtons"
+                android:layout_width="@dimen/popup_reader_button_width"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="5dp"
+                android:contentDescription="@string/reading_manga_button_menu_ocr"
+                android:insetLeft="11dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                android:minHeight="@dimen/reader_button_width"
+                app:iconSize="30dp"
+                app:iconTint="@null"
+                app:icon="@drawable/ico_animated_ocr" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/reader_manga_btn_menu_chapters"
                 style="@style/Button.ReaderButtons"
                 android:layout_width="@dimen/reader_button_width"

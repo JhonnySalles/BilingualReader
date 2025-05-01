@@ -124,7 +124,7 @@
                 android:text="@string/vocabulary_tatoeba_button"
                 app:iconSize="20dp"
                 app:iconTint="@null"
-                app:icon="@mipmap/site_tatoeba"/>
+                app:icon="@mipmap/ico_site_tatoeba"/>
         </LinearLayout>
     </LinearLayout>
 

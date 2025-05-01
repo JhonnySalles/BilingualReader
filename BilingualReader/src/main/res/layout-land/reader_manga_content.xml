@@ -82,7 +82,7 @@
             android:layout_marginLeft="55dp"
             android:layout_marginRight="55dp"
             android:layout_marginBottom="80dp"
-            android:background="@drawable/reader_nav_bg"
+            android:background="@drawable/reader_progress_background"
             android:gravity="center_horizontal"
             android:orientation="vertical"
             android:paddingLeft="10dp"
@@ -105,8 +105,8 @@
                 android:minHeight="2dp"
                 android:paddingTop="5dp"
                 android:paddingBottom="10dp"
-                android:progressDrawable="@drawable/reader_nav_progress"
-                android:thumb="@drawable/reader_nav_thumb_small"
+                android:progressDrawable="@drawable/reader_progress_pointer"
+                android:thumb="@drawable/reader_progress_thumb_small"
                 custom:dots_drawable="@drawable/ico_progress_dot"
                 android:thumbOffset="6dp"/>
         </LinearLayout>
@@ -244,7 +244,7 @@
                     android:layout_marginEnd="5dp"
                     android:contentDescription="@string/reading_manga_button_color"
                     android:minHeight="@dimen/reader_button_width"
-                    app:icon="@drawable/ic_color_settings" />
+                    app:icon="@drawable/ico_color_settings" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/reader_manga_btn_menu_page_linked"

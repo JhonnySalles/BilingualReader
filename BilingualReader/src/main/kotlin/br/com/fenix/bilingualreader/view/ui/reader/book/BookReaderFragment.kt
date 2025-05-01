@@ -1066,12 +1066,12 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     }
                 }
 
-                mReaderTTSPlay.setIconResource(R.drawable.ic_tts_pause)
+                mReaderTTSPlay.setIconResource(R.drawable.ico_tts_pause)
             }
 
-            AudioStatus.PAUSE -> mReaderTTSPlay.setIconResource(R.drawable.ic_tts_play)
+            AudioStatus.PAUSE -> mReaderTTSPlay.setIconResource(R.drawable.ico_tts_play)
             AudioStatus.STOP -> {
-                mReaderTTSPlay.setIconResource(R.drawable.ic_tts_close)
+                mReaderTTSPlay.setIconResource(R.drawable.ico_tts_close)
                 generateHistory(mBook!!)
 
                 try {
@@ -1336,7 +1336,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     private fun updateSeekBar() {
-        val seekRes: Int = if (mIsLeftToRight) R.drawable.reader_nav_progress else R.drawable.reader_nav_progress_inverse
+        val seekRes: Int = if (mIsLeftToRight) R.drawable.reader_progress_pointer else R.drawable.reader_progress_pointer_inverse
         val d: Drawable? = ContextCompat.getDrawable(requireActivity(), seekRes)
         val bounds = mPageSeekBar.progressDrawable.bounds
         mPageSeekBar.progressDrawable = d

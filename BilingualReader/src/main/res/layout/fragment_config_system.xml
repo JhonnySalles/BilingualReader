@@ -46,7 +46,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/config_theme_mode"
-            app:startIconDrawable="@drawable/ic_theme_mode">
+            app:startIconDrawable="@drawable/ico_theme_mode">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_system_menu_autocomplete_theme_mode"
@@ -97,7 +97,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/config_system_format_date"
-            app:startIconDrawable="@drawable/ic_format_date">
+            app:startIconDrawable="@drawable/ico_format_date">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_system_menu_autocomplete_format_date"
@@ -139,7 +139,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/config_system_share_mark_cloud"
-            app:startIconDrawable="@drawable/ic_share_mark_cloud">
+            app:startIconDrawable="@drawable/ico_share_mark_cloud">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_system_menu_autocomplete_share_mark_type"
@@ -159,7 +159,7 @@
             android:layout_marginBottom="@dimen/margin_small"
             android:text=""
             android:visibility="gone"
-            app:icon="@drawable/ic_google_account" />
+            app:icon="@drawable/ico_google_account" />
 
         <com.google.android.gms.common.SignInButton
             android:id="@+id/config_system_share_mark_sign_in_button"
@@ -177,7 +177,7 @@
             android:layout_marginBottom="@dimen/margin_small"
             android:text=""
             android:visibility="gone"
-            app:icon="@drawable/ic_share_mark_last_sync" />
+            app:icon="@drawable/ico_share_mark_last_sync" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/config_system_share_mark_book_last_sync"
@@ -189,7 +189,7 @@
             android:layout_marginBottom="@dimen/margin_small"
             android:text=""
             android:visibility="gone"
-            app:icon="@drawable/ic_share_mark_last_sync" />
+            app:icon="@drawable/ico_share_mark_last_sync" />
 
         <com.google.android.material.divider.MaterialDivider
             style="@style/MaterialDivider"
@@ -217,7 +217,7 @@
             android:layout_marginEnd="@dimen/margin_small"
             android:layout_marginBottom="@dimen/margin_small"
             android:text="@string/config_database_backup"
-            app:icon="@drawable/ic_database_backup" />
+            app:icon="@drawable/ico_database_backup" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/config_system_restore"
@@ -228,7 +228,7 @@
             android:layout_marginEnd="@dimen/margin_small"
             android:layout_marginBottom="@dimen/margin_small"
             android:text="@string/config_database_restore"
-            app:icon="@drawable/ic_database_restore" />
+            app:icon="@drawable/ico_database_restore" />
 
         <TextView
             android:id="@+id/config_system_last_backup"
@@ -265,7 +265,7 @@
             android:layout_marginEnd="@dimen/margin_small"
             android:layout_marginBottom="@dimen/margin_small"
             android:text="@string/config_update_app"
-            app:icon="@drawable/ic_update_app" />
+            app:icon="@drawable/ico_update_app" />
 
         <com.google.android.material.divider.MaterialDivider
             style="@style/MaterialDivider"
@@ -293,7 +293,7 @@
             android:layout_marginEnd="@dimen/margin_small"
             android:layout_marginBottom="@dimen/margin_small"
             android:text="@string/config_covers_delete"
-            app:icon="@drawable/ic_covers_delete" />
+            app:icon="@drawable/ico_covers_delete" />
 
         <com.google.android.material.divider.MaterialDivider
             style="@style/MaterialDivider"
@@ -321,6 +321,6 @@
             android:layout_marginEnd="@dimen/margin_small"
             android:layout_marginBottom="@dimen/margin_small"
             android:text="@string/config_statistics_clear"
-            app:icon="@drawable/ic_statistics_delete" />
+            app:icon="@drawable/ico_statistics_delete" />
     </LinearLayout>
 </LinearLayout>

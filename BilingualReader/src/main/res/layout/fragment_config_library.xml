@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/config_libraries_title_library"
-            app:startIconDrawable="@drawable/ic_library_small">
+            app:startIconDrawable="@drawable/ico_library_small">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/config_libraries_title_language"
-            app:startIconDrawable="@drawable/ic_language">
+            app:startIconDrawable="@drawable/ico_language">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/libraries_menu_autocomplete_library_language"
@@ -51,7 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/config_libraries_title_path"
-            app:startIconDrawable="@drawable/ic_sd_storage">
+            app:startIconDrawable="@drawable/ico_sd_storage">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/libraries_menu_autocomplete_library_path"

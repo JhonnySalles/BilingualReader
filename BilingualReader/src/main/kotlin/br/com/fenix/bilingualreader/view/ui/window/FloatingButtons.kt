@@ -156,9 +156,9 @@ class FloatingButtons constructor(
             mMoveWindow.setOnClickListener { onMove() }
 
             mIconToRight =
-                AppCompatResources.getDrawable(context, R.drawable.ic_floating_button_change_right)
+                AppCompatResources.getDrawable(context, R.drawable.ico_floating_button_change_right)
             mIconToLeft =
-                AppCompatResources.getDrawable(context, R.drawable.ic_floating_button_change_left)
+                AppCompatResources.getDrawable(context, R.drawable.ico_floating_button_change_left)
 
         }
 

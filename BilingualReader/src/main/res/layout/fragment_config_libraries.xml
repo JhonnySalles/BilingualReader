@@ -32,7 +32,7 @@
             android:layout_gravity="bottom|end"
             android:layout_margin="20dp"
             android:contentDescription="@string/config_libraries_add_library"
-            app:srcCompat="@drawable/ic_add_library"
+            app:srcCompat="@drawable/ico_add_library"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 

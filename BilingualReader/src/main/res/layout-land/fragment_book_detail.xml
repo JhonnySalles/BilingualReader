@@ -337,7 +337,7 @@
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/margin_small"
                         android:hint="@string/book_detail_information_book_language"
-                        app:startIconDrawable="@drawable/ic_language">
+                        app:startIconDrawable="@drawable/ico_language">
 
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/book_detail_information_menu_autocomplete_language"

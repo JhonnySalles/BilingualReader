@@ -93,22 +93,22 @@ class PopupAnnotations(var context: Context) {
                 btn.icon = when (btn.id) {
                     R.id.popup_annotation_yellow -> AppCompatResources.getDrawable(
                         context,
-                        if (mAnnotation.color == Color.Yellow) R.drawable.ic_text_view_select_yellow_selected else R.drawable.ic_text_view_select_yellow
+                        if (mAnnotation.color == Color.Yellow) R.drawable.ico_text_view_select_yellow_selected else R.drawable.ico_text_view_select_yellow
                     )
 
                     R.id.popup_annotation_green -> AppCompatResources.getDrawable(
                         context,
-                        if (mAnnotation.color == Color.Green) R.drawable.ic_text_view_select_green_selected else R.drawable.ic_text_view_select_green
+                        if (mAnnotation.color == Color.Green) R.drawable.ico_text_view_select_green_selected else R.drawable.ico_text_view_select_green
                     )
 
                     R.id.popup_annotation_blue -> AppCompatResources.getDrawable(
                         context,
-                        if (mAnnotation.color == Color.Blue) R.drawable.ic_text_view_select_blue_selected else R.drawable.ic_text_view_select_blue
+                        if (mAnnotation.color == Color.Blue) R.drawable.ico_text_view_select_blue_selected else R.drawable.ico_text_view_select_blue
                     )
 
                     R.id.popup_annotation_red -> AppCompatResources.getDrawable(
                         context,
-                        if (mAnnotation.color == Color.Red) R.drawable.ic_text_view_select_red_selected else R.drawable.ic_text_view_select_red
+                        if (mAnnotation.color == Color.Red) R.drawable.ico_text_view_select_red_selected else R.drawable.ico_text_view_select_red
                     )
 
                     else -> btn.icon

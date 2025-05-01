@@ -665,7 +665,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         val image = MangaImageCoverController.instance.getMangaCover(this, manga, true)
             ?: return Icon.createWithResource(
                 this,
-                R.drawable.ic_shortcut_book
+                R.drawable.ico_shortcut_book
             )
         val bitmapDrawable: Drawable = BitmapDrawable(resources, image)
         val drawableIcon = AdaptiveIconDrawable(bitmapDrawable, bitmapDrawable)
@@ -685,7 +685,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         val icon = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             getMangaIconAdaptive(manga)
         else
-            Icon.createWithResource(this, R.drawable.ic_shortcut_book)
+            Icon.createWithResource(this, R.drawable.ico_shortcut_book)
 
         val intent = Intent(this, MangaReaderActivity::class.java)
         intent.action = Intent.ACTION_VIEW

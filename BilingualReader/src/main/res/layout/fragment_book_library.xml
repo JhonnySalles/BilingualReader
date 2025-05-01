@@ -117,7 +117,7 @@
                 android:layout_gravity="center|top"
                 android:contentDescription="@string/popup_reading_book_open"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_line_popup"/>
+                android:src="@drawable/ico_line_popup"/>
 
             <LinearLayout
                 android:layout_width="match_parent"

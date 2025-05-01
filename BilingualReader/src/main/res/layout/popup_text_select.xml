@@ -58,7 +58,7 @@
                 android:contentDescription="@string/annotation_colors_green"
                 android:layout_marginStart="@dimen/popup_text_select_colors_margin"
                 app:iconSize="@dimen/popup_text_select_colors_icon_size"
-                app:icon="@drawable/ic_text_view_translate"/>
+                app:icon="@drawable/ico_text_view_translate"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_text_select_functions_tts"
@@ -94,7 +94,7 @@
                 android:contentDescription="@string/annotation_colors_yellow"
                 app:iconTint="@color/text_select_yellow"
                 app:iconSize="@dimen/popup_text_select_colors_icon_size"
-                app:icon="@drawable/ic_text_view_select_yellow"/>
+                app:icon="@drawable/ico_text_view_select_yellow"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_text_select_green"
@@ -105,7 +105,7 @@
                 android:layout_marginStart="@dimen/popup_text_select_colors_margin"
                 app:iconTint="@color/text_select_green"
                 app:iconSize="@dimen/popup_text_select_colors_icon_size"
-                app:icon="@drawable/ic_text_view_select_green"/>
+                app:icon="@drawable/ico_text_view_select_green"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_text_select_blue"
@@ -116,7 +116,7 @@
                 android:layout_marginStart="@dimen/popup_text_select_colors_margin"
                 app:iconTint="@color/text_select_blue"
                 app:iconSize="@dimen/popup_text_select_colors_icon_size"
-                app:icon="@drawable/ic_text_view_select_blue"/>
+                app:icon="@drawable/ico_text_view_select_blue"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_text_select_red"
@@ -127,7 +127,7 @@
                 android:layout_marginStart="@dimen/popup_text_select_colors_margin"
                 app:iconTint="@color/text_select_red"
                 app:iconSize="@dimen/popup_text_select_colors_icon_size"
-                app:icon="@drawable/ic_text_view_select_red"/>
+                app:icon="@drawable/ico_text_view_select_red"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_text_select_erase"
