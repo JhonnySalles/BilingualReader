@@ -5,7 +5,6 @@ import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
@@ -26,7 +25,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
@@ -54,6 +52,7 @@ import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFr
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
@@ -67,9 +66,9 @@ class BookReaderActivity : AppCompatActivity() {
 
     private val mViewModel: BookReaderViewModel by lazy { ViewModelProvider(this)[BookReaderViewModel::class.java] }
 
-    private lateinit var mToolBarTop: Toolbar
-    private lateinit var mToolBarChapter: TextView
-    private lateinit var mToolBarTitle : TextView
+    private lateinit var mToolBarTop: MaterialToolbar
+    private var mToolBarTitle : TextView? = null
+    private var mToolBarChapter: TextView? = null
 
     private lateinit var mToolBarBottomProgressTitle: TextView
     private lateinit var mToolBarBottom: LinearLayout
@@ -118,8 +117,8 @@ class BookReaderActivity : AppCompatActivity() {
 
         mToolBarTop = findViewById(R.id.toolbar_book_reader)
         MenuUtil.tintToolbar(mToolBarTop, theme)
-        mToolBarChapter = findViewById(R.id.reader_book_toolbar_chapter)
         mToolBarTitle = findViewById(R.id.reader_book_toolbar_title)
+        mToolBarChapter = findViewById(R.id.reader_book_toolbar_chapter)
 
         mToolBarBottom = findViewById(R.id.reader_book_toolbar_bottom)
         mToolBarBottomProgressTitle = findViewById(R.id.reader_book_bottom_progress_title)
@@ -140,10 +139,18 @@ class BookReaderActivity : AppCompatActivity() {
         mPopupConfigurationTab = findViewById(R.id.popup_book_configuration_tab)
         mPopupConfigurationView = findViewById(R.id.popup_book_configuration_view_pager)
 
-        mToolBarTitle.setOnClickListener {  }
-        mToolBarTitle.setOnLongClickListener {
-            mBook?.let { FileUtil(this).copyName(it) }
-            true
+        if (mToolBarTitle != null) {
+            mToolBarTitle!!.setOnClickListener { }
+            mToolBarTitle!!.setOnLongClickListener {
+                mBook?.let { FileUtil(this).copyName(it) }
+                true
+            }
+        } else {
+            mToolBarTop.setOnClickListener { }
+            mToolBarTop.setOnLongClickListener {
+                mBook?.let { FileUtil(this).copyName(it) }
+                true
+            }
         }
 
         if (findViewById<ImageView>(R.id.popup_book_configuration_center_button) == null)
@@ -266,7 +273,17 @@ class BookReaderActivity : AppCompatActivity() {
 
     fun changePageDescription(chapter: Int, description: String, page: Int, pages: Int) {
         mToolBarBottomProgressTitle.text = if (page > 0) getString(R.string.reading_book_title_position, page, pages, Util.formatDecimal(page.toFloat() / pages * 100)) else ""
-        mToolBarChapter.text = if (chapter > 0) getString(R.string.reading_book_title_chapter, chapter, description) else description
+        val title = if (chapter > 0) getString(R.string.reading_book_title_chapter, chapter, description) else description
+
+        if (mToolBarChapter != null) {
+            mToolBarChapter!!.text = title
+            mToolBarTop.title = ""
+            mToolBarTop.subtitle = ""
+        } else {
+            mToolBarTop.title = mBook?.name ?: ""
+            mToolBarTop.subtitle = title
+        }
+
         mBackgroundProgress.progress = page
         mBackgroundProgress.max = pages
 
@@ -288,7 +305,12 @@ class BookReaderActivity : AppCompatActivity() {
         mBook = book
         mRepository.updateLastAccess(book)
 
-        mToolBarTitle.text = book.name
+        if (mToolBarTitle != null) {
+            mToolBarTitle!!.text = book.name
+            mToolBarTop.title = ""
+        } else
+            mToolBarTop.title = book.name
+
         mToolBarBottomAuthor.text = book.author
 
         setDots(mutableListOf(), mutableListOf())
@@ -322,7 +344,7 @@ class BookReaderActivity : AppCompatActivity() {
         title.orientation = LinearLayout.VERTICAL
         title.setPadding(resources.getDimensionPixelOffset(R.dimen.page_link_page_index_title_padding))
         val name = TextView(this)
-        name.text = mToolBarTitle.text
+        name.text = if (mToolBarTitle != null) mToolBarTitle!!.text else mToolBarTop.title
         name.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_index_dialog_size))
         name.setTextColor(getColorFromAttr(R.attr.colorOnBackground))
         title.addView(name)
@@ -332,11 +354,11 @@ class BookReaderActivity : AppCompatActivity() {
         index.setTextColor(getColorFromAttr(R.attr.colorPrimary))
         title.addView(index)
         title.setOnLongClickListener {
-            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clip = ClipData.newPlainText("Copied Text", mToolBarTitle.text)
+            val title = if (mToolBarTitle != null) mToolBarTitle!!.text else mToolBarTop.title
+            val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+            val clip = ClipData.newPlainText("Copied Text", title)
             clipboard.setPrimaryClip(clip)
-
-            Toast.makeText(this, getString(R.string.action_copy, mToolBarTitle.text), Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.action_copy, title), Toast.LENGTH_LONG).show()
 
             true
         }
@@ -356,7 +378,7 @@ class BookReaderActivity : AppCompatActivity() {
     @SuppressLint("MissingSuperCall")
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
         if (mBook != null)
-            savedInstanceState.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, mBook)
+            savedInstanceState.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, mBook)
 
         super.onSaveInstanceState(savedInstanceState)
     }
@@ -366,7 +388,7 @@ class BookReaderActivity : AppCompatActivity() {
 
         val book = (savedInstanceState.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK) as Book?)
         if (book != null) {
-            mBook = book
+            setBook(book)
             changePageDescription(book.chapter, book.chapterDescription, book.bookMark, book.pages)
         }
     }

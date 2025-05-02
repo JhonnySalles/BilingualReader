@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_reader_book_content">
+    <data>
+        <import type="android.view.View"/>
+        <import type="android.view.Gravity" />
+
+        <variable
+            name="toolbarReaderCenter"
+            type="Boolean" />
+    </data>
+
+    <RelativeLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:custom="http://schemas.android.com/apk/res/br.com.fenix.bilingualreader"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
+
+        <include
+            android:id="@+id/reader_last_page"
+            layout="@layout/last_page_manga"
+            android:layout_width="@dimen/last_page_card_layout_width"
+            android:layout_height="@dimen/last_page_card_layout_height"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="140dp"
+            android:layout_alignParentStart="true"
+            android:visibility="gone"/>
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/reader_book_toolbar_top"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_reader_toolbar_background"
+            android:paddingBottom="5dp"
+            android:theme="@style/MainToolbarContentTheme"
+            app:elevation="0dp">
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar_book_reader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                android:padding="0dp"
+                app:popupTheme="@style/MainToolbarStyle"
+                style="@style/MainToolbarThemeWithShadow"
+                android:contentInsetStart="0dp"
+                android:contentInsetLeft="0dp"
+                app:contentInsetLeft="0dp"
+                app:contentInsetStart="0dp"/>
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <LinearLayout
+            android:id="@+id/reader_book_toolbar_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:paddingTop="0dp"
+            android:paddingBottom="5dp"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:background="@drawable/app_reader_toolbar_background_inverse"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/reader_book_bottom_progress_title"
+                style="@style/ReaderBookToolbarTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/title_medium_size"/>
+
+            <br.com.fenix.bilingualreader.view.components.DottedSeekBar
+                android:id="@+id/reader_book_bottom_progress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="4dp"
+                android:minHeight="2dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="10dp"
+                android:progressDrawable="@drawable/reader_progress_pointer"
+                android:thumb="@drawable/reader_progress_thumb_big"
+                custom:dots_drawable="@drawable/ico_progress_dot"
+                android:thumbOffset="6dp"/>
+
+            <TextView
+                android:id="@+id/reader_book_toolbar_bottom_author"
+                style="@style/ReaderToolbarTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/title_medium_size"
+                android:layout_marginEnd="5dp"/>
+        </LinearLayout>
+    </RelativeLayout>
+</layout>

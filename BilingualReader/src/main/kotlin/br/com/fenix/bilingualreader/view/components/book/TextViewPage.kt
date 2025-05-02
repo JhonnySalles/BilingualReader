@@ -106,8 +106,8 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
             mSelectionListener?.onTextUnselected()
     }
 
-    private var mBaseDistZoomIn = 0
-    private var mBaseDistZoomOut = 0
+    private var mBaseDistZoomIn = 0f
+    private var mBaseDistZoomOut = 0f
 
     fun resetZoom() {
         if (mIsZoom)
@@ -159,10 +159,10 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
         return false
     }
 
-    private fun getDistance(event: MotionEvent): Int {
-        val dx = (event.getX(0) - event.getX(1)).toInt()
-        val dy = (event.getY(0) - event.getY(1)).toInt()
-        return sqrt((dx * dx + dy * dy).toDouble()).toInt()
+    private fun getDistance(event: MotionEvent): Float {
+        val dx = event.getX(0) - event.getX(1)
+        val dy = event.getY(0) - event.getY(1)
+        return sqrt(dx * dx + dy * dy)
     }
 
     inner class SimpleGestureListener : GestureDetector.SimpleOnGestureListener() {
