@@ -46,7 +46,7 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
         super.setOnTouchListener { view, event ->
             view.performClick()
 
-            if (mCustomMovement != null && event.pointerCount <= 1) {
+            if (mCustomMovement != null) {
                 if (text is Spannable && mCustomMovement!!.onTouchEvent(this, text as Spannable, event))
                     return@setOnTouchListener true
             }
@@ -106,8 +106,7 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
             mSelectionListener?.onTextUnselected()
     }
 
-    private var mBaseDistZoomIn = 0f
-    private var mBaseDistZoomOut = 0f
+    private var mLastZoomDistance = 0f
 
     fun resetZoom() {
         if (mIsZoom)
@@ -124,32 +123,26 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
         if (event.pointerCount == 2) {
             try {
                 mIsChangeSize = false
-
                 val action = event.action
                 val pure = action and MotionEvent.ACTION_MASK
-
                 if (pure == MotionEvent.ACTION_POINTER_DOWN && textSize <= TEXT_MAX_SIZE && textSize >= TEXT_MIN_SIZE) {
-                    mBaseDistZoomIn = getDistance(event)
-                    mBaseDistZoomOut = getDistance(event)
+                    mLastZoomDistance = getDistance(event)
                 } else {
+                    var finalSize = textSize
                     val currentDistance = getDistance(event)
-                    if (currentDistance > mBaseDistZoomIn) {
-                        var finalSize: Float = textSize + STEP
-                        if (finalSize > TEXT_MAX_SIZE) {
+                    if (currentDistance > mLastZoomDistance) {
+                        finalSize = textSize + STEP
+                        if (finalSize > TEXT_MAX_SIZE)
                             finalSize = TEXT_MAX_SIZE
-                        }
-                        setTextSize(TypedValue.COMPLEX_UNIT_PX, finalSize)
-                        mIsZoom = true
-                    } else {
-                        if (currentDistance < mBaseDistZoomOut) {
-                            var finalSize: Float = textSize - STEP
-                            if (finalSize < TEXT_MIN_SIZE)
-                                finalSize = TEXT_MIN_SIZE
-
-                            setTextSize(TypedValue.COMPLEX_UNIT_PX, finalSize)
-                            mIsZoom = true
-                        }
+                    } else if (currentDistance < mLastZoomDistance) {
+                        finalSize = textSize - STEP
+                        if (finalSize < TEXT_MIN_SIZE)
+                            finalSize = TEXT_MIN_SIZE
                     }
+
+                    mLastZoomDistance = currentDistance
+                    setTextSize(TypedValue.COMPLEX_UNIT_PX, finalSize)
+                    mIsZoom = finalSize != TEXT_MIN_SIZE
                 }
             } finally {
                 mIsChangeSize = true

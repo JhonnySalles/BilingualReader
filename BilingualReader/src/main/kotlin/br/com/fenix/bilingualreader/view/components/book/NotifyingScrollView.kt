@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader.view.components.book
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.ScrollView
+import androidx.core.view.marginTop
 import br.com.fenix.bilingualreader.service.functions.AutoScroll
 import br.com.fenix.bilingualreader.service.listener.ScrollChangeListener
 import org.slf4j.LoggerFactory
@@ -32,7 +33,7 @@ class NotifyingScrollView(context: Context, attributeSet: AttributeSet?) : Scrol
         if (child != null) {
             var isScroll = false
             if (isBack) {
-                if (scrollY > 0 && scrollY > 10) {
+                if (scrollY > 15) {
                     isScroll = true
                     smoothScrollTo(0, scrollY - context.resources.displayMetrics.heightPixels)
                 }

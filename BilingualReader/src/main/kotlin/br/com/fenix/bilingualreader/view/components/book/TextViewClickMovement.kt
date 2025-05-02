@@ -8,6 +8,8 @@ import android.text.method.MovementMethod
 import android.text.style.ClickableSpan
 import android.view.MotionEvent
 import android.widget.TextView
+import androidx.core.view.marginBottom
+import androidx.core.view.marginRight
 import br.com.fenix.bilingualreader.model.interfaces.LongClickableSpan
 import br.com.fenix.bilingualreader.service.listener.SelectionChangeListener
 import org.slf4j.LoggerFactory
@@ -63,8 +65,13 @@ class TextViewClickMovement : LinkMovementMethod() {
             x += widget.scrollX
             y += widget.scrollY
 
-            val layout = widget.layout
+            if (y < widget.top || (y > (widget.bottom - (widget.totalPaddingBottom + widget.marginBottom))))
+                return consume
 
+            if (x < widget.left || (x > (widget.right - (widget.totalPaddingRight + widget.marginRight))))
+                return consume
+
+            val layout = widget.layout
             val line: Int = layout.getLineForVertical(y)
             val off: Int = layout.getOffsetForHorizontal(line, x.toFloat())
 
