@@ -1,7 +1,6 @@
 package br.com.fenix.bilingualreader.view.ui.annotation
 
 import android.app.Application
-import android.graphics.Bitmap
 import android.widget.Filter
 import android.widget.Filterable
 import androidx.lifecycle.AndroidViewModel

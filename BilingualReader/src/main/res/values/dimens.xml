@@ -604,7 +604,7 @@
 
     <dimen name="book_reader_cover_margin_start_end">20dp</dimen>
     <dimen name="book_reader_cover_margin_top_bottom">50dp</dimen>
-    <dimen name="book_reader_cover_message">40dp</dimen>
+    <dimen name="book_reader_cover_message">20dp</dimen>
 
     <dimen name="book_reader_text_margin">10dp</dimen>
     <dimen name="book_reader_text_margin_top_bottom">20dp</dimen>
@@ -612,6 +612,6 @@
 
     <dimen name="manga_reader_cover_margin_start_end">20dp</dimen>
     <dimen name="manga_reader_cover_margin_top_bottom">50dp</dimen>
-    <dimen name="manga_reader_cover_message">40dp</dimen>
+    <dimen name="manga_reader_cover_message">20dp</dimen>
 
 </resources>

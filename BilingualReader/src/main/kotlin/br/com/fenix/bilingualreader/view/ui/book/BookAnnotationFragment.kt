@@ -46,8 +46,6 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
-import br.com.fenix.bilingualreader.view.adapter.annotation.AnnotationRootViewHolder
-import br.com.fenix.bilingualreader.view.adapter.annotation.AnnotationTitleViewHolder
 import br.com.fenix.bilingualreader.view.adapter.book.BookAnnotationHeaderViewHolder
 import br.com.fenix.bilingualreader.view.adapter.book.BookAnnotationLineAdapter
 import br.com.fenix.bilingualreader.view.ui.annotation.AnnotationPopupFilterChapter

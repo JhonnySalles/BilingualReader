@@ -17,7 +17,6 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library

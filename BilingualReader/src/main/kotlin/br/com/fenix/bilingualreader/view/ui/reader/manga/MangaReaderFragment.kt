@@ -73,6 +73,7 @@ import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
@@ -82,6 +83,7 @@ import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
+import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
@@ -414,7 +416,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mPageNavTextView = mPageNavLayout.findViewById<View>(R.id.reader_manga_bottom_progress_title) as TextView
 
         if (mParse == null) {
-            mCoverImage.setImageResource(R.mipmap.book_cover_not_found)
+            val cover = if (mManga != null) MangaImageCoverController.instance.getMangaCover(requireContext(), mManga!!, isCoverSize = true) else null
+            mCoverImage.setImageBitmap(ImageUtil.applyCoverEffect(requireContext(), cover, Type.BOOK))
             mCoverMessage.text = getString(R.string.reading_manga_open_exception)
             mPageNavTextView.text = ""
             return view

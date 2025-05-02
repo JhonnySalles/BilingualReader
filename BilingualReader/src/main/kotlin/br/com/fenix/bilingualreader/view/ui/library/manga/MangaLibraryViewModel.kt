@@ -46,8 +46,6 @@ import java.util.Collections
 import java.util.Date
 import java.util.Locale
 import java.util.Objects
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 import java.util.stream.Collectors
 import br.com.fenix.bilingualreader.model.enums.Filter as FilterType

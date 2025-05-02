@@ -1,6 +1,5 @@
 package br.com.fenix.bilingualreader.model.enums
 
-import br.com.fenix.bilingualreader.model.enums.FileType.values
 import java.io.File
 
 enum class FileType(var type: Int, var extension: Array<String>, var mimeType: Array<String>, var acronym : String) {

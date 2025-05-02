@@ -29,8 +29,6 @@ import org.slf4j.LoggerFactory
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.Objects
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
 import br.com.fenix.bilingualreader.model.enums.Filter as FilterType
 

@@ -1,7 +1,6 @@
 package br.com.fenix.bilingualreader.view.adapter.annotation
 
 import android.graphics.drawable.AnimatedVectorDrawable
-import android.graphics.drawable.AnimationDrawable
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout

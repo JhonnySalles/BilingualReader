@@ -86,6 +86,7 @@ import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
+import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
@@ -284,8 +285,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             mHandler.postDelayed({ BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, false) }, 300)
             generateHistory(mBook!!)
         } else {
-            mCoverImage.setImageResource(R.mipmap.book_cover_not_found)
-            mCoverMessage.text = getString(R.string.reading_manga_open_exception)
+            mCoverImage.setImageBitmap(ImageUtil.applyCoverEffect(requireContext(), null, Type.BOOK))
+            mCoverMessage.text = getString(R.string.reading_book_open_exception)
         }
 
         mMenuPopupBottomSheet = requireActivity().findViewById<ImageView>(R.id.popup_book_configuration_center_button) == null
@@ -466,14 +467,15 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 preparePager()
             } else {
                 mParse = null
-                mCoverImage.setImageResource(R.mipmap.book_cover_not_found)
+                val cover = if (mBook != null) BookImageCoverController.instance.getBookCover(requireContext(), mBook!!, isCoverSize = true) else null
+                mCoverImage.setImageBitmap(ImageUtil.applyCoverEffect(requireContext(), cover, Type.BOOK))
                 mCoverMessage.text = getString(R.string.reading_book_open_exception)
             }
         } else {
             if (::mCoverContent.isInitialized) {
                 mCoverContent.visibility = View.VISIBLE
                 mCoverContent.alpha = 1f
-                mCoverMessage.text = ""
+                mCoverMessage.text = if (mBook == null) getString(R.string.reading_book_open_exception) else ""
             }
         }
     }

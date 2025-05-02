@@ -18,6 +18,7 @@ import android.content.res.ColorStateList
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.drawable.Animatable2
@@ -45,9 +46,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.widget.NestedScrollView
@@ -709,8 +712,10 @@ class MsgUtil {
                     .setPositiveButton(R.string.action_neutral) { _, _ -> }.create().show()
         }
 
-        inline fun alert(context: Context, title: String, message: String, theme: Int = R.style.AppCompatMaterialAlertDialog,
-            crossinline action: (dialog: DialogInterface, which: Int) -> Unit) {
+        inline fun alert(
+            context: Context, title: String, message: String, theme: Int = R.style.AppCompatMaterialAlertDialog,
+            crossinline action: (dialog: DialogInterface, which: Int) -> Unit,
+        ) {
             MaterialAlertDialogBuilder(context, theme)
                 .setTitle(title).setMessage(message)
                 .setPositiveButton(
@@ -721,9 +726,11 @@ class MsgUtil {
                 .create().show()
         }
 
-        inline fun alert(context: Context, title: String, message: String, theme: Int = R.style.AppCompatMaterialAlertDialog,
+        inline fun alert(
+            context: Context, title: String, message: String, theme: Int = R.style.AppCompatMaterialAlertDialog,
             crossinline positiveAction: (dialog: DialogInterface, which: Int) -> Unit,
-            crossinline negativeAction: (dialog: DialogInterface, which: Int) -> Unit) {
+            crossinline negativeAction: (dialog: DialogInterface, which: Int) -> Unit,
+        ) {
             MaterialAlertDialogBuilder(context, theme)
                 .setTitle(title).setMessage(message)
                 .setPositiveButton(
@@ -739,8 +746,10 @@ class MsgUtil {
                 .create().show()
         }
 
-        inline fun error(context: Context, title: String, message: String, theme: Int = R.style.AppCompatMaterialErrorDialogStyle,
-                         crossinline action: (dialog: DialogInterface, which: Int) -> Unit) {
+        inline fun error(
+            context: Context, title: String, message: String, theme: Int = R.style.AppCompatMaterialErrorDialogStyle,
+            crossinline action: (dialog: DialogInterface, which: Int) -> Unit,
+        ) {
             MaterialAlertDialogBuilder(context, theme)
                 .setTitle(title).setMessage(message)
                 .setPositiveButton(
@@ -884,6 +893,21 @@ class ImageUtil {
                 image.compress(Bitmap.CompressFormat.JPEG, 100, otp)
                 ByteArrayInputStream(output.toByteArray())
             }
+        }
+
+        fun applyCoverEffect(context: Context, cover: Bitmap?, type: Type) : Bitmap? {
+            val image = cover ?: (AppCompatResources.getDrawable(context, R.mipmap.reader_cover_not_found)?.toBitmap() ?: return null)
+            val cover = image.copy(Bitmap.Config.ARGB_8888, true)
+            val canvas = Canvas(cover)
+
+            val effect = when(type) {
+                Type.MANGA -> AppCompatResources.getDrawable(context, R.mipmap.book_not_found_effect)
+                Type.BOOK -> AppCompatResources.getDrawable(context, R.mipmap.book_not_found_effect)
+            }
+
+            effect?.setBounds(0, 0, cover.width, cover.height)
+            effect?.draw(canvas)
+            return cover
         }
 
     }

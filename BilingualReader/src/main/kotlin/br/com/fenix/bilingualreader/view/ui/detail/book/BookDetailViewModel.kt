@@ -18,7 +18,6 @@ import br.com.fenix.bilingualreader.model.entity.LinkedFile
 import br.com.fenix.bilingualreader.model.entity.Tags
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
-import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.ApiListener
 import br.com.fenix.bilingualreader.service.listener.BookParseListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse

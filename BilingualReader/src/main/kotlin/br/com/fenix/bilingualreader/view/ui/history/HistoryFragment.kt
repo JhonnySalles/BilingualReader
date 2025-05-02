@@ -19,7 +19,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
 import android.widget.AbsListView
 import android.widget.AutoCompleteTextView
@@ -31,7 +30,6 @@ import android.widget.SimpleCursorAdapter
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -39,7 +37,6 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
@@ -48,7 +45,6 @@ import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.history.HistoryCardAdapter
-import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
