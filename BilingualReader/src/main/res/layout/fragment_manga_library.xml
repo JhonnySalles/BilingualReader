@@ -48,7 +48,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_centerHorizontal="true"
-                        android:layout_margin="@dimen/margin_small"
                         android:clipToPadding="false"
                         android:columnCount="3"
                         android:layoutAnimation="@anim/layout_animation_library_line"

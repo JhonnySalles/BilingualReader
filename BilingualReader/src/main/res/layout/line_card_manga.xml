@@ -10,7 +10,8 @@
     android:focusable="true"
     android:orientation="horizontal"
     android:layout_marginStart="8dp"
-    android:layout_marginEnd="8dp">
+    android:layout_marginEnd="8dp"
+    android:minHeight="@dimen/manga_line_card_layout_height">
 
     <!-- Media -->
     <com.google.android.material.card.MaterialCardView

@@ -3,7 +3,6 @@ package br.com.fenix.bilingualreader.view.components.book
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.ScrollView
-import androidx.core.view.marginTop
 import br.com.fenix.bilingualreader.service.functions.AutoScroll
 import br.com.fenix.bilingualreader.service.listener.ScrollChangeListener
 import org.slf4j.LoggerFactory

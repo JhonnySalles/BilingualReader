@@ -72,12 +72,14 @@ import br.com.fenix.bilingualreader.service.listener.PopupOrderListener
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.service.scanner.ScannerManga
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.AdapterUtil.AdapterUtils
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaGridCardAdapter
+import br.com.fenix.bilingualreader.view.adapter.library.MangaGridViewHolder.Companion.mIsLandscape
 import br.com.fenix.bilingualreader.view.adapter.library.MangaLineCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaSeparatorGridCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
@@ -897,16 +899,13 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     private fun getGridLayout(): RecyclerView.LayoutManager {
         val type = mViewModel.libraryType.value
+        val typeWidth = when (type) {
+            LibraryMangaType.SEPARATOR_MEDIUM -> LibraryMangaType.GRID_MEDIUM
+            LibraryMangaType.SEPARATOR_BIG -> LibraryMangaType.GRID_BIG
+            else -> type
+        }
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        val columnWidth: Int = when (type) {
-            LibraryMangaType.SEPARATOR_BIG -> resources.getDimension(R.dimen.manga_separator_grid_card_layout_width).toInt()
-            LibraryMangaType.SEPARATOR_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.manga_separator_grid_card_layout_width_landscape_medium).toInt() else resources.getDimension(R.dimen.manga_separator_grid_card_layout_width_medium).toInt()
-            LibraryMangaType.GRID_BIG -> resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
-            LibraryMangaType.GRID_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_landscape_medium).toInt() else resources.getDimension(R.dimen.manga_grid_card_layout_width_medium).toInt()
-            LibraryMangaType.GRID_SMALL -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_small).toInt() else resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
-            else -> resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
-        } + 1
-
+        val columnWidth: Int = AdapterUtils.getMangaCardSize(requireContext(), typeWidth!!, isLandscape).first + 1
         val spaceCount: Int = max(1, (Resources.getSystem().displayMetrics.widthPixels -3) / columnWidth)
         return when (type) {
             LibraryMangaType.SEPARATOR_BIG,
@@ -1193,26 +1192,37 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         val skeletonTitleHeight = if (type == LibraryMangaType.SEPARATOR_MEDIUM || type == LibraryMangaType.SEPARATOR_BIG) resources.getDimension(R.dimen.manga_grid_skeleton_title_height).toInt() else 0
         val resource = when(type) {
             LibraryMangaType.LINE -> R.dimen.manga_line_skeleton_height
-            LibraryMangaType.SEPARATOR_BIG,
-            LibraryMangaType.GRID_BIG,
-                -> R.dimen.manga_grid_skeleton_height_big
-            else -> R.dimen.manga_grid_skeleton_height_medium
+            LibraryMangaType.SEPARATOR_BIG -> R.dimen.manga_grid_skeleton_height_separator_big
+            LibraryMangaType.SEPARATOR_MEDIUM -> R.dimen.manga_grid_skeleton_height_separator_medium
+            LibraryMangaType.GRID_BIG -> R.dimen.manga_grid_skeleton_height_big
+            LibraryMangaType.GRID_MEDIUM -> R.dimen.manga_grid_skeleton_height_big
+            LibraryMangaType.GRID_SMALL -> R.dimen.manga_grid_skeleton_height_small
         }
         val skeletonRowHeight = resources.getDimension(resource).toInt()
         return ceil(((pxHeight - skeletonTitleHeight) / skeletonRowHeight).toDouble()).toInt()
     }
 
     private fun getSkeletonGridItemPerRow(type: LibraryMangaType): Int {
-        val columnWidth = resources.getDimension(getSkeletonItemWidth(type)) + 1
+        val typeWidth = when (type) {
+            LibraryMangaType.SEPARATOR_MEDIUM -> LibraryMangaType.GRID_MEDIUM
+            LibraryMangaType.SEPARATOR_BIG -> LibraryMangaType.GRID_BIG
+            else -> type
+        }
+        val columnWidth = getSkeletonItemWidth(typeWidth) + 1
         return max(1, (Resources.getSystem().displayMetrics.widthPixels -3) / columnWidth.toInt())
     }
 
     private fun getSkeletonItemHeight(type: LibraryMangaType) : Int {
-        return if (type == LibraryMangaType.SEPARATOR_BIG || type == LibraryMangaType.GRID_BIG) R.dimen.manga_grid_skeleton_card_image_big_height else R.dimen.manga_grid_skeleton_card_image_medium_height
+        return AdapterUtils.getMangaCardSize(requireContext(), type, mIsLandscape).second
     }
 
     private fun getSkeletonItemWidth(type: LibraryMangaType) : Int {
-        return if (type == LibraryMangaType.SEPARATOR_BIG || type == LibraryMangaType.GRID_BIG) R.dimen.manga_grid_skeleton_card_image_big_width else R.dimen.manga_grid_skeleton_card_image_medium_width
+        val typeWidth = when (type) {
+            LibraryMangaType.SEPARATOR_MEDIUM -> LibraryMangaType.GRID_MEDIUM
+            LibraryMangaType.SEPARATOR_BIG -> LibraryMangaType.GRID_BIG
+            else -> type
+        }
+        return AdapterUtils.getMangaCardSize(requireContext(), typeWidth, mIsLandscape).first
     }
 
     private fun showSkeleton(show: Boolean) {
@@ -1230,8 +1240,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                 else {
                     val row = mInflater.inflate(R.layout.grid_card_manga_skeleton, null)
                     var container = row.findViewById<LinearLayout>(R.id.grid_skeleton_items)
-                    val height = resources.getDimension(getSkeletonItemHeight(type)).toInt()
-                    val width = resources.getDimension(getSkeletonItemWidth(type)).toInt()
+                    val height = getSkeletonItemHeight(type)
+                    val width = getSkeletonItemWidth(type)
                     val margin = resources.getDimension(R.dimen.manga_grid_skeleton_divider).toInt()
                     val items = getSkeletonGridItemPerRow(type)
                     val divider = ((Resources.getSystem().displayMetrics.widthPixels.toFloat() - (items * (width + margin))) / items).toInt()

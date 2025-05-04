@@ -71,6 +71,7 @@ import br.com.fenix.bilingualreader.service.listener.PopupOrderListener
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.service.scanner.ScannerBook
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.AdapterUtil.AdapterUtils
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.Notifications
@@ -79,6 +80,7 @@ import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookLineCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookSeparatorGridCardAdapter
+import br.com.fenix.bilingualreader.view.adapter.library.MangaGridViewHolder.Companion.mIsLandscape
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
@@ -892,15 +894,13 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
     private fun getGridLayout(): RecyclerView.LayoutManager {
         val type = mViewModel.libraryType.value
+        val typeWidth = when (type) {
+            LibraryBookType.SEPARATOR_MEDIUM -> LibraryBookType.GRID_MEDIUM
+            LibraryBookType.SEPARATOR_BIG -> LibraryBookType.GRID_BIG
+            else -> type
+        }
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        val columnWidth: Int = when (type) {
-            LibraryBookType.SEPARATOR_BIG -> resources.getDimension(R.dimen.book_separator_grid_card_layout_width).toInt()
-            LibraryBookType.SEPARATOR_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.book_separator_grid_card_layout_width_landscape_medium).toInt() else resources.getDimension(R.dimen.book_separator_grid_card_layout_width_medium).toInt()
-            LibraryBookType.GRID_BIG -> resources.getDimension(R.dimen.book_grid_card_layout_width).toInt()
-            LibraryBookType.GRID_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.book_grid_card_layout_width_landscape_medium).toInt() else resources.getDimension(R.dimen.book_grid_card_layout_width_medium).toInt()
-            else -> resources.getDimension(R.dimen.book_grid_card_layout_width).toInt()
-        } + 1
-
+        val columnWidth: Int = AdapterUtils.getBookCardSize(requireContext(), typeWidth!!, isLandscape).first + 1
         val spaceCount: Int = max(1, (Resources.getSystem().displayMetrics.widthPixels -3) / columnWidth)
         return when (type) {
             LibraryBookType.SEPARATOR_BIG,
@@ -1178,25 +1178,36 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         val skeletonTitleHeight = if (type == LibraryBookType.SEPARATOR_MEDIUM || type == LibraryBookType.SEPARATOR_BIG) resources.getDimension(R.dimen.book_grid_skeleton_title_height).toInt() else 0
         val resource = when(type) {
             LibraryBookType.LINE -> R.dimen.book_line_skeleton_height
-            LibraryBookType.SEPARATOR_BIG,
+            LibraryBookType.SEPARATOR_BIG -> R.dimen.book_grid_skeleton_height_separator_big
+            LibraryBookType.SEPARATOR_MEDIUM -> R.dimen.book_grid_skeleton_height_separator_medium
             LibraryBookType.GRID_BIG -> R.dimen.book_grid_skeleton_height_big
-            else -> R.dimen.book_grid_skeleton_height_medium
+            LibraryBookType.GRID_MEDIUM -> R.dimen.book_grid_skeleton_height_medium
         }
         val skeletonRowHeight = resources.getDimension(resource).toInt()
         return ceil(((pxHeight - skeletonTitleHeight) / skeletonRowHeight).toDouble()).toInt()
     }
 
     private fun getSkeletonGridItemPerRow(type: LibraryBookType): Int {
-        val columnWidth = resources.getDimension(getSkeletonItemWidth(type)) + 1
+        val typeWidth = when (type) {
+            LibraryBookType.SEPARATOR_MEDIUM -> LibraryBookType.GRID_MEDIUM
+            LibraryBookType.SEPARATOR_BIG -> LibraryBookType.GRID_BIG
+            else -> type
+        }
+        val columnWidth = getSkeletonItemWidth(typeWidth) + 1
         return max(1, (Resources.getSystem().displayMetrics.widthPixels - 3) / columnWidth.toInt())
     }
 
     private fun getSkeletonItemHeight(type: LibraryBookType) : Int {
-        return if (type == LibraryBookType.SEPARATOR_BIG || type == LibraryBookType.GRID_BIG) R.dimen.book_grid_skeleton_card_image_big_height else R.dimen.book_grid_skeleton_card_image_medium_height
+        return AdapterUtils.getBookCardSize(requireContext(), type, mIsLandscape).second
     }
 
     private fun getSkeletonItemWidth(type: LibraryBookType) : Int {
-        return if (type == LibraryBookType.SEPARATOR_BIG || type == LibraryBookType.GRID_BIG) R.dimen.book_grid_skeleton_card_image_big_width else R.dimen.book_grid_skeleton_card_image_medium_width
+        val typeWidth = when (type) {
+            LibraryBookType.SEPARATOR_MEDIUM -> LibraryBookType.GRID_MEDIUM
+            LibraryBookType.SEPARATOR_BIG -> LibraryBookType.GRID_BIG
+            else -> type
+        }
+        return AdapterUtils.getBookCardSize(requireContext(), typeWidth, mIsLandscape).first
     }
 
     private fun showSkeleton(show: Boolean) {
@@ -1214,11 +1225,11 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                 else {
                     val row = mInflater.inflate(R.layout.grid_card_book_skeleton, null)
                     var container = row.findViewById<LinearLayout>(R.id.grid_skeleton_items)
-                    val height = resources.getDimension(getSkeletonItemHeight(type)).toInt()
-                    val width = resources.getDimension(getSkeletonItemWidth(type)).toInt()
+                    val height = getSkeletonItemHeight(type)
+                    val width = getSkeletonItemWidth(type)
                     val margin = resources.getDimension(R.dimen.book_grid_skeleton_divider).toInt()
                     val items = getSkeletonGridItemPerRow(type)
-                    val divider = ((Resources.getSystem().displayMetrics.widthPixels.toFloat() - (items * width)) / items).toInt()
+                    val divider = ((Resources.getSystem().displayMetrics.widthPixels.toFloat() - (items * (width + margin))) / items).toInt()
                     container.removeAllViews()
                     for (i in 0.. items) {
                         val item = mInflater.inflate(R.layout.grid_card_book_skeleton_item, null)

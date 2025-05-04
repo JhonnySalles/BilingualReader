@@ -53,7 +53,6 @@
                         android:layoutAnimation="@anim/layout_animation_library_line"
                         android:clipToPadding="false"
                         android:paddingBottom="@dimen/book_list_padding"
-                        android:layout_margin="@dimen/margin_small"
                         android:visibility="gone"/>
                 </androidx.constraintlayout.widget.ConstraintLayout>
 

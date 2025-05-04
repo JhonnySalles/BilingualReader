@@ -15,6 +15,7 @@ import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.AdapterUtil.AdapterUtils
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.TextViewWithBorder
 import com.google.android.material.card.MaterialCardView
@@ -24,12 +25,7 @@ class MangaGridViewHolder(var type: LibraryMangaType, itemView: View, private va
 
     companion object {
         var mIsLandscape: Boolean = false
-        var mMangaCardWidth: Int = 0
-        var mMangaCardHeight: Int = 0
-        var mMangaCardWidthMedium: Int = 0
-        var mMangaCardWidthLandscapeMedium: Int = 0
-        var mMangaCardWidthSmall: Int = 0
-        var mMangaCardHeightSmall: Int = 0
+        var mMangaCardSize: Pair<Int, Int> = Pair(0, 0)
         var mMangaImage: Int = 0
         var mMangaImageSmall: Int = 0
         lateinit var mDefaultImageCover1: Bitmap
@@ -41,12 +37,7 @@ class MangaGridViewHolder(var type: LibraryMangaType, itemView: View, private va
 
     init {
         mIsLandscape = itemView.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        mMangaCardWidth = itemView.resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
-        mMangaCardHeight = itemView.resources.getDimension(R.dimen.manga_grid_card_layout_height).toInt()
-        mMangaCardWidthMedium = itemView.resources.getDimension(R.dimen.manga_grid_card_layout_width_medium).toInt()
-        mMangaCardWidthLandscapeMedium = itemView.resources.getDimension(R.dimen.manga_grid_card_layout_width_landscape_medium).toInt()
-        mMangaCardWidthSmall = itemView.resources.getDimension(R.dimen.manga_grid_card_layout_width_small).toInt()
-        mMangaCardHeightSmall = itemView.resources.getDimension(R.dimen.manga_grid_card_layout_height_small).toInt()
+        mMangaCardSize = AdapterUtils.getMangaCardSize(itemView.context, type, mIsLandscape)
         mMangaImageSmall = itemView.resources.getDimension(R.dimen.manga_grid_card_image_small).toInt()
         mMangaImage = itemView.resources.getDimension(R.dimen.manga_grid_card_image).toInt()
 
@@ -89,20 +80,9 @@ class MangaGridViewHolder(var type: LibraryMangaType, itemView: View, private va
         favoriteIcon.setImageResource(if (manga.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
         config.setOnClickListener { listener.onClickConfig(manga, cardView, itemView, layoutPosition) }
 
-        when (type) {
-            LibraryMangaType.GRID_MEDIUM -> cardView.layoutParams.width = if (mIsLandscape) mMangaCardWidthLandscapeMedium else mMangaCardWidthMedium
-            LibraryMangaType.GRID_SMALL ->
-                if (mIsLandscape) {
-                    cardView.layoutParams.width = mMangaCardWidthSmall
-                    cardView.layoutParams.height = mMangaCardHeightSmall
-                    mangaImage.layoutParams.height = mMangaImageSmall
-                }
-            else -> {
-                cardView.layoutParams.width = mMangaCardWidth
-                cardView.layoutParams.height = mMangaCardHeight
-                mangaImage.layoutParams.height = mMangaImage
-            }
-        }
+        cardView.layoutParams.width = mMangaCardSize.first
+        cardView.layoutParams.height = mMangaCardSize.second
+        mangaImage.layoutParams.height = if (type == LibraryMangaType.GRID_SMALL) mMangaImageSmall else mMangaImage
 
         cardView.setOnClickListener { listener.onClick(manga, itemView) }
         cardView.setOnLongClickListener {

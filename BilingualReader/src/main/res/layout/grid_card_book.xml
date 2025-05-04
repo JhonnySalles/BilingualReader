@@ -4,8 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/book_grid_card"
     style="@style/AppBackground.Card"
-    android:layout_width="@dimen/book_grid_card_layout_width"
-    android:layout_height="@dimen/book_grid_card_layout_height"
+    android:layout_width="@dimen/book_grid_card_layout_width_big"
+    android:layout_height="@dimen/book_grid_card_layout_height_big"
     android:layout_margin="5dp"
     app:strokeWidth="0.0dp">
 

@@ -64,6 +64,8 @@ import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Filter
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.model.enums.LibraryBookType
+import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
@@ -1416,6 +1418,78 @@ class ListUtil {
                     break
                 }
             return list
+        }
+
+    }
+}
+
+class AdapterUtil {
+    companion object AdapterUtils {
+        private var mIsLandscape: Boolean = false
+        private val mMangaCardSize = mutableMapOf<LibraryMangaType, Pair<Int, Int>>()
+        private val mBookCardSize = mutableMapOf<LibraryBookType, Pair<Int, Int>>()
+
+        private fun validLandscape(isLandscape: Boolean) {
+            if (mIsLandscape != isLandscape) {
+                mIsLandscape = isLandscape
+                mMangaCardSize.clear()
+                mBookCardSize.clear()
+            }
+        }
+
+        private fun setMangaCardSize(context: Context, type: LibraryMangaType) : Pair<Int, Int> {
+            val width = when (type) {
+                LibraryMangaType.GRID_SMALL -> context.resources.getDimension(R.dimen.manga_grid_card_layout_width_small).toInt()
+                LibraryMangaType.GRID_BIG -> context.resources.getDimension(R.dimen.manga_grid_card_layout_width_big).toInt()
+                LibraryMangaType.SEPARATOR_BIG -> context.resources.getDimension(R.dimen.manga_separator_grid_card_layout_width_big).toInt()
+                LibraryMangaType.GRID_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.manga_grid_card_layout_width_landscape_medium else R.dimen.manga_grid_card_layout_width_medium).toInt()
+                LibraryMangaType.SEPARATOR_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.manga_separator_grid_card_layout_width_landscape_medium else R.dimen.manga_separator_grid_card_layout_width_medium).toInt()
+                LibraryMangaType.LINE -> -1
+            }
+
+            val height = when (type) {
+                LibraryMangaType.GRID_SMALL -> context.resources.getDimension(R.dimen.manga_grid_card_layout_height_small).toInt()
+                LibraryMangaType.GRID_BIG -> context.resources.getDimension(R.dimen.manga_grid_card_layout_height_big).toInt()
+                LibraryMangaType.SEPARATOR_BIG -> context.resources.getDimension(R.dimen.manga_separator_grid_card_layout_height_big).toInt()
+                LibraryMangaType.GRID_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.manga_grid_card_layout_height_landscape_medium else R.dimen.manga_grid_card_layout_height_medium).toInt()
+                LibraryMangaType.SEPARATOR_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.manga_separator_grid_card_layout_height_landscape_medium else R.dimen.manga_separator_grid_card_layout_height_medium).toInt()
+                LibraryMangaType.LINE -> context.resources.getDimension(R.dimen.manga_line_card_layout_height).toInt()
+            }
+
+            val size = Pair(width, height)
+            mMangaCardSize[type] = size
+            return size
+        }
+
+        private fun setBookCardSize(context: Context, type: LibraryBookType) : Pair<Int, Int> {
+            val width = when (type) {
+                LibraryBookType.GRID_BIG -> context.resources.getDimension(R.dimen.book_grid_card_layout_width_big).toInt()
+                LibraryBookType.SEPARATOR_BIG -> context.resources.getDimension(R.dimen.book_separator_grid_card_layout_width_big).toInt()
+                LibraryBookType.GRID_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.book_grid_card_layout_width_landscape_medium else R.dimen.book_grid_card_layout_width_medium).toInt()
+                LibraryBookType.SEPARATOR_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.book_separator_grid_card_layout_width_landscape_medium else R.dimen.book_separator_grid_card_layout_width_medium).toInt()
+                LibraryBookType.LINE -> -1
+            }
+
+            val height = when (type) {
+                LibraryBookType.GRID_BIG -> context.resources.getDimension(R.dimen.book_grid_card_layout_height_big).toInt()
+                LibraryBookType.SEPARATOR_BIG -> context.resources.getDimension(R.dimen.book_separator_grid_card_layout_height_big).toInt()
+                LibraryBookType.GRID_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.book_grid_card_layout_height_landscape_medium else R.dimen.book_grid_card_layout_height_medium).toInt()
+                LibraryBookType.SEPARATOR_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.book_separator_grid_card_layout_height_landscape_medium else R.dimen.book_separator_grid_card_layout_height_medium).toInt()
+                LibraryBookType.LINE -> context.resources.getDimension(R.dimen.book_line_card_layout_height).toInt()
+            }
+
+            val size = Pair(width, height)
+            mBookCardSize[type] = size
+            return size
+        }
+
+        fun getMangaCardSize(context: Context, type: LibraryMangaType, isLandscape: Boolean) : Pair<Int, Int> {
+            validLandscape(isLandscape)
+            return if (mMangaCardSize.contains(type)) mMangaCardSize[type]!! else setMangaCardSize(context, type)
+        }
+        fun getBookCardSize(context: Context, type: LibraryBookType, isLandscape: Boolean) : Pair<Int, Int> {
+            validLandscape(isLandscape)
+            return if (mBookCardSize.contains(type)) mBookCardSize[type]!! else setBookCardSize(context, type)
         }
 
     }

@@ -16,6 +16,7 @@ import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.AdapterUtil.AdapterUtils
 import br.com.fenix.bilingualreader.util.helpers.Util
 import com.google.android.material.card.MaterialCardView
 
@@ -24,11 +25,7 @@ class BookSeparatorGridViewHolder(var type: LibraryBookType, itemView: View, pri
 
     companion object {
         var mIsLandscape: Boolean = false
-        var mBookCardWidth: Int = 0
-        var mBookCardHeight: Int = 0
-        var mBookCardWidthMedium: Int = 0
-        var mBookCardHeightMedium: Int = 0
-        var mBookCardWidthLandscapeMedium: Int = 0
+        var mBookCardSize: Pair<Int, Int> = Pair(0, 0)
         lateinit var mDefaultImageCover1: Bitmap
         lateinit var mDefaultImageCover2: Bitmap
         lateinit var mDefaultImageCover3: Bitmap
@@ -38,11 +35,7 @@ class BookSeparatorGridViewHolder(var type: LibraryBookType, itemView: View, pri
 
     init {
         mIsLandscape = itemView.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        mBookCardWidth = itemView.resources.getDimension(R.dimen.book_grid_card_layout_width).toInt()
-        mBookCardHeight = itemView.resources.getDimension(R.dimen.book_grid_card_layout_height).toInt()
-        mBookCardWidthMedium = itemView.resources.getDimension(R.dimen.book_grid_card_layout_width_medium).toInt()
-        mBookCardHeightMedium = itemView.resources.getDimension(R.dimen.book_grid_card_layout_height_medium).toInt()
-        mBookCardWidthLandscapeMedium = itemView.resources.getDimension(R.dimen.book_grid_card_layout_width_landscape_medium).toInt()
+        mBookCardSize = AdapterUtils.getBookCardSize(itemView.context, type, mIsLandscape)
 
         mDefaultImageCover1 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_1)
         mDefaultImageCover2 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_2)
@@ -67,12 +60,8 @@ class BookSeparatorGridViewHolder(var type: LibraryBookType, itemView: View, pri
         val config = itemView.findViewById<LinearLayout>(R.id.book_grid_config)
         val configIcon = itemView.findViewById<ImageView>(R.id.book_grid_config_icon)
 
-        cardView.layoutParams.height = if (type == LibraryBookType.SEPARATOR_MEDIUM) mBookCardHeightMedium else mBookCardHeight
-        cardView.layoutParams.width = when (type) {
-            LibraryBookType.SEPARATOR_MEDIUM -> if (mIsLandscape) mBookCardWidthLandscapeMedium else mBookCardWidthMedium
-            else -> mBookCardWidth
-        }
-
+        cardView.layoutParams.width = mBookCardSize.first
+        cardView.layoutParams.height = mBookCardSize.second
         cardView.setOnClickListener { listener.onClick(book, itemView) }
         cardView.setOnLongClickListener {
             listener.onClickLong(book, itemView, layoutPosition)

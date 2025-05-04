@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/book_grid_skeleton_card_image_big_height"
+    android:layout_height="@dimen/book_grid_skeleton_height_big"
     android:layout_marginBottom="@dimen/history_skeleton_item_margin"
     android:orientation="vertical">
 

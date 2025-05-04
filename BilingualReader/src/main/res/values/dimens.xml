@@ -16,9 +16,8 @@
 
     <dimen name="padding_small">5dp</dimen>
 
-    <dimen name="manga_grid_card_image">200dp</dimen>
-    <dimen name="manga_grid_card_layout_width">150dp</dimen>
-    <dimen name="manga_grid_card_layout_height">200dp</dimen>
+    <dimen name="manga_grid_card_image">220dp</dimen>
+    <dimen name="manga_grid_card_image_small">150dp</dimen>
     <dimen name="manga_grid_title_size">11sp</dimen>
     <dimen name="manga_grid_favorite_big">25dp</dimen>
     <dimen name="manga_grid_favorite_content_big">35dp</dimen>
@@ -31,23 +30,34 @@
     <dimen name="manga_grid_config_content_small">35dp</dimen>
     <dimen name="manga_grid_content_size">9sp</dimen>
 
+    <dimen name="manga_grid_card_layout_width_big">150dp</dimen>
+    <dimen name="manga_grid_card_layout_height_big">220dp</dimen>
     <dimen name="manga_grid_card_layout_width_medium">120dp</dimen>
+    <dimen name="manga_grid_card_layout_height_medium">200dp</dimen>
     <dimen name="manga_grid_card_layout_width_landscape_medium">130dp</dimen>
+    <dimen name="manga_grid_card_layout_height_landscape_medium">200dp</dimen>
     <dimen name="manga_grid_card_layout_width_small">100dp</dimen>
     <dimen name="manga_grid_card_layout_height_small">150dp</dimen>
-    <dimen name="manga_grid_card_image_small">150dp</dimen>
 
-    <dimen name="manga_grid_skeleton_height_big">210dp</dimen>
-    <dimen name="manga_grid_skeleton_height_medium">140dp</dimen>
+    <dimen name="manga_separator_grid_card_image">220dp</dimen>
+    <dimen name="manga_separator_grid_card_layout_width_big">160dp</dimen>
+    <dimen name="manga_separator_grid_card_layout_height_big">230dp</dimen>
+    <dimen name="manga_separator_grid_card_layout_width_medium">130dp</dimen>
+    <dimen name="manga_separator_grid_card_layout_height_medium">210dp</dimen>
+    <dimen name="manga_separator_grid_card_layout_width_landscape_medium">140dp</dimen>
+    <dimen name="manga_separator_grid_card_layout_height_landscape_medium">210dp</dimen>
+
+    <dimen name="manga_grid_skeleton_height_big">200dp</dimen>
+    <dimen name="manga_grid_skeleton_height_medium">200dp</dimen>
+    <dimen name="manga_grid_skeleton_height_small">150dp</dimen>
+    <dimen name="manga_grid_skeleton_height_separator_big">210dp</dimen>
+    <dimen name="manga_grid_skeleton_height_separator_medium">210dp</dimen>
     <dimen name="manga_grid_skeleton_divider">10dp</dimen>
     <dimen name="manga_grid_skeleton_title_height">30dp</dimen>
-    <dimen name="manga_grid_skeleton_card_image_big_width">150dp</dimen>
-    <dimen name="manga_grid_skeleton_card_image_big_height">200dp</dimen>
-    <dimen name="manga_grid_skeleton_card_image_medium_width">120dp</dimen>
-    <dimen name="manga_grid_skeleton_card_image_medium_height">150dp</dimen>
     <dimen name="manga_grid_skeleton_item_height">25dp</dimen>
     <dimen name="manga_grid_skeleton_item_margin">5dp</dimen>
 
+    <dimen name="manga_line_card_layout_height">100dp</dimen>
     <dimen name="manga_line_card_image">70dp</dimen>
     <dimen name="manga_line_title_size">15sp</dimen>
     <dimen name="manga_line_favorite">10dp</dimen>
@@ -61,12 +71,6 @@
     <dimen name="manga_line_skeleton_item_progress_height">7dp</dimen>
     <dimen name="manga_line_skeleton_item_margin">5dp</dimen>
     <dimen name="manga_line_skeleton_item_margin_top">3dp</dimen>
-
-    <dimen name="manga_separator_grid_card_image">210dp</dimen>
-    <dimen name="manga_separator_grid_card_layout_width">160dp</dimen>
-    <dimen name="manga_separator_grid_card_layout_height">210dp</dimen>
-    <dimen name="manga_separator_grid_card_layout_width_medium">130dp</dimen>
-    <dimen name="manga_separator_grid_card_layout_width_landscape_medium">140dp</dimen>
 
     <dimen name="manga_list_padding">80dp</dimen>
 
@@ -91,13 +95,13 @@
     <dimen name="manga_select_button_margin">5dp</dimen>
 
     <dimen name="book_separator_grid_card_image">210dp</dimen>
-    <dimen name="book_separator_grid_card_layout_width">160dp</dimen>
-    <dimen name="book_separator_grid_card_layout_height">210dp</dimen>
+    <dimen name="book_separator_grid_card_layout_width_big">160dp</dimen>
+    <dimen name="book_separator_grid_card_layout_height_big">210dp</dimen>
     <dimen name="book_separator_grid_card_layout_width_medium">130dp</dimen>
+    <dimen name="book_separator_grid_card_layout_height_medium">210dp</dimen>
     <dimen name="book_separator_grid_card_layout_width_landscape_medium">140dp</dimen>
+    <dimen name="book_separator_grid_card_layout_height_landscape_medium">210dp</dimen>
 
-    <dimen name="book_grid_card_layout_width">150dp</dimen>
-    <dimen name="book_grid_card_layout_height">260dp</dimen>
     <dimen name="book_grid_title_size">12sp</dimen>
     <dimen name="book_grid_sub_title">10sp</dimen>
     <dimen name="book_grid_favorite_big">25dp</dimen>
@@ -108,18 +112,19 @@
     <dimen name="book_grid_config_small">21dp</dimen>
     <dimen name="book_grid_config_content_small">35dp</dimen>
 
+    <dimen name="book_grid_card_layout_width_big">150dp</dimen>
+    <dimen name="book_grid_card_layout_height_big">260dp</dimen>
     <dimen name="book_grid_card_layout_width_medium">120dp</dimen>
     <dimen name="book_grid_card_layout_height_medium">210dp</dimen>
     <dimen name="book_grid_card_layout_width_landscape_medium">130dp</dimen>
+    <dimen name="book_grid_card_layout_height_landscape_medium">210dp</dimen>
 
-    <dimen name="book_grid_skeleton_height_big">240dp</dimen>
-    <dimen name="book_grid_skeleton_height_medium">220dp</dimen>
+    <dimen name="book_grid_skeleton_height_big">260dp</dimen>
+    <dimen name="book_grid_skeleton_height_medium">210dp</dimen>
+    <dimen name="book_grid_skeleton_height_separator_big">210dp</dimen>
+    <dimen name="book_grid_skeleton_height_separator_medium">210dp</dimen>
     <dimen name="book_grid_skeleton_divider">10dp</dimen>
     <dimen name="book_grid_skeleton_title_height">30dp</dimen>
-    <dimen name="book_grid_skeleton_card_image_big_width">150dp</dimen>
-    <dimen name="book_grid_skeleton_card_image_big_height">260dp</dimen>
-    <dimen name="book_grid_skeleton_card_image_medium_width">120dp</dimen>
-    <dimen name="book_grid_skeleton_card_image_medium_height">210dp</dimen>
     <dimen name="book_grid_skeleton_item_margin">5dp</dimen>
     <dimen name="book_grid_skeleton_item_height">25dp</dimen>
 
