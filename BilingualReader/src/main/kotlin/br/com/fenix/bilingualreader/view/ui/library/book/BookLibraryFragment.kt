@@ -1187,8 +1187,8 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     }
 
     private fun getSkeletonGridItemPerRow(type: LibraryBookType): Int {
-        val columnWidth = resources.getDimension(getSkeletonItemWidth(type)) + resources.getDimension(R.dimen.manga_grid_skeleton_divider) + 1
-        return max(1, Resources.getSystem().displayMetrics.widthPixels / columnWidth.toInt())
+        val columnWidth = resources.getDimension(getSkeletonItemWidth(type)) + 1
+        return max(1, (Resources.getSystem().displayMetrics.widthPixels - 3) / columnWidth.toInt())
     }
 
     private fun getSkeletonItemHeight(type: LibraryBookType) : Int {
@@ -1218,7 +1218,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                     val width = resources.getDimension(getSkeletonItemWidth(type)).toInt()
                     val margin = resources.getDimension(R.dimen.book_grid_skeleton_divider).toInt()
                     val items = getSkeletonGridItemPerRow(type)
-                    val divider = ((Resources.getSystem().displayMetrics.widthPixels.toFloat() - (items * (width + margin))) / items).toInt()
+                    val divider = ((Resources.getSystem().displayMetrics.widthPixels.toFloat() - (items * width)) / items).toInt()
                     container.removeAllViews()
                     for (i in 0.. items) {
                         val item = mInflater.inflate(R.layout.grid_card_book_skeleton_item, null)

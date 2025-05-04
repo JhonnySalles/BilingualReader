@@ -1203,8 +1203,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     private fun getSkeletonGridItemPerRow(type: LibraryMangaType): Int {
-        val columnWidth = resources.getDimension(getSkeletonItemWidth(type)) + resources.getDimension(R.dimen.manga_grid_skeleton_divider) + 1
-        return max(1, Resources.getSystem().displayMetrics.widthPixels / columnWidth.toInt())
+        val columnWidth = resources.getDimension(getSkeletonItemWidth(type)) + 1
+        return max(1, (Resources.getSystem().displayMetrics.widthPixels -3) / columnWidth.toInt())
     }
 
     private fun getSkeletonItemHeight(type: LibraryMangaType) : Int {
