@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/frame_touch_screen_config"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:clipToPadding="false"
+    android:clipChildren="false"
+    android:fitsSystemWindows="true"
+    style="@style/AppBackground"
+    tools:context=".view.ui.touch_screen.TouchScreenFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/touch_screen_config_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <ImageView
+            android:id="@+id/touch_screen_config_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@mipmap/navigator_header_image"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:id="@+id/touch_screen_config_top"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/reader_touch_demonstration_initial_horizontal"
+            android:gravity="center"
+            android:padding="16dp"
+            android:textSize="@dimen/reader_touch_demonstration_text_size"
+            android:text="@string/reading_touch_screen_share_image"
+            android:theme="@style/TouchDemonstration"
+            android:background="@drawable/touch_screen_configuration_secondary"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/content_toolbar_touch_screen_config" />
+
+        <TextView
+            android:id="@+id/touch_screen_config_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/reader_touch_demonstration_initial_horizontal"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="@string/reading_touch_screen_chapters"
+            android:textSize="@dimen/reader_touch_demonstration_text_size"
+            android:theme="@style/TouchDemonstration"
+            android:background="@drawable/touch_screen_configuration_secondary"
+            app:layout_constraintBottom_toTopOf="@+id/touch_screen_config_save"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+        <TextView
+            android:id="@+id/touch_screen_config_left"
+            android:layout_width="@dimen/reader_touch_demonstration_initial_vertical"
+            android:layout_weight="1"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="@string/reading_touch_screen_previous_page"
+            android:theme="@style/TouchDemonstration"
+            android:background="@drawable/touch_screen_configuration_secondary"
+            app:layout_constraintBottom_toTopOf="@+id/touch_screen_config_save"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/content_toolbar_touch_screen_config" />
+
+        <TextView
+            android:id="@+id/touch_screen_config_right"
+            android:layout_width="@dimen/reader_touch_demonstration_initial_vertical"
+            android:layout_weight="1"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="@string/reading_touch_screen_next_page"
+            android:theme="@style/TouchDemonstration"
+            android:background="@drawable/touch_screen_configuration_secondary"
+            app:layout_constraintBottom_toTopOf="@+id/touch_screen_config_save"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/content_toolbar_touch_screen_config" />
+
+        <TextView
+            android:id="@+id/touch_screen_config_top_right"
+            android:layout_width="@dimen/reader_touch_demonstration_initial_vertical"
+            android:layout_height="@dimen/reader_touch_demonstration_initial_horizontal"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="@string/reading_touch_screen_aspect_fit"
+            android:theme="@style/TouchDemonstration"
+            android:background="@drawable/touch_screen_configuration_primary"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/content_toolbar_touch_screen_config" />
+
+        <TextView
+            android:id="@+id/touch_screen_config_top_left"
+            android:layout_width="@dimen/reader_touch_demonstration_initial_vertical"
+            android:layout_height="@dimen/reader_touch_demonstration_initial_horizontal"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="@string/reading_touch_screen_fit_width"
+            android:theme="@style/TouchDemonstration"
+            android:background="@drawable/touch_screen_configuration_primary"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/content_toolbar_touch_screen_config" />
+
+        <TextView
+            android:id="@+id/touch_screen_config_bottom_right"
+            android:layout_width="@dimen/reader_touch_demonstration_initial_vertical"
+            android:layout_height="@dimen/reader_touch_demonstration_initial_horizontal"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="@string/reading_touch_screen_next_file"
+            android:theme="@style/TouchDemonstration"
+            android:background="@drawable/touch_screen_configuration_primary"
+            app:layout_constraintBottom_toTopOf="@+id/touch_screen_config_save"
+            app:layout_constraintRight_toRightOf="parent" />
+
+        <TextView
+            android:id="@+id/touch_screen_config_bottom_left"
+            android:layout_width="@dimen/reader_touch_demonstration_initial_vertical"
+            android:layout_height="@dimen/reader_touch_demonstration_initial_horizontal"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="@string/reading_touch_screen_previous_file"
+            android:theme="@style/TouchDemonstration"
+            android:background="@drawable/touch_screen_configuration_primary"
+            app:layout_constraintBottom_toTopOf="@+id/touch_screen_config_save"
+            app:layout_constraintLeft_toLeftOf="parent" />
+
+        <View
+            android:background="?attr/statusBarColor"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_gravity="top"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="parent"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/touch_screen_config_save"
+            style="@style/Button"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/reading_touch_screen_save"
+            app:icon="@drawable/ico_config_touch_screen"
+            app:layout_constraintEnd_toStartOf="@+id/touch_screen_config_default"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/touch_screen_config_default"
+            style="@style/Button"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/reading_touch_screen_default"
+            app:icon="@drawable/ico_config_touch_default"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/touch_screen_config_save"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <com.google.android.material.appbar.AppBarLayout
+            style="@style/AppBarLayout"
+            android:id="@+id/content_toolbar_touch_screen_config"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true"
+            android:theme="@style/MainToolbarContentTheme"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar_touch_screen_config"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/default_navigator_header_size"
+                android:gravity="start|center"
+                app:popupTheme="@style/MainToolbarStyle"
+                style="@style/MainToolbarThemeWithShadow"/>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

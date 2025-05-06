@@ -115,6 +115,13 @@
                 android:orderInCategory="105"
                 android:title="@string/menu_manga_reading_view_touch"
                 app:showAsAction="never"/>
+
+            <item
+                android:id="@+id/menu_item_reader_manga_config_touch_screen"
+                android:icon="@drawable/ico_view_touch_screen"
+                android:orderInCategory="105"
+                android:title="@string/menu_manga_reading_config_touch"
+                app:showAsAction="never"/>
         </menu>
     </item>
 

@@ -72,6 +72,7 @@ import br.com.fenix.bilingualreader.model.enums.PageMode
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
+import br.com.fenix.bilingualreader.model.enums.TouchScreen
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
@@ -85,11 +86,13 @@ import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
+import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPager
 import br.com.fenix.bilingualreader.view.managers.MangaHandler
+import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -140,6 +143,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mLastPageImage: ImageView
     private lateinit var mLastPageText: TextView
 
+    private var mTouchScreen = mapOf<Position, TouchScreen>()
     private var mResourceViewMode: HashMap<Int, ReaderMode> = HashMap()
     private var mIsFullscreen = false
     private var mFileName: String? = null
@@ -404,6 +408,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mLastPageImage = requireActivity().findViewById(R.id.last_page_image)
         mLastPageText = requireActivity().findViewById(R.id.last_page_text)
 
+        mTouchScreen = TouchUtils.getTouch(requireContext(), Type.MANGA)
         mLastPageContainer.visibility = View.GONE
 
         mPageStartReading = LocalDateTime.now()
@@ -608,6 +613,26 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         return mGestureDetector.onTouchEvent(event)
     }
 
+    private fun openTouchFunctions() {
+        val intent = Intent(requireContext(), MenuActivity::class.java)
+        val bundle = Bundle()
+        bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_touch_screen_config)
+        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.TYPE, Type.MANGA)
+        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, mManga!!)
+        intent.putExtras(bundle)
+        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+        startActivityForResult(intent, GeneralConsts.REQUEST.TOUCH_CONFIGURATION, null)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            GeneralConsts.REQUEST.TOUCH_CONFIGURATION -> {
+                mTouchScreen = TouchUtils.getTouch(requireContext(), Type.MANGA)
+            }
+        }
+    }
+
     fun getCurrentPage(): Int {
         return when {
             mIsLeftToRight -> if (::mViewPager.isInitialized) mViewPager.currentItem.plus(1) else 1
@@ -682,6 +707,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 markCurrentPage()
                 (miMarkPage.icon as AnimatedVectorDrawable).reset()
                 (miMarkPage.icon as AnimatedVectorDrawable).start()
+            }
+
+            R.id.menu_item_reader_manga_config_touch_screen -> {
+                openTouchFunctions()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -925,39 +954,41 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             }
 
             val position = getPosition(e)
-            if ((requireActivity() as MangaReaderActivity).touchPosition(position))
+            val touch = mTouchScreen[position]!!
+            if ((requireActivity() as MangaReaderActivity).touchPosition(touch))
                 return true
 
-            if (position == Position.LEFT || position == Position.RIGHT) {
+            if (touch == TouchScreen.TOUCH_PREVIOUS_PAGE || touch == TouchScreen.TOUCH_NEXT_PAGE) {
                 val view = getCurrencyImageView()
                 view?.let {
-                    val isBack = if (mIsLeftToRight) position == Position.LEFT else position == Position.RIGHT
+                    val isBack = if (mIsLeftToRight) touch == TouchScreen.TOUCH_PREVIOUS_PAGE else touch == TouchScreen.TOUCH_NEXT_PAGE
                     if (it.autoScroll(isBack))
                         return true
                 }
             }
 
-            when (position) {
-                Position.TOP -> shareImage(true)
-                Position.LEFT -> {
-                    if (mIsLeftToRight) {
-                        if (getCurrentPage() == 1) hitBeginning() else setCurrentPage(getCurrentPage() - 1)
-                    } else {
-                        if (getCurrentPage() == mViewPager.adapter!!.count) hitEnding() else setCurrentPage(getCurrentPage() + 1)
+            if (position == Position.CENTER)
+                setFullscreen(fullscreen = false)
+            else
+                when (touch) {
+                    TouchScreen.TOUCH_SHARE_IMAGE -> shareImage(true)
+                    TouchScreen.TOUCH_PREVIOUS_PAGE -> {
+                        if (mIsLeftToRight) {
+                            if (getCurrentPage() == 1) hitBeginning() else setCurrentPage(getCurrentPage() - 1)
+                        } else {
+                            if (getCurrentPage() == mViewPager.adapter!!.count) hitEnding() else setCurrentPage(getCurrentPage() + 1)
+                        }
                     }
-                }
 
-                Position.RIGHT -> {
-                    if (mIsLeftToRight) {
-                        if (getCurrentPage() == mViewPager.adapter!!.count) hitEnding() else setCurrentPage(getCurrentPage() + 1)
-                    } else {
-                        if (getCurrentPage() == 1) hitBeginning() else setCurrentPage(getCurrentPage() - 1)
+                    TouchScreen.TOUCH_NEXT_PAGE -> {
+                        if (mIsLeftToRight) {
+                            if (getCurrentPage() == mViewPager.adapter!!.count) hitEnding() else setCurrentPage(getCurrentPage() + 1)
+                        } else {
+                            if (getCurrentPage() == 1) hitBeginning() else setCurrentPage(getCurrentPage() - 1)
+                        }
                     }
+                    else -> setFullscreen(fullscreen = false)
                 }
-
-                Position.CENTER -> setFullscreen(fullscreen = false)
-                else -> setFullscreen(fullscreen = false)
-            }
 
             return true
         }

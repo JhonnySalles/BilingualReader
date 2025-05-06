@@ -128,6 +128,7 @@
     <string name="config_option_vocabulary_order_frequency">Por frequência</string>
     <string name="config_option_vocabulary_order_favorite">Favoritos primeiro</string>
 
+    <string name="config_manga_reading_touch_screen">Funções touch</string>
     <string name="config_manga_reading_show_clock_and_battery">Mostrar o relógio e o percentual bateria?</string>
     <string name="config_manga_reading_use_magnifier_type">Utiliza o zoom em modo de lupa?</string>
     <string name="config_manga_reading_keep_zoom_between_pages">Manter o zoom entre as páginas?</string>
@@ -209,6 +210,7 @@
     <string name="config_book_font_japanese_style">Escrita no estilo japonês (texto vertical)</string>
     <string name="config_book_font_size">Tamanho da fonte</string>
 
+    <string name="config_book_reading_touch_screen">Funções touch</string>
     <string name="config_book_reading">Leitura</string>
     <string name="config_book_process_japanese_text">Processar texto em livro japonês</string>
     <string name="config_book_text_with_furigana">Gerar furigana em texto japonês</string>
@@ -285,6 +287,7 @@
     <string name="menu_book_reading_font_and_page">Fonte e página</string>
     <string name="menu_book_reading_book_mark">Marcador</string>
     <string name="menu_book_reading_view_touch">Funções touch</string>
+    <string name="menu_book_reading_config_touch">Configura funções touch</string>
 
     <string name="reading_book_title_position">Posição %d de %d • %s%%</string>
     <string name="reading_book_title_chapter">Capítulo %d: %s</string>
@@ -293,13 +296,6 @@
     <string name="reading_book_page_index">Índice</string>
     <string name="reading_book_page_empty">Arquivo não contem capítulos</string>
     <string name="reading_book_open_exception">Não foi possível abrir o livro selecionado</string>
-
-    <string name="reading_book_touch_demonstration_chapters">Abrir lista de capítulos</string>
-    <string name="reading_book_touch_demonstration_next_file">Próximo arquivo</string>
-    <string name="reading_book_touch_demonstration_previous_file">Arquivo anterior</string>
-    <string name="reading_book_touch_demonstration_next_page">Próxima página</string>
-    <string name="reading_book_touch_demonstration_previous_page">Página anterior</string>
-    <string name="reading_book_touch_demonstration_page_mark">Marcar página</string>
 
     <string name="reading_book_menu_text_functions_read_from">Ler a partir daqui</string>
     <string name="reading_book_menu_text_functions_find">Encontrar</string>
@@ -465,6 +461,7 @@
     <string name="menu_manga_reading_use_magnifier_type">Zoom em lupa</string>
     <string name="menu_manga_reading_keep_zoom_between_pages">Manter zoom</string>
     <string name="menu_manga_reading_view_touch">Funções touch</string>
+    <string name="menu_manga_reading_config_touch">Configura funções touch</string>
     <string name="menu_manga_reading_color">Cor da página</string>
 
     <string name="menu_manga_reading_ocr_file_linked">Ocr e arquivo vinculado</string>
@@ -488,15 +485,6 @@
     <string name="reading_manga_page_index">Índice</string>
     <string name="reading_manga_page_empty">O arquivo não possui pastas</string>
     <string name="reading_manga_open_exception">Não foi possível abrir o Manga/Comic selecionado</string>
-
-    <string name="reading_manga_touch_demonstration_aspect_fit">Aspecto ajustar</string>
-    <string name="reading_manga_touch_demonstration_fit_width">Ajustar à largura</string>
-    <string name="reading_manga_touch_demonstration_chapters">Abrir lista de capítulos</string>
-    <string name="reading_manga_touch_demonstration_next_file">Próximo arquivo</string>
-    <string name="reading_manga_touch_demonstration_previous_file">Arquivo anterior</string>
-    <string name="reading_manga_touch_demonstration_next_page">Próxima página</string>
-    <string name="reading_manga_touch_demonstration_previous_page">Página anterior</string>
-    <string name="reading_manga_touch_demonstration_share_image">Compartilhar imagem</string>
 
     <string name="reading_manga_popup_orientation_portrait">Retrato</string>
     <string name="reading_manga_popup_orientation_portrait_locked">Retrato bloqueado</string>
@@ -581,6 +569,24 @@
     <!-- READER FLOATING -->
     <string name="floating_reading_not_permission">Permissão não concedida!</string>
 
+    <!-- READING TOUCH -->
+    <string name="reading_touch_screen_manga">Manga / Comic</string>
+    <string name="reading_touch_screen_book">Livro</string>
+    <string name="reading_touch_screen_save">Salvar</string>
+    <string name="reading_touch_screen_default">Padrão</string>
+    <string name="reading_touch_screen_change_title">Selecione o botão de ação</string>
+
+    <string name="reading_touch_screen_not_assigned">Não atribuído</string>
+    <string name="reading_touch_screen_aspect_fit">Ajustar aspecto</string>
+    <string name="reading_touch_screen_fit_width">Ajustar à largura</string>
+    <string name="reading_touch_screen_chapters">Abrir lista de capítulos</string>
+    <string name="reading_touch_screen_next_file">Próximo arquivo</string>
+    <string name="reading_touch_screen_previous_file">Arquivo anterior</string>
+    <string name="reading_touch_screen_next_page">Próxima página</string>
+    <string name="reading_touch_screen_previous_page">Página anterior</string>
+    <string name="reading_touch_screen_share_image">Compartilhar imagem</string>
+    <string name="reading_touch_screen_page_mark">Marcar página</string>
+
     <!-- ANNOTATION -->
     <string name="menu_annotation_type">Type</string>
     <string name="annotation_menu_choice_all">Todos</string>
@@ -633,7 +639,7 @@
     <string name="manga_library_line_publisher">Editora:</string>
     <string name="manga_library_line_authors">Autores:</string>
 
-    <!-- LIBRARY - Manga / Comic -->
+    <!-- LIBRARY - Book -->
     <string name="menu_book_config_send">Enviar o arquivo</string>
     <string name="menu_book_config_clear_progress">Limpar progresso</string>
     <string name="menu_book_config_delete">Deletar</string>

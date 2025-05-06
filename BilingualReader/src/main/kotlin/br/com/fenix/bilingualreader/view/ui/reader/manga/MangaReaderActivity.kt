@@ -64,6 +64,7 @@ import br.com.fenix.bilingualreader.model.enums.PageMode
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
 import br.com.fenix.bilingualreader.model.enums.Themes
+import br.com.fenix.bilingualreader.model.enums.TouchScreen
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
@@ -84,6 +85,7 @@ import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
+import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.reader.MangaChaptersCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
@@ -160,10 +162,8 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val theme = Themes.valueOf(
-            GeneralConsts.getSharedPreferences(this)
-                .getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!
-        )
+        mPreferences = GeneralConsts.getSharedPreferences(this)
+        val theme = Themes.valueOf(mPreferences.getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(theme.getValue())
 
         super.onCreate(savedInstanceState)
@@ -461,7 +461,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
         mRepository = MangaRepository(applicationContext)
 
-        mPreferences = GeneralConsts.getSharedPreferences(this)
         mClockAndBattery.visibility = if (mPreferences.getBoolean(GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY, false))
             View.VISIBLE
         else
@@ -804,6 +803,14 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
         if (mLastFloatingButtons)
             mFloatingButtons.show()
+
+        if (mPreferences.getBoolean(GeneralConsts.KEYS.TOUCH.MANGA_TOUCH_DEMONSTRATION, true)) {
+            with(mPreferences.edit()) {
+                this.putBoolean(GeneralConsts.KEYS.TOUCH.MANGA_TOUCH_DEMONSTRATION, false)
+                this.commit()
+            }
+            openViewTouch()
+        }
     }
 
     override fun onStop() {
@@ -1146,6 +1153,48 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     private fun openViewTouch() {
         mFragment?.setFullscreen(true)
 
+        val touch = TouchUtils.getTouch(this, Type.MANGA)
+
+        val touchTop = findViewById<TextView>(R.id.reader_manga_touch_top)
+        val touchTopRight = findViewById<TextView>(R.id.reader_manga_touch_top_right)
+        val touchTopLeft = findViewById<TextView>(R.id.reader_manga_touch_top_left)
+        val touchLeft = findViewById<TextView>(R.id.reader_manga_touch_left)
+        val touchRight = findViewById<TextView>(R.id.reader_manga_touch_right)
+        val touchBottom = findViewById<TextView>(R.id.reader_manga_touch_bottom)
+        val touchBottomLeft = findViewById<TextView>(R.id.reader_manga_touch_bottom_left)
+        val touchBottomRight = findViewById<TextView>(R.id.reader_manga_touch_bottom_right)
+
+        touchTop.text = getString(touch[Position.TOP]!!.getValue())
+        touchTopRight.text = getString(touch[Position.CORNER_TOP_RIGHT]!!.getValue())
+        touchTopLeft.text = getString(touch[Position.CORNER_TOP_LEFT]!!.getValue())
+        touchLeft.text = getString(touch[Position.LEFT]!!.getValue())
+        touchRight.text = getString(touch[Position.RIGHT]!!.getValue())
+        touchBottom.text = getString(touch[Position.BOTTOM]!!.getValue())
+        touchBottomLeft.text = getString(touch[Position.CORNER_BOTTOM_LEFT]!!.getValue())
+        touchBottomRight.text = getString(touch[Position.CORNER_BOTTOM_RIGHT]!!.getValue())
+
+        if ((touch[Position.CORNER_TOP_RIGHT] == TouchScreen.TOUCH_NOT_ASSIGNED && touch[Position.CORNER_TOP_LEFT] == TouchScreen.TOUCH_NOT_ASSIGNED) ||
+            (touch[Position.CORNER_TOP_RIGHT] == touch[Position.RIGHT] && touch[Position.CORNER_TOP_LEFT] == touch[Position.LEFT])) {
+            touchTopRight.visibility = View.GONE
+            touchTopLeft.visibility = View.GONE
+            touchTop.setBackgroundColor(getColorFromAttr(R.attr.colorPrimaryContainer))
+        } else {
+            touchTopRight.visibility = View.VISIBLE
+            touchTopLeft.visibility = View.VISIBLE
+            touchTop.setBackgroundColor(getColor(R.color.touch_demonstration_alter))
+        }
+
+        if ((touch[Position.CORNER_BOTTOM_RIGHT] == TouchScreen.TOUCH_NOT_ASSIGNED && touch[Position.CORNER_BOTTOM_LEFT] == TouchScreen.TOUCH_NOT_ASSIGNED) ||
+            (touch[Position.CORNER_BOTTOM_RIGHT] == touch[Position.RIGHT] && touch[Position.CORNER_BOTTOM_LEFT] == touch[Position.LEFT])) {
+            touchBottomRight.visibility = View.GONE
+            touchBottomLeft.visibility = View.GONE
+            touchBottom.setBackgroundColor(getColorFromAttr(R.attr.colorPrimaryContainer))
+        } else {
+            touchBottomRight.visibility = View.VISIBLE
+            touchBottomLeft.visibility = View.VISIBLE
+            touchBottom.setBackgroundColor(getColor(R.color.touch_demonstration_alter))
+        }
+
         mTouchView.alpha = 0.0f
         mTouchView.animate().alpha(1.0f).setDuration(300L)
             .setListener(object : AnimatorListenerAdapter() {
@@ -1158,34 +1207,34 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         mHandler.postDelayed(mDismissTouchView, 5000)
     }
 
-    fun touchPosition(position: Position): Boolean {
-        if (position != Position.BOTTOM && mChapterContent.visibility == View.VISIBLE) {
+    fun touchPosition(touchScreen: TouchScreen): Boolean {
+        if (touchScreen != TouchScreen.TOUCH_CHAPTER_LIST && mChapterContent.isVisible) {
             chapterVisibility(false)
             return true
         }
 
-        return when (position) {
-            Position.CORNER_TOP_RIGHT -> {
+        return when (touchScreen) {
+            TouchScreen.TOUCH_FIT_WIDTH -> {
                 mFragment?.changeAspect(mToolBar, ReaderMode.FIT_WIDTH)
                 true
             }
 
-            Position.CORNER_TOP_LEFT -> {
+            TouchScreen.TOUCH_ASPECT_FIT -> {
                 mFragment?.changeAspect(mToolBar, ReaderMode.ASPECT_FIT)
                 true
             }
 
-            Position.CORNER_BOTTOM_RIGHT -> {
+            TouchScreen.TOUCH_NEXT_FILE -> {
                 mFragment?.hitEnding()
                 true
             }
 
-            Position.CORNER_BOTTOM_LEFT -> {
+            TouchScreen.TOUCH_PREVIOUS_FILE -> {
                 mFragment?.hitBeginning()
                 true
             }
 
-            Position.BOTTOM -> {
+            TouchScreen.TOUCH_CHAPTER_LIST -> {
                 val initial = mFragment?.getCurrentPage() ?: 0
                 val loaded = mViewModel.loadChapter(mManga, initial)
                 chapterVisibility(true)

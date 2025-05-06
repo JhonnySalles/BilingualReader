@@ -14,6 +14,7 @@ import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.view.ui.book.BookAnnotationFragment
 import br.com.fenix.bilingualreader.view.ui.book.BookSearchFragment
 import br.com.fenix.bilingualreader.view.ui.chapters.ChaptersFragment
+import br.com.fenix.bilingualreader.view.ui.touch_screen.TouchScreenFragment
 
 
 class MenuActivity : AppCompatActivity() {
@@ -39,6 +40,7 @@ class MenuActivity : AppCompatActivity() {
             R.id.frame_chapters -> ChaptersFragment()
             R.id.frame_book_search -> BookSearchFragment()
             R.id.frame_book_annotation -> BookAnnotationFragment()
+            R.id.frame_touch_screen_config -> TouchScreenFragment()
             else -> null
         }
 

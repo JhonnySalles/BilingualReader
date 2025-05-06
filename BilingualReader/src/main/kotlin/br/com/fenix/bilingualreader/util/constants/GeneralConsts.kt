@@ -214,6 +214,29 @@ class GeneralConsts private constructor() {
             const val BOOK_READER_TTS_SPEED_DEFAULT = 0f
         }
 
+        object TOUCH {
+            const val MANGA_TOUCH_DEMONSTRATION = "MANGA_TOUCH_DEMONSTRATION"
+            const val BOOK_TOUCH_DEMONSTRATION = "BOOK_TOUCH_DEMONSTRATION"
+
+            const val MANGA_TOP = "MANGA_TOUCH_TOP"
+            const val MANGA_TOP_RIGHT = "MANGA_TOUCH_TOP_RIGHT"
+            const val MANGA_TOP_LEFT = "MANGA_TOUCH_TOP_LEFT"
+            const val MANGA_RIGHT = "MANGA_TOUCH_RIGHT"
+            const val MANGA_LEFT = "MANGA_TOUCH_LEFT"
+            const val MANGA_BOTTOM = "MANGA_TOUCH_BOTTOM"
+            const val MANGA_BOTTOM_RIGHT = "MANGA_TOUCH_BOTTOM_RIGHT"
+            const val MANGA_BOTTOM_LEFT = "MANGA_TOUCH_BOTTOM_LEFT"
+
+            const val BOOK_TOP = "BOOK_TOUCH_TOP"
+            const val BOOK_TOP_RIGHT = "BOOK_TOUCH_TOP_RIGHT"
+            const val BOOK_TOP_LEFT = "BOOK_TOUCH_TOP_LEFT"
+            const val BOOK_RIGHT = "BOOK_TOUCH_RIGHT"
+            const val BOOK_LEFT = "BOOK_TOUCH_LEFT"
+            const val BOOK_BOTTOM = "BOOK_TOUCH_BOTTOM"
+            const val BOOK_BOTTOM_RIGHT = "BOOK_TOUCH_BOTTOM_RIGHT"
+            const val BOOK_BOTTOM_LEFT = "BOOK_TOUCH_BOTTOM_LEFT"
+        }
+
         object SYSTEM {
             const val LANGUAGE = "SYSTEM_LANGUAGE"
             const val FORMAT_DATA = "SYSTEM_FORMAT_DATA"
@@ -254,6 +277,7 @@ class GeneralConsts private constructor() {
             const val PAGE_LINK = "PAGE_LINK"
             const val LIBRARY = "LIBRARY"
             const val BOOK = "BOOK_OBJECT"
+            const val TYPE = "TYPE_OBJECT"
             const val DOCUMENT_PATH = "DOCUMENT_PATH"
             const val DOCUMENT_FONT_SIZE = "DOCUMENT_FONT_SIZE"
             const val DOCUMENT_PASSWORD = "DOCUMENT_PASSWORD"
@@ -383,6 +407,7 @@ class GeneralConsts private constructor() {
         const val BOOK_SEARCH = 611
         const val BOOK_ANNOTATION = 612
         const val CHAPTERS = 620
+        const val TOUCH_CONFIGURATION = 630
         const val GOOGLE_SIGN_IN = 700
         const val DRIVE_AUTHORIZATION = 701
     }

@@ -144,6 +144,8 @@ class ConfigFragment : Fragment() {
     private lateinit var mMangaUseMagnifierType: SwitchMaterial
     private lateinit var mMangaKeepZoomBetweenPages: SwitchMaterial
 
+    private lateinit var mMangaTouchScreenButton: MaterialButton
+
     private lateinit var mMangaUseDualPageCalculate: SwitchMaterial
     private lateinit var mMangaUsePathNameForLinked: SwitchMaterial
 
@@ -179,6 +181,8 @@ class ConfigFragment : Fragment() {
     private lateinit var mBookFontTypeNormal: TwoWayView
     private lateinit var mBookFontTypeJapanese: TwoWayView
     private lateinit var mBookFontJapaneseStyle: SwitchMaterial
+
+    private lateinit var mBookTouchScreenButton: MaterialButton
 
     private lateinit var mBookReaderScrollingMode: TextInputLayout
     private lateinit var mBookScrollingModeAutoComplete: MaterialAutoCompleteTextView
@@ -220,6 +224,7 @@ class ConfigFragment : Fragment() {
         mBookFontJapaneseStyle = view.findViewById(R.id.config_book_font_japanese_style)
         mBookFontSize = view.findViewById(R.id.config_book_font_size)
 
+        mBookTouchScreenButton = view.findViewById(R.id.config_book_touch_screen)
         mBookReaderScrollingMode = view.findViewById(R.id.config_book_reader_scrolling_mode)
         mBookScrollingModeAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_scrolling_mode)
         mBookReaderProcessJapaneseText = view.findViewById(R.id.config_book_reader_process_japanese_text)
@@ -242,6 +247,7 @@ class ConfigFragment : Fragment() {
         mMangaReaderScrollingMode = view.findViewById(R.id.config_manga_reader_scrolling_mode)
         mMangaScrollingModeAutoComplete  = view.findViewById(R.id.config_manga_menu_autocomplete_scrolling_mode)
 
+        mMangaTouchScreenButton = view.findViewById(R.id.config_manga_touch_screen)
         mMangaShowClockAndBattery = view.findViewById(R.id.config_manga_switch_show_clock_and_battery)
         mMangaUseMagnifierType = view.findViewById(R.id.config_manga_switch_use_magnifier_type)
         mMangaKeepZoomBetweenPages = view.findViewById(R.id.config_manga_switch_keep_zoom_between_pages)
@@ -670,6 +676,9 @@ class ConfigFragment : Fragment() {
             val googleSignInClient = getSignClient()
             startActivityForResult(googleSignInClient.signInIntent, GeneralConsts.REQUEST.GOOGLE_SIGN_IN)
         }
+
+        mMangaTouchScreenButton.setOnClickListener { openTouchFunction(Type.MANGA) }
+        mBookTouchScreenButton.setOnClickListener { openTouchFunction(Type.BOOK) }
 
         googleSigIn(GoogleSignIn.getLastSignedInAccount(requireContext()))
 
@@ -1457,6 +1466,16 @@ class ConfigFragment : Fragment() {
                     DataBase.restoreDatabase(requireContext(), File(autoBackups, backups[origin]!!))
             }
             .show()
+    }
+
+    private fun openTouchFunction(type: Type) {
+        val intent = Intent(requireContext(), MenuActivity::class.java)
+        val bundle = Bundle()
+        bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_touch_screen_config)
+        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.TYPE, type)
+        intent.putExtras(bundle)
+        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+        startActivityForResult(intent, GeneralConsts.REQUEST.TOUCH_CONFIGURATION, null)
     }
 
 }

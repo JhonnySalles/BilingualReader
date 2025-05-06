@@ -48,7 +48,14 @@
         android:id="@+id/menu_item_reader_book_view_touch_screen"
         android:icon="@drawable/ico_view_touch_screen"
         android:orderInCategory="106"
-        android:title="@string/menu_manga_reading_view_touch"
+        android:title="@string/menu_book_reading_view_touch"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/menu_item_reader_book_config_touch_screen"
+        android:icon="@drawable/ico_view_touch_screen"
+        android:orderInCategory="106"
+        android:title="@string/menu_book_reading_config_touch"
         app:showAsAction="never"/>
 
 </menu>

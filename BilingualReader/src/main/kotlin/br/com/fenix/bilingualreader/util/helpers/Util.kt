@@ -66,7 +66,9 @@ import br.com.fenix.bilingualreader.model.enums.Filter
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
+import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.Themes
+import br.com.fenix.bilingualreader.model.enums.TouchScreen
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.repository.DataBase
@@ -1490,6 +1492,215 @@ class AdapterUtil {
         fun getBookCardSize(context: Context, type: LibraryBookType, isLandscape: Boolean) : Pair<Int, Int> {
             validLandscape(isLandscape)
             return if (mBookCardSize.contains(type)) mBookCardSize[type]!! else setBookCardSize(context, type)
+        }
+
+    }
+}
+
+
+class TouchUtil {
+    companion object TouchUtils {
+
+        fun setDefault(context: Context, type: Type) {
+            val sharedPreferences = GeneralConsts.getSharedPreferences(context)
+            with(sharedPreferences.edit()) {
+                when (type) {
+                    Type.MANGA -> {
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_TOP,
+                            TouchScreen.TOUCH_SHARE_IMAGE.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_TOP_RIGHT,
+                            TouchScreen.TOUCH_ASPECT_FIT.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_TOP_LEFT,
+                            TouchScreen.TOUCH_FIT_WIDTH.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_LEFT,
+                            TouchScreen.TOUCH_PREVIOUS_PAGE.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_RIGHT,
+                            TouchScreen.TOUCH_NEXT_PAGE.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_BOTTOM,
+                            TouchScreen.TOUCH_CHAPTER_LIST.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_BOTTOM_LEFT,
+                            TouchScreen.TOUCH_PREVIOUS_FILE.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_BOTTOM_RIGHT,
+                            TouchScreen.TOUCH_NEXT_FILE.toString()
+                        )
+                    }
+                    Type.BOOK -> {
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_TOP,
+                            TouchScreen.TOUCH_PAGE_MARK.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_TOP_RIGHT,
+                            TouchScreen.TOUCH_NEXT_PAGE.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_TOP_LEFT,
+                            TouchScreen.TOUCH_PREVIOUS_PAGE.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_LEFT,
+                            TouchScreen.TOUCH_PREVIOUS_PAGE.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_RIGHT,
+                            TouchScreen.TOUCH_NEXT_PAGE.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_BOTTOM,
+                            TouchScreen.TOUCH_CHAPTER_LIST.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_BOTTOM_LEFT,
+                            TouchScreen.TOUCH_PREVIOUS_FILE.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_BOTTOM_RIGHT,
+                            TouchScreen.TOUCH_NEXT_FILE.toString()
+                        )
+                    }
+                }
+
+                this.commit()
+            }
+        }
+
+        fun getTouch(context: Context, type: Type) : Map<Position, TouchScreen> {
+            val touch = mutableMapOf<Position, TouchScreen>()
+            val sharedPreferences = GeneralConsts.getSharedPreferences(context)
+            when (type) {
+                Type.MANGA -> {
+                    touch[Position.TOP] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_TOP,
+                            TouchScreen.TOUCH_SHARE_IMAGE.toString()
+                        )!!
+                    )
+                    touch[Position.CORNER_TOP_RIGHT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_TOP_RIGHT,
+                            TouchScreen.TOUCH_ASPECT_FIT.toString()
+                        )!!
+                    )
+                    touch[Position.CORNER_TOP_LEFT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_TOP_LEFT,
+                            TouchScreen.TOUCH_FIT_WIDTH.toString()
+                        )!!
+                    )
+                    touch[Position.LEFT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_LEFT,
+                            TouchScreen.TOUCH_PREVIOUS_PAGE.toString()
+                        )!!
+                    )
+                    touch[Position.RIGHT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_RIGHT,
+                            TouchScreen.TOUCH_NEXT_PAGE.toString()
+                        )!!
+                    )
+                    touch[Position.BOTTOM] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_BOTTOM,
+                            TouchScreen.TOUCH_CHAPTER_LIST.toString()
+                        )!!
+                    )
+                    touch[Position.CORNER_BOTTOM_LEFT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_BOTTOM_LEFT,
+                            TouchScreen.TOUCH_PREVIOUS_FILE.toString()
+                        )!!
+                    )
+                    touch[Position.CORNER_BOTTOM_RIGHT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_BOTTOM_RIGHT,
+                            TouchScreen.TOUCH_NEXT_FILE.toString()
+                        )!!
+                    )
+                }
+                Type.BOOK -> {
+                    touch[Position.TOP] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_TOP,
+                            TouchScreen.TOUCH_PAGE_MARK.toString()
+                        )!!
+                    )
+                    touch[Position.CORNER_TOP_RIGHT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_TOP_RIGHT,
+                            TouchScreen.TOUCH_NOT_ASSIGNED.toString()
+                        )!!
+                    )
+                    touch[Position.CORNER_TOP_LEFT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_TOP_LEFT,
+                            TouchScreen.TOUCH_NOT_ASSIGNED.toString()
+                        )!!
+                    )
+                    touch[Position.LEFT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_LEFT,
+                            TouchScreen.TOUCH_PREVIOUS_PAGE.toString()
+                        )!!
+                    )
+                    touch[Position.RIGHT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_RIGHT,
+                            TouchScreen.TOUCH_NEXT_PAGE.toString()
+                        )!!
+                    )
+                    touch[Position.BOTTOM] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_BOTTOM,
+                            TouchScreen.TOUCH_CHAPTER_LIST.toString()
+                        )!!
+                    )
+                    touch[Position.CORNER_BOTTOM_LEFT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_BOTTOM_LEFT,
+                            TouchScreen.TOUCH_PREVIOUS_FILE.toString()
+                        )!!
+                    )
+                    touch[Position.CORNER_BOTTOM_RIGHT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_BOTTOM_RIGHT,
+                            TouchScreen.TOUCH_NEXT_FILE.toString()
+                        )!!
+                    )
+                }
+            }
+
+            touch[Position.CENTER] = TouchScreen.TOUCH_NOT_IMPLEMENTED
+            return touch.toMap()
         }
 
     }

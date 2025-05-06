@@ -84,6 +84,10 @@
         <item name="android:background">?attr/colorPrimaryContainer</item>
     </style>
 
+    <style name="TouchDemonstration.Horizontal.Bottom" parent="TouchDemonstration">
+        <item name="android:background">?attr/colorPrimaryContainer</item>
+    </style>
+
     <!-- - - - - - - - - - - - - - - - - - - - Basic System Style - - - - - - - - - - - - - - - - - - - -->
     <style name="AppBarLayout" parent="Theme.MangaReader">
         <item name="android:background">@drawable/app_main_toolbar_background</item>

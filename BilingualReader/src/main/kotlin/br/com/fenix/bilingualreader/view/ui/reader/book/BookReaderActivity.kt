@@ -26,6 +26,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.isGone
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -39,6 +40,8 @@ import br.com.fenix.bilingualreader.model.enums.PageMode
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
 import br.com.fenix.bilingualreader.model.enums.Themes
+import br.com.fenix.bilingualreader.model.enums.TouchScreen
+import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
@@ -49,6 +52,7 @@ import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
+import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
@@ -105,7 +109,8 @@ class BookReaderActivity : AppCompatActivity() {
     private var mDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
+        mPreferences = GeneralConsts.getSharedPreferences(this)
+        val theme = Themes.valueOf(mPreferences.getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(theme.getValue())
 
         super.onCreate(savedInstanceState)
@@ -393,6 +398,18 @@ class BookReaderActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        if (mPreferences.getBoolean(GeneralConsts.KEYS.TOUCH.BOOK_TOUCH_DEMONSTRATION, true)) {
+            with(mPreferences.edit()) {
+                this.putBoolean(GeneralConsts.KEYS.TOUCH.BOOK_TOUCH_DEMONSTRATION, false)
+                this.commit()
+            }
+            openViewTouch()
+        }
+    }
+
     override fun onDestroy() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (mHandler.hasCallbacks(mDismissTouchView))
@@ -449,7 +466,7 @@ class BookReaderActivity : AppCompatActivity() {
             R.id.menu_item_reader_book_search -> {}
             R.id.menu_item_reader_book_annotation -> {}
             R.id.menu_item_reader_book_font_style -> {
-                if (mMenuPopupConfiguration.visibility == View.GONE) {
+                if (mMenuPopupConfiguration.isGone) {
                     if (!mMenuPopupBottomSheet)
                         mBottomSheetConfiguration.state = BottomSheetBehavior.STATE_EXPANDED
 
@@ -476,23 +493,23 @@ class BookReaderActivity : AppCompatActivity() {
         finish()
     }
 
-    fun touchPosition(position: Position): Boolean {
-        return when (position) {
-            Position.CORNER_BOTTOM_RIGHT -> {
+    fun touchPosition(touchScreen: TouchScreen): Boolean {
+        return when (touchScreen) {
+            TouchScreen.TOUCH_NEXT_FILE -> {
                 mFragment?.hitEnding()
                 true
             }
-            Position.CORNER_BOTTOM_LEFT -> {
+            TouchScreen.TOUCH_PREVIOUS_FILE -> {
                 mFragment?.hitBeginning()
                 true
             }
 
-            Position.TOP -> {
+            TouchScreen.TOUCH_PAGE_MARK -> {
                 mFragment?.markCurrentPage()
                 true
             }
 
-            Position.BOTTOM -> {
+            TouchScreen.TOUCH_CHAPTER_LIST -> {
                 dialogPageIndex()
                 true
             }
@@ -516,6 +533,48 @@ class BookReaderActivity : AppCompatActivity() {
 
     private fun openViewTouch() {
         mFragment?.setFullscreen(true)
+
+        val touch = TouchUtils.getTouch(this, Type.BOOK)
+
+        val touchTop = findViewById<TextView>(R.id.reader_book_touch_top)
+        val touchTopRight = findViewById<TextView>(R.id.reader_book_touch_top_right)
+        val touchTopLeft = findViewById<TextView>(R.id.reader_book_touch_top_left)
+        val touchLeft = findViewById<TextView>(R.id.reader_book_touch_left)
+        val touchRight = findViewById<TextView>(R.id.reader_book_touch_right)
+        val touchBottom = findViewById<TextView>(R.id.reader_book_touch_bottom)
+        val touchBottomLeft = findViewById<TextView>(R.id.reader_book_touch_bottom_left)
+        val touchBottomRight = findViewById<TextView>(R.id.reader_book_touch_bottom_right)
+
+        touchTop.text = getString(touch[Position.TOP]!!.getValue())
+        touchTopRight.text = getString(touch[Position.CORNER_TOP_RIGHT]!!.getValue())
+        touchTopLeft.text = getString(touch[Position.CORNER_TOP_LEFT]!!.getValue())
+        touchLeft.text = getString(touch[Position.LEFT]!!.getValue())
+        touchRight.text = getString(touch[Position.RIGHT]!!.getValue())
+        touchBottom.text = getString(touch[Position.BOTTOM]!!.getValue())
+        touchBottomLeft.text = getString(touch[Position.CORNER_BOTTOM_LEFT]!!.getValue())
+        touchBottomRight.text = getString(touch[Position.CORNER_BOTTOM_RIGHT]!!.getValue())
+
+        if ((touch[Position.CORNER_TOP_RIGHT] == TouchScreen.TOUCH_NOT_ASSIGNED && touch[Position.CORNER_TOP_LEFT] == TouchScreen.TOUCH_NOT_ASSIGNED) ||
+            (touch[Position.CORNER_TOP_RIGHT] == touch[Position.RIGHT] && touch[Position.CORNER_TOP_LEFT] == touch[Position.LEFT])) {
+            touchTopRight.visibility = View.GONE
+            touchTopLeft.visibility = View.GONE
+            touchTop.setBackgroundColor(getColorFromAttr(R.attr.colorPrimaryContainer))
+        } else {
+            touchTopRight.visibility = View.VISIBLE
+            touchTopLeft.visibility = View.VISIBLE
+            touchTop.setBackgroundColor(getColor(R.color.touch_demonstration_alter))
+        }
+
+        if ((touch[Position.CORNER_BOTTOM_RIGHT] == TouchScreen.TOUCH_NOT_ASSIGNED && touch[Position.CORNER_BOTTOM_LEFT] == TouchScreen.TOUCH_NOT_ASSIGNED) ||
+            (touch[Position.CORNER_BOTTOM_RIGHT] == touch[Position.RIGHT] && touch[Position.CORNER_BOTTOM_LEFT] == touch[Position.LEFT])) {
+        touchBottomRight.visibility = View.GONE
+            touchBottomLeft.visibility = View.GONE
+            touchBottom.setBackgroundColor(getColorFromAttr(R.attr.colorPrimaryContainer))
+        } else {
+            touchBottomRight.visibility = View.VISIBLE
+            touchBottomLeft.visibility = View.VISIBLE
+            touchBottom.setBackgroundColor(getColor(R.color.touch_demonstration_alter))
+        }
 
         mTouchView.alpha = 0.0f
         mTouchView.animate().alpha(1.0f).setDuration(300L)
