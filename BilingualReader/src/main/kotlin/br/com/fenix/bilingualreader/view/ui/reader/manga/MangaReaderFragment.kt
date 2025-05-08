@@ -452,7 +452,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mToolbarBottom = requireActivity().findViewById(R.id.reader_manga_toolbar_reader_bottom)
         mPreviousButton = requireActivity().findViewById(R.id.reader_manga_nav_previous_file)
         mNextButton = requireActivity().findViewById(R.id.reader_manga_nav_next_file)
-        mViewPager = view.findViewById<View>(R.id.fragment_manga_reader) as ImageViewPager
+        mViewPager = view.findViewById<View>(R.id.fragment_manga_reader_pager) as ImageViewPager
         mViewRecycler = view.findViewById<View>(R.id.fragment_manga_reader_recycler) as ZoomRecyclerView
 
         mCoverContent = view.findViewById(R.id.reader_manga_cover_content)
@@ -640,8 +640,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     mViewPager.visibility = View.VISIBLE
                     mViewRecycler.visibility = View.GONE
 
-                    if (mCurrentPage != -1 && !isMode)
-                        setCurrentPage(mCurrentPage)
+                    if (page != -1 && !isMode)
+                        setCurrentPage(page)
                 }
 
                 ScrollingType.Scrolling,
@@ -664,11 +664,12 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     mViewRecycler.layoutManager = LinearLayoutManager(requireContext())
                     mViewRecycler.setItemViewCacheSize(ReaderConsts.READER.MANGA_OFF_SCREEN_PAGE_LIMIT)
                     mViewRecycler.useMagnifierType = mUseMagnifierType
+                    mViewRecycler.isEnableZoom = true
 
                     mViewRecycler.adapter?.notifyDataSetChanged()
-                    if (mCurrentPage != -1) {
-                        mViewRecycler.layoutManager?.scrollToPosition(mCurrentPage - 1)
-                        setChangeProgress(mCurrentPage, mCurrentPage)
+                    if (page != -1) {
+                        mViewRecycler.layoutManager?.scrollToPosition(page - 1)
+                        setChangeProgress(page, page)
                     }
 
                     mViewPager.visibility = View.GONE
@@ -707,8 +708,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         menu.findItem(R.id.menu_item_reader_manga_use_magnifier_type).isChecked = mUseMagnifierType
         menu.findItem(R.id.menu_item_reader_manga_keep_zoom_between_pages).isChecked = mKeepZoomBetweenPage
-        menu.findItem(R.id.menu_item_reader_manga_show_clock_and_battery).isChecked =
-            mPreferences.getBoolean(GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY, false)
+        menu.findItem(R.id.menu_item_reader_manga_show_clock_and_battery).isChecked = mPreferences.getBoolean(GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY, false)
 
         miMarkPage = menu.findItem(R.id.menu_item_reader_manga_mark_page)
     }
@@ -918,7 +918,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 }
             }
 
-            else -> {}
+            else -> return
         }
 
         setChangeProgress(page, seek)
@@ -1237,8 +1237,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             if (touch == TouchScreen.TOUCH_PREVIOUS_PAGE || touch == TouchScreen.TOUCH_NEXT_PAGE) {
                 if (mScrollingMode == ScrollingType.Vertical || mScrollingMode == ScrollingType.Horizontal || mScrollingMode == ScrollingType.HorizontalRightToLeft)
                     (getCurrencyImageView() as ImageViewPage?)?.let {
-                        val isBack =
-                            if (mScrollingMode == ScrollingType.HorizontalRightToLeft) touch == TouchScreen.TOUCH_NEXT_PAGE else touch == TouchScreen.TOUCH_PREVIOUS_PAGE
+                        val isBack = if (mScrollingMode == ScrollingType.HorizontalRightToLeft) touch == TouchScreen.TOUCH_NEXT_PAGE else touch == TouchScreen.TOUCH_PREVIOUS_PAGE
                         if (it.autoScroll(isBack))
                             return true
                     }
@@ -1553,8 +1552,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     private fun updateSeekBar() {
-        val seekRes: Int =
-            if (mScrollingMode == ScrollingType.HorizontalRightToLeft) R.drawable.reader_progress_pointer_inverse else R.drawable.reader_progress_pointer
+        val seekRes: Int = if (mScrollingMode == ScrollingType.HorizontalRightToLeft) R.drawable.reader_progress_pointer_inverse else R.drawable.reader_progress_pointer
         val d: Drawable? = ContextCompat.getDrawable(requireActivity(), seekRes)
         val bounds = mPageSeekBar.progressDrawable.bounds
         mPageSeekBar.progressDrawable = d

@@ -8,9 +8,17 @@
     android:orientation="vertical">
 
     <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/fragment_book_reader"
+        android:id="@+id/fragment_book_reader_pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+
+    <br.com.fenix.bilingualreader.view.components.manga.ZoomRecyclerView
+        android:id="@+id/fragment_book_reader_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        app:zoom_enabled="true"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/reader_book_cover_content"

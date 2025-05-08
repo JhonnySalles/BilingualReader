@@ -12,7 +12,6 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapShader
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.PointF
@@ -25,7 +24,6 @@ import android.view.ScaleGestureDetector
 import android.view.ScaleGestureDetector.OnScaleGestureListener
 import android.view.View
 import android.view.animation.DecelerateInterpolator
-import androidx.compose.ui.graphics.setFrom
 import androidx.core.view.drawToBitmap
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
@@ -70,13 +68,14 @@ class ZoomRecyclerView : RecyclerView {
     private var mLastTouchX = 0f
     private var mLastTouchY = 0f
 
+    var isEnableZoom = true
     var useMagnifierType: Boolean = false
     var isZoom = false
-    var isEnableZoom = true
+    var isEnablePinchZoom = true
         set(value) {
             if (field != value) {
                 field = value
-                if (!isEnableZoom && mScaleFactor != 1f) {
+                if (!isEnablePinchZoom && mScaleFactor != 1f) {
                     zoom(mScaleFactor, 1f)
                 }
             }
@@ -157,6 +156,7 @@ class ZoomRecyclerView : RecyclerView {
             mDefaultScaleFactor = a.getFloat(R.styleable.ZoomRecyclerView_default_scale, DEFAULT_SCALE_FACTOR)
             mScaleFactor = mDefaultScaleFactor
             mScaleDuration = a.getInteger(R.styleable.ZoomRecyclerView_zoom_duration, DEFAULT_SCALE_DURATION)
+            isEnablePinchZoom = a.getBoolean(R.styleable.ZoomRecyclerView_zoom_pinch_enabled, this.isEnablePinchZoom)
             isEnableZoom = a.getBoolean(R.styleable.ZoomRecyclerView_zoom_enabled, this.isEnableZoom)
             a.recycle()
         } else {
@@ -206,23 +206,25 @@ class ZoomRecyclerView : RecyclerView {
         mZoomPos.y = ev.y
         mPinch = ev.pointerCount > 1
 
-        when (ev.actionMasked) {
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                mZooming = false
-                this.invalidate()
-            }
-
-            MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
-                if (mZooming) {
+        if (isEnableZoom)
+            when (ev.actionMasked) {
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    mZooming = false
                     this.invalidate()
-                    return true
+                }
+
+                MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
+                    if (mZooming) {
+                        this.invalidate()
+                        return true
+                    }
                 }
             }
-        }
+
         mScaleDetector!!.onTouchEvent(ev)
         mGestureDetector!!.onTouchEvent(ev)
 
-        if (isEnableZoom && !mZooming) {
+        if (isEnablePinchZoom && !mZooming) {
             val action = ev.actionMasked
             when (action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -316,7 +318,7 @@ class ZoomRecyclerView : RecyclerView {
     override fun drawChild(canvas: Canvas, child: View?, drawingTime: Long): Boolean {
         val draw = super.drawChild(canvas, child, drawingTime)
         val lastItem = layoutManager?.childCount ?: -1
-        if (mZooming && !mPinch && lastItem > 0 && child == getChildAt(lastItem -1)) {
+        if (isEnableZoom && mZooming && !mPinch && lastItem > 0 && child == getChildAt(lastItem -1)) {
             canvas.save()
             mPaint.shader = mShader
             mMagnifierMatrix.set(matrix)
@@ -507,11 +509,13 @@ class ZoomRecyclerView : RecyclerView {
 
         override fun onLongPress(e: MotionEvent) {
             super.onLongPress(e)
-            mBitmap = this@ZoomRecyclerView.drawToBitmap()
-            mShader = BitmapShader(mBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
-            mPaint = Paint()
-            mZooming = true
-            this@ZoomRecyclerView.invalidate()
+            if (isEnableZoom) {
+                mBitmap = this@ZoomRecyclerView.drawToBitmap()
+                mShader = BitmapShader(mBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
+                mPaint = Paint()
+                mZooming = true
+                this@ZoomRecyclerView.invalidate()
+            }
         }
     }
 

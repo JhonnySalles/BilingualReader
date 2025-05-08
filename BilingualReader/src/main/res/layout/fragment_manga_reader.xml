@@ -8,7 +8,7 @@
     android:orientation="vertical">
 
     <br.com.fenix.bilingualreader.view.components.manga.ImageViewPager
-        android:id="@+id/fragment_manga_reader"
+        android:id="@+id/fragment_manga_reader_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"/>
@@ -17,6 +17,8 @@
         android:id="@+id/fragment_manga_reader_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:visibility="gone"
+        app:zoom_pinch_enabled="true"
         app:zoom_enabled="true"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout

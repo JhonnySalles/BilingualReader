@@ -218,7 +218,9 @@
     <string name="config_book_text_with_furigana">Generate furigana in japanese text</string>
     <string name="config_book_process_vocabulary">Process book vocabulary</string>
     <string name="config_book_scrolling_mode">Scrolling mode</string>
-    <string name="config_book_scrolling_pagination">Pagination</string>
+    <string name="config_book_scrolling_pagination">Pagination (Default)</string>
+    <string name="config_book_scrolling_pagination_vertical">Pagination (Vertical)</string>
+    <string name="config_book_scrolling_pagination_right_to_left">Pagination (Right to left)</string>
     <string name="config_book_scrolling_infinity_scrolling">Infinity Scrolling</string>
 
     <string name="config_book_tts">Text to speech</string>
@@ -290,6 +292,11 @@
     <string name="menu_book_reading_book_mark">Book mark</string>
     <string name="menu_book_reading_view_touch">Touch functions</string>
     <string name="menu_book_reading_config_touch">Configure touch functions</string>
+    <string name="menu_book_scrolling_mode">Scrolling mode</string>
+    <string name="menu_book_scrolling_pagination">Pagination (Default)</string>
+    <string name="menu_book_scrolling_pagination_vertical">Pagination (Vertical)</string>
+    <string name="menu_book_scrolling_pagination_right_to_left">Pagination (Right to left)</string>
+    <string name="menu_book_scrolling_infinity_scrolling">Infinity Scrolling</string>
 
     <string name="reading_book_title_position">Position %d of %d • %s%%</string>
     <string name="reading_book_title_chapter">Chapter %d: %s</string>
@@ -495,7 +502,6 @@
     <string name="menu_manga_scrolling_horizontal_right_to_left">Horizontal (Right to left)</string>
     <string name="menu_manga_scrolling_scrolling">Long strip</string>
     <string name="menu_manga_scrolling_scrolling_divider">Long strip with gap</string>
-    <string name="menu_manga_scrolling_infinity_scrolling">Infinity Scrolling</string>
 
     <string name="menu_manga_reading_chapters_menu">Chapters list</string>
     <string name="menu_manga_reading_save_share_image">Save/Share image</string>

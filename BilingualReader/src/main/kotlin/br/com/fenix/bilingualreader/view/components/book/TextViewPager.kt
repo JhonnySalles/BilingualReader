@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Speech
 import br.com.fenix.bilingualreader.model.enums.AudioStatus
+import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.service.listener.ScrollChangeListener
 import br.com.fenix.bilingualreader.service.listener.SelectionChangeListener
 import br.com.fenix.bilingualreader.service.listener.TTSListener
@@ -54,12 +55,6 @@ class TextViewPager(
     private val mHolders = mutableMapOf<Int, TextViewPagerHolder>()
     private var mSpeech: Speech? = null
     private var mItems : Int = 0
-    var isVertical = false
-        set(value) {
-            field = value
-            for(holder in mHolders.entries)
-                holder.value.scrollView.overScrollMode = if (value && holder.key > 0 && holder.key < (mItems-1)) View.OVER_SCROLL_NEVER else View.OVER_SCROLL_ALWAYS
-        }
 
     init {
         refreshSize()
@@ -67,6 +62,11 @@ class TextViewPager(
 
     fun refreshSize() {
         mItems = mParse?.getPageCount(mViewModel.getFontSize(isBook = true).toInt()) ?: 1
+    }
+
+    fun refreshLayout(type: ScrollingType) {
+        for(holder in mHolders.entries)
+            configureLayout(holder.value, type, holder.key)
     }
 
     fun clearParse() {
@@ -118,7 +118,6 @@ class TextViewPager(
         if (mListener != null)
             holder.scrollView.setOnTouchListener(mListener)
 
-        holder.scrollView.overScrollMode = if (isVertical && position > 0 && position < (mItems-1)) View.OVER_SCROLL_NEVER else View.OVER_SCROLL_ALWAYS
         holder.scrollView.scrollY = 0
         holder.scrollView.parent.requestDisallowInterceptTouchEvent(false)
         holder.scrollView.setOnScrollChangeListener { _, _, scrollY, _, scrollYOld ->
@@ -128,6 +127,8 @@ class TextViewPager(
             else
                 holder.scrollView.parent.requestDisallowInterceptTouchEvent(true)
         }
+
+        configureLayout(holder, mViewModel.scrollingType.value ?: ScrollingType.Pagination, position)
 
         holder.textView.setOnTouchListener(mListener)
         holder.imageView.setOnTouchListener(mListener)
@@ -147,6 +148,25 @@ class TextViewPager(
             drawLineSpeech(holder.textView, mSpeech!!)
     }
 
+    private fun configureLayout(holder: TextViewPagerHolder, type: ScrollingType, position: Int) {
+        when (type) {
+            ScrollingType.Scrolling -> {
+                holder.scrollView.overScrollMode = View.OVER_SCROLL_NEVER
+                holder.root.layoutParams.width = FrameLayout.LayoutParams.MATCH_PARENT
+                holder.root.layoutParams.height = FrameLayout.LayoutParams.WRAP_CONTENT
+                holder.scrollView.layoutParams.width = FrameLayout.LayoutParams.MATCH_PARENT
+                holder.scrollView.layoutParams.height = FrameLayout.LayoutParams.WRAP_CONTENT
+            }
+            else -> {
+                holder.scrollView.overScrollMode = if (type == ScrollingType.PaginationVertical && position > 0 && position < (mItems-1)) View.OVER_SCROLL_NEVER else View.OVER_SCROLL_ALWAYS
+                holder.root.layoutParams.width = FrameLayout.LayoutParams.MATCH_PARENT
+                holder.root.layoutParams.height = FrameLayout.LayoutParams.MATCH_PARENT
+                holder.scrollView.layoutParams.width = FrameLayout.LayoutParams.MATCH_PARENT
+                holder.scrollView.layoutParams.height = FrameLayout.LayoutParams.MATCH_PARENT
+            }
+        }
+    }
+
     private fun TextView.fixTextSelection() {
         setTextIsSelectable(false)
         post { setTextIsSelectable(true) }
@@ -155,6 +175,7 @@ class TextViewPager(
     fun getHolder(position: Int): TextViewPagerHolder? = if (mHolders.containsKey(position)) mHolders[position] else null
 
     inner class TextViewPagerHolder(itemView: View) : RecyclerView.ViewHolder(itemView), ScrollChangeListener, SelectionChangeListener {
+        val root: FrameLayout = itemView.findViewById(R.id.frame_reader_page_root)
         val pageMark: ImageView = itemView.findViewById(R.id.page_mark)
         val scrollView: NotifyingScrollView = itemView.findViewById(R.id.page_scroll_view)
         val textView: TextViewPage = itemView.findViewById(R.id.page_text_view)

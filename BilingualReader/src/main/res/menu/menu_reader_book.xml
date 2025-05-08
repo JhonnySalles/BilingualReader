@@ -45,6 +45,30 @@
         app:showAsAction="always"/>
 
     <item
+        android:id="@+id/menu_item_reader_book_scrolling_mode"
+        android:icon="@drawable/ico_reading_mode"
+        android:orderInCategory="102"
+        android:title="@string/menu_book_scrolling_mode"
+        app:showAsAction="never">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/menu_item_reader_book_scrolling_pagination"
+                    android:title="@string/menu_book_scrolling_pagination" />
+                <item
+                    android:id="@+id/menu_item_reader_book_scrolling_pagination_right_to_left"
+                    android:title="@string/menu_book_scrolling_pagination_vertical" />
+                <item
+                    android:id="@+id/menu_item_reader_book_pagination_vertical"
+                    android:title="@string/menu_book_scrolling_pagination_right_to_left" />
+                <item
+                    android:id="@+id/menu_item_reader_book_scrolling_infinity_scrolling"
+                    android:title="@string/menu_book_scrolling_infinity_scrolling" />
+            </group>
+        </menu>
+    </item>
+
+    <item
         android:id="@+id/menu_item_reader_book_view_touch_screen"
         android:icon="@drawable/ico_view_touch_screen"
         android:orderInCategory="106"

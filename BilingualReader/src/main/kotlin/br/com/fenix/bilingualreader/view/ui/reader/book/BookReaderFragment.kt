@@ -23,6 +23,7 @@ import android.text.Selection
 import android.text.Spannable
 import android.util.Base64
 import android.view.GestureDetector
+import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.Menu
@@ -52,8 +53,11 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.get
+import androidx.core.view.isVisible
+import androidx.core.view.iterator
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.transition.Slide
@@ -98,8 +102,10 @@ import br.com.fenix.bilingualreader.view.components.book.TextViewPage
 import br.com.fenix.bilingualreader.view.components.book.TextViewPager
 import br.com.fenix.bilingualreader.view.components.book.WebViewPage
 import br.com.fenix.bilingualreader.view.components.book.WebViewPager
+import br.com.fenix.bilingualreader.view.components.manga.ZoomRecyclerView
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupTTS
+import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderFragment
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -130,7 +136,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private lateinit var miMarkPage: MenuItem
     private lateinit var miSearch: MenuItem
     private lateinit var miReaderTTS: MenuItem
+    private lateinit var miScrollingMode: MenuItem
     private lateinit var mViewPager: ViewPager2
+    private lateinit var mViewRecycler: ZoomRecyclerView
     private lateinit var mPagerAdapter: Adapter<RecyclerView.ViewHolder>
     private lateinit var mReaderTTSContainer: LinearLayout
     private lateinit var mReaderTTSPlay: MaterialButton
@@ -152,7 +160,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private lateinit var mTimeToEnding: TextView
 
     private var mIsFullscreen = false
-    private var mIsLeftToRight = true
+    private var mScrollingMode: ScrollingType = ScrollingType.Pagination
 
     private var mTouchScreen = mapOf<Position, TouchScreen>()
     private var mFileName: String? = null
@@ -258,7 +266,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         val view: View = inflater.inflate(R.layout.fragment_book_reader, container, false)
 
         mRoot = requireActivity().findViewById(R.id.root_activity_book_reader)
-        mViewPager = view.findViewById(R.id.fragment_book_reader)
+        mViewPager = view.findViewById(R.id.fragment_book_reader_pager)
+        mViewRecycler = view.findViewById(R.id.fragment_book_reader_recycler)
         mPageSeekBar = requireActivity().findViewById(R.id.reader_book_bottom_progress)
         mPopupConfiguration = requireActivity().findViewById(R.id.popup_book_configuration)
 
@@ -304,10 +313,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         mPageSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    if (mIsLeftToRight)
-                        setCurrentPage(progress + 1)
-                    else
+                    if (mScrollingMode == ScrollingType.PaginationRightToLeft)
                         setCurrentPage(mPageSeekBar.max - progress + 1)
+                    else
+                        setCurrentPage(progress + 1)
                     changeLastPagePosition(progress + 1)
                 }
             }
@@ -396,6 +405,15 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         miMarkPage = menu.findItem(R.id.menu_item_reader_book_mark_page)
         miSearch = menu.findItem(R.id.menu_item_reader_book_search)
         miReaderTTS = menu.findItem(R.id.menu_item_reader_book_tts)
+        miScrollingMode = menu.findItem(R.id.menu_item_reader_book_scrolling_mode)
+
+        when (mViewModel.scrollingType.value) {
+            ScrollingType.Pagination -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
+            ScrollingType.PaginationRightToLeft -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination_right_to_left).isChecked = true
+            ScrollingType.PaginationVertical -> menu.findItem(R.id.menu_item_reader_book_pagination_vertical).isChecked = true
+            ScrollingType.Scrolling -> menu.findItem(R.id.menu_item_reader_book_scrolling_infinity_scrolling).isChecked = true
+            else -> menu.findItem(R.id.menu_item_reader_book_scrolling_infinity_scrolling).isChecked = true
+        }
 
         MenuUtil.longClick(requireActivity(), R.id.menu_item_reader_book_tts) {
             openMenuTTS()
@@ -496,57 +514,110 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private fun preparePager() {
         mPageSeekBar.isEnabled = true
 
-        mPagerAdapter = if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
-            WebViewPager(requireActivity(), requireContext(), mViewModel, mParse, this@BookReaderFragment) as Adapter<RecyclerView.ViewHolder>
-        else
-            TextViewPager(requireContext(), mViewModel, mParse, this@BookReaderFragment, this@BookReaderFragment) as Adapter<RecyclerView.ViewHolder>
-
-        mViewPager.adapter = mPagerAdapter
-
         var scrolling = mViewModel.scrollingType.value
 
         if (scrolling == null) {
             val preferences = GeneralConsts.getSharedPreferences(requireContext())
             scrolling = ScrollingType.valueOf(preferences.getString(GeneralConsts.KEYS.READER.BOOK_PAGE_SCROLLING_MODE, ScrollingType.Pagination.toString())!!)
-            mViewModel.changeScrolling(scrolling)
         }
 
-        mViewPager.orientation = if (scrolling == ScrollingType.Scrolling) ViewPager2.ORIENTATION_VERTICAL else ViewPager2.ORIENTATION_HORIZONTAL
-        (mViewPager.adapter as TextViewPager).isVertical = scrolling == ScrollingType.Scrolling
+        mPagerAdapter = if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
+            WebViewPager(requireActivity(), requireContext(), mViewModel, mParse, this@BookReaderFragment) as Adapter<RecyclerView.ViewHolder>
+        else
+            TextViewPager(requireContext(), mViewModel, mParse, this@BookReaderFragment, this@BookReaderFragment) as Adapter<RecyclerView.ViewHolder>
 
-        mViewPager.isSaveEnabled = false
-        mViewPager.isSaveFromParentEnabled = false
-        mViewPager.setOnTouchListener(this)
-        mViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                if (mIsLeftToRight)
-                    setCurrentPage(position + 1, false)
-                else
-                    setCurrentPage(mViewPager.adapter!!.itemCount - position, false)
-
-                generatePageAverage()
-            }
-        })
-
-        var startX = 0f
-        mViewPager.setOnTouchListener { _, motionEvent ->
-            if (motionEvent.action == MotionEvent.ACTION_DOWN)
-                startX = motionEvent.x
-            else if (motionEvent.action == MotionEvent.ACTION_UP) {
-                val diff = motionEvent.x - startX
-                if (diff > 0 && mViewPager.currentItem == 0) {
-                    if (mIsLeftToRight) hitBeginning() else hitEnding()
-                } else if (diff < 0 && mViewPager.currentItem == mViewPager.adapter!!.itemCount - 1) {
-                    if (mIsLeftToRight) hitEnding() else hitBeginning()
-                }
-            }
-            false
-        }
-        if (mBook != null)
-            setCurrentPage(mCurrentPage, isAnimated = false)
-
+        configureScrolling(scrolling, true)
         observer()
+    }
+
+    private fun configureScrolling(type: ScrollingType, isInitial: Boolean = false) : Boolean {
+        val page = getCurrentPage()
+        val isChange = isInitial || (type == ScrollingType.Scrolling && mViewRecycler.isVisible) ||
+                ((type == ScrollingType.Pagination || type == ScrollingType.PaginationVertical || type == ScrollingType.PaginationRightToLeft) && mViewRecycler.isVisible)
+
+        val isMode = ((mScrollingMode == ScrollingType.PaginationRightToLeft || type == ScrollingType.PaginationRightToLeft) && mScrollingMode != type)
+        mScrollingMode = type
+
+        if (isChange) {
+            when (mScrollingMode) {
+                ScrollingType.Pagination,
+                ScrollingType.PaginationRightToLeft,
+                ScrollingType.PaginationVertical,
+                    -> {
+                    mViewRecycler.setOnTouchListener(null)
+                    mViewRecycler.clearOnScrollListeners()
+                    mViewRecycler.setOnSwipeOutListener(null)
+
+                    mViewRecycler.adapter = null
+                    mViewRecycler.layoutManager = null
+
+                    (mPagerAdapter as TextViewPager).refreshLayout(mScrollingMode)
+                    mViewPager.adapter = mPagerAdapter
+                    mViewPager.orientation = if (mScrollingMode == ScrollingType.PaginationVertical) ViewPager2.ORIENTATION_VERTICAL else ViewPager2.ORIENTATION_HORIZONTAL
+
+                    mViewModel.changeScrolling(mScrollingMode)
+                    mViewPager.isSaveEnabled = false
+                    mViewPager.isSaveFromParentEnabled = false
+                    mViewPager.setOnTouchListener(this@BookReaderFragment)
+                    mViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                        override fun onPageSelected(position: Int) {
+                            super.onPageSelected(position)
+                            if (mScrollingMode == ScrollingType.PaginationRightToLeft)
+                                setCurrentPage(mPagerAdapter.itemCount - position, false)
+                            else
+                                setCurrentPage(position + 1, false)
+
+                            generatePageAverage()
+                        }
+                    })
+
+                    mViewPager.visibility = View.VISIBLE
+                    mViewRecycler.visibility = View.GONE
+
+                    if (mBook != null && page != -1 && !isMode)
+                        setCurrentPage(page, isAnimated = false)
+                }
+
+                ScrollingType.Scrolling -> {
+                    mViewPager.adapter = null
+                    mViewPager.setOnTouchListener(null)
+
+                    mViewRecycler.setOnTouchListener(this@BookReaderFragment)
+                    mViewRecycler.addOnScrollListener(InfinityScrollingListener())
+                    mViewRecycler.setOnSwipeOutListener(object : ZoomRecyclerView.OnSwipeOutListener {
+                        override fun onSwipeOutAtStart() = hitBeginning()
+                        override fun onSwipeOutAtEnd() = hitEnding()
+                    })
+
+                    (mPagerAdapter as TextViewPager).refreshLayout(mScrollingMode)
+                    mViewRecycler.adapter = mPagerAdapter
+                    mViewRecycler.layoutManager = LinearLayoutManager(requireContext())
+                    mViewRecycler.setItemViewCacheSize(ReaderConsts.READER.MANGA_OFF_SCREEN_PAGE_LIMIT)
+                    mViewRecycler.isEnableZoom = false
+
+                    mPagerAdapter.notifyDataSetChanged()
+                    if (mCurrentPage != -1) {
+                        mViewRecycler.layoutManager?.scrollToPosition(page - 1)
+                        setChangeProgress(page, page)
+                    }
+
+                    mViewPager.visibility = View.GONE
+                    mViewRecycler.visibility = View.VISIBLE
+                }
+
+                else -> {}
+            }
+        } else if (mScrollingMode == ScrollingType.Scrolling)
+            mPagerAdapter.notifyDataSetChanged()
+
+        if (isMode) {
+            if (mBook != null)
+                setCurrentPage(page, false)
+            mPagerAdapter.notifyDataSetChanged()
+            updateSeekBar()
+        }
+
+        return isChange
     }
 
     override fun onTouch(v: View, event: MotionEvent): Boolean {
@@ -555,9 +626,22 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     fun getCurrentPage(): Int {
-        return when {
-            mIsLeftToRight -> if (::mViewPager.isInitialized) mViewPager.currentItem.plus(1) else 1
-            ::mViewPager.isInitialized && mViewPager.adapter != null -> (mViewPager.adapter!!.itemCount - mViewPager.currentItem)
+        if (!::mViewPager.isInitialized || !::mViewRecycler.isInitialized)
+            return 1
+
+        return when (mScrollingMode) {
+            ScrollingType.Pagination,
+            ScrollingType.PaginationVertical,
+                -> mViewPager.currentItem.plus(1)
+
+            ScrollingType.PaginationRightToLeft -> mPagerAdapter.itemCount - mViewPager.currentItem
+            ScrollingType.Scrolling,
+                -> if (mViewRecycler.layoutManager != null) {
+                val first = (mViewRecycler.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition().plus(1)
+                val last = (mViewRecycler.layoutManager as LinearLayoutManager).findLastVisibleItemPosition().plus(1)
+                (first + ((last - first) / 2)).toInt()
+            } else 1
+
             else -> 1
         }
     }
@@ -596,6 +680,24 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
             R.id.menu_item_reader_book_config_touch_screen -> {
                 openTouchFunctions()
+            }
+
+            R.id.menu_item_reader_book_scrolling_pagination,
+            R.id.menu_item_reader_book_scrolling_pagination_right_to_left,
+            R.id.menu_item_reader_book_pagination_vertical,
+            R.id.menu_item_reader_book_scrolling_infinity_scrolling,
+                -> {
+                menuItem.isChecked = true
+
+                val scrolling = when (menuItem.itemId) {
+                    R.id.menu_item_reader_book_scrolling_pagination -> ScrollingType.Pagination
+                    R.id.menu_item_reader_book_scrolling_pagination_right_to_left -> ScrollingType.PaginationRightToLeft
+                    R.id.menu_item_reader_book_pagination_vertical -> ScrollingType.PaginationVertical
+                    R.id.menu_item_reader_book_scrolling_infinity_scrolling -> ScrollingType.Scrolling
+                    else -> ScrollingType.Scrolling
+                }
+
+                mViewModel.changeScrolling(scrolling)
             }
         }
 
@@ -679,11 +781,19 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
     private fun observer() {
         mViewModel.scrollingType.observe(viewLifecycleOwner) {
-            mViewPager.orientation = if (it == ScrollingType.Scrolling)
-                ViewPager2.ORIENTATION_VERTICAL
-            else
-                ViewPager2.ORIENTATION_HORIZONTAL
-            (mViewPager.adapter as TextViewPager).isVertical = it == ScrollingType.Scrolling
+            if (!configureScrolling(it))
+                (mPagerAdapter as TextViewPager).refreshLayout(it)
+            mScrollingMode = it
+
+            if (miScrollingMode.subMenu != null) {
+                when (it) {
+                    ScrollingType.Pagination -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
+                    ScrollingType.PaginationRightToLeft -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination_right_to_left).isChecked = true
+                    ScrollingType.PaginationVertical -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_vertical).isChecked = true
+                    ScrollingType.Scrolling -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_infinity_scrolling).isChecked = true
+                    else -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_infinity_scrolling).isChecked = true
+                }
+            }
         }
 
         mViewModel.ttsVoice.observe(viewLifecycleOwner) {
@@ -849,16 +959,41 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
     fun setCurrentPage(page: Int, isChangePage: Boolean = true, isAnimated: Boolean = true) {
         val animated = if (isAnimated) abs(mCurrentPage - page) < 10 else false
+        var seek = page - 1
 
         if (isChangePage) {
             // Use animated to load because wrong page is set started
-            if (mIsLeftToRight)
-                mViewPager.setCurrentItem(page - 1, animated)
-            else
-                mViewPager.setCurrentItem(mViewPager.adapter!!.itemCount - page, animated)
+            when (mScrollingMode) {
+                ScrollingType.Pagination,
+                ScrollingType.PaginationVertical,
+                    -> {
+                    mViewPager.currentItem = page - 1
+                }
+
+                ScrollingType.PaginationRightToLeft -> {
+                    mViewPager.setCurrentItem(mPagerAdapter.itemCount - page, animated)
+                    seek = mPagerAdapter.itemCount - page
+                }
+
+                ScrollingType.Scrolling -> {
+                    val isShort = abs(MangaReaderFragment.Companion.mCurrentPage - page) < 10
+                    if (animated && isShort)
+                        mViewRecycler.smoothScrollToPosition(page - 1)
+                    else {
+                        mViewRecycler.adapter?.notifyDataSetChanged()
+                        mViewRecycler.layoutManager?.scrollToPosition(page - 1)
+                    }
+                }
+
+                else -> return
+            }
         }
 
-        mCurrentPage = mViewPager.currentItem
+        setChangeProgress(page, seek)
+    }
+
+    private fun setChangeProgress(page: Int, seekbar: Int) {
+        mCurrentPage = page - 1
 
         if (mCurrentPage < 0)
             mCurrentPage = 0
@@ -869,10 +1004,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 mBook!!.chapterDescription = it.second
             }
 
-        mCurrentPage = mViewPager.currentItem + 1
-        mPageSeekBar.progress = mCurrentPage - 1
-
-        (requireActivity() as BookReaderActivity).changePageDescription(mBook!!.chapter, mBook!!.chapterDescription, mCurrentPage, mViewPager.adapter!!.itemCount)
+        mPageSeekBar.progress = seekbar
+        (requireActivity() as BookReaderActivity).changePageDescription(mBook!!.chapter, mBook!!.chapterDescription, page, mPagerAdapter.itemCount)
     }
 
     fun isFullscreen(): Boolean = mIsFullscreen
@@ -965,7 +1098,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         when (requestCode) {
             GeneralConsts.REQUEST.BOOK_ANNOTATION -> {
                 mViewModel.refreshAnnotations(mBook)
-                mViewPager.adapter!!.notifyDataSetChanged()
+                mPagerAdapter.notifyDataSetChanged()
 
                 if (data?.extras != null && data.extras!!.containsKey(GeneralConsts.KEYS.OBJECT.BOOK_ANNOTATION)) {
                     val annotation = data.extras!!.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK_ANNOTATION) as BookAnnotation
@@ -1087,7 +1220,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 if (mReaderTTSProgress.isIndeterminate) {
                     mReaderTTSProgress.isIndeterminate = false
                     mReaderTTSProgress.progress = mCurrentPage
-                    mReaderTTSProgress.max = mViewPager.adapter!!.itemCount
+                    mReaderTTSProgress.max = mPagerAdapter.itemCount
 
                     mViewModel.history?.let {
                         it.useTTS = true
@@ -1279,7 +1412,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             return
         }
 
-        val remaining = average * (mViewPager.adapter!!.itemCount - mCurrentPage)
+        val remaining = average * (mPagerAdapter.itemCount - mCurrentPage)
         val now = LocalDateTime.now()
         val ending = now.plusSeconds(remaining)
         val hours = ChronoUnit.HOURS.between(now, ending)
@@ -1293,7 +1426,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             getString(R.string.reading_book_time_to_ending_minutes, minutes)
     }
 
-    inner class MyTouchListener : GestureDetector.SimpleOnGestureListener() {
+    inner class MyTouchListener : SimpleOnGestureListener() {
         override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
             if (!isFullscreen()) {
                 setFullscreen(fullscreen = true)
@@ -1306,20 +1439,22 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 return true
 
             if (touch == TouchScreen.TOUCH_PREVIOUS_PAGE || touch == TouchScreen.TOUCH_NEXT_PAGE) {
-                val isBack = if (mIsLeftToRight) touch == TouchScreen.TOUCH_PREVIOUS_PAGE else touch == TouchScreen.TOUCH_NEXT_PAGE
-                if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE) {
-                    val view: AutoScroll? = (mViewPager[0] as RecyclerView).layoutManager?.findViewByPosition(mViewPager.currentItem)?.findViewById(R.id.page_web_view )
-                    view?.let {
-                        if (it.autoScroll(isBack))
-                            return true
-                    }
-                } else {
-                    val textView: AutoScroll? =(mViewPager[0] as RecyclerView).layoutManager?.findViewByPosition(mViewPager.currentItem)?.findViewById(R.id.page_scroll_view)
-                    val imageView: AutoScroll? = (mViewPager[0] as RecyclerView).layoutManager?.findViewByPosition(mViewPager.currentItem)?.findViewById(R.id.page_image_view)
-                    val view = if (imageView != null && imageView.isVisible()) imageView else textView
-                    view?.let {
-                        if (it.autoScroll(isBack))
-                            return true
+                if (mScrollingMode == ScrollingType.Pagination || mScrollingMode == ScrollingType.PaginationVertical || mScrollingMode == ScrollingType.PaginationRightToLeft) {
+                    val isBack = if (mScrollingMode == ScrollingType.PaginationRightToLeft) touch == TouchScreen.TOUCH_NEXT_PAGE else touch == TouchScreen.TOUCH_PREVIOUS_PAGE
+                    if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE) {
+                        val view: AutoScroll? = (mViewPager[0] as RecyclerView).layoutManager?.findViewByPosition(mViewPager.currentItem)?.findViewById(R.id.page_web_view)
+                        view?.let {
+                            if (it.autoScroll(isBack))
+                                return true
+                        }
+                    } else {
+                        val textView: AutoScroll? = (mViewPager[0] as RecyclerView).layoutManager?.findViewByPosition(mViewPager.currentItem)?.findViewById(R.id.page_scroll_view)
+                        val imageView: AutoScroll? = (mViewPager[0] as RecyclerView).layoutManager?.findViewByPosition(mViewPager.currentItem)?.findViewById(R.id.page_image_view)
+                        val view = if (imageView != null && imageView.isVisible()) imageView else textView
+                        view?.let {
+                            if (it.autoScroll(isBack))
+                                return true
+                        }
                     }
                 }
             }
@@ -1329,18 +1464,50 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             else
                 when (touch) {
                     TouchScreen.TOUCH_PREVIOUS_PAGE -> {
-                        if (mIsLeftToRight) {
-                            if (getCurrentPage() == 1) hitBeginning() else setCurrentPage(getCurrentPage() - 1)
-                        } else {
-                            if (getCurrentPage() == mViewPager.adapter!!.itemCount) hitEnding() else setCurrentPage(getCurrentPage() + 1)
+                        when (mScrollingMode) {
+                            ScrollingType.Pagination,
+                            ScrollingType.PaginationVertical,
+                                -> {
+                                if (getCurrentPage() == 1) hitBeginning() else setCurrentPage(getCurrentPage() - 1)
+                            }
+
+                            ScrollingType.PaginationRightToLeft -> {
+                                if (getCurrentPage() == mPagerAdapter.itemCount) hitEnding() else setCurrentPage(getCurrentPage() + 1)
+                            }
+
+                            ScrollingType.Scrolling -> {
+                                var first = (mViewRecycler.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                                if (first <= 0)
+                                    hitBeginning()
+                                else
+                                    mViewRecycler.smoothScrollToPosition(first.minus(1))
+                            }
+
+                            else -> {}
                         }
                     }
 
                     TouchScreen.TOUCH_NEXT_PAGE -> {
-                        if (mIsLeftToRight) {
-                            if (getCurrentPage() == mViewPager.adapter!!.itemCount) hitEnding() else setCurrentPage(getCurrentPage() + 1)
-                        } else {
-                            if (getCurrentPage() == 1) hitBeginning() else setCurrentPage(getCurrentPage() - 1)
+                        when (mScrollingMode) {
+                            ScrollingType.Pagination,
+                            ScrollingType.PaginationVertical,
+                                -> {
+                                if (getCurrentPage() == mPagerAdapter.itemCount) hitEnding() else setCurrentPage(getCurrentPage() + 1)
+                            }
+
+                            ScrollingType.PaginationRightToLeft -> {
+                                if (getCurrentPage() == mPagerAdapter.itemCount) hitEnding() else setCurrentPage(getCurrentPage() + 1)
+                            }
+
+                            ScrollingType.Scrolling -> {
+                                val last = (mViewRecycler.layoutManager as LinearLayoutManager).findLastVisibleItemPosition().plus(1)
+                                if (last >= mPagerAdapter.itemCount)
+                                    hitEnding()
+                                else
+                                    mViewRecycler.smoothScrollToPosition(if (last > 1) last else (mViewRecycler.layoutManager as LinearLayoutManager).findLastVisibleItemPosition())
+                            }
+
+                            else -> {}
                         }
                     }
 
@@ -1348,6 +1515,24 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 }
 
             return true
+        }
+    }
+
+    inner class InfinityScrollingListener() : RecyclerView.OnScrollListener() {
+        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+            super.onScrollStateChanged(recyclerView, newState)
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                val adapter = (mViewRecycler.layoutManager as LinearLayoutManager)
+                var first: Int = adapter.findFirstCompletelyVisibleItemPosition()
+                if (first < 0)
+                    first = adapter.findFirstVisibleItemPosition()
+                var last: Int = adapter.findLastCompletelyVisibleItemPosition()
+                if (last < 0)
+                    last = adapter.findLastVisibleItemPosition()
+                val center = if (last == first) first else (first + ((last - first) / 2)).toInt()
+                setChangeProgress(center + 1, center)
+                generatePageAverage()
+            }
         }
     }
 
@@ -1366,13 +1551,13 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     private fun updateSeekBar() {
-        val seekRes: Int = if (mIsLeftToRight) R.drawable.reader_progress_pointer else R.drawable.reader_progress_pointer_inverse
+        val seekRes: Int = if (mScrollingMode == ScrollingType.PaginationRightToLeft) R.drawable.reader_progress_pointer_inverse else R.drawable.reader_progress_pointer
         val d: Drawable? = ContextCompat.getDrawable(requireActivity(), seekRes)
         val bounds = mPageSeekBar.progressDrawable.bounds
         mPageSeekBar.progressDrawable = d
         mPageSeekBar.progressDrawable.bounds = bounds
         mPageSeekBar.thumb.setColorFilter(requireContext().getColorFromAttr(R.attr.colorTertiary), PorterDuff.Mode.SRC_IN)
-        mPageSeekBar.setDotsMode(!mIsLeftToRight)
+        mPageSeekBar.setDotsMode(mScrollingMode == ScrollingType.PaginationRightToLeft)
     }
 
     private var mLastPageIsLeft = true

@@ -216,7 +216,9 @@
     <string name="config_book_text_with_furigana">Gerar furigana em texto japonês</string>
     <string name="config_book_process_vocabulary">Processar vocabulário do livro</string>
     <string name="config_book_scrolling_mode">Modo de rolagem</string>
-    <string name="config_book_scrolling_pagination">Paginação</string>
+    <string name="config_book_scrolling_pagination">Paginação (Padrão)</string>
+    <string name="config_book_scrolling_pagination_vertical">Paginação (Vertical)</string>
+    <string name="config_book_scrolling_pagination_right_to_left">Paginação (Direita para esquerda)</string>
     <string name="config_book_scrolling_infinity_scrolling">Rolagem infinita</string>
 
     <string name="config_book_tts">Texto para fala</string>
@@ -288,6 +290,11 @@
     <string name="menu_book_reading_book_mark">Marcador</string>
     <string name="menu_book_reading_view_touch">Funções touch</string>
     <string name="menu_book_reading_config_touch">Configura funções touch</string>
+    <string name="menu_book_scrolling_mode">Modo de rolagem</string>
+    <string name="menu_book_scrolling_pagination">Paginação (Padrão)</string>
+    <string name="menu_book_scrolling_pagination_vertical">Paginação (Vertical)</string>
+    <string name="menu_book_scrolling_pagination_right_to_left">Paginação (Direita para esquerda)</string>
+    <string name="menu_book_scrolling_infinity_scrolling">Rolagem infinita</string>
 
     <string name="reading_book_title_position">Posição %d de %d • %s%%</string>
     <string name="reading_book_title_chapter">Capítulo %d: %s</string>
@@ -446,7 +453,6 @@
     <string name="menu_manga_scrolling_horizontal_right_to_left">Horizontal (Direita para esquerda)</string>
     <string name="menu_manga_scrolling_scrolling">Long strip</string>
     <string name="menu_manga_scrolling_scrolling_divider">Long strip with gap</string>
-    <string name="menu_manga_scrolling_infinity_scrolling">Rolagem infinita</string>
 
     <string name="menu_manga_reading_chapters_menu">Lista de capítulos</string>
     <string name="menu_manga_reading_save_share_image">Salvar/Compartilhar</string>

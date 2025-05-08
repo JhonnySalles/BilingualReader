@@ -50,6 +50,7 @@
         <attr format="float" name="max_scale"/>
         <attr format="float" name="default_scale"/>
         <attr format="integer" name="zoom_duration"/>
+        <attr format="boolean" name="zoom_pinch_enabled"/>
         <attr format="boolean" name="zoom_enabled"/>
     </declare-styleable>
 

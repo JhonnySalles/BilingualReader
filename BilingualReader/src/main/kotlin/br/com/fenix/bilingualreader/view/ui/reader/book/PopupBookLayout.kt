@@ -62,10 +62,12 @@ class PopupBookLayout : Fragment() {
 
         mBookMapScrollingMode = hashMapOf(
             getString(R.string.config_book_scrolling_infinity_scrolling) to ScrollingType.Scrolling,
-            getString(R.string.config_book_scrolling_pagination) to ScrollingType.Pagination
+            getString(R.string.config_book_scrolling_pagination) to ScrollingType.Pagination,
+            getString(R.string.config_book_scrolling_pagination_vertical) to ScrollingType.PaginationVertical,
+            getString(R.string.config_book_scrolling_pagination_right_to_left) to ScrollingType.PaginationRightToLeft
         )
 
-        val adapterBookScrollingMode = ArrayAdapter(requireContext(), R.layout.list_item, mBookMapScrollingMode.keys.toTypedArray())
+        val adapterBookScrollingMode = ArrayAdapter(requireContext(), R.layout.list_item, mBookMapScrollingMode.keys.sorted().toTypedArray())
         mScrollingTypeAutoComplete.setAdapter(adapterBookScrollingMode)
         mScrollingTypeAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
                 val scrolling = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
