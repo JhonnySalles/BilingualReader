@@ -190,7 +190,6 @@ class GeneralConsts private constructor() {
 
         object READER {
             const val MANGA_READER_MODE = "MANGA_READER_MODE"
-            const val MANGA_PAGE_MODE = "MANGA_READER_PAGE_MODE"
             const val MANGA_PAGE_SCROLLING_MODE = "MANGA_PAGE_SCROLLING_MODE"
             const val MANGA_SHOW_CLOCK_AND_BATTERY = "MANGA_SHOW_CLOCK_AND_BATTERY"
             const val MANGA_USE_MAGNIFIER_TYPE = "MANGA_USE_MAGNIFIER_TYPE"

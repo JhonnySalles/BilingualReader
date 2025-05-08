@@ -5,9 +5,13 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import androidx.viewpager.widget.ViewPager
+import org.slf4j.LoggerFactory
 
 
 class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(context, attributeSet) {
+
+    private val mLOGGER = LoggerFactory.getLogger(ZoomRecyclerView::class.java)
+
     private var mStartPos = 0f
     private var mSwipeOutListener: OnSwipeOutListener? = null
     private var mIsVertical = false

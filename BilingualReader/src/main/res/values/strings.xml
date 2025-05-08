@@ -491,7 +491,10 @@
 
     <string name="menu_manga_scrolling_mode">Scrolling mode</string>
     <string name="menu_manga_scrolling_vertical">Vertical</string>
-    <string name="menu_manga_scrolling_horizontal">Horizontal</string>
+    <string name="menu_manga_scrolling_horizontal">Horizontal (Left to right)</string>
+    <string name="menu_manga_scrolling_horizontal_right_to_left">Horizontal (Right to left)</string>
+    <string name="menu_manga_scrolling_scrolling">Long strip</string>
+    <string name="menu_manga_scrolling_scrolling_divider">Long strip with gap</string>
     <string name="menu_manga_scrolling_infinity_scrolling">Infinity Scrolling</string>
 
     <string name="menu_manga_reading_chapters_menu">Chapters list</string>

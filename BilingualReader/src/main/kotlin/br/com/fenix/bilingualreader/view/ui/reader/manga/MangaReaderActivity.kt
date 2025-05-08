@@ -60,7 +60,6 @@ import br.com.fenix.bilingualreader.model.entity.Chapters
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Languages
-import br.com.fenix.bilingualreader.model.enums.PageMode
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
 import br.com.fenix.bilingualreader.model.enums.Themes
@@ -874,10 +873,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             return
 
         when (any) {
-            is PageMode -> mPreferences.edit()
-                .putString(GeneralConsts.KEYS.READER.MANGA_PAGE_MODE, any.toString())
-                .apply()
-
             is ReaderMode -> mPreferences.edit()
                 .putString(GeneralConsts.KEYS.READER.MANGA_READER_MODE, any.toString())
                 .apply()
@@ -895,14 +890,12 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 return true
             }
 
-            R.id.reading_manga_mode_comic -> optionsSave(PageMode.Comics)
-            R.id.reading_manga_mode_manga -> optionsSave(PageMode.Manga)
             R.id.manga_view_mode_aspect_fill -> optionsSave(ReaderMode.ASPECT_FILL)
             R.id.manga_view_mode_aspect_fit -> optionsSave(ReaderMode.ASPECT_FIT)
             R.id.manga_view_mode_fit_width -> optionsSave(ReaderMode.FIT_WIDTH)
             R.id.menu_item_reader_manga_popup_open_floating -> openFloatingSubtitle()
             R.id.menu_item_reader_manga_favorite -> changeFavorite(item)
-            R.id.menu_item_reader_manga_mark_page -> {}
+            R.id.menu_item_reader_manga_mark_page -> { }
             R.id.menu_item_reader_manga_popup_subtitle -> {
                 if (mMenuPopupTranslate.isGone) {
                     mMenuPopupConfigurations.visibility = View.GONE

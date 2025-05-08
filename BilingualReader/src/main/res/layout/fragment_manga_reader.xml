@@ -10,7 +10,14 @@
     <br.com.fenix.bilingualreader.view.components.manga.ImageViewPager
         android:id="@+id/fragment_manga_reader"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+
+    <br.com.fenix.bilingualreader.view.components.manga.ZoomRecyclerView
+        android:id="@+id/fragment_manga_reader_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:zoom_enabled="true"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/reader_manga_cover_content"

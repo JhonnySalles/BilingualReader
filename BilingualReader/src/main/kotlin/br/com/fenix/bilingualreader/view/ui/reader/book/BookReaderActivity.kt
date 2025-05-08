@@ -36,7 +36,6 @@ import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
-import br.com.fenix.bilingualreader.model.enums.PageMode
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
 import br.com.fenix.bilingualreader.model.enums.Themes
@@ -426,23 +425,6 @@ class BookReaderActivity : AppCompatActivity() {
             .beginTransaction()
             .replace(R.id.root_frame_book_reader, fragment)
             .commit()
-    }
-
-    private fun optionsSave(any: Any?) {
-        if (any == null)
-            return
-
-        when (any) {
-            is PageMode -> mPreferences.edit()
-                .putString(GeneralConsts.KEYS.READER.MANGA_PAGE_MODE, any.toString())
-                .apply()
-            is ReaderMode -> mPreferences.edit()
-                .putString(GeneralConsts.KEYS.READER.MANGA_READER_MODE, any.toString())
-                .apply()
-            is Boolean -> mPreferences.edit()
-                .putBoolean(GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY, any)
-                .apply()
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
