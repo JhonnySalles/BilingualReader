@@ -52,14 +52,8 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
     CBR(0, arrayOf("cbr"), arrayOf("application/cbr", "application/x-cbr", "application/comicbook+rar"), "CBR"),
     CB7(0, arrayOf("cb7"), arrayOf("application/cb7", "application/x-cb7", "application/comicbook+7z"), "CB7"),
     CBT(0, arrayOf("cbt"), arrayOf("application/cbt", "application/x-cbt", "application/comicbook+tar"), "CBT"),
-
-    ZIP(
-        0,
-        arrayOf("zip"),
-        arrayOf("application/zip", "application/x-compressed", "application/x-compressed-zip", "application/x-zip-compressed"),
-        "ZIP"
-    ),
-    RAR(0, arrayOf("rar"), arrayOf("application/rar", "application/x-rar", "application/comicbook+rar"), "ZIP"),
+    ZIP(0, arrayOf("zip"), arrayOf("application/zip", "application/x-compressed", "application/x-compressed-zip", "application/x-zip-compressed"), "ZIP"),
+    RAR(0, arrayOf("rar"), arrayOf("application/rar", "application/x-rar", "application/comicbook+rar"), "RAR"),
     SEVENZ(0, arrayOf("7z"), arrayOf("application/7z", "application/x-7z", "application/comicbook+7z"), "7Z"),
     TAR(0, arrayOf("tar"), arrayOf("application/tar", "application/x-tar", "application/comicbook+tar"), "TAR("),
     DIRECTORY(0, arrayOf(), arrayOf(), "DIR");

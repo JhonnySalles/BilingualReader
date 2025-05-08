@@ -512,6 +512,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         }
 
         mViewPager.orientation = if (scrolling == ScrollingType.Scrolling) ViewPager2.ORIENTATION_VERTICAL else ViewPager2.ORIENTATION_HORIZONTAL
+        (mViewPager.adapter as TextViewPager).isVertical = scrolling == ScrollingType.Scrolling
 
         mViewPager.isSaveEnabled = false
         mViewPager.isSaveFromParentEnabled = false
@@ -682,6 +683,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 ViewPager2.ORIENTATION_VERTICAL
             else
                 ViewPager2.ORIENTATION_HORIZONTAL
+            (mViewPager.adapter as TextViewPager).isVertical = it == ScrollingType.Scrolling
         }
 
         mViewModel.ttsVoice.observe(viewLifecycleOwner) {

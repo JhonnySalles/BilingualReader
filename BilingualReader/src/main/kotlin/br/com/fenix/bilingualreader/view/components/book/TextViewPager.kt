@@ -16,6 +16,7 @@ import android.widget.ImageView
 import android.widget.PopupWindow
 import android.widget.ScrollView
 import android.widget.TextView
+import androidx.annotation.Size
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Speech
@@ -29,9 +30,11 @@ import br.com.fenix.bilingualreader.service.tts.TTSTextColorSpan
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
+import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderViewModel
 import org.slf4j.LoggerFactory
+import java.io.File
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -51,6 +54,12 @@ class TextViewPager(
     private val mHolders = mutableMapOf<Int, TextViewPagerHolder>()
     private var mSpeech: Speech? = null
     private var mItems : Int = 0
+    var isVertical = false
+        set(value) {
+            field = value
+            for(holder in mHolders.entries)
+                holder.value.scrollView.overScrollMode = if (value && holder.key > 0 && holder.key < (mItems-1)) View.OVER_SCROLL_NEVER else View.OVER_SCROLL_ALWAYS
+        }
 
     init {
         refreshSize()
@@ -109,13 +118,15 @@ class TextViewPager(
         if (mListener != null)
             holder.scrollView.setOnTouchListener(mListener)
 
+        holder.scrollView.overScrollMode = if (isVertical && position > 0 && position < (mItems-1)) View.OVER_SCROLL_NEVER else View.OVER_SCROLL_ALWAYS
         holder.scrollView.scrollY = 0
         holder.scrollView.parent.requestDisallowInterceptTouchEvent(false)
-        holder.scrollView.viewTreeObserver.addOnScrollChangedListener {
-            if (holder.scrollView.getChildAt(0).bottom <= (holder.scrollView.height + holder.scrollView.scrollY) || holder.scrollView.scrollY == 0)
-                holder.textView.parent.requestDisallowInterceptTouchEvent(false)
+        holder.scrollView.setOnScrollChangeListener { _, _, scrollY, _, scrollYOld ->
+            val isScrollUp = scrollY <= scrollYOld
+            if ((isScrollUp && scrollY <= 10) || (!isScrollUp && (holder.textView.bottom - holder.textView.top) <= (holder.scrollView.height + scrollY + 10)))
+                holder.scrollView.parent.requestDisallowInterceptTouchEvent(false)
             else
-                holder.textView.parent.requestDisallowInterceptTouchEvent(true)
+                holder.scrollView.parent.requestDisallowInterceptTouchEvent(true)
         }
 
         holder.textView.setOnTouchListener(mListener)

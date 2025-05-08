@@ -89,7 +89,7 @@ class Book(
 
     @Ignore
     constructor(fkLibrary: Long?, id: Long?, file: File) : this(
-        id, "",  "", "",  "", null,  "", "", "","", 1, "", 0,
+        id, file.nameWithoutExtension,  "", "",  "", null,  "", "", "","", 1, "", 0,
         "", 0, false, Languages.ENGLISH, file.path, file.parent, file.name, FileType.UNKNOWN, file.length(), false,
         fkLibrary, mutableListOf(), false, LocalDateTime.now(), null, null, Date(file.lastModified()),
         null, null

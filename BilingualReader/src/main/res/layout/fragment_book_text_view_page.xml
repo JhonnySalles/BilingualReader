@@ -39,7 +39,7 @@
             android:layout_marginTop="@dimen/book_reader_text_margin_top_bottom"
             android:layout_marginBottom="@dimen/book_reader_text_margin_top_bottom"
             android:layout_marginStart="@dimen/book_reader_text_margin"
-            android:layout_marginEnd="@dimen/book_reader_text_margin"/>
+            android:layout_marginEnd="@dimen/book_reader_text_margin" />
     </br.com.fenix.bilingualreader.view.components.book.NotifyingScrollView>
 
     <br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
