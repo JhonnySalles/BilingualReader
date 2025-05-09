@@ -2,15 +2,23 @@ package br.com.fenix.bilingualreader.model.enums
 
 import java.io.File
 
+
+const val TYPE_UNKNOWN = -1
+const val TYPE_MANGA = 0
+const val TYPE_BOOK = 1
+const val TYPE_MANGA_AND_BOOK = 2
+
 enum class FileType(var type: Int, var extension: Array<String>, var mimeType: Array<String>, var acronym : String) {
-    UNKNOWN(-1, arrayOf(), arrayOf(), ""),
+    UNKNOWN(TYPE_UNKNOWN, arrayOf(), arrayOf(), ""),
+
+    // Manga and Book file
+    EPUB(TYPE_MANGA_AND_BOOK, arrayOf("epub"), arrayOf("application/epub+zip"), "EPUB"),
+    EPUB3(TYPE_MANGA_AND_BOOK, arrayOf("epub3"), arrayOf("application/epub3+zip"), "EPUB3"),
 
     // Book file
-    PDF(1, arrayOf("pdf", "xps"), arrayOf("application/pdf", "application/oxps", "application/vnd.ms-xpsdocument"), "PDF"),
-    EPUB(1, arrayOf("epub"), arrayOf("application/epub+zip"), "EPUB"),
-    EPUB3(1, arrayOf("epub3"), arrayOf("application/epub3+zip"), "EPUB3"),
+    PDF(TYPE_BOOK, arrayOf("pdf", "xps"), arrayOf("application/pdf", "application/oxps", "application/vnd.ms-xpsdocument"), "PDF"),
     MOBI(
-        1,
+        TYPE_BOOK,
         arrayOf("mobi", "azw", "azw3", "azw4", "pdb", "prc"),
         arrayOf(
             "application/x-mobipocket-ebook",
@@ -20,9 +28,9 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
             "application/vnd.amazon.mobi8-ebook"
         ), "MOBI"
     ),
-    DJVU(1, arrayOf("djvu"), arrayOf("image/vnd.djvu", "image/djvu", "image/x-djvu"), "DJVU"),
+    DJVU(TYPE_BOOK, arrayOf("djvu"), arrayOf("image/vnd.djvu", "image/djvu", "image/x-djvu"), "DJVU"),
     FB2(
-        1,
+        TYPE_BOOK,
         arrayOf("fb2"),
         arrayOf(
             "application/fb2",
@@ -34,29 +42,29 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
             "application/x-zip-compressed-fb2"
         ), "FB2"
     ),
-    TXT(1, arrayOf("txt", "playlist", "log"), arrayOf("text/plain", "text/x-log"), "TXT"),
-    RTF(1, arrayOf("rtf"), arrayOf("application/rtf", "application/x-rtf", "text/rtf", "text/richtext"), "RTF"),
-    AZW(1, arrayOf("azw"), arrayOf("application/azw", "application/x-azw"), "AZW"),
-    AZW3(1, arrayOf("azw3"), arrayOf("application/azw3", "application/x-azw3"), "AZW3"),
-    HTML(1, arrayOf("html", "htm", "xhtml", "xhtm", "xml"), arrayOf("text/html", "text/xml"), "HTML"),
+    TXT(TYPE_BOOK, arrayOf("txt", "playlist", "log"), arrayOf("text/plain", "text/x-log"), "TXT"),
+    RTF(TYPE_BOOK, arrayOf("rtf"), arrayOf("application/rtf", "application/x-rtf", "text/rtf", "text/richtext"), "RTF"),
+    AZW(TYPE_BOOK, arrayOf("azw"), arrayOf("application/azw", "application/x-azw"), "AZW"),
+    AZW3(TYPE_BOOK, arrayOf("azw3"), arrayOf("application/azw3", "application/x-azw3"), "AZW3"),
+    HTML(TYPE_BOOK, arrayOf("html", "htm", "xhtml", "xhtm", "xml"), arrayOf("text/html", "text/xml"), "HTML"),
     //DOC(1, arrayOf("doc"), arrayOf("application/msword")),
     //DOCX(1, arrayOf("docx"), arrayOf("application/vnd.openxmlformats-officedocument.wordprocessingml.document")),
-    OPDS(1, arrayOf("opds"), arrayOf("application/opds", "application/x-opds"), "OPDS"),
-    TIFF(1, arrayOf("tiff", "tif"), arrayOf("image/tiff"), "TIFF"),
+    OPDS(TYPE_BOOK, arrayOf("opds"), arrayOf("application/opds", "application/x-opds"), "OPDS"),
+    TIFF(TYPE_BOOK, arrayOf("tiff", "tif"), arrayOf("image/tiff"), "TIFF"),
     //ODT(1, arrayOf("odt"), arrayOf("application/vnd.oasis.opendocument.text")),
-    MD(1, arrayOf("md"), arrayOf("text/markdown", "text/x-markdown"), "MD"),
-    MHT(1, arrayOf("mht", "mhtml", "shtml"), arrayOf("message/rfc822"), "MHT"),
+    MD(TYPE_BOOK, arrayOf("md"), arrayOf("text/markdown", "text/x-markdown"), "MD"),
+    MHT(TYPE_BOOK, arrayOf("mht", "mhtml", "shtml"), arrayOf("message/rfc822"), "MHT"),
 
     // Comic file
-    CBZ(0, arrayOf("cbz"), arrayOf("application/cbz", "application/x-cbz", "application/comicbook+zip"), "CBZ"),
-    CBR(0, arrayOf("cbr"), arrayOf("application/cbr", "application/x-cbr", "application/comicbook+rar"), "CBR"),
-    CB7(0, arrayOf("cb7"), arrayOf("application/cb7", "application/x-cb7", "application/comicbook+7z"), "CB7"),
-    CBT(0, arrayOf("cbt"), arrayOf("application/cbt", "application/x-cbt", "application/comicbook+tar"), "CBT"),
-    ZIP(0, arrayOf("zip"), arrayOf("application/zip", "application/x-compressed", "application/x-compressed-zip", "application/x-zip-compressed"), "ZIP"),
-    RAR(0, arrayOf("rar"), arrayOf("application/rar", "application/x-rar", "application/comicbook+rar"), "RAR"),
-    SEVENZ(0, arrayOf("7z"), arrayOf("application/7z", "application/x-7z", "application/comicbook+7z"), "7Z"),
-    TAR(0, arrayOf("tar"), arrayOf("application/tar", "application/x-tar", "application/comicbook+tar"), "TAR("),
-    DIRECTORY(0, arrayOf(), arrayOf(), "DIR");
+    CBZ(TYPE_MANGA, arrayOf("cbz"), arrayOf("application/cbz", "application/x-cbz", "application/comicbook+zip"), "CBZ"),
+    CBR(TYPE_MANGA, arrayOf("cbr"), arrayOf("application/cbr", "application/x-cbr", "application/comicbook+rar"), "CBR"),
+    CB7(TYPE_MANGA, arrayOf("cb7"), arrayOf("application/cb7", "application/x-cb7", "application/comicbook+7z"), "CB7"),
+    CBT(TYPE_MANGA, arrayOf("cbt"), arrayOf("application/cbt", "application/x-cbt", "application/comicbook+tar"), "CBT"),
+    ZIP(TYPE_MANGA, arrayOf("zip"), arrayOf("application/zip", "application/x-compressed", "application/x-compressed-zip", "application/x-zip-compressed"), "ZIP"),
+    RAR(TYPE_MANGA, arrayOf("rar"), arrayOf("application/rar", "application/x-rar", "application/comicbook+rar"), "RAR"),
+    SEVENZ(TYPE_MANGA, arrayOf("7z"), arrayOf("application/7z", "application/x-7z", "application/comicbook+7z"), "7Z"),
+    TAR(TYPE_MANGA, arrayOf("tar"), arrayOf("application/tar", "application/x-tar", "application/comicbook+tar"), "TAR("),
+    DIRECTORY(TYPE_MANGA, arrayOf(), arrayOf(), "DIR");
 
     private var extensions: Array<String> = extension
     private var mimeTypes: Array<String> = mimeType
@@ -100,9 +108,9 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
             return false
         }
 
-        fun getManga() = values().filter { it.type == 0 }
+        fun getManga() = values().filter { it.type == TYPE_MANGA || it.type == TYPE_MANGA_AND_BOOK }
 
-        fun getBook() = values().filter { it.type == 1 }
+        fun getBook() = values().filter { it.type == TYPE_BOOK || it.type == TYPE_MANGA_AND_BOOK }
 
         fun getMimeManga(): ArrayList<String> {
             val array = arrayListOf<String>()

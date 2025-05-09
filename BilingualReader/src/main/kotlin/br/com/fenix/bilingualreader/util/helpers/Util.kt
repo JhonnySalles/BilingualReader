@@ -607,6 +607,11 @@ class FileUtil(val context: Context) {
                 .matches(Regex(".*\\.(jpg|jpeg|bmp|gif|png|webp)$"))
         }
 
+        fun isHtml(filename: String): Boolean {
+            return filename.lowercase(Locale.getDefault())
+                .matches(Regex(".*\\.(html|xhtml)$"))
+        }
+
         fun getFileType(filename: String): FileType {
             return try {
                 FileType.getType(filename)

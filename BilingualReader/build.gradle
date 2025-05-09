@@ -30,6 +30,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
+            minifyEnabled false
             testCoverageEnabled true
             firebaseAppDistribution {
                 serviceCredentialsFile="./app-distribution.json"
@@ -62,6 +63,10 @@ kapt {
     arguments {
         arg("room.schemaLocation", "$projectDir/schemas")
     }
+}
+
+configurations {
+    all*.exclude group: 'xpp3', module: 'xpp3'
 }
 
 dependencies {
@@ -98,6 +103,8 @@ dependencies {
     implementation 'org.tukaani:xz:1.9'
     implementation 'com.github.junrar:junrar:7.5.5' // Only > Android O
     //implementation 'com.github.junrar:junrar:7.4.1' // Only < Android O
+    implementation 'org.jsoup:jsoup:1.12.2'
+    implementation 'net.sf.kxml:kxml2:2.3.0'
 
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'jp.wasabeef:picasso-transformations:2.4.0'

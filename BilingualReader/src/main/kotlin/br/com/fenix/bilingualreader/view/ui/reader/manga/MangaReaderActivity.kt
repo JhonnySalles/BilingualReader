@@ -1247,6 +1247,9 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     private fun closeViewTouch() {
+        if (mTouchView.isGone)
+            return
+
         mTouchView.alpha = 1.0f
         mTouchView.animate().alpha(0.0f).setDuration(300L)
             .setListener(object : AnimatorListenerAdapter() {
