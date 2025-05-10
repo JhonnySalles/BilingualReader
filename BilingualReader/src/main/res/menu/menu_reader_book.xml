@@ -57,10 +57,10 @@
                     android:title="@string/menu_book_scrolling_pagination" />
                 <item
                     android:id="@+id/menu_item_reader_book_scrolling_pagination_right_to_left"
-                    android:title="@string/menu_book_scrolling_pagination_vertical" />
-                <item
-                    android:id="@+id/menu_item_reader_book_pagination_vertical"
                     android:title="@string/menu_book_scrolling_pagination_right_to_left" />
+                <item
+                    android:id="@+id/menu_item_reader_book_scrolling_pagination_vertical"
+                    android:title="@string/menu_book_scrolling_pagination_vertical" />
                 <item
                     android:id="@+id/menu_item_reader_book_scrolling_infinity_scrolling"
                     android:title="@string/menu_book_scrolling_infinity_scrolling" />

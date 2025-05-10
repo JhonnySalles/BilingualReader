@@ -7,6 +7,9 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.ColorStateList
+import android.graphics.PorterDuff
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -26,6 +29,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
@@ -38,6 +42,7 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
+import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.TouchScreen
 import br.com.fenix.bilingualreader.model.enums.Type
@@ -302,6 +307,13 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
         }
 
         SharedData.selectPage(page)
+    }
+
+    fun updateSeekBar(type: ScrollingType) {
+        val background: Int = if (type == ScrollingType.PaginationRightToLeft) R.attr.colorPrimaryContainer else R.attr.colorOnPrimaryContainer
+        val tint: Int = if (type == ScrollingType.PaginationRightToLeft) R.attr.colorOnPrimaryContainer else R.attr.colorPrimaryContainer
+        mBackgroundProgress.progressTintList = ColorStateList.valueOf(getColorFromAttr(tint))
+        mBackgroundProgress.progressBackgroundTintList = ColorStateList.valueOf(getColorFromAttr(background))
     }
 
     private fun setBook(book: Book) {

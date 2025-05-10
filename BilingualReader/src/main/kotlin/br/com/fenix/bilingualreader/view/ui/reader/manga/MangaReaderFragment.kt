@@ -350,7 +350,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     mManga = mStorage.findMangaByName(file.name)
 
                 if (mManga != null) {
-                    mCurrentPage = mManga!!.bookMark
+                    mCurrentPage = mManga!!.bookMark - 1
                     mStorage.updateLastAccess(mManga!!)
                 }
 
@@ -576,28 +576,12 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     private fun configureScrolling(type: ScrollingType, isInitial: Boolean = false) {
-        val page = getCurrentPage()
+        val page = if (isInitial) mCurrentPage + 1 else getCurrentPage()
         val isChange = isInitial || ((type == ScrollingType.Scrolling || type == ScrollingType.ScrollingDivider) && mViewPager.isVisible) ||
                 ((type == ScrollingType.Horizontal || type == ScrollingType.HorizontalRightToLeft || type == ScrollingType.Vertical) && mViewRecycler.isVisible)
 
         val isMode = ((mScrollingMode == ScrollingType.HorizontalRightToLeft || type == ScrollingType.HorizontalRightToLeft) && mScrollingMode != type)
         mScrollingMode = type
-
-        when (mScrollingMode) {
-            ScrollingType.Horizontal,
-            ScrollingType.HorizontalRightToLeft,
-            ScrollingType.Vertical,
-                -> {
-                mViewPager.setSwipeOrientation(type == ScrollingType.Vertical)
-            }
-
-            ScrollingType.Scrolling,
-            ScrollingType.ScrollingDivider,
-                -> {
-            }
-
-            else -> {}
-        }
 
         if (isChange) {
             mCurrentFragment = null
@@ -678,8 +662,21 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
                 else -> {}
             }
-        } else if (mScrollingMode == ScrollingType.Scrolling || mScrollingMode == ScrollingType.ScrollingDivider)
-            mViewRecycler.adapter?.notifyDataSetChanged()
+        } else
+            when (mScrollingMode) {
+                ScrollingType.Horizontal,
+                ScrollingType.HorizontalRightToLeft,
+                ScrollingType.Vertical,
+                    -> {
+                    mViewPager.setSwipeOrientation(type == ScrollingType.Vertical)
+                }
+
+                ScrollingType.Scrolling,
+                ScrollingType.ScrollingDivider,
+                    -> mViewRecycler.adapter?.notifyDataSetChanged()
+
+                else -> {}
+            }
 
         if (isMode) {
             setCurrentPage(page, false)
@@ -726,7 +723,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             mStorage.updateBookMark(mManga!!)
         }
         mViewModel.history?.let {
-            it.setPageEnd(mCurrentPage + 1)
+            it.setPageEnd(getCurrentPage())
             it.setEnd(LocalDateTime.now())
             it.id = mViewModel.save(it)
         }
@@ -938,6 +935,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         val navPage: String = if (mParse == null) "" else StringBuilder()
             .append(page).append("/").append(mParse?.numPages() ?: 1)
             .toString()
+
         mPageNavTextView.text = navPage
         mCurrentPage = page - 1
 
@@ -947,7 +945,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         if (mManga != null)
             mSubtitleController.changeSubtitleInReader(mManga!!, mCurrentPage)
 
-        (requireActivity() as MangaReaderActivity).changePage(mManga?.title ?: "", getChapterSelected(mCurrentPage), mCurrentPage + 1)
+        (requireActivity() as MangaReaderActivity).changePage(mManga?.title ?: "", getChapterSelected(mCurrentPage), page)
     }
 
     private fun getChapterSelected(page: Int): String {
@@ -1537,7 +1535,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     return@setPositiveButton
 
                 mViewModel.history?.let {
-                    it.setPageEnd(mCurrentPage + 1)
+                    it.setPageEnd(getCurrentPage())
                     it.setEnd(LocalDateTime.now())
                     it.id = mViewModel.save(it)
                 }
@@ -1561,9 +1559,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     private fun updateSeekBar() {
         val seekRes: Int = if (mScrollingMode == ScrollingType.HorizontalRightToLeft) R.drawable.reader_progress_pointer_inverse else R.drawable.reader_progress_pointer
-        val d: Drawable? = ContextCompat.getDrawable(requireActivity(), seekRes)
+        val drawable: Drawable? = ContextCompat.getDrawable(requireActivity(), seekRes)
         val bounds = mPageSeekBar.progressDrawable.bounds
-        mPageSeekBar.progressDrawable = d
+        mPageSeekBar.progressDrawable = drawable
         mPageSeekBar.progressDrawable.bounds = bounds
         mPageSeekBar.thumb.setColorFilter(requireContext().getColorFromAttr(R.attr.colorTertiary), PorterDuff.Mode.SRC_IN)
         mPageSeekBar.setDotsMode(mScrollingMode == ScrollingType.HorizontalRightToLeft)
@@ -1593,10 +1591,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     private fun shareImage(isShare: Boolean) {
-        mParse?.getPage(mCurrentPage)?.let {
+        val page = getCurrentPage()
+        mParse?.getPage(getCurrentPage(isInternal = true))?.let {
             val os: OutputStream
             try {
-                val fileName = (mManga?.name ?: mCurrentPage.toString()) + ".jpeg"
+                val fileName = (mManga?.name ?: page.toString()) + ".jpeg"
                 val values = ContentValues()
                 values.put(Images.Media.DISPLAY_NAME, fileName)
                 values.put(Images.Media.TITLE, fileName)
@@ -1638,14 +1637,15 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private fun markCurrentPage() {
         val msg: String
 
-        val page = mCurrentPage + 1
+        val page = getCurrentPage()
+        val current = getCurrentPage(isInternal = true)
         val mark = mViewModel.findAnnotationByPage(mManga!!, page).find { it.markType == MarkType.PageMark }
         if (mark != null) {
             mViewModel.delete(mark)
             msg = getString(R.string.manga_annotation_page_unmarked, page)
         } else {
-            val path = mParse!!.getPagePath(mCurrentPage) ?: ""
-            val chapter = getChapterSelected(mCurrentPage)
+            val path = mParse!!.getPagePath(current) ?: ""
+            val chapter = getChapterSelected(current)
             val annotation = MangaAnnotation(mManga!!.id!!, page, mParse!!.numPages(), MarkType.PageMark, chapter, path, "")
             getCurrencyImageView()?.let {
                 if (it.drawable != null) {
@@ -1709,7 +1709,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         average /= mPagesAverage.size
         mViewModel.history?.let {
-            it.setPageEnd(mCurrentPage + 1)
+            it.setPageEnd(getCurrentPage())
             it.setEnd(LocalDateTime.now())
             it.averageTimeByPage = average
             it.id = mViewModel.save(it)
