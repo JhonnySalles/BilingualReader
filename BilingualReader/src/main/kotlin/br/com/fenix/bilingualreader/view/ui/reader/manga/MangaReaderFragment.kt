@@ -1101,7 +1101,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 baseViewPage.layoutParams.height = imageViewPage.layoutParams.height
 
                 dividerPage.visibility = if (mScrollingMode == ScrollingType.ScrollingDivider) {
-                    dividerPage.text = "$position / $itemCount"
+                    dividerPage.text = "${position +1} / $itemCount"
                     View.VISIBLE
                 } else
                     View.GONE
