@@ -387,8 +387,7 @@ class GeneralConsts private constructor() {
 
     object REQUEST {
         const val PERMISSION_DRAW_OVERLAYS = 505
-        const val PERMISSION_DRAW_OVERLAYS_FLOATING_OCR = 506
-        const val PERMISSION_DRAW_OVERLAYS_FLOATING_SUBTITLE = 507
+        const val PERMISSION_DRAW_OVERLAYS_FLOATING_SUBTITLE = 506
         const val PERMISSION_WRITE_BACKUP = 509
         const val PERMISSION_NOTIFICATIONS = 510
         const val OPEN_JSON = 205

@@ -94,7 +94,7 @@ import br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkActivity
 import br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkViewModel
 import br.com.fenix.bilingualreader.view.ui.window.FloatingButtons
 import br.com.fenix.bilingualreader.view.ui.window.FloatingSubtitleReader
-import br.com.fenix.bilingualreader.view.ui.window.FloatingWindowOcr
+import br.com.fenix.bilingualreader.view.ui.window.FloatingOcr
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
@@ -131,7 +131,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     private lateinit var mPopupMangaSubtitleVocabularyFragment: PopupMangaSubtitleVocabulary
 
     private lateinit var mFloatingSubtitleReader: FloatingSubtitleReader
-    private lateinit var mFloatingWindowOcr: FloatingWindowOcr
+    private var mFloatingWindowOcr: FloatingOcr? = null
     private lateinit var mFloatingButtons: FloatingButtons
 
     private lateinit var mClockAndBattery: LinearLayout
@@ -324,7 +324,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         mPopupMangaSubtitleVocabularyFragment.setBackground(getColorFromAttr(R.attr.background))
 
         mFloatingSubtitleReader = FloatingSubtitleReader(applicationContext, this)
-        mFloatingWindowOcr = FloatingWindowOcr(applicationContext, this)
         prepareFloatingSubtitle()
 
         mPopupTranslateTab.setupWithViewPager(mPopupTranslateView)
@@ -432,7 +431,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
         val buttonAnnotations = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_annotations)
         buttonAnnotations.setOnClickListener {
-
             var index = -1
             for (i in 0 until viewColorPagerAdapter.count)
                 if (viewColorPagerAdapter.getItem(i) == mPopupMangaAnnotationsFragment) {
@@ -794,7 +792,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     override fun onResume() {
         super.onResume()
         if (mLastFloatingWindowOcr)
-            mFloatingWindowOcr.show()
+            openFloatingOcr()
 
         if (mLastFloatingShowing)
             mFloatingSubtitleReader.show()
@@ -818,11 +816,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 mFloatingSubtitleReader.dismiss()
         }
 
-        if (::mFloatingWindowOcr.isInitialized) {
-            mLastFloatingWindowOcr = mFloatingWindowOcr.isShowing
-            if (mFloatingWindowOcr.isShowing)
-                mFloatingWindowOcr.dismiss()
-        }
+        closeFloatingOcr()
 
         if (::mFloatingButtons.isInitialized) {
             mLastFloatingButtons = mFloatingButtons.isShowing
@@ -839,8 +833,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         if (::mFloatingSubtitleReader.isInitialized)
             mFloatingSubtitleReader.destroy()
 
-        if (::mFloatingWindowOcr.isInitialized)
-            mFloatingWindowOcr.destroy()
+        closeFloatingOcr()
 
         if (::mFloatingButtons.isInitialized)
             mFloatingButtons.destroy()
@@ -860,6 +853,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     fun setFragment(fragment: Fragment) {
+        closeFloatingOcr()
         mFragment = if (fragment is MangaReaderFragment) fragment else null
         supportFragmentManager
             .beginTransaction()
@@ -1295,18 +1289,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                     ).show()
             }
 
-            GeneralConsts.REQUEST.PERMISSION_DRAW_OVERLAYS_FLOATING_OCR -> {
-                if (ComponentsUtil.canDrawOverlays(applicationContext)) {
-                    mFloatingWindowOcr.show()
-                    mFloatingSubtitleReader.forceZIndex()
-                } else
-                    Toast.makeText(
-                        application,
-                        getString(R.string.floating_reading_not_permission),
-                        Toast.LENGTH_SHORT
-                    ).show()
-            }
-
             GeneralConsts.REQUEST.CHAPTERS -> {
                 if (data?.extras != null && data.extras!!.containsKey(GeneralConsts.KEYS.CHAPTERS.PAGE)) {
                     val page = data.extras!!.getInt(GeneralConsts.KEYS.CHAPTERS.PAGE)
@@ -1383,26 +1365,38 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     private fun openTesseract() {
-        if (mFloatingWindowOcr.isShowing)
-            mFloatingWindowOcr.dismiss()
-        else {
+        if (!closeFloatingOcr(isOnlyDismiss = true)) {
             if (mViewModel.mLanguageOcr == null)
                 choiceLanguage {
                     mViewModel.mLanguageOcr = it
-                    openFloatingWindow()
+                    openFloatingOcr()
                 }
             else
-                openFloatingWindow()
+                openFloatingOcr()
         }
     }
 
-    //Force floating subtitle always on top
-    private fun openFloatingWindow() {
-        if (ComponentsUtil.canDrawOverlays(applicationContext)) {
-            mFloatingWindowOcr.show()
-            mFloatingSubtitleReader.forceZIndex()
+    private fun openFloatingOcr() {
+        if (mFloatingWindowOcr == null)
+            mFloatingWindowOcr = FloatingOcr(this, this, findViewById(R.id.root_frame_manga_reader))
+
+        mFloatingWindowOcr!!.show()
+    }
+
+    private fun closeFloatingOcr(isOnlyDismiss: Boolean = false) : Boolean {
+        return if (mFloatingWindowOcr != null) {
+            val isVisible = mFloatingWindowOcr!!.isShowing
+            if (isVisible)
+                mFloatingWindowOcr!!.dismiss()
+
+            if (!isOnlyDismiss) {
+                mLastFloatingWindowOcr = isVisible
+                mFloatingWindowOcr!!.destroy()
+                mFloatingWindowOcr = null
+            }
+            isVisible
         } else
-            startManageDrawOverlaysPermission(GeneralConsts.REQUEST.PERMISSION_DRAW_OVERLAYS_FLOATING_OCR)
+            false
     }
 
     private fun openGoogleVisionOcr() {
@@ -1411,15 +1405,13 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     override fun getImage(): Bitmap? {
-        val currentFragment =
-            supportFragmentManager.findFragmentById(R.id.root_frame_manga_reader) ?: return null
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.root_frame_manga_reader) ?: return null
         val view = (currentFragment as MangaReaderFragment).getCurrencyImageView() ?: return null
         return view.drawable.toBitmap()
     }
 
     override fun getImage(x: Int, y: Int, width: Int, height: Int): Bitmap? {
-        val currentFragment =
-            supportFragmentManager.findFragmentById(R.id.root_frame_manga_reader) ?: return null
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.root_frame_manga_reader) ?: return null
         val view = (currentFragment as MangaReaderFragment).getCurrencyImageView() ?: return null
         view.isDrawingCacheEnabled = true
         view.buildDrawingCache()
