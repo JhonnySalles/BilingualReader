@@ -398,7 +398,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
                     mSubtitleController.mReaderFragment = this
                     mFileName = file.name
-                    mCurrentPage = max(1, min(mCurrentPage, mParse!!.numPages()))
+                    mCurrentPage = max(0, min(mCurrentPage, mParse!!.numPages()))
                     mComicHandler = MangaHandler(mParse!!)
                     mPicasso = Picasso.Builder(requireContext())
                         .addRequestHandler((mComicHandler as RequestHandler))
@@ -497,6 +497,14 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     override fun onAnimationEnd(animation: Animator) {
                         super.onAnimationEnd(animation)
                         mCoverContent.visibility = View.GONE
+
+                        if (mPreferences.getBoolean(GeneralConsts.KEYS.TOUCH.MANGA_TOUCH_DEMONSTRATION, true)) {
+                            with(mPreferences.edit()) {
+                                this.putBoolean(GeneralConsts.KEYS.TOUCH.MANGA_TOUCH_DEMONSTRATION, false)
+                                this.commit()
+                            }
+                            (requireActivity() as MangaReaderActivity).openViewTouch()
+                        }
                     }
                 })
             }

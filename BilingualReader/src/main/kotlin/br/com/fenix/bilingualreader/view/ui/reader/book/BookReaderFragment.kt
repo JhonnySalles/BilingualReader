@@ -472,6 +472,15 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                         override fun onAnimationEnd(animation: Animator) {
                             super.onAnimationEnd(animation)
                             mCoverContent.visibility = View.GONE
+
+                            val preferences = GeneralConsts.getSharedPreferences(requireContext())
+                            if (preferences.getBoolean(GeneralConsts.KEYS.TOUCH.BOOK_TOUCH_DEMONSTRATION, true)) {
+                                with(preferences.edit()) {
+                                    this.putBoolean(GeneralConsts.KEYS.TOUCH.BOOK_TOUCH_DEMONSTRATION, false)
+                                    this.commit()
+                                }
+                                (requireActivity() as BookReaderActivity).openTouchFunctions()
+                            }
                         }
                     })
                 setBookDots(pages)

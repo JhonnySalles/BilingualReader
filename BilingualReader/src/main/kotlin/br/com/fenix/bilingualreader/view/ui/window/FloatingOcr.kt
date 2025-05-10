@@ -16,7 +16,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
 import android.widget.Toast
-import androidx.annotation.Dimension
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.core.view.GestureDetectorCompat

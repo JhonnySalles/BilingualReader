@@ -1,6 +1,8 @@
 package br.com.fenix.bilingualreader.view.ui.detail.book
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Rect
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.net.Uri
 import android.os.Bundle
@@ -27,11 +29,13 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
+import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.ImageController
 import br.com.fenix.bilingualreader.service.listener.InformationCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ColorUtil
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.ListUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
@@ -244,6 +248,13 @@ class BookDetailFragment : Fragment() {
 
         mPopupTag = PopupTags(requireContext())
 
+        mImage.setOnClickListener {
+            val reload = openImage(mViewModel.cover.value)
+            BookImageCoverController.instance.setImageCoverAsync(requireContext(), mViewModel.book.value!!, false) {
+                if (it != null)
+                    reload(it)
+            }
+        }
         mTitle.setOnLongClickListener {
             mViewModel.book.value?.let { bk -> FileUtil(requireContext()).copyName(bk) }
             true
@@ -561,6 +572,35 @@ class BookDetailFragment : Fragment() {
                 R.anim.fade_out_fragment_remove_exit
             )
             startActivity(intent)
+        }
+    }
+
+    private fun openImage(image: Bitmap?) : (Bitmap) -> (Unit) {
+        val layout = LayoutInflater.from(requireContext()).inflate(R.layout.popup_detail_image, null, false)
+        val imageView = layout.findViewById<ImageView>(R.id.popup_detail_image)
+        imageView.setImageBitmap(image)
+
+        val popup = MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+            .setView(layout)
+            .create()
+
+        ImageUtil.setZoomPinch(requireContext(), imageView) { popup.dismiss() }
+        layout.findViewById<LinearLayout>(R.id.popup_detail_image_background).setOnClickListener { popup.dismiss() }
+
+        popup.window?.run {
+            val display = Rect()
+            requireActivity().window.decorView.getWindowVisibleDisplayFrame(display)
+            setLayout((display.width() * 0.93).toInt(), attributes.height)
+        }
+
+        popup.show()
+        return {
+            try {
+                if (popup.isShowing)
+                    imageView.setImageBitmap(it)
+            } catch (e : Exception) {
+
+            }
         }
     }
 }

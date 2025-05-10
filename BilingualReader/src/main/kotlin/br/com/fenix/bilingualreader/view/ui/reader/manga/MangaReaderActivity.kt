@@ -93,8 +93,8 @@ import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkActivity
 import br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkViewModel
 import br.com.fenix.bilingualreader.view.ui.window.FloatingButtons
-import br.com.fenix.bilingualreader.view.ui.window.FloatingSubtitleReader
 import br.com.fenix.bilingualreader.view.ui.window.FloatingOcr
+import br.com.fenix.bilingualreader.view.ui.window.FloatingSubtitleReader
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
@@ -799,14 +799,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
         if (mLastFloatingButtons)
             openFloatingButtons()
-
-        if (mPreferences.getBoolean(GeneralConsts.KEYS.TOUCH.MANGA_TOUCH_DEMONSTRATION, true)) {
-            with(mPreferences.edit()) {
-                this.putBoolean(GeneralConsts.KEYS.TOUCH.MANGA_TOUCH_DEMONSTRATION, false)
-                this.commit()
-            }
-            openViewTouch()
-        }
     }
 
     override fun onStop() {
@@ -1135,7 +1127,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             mFloatingButtons.show()
     }
 
-    private fun openViewTouch() {
+    fun openViewTouch() {
         mFragment?.setFullscreen(true)
 
         val touch = TouchUtils.getTouch(this, Type.MANGA)

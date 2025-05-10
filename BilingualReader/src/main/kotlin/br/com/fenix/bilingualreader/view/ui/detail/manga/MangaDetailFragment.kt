@@ -1,6 +1,8 @@
 package br.com.fenix.bilingualreader.view.ui.detail.manga
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Rect
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.net.Uri
 import android.os.Bundle
@@ -26,10 +28,12 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.controller.ImageController
+import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.InformationCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ColorUtil
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.ListUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
@@ -212,6 +216,14 @@ class MangaDetailFragment : Fragment() {
 
         mWebInfoRelatedRelatedList.adapter = InformationRelatedCardAdapter()
         mWebInfoRelatedRelatedList.layoutManager = LinearLayoutManager(requireContext())
+
+        mImage.setOnClickListener {
+            val reload = openImage(mViewModel.cover.value)
+            MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mViewModel.manga.value!!, false) {
+                if (it != null)
+                    reload(it)
+            }
+        }
 
         mTitle.setOnLongClickListener {
             mViewModel.manga.value?.let { mg -> FileUtil(requireContext()).copyName(mg) }
@@ -619,5 +631,34 @@ class MangaDetailFragment : Fragment() {
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
         intent.putExtras(bundle)
         context?.startActivity(intent)
+    }
+
+    private fun openImage(image: Bitmap?) : (Bitmap) -> (Unit) {
+        val layout = LayoutInflater.from(requireContext()).inflate(R.layout.popup_detail_image, null, false)
+        val imageView = layout.findViewById<ImageView>(R.id.popup_detail_image)
+        imageView.setImageBitmap(image)
+
+        val popup = MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+            .setView(layout)
+            .create()
+
+        ImageUtil.setZoomPinch(requireContext(), imageView) { popup.dismiss() }
+        layout.findViewById<LinearLayout>(R.id.popup_detail_image_background).setOnClickListener { popup.dismiss() }
+
+        popup.window?.run {
+            val display = Rect()
+            requireActivity().window.decorView.getWindowVisibleDisplayFrame(display)
+            setLayout((display.width() * 0.93).toInt(), attributes.height)
+        }
+
+        popup.show()
+        return {
+            try {
+                if (popup.isShowing)
+                    imageView.setImageBitmap(it)
+            } catch (_ : Exception) {
+
+            }
+        }
     }
 }

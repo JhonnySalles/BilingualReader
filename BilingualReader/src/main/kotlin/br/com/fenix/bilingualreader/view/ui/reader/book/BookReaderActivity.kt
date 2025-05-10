@@ -407,18 +407,6 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        if (mPreferences.getBoolean(GeneralConsts.KEYS.TOUCH.BOOK_TOUCH_DEMONSTRATION, true)) {
-            with(mPreferences.edit()) {
-                this.putBoolean(GeneralConsts.KEYS.TOUCH.BOOK_TOUCH_DEMONSTRATION, false)
-                this.commit()
-            }
-            openTouchFunctions()
-        }
-    }
-
     override fun onDestroy() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (mHandler.hasCallbacks(mDismissTouchView))
