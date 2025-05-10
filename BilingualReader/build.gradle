@@ -15,9 +15,9 @@ android {
         minSdk 26
         minSdkVersion 26
         targetSdk 34
-        versionCode 4
+        versionCode 5
         versionName '1.0.'
-        versionNameSuffix '4'
+        versionNameSuffix '5'
         archivesBaseName = "BilingualReader_" + versionName + versionNameSuffix
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
