@@ -323,7 +323,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         mPopupMangaSubtitleVocabularyFragment = PopupMangaSubtitleVocabulary()
         mPopupMangaSubtitleVocabularyFragment.setBackground(getColorFromAttr(R.attr.background))
 
-        mFloatingButtons = FloatingButtons(applicationContext, this)
         mFloatingSubtitleReader = FloatingSubtitleReader(applicationContext, this)
         mFloatingWindowOcr = FloatingWindowOcr(applicationContext, this)
         prepareFloatingSubtitle()
@@ -801,7 +800,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             mFloatingSubtitleReader.show()
 
         if (mLastFloatingButtons)
-            mFloatingButtons.show()
+            openFloatingButtons()
 
         if (mPreferences.getBoolean(GeneralConsts.KEYS.TOUCH.MANGA_TOUCH_DEMONSTRATION, true)) {
             with(mPreferences.edit()) {
@@ -1133,14 +1132,13 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     private fun openFloatingButtons() {
+        if (!::mFloatingButtons.isInitialized)
+            mFloatingButtons = FloatingButtons(this, this, findViewById(R.id.root_activity_manga_reader))
+
         if (mFloatingButtons.isShowing)
             mFloatingButtons.dismiss()
-        else {
-            if (ComponentsUtil.canDrawOverlays(applicationContext))
-                mFloatingButtons.show()
-            else
-                startManageDrawOverlaysPermission(GeneralConsts.REQUEST.PERMISSION_DRAW_OVERLAYS_FLOATING_BUTTONS)
-        }
+        else
+            mFloatingButtons.show()
     }
 
     private fun openViewTouch() {
@@ -1290,17 +1288,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                     verifySubtitle()
                     mFloatingSubtitleReader.show()
                 } else
-                    Toast.makeText(
-                        application,
-                        getString(R.string.floating_reading_not_permission),
-                        Toast.LENGTH_SHORT
-                    ).show()
-            }
-
-            GeneralConsts.REQUEST.PERMISSION_DRAW_OVERLAYS_FLOATING_BUTTONS -> {
-                if (ComponentsUtil.canDrawOverlays(applicationContext))
-                    mFloatingButtons.show()
-                else
                     Toast.makeText(
                         application,
                         getString(R.string.floating_reading_not_permission),
