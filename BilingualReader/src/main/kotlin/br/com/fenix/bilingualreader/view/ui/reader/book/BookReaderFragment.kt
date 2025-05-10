@@ -555,6 +555,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     (mPagerAdapter as TextViewPager).refreshLayout(mScrollingMode)
                     mPagerAdapter.notifyDataSetChanged()
                     mViewPager.adapter = mPagerAdapter
+                    mViewPager.offscreenPageLimit = ReaderConsts.READER.BOOK_OFF_SCREEN_PAGE_LIMIT
                     mViewPager.orientation = if (mScrollingMode == ScrollingType.PaginationVertical) ViewPager2.ORIENTATION_VERTICAL else ViewPager2.ORIENTATION_HORIZONTAL
 
                     mViewModel.changeScrolling(mScrollingMode)
@@ -594,7 +595,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     (mPagerAdapter as TextViewPager).refreshLayout(mScrollingMode)
                     mViewRecycler.adapter = mPagerAdapter
                     mViewRecycler.layoutManager = LinearLayoutManager(requireContext())
-                    mViewRecycler.setItemViewCacheSize(ReaderConsts.READER.MANGA_OFF_SCREEN_PAGE_LIMIT)
+                    mViewRecycler.setItemViewCacheSize(ReaderConsts.READER.BOOK_OFF_SCREEN_PAGE_LIMIT)
                     mViewRecycler.isEnableZoom = false
 
                     mPagerAdapter.notifyDataSetChanged()
