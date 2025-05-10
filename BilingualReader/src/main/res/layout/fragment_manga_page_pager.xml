@@ -24,7 +24,7 @@
             android:visibility="visible"/>
 
         <ImageButton
-            android:id="@+id/reload_Button"
+            android:id="@+id/reload_button"
             style="@style/IconPageBroken"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

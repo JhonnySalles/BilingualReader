@@ -1192,7 +1192,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             val layout = mLayout.get() ?: return
             layout.findViewById<View>(R.id.page_image_view).visibility = imageView
             layout.findViewById<View>(R.id.load_progress_bar).visibility = progressBar
-            layout.findViewById<View>(R.id.reload_Button).visibility = reloadButton
+            layout.findViewById<View>(R.id.reload_button).visibility = reloadButton
         }
 
         override fun onBitmapLoaded(bitmap: Bitmap, from: LoadedFrom) {
@@ -1207,7 +1207,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             mLOGGER.error("Bitmap load fail: " + p0.message, p0)
             val layout = mLayout.get() ?: return
             setVisibility(View.GONE, View.GONE, View.VISIBLE)
-            val ib = layout.findViewById<View>(R.id.reload_Button) as ImageButton
+            val ib = layout.findViewById<View>(R.id.reload_button) as ImageButton
             ib.setOnClickListener(this@MyTarget)
         }
 
