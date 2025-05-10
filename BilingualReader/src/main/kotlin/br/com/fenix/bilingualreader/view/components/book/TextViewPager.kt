@@ -16,7 +16,6 @@ import android.widget.ImageView
 import android.widget.PopupWindow
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.annotation.Size
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Speech
@@ -31,11 +30,9 @@ import br.com.fenix.bilingualreader.service.tts.TTSTextColorSpan
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
-import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderViewModel
 import org.slf4j.LoggerFactory
-import java.io.File
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt

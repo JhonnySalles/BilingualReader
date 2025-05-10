@@ -1,6 +1,5 @@
 package br.com.fenix.bilingualreader.view.components.manga
 
-import br.com.fenix.bilingualreader.R
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.PropertyValuesHolder
@@ -26,6 +25,7 @@ import android.view.View
 import android.view.animation.DecelerateInterpolator
 import androidx.core.view.drawToBitmap
 import androidx.recyclerview.widget.RecyclerView
+import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import org.slf4j.LoggerFactory
 

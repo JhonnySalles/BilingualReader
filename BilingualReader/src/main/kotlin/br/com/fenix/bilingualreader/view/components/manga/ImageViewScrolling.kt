@@ -1,25 +1,13 @@
 package br.com.fenix.bilingualreader.view.components.manga
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapShader
-import android.graphics.Canvas
 import android.graphics.Matrix
-import android.graphics.Paint
 import android.graphics.Point
-import android.graphics.PointF
-import android.graphics.Shader
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
-import android.view.GestureDetector
-import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.core.view.ViewCompat
-import androidx.core.view.drawToBitmap
-import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.interfaces.BaseImageView
-import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import org.slf4j.LoggerFactory
 
 
