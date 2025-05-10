@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/AppBackground.Accent"
@@ -261,6 +261,29 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_alignment_description"/>
 
+        <com.google.android.material.divider.MaterialDivider
+            android:id="@+id/popup_book_layout_reading_touch_divider"
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin_big"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_alignment_justify"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/popup_book_layout_reading_touch_screen"
+            style="@style/Button.LabelStart"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_margin="@dimen/margin_small"
+            android:text="@string/popup_reading_layout_reading_view_touch"
+            app:icon="@drawable/ico_config_touch_screen"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_reading_touch_divider" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-</LinearLayout>
+</androidx.core.widget.NestedScrollView>

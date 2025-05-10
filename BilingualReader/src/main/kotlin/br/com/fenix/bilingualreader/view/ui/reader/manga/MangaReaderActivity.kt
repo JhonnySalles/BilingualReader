@@ -1189,10 +1189,12 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         }
 
         mTouchView.alpha = 0.0f
+        mTouchView.visibility = View.VISIBLE
         mTouchView.animate().alpha(1.0f).setDuration(300L)
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
+                    mTouchView.alpha = 1f
                     mTouchView.visibility = View.VISIBLE
                 }
             })
@@ -1256,6 +1258,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mTouchView.visibility = View.GONE
+                    mTouchView.alpha = 1f
                 }
             })
     }

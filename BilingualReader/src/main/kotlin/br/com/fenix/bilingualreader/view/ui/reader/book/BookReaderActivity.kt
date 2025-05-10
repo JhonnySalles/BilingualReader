@@ -42,6 +42,7 @@ import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.TouchScreen
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.japanese.Formatter
+import br.com.fenix.bilingualreader.service.listener.PopupLayoutListener
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
 import br.com.fenix.bilingualreader.service.repository.SharedData
@@ -63,7 +64,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 
 
-class BookReaderActivity : AppCompatActivity() {
+class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
 
     private val mLOGGER = LoggerFactory.getLogger(BookReaderActivity::class.java)
 
@@ -201,6 +202,7 @@ class BookReaderActivity : AppCompatActivity() {
             resources.getString(R.string.popup_reading_book_tab_item_language)
         )
 
+        mPopupReaderLayout.setListener(this)
         mPopupConfigurationView.adapter = viewPagerAdapter
 
         mTouchView.setOnClickListener {
@@ -405,7 +407,7 @@ class BookReaderActivity : AppCompatActivity() {
                 this.putBoolean(GeneralConsts.KEYS.TOUCH.BOOK_TOUCH_DEMONSTRATION, false)
                 this.commit()
             }
-            openViewTouch()
+            openTouchFunctions()
         }
     }
 
@@ -457,7 +459,7 @@ class BookReaderActivity : AppCompatActivity() {
                     AnimationUtil.animatePopupClose(this, mMenuPopupConfiguration, !mMenuPopupBottomSheet, navigationColor = false)
             }
             R.id.menu_item_reader_book_mark_page -> {}
-            R.id.menu_item_reader_book_view_touch_screen -> openViewTouch()
+            R.id.menu_item_reader_book_view_touch_screen -> openTouchFunctions()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -513,7 +515,12 @@ class BookReaderActivity : AppCompatActivity() {
         }
     }
 
-    private fun openViewTouch() {
+
+    override fun configTouchFunctions() {
+        mFragment?.configTouchFunctions()
+    }
+
+    override fun openTouchFunctions() {
         mFragment?.setFullscreen(true)
 
         val touch = TouchUtils.getTouch(this, Type.BOOK)
@@ -559,10 +566,12 @@ class BookReaderActivity : AppCompatActivity() {
         }
 
         mTouchView.alpha = 0.0f
+        mTouchView.visibility = View.VISIBLE
         mTouchView.animate().alpha(1.0f).setDuration(300L)
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
+                    mTouchView.alpha = 1f
                     mTouchView.visibility = View.VISIBLE
                 }
             })
@@ -580,6 +589,7 @@ class BookReaderActivity : AppCompatActivity() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
                     mTouchView.visibility = View.GONE
+                    mTouchView.alpha = 1f
                 }
             })
     }

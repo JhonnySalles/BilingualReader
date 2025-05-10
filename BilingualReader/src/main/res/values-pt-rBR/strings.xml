@@ -341,6 +341,7 @@
     <string name="popup_reading_layout_alignment_complete">Completo</string>
     <string name="popup_reading_layout_alignment_right">Direita</string>
     <string name="popup_reading_layout_alignment_left">Esquerda</string>
+    <string name="popup_reading_layout_reading_view_touch">Funções touch</string>
 
     <!-- BOOK ANNOTATION -->
     <string name="book_annotation_menu_search">Procurar</string>

@@ -306,12 +306,17 @@ class Manga(
         this.release = release
         this.genre = comic.genre.toString()
         this.series = comic.series ?: let {
-            if (title.contains(" vol.",true))
-                title.substring(0, title.lastIndexOf(" vol.", 0, true)).trim()
-            else if (title.contains("volume", true))
-                title.substring(0, title.lastIndexOf("volume", 0, true)).trim()
-            else
-                ""
+            var index = -1
+            if (title.contains(" vol.",true)) {
+                index = title.lastIndexOf(" vol.", 0, true)
+                if (index < 0)
+                    index = title.indexOf(" vol.", 0, true)
+            } else if (title.contains("volume", true)){
+                index = title.lastIndexOf("volume", 0, true)
+                if (index < 0)
+                    index = title.indexOf("volume", 0, true)
+            }
+            if (index > -1) title.substring(0, index).trim() else ""
         }
 
         return updated

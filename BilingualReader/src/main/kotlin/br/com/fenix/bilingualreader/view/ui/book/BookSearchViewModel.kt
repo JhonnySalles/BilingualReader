@@ -125,7 +125,7 @@ class BookSearchViewModel(var app: Application) : AndroidViewModel(app) {
                                 val index = line.indexOf(text, ignoreCase = true)
                                 val contain = line.substring(index, index + text.length)
                                 val search = TextUtil.highlightWordInText(line, contain, color)
-                                texts.add(BookSearch(book!!.id!!, search, i, title))
+                                texts.add(BookSearch(book!!.id!!, search, i+1, title))
                             }
 
                         if (stopSearch)

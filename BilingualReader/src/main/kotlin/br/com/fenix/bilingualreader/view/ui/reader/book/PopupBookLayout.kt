@@ -15,6 +15,7 @@ import br.com.fenix.bilingualreader.model.enums.BookLayoutType
 import br.com.fenix.bilingualreader.model.enums.MarginLayoutType
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
+import br.com.fenix.bilingualreader.service.listener.PopupLayoutListener
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
@@ -40,8 +41,11 @@ class PopupBookLayout : Fragment() {
     private lateinit var mAlignmentLeft: MaterialButton
     private lateinit var mAlignmentCenter: MaterialButton
     private lateinit var mAlignmentRight: MaterialButton
+    private lateinit var mReadingTouchFunction: MaterialButton
 
     private lateinit var mBookMapScrollingMode: HashMap<String, ScrollingType>
+
+    private var mListener : PopupLayoutListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.popup_book_layout, container, false)
@@ -59,6 +63,7 @@ class PopupBookLayout : Fragment() {
         mAlignmentCenter = root.findViewById(R.id.popup_book_layout_alignment_center)
         mAlignmentLeft = root.findViewById(R.id.popup_book_layout_alignment_left)
         mAlignmentRight = root.findViewById(R.id.popup_book_layout_alignment_right)
+        mReadingTouchFunction = root.findViewById(R.id.popup_book_layout_reading_touch_screen)
 
         mBookMapScrollingMode = hashMapOf(
             getString(R.string.config_book_scrolling_infinity_scrolling) to ScrollingType.Scrolling,
@@ -139,8 +144,25 @@ class PopupBookLayout : Fragment() {
 
         mScrollingTypeAutoComplete.setText(mBookMapScrollingMode.entries.first { it.value == mViewModel.scrollingType.value }.key, false)
 
+        mReadingTouchFunction.setOnClickListener {
+            mListener?.openTouchFunctions()
+        }
+
+        mReadingTouchFunction.setOnLongClickListener {
+            mListener?.configTouchFunctions()
+            true
+        }
+
         observer()
         return root
+    }
+
+    fun setListener(listener: PopupLayoutListener) {
+        mListener = listener
+    }
+
+    fun clearListener() {
+        mListener = null
     }
 
     private fun getAlignmentsButton() = arrayListOf(mAlignmentJustify, mAlignmentCenter, mAlignmentLeft, mAlignmentRight)

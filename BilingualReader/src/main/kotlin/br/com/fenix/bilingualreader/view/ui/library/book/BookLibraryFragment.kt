@@ -1101,6 +1101,14 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             val position = viewHolder.bindingAdapterPosition
             deleteBook(book, position)
         }
+
+        override fun onSelectedChanged(viewHolder: ViewHolder?, actionState: Int) {
+            super.onSelectedChanged(viewHolder, actionState)
+            if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE)
+                mRefreshLayout.setEnabled(false)
+            else
+                mRefreshLayout.setEnabled(true)
+        }
     }
 
     private fun deleteBook(book: Book, position: Int) {

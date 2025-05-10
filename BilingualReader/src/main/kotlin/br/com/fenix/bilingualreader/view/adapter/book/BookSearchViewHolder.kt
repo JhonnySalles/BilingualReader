@@ -11,7 +11,7 @@ import br.com.fenix.bilingualreader.service.listener.BookSearchListener
 
 class BookSearchViewHolder(itemView: View, private val listener: BookSearchListener) : RecyclerView.ViewHolder(itemView) {
 
-    fun bind(search: BookSearch, position: Int) {
+    fun bind(search: BookSearch) {
         val root = itemView.findViewById<LinearLayout>(R.id.book_search_root)
         val text = itemView.findViewById<TextView>(R.id.book_search_text)
         val page = itemView.findViewById<TextView>(R.id.book_search_page)

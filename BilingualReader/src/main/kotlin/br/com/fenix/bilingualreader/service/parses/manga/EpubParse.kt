@@ -255,8 +255,10 @@ class EpubParse : Parse {
 
     private fun getImageRef(image: org.jsoup.nodes.Element) : String {
         var name = image.attr("src")
-        if (name.isEmpty()) {
+        if (name.isEmpty())
             name = image.attr("xlink:href")
+
+        if (name.isNotEmpty()) {
             if (name.contains("/"))
                 name = name.substringAfter("/", name)
             else if (name.contains("\\"))
@@ -266,6 +268,7 @@ class EpubParse : Parse {
             else if (name.contains("..\\"))
                 name = name.substringAfter("..\\", name)
         }
+
         return name
     }
 
@@ -414,12 +417,39 @@ class EpubParse : Parse {
                                     if (number != null)
                                         number = number.replace(".0", "")
 
-                                    comic.number = if (number != null && number.isEmpty()) number.toFloat() else null
+                                    comic.volume = if (number != null && number.isEmpty()) number.toInt() else null
                                 } else {
                                     val propertyAttr = kid.getAttributeValue(null, "property")
                                     if ("group-position" == propertyAttr)
                                         comic.number = if (getText(kid).isNotEmpty()) getText(kid).toFloat() else null
                                 }
+                            }
+                        }
+                        comic.pageCount = mPages.size
+
+                        if (comic.volume == null) {
+                            comic.volume = comic.title.let {
+                                if (it == null)
+                                    return@let 0
+
+                                val title = it.lowercase()
+                                var volume = ""
+                                if (title.contains(" vol.",true))
+                                    volume = title.substringAfterLast(" vol.", title.substringAfter(" vol.")).trim()
+                                else if (title.contains("volume", true))
+                                    volume = title.substringAfterLast("volume", title.substringAfter("volume")).trim()
+
+                                if (volume.isNotEmpty())
+                                    volume = volume.substringBefore(" ", volume).trim()
+
+                                if (volume.isNotEmpty())
+                                    try {
+                                        volume.toInt()
+                                    } catch (_: Exception) {
+                                        0
+                                    }
+                                else
+                                    0
                             }
                         }
                     }

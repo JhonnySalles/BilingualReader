@@ -27,7 +27,7 @@ class BookSearchLineAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 (holder as BookSearchHeaderViewHolder).bind(mBookMarkList[position])
             }
             else -> {
-                (holder as BookSearchViewHolder).bind(mBookMarkList[position], position)
+                (holder as BookSearchViewHolder).bind(mBookMarkList[position])
             }
         }
     }

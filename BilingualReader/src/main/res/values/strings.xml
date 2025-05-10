@@ -365,6 +365,7 @@
     <string name="popup_reading_layout_alignment_complete">Complete</string>
     <string name="popup_reading_layout_alignment_right">Right</string>
     <string name="popup_reading_layout_alignment_left">Left</string>
+    <string name="popup_reading_layout_reading_view_touch">Touch functions</string>
 
     <!-- BOOK ANNOTATION -->
     <string name="book_annotation_menu_search">Search</string>

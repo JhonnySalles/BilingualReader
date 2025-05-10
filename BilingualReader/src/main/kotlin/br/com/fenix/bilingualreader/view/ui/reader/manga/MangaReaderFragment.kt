@@ -770,16 +770,24 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
     }
 
-    fun getCurrentPage(): Int {
+    fun getCurrentPage(isInternal: Boolean = false): Int {
         if (!::mViewPager.isInitialized || !::mViewRecycler.isInitialized)
             return 1
 
         return when (mScrollingMode) {
             ScrollingType.Vertical,
             ScrollingType.Horizontal,
-                -> mViewPager.currentItem.plus(1)
+                -> if (isInternal) mViewPager.currentItem else mViewPager.currentItem.plus(1)
 
-            ScrollingType.HorizontalRightToLeft -> if (mViewPager.adapter != null) (mViewPager.adapter!!.count - mViewPager.currentItem) else 1
+            ScrollingType.HorizontalRightToLeft -> {
+                if (mViewPager.adapter != null) {
+                    if (isInternal)
+                        (mViewPager.adapter!!.count - mViewPager.currentItem).minus(1)
+                    else
+                        (mViewPager.adapter!!.count - mViewPager.currentItem)
+                } else
+                    1
+            }
             ScrollingType.Scrolling,
             ScrollingType.ScrollingDivider,
                 -> if (mViewRecycler.layoutManager != null) {

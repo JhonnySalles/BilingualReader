@@ -341,9 +341,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             val obj = msg.obj
             when (msg.what) {
                 GeneralConsts.SCANNER.MESSAGE_MANGA_UPDATED_ADD -> refreshLibraryAddDelayed(obj as Manga)
-                GeneralConsts.SCANNER.MESSAGE_MANGA_UPDATED_REMOVE -> refreshLibraryRemoveDelayed(
-                    obj as Manga
-                )
+                GeneralConsts.SCANNER.MESSAGE_MANGA_UPDATED_REMOVE -> refreshLibraryRemoveDelayed(obj as Manga)
                 GeneralConsts.SCANNER.MESSAGE_MANGA_UPDATE_FINISHED -> {
                     setIsRefreshing(false)
                     if (obj as Boolean && ::mViewModel.isInitialized) { // Bug when rotate is necessary verify is initialized
@@ -1073,10 +1071,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     private var itemTouchHelperCallback =
         object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: ViewHolder, target: ViewHolder,
-            ): Boolean {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: ViewHolder, target: ViewHolder, ): Boolean {
                 return false
             }
 
@@ -1084,6 +1079,14 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                 val manga = mViewModel.getAndRemove(viewHolder.bindingAdapterPosition) ?: return
                 val position = viewHolder.bindingAdapterPosition
                 deleteManga(manga, position)
+            }
+
+            override fun onSelectedChanged(viewHolder: ViewHolder?, actionState: Int) {
+                super.onSelectedChanged(viewHolder, actionState)
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE)
+                    mRefreshLayout.setEnabled(false)
+                else
+                    mRefreshLayout.setEnabled(true)
             }
         }
 
