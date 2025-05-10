@@ -4,8 +4,8 @@
     <aapt:attr name="android:drawable">
         <vector
             android:name="vector"
-            android:width="320dp"
-            android:height="300dp"
+            android:width="50dp"
+            android:height="50dp"
             android:viewportWidth="320"
             android:viewportHeight="300">
             <group

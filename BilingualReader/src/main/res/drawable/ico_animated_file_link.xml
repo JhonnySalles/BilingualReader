@@ -4,8 +4,8 @@
     <aapt:attr name="android:drawable">
         <vector
             android:name="vector"
-            android:width="370dp"
-            android:height="370dp"
+            android:width="50dp"
+            android:height="50dp"
             android:viewportWidth="370"
             android:viewportHeight="370">
             <group android:name="backpage">

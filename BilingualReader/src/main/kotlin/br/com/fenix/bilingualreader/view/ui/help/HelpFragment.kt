@@ -65,6 +65,11 @@ class HelpFragment : Fragment() {
             (mScrollUp.drawable as AnimatedVectorDrawable).start()
             mScrollView.smoothScrollTo(0, 0)
         }
+        mScrollUp.setOnLongClickListener {
+            (mScrollUp.drawable as AnimatedVectorDrawable).start()
+            mScrollView.scrollTo(0, 0)
+            true
+        }
         mScrollUp.visibility = View.GONE
         mScrollView.setOnScrollChangeListener { _, _, yNew, _, yOld ->
             if ((yNew - yOld) < -150) {

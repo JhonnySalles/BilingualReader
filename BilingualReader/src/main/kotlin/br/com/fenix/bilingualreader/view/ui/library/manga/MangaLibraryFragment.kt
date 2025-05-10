@@ -592,10 +592,20 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             (mScrollUp.drawable as AnimatedVectorDrawable).start()
             mRecyclerView.smoothScrollToPosition(0)
         }
+        mScrollUp.setOnLongClickListener {
+            (mScrollUp.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.scrollToPosition(0)
+            true
+        }
         mScrollDown.setOnClickListener {
             setAnimationRecycler(false)
             (mScrollDown.drawable as AnimatedVectorDrawable).start()
             mRecyclerView.smoothScrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount)
+        }
+        mScrollDown.setOnLongClickListener {
+            (mScrollDown.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.scrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount -1)
+            true
         }
 
         mPopupLibraryTab.setupWithViewPager(mPopupLibraryView)

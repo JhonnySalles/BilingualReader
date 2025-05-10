@@ -236,9 +236,19 @@ class VocabularyBookFragment : Fragment(), PopupOrderListener, SwipeRefreshLayou
             (mScrollUp.drawable as AnimatedVectorDrawable).start()
             mRecyclerView.smoothScrollToPosition(0)
         }
+        mScrollUp.setOnLongClickListener {
+            (mScrollUp.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.scrollToPosition(0)
+            true
+        }
         mScrollDown.setOnClickListener {
             (mScrollDown.drawable as AnimatedVectorDrawable).start()
             mRecyclerView.smoothScrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount)
+        }
+        mScrollDown.setOnLongClickListener {
+            (mScrollDown.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.scrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount -1)
+            true
         }
 
         mRecyclerView.setOnScrollChangeListener { _, _, _, _, yOld ->

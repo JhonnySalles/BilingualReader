@@ -145,9 +145,19 @@ class SelectMangaFragment : Fragment() {
             (mScrollUp.drawable as AnimatedVectorDrawable).start()
             mRecycler.smoothScrollToPosition(0)
         }
+        mScrollUp.setOnLongClickListener {
+            (mScrollUp.drawable as AnimatedVectorDrawable).start()
+            mRecycler.scrollToPosition(0)
+            true
+        }
         mScrollDown.setOnClickListener {
             (mScrollDown.drawable as AnimatedVectorDrawable).start()
             mRecycler.smoothScrollToPosition((mRecycler.adapter as RecyclerView.Adapter).itemCount)
+        }
+        mScrollDown.setOnLongClickListener {
+            (mScrollDown.drawable as AnimatedVectorDrawable).start()
+            mRecycler.scrollToPosition((mRecycler.adapter as RecyclerView.Adapter).itemCount -1)
+            true
         }
 
         mRecycler.setOnScrollChangeListener { _, _, _, _, yOld ->

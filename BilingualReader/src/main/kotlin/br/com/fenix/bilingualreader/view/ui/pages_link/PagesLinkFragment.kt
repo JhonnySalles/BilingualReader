@@ -185,9 +185,19 @@ class PagesLinkFragment : Fragment() {
             (mScrollUp.drawable as AnimatedVectorDrawable).start()
             mRecyclerPageLink.smoothScrollToPosition(0)
         }
+        mScrollUp.setOnLongClickListener {
+            (mScrollUp.drawable as AnimatedVectorDrawable).start()
+            mRecyclerPageLink.scrollToPosition(0)
+            true
+        }
         mScrollDown.setOnClickListener {
             (mScrollDown.drawable as AnimatedVectorDrawable).start()
             mRecyclerPageLink.smoothScrollToPosition((mRecyclerPageLink.adapter as RecyclerView.Adapter).itemCount)
+        }
+        mScrollDown.setOnLongClickListener {
+            (mScrollDown.drawable as AnimatedVectorDrawable).start()
+            mRecyclerPageLink.scrollToPosition((mRecyclerPageLink.adapter as RecyclerView.Adapter).itemCount -1)
+            true
         }
 
         mRecyclerPageLink.setOnScrollChangeListener { _, _, _, _, yOld ->
