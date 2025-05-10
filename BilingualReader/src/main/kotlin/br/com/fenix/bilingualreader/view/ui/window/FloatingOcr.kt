@@ -3,21 +3,20 @@ package br.com.fenix.bilingualreader.view.ui.window
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
-import android.content.res.Resources
-import android.graphics.PixelFormat
 import android.graphics.Point
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.util.Size
 import android.view.GestureDetector
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.PopupWindow
 import android.widget.Toast
+import androidx.annotation.Dimension
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.core.view.GestureDetectorCompat
@@ -26,7 +25,6 @@ import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.listener.WindowListener
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess
 import br.com.fenix.bilingualreader.service.ocr.Tesseract
-import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.WindowView
 import br.com.fenix.bilingualreader.view.components.manga.ResizeView
 import org.slf4j.LoggerFactory
@@ -40,20 +38,22 @@ class FloatingOcr constructor(
 ) : WindowListener, GestureDetector.OnDoubleTapListener {
 
     private val mLOGGER = LoggerFactory.getLogger(FloatingOcr::class.java)
-    private var windowManager: PopupWindow? = null
+    private var mPopup: PopupWindow? = null
         get() {
             if (field == null) {
-                field = PopupWindow(parent, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                field = PopupWindow(parent, mLastSize.width, mLastSize.height)
                 field?.contentView = mFloatingView
                 field?.isFocusable = false
                 field?.isOutsideTouchable = false
                 field?.setOnDismissListener { isShowing = false }
+                mPosition = Point(parent.height / 2 - mLastSize.height / 2, parent.width / 2 - mLastSize.width / 2)
             }
             return field
         }
 
     private var mFloatingView: View = LayoutInflater.from(context).inflate(R.layout.floating_window_ocr, null)
 
+    private var mLastSize : Size
     private var mPosition : Point
     var isShowing = false
     private var mDX = 0
@@ -62,6 +62,7 @@ class FloatingOcr constructor(
 
     init {
         mPosition = Point(parent.height / 2, parent.width / 2)
+        mLastSize = Size(context.resources.getDimension(R.dimen.floating_ocr_width).toInt(), context.resources.getDimension(R.dimen.floating_ocr_height).toInt())
         minSize = context.resources.getDimension(R.dimen.floating_ocr_min_size).toInt()
 
         with(mFloatingView) {
@@ -88,7 +89,7 @@ class FloatingOcr constructor(
                         super.onAnimationEnd(animation)
                         mCloseButton.visibility = View.GONE
                         mFloatingView.layoutParams.width -= context.resources.getDimension(R.dimen.floating_ocr_button_close_size).toInt() + context.resources.getDimension(R.dimen.floating_ocr_button_close_margin).toInt()
-                        windowManager?.update(mPosition.x, mPosition.y, mFloatingView.layoutParams.width, mFloatingView.layoutParams.height)
+                        mPopup?.update(mPosition.x, mPosition.y, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                     }
                 })
         }
@@ -102,7 +103,7 @@ class FloatingOcr constructor(
         mPosition.x = mDX + e1.rawX.toInt()
         mPosition.y = mDY + e1.rawY.toInt()
         fixBoxBounds()
-        windowManager?.update(mPosition.x, mPosition.y, mFloatingView.layoutParams.width, mFloatingView.layoutParams.height)
+        mPopup?.update(mPosition.x, mPosition.y, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         return true
     }
 
@@ -156,7 +157,7 @@ class FloatingOcr constructor(
                 })
 
             mFloatingView.layoutParams.width += context.resources.getDimension(R.dimen.floating_ocr_button_close_size).toInt() + context.resources.getDimension(R.dimen.floating_ocr_button_close_margin).toInt()
-            windowManager?.update(mPosition.x, mPosition.y, mFloatingView.layoutParams.width, mFloatingView.layoutParams.height)
+            mPopup?.update(mPosition.x, mPosition.y, mFloatingView.layoutParams.width, mFloatingView.layoutParams.height)
         }
     }
 
@@ -177,9 +178,9 @@ class FloatingOcr constructor(
             }
             MotionEvent.ACTION_UP -> {
                 val currTime = System.currentTimeMillis()
-                if (currTime - mTouchParamUpdateTimer > 50) {
+                if (currTime - mTouchParamUpdateTimer > 200) {
                     mTouchParamUpdateTimer = currTime
-                    windowManager?.update(mPosition.x, mPosition.y, mFloatingView.layoutParams.width, mFloatingView.layoutParams.height)
+                    mPopup?.update(mPosition.x, mPosition.y, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                 }
                 onUp(e)
                 return true
@@ -194,25 +195,23 @@ class FloatingOcr constructor(
             MotionEvent.ACTION_DOWN -> {
                 mDX = mFloatingView.layoutParams.width - e.rawX.toInt()
                 mDY = mFloatingView.layoutParams.height - e.rawY.toInt()
-
                 return true
             }
             MotionEvent.ACTION_UP -> {
                 fixBoxBounds()
-                windowManager?.update(mPosition.x, mPosition.y, mFloatingView.layoutParams.width, mFloatingView.layoutParams.height)
+                mPopup?.update(mPosition.x, mPosition.y, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                 onUp(e)
                 return true
             }
             MotionEvent.ACTION_MOVE -> {
-                mFloatingView.layoutParams.width = mDX + e.rawX.toInt()
-                mFloatingView.layoutParams.height = mDY + e.rawY.toInt()
-                fixBoxBounds()
                 val currTime = System.currentTimeMillis()
-                if (currTime - mSizeParamUpdateTimer > 50) {
+                if (currTime - mSizeParamUpdateTimer > 200) {
+                    mFloatingView.layoutParams.width = mDX + e.rawX.toInt()
+                    mFloatingView.layoutParams.height = mDY + e.rawY.toInt()
+                    fixBoxBounds()
                     mSizeParamUpdateTimer = currTime
-                    windowManager?.update(mPosition.x, mPosition.y, mFloatingView.layoutParams.width, mFloatingView.layoutParams.height)
+                    mPopup?.update(mPosition.x, mPosition.y, mFloatingView.layoutParams.width, mFloatingView.layoutParams.height)
                 }
-
                 return true
             }
         }
@@ -220,8 +219,6 @@ class FloatingOcr constructor(
     }
 
     private fun fixBoxBounds() {
-        mPosition.x
-
         if (mPosition.x < 0)
             mPosition.x = 0
         else if (mPosition.x + mFloatingView.layoutParams.width > parent.width)
@@ -232,10 +229,14 @@ class FloatingOcr constructor(
         else if (mPosition.y + mFloatingView.layoutParams.height > parent.height)
             mPosition.y = parent.height - mFloatingView.layoutParams.height
 
-        if (mFloatingView.layoutParams.width > parent.width)
+        if (mFloatingView.layoutParams.width < 0)
+            mFloatingView.layoutParams.width = mLastSize.width
+        else if (mFloatingView.layoutParams.width > parent.width)
             mFloatingView.layoutParams.width = parent.width
 
-        if (mFloatingView.layoutParams.height > parent.height)
+        if (mFloatingView.layoutParams.height < 0)
+            mFloatingView.layoutParams.height = mLastSize.height
+        else if (mFloatingView.layoutParams.height > parent.height)
             mFloatingView.layoutParams.height = parent.height
 
         if (mFloatingView.layoutParams.width < minSize)
@@ -243,21 +244,28 @@ class FloatingOcr constructor(
 
         if (mFloatingView.layoutParams.height < minSize)
             mFloatingView.layoutParams.height = minSize
+
+        mLastSize = Size(mFloatingView.layoutParams.width, mFloatingView.layoutParams.height)
     }
 
     fun show() {
         dismiss()
         isShowing = true
-        val width = if (mFloatingView.layoutParams != null) mFloatingView.layoutParams.width else context.resources.getDimension(R.dimen.floating_ocr_height).toInt()
-        val height = if (mFloatingView.layoutParams != null) mFloatingView.layoutParams.height else context.resources.getDimension(R.dimen.floating_ocr_width).toInt()
-        mPosition = Point(parent.height / 2 - height / 2, parent.width / 2 - width / 2)
-        windowManager?.showAtLocation(parent, Gravity.NO_GRAVITY, mPosition.x, mPosition.y)
+        mPopup?.showAtLocation(parent, Gravity.NO_GRAVITY, mPosition.x, mPosition.y)
     }
 
     fun dismiss() {
         if (isShowing) {
-            windowManager?.dismiss()
+            mPopup?.dismiss()
             isShowing = false
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (mHandler.hasCallbacks(mDismissCloseButton))
+                    mHandler.removeCallbacks(mDismissCloseButton)
+            } else
+                mHandler.removeCallbacks(mDismissCloseButton)
+
+            mCloseButton.visibility = View.GONE
         }
     }
 

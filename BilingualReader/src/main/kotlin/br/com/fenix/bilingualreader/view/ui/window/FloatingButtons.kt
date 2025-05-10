@@ -3,14 +3,12 @@ package br.com.fenix.bilingualreader.view.ui.window
 import android.content.Context
 import android.graphics.Point
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.view.GestureDetector
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import androidx.appcompat.app.AppCompatActivity
@@ -32,7 +30,7 @@ class FloatingButtons constructor(
 
     private var mFloatingView: View = LayoutInflater.from(context).inflate(R.layout.floating_manga_buttons, null)
 
-    private var windowManager: PopupWindow? = null
+    private var mPopup: PopupWindow? = null
         get() {
             if (field == null) {
                 field = PopupWindow(parent, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
@@ -101,7 +99,7 @@ class FloatingButtons constructor(
                     if (event.pointerCount == 1) {
                         mPosition.x += deltaX
                         mPosition.y += deltaY
-                        windowManager?.update(mPosition.x, mPosition.y, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                        mPopup?.update(mPosition.x, mPosition.y, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                     }
 
                     if (mPosition.x > mMiddle && inLeft) {
@@ -166,12 +164,12 @@ class FloatingButtons constructor(
             mMoveWindow.setImageDrawable(mIconToLeft)
             inLeft = false
             mPosition.x = parent.width - (mContent.width + 10)
-            windowManager?.update(mPosition.x, mPosition.y, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            mPopup?.update(mPosition.x, mPosition.y, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         } else {
             mMoveWindow.setImageDrawable(mIconToRight)
             inLeft = true
             mPosition.x = 10
-            windowManager?.update(mPosition.x, mPosition.y, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            mPopup?.update(mPosition.x, mPosition.y, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         }
     }
 
@@ -179,12 +177,12 @@ class FloatingButtons constructor(
         dismiss()
         isShowing = true
         mPosition = Point(10, parent.width / 2)
-        windowManager?.showAtLocation(parent, Gravity.NO_GRAVITY, mPosition.x, mPosition.y)
+        mPopup?.showAtLocation(parent, Gravity.NO_GRAVITY, mPosition.x, mPosition.y)
     }
 
     fun dismiss() {
         if (isShowing) {
-            windowManager?.dismiss()
+            mPopup?.dismiss()
             isShowing = false
         }
     }

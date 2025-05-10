@@ -1378,7 +1378,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
     private fun openFloatingOcr() {
         if (mFloatingWindowOcr == null)
-            mFloatingWindowOcr = FloatingOcr(this, this, findViewById(R.id.root_frame_manga_reader))
+            mFloatingWindowOcr = FloatingOcr(this, this, findViewById(R.id.frame_reader_root))
 
         mFloatingWindowOcr!!.show()
     }
