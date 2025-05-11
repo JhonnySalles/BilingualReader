@@ -100,7 +100,7 @@ class DottedSeekBar : AppCompatSeekBar {
             mDotMark!!.setBounds(-halfW, -halfH, halfW, halfH)
 
             val top = paddingTop + (measuredHeight - paddingTop - paddingBottom) / 2 - (h / 2f)
-            val padding = paddingLeft - (thumb.intrinsicWidth / 4f)
+            val padding = paddingLeft - thumbOffset + (thumb.intrinsicWidth / 4f)
 
             val range = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                 (max - min).toFloat()

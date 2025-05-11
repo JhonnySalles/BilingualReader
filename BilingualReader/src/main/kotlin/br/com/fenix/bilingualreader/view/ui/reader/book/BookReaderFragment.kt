@@ -511,11 +511,17 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         } else {
             if (::mCoverContent.isInitialized) {
                 mCoverContent.visibility = View.VISIBLE
-                mCoverMessage.visibility = View.VISIBLE
-                mCoverWarning.visibility = View.VISIBLE
-
                 mCoverContent.alpha = 1f
-                mCoverMessage.text = if (mBook == null) getString(R.string.reading_book_open_exception) else ""
+
+                if (mBook == null) {
+                    mCoverMessage.text = getString(R.string.reading_book_open_exception)
+                    mCoverMessage.visibility = View.VISIBLE
+                    mCoverWarning.visibility = View.VISIBLE
+                } else {
+                    mCoverMessage.text = ""
+                    mCoverMessage.visibility = View.GONE
+                    mCoverWarning.visibility = View.GONE
+                }
             }
         }
     }
