@@ -145,6 +145,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private lateinit var mCoverContent: ConstraintLayout
     private lateinit var mCoverImage: ImageView
     private lateinit var mCoverMessage: TextView
+    private lateinit var mCoverWarning: ImageView
 
     private lateinit var mPopupConfiguration: FrameLayout
 
@@ -272,6 +273,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         mCoverContent = view.findViewById(R.id.reader_book_cover_content)
         mCoverImage = view.findViewById(R.id.reader_book_cover)
         mCoverMessage = view.findViewById(R.id.reader_book_cover_message)
+        mCoverWarning = view.findViewById(R.id.reader_book_cover_warning)
 
         mToolbarTop = requireActivity().findViewById(R.id.reader_book_toolbar_top)
         mToolbarBottom = requireActivity().findViewById(R.id.reader_book_toolbar_bottom)
@@ -292,10 +294,16 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         mTimeToEnding.text = ""
 
         if (mBook != null) {
+            mCoverMessage.visibility = View.GONE
+            mCoverWarning.visibility = View.GONE
+
             BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, true)
             mHandler.postDelayed({ BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, false) }, 300)
             generateHistory(mBook!!)
         } else {
+            mCoverMessage.visibility = View.VISIBLE
+            mCoverWarning.visibility = View.VISIBLE
+
             mCoverImage.setImageBitmap(ImageUtil.applyCoverEffect(requireContext(), null, Type.BOOK))
             mCoverMessage.text = getString(R.string.reading_book_open_exception)
         }
@@ -461,10 +469,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
     override fun onLoading(isFinished: Boolean, isLoaded: Boolean) {
         if (isFinished) {
-            if (isLoaded) {
-                if (mParse == null)
-                    return
-
+            if (isLoaded && mParse != null) {
                 val pages = mParse!!.getPageCount(mViewModel.getFontSize(isBook = true).toInt())
                 mPageSeekBar.max = pages -1
                 mCoverContent.animate().alpha(0.0f)
@@ -497,12 +502,18 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             } else {
                 mParse = null
                 val cover = if (mBook != null) BookImageCoverController.instance.getBookCover(requireContext(), mBook!!, isCoverSize = true) else null
+                mCoverMessage.visibility = View.VISIBLE
+                mCoverWarning.visibility = View.VISIBLE
+
                 mCoverImage.setImageBitmap(ImageUtil.applyCoverEffect(requireContext(), cover, Type.BOOK))
                 mCoverMessage.text = getString(R.string.reading_book_open_exception)
             }
         } else {
             if (::mCoverContent.isInitialized) {
                 mCoverContent.visibility = View.VISIBLE
+                mCoverMessage.visibility = View.VISIBLE
+                mCoverWarning.visibility = View.VISIBLE
+
                 mCoverContent.alpha = 1f
                 mCoverMessage.text = if (mBook == null) getString(R.string.reading_book_open_exception) else ""
             }

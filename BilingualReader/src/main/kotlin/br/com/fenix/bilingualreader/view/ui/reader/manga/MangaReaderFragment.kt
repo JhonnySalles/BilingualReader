@@ -145,6 +145,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mCoverContent: ConstraintLayout
     private lateinit var mCoverImage: ImageView
     private lateinit var mCoverMessage: TextView
+    private lateinit var mCoverWarning: ImageView
 
     private lateinit var mLastPageContainer: MaterialCardView
     private lateinit var mLastPageImage: ImageView
@@ -458,6 +459,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mCoverContent = view.findViewById(R.id.reader_manga_cover_content)
         mCoverImage = view.findViewById(R.id.reader_manga_cover)
         mCoverMessage = view.findViewById(R.id.reader_manga_cover_message)
+        mCoverWarning = view.findViewById(R.id.reader_manga_cover_warning)
 
         mLastPageContainer = requireActivity().findViewById(R.id.reader_last_page)
         mLastPageImage = requireActivity().findViewById(R.id.last_page_image)
@@ -479,8 +481,14 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             mCoverImage.setImageBitmap(ImageUtil.applyCoverEffect(requireContext(), cover, Type.BOOK))
             mCoverMessage.text = getString(R.string.reading_manga_open_exception)
             mPageNavTextView.text = ""
+
+            mCoverMessage.visibility = View.VISIBLE
+            mCoverWarning.visibility = View.VISIBLE
             return view
         } else {
+            mCoverMessage.visibility = View.GONE
+            mCoverWarning.visibility = View.GONE
+
             MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mManga!!, mCoverImage, null, true)
             mHandler.postDelayed({ MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mManga!!, mCoverImage, null, false) }, 300)
         }

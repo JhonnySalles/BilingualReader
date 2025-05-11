@@ -70,6 +70,7 @@ import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.TouchScreen
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.service.ocr.ImageProcess
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -906,7 +907,7 @@ class ImageUtil {
 
         fun applyCoverEffect(context: Context, cover: Bitmap?, type: Type) : Bitmap? {
             val image = cover ?: (AppCompatResources.getDrawable(context, R.mipmap.reader_cover_not_found)?.toBitmap() ?: return null)
-            val cover = image.copy(Bitmap.Config.ARGB_8888, true)
+            val cover = ImageProcess.toGrayscale(image.copy(Bitmap.Config.ARGB_8888, true))
             val canvas = Canvas(cover)
 
             val effect = when(type) {
