@@ -53,7 +53,7 @@ class Migrations {
                 try {
                     database.execSQL("ALTER TABLE " + DataBaseConsts.MANGA.TABLE_NAME + " ADD COLUMN " + DataBaseConsts.MANGA.COLUMNS.CHAPTERS_PAGES + " TEXT DEFAULT '' NOT NULL")
                 } catch (e : Exception) {
-                    mLOGGER.error("Error to alter table and create column chapters page.", e)
+                    mLOGGER.error("Error to alter table and create column chapters page: " + e.message, e)
                 }
 
                 mLOGGER.info("Completed migration 1 - 2.")

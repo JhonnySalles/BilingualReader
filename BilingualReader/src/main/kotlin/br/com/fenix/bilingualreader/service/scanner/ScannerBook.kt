@@ -19,6 +19,8 @@ import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Notifications
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
@@ -146,7 +148,11 @@ class ScannerBook(private val context: Context) {
                     h.sendMessage(msg)
 
             } catch (e: Exception) {
-                mLOGGER.error("Error when notify handlers", e)
+                mLOGGER.error("Error when notify handlers: " + e.message, e)
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error when notify handlers: " + e.message)
+                    recordException(e)
+                }
             }
         }
     }
@@ -253,8 +259,16 @@ class ScannerBook(private val context: Context) {
                                         notifyMediaUpdatedAdd(book)
                                 } catch (e: Exception) {
                                     mLOGGER.error("Error load book " + it.name, e)
+                                    Firebase.crashlytics.apply {
+                                        setCustomKey("message", "Error load book " + it.name)
+                                        recordException(e)
+                                    }
                                 } catch (e: IOException) {
                                     mLOGGER.error("Error load book " + it.name, e)
+                                    Firebase.crashlytics.apply {
+                                        setCustomKey("message", "Error load book " + it.name)
+                                        recordException(e)
+                                    }
                                 }
                             }
                         }
@@ -270,7 +284,11 @@ class ScannerBook(private val context: Context) {
                     }
 
             } catch (e: Exception) {
-                mLOGGER.error("Error to scanner manga.", e)
+                mLOGGER.error("Error to scanner book: " + e.message, e)
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error to scanner book: " + e.message)
+                    recordException(e)
+                }
             } finally {
                 endingUpdate(isProcess)
 

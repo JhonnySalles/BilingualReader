@@ -24,6 +24,8 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.Transformation
 import jp.wasabeef.picasso.transformations.ColorFilterTransformation
 import jp.wasabeef.picasso.transformations.GrayscaleTransformation
@@ -320,7 +322,11 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
             System.gc()
             mLOGGER.error("Memory full, cleaning", m)
         } catch (e: Exception) {
-            mLOGGER.error("Error to load image page", e)
+            mLOGGER.error("Error to load image page: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error to load image page: " + e.message)
+                recordException(e)
+            }
         }
         return null
     }

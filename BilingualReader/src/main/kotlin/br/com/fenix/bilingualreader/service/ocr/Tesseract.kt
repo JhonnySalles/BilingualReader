@@ -11,6 +11,8 @@ import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import com.googlecode.tesseract.android.TessBaseAPI
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -139,6 +141,10 @@ class Tesseract(private val context: Context) {
                 }
             } catch (e: Exception) {
                 mLOGGER.error("Error to process Tesseract ocr image async: " + e.message, e)
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error to process Tesseract ocr image async: " + e.message)
+                    recordException(e)
+                }
             }
         }
     }

@@ -109,6 +109,8 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -351,7 +353,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     mLastPage.addFirst(Pair(page, bitmap))
                     openLastPage()
                 } catch (e: Exception) {
-                    mLOGGER.error("Error to insert last page", e)
+                    mLOGGER.error("Error to insert last page: " + e.message, e)
+                    Firebase.crashlytics.apply {
+                        setCustomKey("message", "Error to insert last page: " + e.message)
+                        recordException(e)
+                    }
                 }
             }
 
@@ -849,6 +855,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     mPagerAdapter.notifyDataSetChanged()
                 } catch (e: Exception) {
                     mLOGGER.error("Error generator css for book page: " + e.message, e)
+                    Firebase.crashlytics.apply {
+                        setCustomKey("message", "Error generator css for book page: " + e.message)
+                        recordException(e)
+                    }
                 }
             }
         else

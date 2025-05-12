@@ -2,6 +2,8 @@ package br.com.fenix.bilingualreader.service.repository
 
 import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
@@ -35,6 +37,10 @@ class MangaAnnotationRepository(context: Context) {
             mDataBase.findAllOrderByManga()
         } catch (e: Exception) {
             mLOGGER.error("Error when list annotation of Manga: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error when list annotation of Manga: " + e.message)
+                recordException(e)
+            }
             arrayListOf()
         }
     }
@@ -43,7 +49,11 @@ class MangaAnnotationRepository(context: Context) {
         return try {
             mDataBase.findAllByManga(idManga)
         } catch (e: Exception) {
-            mLOGGER.error("Error when list annotation of Manga: " + e.message, e)
+            mLOGGER.error("Error when find annotation of Manga: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error when find annotation of Manga: " + e.message)
+                recordException(e)
+            }
             arrayListOf()
         }
     }
@@ -53,6 +63,10 @@ class MangaAnnotationRepository(context: Context) {
             mDataBase.findByManga(idManga)
         } catch (e: Exception) {
             mLOGGER.error("Error when find annotation by manga: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error when get SubTitle: " + e.message)
+                recordException(e)
+            }
             arrayListOf()
         }
     }
@@ -62,6 +76,10 @@ class MangaAnnotationRepository(context: Context) {
             mDataBase.findByPage(idManga, page)
         } catch (e: Exception) {
             mLOGGER.error("Error when find annotation by page: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error when get SubTitle: " + e.message)
+                recordException(e)
+            }
             arrayListOf()
         }
     }

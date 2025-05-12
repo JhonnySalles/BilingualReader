@@ -4,6 +4,8 @@ import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Date
@@ -56,6 +58,10 @@ class MangaRepository(context: Context) {
             loadLibrary(mDataBase.list(library.id))
         } catch (e: Exception) {
             mLOGGER.error("Error when list Manga: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error when list Manga: " + e.message)
+                recordException(e)
+            }
             null
         }
     }
@@ -64,7 +70,11 @@ class MangaRepository(context: Context) {
         return try {
             loadLibrary(mDataBase.listRecentChange(library.id))
         } catch (e: Exception) {
-            mLOGGER.error("Error when list Manga: " + e.message, e)
+            mLOGGER.error("Error when list recent change Manga: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error when list recent change Manga: " + e.message)
+                recordException(e)
+            }
             null
         }
     }
@@ -73,7 +83,11 @@ class MangaRepository(context: Context) {
         return try {
             loadLibrary(mDataBase.listRecentDeleted(library.id))
         } catch (e: Exception) {
-            mLOGGER.error("Error when list Manga: " + e.message, e)
+            mLOGGER.error("Error when list recent deleted Manga: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error when list recent deleted Manga: " + e.message)
+                recordException(e)
+            }
             null
         }
     }
@@ -82,7 +96,11 @@ class MangaRepository(context: Context) {
         return try {
             loadLibrary(mDataBase.listDeleted(library.id))
         } catch (e: Exception) {
-            mLOGGER.error("Error when list Manga: " + e.message, e)
+            mLOGGER.error("Error when list deleted Manga: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error when list deleted Manga: " + e.message)
+                recordException(e)
+            }
             null
         }
     }
@@ -92,6 +110,10 @@ class MangaRepository(context: Context) {
             loadLibrary(mDataBase.listHistory())
         } catch (e: Exception) {
             mLOGGER.error("Error when list Manga History: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error when list Manga History: " + e.message)
+                recordException(e)
+            }
             null
         }
     }
@@ -107,6 +129,10 @@ class MangaRepository(context: Context) {
             }
         } catch (e: Exception) {
             mLOGGER.error("Error when mark read Manga: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error when mark read Manga: " + e.message)
+                recordException(e)
+            }
         }
     }
 
@@ -123,6 +149,10 @@ class MangaRepository(context: Context) {
             }
         } catch (e: Exception) {
             mLOGGER.error("Error when clear Manga History: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error when clear Manga History: " + e.message)
+                recordException(e)
+            }
         }
     }
 
@@ -131,6 +161,10 @@ class MangaRepository(context: Context) {
             loadLibrary(mDataBase.get(id))
         } catch (e: Exception) {
             mLOGGER.error("Error when get Manga: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error when get Manga: " + e.message)
+                recordException(e)
+            }
             null
         }
     }
@@ -140,6 +174,10 @@ class MangaRepository(context: Context) {
             loadLibrary(mDataBase.getByFileName(name))
         } catch (e: Exception) {
             mLOGGER.error("Error when find Manga by file name: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error when find Manga by file name: " + e.message)
+                recordException(e)
+            }
             null
         }
     }
@@ -149,6 +187,10 @@ class MangaRepository(context: Context) {
             loadLibrary(mDataBase.getByPath(name))
         } catch (e: Exception) {
             mLOGGER.error("Error when find Manga by file name: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error when find Manga by file name: " + e.message)
+                recordException(e)
+            }
             null
         }
     }
@@ -158,6 +200,10 @@ class MangaRepository(context: Context) {
             loadLibrary(mDataBase.listByFolder(folder))
         } catch (e: Exception) {
             mLOGGER.error("Error when find Manga by file folder: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error when find Manga by file folder: " + e.message)
+                recordException(e)
+            }
             null
         }
     }
@@ -167,6 +213,10 @@ class MangaRepository(context: Context) {
             loadLibrary(mDataBase.listOrderByTitle(library.id))
         } catch (e: Exception) {
             mLOGGER.error("Error when find Manga by file folder: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error when find Manga by file folder: " + e.message)
+                recordException(e)
+            }
             null
         }
     }
@@ -182,7 +232,11 @@ class MangaRepository(context: Context) {
             } else
                 Pair(null, null)
         } catch (e: Exception) {
-            mLOGGER.error("Error when find last Manga open: " + e.message, e)
+            mLOGGER.error("Error when find last Manga to read: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error when find last Manga to read: " + e.message)
+                recordException(e)
+            }
             Pair(null, null)
         }
     }
@@ -192,6 +246,10 @@ class MangaRepository(context: Context) {
             loadLibrary(mDataBase.listSync(GeneralConsts.dateToDateTime(date)))
         } catch (e: Exception) {
             mLOGGER.error("Error when list Manga: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error when list Manga: " + e.message)
+                recordException(e)
+            }
             listOf()
         }
     }

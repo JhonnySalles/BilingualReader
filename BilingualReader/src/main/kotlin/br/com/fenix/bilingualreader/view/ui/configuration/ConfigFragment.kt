@@ -68,6 +68,8 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import com.google.api.services.drive.DriveScopes
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import org.lucasr.twowayview.TwoWayView
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -569,6 +571,10 @@ class ConfigFragment : Fragment() {
                     } catch (e: Exception) {
                         mLOGGER.error("Error delete bitmap to cache: " + e.message, e)
                         Toast.makeText(requireContext(), getString(R.string.config_covers_delete_error), Toast.LENGTH_SHORT).show()
+                        Firebase.crashlytics.apply {
+                            setCustomKey("message", "Error delete bitmap to cache: " + e.message)
+                            recordException(e)
+                        }
                     }
                 }
                 .setNegativeButton(R.string.action_cancel) { _, _ -> }
@@ -586,6 +592,10 @@ class ConfigFragment : Fragment() {
                     } catch (e: Exception) {
                         mLOGGER.error("Error delete statistics: " + e.message, e)
                         Toast.makeText(requireContext(), getString(R.string.config_statistics_clear_error), Toast.LENGTH_SHORT).show()
+                        Firebase.crashlytics.apply {
+                            setCustomKey("message", "Error delete statistics: " + e.message)
+                            recordException(e)
+                        }
                     }
                 }
                 .setNegativeButton(R.string.action_cancel) { _, _ -> }

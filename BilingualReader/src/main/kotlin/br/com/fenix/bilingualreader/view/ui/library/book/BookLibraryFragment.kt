@@ -90,6 +90,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import io.supercharge.shimmerlayout.ShimmerLayout
 import org.slf4j.LoggerFactory
 import java.util.UUID
@@ -982,6 +984,10 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             enableSearchView(searchView, !enabled)
         } catch (e: Exception) {
             mLOGGER.error("Disable search button error: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Disable search button error: " + e.message)
+                recordException(e)
+            }
         }
     }
 
@@ -1166,7 +1172,11 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                 )
             )
         } catch (e: Exception) {
-            mLOGGER.error("Error share book.", e)
+            mLOGGER.error("Error share book: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error share book: " + e.message)
+                recordException(e)
+            }
         }
     }
 

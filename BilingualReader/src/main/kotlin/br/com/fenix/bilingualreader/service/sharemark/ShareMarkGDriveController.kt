@@ -34,6 +34,8 @@ import com.google.api.client.http.HttpRequestInitializer
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import com.google.gson.GsonBuilder
 import com.google.gson.stream.JsonReader
 import kotlinx.coroutines.CoroutineScope
@@ -200,10 +202,18 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                 file
             )
         } catch (e: GoogleJsonResponseException) {
-            mLOGGER.error("Error upload share file from drive.", e)
+            mLOGGER.error("Error upload share file from drive: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error upload share file from drive: " + e.message)
+                recordException(e)
+            }
             throw DriveUploadException("")
         } catch (e: Exception) {
-            mLOGGER.error("Error upload share file from drive.", e)
+            mLOGGER.error("Error upload share file from drive: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error upload share file from drive: " + e.message)
+                recordException(e)
+            }
             throw DriveUploadException("")
         }
     }
@@ -239,7 +249,11 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                     )
                 )
         } catch (e: Exception) {
-            mLOGGER.error("Error to create share file to drive.", e)
+            mLOGGER.error("Error to create share file to drive: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error to create share file to drive: " + e.message)
+                recordException(e)
+            }
             throw DriveUploadException("")
         }
     }
@@ -367,7 +381,11 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
             } catch (e: DriveUploadException) {
                 ShareMarkType.ERROR_UPLOAD
             } catch (e: Exception) {
-                mLOGGER.error("Error save share file from drive.", e)
+                mLOGGER.error("Error save share file from drive: " + e.message, e)
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error save share file from drive: " + e.message)
+                    recordException(e)
+                }
                 ShareMarkType.ERROR
             }
         }

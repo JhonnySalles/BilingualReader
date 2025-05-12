@@ -17,6 +17,8 @@ import br.com.ebook.foobnix.sys.TempHolder
 import br.com.fenix.bilingualreader.model.exceptions.BookLoadException
 import br.com.fenix.bilingualreader.service.listener.BookParseListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import org.ebookdroid.common.cache.CacheManager
 import org.ebookdroid.core.codec.CodecDocument
 import org.ebookdroid.core.codec.CodecPage
@@ -110,7 +112,11 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
                 mCodecDocument!!.recycle()
                 mCodecDocument = null
             } catch (e : Exception) {
-                mLOGGER.error("Error to close document file", e)
+                mLOGGER.error("Error to close document file: " + e.message, e)
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error to close document file: " + e.message)
+                    recordException(e)
+                }
             }
         }
     }

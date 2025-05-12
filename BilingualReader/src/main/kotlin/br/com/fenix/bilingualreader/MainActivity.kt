@@ -49,6 +49,8 @@ import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.statistics.StatisticsFragment
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyFragment
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -214,7 +216,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 f.delete()
                         }
                 } catch (e: Exception) {
-                    mLOGGER.error("Error clearing cache folders.", e)
+                    mLOGGER.error("Error clearing cache folders: " + e.message, e)
+                    Firebase.crashlytics.run {
+                        setCustomKey("message", "Error clearing cache folders: " + e.message)
+                        recordException(e)
+                    }
                 }
             }
         }
@@ -227,7 +233,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             if (libraries.isNotEmpty())
                 setLibraries(libraries)
         } catch (e: Exception) {
-            mLOGGER.error("Error clearing cache folders.", e)
+            mLOGGER.error("Error clearing cache folders: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error clearing cache folders: " + e.message)
+                recordException(e)
+            }
         }
     }
 

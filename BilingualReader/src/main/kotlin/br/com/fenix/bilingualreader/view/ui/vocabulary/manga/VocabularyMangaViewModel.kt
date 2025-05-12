@@ -13,6 +13,8 @@ import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.transformLatest
@@ -141,7 +143,11 @@ class VocabularyMangaViewModel(application: Application) : AndroidViewModel(appl
                     nextKey = if (list.isEmpty()) null else page + 1
                 )
             } catch (e: Exception) {
-                mLOGGER.error("Error paging list vocabulary.", e)
+                mLOGGER.error("Error paging list vocabulary: " + e.message, e)
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error paging list vocabulary: " + e.message)
+                    recordException(e)
+                }
                 LoadResult.Error(e)
             }
         }

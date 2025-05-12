@@ -103,6 +103,8 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Picasso.LoadedFrom
@@ -389,10 +391,15 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                         try {
                             (requireActivity() as MangaReaderActivity).setDots(dots, inverse)
                         } catch (e: Exception) {
-                            mLOGGER.error("Error to set dots", e)
+                            mLOGGER.error("Error to set dots: " + e.message, e)
                             times++
                             if (times < 3)
                                 handler.postDelayed(setDot, 1000)
+                            else
+                                Firebase.crashlytics.apply {
+                                    setCustomKey("message", "Error to set dots: " + e.message)
+                                    recordException(e)
+                                }
                         }
                     }
                     handler.postDelayed(setDot, 1000)
@@ -550,7 +557,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     mLastPage.addFirst(Pair(page, bitmap.copy(bitmap.config, true)))
                     openLastPage()
                 } catch (e: Exception) {
-                    mLOGGER.error("Error to insert last page", e)
+                    mLOGGER.error("Error to insert last page: " + e.message, e)
+                    Firebase.crashlytics.apply {
+                        setCustomKey("message", "Error to insert last page: " + e.message)
+                        recordException(e)
+                    }
                 }
             }
 
@@ -1159,6 +1170,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             request.transform(mViewModel.filters.value!!).into(t)
         } catch (e: Exception) {
             mLOGGER.error("Error in open image: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error in open image: " + e.message)
+                recordException(e)
+            }
         }
     }
 
@@ -1176,6 +1191,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             request.transform(mViewModel.filters.value!!).into(t)
         } catch (e: Exception) {
             mLOGGER.error("Error in open image: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error in open image: " + e.message)
+                recordException(e)
+            }
         }
     }
 
@@ -1196,6 +1215,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 .into(t)
         } catch (e: Exception) {
             mLOGGER.error("Error in open image: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error in open image: " + e.message)
+                recordException(e)
+            }
         }
     }
 
@@ -1217,8 +1240,12 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             onLoaded(layout)
         }
 
-        override fun onBitmapFailed(p0: Exception, errorDrawable: Drawable?) {
-            mLOGGER.error("Bitmap load fail: " + p0.message, p0)
+        override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
+            mLOGGER.error("Bitmap load fail: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Bitmap load fail: " + e.message)
+                recordException(e)
+            }
             val layout = mLayout.get() ?: return
             setVisibility(View.GONE, View.GONE, View.VISIBLE)
             val ib = layout.findViewById<View>(R.id.reload_button) as ImageButton
@@ -1643,7 +1670,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
                 Util.closeOutputStream(os)
             } catch (e: Exception) {
-                mLOGGER.error("Error generate image to share.", e)
+                mLOGGER.error("Error generate image to share: " + e.message, e)
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error generate image to share: " + e.message)
+                    recordException(e)
+                }
             } finally {
                 Util.closeInputStream(it)
             }

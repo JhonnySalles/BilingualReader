@@ -537,9 +537,7 @@ class PagesLinkFragment : Fragment() {
         }
     }
 
-    override fun onActivityResult(
-        requestCode: Int, resultCode: Int, resultData: Intent?
-    ) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == GeneralConsts.REQUEST.OPEN_PAGE_LINK) {
                 resultData?.data?.also { uri ->

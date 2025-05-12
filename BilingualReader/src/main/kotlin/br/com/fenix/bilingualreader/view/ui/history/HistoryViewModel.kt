@@ -19,6 +19,8 @@ import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.service.repository.TagsRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -364,6 +366,10 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
                     }
                 } catch (e: Exception) {
                     mLOGGER.error("Error generate suggestion: " + e.message, e)
+                    Firebase.crashlytics.apply {
+                        setCustomKey("message", "Error generate suggestion: " + e.message)
+                        recordException(e)
+                    }
                 }
             }
         }
