@@ -184,7 +184,7 @@ public class DjvuPage extends AbstractCodecPage {
                             link.targetPage = Integer.parseInt(link.url.substring(1)) - 1;
                             link.url = null;
                         } catch (final NumberFormatException ex) {
-                            ex.printStackTrace();
+                            LOGGER.error("Error open document inner: {}", ex.getMessage(), ex);
                         }
                     }
                 }

@@ -61,9 +61,8 @@ public class MuPdfOutline {
                     }
                 }
 
-                if (toAdd) {
+                if (toAdd)
                     ls.add(outlineLink);
-                }
             }
 
             final long child = getChild(outline);

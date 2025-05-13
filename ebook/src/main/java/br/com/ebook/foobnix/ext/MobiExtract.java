@@ -10,13 +10,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.mobi.parser.MobiParser;
+import br.com.ebook.foobnix.pdf.info.ExtUtils;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 
 public class MobiExtract {
@@ -38,9 +42,19 @@ public class MobiExtract {
         return output.toByteArray();
     }
 
+    public static final Pattern SPECIAL_CHARACTER = Pattern.compile("[^\\w\\d\\s\\-.,/\\\\]");
+
     public static FooterNote extract(String inputPath, final String outputDir, String hashCode) throws IOException {
         try {
-            int sucess = LibMobi.convertToEpub(inputPath, new File(outputDir, hashCode + "").getPath());
+            String file = inputPath;
+            if (SPECIAL_CHARACTER.matcher(inputPath).find())
+                file = Files.copy(new File(inputPath).toPath(), new File(outputDir, "mobi_temp_" + hashCode + ExtUtils.getFileExtension(inputPath)).toPath(), StandardCopyOption.REPLACE_EXISTING).toString();
+
+            int sucess = LibMobi.convertToEpub(file, new File(outputDir, hashCode).getPath());
+
+            if (sucess > 0)
+                throw new RuntimeException("Error to convert mobi to epub");
+
             File result = new File(outputDir, hashCode + hashCode + ".epub");
             return new FooterNote(result.getPath(), null);
         } catch (Exception e) {

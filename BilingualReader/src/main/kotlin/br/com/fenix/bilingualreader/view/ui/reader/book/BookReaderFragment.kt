@@ -457,8 +457,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     override fun onDestroy() {
         mViewModel.stopLoadChapters = true
         if (mViewModel.isLoadChapters) {
-            mHandler.postDelayed({
-                destroyParse()
+            mHandler.postDelayed({ destroyParse()
                 SharedData.setDocumentParse(null)
             }, 200)
         } else {
@@ -469,6 +468,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         mWakeLock?.release()
         mWakeLock = null
         removeRefreshSizeDelay()
+        removeRefreshScrolling()
         requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onDestroy()
     }
@@ -817,9 +817,41 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (mHandler.hasCallbacks(mRefreshSizeDelay))
                 mHandler.removeCallbacks(mRefreshSizeDelay)
-            else
-                mHandler.removeCallbacks(mRefreshSizeDelay)
+        } else
+            mHandler.removeCallbacks(mRefreshSizeDelay)
+    }
+
+    private var mRefreshScrollingMode = Runnable { }
+    private fun refreshScrolling(scrolling: ScrollingType) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (mHandler.hasCallbacks(mRefreshScrollingMode))
+                mHandler.removeCallbacks(mRefreshScrollingMode)
+        } else
+            mHandler.removeCallbacks(mRefreshScrollingMode)
+
+        mRefreshScrollingMode = Runnable {
+            if (!::miScrollingMode.isInitialized)
+                mHandler.postDelayed(mRefreshScrollingMode, 300)
+            else {
+                if (miScrollingMode.subMenu != null) {
+                    when (scrolling) {
+                        ScrollingType.Pagination -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
+                        ScrollingType.PaginationRightToLeft -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination_right_to_left).isChecked = true
+                        ScrollingType.PaginationVertical -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination_vertical).isChecked = true
+                        ScrollingType.Scrolling -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_infinity_scrolling).isChecked = true
+                        else -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
+                    }
+                }
+            }
         }
+    }
+
+    private fun removeRefreshScrolling() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (mHandler.hasCallbacks(mRefreshScrollingMode))
+                mHandler.removeCallbacks(mRefreshScrollingMode)
+        } else
+            mHandler.removeCallbacks(mRefreshScrollingMode)
     }
 
     private fun observer() {
@@ -827,16 +859,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             if (!configureScrolling(it))
                 (mPagerAdapter as TextViewPager).refreshLayout(it)
             mScrollingMode = it
-
-            if (miScrollingMode.subMenu != null) {
-                when (it) {
-                    ScrollingType.Pagination -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
-                    ScrollingType.PaginationRightToLeft -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination_right_to_left).isChecked = true
-                    ScrollingType.PaginationVertical -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination_vertical).isChecked = true
-                    ScrollingType.Scrolling -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_infinity_scrolling).isChecked = true
-                    else -> miScrollingMode.subMenu!!.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
-                }
-            }
+            refreshScrolling(it)
         }
 
         mViewModel.ttsVoice.observe(viewLifecycleOwner) {

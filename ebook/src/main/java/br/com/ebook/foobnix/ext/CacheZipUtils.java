@@ -99,13 +99,12 @@ public class CacheZipUtils {
 
     public static void removeFiles(File[] files) {
         try {
-            if (files == null) {
+            if (files == null)
                 return;
-            }
+
             for (File file : files) {
-                if (file != null) {
+                if (file != null)
                     file.delete();
-                }
             }
         } catch (Exception e) {
             LOGGER.error("Error to remove files: {}", e.getMessage(), e);

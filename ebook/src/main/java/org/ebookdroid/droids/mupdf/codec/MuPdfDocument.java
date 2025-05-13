@@ -208,9 +208,8 @@ public class MuPdfDocument extends AbstractCodecDocument {
                 LOGGER.info("MUPDF! >>> open [document]: {} - {}", open, ExtUtils.getFileName(fname));
             }
 
-            if (open == -1) {
+            if (open == -1)
                 throw new RuntimeException("Document is corrupted");
-            }
 
             // final int pages = getPageCountWithException(open);
             return open;

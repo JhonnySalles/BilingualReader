@@ -52,6 +52,7 @@ public abstract class AbstractCodecContext implements CodecContext {
     public void removeTempFiles() {
         if (Config.SHOW_LOG)
             LOGGER.info("removeTempFiles2: {}", TempHolder.get().loadingCancelled);
+
         if (TempHolder.get().loadingCancelled) {
             recycle();
             CacheZipUtils.removeFiles(CacheZipUtils.CACHE_BOOK_DIR.listFiles());
@@ -88,9 +89,9 @@ public abstract class AbstractCodecContext implements CodecContext {
             String fileName = CacheZipUtils.extracIfNeed(fileNameOriginal, CacheDir.ZipApp).unZipPath;
             if (Config.SHOW_LOG)
                 LOGGER.error("Open-Document extract: {}", fileName);
-            if (!ExtUtils.isValidFile(fileName)) {
+            if (!ExtUtils.isValidFile(fileName))
                 return null;
-            }
+
             try {
                 return openDocumentInnerCanceled(fileName, password);
             } catch (MuPdfPasswordException e) {
