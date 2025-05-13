@@ -12,6 +12,7 @@ import java.util.Map;
 import br.com.ebook.Config;
 import br.com.ebook.foobnix.ext.CacheZipUtils;
 import br.com.ebook.foobnix.ext.Fb2Extractor;
+import br.com.ebook.foobnix.pdf.info.ExtUtils;
 import br.com.ebook.foobnix.pdf.info.JsonHelper;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
@@ -43,7 +44,10 @@ public class Fb2Context extends PdfContext {
 
         if (outName == null) {
             outName = cacheFile.getPath();
-            Fb2Extractor.get().convert(fileName, outName);
+            String file = ExtUtils.validNameFileCharacter(fileName, cacheFile.getParent(), "fb2_temp_" + fileName.hashCode());
+            if (!Fb2Extractor.get().convert(file, outName))
+                throw new RuntimeException("FB2 not converted");
+
             if (Config.SHOW_LOG)
                 LOGGER.info("Fb2Context create: {} to {}", fileName, outName);
         }
@@ -59,13 +63,17 @@ public class Fb2Context extends PdfContext {
                 cacheFile.delete();
 
             outName = cacheFile1.getPath();
-            Fb2Extractor.get().convertFB2(fileName, outName);
+            String file = ExtUtils.validNameFileCharacter(fileName, cacheFile1.getParent(), "fb2_temp_" + fileName.hashCode());
+
+            if (!Fb2Extractor.get().convertFB2(file, outName))
+                throw new RuntimeException("FB2 not converted");
+
             muPdfDocument = new MuPdfDocument(this, MuPdfDocument.FORMAT_PDF, outName, password);
             if (Config.SHOW_LOG)
                 LOGGER.info("Fb2Context create: {}", outName);
         }
 
-        final File jsonFile = new File(cacheFile + ".json");
+        final File jsonFile = new File(cacheFile.getParentFile(), ExtUtils.getFileNameWithoutExt(cacheFile.getName()) + ".json");
         if (jsonFile.isFile()) {
             muPdfDocument.setFootNotes(JsonHelper.fileToMap(jsonFile));
             if (Config.SHOW_LOG)
@@ -84,7 +92,6 @@ public class Fb2Context extends PdfContext {
                 };
             }.start();
         }
-
 
         return muPdfDocument;
     }

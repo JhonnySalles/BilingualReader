@@ -561,7 +561,8 @@ public class EpubExtractor extends BaseExtractor {
                 in.close();
 
             } catch (Exception e) {
-                LOGGER.error("Error get footer notes: {}", e.getMessage(), e);
+                if (Config.SHOW_LOG)
+                    LOGGER.error("Error get footer notes: {}", e.getMessage(), e);
             }
 
             return notes;

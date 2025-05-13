@@ -23,7 +23,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +38,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Pattern;
 
 import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.Apps;
@@ -347,6 +351,19 @@ public class ExtUtils {
             return name;
         }
     }
+
+    public static final Pattern SPECIAL_CHARACTER = Pattern.compile("[^\\w\\d\\s\\-.,/\\\\]");
+    public static String validNameFileCharacter(String input, String outputDir, String name) {
+        if (SPECIAL_CHARACTER.matcher(input).find()) {
+            try {
+                return Files.copy(new File(input).toPath(), new File(outputDir, name + "." + getFileExtension(input)).toPath(), StandardCopyOption.REPLACE_EXISTING).toString();
+            } catch (Exception e) {
+                throw new RuntimeException("Error to copy file to output dir: " + e.getMessage());
+            }
+        }
+        return input;
+    }
+
 
     public static void updateSearchExts() {
         List<String> result = new ArrayList<String>();

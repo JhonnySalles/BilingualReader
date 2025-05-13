@@ -435,9 +435,8 @@ public class Fb2Extractor extends BaseExtractor {
 
         int count = 0;
 
-        if (BookCSS.get().isAutoHypens) {
+        if (BookCSS.get().isAutoHypens)
             HypenUtils.applyLanguage(BookCSS.get().hypenLang);
-        }
 
         boolean isEncoding = false;
         boolean isFindBodyEnd = false;

@@ -42,14 +42,9 @@ public class MobiExtract {
         return output.toByteArray();
     }
 
-    public static final Pattern SPECIAL_CHARACTER = Pattern.compile("[^\\w\\d\\s\\-.,/\\\\]");
-
     public static FooterNote extract(String inputPath, final String outputDir, String hashCode) throws IOException {
         try {
-            String file = inputPath;
-            if (SPECIAL_CHARACTER.matcher(inputPath).find())
-                file = Files.copy(new File(inputPath).toPath(), new File(outputDir, "mobi_temp_" + hashCode + ExtUtils.getFileExtension(inputPath)).toPath(), StandardCopyOption.REPLACE_EXISTING).toString();
-
+            String file = ExtUtils.validNameFileCharacter(inputPath, outputDir, "mobi_temp_" + hashCode);
             int sucess = LibMobi.convertToEpub(file, new File(outputDir, hashCode).getPath());
 
             if (sucess > 0)

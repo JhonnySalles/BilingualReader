@@ -606,7 +606,6 @@ public class ImageExtractor implements ImageDownloader {
         pathCache = path;
         whCache = h + w;
         return codeCache;
-
     }
 
     private InputStream messageFile(String msg, String name) {

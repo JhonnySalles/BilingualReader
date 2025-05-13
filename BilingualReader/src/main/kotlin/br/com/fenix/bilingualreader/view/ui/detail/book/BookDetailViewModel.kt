@@ -116,7 +116,7 @@ class BookDetailViewModel(var app: Application) : AndroidViewModel(app) {
                     parse = DocumentParse(book.path, book.password, size.toInt(), isLandscape = isLandscape, isVertical = isVertical,
                         object : BookParseListener {
                             override fun onLoading(isFinished: Boolean, isLoaded: Boolean) {
-                                if (isFinished) {
+                                if (isFinished && isLoaded) {
                                     try {
                                         val fontDiffer = if (book.language == Languages.JAPANESE) DocumentParse.BOOK_FONT_JAPANESE_SIZE_DIFFER else DocumentParse.BOOK_FONT_SIZE_DIFFER
                                         parse!!.getPageCount((size + fontDiffer).toInt())

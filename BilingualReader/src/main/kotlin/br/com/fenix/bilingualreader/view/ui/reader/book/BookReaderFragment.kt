@@ -441,7 +441,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
     override fun onPause() {
         if (mBook != null) {
-            mBook?.bookMark = getCurrentPage()
+            mBook?.bookMark = if (mCoverWarning.isVisible) 0 else getCurrentPage()
             mStorage.updateBookMark(mBook!!)
         }
 
@@ -507,6 +507,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 preparePager()
             } else {
                 mParse = null
+                mCurrentPage = 0
+
                 val cover = if (mBook != null) BookImageCoverController.instance.getBookCover(requireContext(), mBook!!, isCoverSize = true) else null
                 mCoverMessage.visibility = View.VISIBLE
                 mCoverWarning.visibility = View.VISIBLE

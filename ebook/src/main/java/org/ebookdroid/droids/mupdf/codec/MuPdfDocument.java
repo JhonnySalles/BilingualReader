@@ -224,17 +224,17 @@ public class MuPdfDocument extends AbstractCodecDocument {
 
     private static synchronized int getPageCountWithException(final long handle) {
         final int count = getPageCountSafe(handle, Dips.screenWidth(), Dips.screenHeight(), Dips.spToPx(AppState.get().fontSizeSp));
-        if (count == 0) {
+        if (count == 0)
             throw new RuntimeException("Document is corrupted");
-        }
+
         return count;
     }
 
     private static synchronized int getPageCountWithException(final long handle, int w, int h, int size) {
         final int count = getPageCountSafe(handle, w, h, Dips.spToPx(size));
-        if (count == 0) {
+        if (count == 0)
             throw new RuntimeException("Document is corrupted");
-        }
+
         return count;
     }
 
