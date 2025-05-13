@@ -14,7 +14,6 @@ import br.com.ebook.foobnix.pdf.info.TintUtil
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState
 import br.com.ebook.foobnix.sys.ImageExtractor
 import br.com.ebook.foobnix.sys.TempHolder
-import br.com.fenix.bilingualreader.model.exceptions.BookLoadException
 import br.com.fenix.bilingualreader.service.listener.BookParseListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import com.google.firebase.crashlytics.ktx.crashlytics
@@ -89,8 +88,11 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
                 if (diff < 2000)
                     sleep(2000 - diff)
             } catch (e: Exception) {
-                mLOGGER.error(e.message, e)
-                throw BookLoadException("Could not open selected book: $path")
+                mLOGGER.error("Could not open document file: $path -- " + e.message, e)
+                mMainHandler.post {
+                    listener?.onLoading(true, false)
+                    onEnding(false)
+                }
             } finally {
                 isLoading = false
                 try {

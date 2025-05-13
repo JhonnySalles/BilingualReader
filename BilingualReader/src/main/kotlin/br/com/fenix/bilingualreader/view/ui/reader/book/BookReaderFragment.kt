@@ -1693,10 +1693,12 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     fun destroyParse() {
-        if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
-            (mPagerAdapter as WebViewPager).clearParse()
-        else
-            (mPagerAdapter as TextViewPager).clearParse()
+        if (::mPagerAdapter.isInitialized) {
+            if (ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
+                (mPagerAdapter as WebViewPager).clearParse()
+            else
+                (mPagerAdapter as TextViewPager).clearParse()
+        }
 
         mParse?.destroy()
     }
