@@ -5,6 +5,8 @@ import android.content.Context;
 import androidx.core.util.Pair;
 
 import org.ebookdroid.BookType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -22,9 +24,9 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import br.com.ebook.Config;
-import br.com.ebook.foobnix.android.utils.LOG;
 
 public class CacheZipUtils {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CacheZipUtils.class);
     private static final int BUFFER_SIZE = 16 * 1024;
 
     public enum CacheDir {
@@ -57,7 +59,7 @@ public class CacheZipUtils {
             try {
                 removeFiles(getDir().listFiles());
             } catch (Exception e) {
-                LOG.e(e);
+                LOGGER.error("Error to remove cache: {}", e.getMessage(), e);
             }
         }
 
@@ -106,7 +108,7 @@ public class CacheZipUtils {
                 }
             }
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error to remove files: {}", e.getMessage(), e);
         }
     }
 
@@ -122,7 +124,7 @@ public class CacheZipUtils {
                 }
             }
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error to remove files: {}", e.getMessage(), e);
         }
     }
 
@@ -130,13 +132,13 @@ public class CacheZipUtils {
         try {
             return isSingleAndSupportEntry(file);
         } catch (Exception e) {
-            return new Pair<Boolean, String>(false, "");
+            return new Pair<>(false, "");
         }
     }
 
     public static Pair<Boolean, String> isSingleAndSupportEntry(File is) {
         if (is == null) {
-            return new Pair<Boolean, String>(false, "");
+            return new Pair<>(false, "");
         }
         String name = "";
         try {
@@ -149,15 +151,15 @@ public class CacheZipUtils {
                 name = nextEntry.getName();
                 if (find) {
                     zipFile.close();
-                    return new Pair<Boolean, String>(false, "");
+                    return new Pair<>(false, "");
                 }
                 find = true;
             }
             zipFile.close();
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error to valide is suport a single entry: {}", e.getMessage(), e);
         }
-        return new Pair<Boolean, String>(BookType.isSupportedExtByPath(name), name);
+        return new Pair<>(BookType.isSupportedExtByPath(name), name);
     }
 
     public static class UnZipRes {
@@ -173,17 +175,16 @@ public class CacheZipUtils {
     }
 
     public static UnZipRes extracIfNeed(String path, CacheDir folder) {
-        if (!path.endsWith(".zip")) {
+        if (!path.endsWith(".zip"))
             return new UnZipRes(path, path, null);
-        }
 
         folder.removeCacheContent();
 
         try {
             File file = new File(path);
-            if (!isSingleAndSupportEntry(file).first) {
+            if (!isSingleAndSupportEntry(file).first)
                 return new UnZipRes(path, path, null);
-            }
+
             ZipFile zipFile = new ZipFile(file, StandardCharsets.UTF_8);
 
             ZipEntry nextEntry = null;
@@ -194,7 +195,7 @@ public class CacheZipUtils {
                     BufferedOutputStream fileOutputStream = new BufferedOutputStream(new FileOutputStream(out));
                     writeToStream(zipFile.getInputStream(nextEntry), fileOutputStream);
                     if (Config.SHOW_LOG)
-                        LOG.d("Unpack archive", file.getPath());
+                        LOGGER.info("Unpack archive: {}", file.getPath());
 
                     zipFile.close();
                     return new UnZipRes(path, file.getPath(), nextEntry.getName());
@@ -202,7 +203,7 @@ public class CacheZipUtils {
             }
             zipFile.close();
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error to extract: {}", e.getMessage(), e);
         }
         return new UnZipRes(path, path, null);
     }
@@ -251,11 +252,10 @@ public class CacheZipUtils {
         File folder = new File(srcFolder);
 
         for (String fileName : folder.list()) {
-            if (path.equals("")) {
+            if (path.equals(""))
                 addFileToZip(folder.getName(), srcFolder + "/" + fileName, zip);
-            } else {
+            else
                 addFileToZip(path + "/" + folder.getName(), srcFolder + "/" + fileName, zip);
-            }
         }
     }
 

@@ -2,10 +2,15 @@ package br.com.ebook.foobnix.pdf.info.model;
 
 import android.graphics.RectF;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import br.com.ebook.foobnix.ext.Fb2Extractor;
 import br.com.ebook.foobnix.pdf.info.PageUrl;
 
 public class OutlineLinkWrapper implements CharSequence {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OutlineLinkWrapper.class);
 
     private final String title;
     public final int level;
@@ -25,7 +30,7 @@ public class OutlineLinkWrapper implements CharSequence {
                     targetPage = PageUrl.realToFake(targetPage);
 
                 } catch (final Exception e) {
-                    e.printStackTrace();
+                    LOGGER.error("Error to export all: " + e.getMessage(), e);
                 }
             } else if (link.startsWith("http:")) {
                 targetUrl = link;
@@ -41,7 +46,7 @@ public class OutlineLinkWrapper implements CharSequence {
                     return PageUrl.realToFake(page);
 
                 } catch (final Exception e) {
-                    e.printStackTrace();
+                    LOGGER.error("Error to export all: " + e.getMessage(), e);
                 }
             }
         }

@@ -2,6 +2,9 @@ package br.com.ebook.foobnix.ext;
 
 import android.text.TextUtils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
-import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.hypen.HypenUtils;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
@@ -17,15 +20,16 @@ import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 
 public class TxtExtract {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TxtExtract.class);
 
     public static final String OUT_FB2_XML = "txt.html";
 
     static char[] endChars = new char[] { '.', '!', '?', ';' };
 
     public static String foramtUB(String line) {
-        if (line != null && line.trim().startsWith("(*)") && TxtUtils.isLastCharEq(line, endChars)) {
+        if (line != null && line.trim().startsWith("(*)") && TxtUtils.isLastCharEq(line, endChars))
             line = "<b><u>" + line + "</u></b>";
-        }
+
         return line;
     }
 
@@ -40,24 +44,21 @@ public class TxtExtract {
 
         writer.println("<!DOCTYPE html>");
         writer.println("<html>");
-        if (AppState.get().isPreText) {
+        if (AppState.get().isPreText)
             writer.println("<head><style>@page{margin:0px 0.5em} pre{margin:0px} {body:margin:0px;}</style></head>");
-        } else {
+        else
             writer.println("<head><style>p,p+p{margin:0;}</style></head>");
-        }
+
         writer.println("<body>");
 
-        if (AppState.get().isPreText) {
+        if (AppState.get().isPreText)
             writer.println("<pre>");
-        }
 
-        if (AppState.get().isLineBreaksText) {
+        if (AppState.get().isLineBreaksText)
             writer.println("<p>");
-        }
 
-        if (BookCSS.get().isAutoHypens) {
+        if (BookCSS.get().isAutoHypens)
             HypenUtils.applyLanguage(BookCSS.get().hypenLang);
-        }
 
         while ((line = input.readLine()) != null) {
             String outLn = null;
@@ -66,44 +67,38 @@ public class TxtExtract {
                 outLn = retab(line, 8);
                 outLn = TextUtils.htmlEncode(outLn);
 
-                if (TxtUtils.isLineStartEndUpperCase(outLn)) {
+                if (TxtUtils.isLineStartEndUpperCase(outLn))
                     outLn = "<b>" + outLn + "</b>";
-                }
-
             } else {
 
                 if (AppState.get().isLineBreaksText) {
-                    if (line.trim().length() == 0) {
+                    if (line.trim().length() == 0)
                         outLn = "<br/>";
-                    } else {
+                    else
                         outLn = format(line);
-                    }
 
                 } else {
-                    if (line.trim().length() == 0) {
+                    if (line.trim().length() == 0)
                         outLn = "<br/>";
-                    } else if (TxtUtils.isLineStartEndUpperCase(line)) {
+                    else if (TxtUtils.isLineStartEndUpperCase(line))
                         outLn = "<b>" + format(line) + "</b>";
-                    } else if (line.contains("Title:")) {
+                    else if (line.contains("Title:"))
                         outLn = "<b>" + format(line) + "</b>";
-                    } else {
+                    else
                         outLn = "<p>" + format(line) + "</p>";
-                    }
                 }
 
             }
-            // LOG.d("LINE", outLn);
+            if (Config.SHOW_LOG)
+                LOGGER.info("LINE {}", outLn);
             writer.println(outLn);
         }
-        if (AppState.get().isLineBreaksText) {
+        if (AppState.get().isLineBreaksText)
             writer.println("</p>");
-        }
 
         if (AppState.get().isPreText)
-
-        {
             writer.println("</pre>");
-        }
+
         writer.println("</body></html>");
 
         input.close();
@@ -146,13 +141,12 @@ public class TxtExtract {
             line = line.replace("\n", "");
             line = line.replace("\r", "");
             line = TextUtils.htmlEncode(line);
-            if (BookCSS.get().isAutoHypens) {
+            if (BookCSS.get().isAutoHypens)
                 line = HypenUtils.applyHypnes(line);
-            }
-            line = line.trim();
 
+            line = line.trim();
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error format: {}", e.getMessage(), e);
         }
         return line;
     }

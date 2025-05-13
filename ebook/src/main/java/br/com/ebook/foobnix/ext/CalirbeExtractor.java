@@ -2,6 +2,8 @@ package br.com.ebook.foobnix.ext;
 
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParser;
 
 import java.io.File;
@@ -11,11 +13,12 @@ import java.util.Date;
 import java.util.Locale;
 
 import br.com.ebook.BaseExtractor;
-import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 
 public class CalirbeExtractor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CalirbeExtractor.class);
 
     public static boolean isCalibre(String path) {
         File rootFolder = new File(path).getParentFile();
@@ -28,9 +31,8 @@ public class CalirbeExtractor {
 
             File rootFolder = new File(path).getParentFile();
             File metadata = new File(rootFolder, "metadata.opf");
-            if (!metadata.isFile()) {
+            if (!metadata.isFile())
                 return null;
-            }
 
             XmlPullParser xpp = XmlParser.buildPullParser();
             xpp.setInput(new FileInputStream(metadata), "UTF-8");
@@ -46,7 +48,7 @@ public class CalirbeExtractor {
                 eventType = xpp.next();
             }
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error get book overview: {}", e.getMessage(), e);
         }
         return "";
     }
@@ -57,9 +59,8 @@ public class CalirbeExtractor {
 
             File rootFolder = new File(path).getParentFile();
             File metadata = new File(rootFolder, "metadata.opf");
-            if (!metadata.isFile()) {
+            if (!metadata.isFile())
                 return null;
-            }
 
             XmlPullParser xpp = XmlParser.buildPullParser();
             xpp.setInput(new FileInputStream(metadata), "UTF-8");
@@ -68,9 +69,8 @@ public class CalirbeExtractor {
 
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
-                    if ("dc:title".equals(xpp.getName())) {
+                    if ("dc:title".equals(xpp.getName()))
                         meta.setTitle(xpp.nextText());
-                    }
 
                     if ("dc:creator".equals(xpp.getName())) {
                         String author = xpp.nextText();
@@ -84,9 +84,8 @@ public class CalirbeExtractor {
                         }
                     }
 
-                    if ("dc:description".equals(xpp.getName())) {
+                    if ("dc:description".equals(xpp.getName()))
                         meta.setAnnotation(xpp.nextText());
-                    }
 
                     if ("dc:identifier".equals(xpp.getName())) {
                         String content = xpp.nextText();
@@ -94,9 +93,8 @@ public class CalirbeExtractor {
                             meta.setIsbn(content.replaceAll("[\\D]", ""));
                     }
 
-                    if ("dc:publisher".equals(xpp.getName())) {
+                    if ("dc:publisher".equals(xpp.getName()))
                         meta.setPublisher(xpp.nextText());
-                    }
 
                     if ("dc:date".equals(xpp.getName())) {
                         String date = xpp.nextText();
@@ -121,18 +119,14 @@ public class CalirbeExtractor {
                         String attrContent = xpp.getAttributeValue(null, "content");
                         String attrProperty = xpp.getAttributeValue(null, "property");
 
-                        if ("calibre:series".equals(attrName)) {
+                        if ("calibre:series".equals(attrName))
                             meta.setSequence(attrContent.replace(",", ""));
-                        }
 
-                        if ("calibre:series_index".equals(attrName)) {
+                        if ("calibre:series_index".equals(attrName))
                             meta.setsIndex(Integer.parseInt(attrContent));
-                        }
 
-                        if ("group-position".equals(attrProperty)) {
+                        if ("group-position".equals(attrProperty))
                             meta.setsIndex(Integer.parseInt(xpp.getText()));
-                        }
-
                     }
 
                     if ("reference".equals(xpp.getName()) && "cover".equals(xpp.getAttributeValue(null, "type"))) {
@@ -146,7 +140,7 @@ public class CalirbeExtractor {
                 eventType = xpp.next();
             }
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error get book meta information: {}", e.getMessage(), e);
         }
 
         return meta;

@@ -2,6 +2,9 @@ package br.com.ebook.foobnix.ext;
 
 import com.foobnix.libmobi.LibMobi;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,12 +14,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.mobi.parser.MobiParser;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 
 public class MobiExtract {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MobiExtract.class);
 
     private static byte[] toByteArray(InputStream input) {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -39,7 +44,7 @@ public class MobiExtract {
             File result = new File(outputDir, hashCode + hashCode + ".epub");
             return new FooterNote(result.getPath(), null);
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error to extract: {}", e.getMessage(), e);
         }
         return new FooterNote("", null);
     }
@@ -58,17 +63,15 @@ public class MobiExtract {
             String publisher = parse.getPublisher();
             String release = parse.getRelease();
 
-            if (TxtUtils.isEmpty(title)) {
+            if (TxtUtils.isEmpty(title))
                 title = file.getName();
-            }
-            byte[] decode = null;
-            if (!onlyTitle) {
-                decode = parse.getCoverOrThumb();
-            }
 
-            if (AppState.get().isFirstSurname) {
+            byte[] decode = null;
+            if (!onlyTitle)
+                decode = parse.getCoverOrThumb();
+
+            if (AppState.get().isFirstSurname)
                 author = TxtUtils.replaceLastFirstName(author);
-            }
 
             EbookMeta ebookMeta = new EbookMeta(title, author, decode);
             ebookMeta.setGenre(subject);
@@ -95,7 +98,8 @@ public class MobiExtract {
 
             return ebookMeta;
         } catch (Throwable e) {
-            LOG.e(e);
+            if (Config.SHOW_LOG)
+                LOGGER.error("Error to get metadata: {}", e.getMessage(), e);
             return EbookMeta.Empty();
         }
     }
@@ -110,7 +114,7 @@ public class MobiExtract {
             info = parse.getDescription();
 
         } catch (Throwable e) {
-            LOG.e(e);
+            LOGGER.error("Error to get book overview: {}", e.getMessage(), e);
         }
         return info;
     }
@@ -130,7 +134,8 @@ public class MobiExtract {
                 fileInputStream.close();
             }
         } catch (Throwable e) {
-            LOG.e(e);
+            if (Config.SHOW_LOG)
+                LOGGER.error("Error to get book cover: {}", e.getMessage(), e);
         }
         return null;
     }

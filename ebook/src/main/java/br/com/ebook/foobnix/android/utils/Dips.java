@@ -12,11 +12,15 @@ import android.os.Build;
 import android.view.Display;
 import android.view.WindowManager;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Locale;
 
 import br.com.ebook.Config;
 
 public class Dips {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Dips.class);
 
     public final static int DP_5 = Dips.dpToPx(5);
     public final static int DP_10 = Dips.dpToPx(10);
@@ -61,7 +65,7 @@ public class Dips {
         final Display display = wm.getDefaultDisplay();
         float refreshRate = display.getRefreshRate();
         if (Config.SHOW_LOG)
-            LOG.d("RefreshRate", refreshRate);
+            LOGGER.info("RefreshRate: {}", refreshRate);
         return refreshRate;
     }
 

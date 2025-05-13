@@ -7,8 +7,11 @@ import com.github.junrar.Archive
 import com.github.junrar.exception.CrcErrorException
 import com.github.junrar.exception.RarException
 import com.github.junrar.rarfile.FileHeader
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.core.Persister
+import org.slf4j.LoggerFactory
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
@@ -18,6 +21,8 @@ import java.io.InputStream
 
 
 class RarParse : Parse {
+
+    private val mLOGGER = LoggerFactory.getLogger(RarParse::class.java)
 
     private val mHeaders = ArrayList<FileHeader>()
     private var mArchive: Archive? = null
@@ -122,7 +127,11 @@ class RarParse : Parse {
             try {
                 serializer.read(ComicInfo::class.java, page)
             } catch (e: Exception) {
-                e.printStackTrace()
+                mLOGGER.error("Error to get comic info: " + e.message, e)
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error to get comic info: " + e.message)
+                    recordException(e)
+                }
                 null
             }
         } else
@@ -163,12 +172,12 @@ class RarParse : Parse {
                             Thread.sleep(200)
                             getPageStream(header, false)
                         } else {
-                            e.printStackTrace()
+                            mLOGGER.error("Error to get page stream: " + e.message, e)
                             throw e
                         }
                     } catch (e: Exception) {
                         cacheFile.delete()
-                        e.printStackTrace()
+                        mLOGGER.error("Error to get page stream: " + e.message, e)
                         throw e
                     } finally {
                         os.close()
@@ -178,6 +187,7 @@ class RarParse : Parse {
             }
             mArchive!!.getInputStream(header)
         } catch (e: RarException) {
+            mLOGGER.error("Error to get page stream: " + e.message, e)
             throw IOException("Unable to parse rar: " + e.message, e)
         }
     }

@@ -16,6 +16,8 @@ import org.ebookdroid.core.codec.AbstractCodecPage;
 import org.ebookdroid.core.codec.Annotation;
 import org.ebookdroid.core.codec.PageLink;
 import org.ebookdroid.core.codec.PageTextBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,13 +28,14 @@ import java.util.Set;
 import br.com.ebook.fitz.StructuredText;
 import br.com.ebook.fitz.StructuredText.TextBlock;
 import br.com.ebook.fitz.StructuredText.TextLine;
-import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.pdf.info.model.AnnotationType;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
 import br.com.ebook.foobnix.sys.TempHolder;
 
 public class MuPdfPage extends AbstractCodecPage {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MuPdfPage.class);
 
     private static final char SPACE_CHAR = "\u00A0".charAt(0);
     private volatile long pageHandle;
@@ -84,7 +87,7 @@ public class MuPdfPage extends AbstractCodecPage {
         final RectF rectF = new RectF(0, 0, 1f, 1f);
         final float k = (float) originH / originW;
         if (br.com.ebook.Config.SHOW_LOG)
-            LOG.d("TEST", "Render" + " w" + getWidth() + " H " + getHeight() + " " + k + " " + width * k);
+            LOGGER.info("TEST Render  w{} H {} {} {}", getWidth(), getHeight(), k, width * k);
         final BitmapRef renderBitmap = renderBitmap(width, (int) (width * k), rectF);
         return renderBitmap.getBitmap();
     }
@@ -114,7 +117,7 @@ public class MuPdfPage extends AbstractCodecPage {
         TempHolder.lock.lock();
         try {
             if (br.com.ebook.Config.SHOW_LOG)
-                LOG.d("MUPDF! +create page", dochandle, pageno);
+                LOGGER.info("MUPDF! +create page: {} - {}", dochandle, pageno);
             final long open = open(dochandle, pageno);
             return new MuPdfPage(open, dochandle, pageno);
         } finally {
@@ -139,11 +142,11 @@ public class MuPdfPage extends AbstractCodecPage {
                 long p = pageHandle;
                 pageHandle = 0;
                 if (br.com.ebook.Config.SHOW_LOG)
-                    LOG.d("MUPDF! -recycle page", docHandle, pageNumber);
+                    LOGGER.info("MUPDF! -recycle page: {} - {}", docHandle, pageNumber);
                 free(docHandle, p);
             }
         } catch (final Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error recycle: {}", e.getMessage(), e);
         } finally {
             pageHandle = 0;
             TempHolder.lock.unlock();
@@ -171,9 +174,9 @@ public class MuPdfPage extends AbstractCodecPage {
         try {
             TempHolder.lock.lock();
 
-            if (isRecycled()) {
+            if (isRecycled())
                 throw new RuntimeException("The page has been recycled before: " + this);
-            }
+
             final int[] mRect = new int[4];
             mRect[0] = viewbox.left;
             mRect[1] = viewbox.top;
@@ -192,28 +195,25 @@ public class MuPdfPage extends AbstractCodecPage {
                 int b = Color.blue(color);
                 renderPage(docHandle, pageHandle, mRect, ctm, bufferarray, r, g, b);
             } else if (MagicHelper.isNeedMagic()) {
-
                 if (AppState.get().isCustomizeBgAndColors) {
                     renderPage(docHandle, pageHandle, mRect, ctm, bufferarray, -1, -1, -1);
                     MagicHelper.udpateColorsMagic(bufferarray);
                 } else {
                     int color = MagicHelper.getBgColor();
-                    if (!AppState.get().isDayNotInvert) {
+                    if (!AppState.get().isDayNotInvert)
                         color = ~color;
-                    }
+
                     int r = Color.red(color);
                     int g = Color.green(color);
                     int b = Color.blue(color);
                     renderPage(docHandle, pageHandle, mRect, ctm, bufferarray, r, g, b);
 
                 }
-            } else {
+            } else
                 renderPage(docHandle, pageHandle, mRect, ctm, bufferarray, -1, -1, -1);
-            }
 
-            if (MagicHelper.isNeedBC) {
+            if (MagicHelper.isNeedBC)
                 MagicHelper.applyQuickContrastAndBrightness(bufferarray, width, height);
-            }
 
             final BitmapRef b = BitmapManager.getBitmap("PDF page", width, height, Config.RGB_565);
             b.getBitmap().setPixels(bufferarray, 0, width, 0, 0, width, height);
@@ -268,7 +268,7 @@ public class MuPdfPage extends AbstractCodecPage {
     @Override
     public String getPageHTML() {
         if (br.com.ebook.Config.SHOW_LOG)
-            LOG.d("getPageAsHtml");
+            LOGGER.info("getPageAsHtml");
 
         try {
             TempHolder.lock.lock();
@@ -276,7 +276,7 @@ public class MuPdfPage extends AbstractCodecPage {
             String string = new String(pageAsHtml);
             return string;
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error get page html: {}", e.getMessage(), e);
             return "";
         } finally {
             TempHolder.lock.unlock();
@@ -286,7 +286,7 @@ public class MuPdfPage extends AbstractCodecPage {
     @Override
     public String getPageHTMLWithImages() {
         if (br.com.ebook.Config.SHOW_LOG)
-            LOG.d("getPageAsHtml");
+            LOGGER.info("getPageAsHtml");
 
         try {
             TempHolder.lock.lock();
@@ -297,7 +297,7 @@ public class MuPdfPage extends AbstractCodecPage {
             String string = new String(pageAsHtml);
             return string;
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error get page html with images: {}", e.getMessage(), e);
             return "";
         } finally {
             TempHolder.lock.unlock();
@@ -307,14 +307,14 @@ public class MuPdfPage extends AbstractCodecPage {
     @Override
     public synchronized void addMarkupAnnotation(PointF[] quadPoints, AnnotationType type, float color[]) {
         if (br.com.ebook.Config.SHOW_LOG)
-            LOG.d("addMarkupAnnotation1", type, color[0], color[1], color[2]);
+            LOGGER.info("addMarkupAnnotation1 {}: {} - {} - {}", type, color[0], color[1], color[2]);
+
         try {
             TempHolder.lock.lock();
             addMarkupAnnotationInternal(docHandle, pageHandle, quadPoints, type.ordinal(), color);
         } finally {
             TempHolder.lock.unlock();
         }
-
     }
 
     @Override
@@ -333,7 +333,7 @@ public class MuPdfPage extends AbstractCodecPage {
                     a.setPageHandler(pageHandle);
                     result.add(a);
                     if (br.com.ebook.Config.SHOW_LOG)
-                        LOG.d("getAnnotation1s", pageNumber, i, "h", pageHandle);
+                        LOGGER.info("getAnnotation1s: {} - {} - h {}", pageNumber, i,pageHandle);
                 }
             }
         } finally {
@@ -345,7 +345,8 @@ public class MuPdfPage extends AbstractCodecPage {
     @Override
     public synchronized void addAnnotation(float[] color, PointF[][] points, float width, float alpha) {
         if (br.com.ebook.Config.SHOW_LOG)
-            LOG.d("addInkAnnotationInternal", color[0], color[1], color[2]);
+            LOGGER.info("addInkAnnotationInternal: {} - {} - {}", color[0], color[1], color[2]);
+
         TempHolder.lock.lock();
         try {
             addInkAnnotationInternal(docHandle, pageHandle, color, points, (int) width, alpha);
@@ -359,7 +360,7 @@ public class MuPdfPage extends AbstractCodecPage {
         try {
             return text(docHandle, pageHandle);
         } catch (Throwable e) {
-            LOG.e(e);
+            LOGGER.error("Error get text: {}", e.getMessage(), e);
             return null;
         } finally {
             TempHolder.lock.unlock();
@@ -373,9 +374,8 @@ public class MuPdfPage extends AbstractCodecPage {
 
     public synchronized TextWord[][] getText_111() {
         TextChar[][][][] chars = text();
-        if (chars == null) {
+        if (chars == null)
             return new TextWord[0][0];
-        }
 
         ArrayList<TextWord[]> lns = new ArrayList<TextWord[]>();
 
@@ -383,6 +383,7 @@ public class MuPdfPage extends AbstractCodecPage {
 
             if (bl == null)
                 continue;
+
             for (TextChar[][] ln : bl) {
                 ArrayList<TextWord> words = new ArrayList<TextWord>();
                 TextWord word = new TextWord();
@@ -390,18 +391,18 @@ public class MuPdfPage extends AbstractCodecPage {
                 for (TextChar[] sp : ln) {
                     for (TextChar tc : sp) {
                         if (AppState.get().selectingByLetters) {
-                            if (tc.c == SPACE_CHAR) {
+                            if (tc.c == SPACE_CHAR)
                                 tc.c = ' ';
-                            }
+
                             words.add(new TextWord(tc));
                             continue;
                         }
-                        if (tc.c == ' ') {
+                        if (tc.c == ' ')
                             words.add(new TextWord(tc));
-                        }
-                        if (tc.c != ' ') {
+
+                        if (tc.c != ' ')
                             word.Add(tc);
-                        } else if (word.w.length() > 0) {
+                        else if (word.w.length() > 0) {
                             words.add(word);
                             word = new TextWord();
                         }
@@ -418,16 +419,16 @@ public class MuPdfPage extends AbstractCodecPage {
 
         TextWord[][] res = lns.toArray(new TextWord[lns.size()][]);
         for (TextWord[] lines : res) {
-            for (TextWord word : lines) {
+            for (TextWord word : lines)
                 update(word);
-            }
         }
 
         return res;
     }
 
     public synchronized TextWord[][] getText_112() {
-        // LOG.d("getText()", docHandle, pageHandle, pageNumber);
+        // if (Config.SHOW_LOG)
+        //    LOGGER.info("getText(): {} - {} - {}", docHandle, pageHandle, pageNumber);
         TextBlock[] blocks = null;
         try {
             TempHolder.lock.lock();
@@ -441,15 +442,14 @@ public class MuPdfPage extends AbstractCodecPage {
         for (TextBlock block : blocks) {
             ArrayList<TextWord> words = new ArrayList<TextWord>();
             for (TextLine line : block.lines) {
-
                 TextWord word = new TextWord();
                 for (StructuredText.TextChar ch : line.chars) {
                     char chChar = (char) ch.c;
 
                     if (AppState.get().selectingByLetters) {
-                        if (chChar == SPACE_CHAR) {
+                        if (chChar == SPACE_CHAR)
                             chChar = ' ';
-                        }
+
                         word.addChar(ch.bbox, chChar);
                         words.add(word);
                         word = new TextWord();
@@ -458,7 +458,8 @@ public class MuPdfPage extends AbstractCodecPage {
 
                     if (chChar == ' ') {
                         words.add(word);
-                        // LOG.d("getText()", word.w);
+                        // if (Config.SHOW_LOG)
+                        //    LOGGER.info("getText(): {}", word.w);
                         word = new TextWord();
                         continue;
                     }
@@ -466,7 +467,8 @@ public class MuPdfPage extends AbstractCodecPage {
                 }
                 if (word.w.length() > 0) {
                     words.add(word);
-                    // LOG.d("getText()", word.w);
+                    // if (Config.SHOW_LOG)
+                    //    LOGGER.info("getText(): {}", word.w);
                     word = new TextWord();
                 }
             }
@@ -477,9 +479,8 @@ public class MuPdfPage extends AbstractCodecPage {
 
         TextWord[][] res = lns.toArray(new TextWord[lns.size()][]);
         for (TextWord[] lines : res) {
-            for (TextWord word : lines) {
+            for (TextWord word : lines)
                 update(word);
-            }
         }
         return res;
 
@@ -508,9 +509,8 @@ public class MuPdfPage extends AbstractCodecPage {
                     b.top = (b.top - pageBounds.top) / pageBounds.height();
                     b.right = (b.right - pageBounds.left) / pageBounds.width();
                     b.bottom = (b.bottom - pageBounds.top) / pageBounds.height();
-                } else {
+                } else
                     iter.remove();
-                }
             }
         }
     }

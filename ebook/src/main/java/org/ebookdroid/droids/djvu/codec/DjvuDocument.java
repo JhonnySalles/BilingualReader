@@ -7,20 +7,25 @@ import org.ebookdroid.core.codec.AbstractCodecDocument;
 import org.ebookdroid.core.codec.CodecPageInfo;
 import org.ebookdroid.core.codec.OutlineLink;
 import org.ebookdroid.core.codec.PageTextBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.sys.TempHolder;
 
 public class DjvuDocument extends AbstractCodecDocument {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DjvuDocument.class);
 
     private String fileName;
 
     DjvuDocument(final DjvuContext djvuContext, final String fileName) {
         super(djvuContext, open(djvuContext.getContextHandle(), fileName));
         this.fileName = fileName;
-        LOG.d("MUPDF! open document djvu", documentHandle, fileName);
+        if (Config.SHOW_LOG)
+            LOGGER.info("MUPDF! open document djvu: {} - {}", documentHandle, fileName);
     }
 
     @Override
@@ -43,7 +48,8 @@ public class DjvuDocument extends AbstractCodecDocument {
     public DjvuPage getPageInner(final int pageNumber) {
         TempHolder.lock.lock();
         try {
-            LOG.d("DjvuPage_getPage", pageNumber);
+            if (Config.SHOW_LOG)
+                LOGGER.info("DjvuPage_getPage: {}", pageNumber);
             return new DjvuPage(context.getContextHandle(), documentHandle, getPage(documentHandle, pageNumber), pageNumber);
         } finally {
             TempHolder.lock.unlock();
@@ -63,7 +69,6 @@ public class DjvuDocument extends AbstractCodecDocument {
         } finally {
             TempHolder.lock.unlock();
         }
-
     }
 
     @Override
@@ -75,17 +80,17 @@ public class DjvuDocument extends AbstractCodecDocument {
     public CodecPageInfo getPageInfo(final int pageNumber) {
         final CodecPageInfo info = new CodecPageInfo();
         final int res = getPageInfo(documentHandle, pageNumber, context.getContextHandle(), info);
-        if (res == -1) {
+        if (res == -1)
             return null;
-        } else {
+        else
             return info;
-        }
     }
 
     @Override
     protected void freeDocument() {
         free(documentHandle);
-        LOG.d("MUPDF! recycle document djvu", documentHandle, fileName);
+        if (Config.SHOW_LOG)
+            LOGGER.info("MUPDF! recycle document djvu: {} - {}", documentHandle, fileName);
     }
 
     private native static int getPageInfo(long docHandle, int pageNumber, long contextHandle, CodecPageInfo cpi);
@@ -103,9 +108,8 @@ public class DjvuDocument extends AbstractCodecDocument {
         final List<PageTextBox> list = DjvuPage.getPageText(documentHandle, pageNuber, context.getContextHandle(), pattern.toLowerCase());
         if (LengthUtils.isNotEmpty(list)) {
             CodecPageInfo cpi = getPageInfo(pageNuber);
-            for (final PageTextBox ptb : list) {
+            for (final PageTextBox ptb : list)
                 DjvuPage.normalizeTextBox(ptb, cpi.width, cpi.height);
-            }
         }
         return list;
     }

@@ -17,17 +17,21 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.Dips;
-import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
 
 public class TintUtil {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TintUtil.class);
     public static final int RADIUS = Dips.dpToPx(2);
     public static final int STROKE = Dips.dpToPx(1);
     public static int itAlpha = 245;
@@ -49,7 +53,7 @@ public class TintUtil {
     public static int randomColor(int hash) {
         try {
             if (Config.SHOW_LOG)
-                LOG.d("randomColor", hash);
+                LOGGER.info("randomColor: {}", hash);
             hash = Math.abs(hash);
             String num = "" + hash;
             float hue = 360f * Float.parseFloat(num.substring(0, 2)) / 100f;
@@ -57,10 +61,10 @@ public class TintUtil {
             float value = Float.parseFloat(num.substring(2, 4)) / 100f;
 
             if (Config.SHOW_LOG)
-                LOG.d("randomColor", hash, hue, sat, value);
+                LOGGER.info("randomColor: {}", hash, hue, sat, value);
             return Color.HSVToColor(new float[] { hue, sat, Math.max(Math.min(0.1f, value), 0.5f) });
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error get random color: {}", e.getMessage(), e);
             return Color.HSVToColor(new float[] { new Random().nextInt(360), new Random().nextFloat(), (3f + new Random().nextInt(4)) / 10f });
         }
     }

@@ -8,6 +8,8 @@ import android.widget.ImageView
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -71,7 +73,6 @@ class ImageController private constructor() {
                 if (image != null)
                     saveBitmapToCache(context, hash, image)
             } catch (e: IOException) {
-                e.printStackTrace()
                 mLOGGER.error("Error retrieve bitmap from link: " + e.message, e)
             }
         }
@@ -97,6 +98,10 @@ class ImageController private constructor() {
                 mLOGGER.error("Memory full, cleaning", m)
             } catch (e: Exception) {
                 mLOGGER.error("Error to get image async", e)
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error to get image async: " + e.message)
+                    recordException(e)
+                }
             }
         }
     }

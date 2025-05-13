@@ -7,20 +7,25 @@ import android.net.Uri;
 import androidx.core.text.TextUtilsCompat;
 import androidx.core.view.ViewCompat;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Locale;
 
 import br.com.ebook.Config;
-import br.com.ebook.foobnix.android.utils.LOG;
 
 public class Urls {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Urls.class);
 
     public static String encode(String string) {
         try {
             return URLEncoder.encode(string, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            LOG.e(e);
+            if (Config.SHOW_LOG)
+                LOGGER.error("Error encode url: {}", e.getMessage(), e);
             return URLEncoder.encode(string);
         }
     }
@@ -30,7 +35,7 @@ public class Urls {
             return;
         }
         if (Config.SHOW_LOG)
-            LOG.d(">>> open", url);
+            LOGGER.info(">>> open: {}", url);
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         a.startActivity(browserIntent);

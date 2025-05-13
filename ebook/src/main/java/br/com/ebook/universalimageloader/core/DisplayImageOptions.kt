@@ -21,7 +21,6 @@ import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.os.Handler
 import br.com.ebook.universalimageloader.core.DefaultConfigurationFactory.createBitmapDisplayer
-import br.com.ebook.universalimageloader.core.DisplayImageOptions.Builder
 import br.com.ebook.universalimageloader.core.assist.ImageScaleType
 import br.com.ebook.universalimageloader.core.display.BitmapDisplayer
 import br.com.ebook.universalimageloader.core.process.BitmapProcessor

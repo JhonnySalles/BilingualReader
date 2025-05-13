@@ -12,6 +12,9 @@ import android.text.Layout.Alignment;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,7 +22,6 @@ import java.io.InputStream;
 import java.util.Map;
 
 import br.com.ebook.foobnix.android.utils.Dips;
-import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.ext.EbookMeta;
 import br.com.ebook.foobnix.pdf.info.IMG;
@@ -28,6 +30,8 @@ import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
 
 public abstract class BaseExtractor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseExtractor.class);
 
     public abstract EbookMeta getBookMetaInformation(String path);
 
@@ -41,12 +45,11 @@ public abstract class BaseExtractor {
 
     public static Bitmap getBookCoverWithTitleBitmap(String title, String author) {
 
-        if (TxtUtils.isEmpty(author)) {
+        if (TxtUtils.isEmpty(author))
             author = "";
-        }
-        if (TxtUtils.isEmpty(title)) {
+
+        if (TxtUtils.isEmpty(title))
             title = "";
-        }
 
         title = TxtUtils.ellipsize(title, 20);
         author = TxtUtils.ellipsize(author, 40);
@@ -95,7 +98,7 @@ public abstract class BaseExtractor {
             }
             return bookCoverWithTitleBitmap;
         } catch (OutOfMemoryError e) {
-            LOG.e(e);
+            LOGGER.error("Error to get book cover: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -110,10 +113,12 @@ public abstract class BaseExtractor {
             // options.inSampleSize = 1;
             options.inJustDecodeBounds = false;
             if (Config.SHOW_LOG)
-                LOG.d("inSampleSize", options.inSampleSize);
+                LOGGER.info("inSampleSize: {}", options.inSampleSize);
             return BitmapFactory.decodeByteArray(array, 0, array.length, options);
 
         } catch (Exception e) {
+            if (Config.SHOW_LOG)
+                LOGGER.error("Error array to bitmap: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -128,7 +133,7 @@ public abstract class BaseExtractor {
             // options.inSampleSize = 1;
             options.inJustDecodeBounds = false;
             if (Config.SHOW_LOG)
-                LOG.d("inSampleSize", options.inSampleSize);
+                LOGGER.info("inSampleSize: {}", options.inSampleSize);
             Bitmap decodeFile = BitmapFactory.decodeFile(path, options);
 
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -137,6 +142,7 @@ public abstract class BaseExtractor {
             return new ByteArrayInputStream(stream.toByteArray());
 
         } catch (Exception e) {
+            LOGGER.error("Error decode image: {}", e.getMessage(), e);
             return null;
         }
     }

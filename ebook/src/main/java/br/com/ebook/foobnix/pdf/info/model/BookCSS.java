@@ -5,6 +5,9 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Typeface;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
@@ -16,7 +19,6 @@ import java.util.List;
 import java.util.Locale;
 
 import br.com.ebook.Config;
-import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.entity.FileMeta;
 import br.com.ebook.foobnix.pdf.info.ExportSettingsManager;
@@ -27,6 +29,8 @@ import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
 
 public class BookCSS {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BookCSS.class);
 
     public static final String LINK_COLOR_NIGHT = "#876f52";
     public static final String LINK_COLOR_DAY = "#8c1908";
@@ -163,7 +167,7 @@ public class BookCSS {
                 "figure > * {font-size: 0.7em}";
 
         if (Config.SHOW_LOG)
-            LOG.d("BookCSS", "resetToDefault");
+            LOGGER.info("BookCSS: resetToDefault");
 
     }
 

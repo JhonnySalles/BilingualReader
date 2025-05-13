@@ -3,6 +3,9 @@ package br.com.ebook.foobnix.android.utils;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
@@ -10,9 +13,12 @@ import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 
 public class Objects {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Objects.class);
     static String TAG = "Objects";
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -21,16 +27,17 @@ public class Objects {
     }
 
     public static void saveToSP(Object obj, SharedPreferences sp) {
-        LOG.d(TAG, "saveToSP");
+        if (Config.SHOW_LOG)
+            LOGGER.info("{} - saveToSP", TAG);
 
         Editor edit = sp.edit();
         for (final Field f : obj.getClass().getDeclaredFields()) {
-            if (Modifier.isStatic(f.getModifiers()) || Modifier.isPrivate(f.getModifiers())) {
+            if (Modifier.isStatic(f.getModifiers()) || Modifier.isPrivate(f.getModifiers()))
                 continue;
-            }
-            try {
 
-                LOG.d(TAG, "saveToSP", f.getType(), f.getName(), f.get(obj));
+            try {
+                if (Config.SHOW_LOG)
+                    LOGGER.info("{} - saveToSP: {} {} {}", TAG, f.getType(), f.getName(), f.get(obj));
 
                 if (f.getType().equals(int.class)) {
                     edit.putInt(f.getName(), f.getInt(obj));
@@ -58,7 +65,7 @@ public class Objects {
                 }
 
             } catch (Exception e) {
-                LOG.e(e, f.getName());
+                LOGGER.error("Error save to sp: {} - {}", e.getMessage(), f.getName(), e);
             }
         }
         edit.commit();
@@ -93,10 +100,11 @@ public class Objects {
                     f.set(obj, sp.getStringSet(f.getName(), new HashSet<String>()));
                 }
 
-                LOG.d(TAG, "loadFromSp", f.getType(), f.getName(), f.get(obj));
+                if (Config.SHOW_LOG)
+                    LOGGER.info("{} - loadFromSp: {} {} {}", TAG, f.getType(), f.getName(), f.get(obj));
 
             } catch (Exception e) {
-                LOG.e(e);
+                LOGGER.error("Error get load from sp: {}", e.getMessage(), e);
             }
         }
 
@@ -125,33 +133,32 @@ public class Objects {
             try {
                 res.append(f.get(obj));
             } catch (Exception e) {
-                LOG.e(e);
+                LOGGER.error("Error hash code: {}", e.getMessage(), e);
             }
 
         }
         int hashCode = res.toString().hashCode();
-        LOG.d(TAG, "hashCode", hashCode);
+        if (Config.SHOW_LOG)
+            LOGGER.info("{} - hashCode: {}", TAG, hashCode);
         return hashCode;
     }
 
     public static void compareObjects(Object obj1, AppState obj2) {
         for (Field f : obj1.getClass().getDeclaredFields()) {
-            if (Modifier.isStatic(f.getModifiers()) || Modifier.isPrivate(f.getModifiers())) {
+            if (Modifier.isStatic(f.getModifiers()) || Modifier.isPrivate(f.getModifiers()))
                 continue;
-            }
 
             try {
-
                 String value1 = "" + f.get(obj1);
                 String value2 = "" + f.get(obj2);
                 if (!value1.equals(value2)) {
-                    LOG.d(TAG, "compareObjects not same", f.getName(), value1, value2);
+                    if (Config.SHOW_LOG)
+                        LOGGER.info("{} - compareObjects not same: {} {} {}", TAG, f.getName(), value1, value2);
                 }
 
             } catch (Exception e) {
-                LOG.e(e);
+                LOGGER.error("Error get compare objects: {}", e.getMessage(), e);
             }
-
         }
 
     }

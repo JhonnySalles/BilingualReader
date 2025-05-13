@@ -3,10 +3,13 @@ package br.com.fenix.bilingualreader.service.parses.manga
 import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.core.Persister
+import org.slf4j.LoggerFactory
 import java.io.BufferedInputStream
 import java.io.BufferedReader
 import java.io.ByteArrayInputStream
@@ -15,6 +18,8 @@ import java.io.FileInputStream
 import java.io.InputStream
 
 class TarParse : Parse {
+
+    private val mLOGGER = LoggerFactory.getLogger(TarParse::class.java)
 
     private var mEntries = ArrayList<TarEntry>()
     private var mSubtitles = ArrayList<TarEntry>()
@@ -123,7 +128,11 @@ class TarParse : Parse {
             try {
                 serializer.read(ComicInfo::class.java, page)
             } catch (e: Exception) {
-                e.printStackTrace()
+                mLOGGER.error("Error to get comic info: " + e.message, e)
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error to get comic info: " + e.message)
+                    recordException(e)
+                }
                 null
             }
         } else

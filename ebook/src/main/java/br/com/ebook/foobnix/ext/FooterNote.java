@@ -1,11 +1,15 @@
 package br.com.ebook.foobnix.ext;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Map;
 
 import br.com.ebook.Config;
-import br.com.ebook.foobnix.android.utils.LOG;
 
 public class FooterNote {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FooterNote.class);
 
     public String path;
     public Map<String, String> notes;
@@ -17,15 +21,15 @@ public class FooterNote {
 
     public void debugPrint() {
         if (Config.SHOW_LOG)
-            LOG.d("debugPrint", path);
+            LOGGER.info("debugPrint: {}", path);
         if (notes == null) {
             if (Config.SHOW_LOG)
-                LOG.d("Notes is null");
+                LOGGER.info("Notes is null");
             return;
         }
         for (String key : notes.keySet()) {
             if (Config.SHOW_LOG)
-                LOG.d(key, " = ", notes.get(key));
+                LOGGER.info("{} = {}", key, notes.get(key));
         }
     }
 

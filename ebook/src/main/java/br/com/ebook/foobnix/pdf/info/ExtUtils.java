@@ -18,6 +18,8 @@ import androidx.core.content.FileProvider;
 import org.ebookdroid.BookType;
 import org.ebookdroid.common.cache.CacheManager;
 import org.mozilla.universalchardet.UniversalDetector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -36,7 +38,6 @@ import java.util.concurrent.Executors;
 
 import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.Apps;
-import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.Safe;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.ext.CacheZipUtils;
@@ -45,6 +46,8 @@ import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.universalimageloader.core.ImageLoader;
 
 public class ExtUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExtUtils.class);
 
     private static final String IMAGE_PNG_BASE64 = "image/png;base64,";
     private static final String IMAGE_JPEG_BASE64 = "image/jpeg;base64,";
@@ -194,7 +197,7 @@ public class ExtUtils {
                 mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
             }
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error get mime type by uri: {}", e.getMessage(), e);
         }
 
         return mimeType;
@@ -310,16 +313,15 @@ public class ExtUtils {
 
     public static String getFileExtension(String name) {
         if (Config.SHOW_LOG)
-            LOG.d("getFileExtension 1", name);
-        if (name == null) {
+            LOGGER.info("getFileExtension 1: {}", name);
+        if (name == null)
             return "";
-        }
-        if (name.contains("/")) {
+
+        if (name.contains("/"))
             name = name.substring(name.lastIndexOf("/") + 1);
-        }
-        if (!name.contains(".")) {
+
+        if (!name.contains("."))
             return "";
-        }
 
         try {
             return name.substring(name.lastIndexOf(".") + 1);
@@ -329,16 +331,16 @@ public class ExtUtils {
     }
 
     public static String getFileNameWithoutExt(String name) {
-        if (!name.contains(".")) {
+        if (!name.contains("."))
             return name;
-        }
+
         return name.substring(0, name.lastIndexOf("."));
     }
 
     public static String getFileName(String name) {
-        if (!name.contains("/")) {
+        if (!name.contains("/"))
             return name;
-        }
+
         try {
             return name.substring(name.lastIndexOf("/") + 1);
         } catch (Exception e) {
@@ -350,52 +352,52 @@ public class ExtUtils {
         List<String> result = new ArrayList<String>();
         seachExts.clear();
 
-        if (AppState.get().supportPDF) {
+        if (AppState.get().supportPDF)
             result.add(".pdf");
-        }
-        if (AppState.get().supportXPS) {
+
+        if (AppState.get().supportXPS)
             result.add(".xps");
-        }
 
-        if (AppState.get().supportEPUB) {
+        if (AppState.get().supportEPUB)
             result.add(".epub");
-        }
 
-        if (AppState.get().supportDJVU) {
+        if (AppState.get().supportDJVU)
             result.add(".djvu");
-        }
+
         if (AppState.get().supportFB2) {
             result.add(".fb2");
-            if (!AppState.get().supportZIP) {
+            if (!AppState.get().supportZIP)
                 result.add(".fb2.zip");
-            }
         }
+
         if (AppState.get().supportTXT) {
             result.add(".txt");
             result.add(".html");
             result.add(".xhtml");
-            if (!AppState.get().supportZIP) {
+            if (!AppState.get().supportZIP)
                 result.add(".txt.zip");
-            }
         }
+
         if (AppState.get().supportRTF) {
             result.add(".rtf");
-            if (!AppState.get().supportZIP) {
+            if (!AppState.get().supportZIP)
                 result.add(".rtf.zip");
-            }
         }
+
         if (AppState.get().supportMOBI) {
             result.add(".mobi");
             result.add(".azw");
             result.add(".azw3");
         }
+
         if (AppState.get().supportCBZ) {
             result.add(".cbz");
             result.add(".cbr");
         }
-        if (AppState.get().supportZIP) {
+
+        if (AppState.get().supportZIP)
             result.addAll(archiveExts);
-        }
+
         if (AppState.get().supportOther) {
             result.addAll(otherExts);
             result.addAll(lirbeExt);
@@ -405,7 +407,6 @@ public class ExtUtils {
             seachExts.add(ext);
             // seachExts.add(ext.toUpperCase(Locale.getDefault()));
         }
-
     }
 
     public static FileFilter getFileFilter() {
@@ -415,12 +416,12 @@ public class ExtUtils {
     private static Context context;
 
     public static boolean doifFileExists(Context c, File file) {
-        if (file != null && file.isFile()) {
+        if (file != null && file.isFile())
             return true;
-        }
-        if (c != null) {
+
+        if (c != null)
             Toast.makeText(c, "Arquivo não encontrado" + " " + file.getPath(), Toast.LENGTH_LONG).show();
-        }
+
         return false;
 
     }
@@ -432,16 +433,16 @@ public class ExtUtils {
     public static boolean isTextFomat(Intent intent) {
         if (intent == null || intent.getData() == null || intent.getData().getPath() == null) {
             if (Config.SHOW_LOG)
-                LOG.d("isTextFomat", "intent or data or path is null");
+                LOGGER.info("isTextFomat: intent or data or path is null");
             return false;
         }
         return isTextFomat(intent.getData().getPath());
     }
 
     public static synchronized boolean isTextFomat(String path) {
-        if (path == null) {
+        if (path == null)
             return false;
-        }
+
         return BookType.ZIP.is(path) || BookType.EPUB.is(path) || BookType.FB2.is(path) || BookType.TXT.is(path) || BookType.RTF.is(path) || BookType.HTML.is(path) || BookType.MOBI.is(path);
     }
 
@@ -450,16 +451,16 @@ public class ExtUtils {
     }
 
     public static synchronized boolean isZip(String path) {
-        if (path == null) {
+        if (path == null)
             return false;
-        }
+
         return path.toLowerCase(Locale.getDefault()).endsWith(".zip");
     }
 
     public static synchronized boolean isNoMetaFomat(String path) {
-        if (path == null) {
+        if (path == null)
             return false;
-        }
+
         return BookType.TXT.is(path) || BookType.RTF.is(path) || BookType.HTML.is(path) || BookType.PDF.is(path) || BookType.DJVU.is(path) || BookType.CBZ.is(path);
     }
 
@@ -470,6 +471,7 @@ public class ExtUtils {
     public static String readableFileSize(long size) {
         if (size <= 0)
             return "0";
+
         final String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
         int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
         return new DecimalFormat("#,##0").format(size / Math.pow(1024, digitGroups)) + "" + units[digitGroups];
@@ -479,9 +481,8 @@ public class ExtUtils {
         @Override
         public boolean accept(final File pathname) {
             for (final String s : browseExts) {
-                if (pathname.getName().endsWith(s)) {
+                if (pathname.getName().endsWith(s))
                     return true;
-                }
             }
             return pathname.isDirectory();
         }
@@ -702,14 +703,12 @@ public class ExtUtils {
             Toast.makeText(c, "Arquivo não encontrado", Toast.LENGTH_LONG).show();
             return;
         }
+
         if (Config.SHOW_LOG)
-            LOG.d("showDocument", uri.getPath());
+            LOGGER.info("showDocument: {}", uri.getPath());
 
-        if (AppState.get().isAlwaysOpenAsMagazine) {
+        if (AppState.get().isAlwaysOpenAsMagazine)
             openHorizontalView(c, new File(uri.getPath()), page - 1);
-            return;
-        }
-
     }
 
     private static void openHorizontalView(final Context c, final File file, final int page) {
@@ -717,11 +716,9 @@ public class ExtUtils {
             Toast.makeText(c, "Arquivo não encontrado", Toast.LENGTH_LONG).show();
             return;
         }
-        if (!isValidFile(file.getPath())) {
-            Toast.makeText(c, "Arquivo não encontrado", Toast.LENGTH_LONG).show();
-            return;
-        }
 
+        if (!isValidFile(file.getPath()))
+            Toast.makeText(c, "Arquivo não encontrado", Toast.LENGTH_LONG).show();
     }
 
     public static Intent createOpenFileIntent(Context context, File file) {
@@ -738,23 +735,23 @@ public class ExtUtils {
         openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         // openIntent.setDataAndType(getUriProvider(context, file), mimeType);
         openIntent.setDataAndType(getUriProvider(context, file), mimeType);
-        // LOG.d("getUriProvider2", getUriProvider(context, file));
-        // LOG.d("getUriProvider2", Uri.fromFile(file));
+        // if (Config.SHOW_LOG)
+        //    LOGGER.info("getUriProvider2: {}", getUriProvider(context, file));
+        // if (Config.SHOW_LOG)
+        //    LOGGER.info("getUriProvider2: {}", Uri.fromFile(file));
 
         // 1. Check if there is a default app opener for this type of content.
         final PackageManager packageManager = context.getPackageManager();
         ResolveInfo defaultAppInfo = packageManager.resolveActivity(openIntent, PackageManager.MATCH_DEFAULT_ONLY);
-        if (!defaultAppInfo.activityInfo.name.endsWith("ResolverActivity")) {
+        if (!defaultAppInfo.activityInfo.name.endsWith("ResolverActivity"))
             return openIntent;
-        }
 
         // 2. Retrieve all apps for our intent. If there are no apps - return usual
         // already created intent.
         List<Intent> targetedOpenIntents = new ArrayList<Intent>();
         List<ResolveInfo> appInfoList = packageManager.queryIntentActivities(openIntent, PackageManager.MATCH_DEFAULT_ONLY);
-        if (appInfoList.isEmpty()) {
+        if (appInfoList.isEmpty())
             return openIntent;
-        }
 
         // 3. Sort in alphabetical order, filter itself and create intent with the rest
         // of the apps.
@@ -766,6 +763,7 @@ public class ExtUtils {
                 return firstName.compareToIgnoreCase(secondName);
             }
         });
+
         for (ResolveInfo appInfo : appInfoList) {
             String packageName = appInfo.activityInfo.packageName;
             if (packageName.equals(context.getPackageName())) {
@@ -780,6 +778,7 @@ public class ExtUtils {
 
             targetedOpenIntents.add(targetedOpenIntent);
         }
+
         Intent remove = targetedOpenIntents.remove(targetedOpenIntents.size() - 1);
         Intent createChooser = Intent.createChooser(remove, "Selecione");
         Intent chooserIntent = createChooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetedOpenIntents.toArray(new Parcelable[]{}));
@@ -791,11 +790,10 @@ public class ExtUtils {
         int dotPosition = fileName.lastIndexOf('.');
 
         // If extension not present or empty
-        if (dotPosition == -1 || dotPosition == fileName.length() - 1) {
+        if (dotPosition == -1 || dotPosition == fileName.length() - 1)
             return "";
-        } else {
+        else
             return fileName.substring(dotPosition + 1).toLowerCase(Locale.getDefault());
-        }
     }
 
     public static void openWith(final Context a, final File file) {
@@ -806,13 +804,13 @@ public class ExtUtils {
         Uri uriForFile = null;
         // if (Apps.getTargetSdkVersion(a) >= 24) {
         // if (Apps.getTargetSdkVersion(a) >= 24) {
-        if (Build.VERSION.SDK_INT >= 24) {
+        if (Build.VERSION.SDK_INT >= 24)
             uriForFile = FileProvider.getUriForFile(a, Apps.getPackageName(a) + ".provider", file);
-        } else {
+        else
             uriForFile = Uri.fromFile(file);
-        }
+
         if (Config.SHOW_LOG)
-            LOG.d("getUriProvider", uriForFile);
+            LOGGER.info("getUriProvider: {}", uriForFile);
         return uriForFile;
     }
 
@@ -823,9 +821,9 @@ public class ExtUtils {
             String ext = getFileExtension(name);
 
             String mimeType = mimeCache.get("." + ext);
-            if (mimeType != null) {
+            if (mimeType != null)
                 mime = mimeType;
-            } else {
+            else {
                 BookType codecType = BookType.getByUri(name);
                 mime = codecType.getFirstMimeTime();
             }
@@ -833,7 +831,7 @@ public class ExtUtils {
             mime = "application/" + ExtUtils.getFileExtension(file);
         }
         if (Config.SHOW_LOG)
-            LOG.d("getMimeType", mime);
+            LOGGER.info("getMimeType: {}", mime);
         return mime;
     }
 
@@ -854,10 +852,10 @@ public class ExtUtils {
             fis.close();
 
             if (Config.SHOW_LOG)
-                LOG.d("File Encoding", encoding);
+                LOGGER.info("File Encoding: {}", encoding);
 
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error determine encoding: {}", e.getMessage(), e);
         }
         return encoding == null ? "UTF-8" : encoding;
     }

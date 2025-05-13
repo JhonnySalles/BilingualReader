@@ -14,12 +14,14 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.util.regex.Pattern;
 
 import br.com.ebook.R;
 import br.com.ebook.foobnix.android.utils.Dips;
-import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.sys.ImageExtractor;
@@ -31,6 +33,8 @@ import br.com.ebook.universalimageloader.core.assist.ImageScaleType;
 import br.com.ebook.universalimageloader.core.listener.ImageLoadingListener;
 
 public class IMG {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(IMG.class);
 
     public static final float WIDTH_DK = 1.4f;
     public static final int DP5 = -Dips.dpToPx(40);
@@ -255,7 +259,8 @@ public class IMG {
         try {
             ImageLoader.getInstance().clearMemoryCache();
         } catch (Exception e) {
-            LOG.e(e);
+            if (br.com.ebook.Config.SHOW_LOG)
+                LOGGER.error("Error clear memory cache: {}", e.getMessage(), e);
         }
     }
 
@@ -263,7 +268,8 @@ public class IMG {
         try {
             ImageLoader.getInstance().clearDiskCache();
         } catch (Exception e) {
-            LOG.e(e);
+            if (br.com.ebook.Config.SHOW_LOG)
+                LOGGER.error("Error clear disc cache: {}", e.getMessage(), e);
         }
     }
 

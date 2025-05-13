@@ -3,8 +3,11 @@ package br.com.fenix.bilingualreader.service.parses.manga
 import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.core.Persister
+import org.slf4j.LoggerFactory
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
@@ -12,6 +15,8 @@ import java.io.IOException
 import java.io.InputStream
 
 class DirectoryParse : Parse {
+
+    private val mLOGGER = LoggerFactory.getLogger(DirectoryParse::class.java)
 
     private val mFiles = ArrayList<File>()
     private val mSubtitles = ArrayList<File>()
@@ -114,7 +119,11 @@ class DirectoryParse : Parse {
             try {
                 serializer.read(ComicInfo::class.java, page)
             } catch (e: Exception) {
-                e.printStackTrace()
+                mLOGGER.error("Error to get comic info: " + e.message, e)
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error to get comic info: " + e.message)
+                    recordException(e)
+                }
                 null
             }
         } else

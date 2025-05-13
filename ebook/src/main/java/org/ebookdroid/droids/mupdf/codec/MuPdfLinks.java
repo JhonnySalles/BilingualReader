@@ -3,13 +3,17 @@ package org.ebookdroid.droids.mupdf.codec;
 import android.graphics.RectF;
 
 import org.ebookdroid.core.codec.PageLink;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.Config;
 
 public class MuPdfLinks {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MuPdfLinks.class);
 
     // private static final int FZ_LINK_NONE = 0;
     // private static final int FZ_LINK_GOTO = 1;
@@ -26,7 +30,8 @@ public class MuPdfLinks {
         for (long linkHandle = getFirstPageLink(docHandle, pageHandle); linkHandle != 0; linkHandle = getNextPageLink(linkHandle)) {
 
             final PageLink link = new PageLink();
-            LOG.d("LINK GET", docHandle, linkHandle);
+            if (Config.SHOW_LOG)
+                LOGGER.info("LINK GET: {} - {}", docHandle, linkHandle);
             final int type = getPageLinkType(docHandle, linkHandle);
             if (type == 1) {// external
                 link.url = getPageLinkUrl(linkHandle);
@@ -57,7 +62,8 @@ public class MuPdfLinks {
                 links.add(link);
             }
 
-            LOG.d("LINK DROP", docHandle, linkHandle);
+            if (Config.SHOW_LOG)
+                LOGGER.info("LINK DROP: {} - {}", docHandle, linkHandle);
             // dropLink(docHandle, linkHandle);
         }
         return links;

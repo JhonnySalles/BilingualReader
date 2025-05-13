@@ -12,6 +12,8 @@ import org.ebookdroid.droids.TxtContext;
 import org.ebookdroid.droids.ZipContext;
 import org.ebookdroid.droids.djvu.codec.DjvuContext;
 import org.ebookdroid.droids.mupdf.codec.PdfContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,10 +22,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.Config;
 
 public enum BookType {
-
     PDF(PdfContext.class, Arrays.asList("pdf", "xps"), Arrays.asList("application/pdf")),
     TIFF(PdfContext.class, Arrays.asList("tiff", "tif"), Arrays.asList("image/tiff")),
 
@@ -45,6 +46,9 @@ public enum BookType {
     DJVU(DjvuContext.class, Arrays.asList("djvu"), Arrays.asList("image/vnd.djvu", "image/djvu", "image/x-djvu")),
 
     ZIP(ZipContext.class, Arrays.asList("zip"), Arrays.asList("application/zip", "application/x-compressed", "application/x-compressed-zip", "application/x-zip-compressed"));
+
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BookType.class);
 
     private final static Map<String, BookType> extensionToActivity;
 
@@ -118,7 +122,7 @@ public enum BookType {
         try {
             return activityType.contextClass.newInstance();
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error get codec context by type: {}", e.getMessage(), e);
         }
         return null;
     }
@@ -128,7 +132,8 @@ public enum BookType {
         try {
             ctx = getByUri(path).contextClass.newInstance();
         } catch (Exception e) {
-            LOG.e(e);
+            if (Config.SHOW_LOG)
+                LOGGER.error("Error get codec context by path: {}", e.getMessage(), e);
         }
         return ctx;
     }

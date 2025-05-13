@@ -1,5 +1,8 @@
 package br.com.ebook.foobnix.mobi.parser;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -10,9 +13,11 @@ import java.util.List;
 import java.util.Map;
 
 import br.com.ebook.Config;
-import br.com.ebook.foobnix.android.utils.LOG;
 
 public class MobiParser {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MobiParser.class);
+
     public static int COMPRESSION_NONE = 0;
     public static int COMPRESSION_PalmDOC = 2;
     public static int COMPRESSION_HUFF = 17480;
@@ -113,7 +118,7 @@ public class MobiParser {
                     outputStream.write(b ^ 0x80);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("Error to export all: {}", e.getMessage(), e);
             }
         }
         return outputStream.getRawData();
@@ -153,7 +158,7 @@ public class MobiParser {
 
         int encryption = asInt(raw, mobiOffset + 12, 2);
         if (Config.SHOW_LOG)
-            LOG.d("MobiParser", "encryption", encryption);
+            LOGGER.info("MobiParser -- encryption: {}", encryption);
 
         mobiType = asInt(raw, mobiOffset + 24, 4);
         encoding = asInt(raw, mobiOffset + 28, 4) == 1252 ? "cp1251" : "UTF-8";
@@ -161,9 +166,8 @@ public class MobiParser {
         int fullNameOffset = asInt(raw, mobiOffset + 84, 4);
         int fullNameLen = asInt(raw, mobiOffset + 88, 4);
         fullName = asString(raw, mobiOffset + fullNameOffset, fullNameLen);
-        if (encryption != 0) {
+        if (encryption != 0)
             fullName = "(DRM) " + fullName;
-        }
 
         locale = asString(raw, mobiOffset + 92, 4);
 
@@ -205,7 +209,7 @@ public class MobiParser {
                 try {
                     decoded = coded;
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LOGGER.error("Error to export all: " + e.getMessage(), e);
                     decoded = ("error").getBytes();
                 }
             } else {
