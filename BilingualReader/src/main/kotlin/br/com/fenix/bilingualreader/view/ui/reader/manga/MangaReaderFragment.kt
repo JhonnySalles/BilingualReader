@@ -618,7 +618,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 ScrollingType.HorizontalRightToLeft,
                 ScrollingType.Vertical,
                     -> {
-                    mViewPager.setSwipeOrientation(mScrollingMode, PaginationType.Default)
+                    mViewPager.setSwipeOrientation(mScrollingMode, PaginationType.CurlPage)
                     mViewPager.adapter = ComicPagerAdapter()
                     mViewPager.offscreenPageLimit = ReaderConsts.READER.MANGA_OFF_SCREEN_PAGE_LIMIT
                     mViewPager.setOnTouchListener(this@MangaReaderFragment)
@@ -659,7 +659,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 ScrollingType.Scrolling,
                 ScrollingType.ScrollingDivider,
                     -> {
-                    mViewPager.setSwipeOrientation(mScrollingMode, PaginationType.Default)
+                    mViewPager.setSwipeOrientation(mScrollingMode, PaginationType.CurlPage)
                     mViewPager.adapter = null
                     mViewPager.setOnTouchListener(null)
                     mViewPager.clearOnPageChangeListeners()
@@ -696,7 +696,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 ScrollingType.HorizontalRightToLeft,
                 ScrollingType.Vertical,
                     -> {
-                    mViewPager.setSwipeOrientation(mScrollingMode, PaginationType.Default)
+                    mViewPager.setSwipeOrientation(mScrollingMode, PaginationType.CurlPage)
                 }
 
                 ScrollingType.Scrolling,

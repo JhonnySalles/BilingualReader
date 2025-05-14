@@ -7,6 +7,7 @@ import android.view.View
 import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
+import br.com.fenix.bilingualreader.model.interfaces.PageCurl
 import org.slf4j.LoggerFactory
 
 
@@ -75,7 +76,7 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
                 else
                     setPageTransformer(false, HorizontalPageTransformer())}
             PaginationType.Stack -> setPageTransformer(true, StackPageTransform(mScrolling == ScrollingType.Vertical))
-            PaginationType.CurlPage -> TODO()
+            PaginationType.CurlPage -> setPageTransformer(false, CurlPageTransformer())
             PaginationType.Zooming -> setPageTransformer(false, ZoomPageTransform(mScrolling == ScrollingType.Vertical))
         }
         overScrollMode = if (mScrolling == ScrollingType.Vertical) OVER_SCROLL_NEVER else OVER_SCROLL_IF_CONTENT_SCROLLS
@@ -171,4 +172,20 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
             }
         }
     }
+
+    private class CurlPageTransformer : PageTransformer {
+        override fun transformPage(page: View, position: Float) {
+            if (page is PageCurl) {
+                // hold the page steady and let the views do the work
+                if (position > -1.0f && position < 1.0f)
+                    page.translationX = -position * page.width
+                else
+                    page.translationX = 0.0f
+
+                if (position <= 1.0f && position >= -1.0f)
+                    (page as PageCurl).setCurlFactor(position)
+            }
+        }
+    }
+
 }
