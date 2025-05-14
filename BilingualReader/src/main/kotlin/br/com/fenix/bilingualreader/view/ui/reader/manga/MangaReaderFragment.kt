@@ -72,6 +72,7 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
 import br.com.fenix.bilingualreader.model.enums.MarkType
+import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
@@ -617,7 +618,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 ScrollingType.HorizontalRightToLeft,
                 ScrollingType.Vertical,
                     -> {
-                    mViewPager.setSwipeOrientation(mScrollingMode == ScrollingType.Vertical)
+                    mViewPager.setSwipeOrientation(mScrollingMode, PaginationType.Default)
                     mViewPager.adapter = ComicPagerAdapter()
                     mViewPager.offscreenPageLimit = ReaderConsts.READER.MANGA_OFF_SCREEN_PAGE_LIMIT
                     mViewPager.setOnTouchListener(this@MangaReaderFragment)
@@ -658,7 +659,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 ScrollingType.Scrolling,
                 ScrollingType.ScrollingDivider,
                     -> {
-                    mViewPager.setSwipeOrientation(false)
+                    mViewPager.setSwipeOrientation(mScrollingMode, PaginationType.Default)
                     mViewPager.adapter = null
                     mViewPager.setOnTouchListener(null)
                     mViewPager.clearOnPageChangeListeners()
@@ -695,7 +696,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 ScrollingType.HorizontalRightToLeft,
                 ScrollingType.Vertical,
                     -> {
-                    mViewPager.setSwipeOrientation(type == ScrollingType.Vertical)
+                    mViewPager.setSwipeOrientation(mScrollingMode, PaginationType.Default)
                 }
 
                 ScrollingType.Scrolling,
