@@ -20,19 +20,19 @@ class StackPageTransform : ViewPager2.PageTransformer {
                 page.scaleY = v
             } else if (position > 0.5 && position <= 1.0) {
                 page.alpha = 0.0f
-                page.translationX = pageWidth * -position.toFloat()
+                page.translationX = pageWidth * -position
             } else if (position > 0.3 && position <= 0.5) {
                 page.alpha = 1.0f
-                page.translationX = pageWidth * position.toFloat()
+                page.translationX = pageWidth * position
                 v = 0.75f
                 page.scaleX = v
                 page.scaleY = v
             } else {
                 if (position <= 0.3) {
                     page.alpha = 1.0f
-                    page.translationX = pageWidth * position.toFloat()
-                    v = (0.3 - position).toFloat()
-                    v = min(v.toDouble(), 0.25).toFloat()
+                    page.translationX = pageWidth * position
+                    v = 0.3f - position
+                    v = min(v, 0.25f)
                     val scaleFactor = 0.75f + v
                     page.scaleX = scaleFactor
                     page.scaleY = scaleFactor

@@ -10,6 +10,7 @@ import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.interfaces.PageCurl
 import org.slf4j.LoggerFactory
 import kotlin.math.abs
+import kotlin.math.min
 
 
 class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(context, attributeSet) {
@@ -138,10 +139,6 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
                 ScrollingType.Vertical -> {
                     page.translationX = page.width * -position
                     page.translationY = if (position < 0) position * page.height else 0f
-                }
-                ScrollingType.HorizontalRightToLeft -> {
-                    page.translationX = if (position < 0) position * page.width else 0f
-                    page.translationY = 0f
                 }
                 else -> {
                     page.translationX = if (position < 0) 0f else position * -page.width
