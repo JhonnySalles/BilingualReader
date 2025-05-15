@@ -94,6 +94,7 @@ import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFr
 import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
+import br.com.fenix.bilingualreader.view.components.PageCurlFrame
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPager
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewScrolling
@@ -160,6 +161,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private var mFileName: String? = null
     var mReaderMode: ReaderMode = ReaderMode.FIT_WIDTH
     private var mScrollingMode: ScrollingType = ScrollingType.Horizontal
+    private var mPaginationType: PaginationType = PaginationType.Default
     var mUseMagnifierType = false
     var mKeepZoomBetweenPage = false
 
@@ -443,6 +445,13 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 ).toString()
             )
 
+            mPaginationType = PaginationType.valueOf(
+                mPreferences.getString(
+                    GeneralConsts.KEYS.READER.MANGA_PAGE_PAGINATION_TYPE,
+                    PaginationType.Default.toString()
+                ).toString()
+            )
+
             mUseMagnifierType = mPreferences.getBoolean(GeneralConsts.KEYS.READER.MANGA_USE_MAGNIFIER_TYPE, false)
             mKeepZoomBetweenPage = mPreferences.getBoolean(GeneralConsts.KEYS.READER.MANGA_KEEP_ZOOM_BETWEEN_PAGES, false)
         }
@@ -583,7 +592,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             setCurrentPage(old.first)
         }
 
-        configureScrolling(mScrollingMode, true)
+        configureScrolling(mScrollingMode, mPaginationType, true)
 
         if (savedInstanceState != null) {
             val fullscreen = savedInstanceState.getBoolean(ReaderConsts.STATES.STATE_FULLSCREEN)
@@ -603,13 +612,14 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         return view
     }
 
-    private fun configureScrolling(type: ScrollingType, isInitial: Boolean = false) {
+    private fun configureScrolling(scrolling: ScrollingType, pagination: PaginationType, isInitial: Boolean = false) {
         val page = if (isInitial) mCurrentPage + 1 else getCurrentPage()
-        val isChange = isInitial || ((type == ScrollingType.Scrolling || type == ScrollingType.ScrollingDivider) && mViewPager.isVisible) ||
-                ((type == ScrollingType.Horizontal || type == ScrollingType.HorizontalRightToLeft || type == ScrollingType.Vertical) && mViewRecycler.isVisible)
+        val isChange = isInitial || ((scrolling == ScrollingType.Scrolling || scrolling == ScrollingType.ScrollingDivider) && mViewPager.isVisible) ||
+                ((scrolling == ScrollingType.Horizontal || scrolling == ScrollingType.HorizontalRightToLeft || scrolling == ScrollingType.Vertical) && mViewRecycler.isVisible)
 
-        val isMode = ((mScrollingMode == ScrollingType.HorizontalRightToLeft || type == ScrollingType.HorizontalRightToLeft) && mScrollingMode != type)
-        mScrollingMode = type
+        val isMode = ((mScrollingMode == ScrollingType.HorizontalRightToLeft || scrolling == ScrollingType.HorizontalRightToLeft) && mScrollingMode != scrolling)
+        mScrollingMode = scrolling
+        mPaginationType = pagination
 
         if (isChange) {
             mCurrentFragment = null
@@ -618,7 +628,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 ScrollingType.HorizontalRightToLeft,
                 ScrollingType.Vertical,
                     -> {
-                    mViewPager.setSwipeOrientation(mScrollingMode, PaginationType.CurlPage)
+                    mViewPager.setSwipeOrientation(mScrollingMode, mPaginationType)
                     mViewPager.adapter = ComicPagerAdapter()
                     mViewPager.offscreenPageLimit = ReaderConsts.READER.MANGA_OFF_SCREEN_PAGE_LIMIT
                     mViewPager.setOnTouchListener(this@MangaReaderFragment)
@@ -659,7 +669,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 ScrollingType.Scrolling,
                 ScrollingType.ScrollingDivider,
                     -> {
-                    mViewPager.setSwipeOrientation(mScrollingMode, PaginationType.CurlPage)
+                    mViewPager.setSwipeOrientation(mScrollingMode, mPaginationType)
                     mViewPager.adapter = null
                     mViewPager.setOnTouchListener(null)
                     mViewPager.clearOnPageChangeListeners()
@@ -696,7 +706,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 ScrollingType.HorizontalRightToLeft,
                 ScrollingType.Vertical,
                     -> {
-                    mViewPager.setSwipeOrientation(mScrollingMode, PaginationType.CurlPage)
+                    mViewPager.setSwipeOrientation(mScrollingMode, mPaginationType)
                 }
 
                 ScrollingType.Scrolling,
@@ -710,6 +720,21 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             setCurrentPage(page, false)
             mViewPager.adapter?.notifyDataSetChanged()
             updateSeekBar()
+        }
+    }
+
+    private fun configurePagination(pagination: PaginationType) {
+        if (mPaginationType == pagination)
+            return
+
+        mPaginationType = pagination
+
+        mViewPager.setSwipeOrientation(mScrollingMode, mPaginationType)
+        if (mScrollingMode in setOf(ScrollingType.Vertical, ScrollingType.Horizontal, ScrollingType.HorizontalRightToLeft)) {
+            val isCurl = mPaginationType == PaginationType.CurlPage
+            updatePageViews<PageCurlFrame>(mViewPager, PageCurlFrame::class.java) {
+                (it as PageCurlFrame).isCurlPage = isCurl
+            }
         }
     }
 
@@ -729,6 +754,16 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             ScrollingType.Scrolling -> menu.findItem(R.id.reading_manga_scrolling_scrolling).isChecked = true
             ScrollingType.ScrollingDivider -> menu.findItem(R.id.reading_manga_scrolling_scrolling_divider).isChecked = true
             else -> menu.findItem(R.id.reading_manga_scrolling_horizontal).isChecked = true
+        }
+
+        when (mPaginationType) {
+            PaginationType.Default -> menu.findItem(R.id.reading_manga_pagination_default).isChecked = true
+            PaginationType.CurlPage -> menu.findItem(R.id.reading_manga_pagination_page_curl).isChecked = true
+            PaginationType.Stack -> menu.findItem(R.id.reading_manga_pagination_stack).isChecked = true
+            PaginationType.Zooming -> menu.findItem(R.id.reading_manga_pagination_zoom).isChecked = true
+            PaginationType.Depth -> menu.findItem(R.id.reading_manga_pagination_depth).isChecked = true
+            PaginationType.Fade -> menu.findItem(R.id.reading_manga_pagination_fade).isChecked = true
+            else -> menu.findItem(R.id.reading_manga_pagination_default).isChecked = true
         }
 
         menu.findItem(R.id.menu_item_reader_manga_use_magnifier_type).isChecked = mUseMagnifierType
@@ -853,7 +888,32 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     this.putString(GeneralConsts.KEYS.READER.MANGA_PAGE_SCROLLING_MODE, scrolling.toString())
                     this.commit()
                 }
-                configureScrolling(scrolling)
+                configureScrolling(scrolling, mPaginationType)
+            }
+
+            R.id.reading_manga_pagination_default,
+            R.id.reading_manga_pagination_page_curl,
+            R.id.reading_manga_pagination_stack,
+            R.id.reading_manga_pagination_zoom,
+            R.id.reading_manga_pagination_depth,
+            R.id.reading_manga_pagination_fade,
+                -> {
+                item.isChecked = true
+
+                val pagination = when (item.itemId) {
+                    R.id.reading_manga_pagination_default -> PaginationType.Default
+                    R.id.reading_manga_pagination_page_curl -> PaginationType.CurlPage
+                    R.id.reading_manga_pagination_stack -> PaginationType.Stack
+                    R.id.reading_manga_pagination_zoom -> PaginationType.Zooming
+                    R.id.reading_manga_pagination_depth -> PaginationType.Depth
+                    R.id.reading_manga_pagination_fade -> PaginationType.Fade
+                    else -> PaginationType.Default
+                }
+                with(mPreferences.edit()) {
+                    this.putString(GeneralConsts.KEYS.READER.MANGA_PAGE_PAGINATION_TYPE, pagination.toString())
+                    this.commit()
+                }
+                configurePagination(pagination)
             }
 
             R.id.menu_item_reader_manga_use_magnifier_type -> {
@@ -868,7 +928,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 if (mScrollingMode == ScrollingType.Scrolling || mScrollingMode == ScrollingType.ScrollingDivider)
                     mViewRecycler.useMagnifierType = mUseMagnifierType
                 else {
-                    updatePageViews(mViewPager) {
+                    updatePageViews<BaseImageView>(mViewPager, BaseImageView::class.java) {
                         (it as ImageViewPage).useMagnifierType = mUseMagnifierType
                     }
                 }
@@ -913,7 +973,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             val last = (mViewRecycler.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
             mViewRecycler.adapter?.notifyItemChanged(first, last)
         } else {
-            updatePageViews(mViewPager) {
+            updatePageViews<BaseImageView>(mViewPager, BaseImageView::class.java) {
                 if (mReaderMode === ReaderMode.ASPECT_FILL)
                     (it as ImageViewPage).setTranslateToRightEdge(mScrollingMode == ScrollingType.HorizontalRightToLeft)
                 (it as ImageViewPage).setViewMode(mReaderMode)
@@ -1042,6 +1102,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
             val inflater = requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             val layout: View = inflater.inflate(R.layout.fragment_manga_page_pager, container, false)
+            layout.findViewById<PageCurlFrame>(R.id.frame_reader_page_root).isCurlPage = mPaginationType == PaginationType.CurlPage
+
             val imageViewPage: ImageViewPage = layout.findViewById<View>(R.id.page_image_view) as ImageViewPage
             if (mReaderMode === ReaderMode.ASPECT_FILL)
                 imageViewPage.setTranslateToRightEdge(mScrollingMode == ScrollingType.HorizontalRightToLeft)
@@ -1394,13 +1456,13 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
     }
 
-    private fun updatePageViews(parentView: ViewGroup, change: (BaseImageView) -> (Unit)) {
+    private fun <T : Any> updatePageViews(parentView: ViewGroup, item: Class<T>, change: (Any) -> (Unit)) {
         for (i in 0 until parentView.childCount) {
             val child = parentView.getChildAt(i)
-            if (child is ViewGroup)
-                updatePageViews(child, change)
-            else if (child is BaseImageView)
+            if (item.isInstance(child))
                 change(child)
+            else if (child is ViewGroup)
+                updatePageViews(child, item, change)
         }
     }
 

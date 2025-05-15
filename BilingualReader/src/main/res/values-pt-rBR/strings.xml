@@ -227,6 +227,8 @@
     <string name="config_book_pagination_page_curl">Ondulação de página</string>
     <string name="config_book_pagination_page_stack">Pilhas de página</string>
     <string name="config_book_pagination_page_zoom">Zoom de página</string>
+    <string name="config_book_pagination_page_fade">Desbotamento de página</string>
+    <string name="config_book_pagination_page_depth">Profundidade de página</string>
 
     <string name="config_book_tts">Texto para fala</string>
     <string name="config_book_tts_voice_normal">Voz normal</string>
@@ -297,11 +299,6 @@
     <string name="menu_book_reading_book_mark">Marcador</string>
     <string name="menu_book_reading_view_touch">Funções touch</string>
     <string name="menu_book_reading_config_touch">Configura funções touch</string>
-    <string name="menu_book_scrolling_mode">Modo de rolagem</string>
-    <string name="menu_book_scrolling_pagination">Paginação (Padrão)</string>
-    <string name="menu_book_scrolling_pagination_vertical">Paginação (Vertical)</string>
-    <string name="menu_book_scrolling_pagination_right_to_left">Paginação (Direita para esquerda)</string>
-    <string name="menu_book_scrolling_infinity_scrolling">Rolagem infinita</string>
 
     <string name="reading_book_title_position">Posição %d de %d • %s%%</string>
     <string name="reading_book_title_chapter">Capítulo %d: %s</string>
@@ -467,6 +464,8 @@
     <string name="config_manga_pagination_page_curl">Ondulação de página</string>
     <string name="config_manga_pagination_page_stack">Pilhas de página</string>
     <string name="config_manga_pagination_page_zoom">Zoom de página</string>
+    <string name="config_manga_pagination_page_fade">Desbotamento de página</string>
+    <string name="config_manga_pagination_page_depth">Profundidade de página</string>
 
     <string name="menu_manga_reading_chapters_menu">Lista de capítulos</string>
     <string name="menu_manga_reading_save_share_image">Salvar/Compartilhar</string>

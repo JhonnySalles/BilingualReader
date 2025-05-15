@@ -344,14 +344,18 @@ class ConfigFragment : Fragment() {
             getString(R.string.config_manga_pagination_default) to PaginationType.Default,
             getString(R.string.config_manga_pagination_page_curl) to PaginationType.CurlPage,
             getString(R.string.config_manga_pagination_page_stack) to PaginationType.Stack,
-            getString(R.string.config_manga_pagination_page_zoom) to PaginationType.Zooming
+            getString(R.string.config_manga_pagination_page_zoom) to PaginationType.Zooming,
+            getString(R.string.config_manga_pagination_page_fade) to PaginationType.Fade,
+            getString(R.string.config_manga_pagination_page_depth) to PaginationType.Depth
         )
 
         mBookMapPaginationType = hashMapOf(
             getString(R.string.config_book_pagination_default) to PaginationType.Default,
             getString(R.string.config_book_pagination_page_curl) to PaginationType.CurlPage,
             getString(R.string.config_book_pagination_page_stack) to PaginationType.Stack,
-            getString(R.string.config_book_pagination_page_zoom) to PaginationType.Zooming
+            getString(R.string.config_book_pagination_page_zoom) to PaginationType.Zooming,
+            getString(R.string.config_book_pagination_page_fade) to PaginationType.Fade,
+            getString(R.string.config_book_pagination_page_depth) to PaginationType.Depth
         )
 
         mBookMapReadingTTS = TextSpeech.getByDescriptions(requireContext())

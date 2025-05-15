@@ -9,6 +9,7 @@ import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.interfaces.PageCurl
 import org.slf4j.LoggerFactory
+import kotlin.math.abs
 
 
 class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(context, attributeSet) {
@@ -62,9 +63,18 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
 
     fun setSwipeOrientation(scrolling: ScrollingType, pagination: PaginationType) {
         if (mScrolling != scrolling || mPaginationType != pagination) {
+            val refresh = mPaginationType != pagination
             mPaginationType = pagination
             mScrolling = scrolling
             initSwipeMethods()
+
+            if (refresh) {
+                val adapt = adapter
+                val item = currentItem
+                adapter = adapt
+                adapter?.notifyDataSetChanged()
+                currentItem = item
+            }
         }
     }
 
@@ -75,9 +85,11 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
                     setPageTransformer(false, VerticalPageTransformer())
                 else
                     setPageTransformer(false, HorizontalPageTransformer())}
-            PaginationType.Stack -> setPageTransformer(true, StackPageTransform(mScrolling == ScrollingType.Vertical))
+            PaginationType.Stack -> setPageTransformer(true, StackPageTransform(mScrolling))
             PaginationType.CurlPage -> setPageTransformer(false, CurlPageTransformer())
             PaginationType.Zooming -> setPageTransformer(false, ZoomPageTransform(mScrolling == ScrollingType.Vertical))
+            PaginationType.Depth -> setPageTransformer(true, DepthPageTransformer())
+            PaginationType.Fade -> setPageTransformer(false, FadePageTransformer())
         }
         overScrollMode = if (mScrolling == ScrollingType.Vertical) OVER_SCROLL_NEVER else OVER_SCROLL_IF_CONTENT_SCROLLS
     }
@@ -120,14 +132,21 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
         }
     }
 
-    private class StackPageTransform(val isVertical: Boolean) : PageTransformer {
+    private class StackPageTransform(var scrolling: ScrollingType) : PageTransformer {
         override fun transformPage(page: View, position: Float) {
-            if (isVertical) {
-                page.translationX = page.width * -position
-                page.translationY = if (position < 0) position * page.height else 0f
-            } else {
-                page.translationX = if (position < 0) 0f else position * -page.width
-                page.translationY = 0f
+            when (scrolling) {
+                ScrollingType.Vertical -> {
+                    page.translationX = page.width * -position
+                    page.translationY = if (position < 0) position * page.height else 0f
+                }
+                ScrollingType.HorizontalRightToLeft -> {
+                    page.translationX = if (position < 0) position * page.width else 0f
+                    page.translationY = 0f
+                }
+                else -> {
+                    page.translationX = if (position < 0) 0f else position * -page.width
+                    page.translationY = 0f
+                }
             }
         }
     }
@@ -142,7 +161,7 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
             if (0 <= position && position <= 1) {
                 alpha = 1 - position
             } else if (-1 < position && position < 0) {
-                val scaleFactor = Math.max(MIN_SCALE, 1 - Math.abs(position))
+                val scaleFactor = MIN_SCALE.coerceAtLeast(1 - abs(position))
                 val verticalMargin = pageHeight * (1 - scaleFactor) / 2
                 val horizontalMargin = pageWidth * (1 - scaleFactor) / 2
                 if (isVertical) {
@@ -150,11 +169,6 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
                         page.translationX = horizontalMargin - verticalMargin / 2
                     else
                         page.translationX = -horizontalMargin + verticalMargin / 2
-                } else {
-                    if (position < 0f)
-                        page.translationY = verticalMargin - horizontalMargin / 2
-                    else
-                        page.translationY = -verticalMargin + horizontalMargin / 2
                 }
 
                 page.scaleX = scaleFactor
@@ -166,9 +180,6 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
             if (isVertical) {
                 page.translationX = page.width * -position
                 page.translationY = position * page.height
-            } else {
-                page.translationX = page.height * -position
-                page.translationY = 0f
             }
         }
     }
@@ -185,6 +196,33 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
                 if (position <= 1.0f && position >= -1.0f)
                     (page as PageCurl).setCurlFactor(position)
             }
+        }
+    }
+
+    private class FadePageTransformer : PageTransformer {
+        override fun transformPage(page: View, position: Float) {
+            page.translationX = -position*page.width
+            page.alpha = 1- abs(position)
+        }
+    }
+
+    private class DepthPageTransformer : PageTransformer {
+        override fun transformPage(page: View, position: Float) {
+            if (position < -1)
+                page.alpha = 0f
+            else if (position <= 0) {
+                page.alpha = 1f
+                page.translationX = 0f
+                page.scaleX = 1f
+                page.scaleY = 1f
+            } else if (position <= 1f) {
+                page.translationX = -position*page.width
+                page.alpha = 1- abs(position)
+                page.scaleX = 1- abs(position)
+                page.scaleY = 1- abs(position)
+            }
+            else
+                page.alpha = 0f
         }
     }
 

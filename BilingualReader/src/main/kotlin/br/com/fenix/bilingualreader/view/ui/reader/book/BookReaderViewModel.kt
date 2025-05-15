@@ -40,6 +40,7 @@ import br.com.fenix.bilingualreader.model.enums.FontType
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.MarginLayoutType
 import br.com.fenix.bilingualreader.model.enums.MarkType
+import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
 import br.com.fenix.bilingualreader.model.enums.TextSpeech
@@ -58,8 +59,8 @@ import br.com.fenix.bilingualreader.util.helpers.ColorUtil
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import br.com.fenix.bilingualreader.view.components.ImageGetter
+import br.com.fenix.bilingualreader.view.components.book.TextViewAdapter
 import br.com.fenix.bilingualreader.view.components.book.TextViewClickMovement
-import br.com.fenix.bilingualreader.view.components.book.TextViewPager
 import br.com.fenix.bilingualreader.view.components.book.TextViewSelectCallback
 import br.com.fenix.bilingualreader.view.ui.popup.PopupAnnotations
 import com.google.firebase.crashlytics.ktx.crashlytics
@@ -110,8 +111,11 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private var mSpacingType: MutableLiveData<SpacingLayoutType> = MutableLiveData(SpacingLayoutType.Small)
     val spacingType: LiveData<SpacingLayoutType> = mSpacingType
 
-    private var mScrollingType: MutableLiveData<ScrollingType> = MutableLiveData(ScrollingType.Pagination)
-    val scrollingType: LiveData<ScrollingType> = mScrollingType
+    private var mScrollingMode: MutableLiveData<ScrollingType> = MutableLiveData(ScrollingType.Pagination)
+    val scrollingMode: LiveData<ScrollingType> = mScrollingMode
+
+    private var mPaginationType: MutableLiveData<PaginationType> = MutableLiveData(PaginationType.Default)
+    val paginationType: LiveData<PaginationType> = mPaginationType
 
     private var mFontType: MutableLiveData<FontType> = MutableLiveData(FontType.TimesNewRoman)
     val fontType: LiveData<FontType> = mFontType
@@ -288,7 +292,12 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     }
 
     fun changeScrolling(scrolling: ScrollingType) {
-        mScrollingType.value = scrolling
+        mScrollingMode.value = scrolling
+        mConfiguration.value?.let { saveBookConfiguration(it) }
+    }
+
+    fun changePagination(pagination: PaginationType) {
+        mPaginationType.value = pagination
         mConfiguration.value?.let { saveBookConfiguration(it) }
     }
 
@@ -415,10 +424,17 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT
         )
 
-        mScrollingType.value = ScrollingType.valueOf(
+        mScrollingMode.value = ScrollingType.valueOf(
             mPreferences.getString(
                 GeneralConsts.KEYS.READER.BOOK_PAGE_SCROLLING_MODE,
                 ScrollingType.Pagination.toString()
+            )!!
+        )
+
+        mPaginationType.value = PaginationType.valueOf(
+            mPreferences.getString(
+                GeneralConsts.KEYS.READER.BOOK_PAGE_PAGINATION_TYPE,
+                PaginationType.Default.toString()
             )!!
         )
 
@@ -434,7 +450,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         else {
             mAlignmentType.value = configuration.alignment
             mMarginType.value = configuration.margin
-            mScrollingType.value = configuration.scrolling
+            mScrollingMode.value = configuration.scrolling
+            mPaginationType.value = configuration.pagination
             mSpacingType.value = configuration.spacing
             mFontType.value = configuration.fontType
             mFontSize.value = configuration.fontSize
@@ -455,7 +472,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             SpacingLayoutType.Small,
             FontType.TimesNewRoman,
             GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT,
-            ScrollingType.Pagination
+            ScrollingType.Pagination,
+            PaginationType.Default
         )
         saveBookConfiguration(mConfiguration.value!!)
     }
@@ -463,7 +481,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     fun saveBookConfiguration(configuration: BookConfiguration) {
         configuration.alignment = alignmentType.value!!
         configuration.margin = marginType.value!!
-        configuration.scrolling = scrollingType.value!!
+        configuration.scrolling = scrollingMode.value!!
+        configuration.pagination = paginationType.value!!
         configuration.spacing = spacingType.value!!
         configuration.fontType = fontType.value!!
         configuration.fontSize = fontSize.value!!
@@ -571,7 +590,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             web.addJavascriptInterface(javascript, "bilingualapp")
     }
 
-    fun prepareHtml(context: Context, parse: DocumentParse?, page: Int, holder: TextViewPager.TextViewPagerHolder, listener: TextSelectCallbackListener?) {
+    fun prepareHtml(context: Context, parse: DocumentParse?, page: Int, holder: TextViewAdapter.TextViewPagerHolder, listener: TextSelectCallbackListener?) {
         holder.pageMark.visibility = if (mAnnotation.any { it.page == page && it.markType == MarkType.PageMark }) View.VISIBLE else View.GONE
 
         var text = parse?.getPage(page)?.pageHTMLWithImages.orEmpty()

@@ -48,22 +48,52 @@
         android:id="@+id/menu_item_reader_book_scrolling_mode"
         android:icon="@drawable/ico_reading_mode"
         android:orderInCategory="102"
-        android:title="@string/menu_book_scrolling_mode"
+        android:title="@string/config_book_scrolling_mode"
         app:showAsAction="never">
         <menu>
             <group android:checkableBehavior="single">
                 <item
                     android:id="@+id/menu_item_reader_book_scrolling_pagination"
-                    android:title="@string/menu_book_scrolling_pagination" />
+                    android:title="@string/config_book_scrolling_pagination" />
                 <item
                     android:id="@+id/menu_item_reader_book_scrolling_pagination_right_to_left"
-                    android:title="@string/menu_book_scrolling_pagination_right_to_left" />
+                    android:title="@string/config_book_scrolling_pagination_right_to_left" />
                 <item
                     android:id="@+id/menu_item_reader_book_scrolling_pagination_vertical"
-                    android:title="@string/menu_book_scrolling_pagination_vertical" />
+                    android:title="@string/config_book_scrolling_pagination_vertical" />
                 <item
                     android:id="@+id/menu_item_reader_book_scrolling_infinity_scrolling"
-                    android:title="@string/menu_book_scrolling_infinity_scrolling" />
+                    android:title="@string/config_book_scrolling_infinity_scrolling" />
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/menu_item_reader_book_pagination_type"
+        android:icon="@drawable/ico_reading_mode"
+        android:orderInCategory="103"
+        android:title="@string/config_book_pagination_type"
+        app:showAsAction="never">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/menu_item_reader_book_pagination_default"
+                    android:title="@string/config_book_pagination_default" />
+                <item
+                    android:id="@+id/menu_item_reader_book_pagination_page_curl"
+                    android:title="@string/config_book_pagination_page_curl" />
+                <item
+                    android:id="@+id/menu_item_reader_book_pagination_stack"
+                    android:title="@string/config_book_pagination_page_stack" />
+                <item
+                    android:id="@+id/menu_item_reader_book_pagination_zoom"
+                    android:title="@string/config_book_pagination_page_zoom" />
+                <item
+                    android:id="@+id/menu_item_reader_book_pagination_fade"
+                    android:title="@string/config_book_pagination_page_fade" />
+                <item
+                    android:id="@+id/menu_item_reader_book_pagination_depth"
+                    android:title="@string/config_book_pagination_page_depth" />
             </group>
         </menu>
     </item>
@@ -71,14 +101,14 @@
     <item
         android:id="@+id/menu_item_reader_book_view_touch_screen"
         android:icon="@drawable/ico_view_touch_screen"
-        android:orderInCategory="106"
+        android:orderInCategory="104"
         android:title="@string/menu_book_reading_view_touch"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/menu_item_reader_book_config_touch_screen"
         android:icon="@drawable/ico_view_touch_screen"
-        android:orderInCategory="106"
+        android:orderInCategory="105"
         android:title="@string/menu_book_reading_config_touch"
         app:showAsAction="never"/>
 

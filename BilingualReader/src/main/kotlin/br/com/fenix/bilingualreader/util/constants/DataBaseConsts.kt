@@ -241,6 +241,7 @@ class DataBaseConsts private constructor() {
             const val MARGIN = "margin"
             const val SPACING = "spacing"
             const val SCROLLING = "scrolling"
+            const val PAGINATION = "pagination"
             const val FONT_TYPE = "font_type"
             const val FONT_SIZE = "font_size"
         }

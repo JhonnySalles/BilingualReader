@@ -142,7 +142,7 @@ class PopupBookLayout : Fragment() {
         setButtonMarked(getMarginsButton(), getSelected(mViewModel.marginType.value ?: MarginLayoutType.Small))
         setButtonMarked(getSpacingsButton(), getSelected(mViewModel.spacingType.value ?: SpacingLayoutType.Small))
 
-        mScrollingTypeAutoComplete.setText(mBookMapScrollingMode.entries.first { it.value == mViewModel.scrollingType.value }.key, false)
+        mScrollingTypeAutoComplete.setText(mBookMapScrollingMode.entries.first { it.value == mViewModel.scrollingMode.value }.key, false)
 
         mReadingTouchFunction.setOnClickListener {
             mListener?.openTouchFunctions()
@@ -207,7 +207,7 @@ class PopupBookLayout : Fragment() {
     }
 
     private fun observer() {
-        mViewModel.scrollingType.observe(viewLifecycleOwner) {
+        mViewModel.scrollingMode.observe(viewLifecycleOwner) {
             mScrollingTypeAutoComplete.setText(mBookMapScrollingMode.entries.first { s -> s.value == it }.key, false)
         }
 

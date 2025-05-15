@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<br.com.fenix.bilingualreader.view.components.manga.PageCurlFrame
+<br.com.fenix.bilingualreader.view.components.PageCurlFrame
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/frame_reader_page_root"
     android:layout_width="match_parent"
@@ -33,4 +33,4 @@
             android:contentDescription="@string/reader_reload" />
 
     </RelativeLayout>
-</br.com.fenix.bilingualreader.view.components.manga.PageCurlFrame>
+</br.com.fenix.bilingualreader.view.components.PageCurlFrame>

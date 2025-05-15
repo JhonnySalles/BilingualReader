@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Speech
 import br.com.fenix.bilingualreader.model.enums.AudioStatus
+import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.service.listener.ScrollChangeListener
 import br.com.fenix.bilingualreader.service.listener.SelectionChangeListener
@@ -30,6 +31,7 @@ import br.com.fenix.bilingualreader.service.tts.TTSTextColorSpan
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
+import br.com.fenix.bilingualreader.view.components.PageCurlFrame
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderViewModel
 import org.slf4j.LoggerFactory
@@ -38,12 +40,9 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 
-class TextViewPager(
-    var context: Context, model: BookReaderViewModel, parse: DocumentParse?, listener: View.OnTouchListener? = null,
-    textSelectCallback: TextSelectCallbackListener? = null
-) : RecyclerView.Adapter<TextViewPager.TextViewPagerHolder>(), TTSListener {
+class TextViewAdapter(var context: Context, model: BookReaderViewModel, parse: DocumentParse?, listener: View.OnTouchListener? = null, textSelectCallback: TextSelectCallbackListener? = null) : RecyclerView.Adapter<TextViewAdapter.TextViewPagerHolder>(), TTSListener {
 
-    private val mLOGGER = LoggerFactory.getLogger(TextViewPager::class.java)
+    private val mLOGGER = LoggerFactory.getLogger(TextViewAdapter::class.java)
 
     private var mParse = parse
     private val mViewModel = model
@@ -61,9 +60,14 @@ class TextViewPager(
         mItems = mParse?.getPageCount(mViewModel.getFontSize(isBook = true).toInt()) ?: 1
     }
 
-    fun refreshLayout(type: ScrollingType) {
+    fun refreshLayout(scrolling: ScrollingType) {
         for(holder in mHolders.entries)
-            configureLayout(holder.value, type, holder.key)
+            configureLayout(holder.value, scrolling, holder.key)
+    }
+
+    fun changeCurl(isCurl: Boolean) {
+        for(holder in mHolders.entries)
+            holder.value.root.isCurlPage = isCurl
     }
 
     fun clearParse() {
@@ -105,6 +109,7 @@ class TextViewPager(
             mViewModel.changeTextStyle(holder.textView)
         }
 
+        holder.root.isCurlPage = mViewModel.paginationType.value == PaginationType.CurlPage
         holder.textView.resetZoom()
 
         if (!holder.isOnlyImage)
@@ -125,7 +130,7 @@ class TextViewPager(
                 holder.scrollView.parent.requestDisallowInterceptTouchEvent(true)
         }
 
-        configureLayout(holder, mViewModel.scrollingType.value ?: ScrollingType.Pagination, position)
+        configureLayout(holder, mViewModel.scrollingMode.value ?: ScrollingType.Pagination, position)
 
         holder.textView.setOnTouchListener(mListener)
         holder.imageView.setOnTouchListener(mListener)
@@ -172,7 +177,7 @@ class TextViewPager(
     fun getHolder(position: Int): TextViewPagerHolder? = if (mHolders.containsKey(position)) mHolders[position] else null
 
     inner class TextViewPagerHolder(itemView: View) : RecyclerView.ViewHolder(itemView), ScrollChangeListener, SelectionChangeListener {
-        val root: FrameLayout = itemView.findViewById(R.id.frame_reader_page_root)
+        val root: PageCurlFrame = itemView.findViewById(R.id.frame_reader_page_root)
         val pageMark: ImageView = itemView.findViewById(R.id.page_mark)
         val scrollView: NotifyingScrollView = itemView.findViewById(R.id.page_scroll_view)
         val textView: TextViewPage = itemView.findViewById(R.id.page_text_view)

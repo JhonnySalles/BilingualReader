@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.model.enums.AlignmentLayoutType
 import br.com.fenix.bilingualreader.model.enums.FontType
 import br.com.fenix.bilingualreader.model.enums.MarginLayoutType
+import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
@@ -34,5 +35,7 @@ data class BookConfiguration (
     @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FONT_SIZE)
     var fontSize: Float,
     @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.SCROLLING)
-    var scrolling: ScrollingType
+    var scrolling: ScrollingType,
+    @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.PAGINATION)
+    var pagination: PaginationType
 ) : Serializable

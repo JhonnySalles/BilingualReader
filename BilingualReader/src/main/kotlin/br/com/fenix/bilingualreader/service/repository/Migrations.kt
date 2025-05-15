@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.service.repository
 
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import org.slf4j.LoggerFactory
 
@@ -64,6 +65,12 @@ class Migrations {
         val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 mLOGGER.info("Start migration 2 - 3...")
+
+                try {
+                    database.execSQL("ALTER TABLE " + DataBaseConsts.BOOK_CONFIGURATION.TABLE_NAME + " ADD COLUMN " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.PAGINATION + " TEXT DEFAULT '" + PaginationType.Default.name + "' NOT NULL")
+                } catch (e : Exception) {
+                    mLOGGER.error("Error to alter table and create column pagination: " + e.message, e)
+                }
 
                 mLOGGER.info("Completed migration 2 - 3.")
             }

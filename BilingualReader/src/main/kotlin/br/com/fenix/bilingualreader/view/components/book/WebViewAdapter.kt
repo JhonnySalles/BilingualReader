@@ -16,9 +16,7 @@ import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderViewModel
 
 
-class WebViewPager(
-    activity: Activity, context: Context, model: BookReaderViewModel, parse: DocumentParse?, listener: View.OnTouchListener? = null
-) : RecyclerView.Adapter<WebViewPager.WebViewPagerHolder>(), TTSListener, AutoScroll {
+class WebViewAdapter(activity: Activity, context: Context, model: BookReaderViewModel, parse: DocumentParse?, listener: View.OnTouchListener? = null) : RecyclerView.Adapter<WebViewAdapter.WebViewPagerHolder>(), TTSListener, AutoScroll {
 
     private var mParse = parse
     private val mViewModel = model

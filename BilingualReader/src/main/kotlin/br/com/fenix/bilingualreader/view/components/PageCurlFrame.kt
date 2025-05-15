@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.components.manga
+package br.com.fenix.bilingualreader.view.components
 
 import android.content.Context
 import android.graphics.BlurMaskFilter
@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory
 import kotlin.math.atan
 import kotlin.math.cos
 import kotlin.math.sin
-
 
 class PageCurlFrame @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : FrameLayout(context, attrs, defStyleAttr), PageCurl {
 
@@ -38,7 +37,7 @@ class PageCurlFrame @JvmOverloads constructor(context: Context, attrs: Attribute
         mCurlStrokePaint.style = Paint.Style.FILL
         mCurlStrokePaint.strokeWidth = 3.0f
         mCurlStrokePaint.color = Color.BLACK
-        mCurlStrokePaint.setMaskFilter(BlurMaskFilter(150f, BlurMaskFilter.Blur.NORMAL))
+        mCurlStrokePaint.maskFilter = BlurMaskFilter(150f, BlurMaskFilter.Blur.NORMAL)
 
         mCurlFillPaint.style = Paint.Style.FILL
         mCurlFillPaint.color = context.getColorFromAttr(R.attr.colorSurface)

@@ -24,7 +24,7 @@ import com.google.firebase.ktx.Firebase
 import org.slf4j.LoggerFactory
 
 
-class TextViewSelectCallback(val context: Context, val holder: TextViewPager.TextViewPagerHolder, val page: Int, val createSpan: (annotation: BookAnnotation, start: Int, end: Int) -> (Unit), val listener: TextSelectCallbackListener?) : ActionMode.Callback {
+class TextViewSelectCallback(val context: Context, val holder: TextViewAdapter.TextViewPagerHolder, val page: Int, val createSpan: (annotation: BookAnnotation, start: Int, end: Int) -> (Unit), val listener: TextSelectCallbackListener?) : ActionMode.Callback {
 
     private val mLOGGER = LoggerFactory.getLogger(TextViewSelectCallback::class.java)
 

@@ -4,5 +4,7 @@ enum class PaginationType {
     Default,
     Stack,
     Zooming,
-    CurlPage;
+    CurlPage,
+    Depth,
+    Fade;
 }
