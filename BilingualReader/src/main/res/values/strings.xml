@@ -356,7 +356,8 @@
     <string name="popup_reading_tts_speed_fast">Fast</string>
 
     <!-- READER POPUP LAYOUT -->
-    <string name="popup_reading_layout_scrolling_type">Scrolling type</string>
+    <string name="popup_reading_layout_scrolling_mode">Scrolling type</string>
+    <string name="popup_reading_layout_pagination_type">Page transition animation</string>
     <string name="popup_reading_layout_margin">Margin</string>
     <string name="popup_reading_layout_margin_small">Small</string>
     <string name="popup_reading_layout_margin_medium">Medium</string>

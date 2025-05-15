@@ -13,6 +13,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.AlignmentLayoutType
 import br.com.fenix.bilingualreader.model.enums.BookLayoutType
 import br.com.fenix.bilingualreader.model.enums.MarginLayoutType
+import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
 import br.com.fenix.bilingualreader.service.listener.PopupLayoutListener
@@ -28,8 +29,10 @@ class PopupBookLayout : Fragment() {
 
     private val mViewModel: BookReaderViewModel by activityViewModels()
 
-    private lateinit var mScrollingType: TextInputLayout
-    private lateinit var mScrollingTypeAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mScrollingMode: TextInputLayout
+    private lateinit var mScrollingModeAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mPaginationType: TextInputLayout
+    private lateinit var mPaginationTypeAutoComplete: MaterialAutoCompleteTextView
 
     private lateinit var mMarginSmall: MaterialButton
     private lateinit var mMarginMedium: MaterialButton
@@ -44,14 +47,18 @@ class PopupBookLayout : Fragment() {
     private lateinit var mReadingTouchFunction: MaterialButton
 
     private lateinit var mBookMapScrollingMode: HashMap<String, ScrollingType>
+    private lateinit var mBookMapPaginationType: HashMap<String, PaginationType>
 
     private var mListener : PopupLayoutListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.popup_book_layout, container, false)
 
-        mScrollingType = root.findViewById(R.id.popup_book_layout_scrolling_type)
-        mScrollingTypeAutoComplete = root.findViewById(R.id.popup_book_layout_scrolling_type_menu_autocomplete)
+        mScrollingMode = root.findViewById(R.id.popup_book_layout_scrolling_mode)
+        mScrollingModeAutoComplete = root.findViewById(R.id.popup_book_layout_scrolling_mode_menu_autocomplete)
+
+        mPaginationType = root.findViewById(R.id.popup_book_layout_pagination_type)
+        mPaginationTypeAutoComplete = root.findViewById(R.id.popup_book_layout_pagination_type_menu_autocomplete)
 
         mMarginSmall = root.findViewById(R.id.popup_book_layout_margin_small)
         mMarginMedium = root.findViewById(R.id.popup_book_layout_margin_medium)
@@ -72,17 +79,33 @@ class PopupBookLayout : Fragment() {
             getString(R.string.config_book_scrolling_pagination_right_to_left) to ScrollingType.PaginationRightToLeft
         )
 
-        val adapterBookScrollingMode = ArrayAdapter(requireContext(), R.layout.list_item, mBookMapScrollingMode.keys.sorted().toTypedArray())
-        mScrollingTypeAutoComplete.setAdapter(adapterBookScrollingMode)
-        mScrollingTypeAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
-                val scrolling = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
-                    mBookMapScrollingMode.containsKey(parent.getItemAtPosition(position).toString())
-                )
+        mBookMapPaginationType = hashMapOf(
+            getString(R.string.config_book_pagination_default) to PaginationType.Default,
+            getString(R.string.config_book_pagination_page_curl) to PaginationType.CurlPage,
+            getString(R.string.config_book_pagination_page_stack) to PaginationType.Stack,
+            getString(R.string.config_book_pagination_page_zoom) to PaginationType.Zooming,
+            getString(R.string.config_book_pagination_page_fade) to PaginationType.Fade,
+            getString(R.string.config_book_pagination_page_depth) to PaginationType.Depth
+        )
+
+        mScrollingModeAutoComplete.setAdapter(ArrayAdapter(requireContext(), R.layout.list_item, mBookMapScrollingMode.keys.sorted().toTypedArray()))
+        mScrollingModeAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
+                val scrolling = if (parent.getItemAtPosition(position).toString().isNotEmpty() && mBookMapScrollingMode.containsKey(parent.getItemAtPosition(position).toString()))
                     mBookMapScrollingMode[parent.getItemAtPosition(position).toString()]!!
                 else
                     ScrollingType.Pagination
 
                 mViewModel.changeScrolling(scrolling)
+            }
+
+        mPaginationTypeAutoComplete.setAdapter(ArrayAdapter(requireContext(), R.layout.list_item, mBookMapPaginationType.keys.sorted().toTypedArray()))
+        mPaginationTypeAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
+                val pagination = if (parent.getItemAtPosition(position).toString().isNotEmpty() && mBookMapPaginationType.containsKey(parent.getItemAtPosition(position).toString()))
+                    mBookMapPaginationType[parent.getItemAtPosition(position).toString()]!!
+                else
+                    PaginationType.Default
+
+                mViewModel.changePagination(pagination)
             }
 
 
@@ -142,7 +165,7 @@ class PopupBookLayout : Fragment() {
         setButtonMarked(getMarginsButton(), getSelected(mViewModel.marginType.value ?: MarginLayoutType.Small))
         setButtonMarked(getSpacingsButton(), getSelected(mViewModel.spacingType.value ?: SpacingLayoutType.Small))
 
-        mScrollingTypeAutoComplete.setText(mBookMapScrollingMode.entries.first { it.value == mViewModel.scrollingMode.value }.key, false)
+        mScrollingModeAutoComplete.setText(mBookMapScrollingMode.entries.first { it.value == mViewModel.scrollingMode.value }.key, false)
 
         mReadingTouchFunction.setOnClickListener {
             mListener?.openTouchFunctions()
@@ -208,7 +231,11 @@ class PopupBookLayout : Fragment() {
 
     private fun observer() {
         mViewModel.scrollingMode.observe(viewLifecycleOwner) {
-            mScrollingTypeAutoComplete.setText(mBookMapScrollingMode.entries.first { s -> s.value == it }.key, false)
+            mScrollingModeAutoComplete.setText(mBookMapScrollingMode.entries.first { s -> s.value == it }.key, false)
+        }
+
+        mViewModel.paginationType.observe(viewLifecycleOwner) {
+            mPaginationTypeAutoComplete.setText(mBookMapPaginationType.entries.first { s -> s.value == it }.key, false)
         }
 
         mViewModel.alignmentType.observe(viewLifecycleOwner) {

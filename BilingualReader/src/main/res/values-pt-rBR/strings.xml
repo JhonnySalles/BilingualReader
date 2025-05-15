@@ -332,7 +332,8 @@
     <string name="popup_reading_tts_speed_fast">Rápido</string>
 
     <!-- READER POPUP LAYOUT -->
-    <string name="popup_reading_layout_scrolling_type">Tipo de rolagem</string>
+    <string name="popup_reading_layout_scrolling_mode">Tipo de rolagem</string>
+    <string name="popup_reading_layout_pagination_type">Animação de transição de página</string>
     <string name="popup_reading_layout_margin">Margem</string>
     <string name="popup_reading_layout_margin_small">Pequena</string>
     <string name="popup_reading_layout_margin_medium">Medio</string>
