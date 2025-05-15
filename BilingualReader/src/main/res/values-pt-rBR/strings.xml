@@ -215,11 +215,18 @@
     <string name="config_book_process_japanese_text">Processar texto em livro japonês</string>
     <string name="config_book_text_with_furigana">Gerar furigana em texto japonês</string>
     <string name="config_book_process_vocabulary">Processar vocabulário do livro</string>
+
     <string name="config_book_scrolling_mode">Modo de rolagem</string>
     <string name="config_book_scrolling_pagination">Paginação (Padrão)</string>
     <string name="config_book_scrolling_pagination_vertical">Paginação (Vertical)</string>
     <string name="config_book_scrolling_pagination_right_to_left">Paginação (Direita para esquerda)</string>
     <string name="config_book_scrolling_infinity_scrolling">Rolagem infinita</string>
+
+    <string name="config_book_pagination_type">Animação de transição de página</string>
+    <string name="config_book_pagination_default">Padrão</string>
+    <string name="config_book_pagination_page_curl">Ondulação de página</string>
+    <string name="config_book_pagination_page_stack">Pilhas de página</string>
+    <string name="config_book_pagination_page_zoom">Zoom de página</string>
 
     <string name="config_book_tts">Texto para fala</string>
     <string name="config_book_tts_voice_normal">Voz normal</string>
@@ -439,21 +446,27 @@
     <string name="manga_share_mark_drive_need_sign_in">Necessário logar na conta do Google</string>
     <string name="manga_share_mark_firebase_not_connected">Não foi possível conectar no firebase</string>
 
-    <string name="menu_manga_view_mode">Modo de preenchimento</string>
-    <string name="menu_manga_view_mode_aspect_fill">Aspecto preencher</string>
-    <string name="menu_manga_view_mode_aspect_fit">Aspecto ajustar</string>
-    <string name="menu_manga_view_mode_fit_width">Ajustar à largura</string>
+    <string name="config_manga_view_mode">Modo de preenchimento</string>
+    <string name="config_manga_view_mode_aspect_fill">Aspecto preencher</string>
+    <string name="config_manga_view_mode_aspect_fit">Aspecto ajustar</string>
+    <string name="config_manga_view_mode_fit_width">Ajustar à largura</string>
 
     <string name="menu_manga_reading_mode">Modo de leitura</string>
     <string name="menu_manga_reading_mode_comic">Comic</string>
     <string name="menu_manga_reading_mode_manga">Manga</string>
 
-    <string name="menu_manga_scrolling_mode">Modo de rolagem</string>
-    <string name="menu_manga_scrolling_vertical">Vertical</string>
-    <string name="menu_manga_scrolling_horizontal">Horizontal (Esquerda para direita)</string>
-    <string name="menu_manga_scrolling_horizontal_right_to_left">Horizontal (Direita para esquerda)</string>
-    <string name="menu_manga_scrolling_scrolling">Long strip</string>
-    <string name="menu_manga_scrolling_scrolling_divider">Long strip with gap</string>
+    <string name="config_manga_scrolling_mode">Modo de rolagem</string>
+    <string name="config_manga_scrolling_vertical">Vertical</string>
+    <string name="config_manga_scrolling_horizontal">Horizontal (Esquerda para direita)</string>
+    <string name="config_manga_scrolling_horizontal_right_to_left">Horizontal (Direita para esquerda)</string>
+    <string name="config_manga_scrolling_scrolling">Tira longa</string>
+    <string name="config_manga_scrolling_scrolling_divider">Tira longa com espaçamento</string>
+
+    <string name="config_manga_pagination_type">Animação de transição de página</string>
+    <string name="config_manga_pagination_default">Padrão</string>
+    <string name="config_manga_pagination_page_curl">Ondulação de página</string>
+    <string name="config_manga_pagination_page_stack">Pilhas de página</string>
+    <string name="config_manga_pagination_page_zoom">Zoom de página</string>
 
     <string name="menu_manga_reading_chapters_menu">Lista de capítulos</string>
     <string name="menu_manga_reading_save_share_image">Salvar/Compartilhar</string>

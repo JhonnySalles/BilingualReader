@@ -21,6 +21,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.FontType
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Order
+import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.ShareMarkCloud
@@ -139,6 +140,8 @@ class ConfigFragment : Fragment() {
     private lateinit var mMangaReaderComicModeAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mMangaReaderScrollingMode: TextInputLayout
     private lateinit var mMangaScrollingModeAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mMangaReaderPaginationType: TextInputLayout
+    private lateinit var mMangaPaginationTypeAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mMangaShowClockAndBattery: SwitchMaterial
     private lateinit var mMangaUseMagnifierType: SwitchMaterial
     private lateinit var mMangaKeepZoomBetweenPages: SwitchMaterial
@@ -157,9 +160,11 @@ class ConfigFragment : Fragment() {
     private lateinit var mMangaMapThemeMode: HashMap<String, ThemeMode>
     private lateinit var mMangaMapThemes: HashMap<String, Themes>
     private lateinit var mMangaMapScrollingMode: HashMap<String, ScrollingType>
+    private lateinit var mMangaMapPaginationType: HashMap<String, PaginationType>
 
-    private var mMangaReaderModeSelectType: ReaderMode = ReaderMode.FIT_WIDTH
-    private var mMangaScrollingModeSelectType: ScrollingType = ScrollingType.Horizontal
+    private var mMangaReaderModeSelect: ReaderMode = ReaderMode.FIT_WIDTH
+    private var mMangaScrollingModeSelect: ScrollingType = ScrollingType.Horizontal
+    private var mMangaPaginationSelect: PaginationType = PaginationType.Default
     private var mMangaOrderSelect: Order = Order.Name
 
     // --------------------------------------------------------- Book ---------------------------------------------------------
@@ -183,17 +188,21 @@ class ConfigFragment : Fragment() {
 
     private lateinit var mBookReaderScrollingMode: TextInputLayout
     private lateinit var mBookScrollingModeAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mBookReaderPaginationType: TextInputLayout
+    private lateinit var mBookPaginationTypeAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mBookReaderProcessJapaneseText: SwitchMaterial
     private lateinit var mBookReaderTextWithFurigana: SwitchMaterial
     private lateinit var mBookReaderProcessVocabulary: SwitchMaterial
 
     private var mBookOrderSelect: Order = Order.Name
     private var mBookScrollingModeSelect: ScrollingType = ScrollingType.Pagination
+    private var mBookPaginationSelect: PaginationType = PaginationType.Default
     private var mBookReadingTTSSelectNormal: TextSpeech = TextSpeech.getDefault(false)
     private var mBookReadingTTSSelectJapanese: TextSpeech = TextSpeech.getDefault(true)
 
     private lateinit var mBookMapOrder: HashMap<String, Order>
     private lateinit var mBookMapScrollingMode: HashMap<String, ScrollingType>
+    private lateinit var mBookMapPaginationType: HashMap<String, PaginationType>
     private lateinit var mBookMapReadingTTS: Map<String, TextSpeech>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -224,6 +233,8 @@ class ConfigFragment : Fragment() {
         mBookTouchScreenButton = view.findViewById(R.id.config_book_touch_screen)
         mBookReaderScrollingMode = view.findViewById(R.id.config_book_reader_scrolling_mode)
         mBookScrollingModeAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_scrolling_mode)
+        mBookReaderPaginationType = view.findViewById(R.id.config_book_reader_pagination_type)
+        mBookPaginationTypeAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_pagination_type)
         mBookReaderProcessJapaneseText = view.findViewById(R.id.config_book_reader_process_japanese_text)
         mBookReaderTextWithFurigana = view.findViewById(R.id.config_book_reader_text_with_furigana)
         mBookReaderProcessVocabulary = view.findViewById(R.id.config_book_reader_process_vocabulary)
@@ -241,6 +252,8 @@ class ConfigFragment : Fragment() {
         mMangaReaderComicModeAutoComplete = view.findViewById(R.id.config_manga_menu_autocomplete_reader_comic_mode)
         mMangaReaderScrollingMode = view.findViewById(R.id.config_manga_reader_scrolling_mode)
         mMangaScrollingModeAutoComplete  = view.findViewById(R.id.config_manga_menu_autocomplete_scrolling_mode)
+        mMangaReaderPaginationType  = view.findViewById(R.id.config_manga_reader_pagination_type)
+        mMangaPaginationTypeAutoComplete  = view.findViewById(R.id.config_manga_menu_autocomplete_pagination_type)
 
         mMangaTouchScreenButton = view.findViewById(R.id.config_manga_touch_screen)
         mMangaShowClockAndBattery = view.findViewById(R.id.config_manga_switch_show_clock_and_battery)
@@ -307,17 +320,17 @@ class ConfigFragment : Fragment() {
         )
 
         mMangaMapReaderMode = hashMapOf(
-            getString(R.string.menu_manga_view_mode_aspect_fill) to ReaderMode.ASPECT_FILL,
-            getString(R.string.menu_manga_view_mode_aspect_fit) to ReaderMode.ASPECT_FIT,
-            getString(R.string.menu_manga_view_mode_fit_width) to ReaderMode.FIT_WIDTH
+            getString(R.string.config_manga_view_mode_aspect_fill) to ReaderMode.ASPECT_FILL,
+            getString(R.string.config_manga_view_mode_aspect_fit) to ReaderMode.ASPECT_FIT,
+            getString(R.string.config_manga_view_mode_fit_width) to ReaderMode.FIT_WIDTH
         )
 
         mMangaMapScrollingMode = hashMapOf(
-            getString(R.string.menu_manga_scrolling_horizontal) to ScrollingType.Horizontal,
-            getString(R.string.menu_manga_scrolling_horizontal_right_to_left) to ScrollingType.HorizontalRightToLeft,
-            getString(R.string.menu_manga_scrolling_vertical) to ScrollingType.Vertical,
-            getString(R.string.menu_manga_scrolling_scrolling) to ScrollingType.Scrolling,
-            getString(R.string.menu_manga_scrolling_scrolling_divider) to ScrollingType.ScrollingDivider
+            getString(R.string.config_manga_scrolling_horizontal) to ScrollingType.Horizontal,
+            getString(R.string.config_manga_scrolling_horizontal_right_to_left) to ScrollingType.HorizontalRightToLeft,
+            getString(R.string.config_manga_scrolling_vertical) to ScrollingType.Vertical,
+            getString(R.string.config_manga_scrolling_scrolling) to ScrollingType.Scrolling,
+            getString(R.string.config_manga_scrolling_scrolling_divider) to ScrollingType.ScrollingDivider
         )
 
         mBookMapScrollingMode = hashMapOf(
@@ -325,6 +338,20 @@ class ConfigFragment : Fragment() {
             getString(R.string.config_book_scrolling_pagination) to ScrollingType.Pagination,
             getString(R.string.config_book_scrolling_pagination_vertical) to ScrollingType.PaginationVertical,
             getString(R.string.config_book_scrolling_pagination_right_to_left) to ScrollingType.PaginationRightToLeft
+        )
+
+        mMangaMapPaginationType = hashMapOf(
+            getString(R.string.config_manga_pagination_default) to PaginationType.Default,
+            getString(R.string.config_manga_pagination_page_curl) to PaginationType.CurlPage,
+            getString(R.string.config_manga_pagination_page_stack) to PaginationType.Stack,
+            getString(R.string.config_manga_pagination_page_zoom) to PaginationType.Zooming
+        )
+
+        mBookMapPaginationType = hashMapOf(
+            getString(R.string.config_book_pagination_default) to PaginationType.Default,
+            getString(R.string.config_book_pagination_page_curl) to PaginationType.CurlPage,
+            getString(R.string.config_book_pagination_page_stack) to PaginationType.Stack,
+            getString(R.string.config_book_pagination_page_zoom) to PaginationType.Zooming
         )
 
         mBookMapReadingTTS = TextSpeech.getByDescriptions(requireContext())
@@ -391,7 +418,7 @@ class ConfigFragment : Fragment() {
         mMangaReaderComicModeAutoComplete.setAdapter(adapterReaderMode)
         mMangaReaderComicModeAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
-                mMangaReaderModeSelectType =
+                mMangaReaderModeSelect =
                     if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
                         mMangaMapReaderMode.containsKey(
                             parent.getItemAtPosition(position).toString()
@@ -406,7 +433,7 @@ class ConfigFragment : Fragment() {
         mMangaScrollingModeAutoComplete.setAdapter(adapterMangaScrollingMode)
         mMangaScrollingModeAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
-                mMangaScrollingModeSelectType = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                mMangaScrollingModeSelect = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
                     mMangaMapScrollingMode.containsKey(parent.getItemAtPosition(position).toString())
                 )
                     mMangaMapScrollingMode[parent.getItemAtPosition(position).toString()]!!
@@ -424,6 +451,31 @@ class ConfigFragment : Fragment() {
                     mBookMapScrollingMode[parent.getItemAtPosition(position).toString()]!!
                 else
                     ScrollingType.Pagination
+            }
+
+
+        val adapterMangaPaginationMode = ArrayAdapter(requireContext(), R.layout.list_item, mMangaMapPaginationType.keys.sorted().toTypedArray())
+        mMangaPaginationTypeAutoComplete.setAdapter(adapterMangaPaginationMode)
+        mMangaPaginationTypeAutoComplete.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                mMangaPaginationSelect = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                    mMangaMapPaginationType.containsKey(parent.getItemAtPosition(position).toString())
+                )
+                    mMangaMapPaginationType[parent.getItemAtPosition(position).toString()]!!
+                else
+                    PaginationType.Default
+            }
+
+        val adapterBookPaginationMode = ArrayAdapter(requireContext(), R.layout.list_item, mBookMapPaginationType.keys.sorted().toTypedArray())
+        mBookPaginationTypeAutoComplete.setAdapter(adapterBookPaginationMode)
+        mBookPaginationTypeAutoComplete.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                mBookPaginationSelect = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                    mBookMapPaginationType.containsKey(parent.getItemAtPosition(position).toString())
+                )
+                    mBookMapPaginationType[parent.getItemAtPosition(position).toString()]!!
+                else
+                    PaginationType.Default
             }
 
         val adapterBookReadingTTS = ArrayAdapter(requireContext(), R.layout.list_item, mBookMapReadingTTS.keys.toTypedArray())
@@ -869,12 +921,17 @@ class ConfigFragment : Fragment() {
 
             this.putString(
                 GeneralConsts.KEYS.READER.MANGA_READER_MODE,
-                mMangaReaderModeSelectType.toString()
+                mMangaReaderModeSelect.toString()
             )
 
             this.putString(
                 GeneralConsts.KEYS.READER.MANGA_PAGE_SCROLLING_MODE,
-                mMangaScrollingModeSelectType.toString()
+                mMangaScrollingModeSelect.toString()
+            )
+
+            this.putString(
+                GeneralConsts.KEYS.READER.MANGA_PAGE_PAGINATION_TYPE,
+                mMangaPaginationSelect.toString()
             )
 
             this.putBoolean(
@@ -910,6 +967,11 @@ class ConfigFragment : Fragment() {
             this.putString(
                 GeneralConsts.KEYS.READER.BOOK_PAGE_SCROLLING_MODE,
                 mBookScrollingModeSelect.toString()
+            )
+
+            this.putString(
+                GeneralConsts.KEYS.READER.BOOK_PAGE_PAGINATION_TYPE,
+                mBookPaginationSelect.toString()
             )
 
             this.putString(
@@ -1008,16 +1070,22 @@ class ConfigFragment : Fragment() {
 
         mMangaLibraryPath.editText?.setText(mViewModel.getDefault(Type.MANGA))
 
-        mMangaReaderModeSelectType = ReaderMode.valueOf(
+        mMangaReaderModeSelect = ReaderMode.valueOf(
             sharedPreferences.getString(
                 GeneralConsts.KEYS.READER.MANGA_READER_MODE,
                 ReaderMode.FIT_WIDTH.toString()
             )!!
         )
-        mMangaScrollingModeSelectType = ScrollingType.valueOf(
+        mMangaScrollingModeSelect = ScrollingType.valueOf(
             sharedPreferences.getString(
                 GeneralConsts.KEYS.READER.MANGA_PAGE_SCROLLING_MODE,
                 ScrollingType.Horizontal.toString()
+            )!!
+        )
+        mMangaPaginationSelect = PaginationType.valueOf(
+            sharedPreferences.getString(
+                GeneralConsts.KEYS.READER.MANGA_PAGE_PAGINATION_TYPE,
+                PaginationType.Default.toString()
             )!!
         )
         mMangaOrderSelect = Order.valueOf(
@@ -1051,11 +1119,15 @@ class ConfigFragment : Fragment() {
             false
         )
         mMangaReaderComicModeAutoComplete.setText(
-            mMangaMapReaderMode.entries.first { it.value == mMangaReaderModeSelectType }.key,
+            mMangaMapReaderMode.entries.first { it.value == mMangaReaderModeSelect }.key,
             false
         )
         mMangaScrollingModeAutoComplete.setText(
-            mMangaMapScrollingMode.entries.first { it.value == mMangaScrollingModeSelectType }.key,
+            mMangaMapScrollingMode.entries.first { it.value == mMangaScrollingModeSelect }.key,
+            false
+        )
+        mMangaPaginationTypeAutoComplete.setText(
+            mMangaMapPaginationType.entries.first { it.value == mMangaPaginationSelect }.key,
             false
         )
         mMangaShowClockAndBattery.isChecked = sharedPreferences.getBoolean(
@@ -1099,6 +1171,13 @@ class ConfigFragment : Fragment() {
             )!!
         )
 
+        mBookPaginationSelect = PaginationType.valueOf(
+            sharedPreferences.getString(
+                GeneralConsts.KEYS.READER.BOOK_PAGE_PAGINATION_TYPE,
+                PaginationType.Default.toString()
+            )!!
+        )
+
         mBookReadingTTSSelectNormal = TextSpeech.valueOf(
             sharedPreferences.getString(
                 GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_NORMAL,
@@ -1122,6 +1201,11 @@ class ConfigFragment : Fragment() {
 
         mBookScrollingModeAutoComplete.setText(
             mBookMapScrollingMode.entries.first { it.value == mBookScrollingModeSelect }.key,
+            false
+        )
+
+        mBookPaginationTypeAutoComplete.setText(
+            mBookMapPaginationType.entries.first { it.value == mBookPaginationSelect }.key,
             false
         )
 

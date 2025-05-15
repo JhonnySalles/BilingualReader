@@ -191,6 +191,7 @@ class GeneralConsts private constructor() {
         object READER {
             const val MANGA_READER_MODE = "MANGA_READER_MODE"
             const val MANGA_PAGE_SCROLLING_MODE = "MANGA_PAGE_SCROLLING_MODE"
+            const val MANGA_PAGE_PAGINATION_TYPE = "MANGA_PAGE_PAGINATION_TYPE"
             const val MANGA_SHOW_CLOCK_AND_BATTERY = "MANGA_SHOW_CLOCK_AND_BATTERY"
             const val MANGA_USE_MAGNIFIER_TYPE = "MANGA_USE_MAGNIFIER_TYPE"
             const val MANGA_KEEP_ZOOM_BETWEEN_PAGES = "MANGA_KEEP_ZOOM_BETWEEN_PAGES"
@@ -199,6 +200,7 @@ class GeneralConsts private constructor() {
             const val BOOK_PAGE_MARGIN = "BOOK_PAGE_MARGIN"
             const val BOOK_PAGE_SPACING = "BOOK_PAGE_SPACING"
             const val BOOK_PAGE_SCROLLING_MODE = "BOOK_PAGE_SCROLLING_MODE"
+            const val BOOK_PAGE_PAGINATION_TYPE = "BOOK_PAGE_PAGINATION_TYPE"
             const val BOOK_PAGE_FONT_TYPE_NORMAL = "BOOK_PAGE_FONT_TYPE_NORMAL"
             const val BOOK_PAGE_FONT_TYPE_JAPANESE = "BOOK_PAGE_FONT_TYPE_JAPANESE"
             const val BOOK_PAGE_FONT_SIZE = "BOOK_PAGE_FONT_SIZE"

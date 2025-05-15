@@ -19,25 +19,25 @@
         android:id="@+id/menu_item_reader_manga_scrolling_mode"
         android:icon="@drawable/ico_reading_mode"
         android:orderInCategory="102"
-        android:title="@string/menu_manga_scrolling_mode"
+        android:title="@string/config_manga_scrolling_mode"
         app:showAsAction="never">
         <menu>
             <group android:checkableBehavior="single">
                 <item
                     android:id="@+id/reading_manga_scrolling_horizontal"
-                    android:title="@string/menu_manga_scrolling_horizontal" />
+                    android:title="@string/config_manga_scrolling_horizontal" />
                 <item
                     android:id="@+id/reading_manga_scrolling_horizontal_right_to_left"
-                    android:title="@string/menu_manga_scrolling_horizontal_right_to_left" />
+                    android:title="@string/config_manga_scrolling_horizontal_right_to_left" />
                 <item
                     android:id="@+id/reading_manga_scrolling_vertical"
-                    android:title="@string/menu_manga_scrolling_vertical" />
+                    android:title="@string/config_manga_scrolling_vertical" />
                 <item
                     android:id="@+id/reading_manga_scrolling_scrolling"
-                    android:title="@string/menu_manga_scrolling_scrolling" />
+                    android:title="@string/config_manga_scrolling_scrolling" />
                 <item
                     android:id="@+id/reading_manga_scrolling_scrolling_divider"
-                    android:title="@string/menu_manga_scrolling_scrolling_divider" />
+                    android:title="@string/config_manga_scrolling_scrolling_divider" />
             </group>
         </menu>
     </item>
@@ -46,19 +46,19 @@
         android:id="@+id/menu_item_reader_manga_aspect_ratio"
         android:icon="@drawable/ico_reader_mode"
         android:orderInCategory="103"
-        android:title="@string/menu_manga_view_mode"
+        android:title="@string/config_manga_view_mode"
         app:showAsAction="never">
         <menu>
             <group android:checkableBehavior="single">
                 <item
                     android:id="@+id/manga_view_mode_aspect_fill"
-                    android:title="@string/menu_manga_view_mode_aspect_fill" />
+                    android:title="@string/config_manga_view_mode_aspect_fill" />
                 <item
                     android:id="@+id/manga_view_mode_aspect_fit"
-                    android:title="@string/menu_manga_view_mode_aspect_fit" />
+                    android:title="@string/config_manga_view_mode_aspect_fit" />
                 <item
                     android:id="@+id/manga_view_mode_fit_width"
-                    android:title="@string/menu_manga_view_mode_fit_width" />
+                    android:title="@string/config_manga_view_mode_fit_width" />
             </group>
         </menu>
     </item>

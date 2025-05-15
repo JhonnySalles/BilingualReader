@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.view.components.manga
 
 import android.content.Context
+import android.graphics.BlurMaskFilter
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -12,6 +13,7 @@ import androidx.core.graphics.withSave
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.interfaces.PageCurl
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
+import org.slf4j.LoggerFactory
 import kotlin.math.atan
 import kotlin.math.cos
 import kotlin.math.sin
@@ -19,7 +21,9 @@ import kotlin.math.sin
 
 class PageCurlFrame @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : FrameLayout(context, attrs, defStyleAttr), PageCurl {
 
-    var isCurlPage = true
+    private val mLOGGER = LoggerFactory.getLogger(PageCurlFrame::class.java)
+
+    var isCurlPage = false
     private var mCurl = 0f
     private val mClipPath: Path = Path()
     private val mCurlPath: Path = Path()
@@ -31,9 +35,10 @@ class PageCurlFrame @JvmOverloads constructor(context: Context, attrs: Attribute
     private val mTopFoldTip = PointF()
 
     init {
-        mCurlStrokePaint.style = Paint.Style.STROKE
+        mCurlStrokePaint.style = Paint.Style.FILL
         mCurlStrokePaint.strokeWidth = 3.0f
         mCurlStrokePaint.color = Color.BLACK
+        mCurlStrokePaint.setMaskFilter(BlurMaskFilter(150f, BlurMaskFilter.Blur.NORMAL))
 
         mCurlFillPaint.style = Paint.Style.FILL
         mCurlFillPaint.color = context.getColorFromAttr(R.attr.colorSurface)
@@ -43,11 +48,12 @@ class PageCurlFrame @JvmOverloads constructor(context: Context, attrs: Attribute
         var factor = curl
         mCurl = curl
         val foldingPage = factor < 0
-        if (factor < 0)
-            factor += 1
 
         val w = width.toFloat()
         val h = height.toFloat()
+
+        if (factor < 0)
+            factor += 1
 
         mBottomFold.x = w * factor
         mBottomFold.y = h
@@ -116,8 +122,8 @@ class PageCurlFrame @JvmOverloads constructor(context: Context, attrs: Attribute
             }
 
             if (mCurl < 0f) {
-                canvas.drawPath(mCurlPath, mCurlFillPaint)
                 canvas.drawPath(mCurlPath, mCurlStrokePaint)
+                canvas.drawPath(mCurlPath, mCurlFillPaint)
             }
         } else
             super.dispatchDraw(canvas)

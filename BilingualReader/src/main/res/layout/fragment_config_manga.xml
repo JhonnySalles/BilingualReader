@@ -162,7 +162,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
-            android:hint="@string/menu_manga_view_mode"
+            android:hint="@string/config_manga_view_mode"
             app:startIconDrawable="@drawable/ico_book_open">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -179,11 +179,28 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
-            android:hint="@string/menu_manga_scrolling_mode"
+            android:hint="@string/config_manga_scrolling_mode"
             app:startIconDrawable="@drawable/ico_reading_mode">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_manga_menu_autocomplete_scrolling_mode"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_manga_reader_pagination_type"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_manga_pagination_type"
+            app:startIconDrawable="@drawable/ico_pagination_type">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/config_manga_menu_autocomplete_pagination_type"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
