@@ -513,10 +513,16 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
 
 
     override fun configTouchFunctions() {
+        if (mMenuPopupConfiguration.visibility != View.GONE)
+            AnimationUtil.animatePopupClose(this, mMenuPopupConfiguration, !mMenuPopupBottomSheet, navigationColor = false)
+
         mFragment?.configTouchFunctions()
     }
 
     override fun openTouchFunctions() {
+        if (mMenuPopupConfiguration.visibility != View.GONE)
+            AnimationUtil.animatePopupClose(this, mMenuPopupConfiguration, !mMenuPopupBottomSheet, navigationColor = false)
+
         mFragment?.setFullscreen(true)
 
         val touch = TouchUtils.getTouch(this, Type.BOOK)

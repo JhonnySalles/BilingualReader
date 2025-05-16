@@ -13,7 +13,7 @@
         <View
             android:layout_width="@dimen/book_line_skeleton_card_image_width"
             android:layout_height="@dimen/book_line_skeleton_card_image_height"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="@dimen/margin"
             android:background="@drawable/skeleton"/>
 
         <LinearLayout
@@ -22,7 +22,7 @@
             android:orientation="vertical"
             android:paddingLeft="@dimen/book_line_skeleton_item_margin"
             android:paddingRight="@dimen/book_line_skeleton_item_margin"
-            android:layout_marginEnd="8dp">
+            android:layout_marginEnd="@dimen/margin">
 
             <View
                 android:layout_width="match_parent"

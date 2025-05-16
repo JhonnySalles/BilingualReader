@@ -81,7 +81,7 @@ class MangaSeparatorGridViewHolder(var type: LibraryMangaType, itemView: View, p
         }
 
         favoriteIcon.setImageResource(if (manga.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
-        config.setOnClickListener { listener.onClickConfig(manga, cardView, itemView, layoutPosition) }
+        config.setOnClickListener { listener.onClickConfig(manga, cardView, configIcon, layoutPosition) }
 
         cardView.layoutParams.width = mMangaCardSize.first
         cardView.layoutParams.height = mMangaCardSize.second

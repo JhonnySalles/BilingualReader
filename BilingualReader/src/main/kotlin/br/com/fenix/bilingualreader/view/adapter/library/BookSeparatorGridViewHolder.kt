@@ -75,7 +75,7 @@ class BookSeparatorGridViewHolder(var type: LibraryBookType, itemView: View, pri
         }
 
         favoriteIcon.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
-        config.setOnClickListener { listener.onClickConfig(book, cardView, itemView, layoutPosition) }
+        config.setOnClickListener { listener.onClickConfig(book, cardView, configIcon, layoutPosition) }
 
         val image = when ((1..5).random()) {
             1 -> mDefaultImageCover1

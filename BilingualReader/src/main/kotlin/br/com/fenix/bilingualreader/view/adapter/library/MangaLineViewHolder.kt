@@ -72,7 +72,7 @@ class MangaLineViewHolder(itemView: View, private val listener: MangaCardListene
         }
 
         favoriteIcon.setImageResource(if (manga.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
-        config.setOnClickListener { listener.onClickConfig(manga, cardView, itemView, layoutPosition) }
+        config.setOnClickListener { listener.onClickConfig(manga, cardView, configIcon, layoutPosition) }
 
         cardView.setOnClickListener { listener.onClick(manga, itemView) }
         cardView.setOnLongClickListener {

@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerHorizontal="true"
-        android:layout_margin="5dp"
+        android:layout_margin="@dimen/margin_small"
         android:paddingBottom="@dimen/popup_tags_list_padding"
         android:minHeight="150dp"/>
 </FrameLayout>

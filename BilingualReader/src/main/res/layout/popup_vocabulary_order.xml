@@ -10,7 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="@dimen/margin"
+        android:layout_margin="@dimen/margin_small"
+        android:paddingTop="@dimen/margin_small"
         android:paddingBottom="@dimen/margin_bottom">
         <br.com.fenix.bilingualreader.view.components.TriStateCheckBox
             android:id="@+id/popup_vocabulary_order_description"

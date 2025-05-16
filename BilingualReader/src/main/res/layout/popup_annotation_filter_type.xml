@@ -10,7 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="@dimen/margin"
+        android:layout_margin="@dimen/margin_small"
+        android:paddingTop="@dimen/margin_small"
         android:paddingBottom="@dimen/margin_bottom">
         <CheckBox
             android:id="@+id/popup_annotation_filter_type_favorite"

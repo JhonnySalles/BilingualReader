@@ -6,7 +6,7 @@
     style="@style/AppBackground.Card"
     android:layout_width="@dimen/manga_grid_card_layout_width_big"
     android:layout_height="@dimen/manga_grid_card_layout_height_big"
-    android:layout_margin="8dp"
+    android:layout_margin="@dimen/margin_small"
     app:strokeWidth="0.0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout

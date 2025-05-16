@@ -52,7 +52,7 @@
     <dimen name="manga_grid_skeleton_height_small">150dp</dimen>
     <dimen name="manga_grid_skeleton_height_separator_big">210dp</dimen>
     <dimen name="manga_grid_skeleton_height_separator_medium">210dp</dimen>
-    <dimen name="manga_grid_skeleton_divider">10dp</dimen>
+    <dimen name="manga_grid_skeleton_divider">6dp</dimen>
     <dimen name="manga_grid_skeleton_title_height">30dp</dimen>
     <dimen name="manga_grid_skeleton_item_height">25dp</dimen>
     <dimen name="manga_grid_skeleton_item_margin">5dp</dimen>
@@ -123,7 +123,7 @@
     <dimen name="book_grid_skeleton_height_medium">210dp</dimen>
     <dimen name="book_grid_skeleton_height_separator_big">210dp</dimen>
     <dimen name="book_grid_skeleton_height_separator_medium">210dp</dimen>
-    <dimen name="book_grid_skeleton_divider">10dp</dimen>
+    <dimen name="book_grid_skeleton_divider">6dp</dimen>
     <dimen name="book_grid_skeleton_title_height">30dp</dimen>
     <dimen name="book_grid_skeleton_item_margin">5dp</dimen>
     <dimen name="book_grid_skeleton_item_height">25dp</dimen>
