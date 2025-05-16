@@ -153,8 +153,15 @@ O aplicativo é também compatível com legendas extraidas e pré processadas co
 - [X] Estatisticas de leituras
 - [X] Marcadores de texto na leitura de livro.
 - [X] Popup para vocabulario e kanji em livros em japonês.
+- [X] Marcação de páginas e anotações [Mangas/Comics] 
+- [X] Filtros personalizado na tela de marcações e anotações.
+- [X] Animações de icones.
+- [X] Implementado método de leitura de rolagem infinita.
+- [X] Leitura de arquivos epub e adição de informações do comicinfo do epub [Mangas/Comics]
+- [X] Popup para apresentação da capa no detalhes
+- [X] Apresentação de erros na abertura dos arquivos
+- [X] Animação de transição de páginas
 - [ ] Exportar vocabularios ao Anki
-
 
 ## Contribuindo
 
