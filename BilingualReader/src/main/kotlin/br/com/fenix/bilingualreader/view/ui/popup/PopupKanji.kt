@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.core.text.HtmlCompat
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Kanjax
@@ -17,20 +18,29 @@ class PopupKanji(val context: Context, isFormatterInitialize: Boolean = true) {
 
     private val mLOGGER = LoggerFactory.getLogger(PopupKanji::class.java)
 
+    companion object {
+        private var mLastPopup : AlertDialog? = null
+    }
+
     init {
         if (isFormatterInitialize)
             Formatter.initializeAsync(context)
     }
 
     fun getPopupKanji(kanji: String) {
+        mLastPopup?.dismiss()
         val kanjax = Formatter.getKanjax(kanji)
         val popup = createKanjiPopup(context, LayoutInflater.from(context), kanjax)
-        MaterialAlertDialogBuilder(context, R.style.AppCompatMaterialAlertDialog)
+        mLastPopup = MaterialAlertDialogBuilder(context, R.style.AppCompatMaterialAlertDialog)
             .setView(popup)
             .setCancelable(true)
             .setPositiveButton(R.string.action_neutral) { _, _ -> }
+            .setOnDismissListener {
+                mLastPopup = null
+            }
             .create()
-            .show()
+
+        mLastPopup!!.show()
     }
 
     private fun createKanjiPopup(context: Context, inflater: LayoutInflater, kanjax: Kanjax?): View? {
