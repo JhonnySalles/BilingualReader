@@ -41,8 +41,10 @@
     </declare-styleable>
 
     <declare-styleable name="DottedSeekBar">
-        <attr name="dots_positions" format="reference"/>
-        <attr name="dots_drawable" format="reference"/>
+        <attr name="dots_positions_primary" format="reference"/>
+        <attr name="dots_positions_secondary" format="reference"/>
+        <attr name="dots_drawable_primary" format="reference"/>
+        <attr name="dots_drawable_secondary" format="reference"/>
     </declare-styleable>
 
     <declare-styleable name="ZoomRecyclerView">

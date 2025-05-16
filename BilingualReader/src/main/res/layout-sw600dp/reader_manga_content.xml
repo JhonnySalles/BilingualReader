@@ -122,7 +122,8 @@
                 android:progressDrawable="@drawable/reader_progress_pointer"
                 android:thumb="@drawable/reader_progress_thumb_small"
                 android:thumbOffset="6dp"
-                custom:dots_drawable="@drawable/ico_progress_dot"/>
+                custom:dots_drawable_primary="@drawable/ico_progress_primary_dot_small"
+                custom:dots_drawable_secondary="@drawable/ico_progress_secondary_dot_small"/>
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton

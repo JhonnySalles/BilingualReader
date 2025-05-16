@@ -392,7 +392,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     var setDot: () -> Unit = {}
                     setDot = {
                         try {
-                            (requireActivity() as MangaReaderActivity).setDots(dots, inverse)
+                            (requireActivity() as MangaReaderActivity).setMangaDots(dots, inverse)
                         } catch (e: Exception) {
                             mLOGGER.error("Error to set dots: " + e.message, e)
                             times++
@@ -417,7 +417,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 } else
                     mLOGGER.info("Error in open file.")
             } else {
-                (requireActivity() as MangaReaderActivity).setDots(mutableListOf(), mutableListOf())
+                (requireActivity() as MangaReaderActivity).setMangaDots(mutableListOf(), mutableListOf())
                 mLOGGER.info("File not founded.")
                 MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                     .setTitle(getString(R.string.manga_excluded))
@@ -565,6 +565,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
                     val bitmap = (view.drawable as BitmapDrawable).bitmap
                     mLastPage.addFirst(Pair(page, bitmap.copy(bitmap.config, true)))
+                    updateDotsLastPage()
                     openLastPage()
                 } catch (e: Exception) {
                     mLOGGER.error("Error to insert last page: " + e.message, e)
@@ -590,6 +591,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 changeLastPagePosition(old.first)
             }
             setCurrentPage(old.first)
+            updateDotsLastPage()
         }
 
         configureScrolling(mScrollingMode, mPaginationType, true)
@@ -1824,6 +1826,19 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             it.averageTimeByPage = average
             it.id = mViewModel.save(it)
         }
+    }
+
+    private fun updateDotsLastPage() {
+        val pages = mPageSeekBar.max + 1
+        val dots = mutableListOf<Int>()
+        val inverse = mutableListOf<Int>()
+
+        for (page in mLastPage) {
+            inverse.add(pages - page.first)
+            dots.add(page.first)
+        }
+
+        mPageSeekBar.setSecondaryDots(dots.toIntArray(), inverse.toIntArray())
     }
 
     private var mLastPageIsLeft = true

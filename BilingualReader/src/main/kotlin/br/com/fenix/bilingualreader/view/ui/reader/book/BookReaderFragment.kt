@@ -125,6 +125,7 @@ import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.LinkedList
+import kotlin.collections.iterator
 import kotlin.math.abs
 
 
@@ -360,6 +361,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                         (current.imageView.drawable as BitmapDrawable).bitmap
 
                     mLastPage.addFirst(Pair(page, bitmap))
+                    updateDotsLastPage()
                     openLastPage()
                 } catch (e: Exception) {
                     mLOGGER.error("Error to insert last page: " + e.message, e)
@@ -384,6 +386,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 changeLastPagePosition(old.first)
             }
             setCurrentPage(old.first)
+            updateDotsLastPage()
         }
 
         mGestureDetector = GestureDetector(requireActivity(), MyTouchListener())
@@ -1710,7 +1713,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             }
         }
 
-        (requireActivity() as BookReaderActivity).setDots(dots, inverse)
+        (requireActivity() as BookReaderActivity).setBookDots(dots, inverse)
     }
 
     private fun updateSeekBar() {
@@ -1722,6 +1725,19 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         mPageSeekBar.thumb.setColorFilter(requireContext().getColorFromAttr(R.attr.colorTertiary), PorterDuff.Mode.SRC_IN)
         mPageSeekBar.setDotsMode(mScrollingMode == ScrollingType.PaginationRightToLeft)
         (requireActivity() as BookReaderActivity).updateSeekBar(mScrollingMode)
+    }
+
+    private fun updateDotsLastPage() {
+        val pages = mPageSeekBar.max + 1
+        val dots = mutableListOf<Int>()
+        val inverse = mutableListOf<Int>()
+
+        for (page in mLastPage) {
+            inverse.add(pages - page.first)
+            dots.add(page.first)
+        }
+
+        mPageSeekBar.setSecondaryDots(dots.toIntArray(), inverse.toIntArray())
     }
 
     private var mLastPageIsLeft = true

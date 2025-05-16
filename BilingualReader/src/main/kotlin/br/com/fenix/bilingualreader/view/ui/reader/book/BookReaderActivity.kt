@@ -327,10 +327,10 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
 
         mToolBarBottomAuthor.text = book.author
 
-        setDots(mutableListOf(), mutableListOf())
+        setBookDots(mutableListOf(), mutableListOf())
     }
 
-    fun setDots(dots: MutableList<Int>, inverse: MutableList<Int>) = mToolBarBottomProgress.setDots(dots.toIntArray(), inverse.toIntArray())
+    fun setBookDots(dots: MutableList<Int>, inverse: MutableList<Int>) = mToolBarBottomProgress.setPrimaryDots(dots.toIntArray(), inverse.toIntArray())
 
     private fun dialogPageIndex() {
         if  (mDialog != null) return

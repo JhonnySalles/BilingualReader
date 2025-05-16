@@ -627,11 +627,11 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
         mManga = manga
         changePage(manga.title, "", manga.bookMark)
-        setDots(mutableListOf(), mutableListOf())
+        setMangaDots(mutableListOf(), mutableListOf())
         mViewModel.refreshAnnotations(mManga)
     }
 
-    fun setDots(dots: MutableList<Int>, inverse: MutableList<Int>) = mReaderProgress.setDots(dots.toIntArray(), inverse.toIntArray())
+    fun setMangaDots(dots: MutableList<Int>, inverse: MutableList<Int>) = mReaderProgress.setPrimaryDots(dots.toIntArray(), inverse.toIntArray())
 
     private fun setShortCutManga() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1)
