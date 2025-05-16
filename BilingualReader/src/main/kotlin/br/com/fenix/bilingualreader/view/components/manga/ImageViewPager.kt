@@ -10,7 +10,6 @@ import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.interfaces.PageCurl
 import org.slf4j.LoggerFactory
 import kotlin.math.abs
-import kotlin.math.min
 
 
 class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(context, attributeSet) {

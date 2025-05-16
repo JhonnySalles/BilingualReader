@@ -1,9 +1,7 @@
 package br.com.fenix.bilingualreader.view.components.book
 
 import android.view.View
-import androidx.viewpager.widget.ViewPager.PageTransformer
 import androidx.viewpager2.widget.ViewPager2
-import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.interfaces.PageCurl
 import kotlin.math.abs
 import kotlin.math.min
