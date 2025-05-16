@@ -99,6 +99,7 @@ import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFr
 import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
 import br.com.fenix.bilingualreader.view.components.book.CurlPageTransformer
+import br.com.fenix.bilingualreader.view.components.book.DefaultPageTransformer
 import br.com.fenix.bilingualreader.view.components.book.DepthPageTransformer
 import br.com.fenix.bilingualreader.view.components.book.FadePageTransformer
 import br.com.fenix.bilingualreader.view.components.book.StackPageTransform
@@ -684,36 +685,32 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             updateSeekBar()
         }
 
-        if (isChange)
-            configurePagination(mPaginationType)
-        else
-            mPaginationType = pagination
-
+        configurePagination(pagination, isForced = true)
         return isChange
     }
 
-    private fun configurePagination(pagination: PaginationType) {
-        val change = mPaginationType != pagination
+    private fun configurePagination(pagination: PaginationType, isForced: Boolean = false) {
+        val change = mPaginationType != pagination || isForced
         mPaginationType = pagination
+
+        val enabledCurl = mScrollingMode in setOf(ScrollingType.Pagination, ScrollingType.PaginationRightToLeft)
 
         if (change)
             when (mPaginationType) {
-                PaginationType.Stack -> mViewPager.setPageTransformer(StackPageTransform())
-                PaginationType.CurlPage -> mViewPager.setPageTransformer(CurlPageTransformer())
+                PaginationType.Stack -> mViewPager.setPageTransformer(StackPageTransform(mScrollingMode == ScrollingType.PaginationVertical))
+                PaginationType.CurlPage -> {
+                    if (enabledCurl)
+                        mViewPager.setPageTransformer(CurlPageTransformer())
+                    else
+                        mViewPager.setPageTransformer(DefaultPageTransformer())
+                }
                 PaginationType.Zooming -> mViewPager.setPageTransformer(ZoomPageTransform())
-                PaginationType.Fade -> mViewPager.setPageTransformer(FadePageTransformer())
-                PaginationType.Depth -> mViewPager.setPageTransformer(DepthPageTransformer())
-                else -> mViewPager.setPageTransformer(null)
+                PaginationType.Fade -> mViewPager.setPageTransformer(FadePageTransformer(mScrollingMode == ScrollingType.PaginationVertical))
+                PaginationType.Depth -> mViewPager.setPageTransformer(DepthPageTransformer(mScrollingMode == ScrollingType.PaginationVertical))
+                else -> mViewPager.setPageTransformer(DefaultPageTransformer())
             }
 
-        (mPagerAdapter as TextViewAdapter).changeCurl(mPaginationType == PaginationType.CurlPage && mScrollingMode in setOf(ScrollingType.Pagination, ScrollingType.PaginationVertical, ScrollingType.PaginationRightToLeft))
-
-        if (change && mViewPager.adapter != null) {
-            val item = mViewPager.currentItem
-            mViewPager.adapter = mPagerAdapter
-            mPagerAdapter.notifyDataSetChanged()
-            mViewPager.currentItem = item
-        }
+        (mPagerAdapter as TextViewAdapter).changeCurl(mPaginationType == PaginationType.CurlPage && enabledCurl)
     }
 
     override fun onTouch(v: View, event: MotionEvent): Boolean {
