@@ -43,6 +43,7 @@ import br.com.fenix.bilingualreader.service.listener.VocabularyCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyBookCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyBookListCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyLoadState
@@ -302,18 +303,7 @@ class VocabularyBookFragment : Fragment(), PopupOrderListener, SwipeRefreshLayou
         }
         mBottomSheet.isDraggable = true
 
-        root.findViewById<ImageView>(R.id.vocabulary_book_popup_menu_order_filter_touch).let {
-            it.setOnClickListener {
-                if (mBottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED)
-                    mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
-                else
-                    mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-            }
-            it.setOnLongClickListener {
-                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupFilterOrder)
-                true
-            }
-        }
+        PopupUtils.onPopupTouch(requireActivity(), mMenuPopupFilterOrder, mBottomSheet, root.findViewById<ImageView>(R.id.vocabulary_book_popup_menu_order_filter_touch))
 
         val viewOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
         viewOrderPagerAdapter.addFragment(

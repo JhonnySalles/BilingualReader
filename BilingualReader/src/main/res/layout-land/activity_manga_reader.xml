@@ -32,34 +32,47 @@
             layout="@layout/reader_manga_content"/>
 
         <FrameLayout
-            android:id="@+id/popup_manga_translate"
+            android:id="@+id/popup_manga_translate_side_sheet"
             style="@style/AppBackground.PopupRight"
             android:layout_width="430dp"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:fitsSystemWindows="true"
+            android:fitsSystemWindows="false"
             android:orientation="vertical"
-            android:paddingTop="30dp"
-            android:visibility="gone">
+            android:paddingTop="5dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="30dp"
+            android:visibility="gone"
+            android:saveEnabled="false"
+            app:layout_behavior="com.google.android.material.sidesheet.SideSheetBehavior">
 
             <ImageView
                 android:id="@+id/popup_manga_translate_floating_button"
                 style="@style/TextTitle.Popup"
-                android:layout_width="70dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start|top"
-                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginStart="@dimen/margin_big"
                 android:contentDescription="@string/popup_reading_manga_floating_popup"
                 android:scaleType="center"
                 android:src="@drawable/ico_animated_floating_window"/>
 
+            <TextView
+                style="@style/TextTitle"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/popup_reading_manga_tab_title_subtitle" />
+
             <ImageView
-                android:id="@+id/popup_manga_translate_floating_close_button"
+                android:id="@+id/popup_manga_translate_close_button"
                 style="@style/TextTitle.Popup"
-                android:layout_width="70dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|top"
                 android:layout_marginTop="1dp"
+                android:layout_marginEnd="@dimen/margin_big"
                 android:contentDescription="@string/popup_reading_manga_close"
                 android:scaleType="center"
                 android:src="@drawable/ico_close"/>
@@ -67,7 +80,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="26dp"
                 android:orientation="vertical">
 
                 <com.google.android.material.tabs.TabLayout
@@ -112,23 +125,37 @@
         </FrameLayout>
 
         <FrameLayout
-            android:id="@+id/popup_manga_configurations"
+            android:id="@+id/popup_manga_configurations_side_sheet"
             style="@style/AppBackground.PopupRight"
             android:layout_width="430dp"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:fitsSystemWindows="true"
+            android:fitsSystemWindows="false"
             android:orientation="vertical"
-            android:paddingTop="30dp"
-            android:visibility="gone">
+            android:paddingTop="5dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="30dp"
+            android:visibility="gone"
+            android:saveEnabled="false"
+            app:layout_behavior="com.google.android.material.sidesheet.SideSheetBehavior">
+
+            <TextView
+                style="@style/TextTitle"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:layout_marginStart="@dimen/margin_big"
+                android:text="@string/popup_reading_manga_tab_title_configuration" />
 
             <ImageView
-                android:id="@+id/popup_manga_color_close_button"
+                android:id="@+id/popup_manga_configurations_close_button"
                 style="@style/TextTitle.Popup"
-                android:layout_width="70dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|top"
                 android:layout_marginTop="1dp"
+                android:layout_marginEnd="@dimen/margin_big"
                 android:contentDescription="@string/popup_reading_manga_close"
                 android:scaleType="center"
                 android:src="@drawable/ico_close"/>
@@ -136,7 +163,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="26dp"
                 android:orientation="vertical">
 
                 <com.google.android.material.tabs.TabLayout
@@ -155,13 +182,13 @@
                         android:id="@+id/popup_manga_configurations_tab_item_brightness"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/popup_reading_manga_tab_item_brightness" />
+                        android:text="@string/popup_reading_manga_tab_item_configuration_brightness" />
 
                     <com.google.android.material.tabs.TabItem
                         android:id="@+id/popup_manga_configurations_tab_item_bookmarks"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/popup_reading_manga_tab_item_bookmarks" />
+                        android:text="@string/popup_reading_manga_tab_item_configuration_bookmarks" />
 
                 </com.google.android.material.tabs.TabLayout>
 

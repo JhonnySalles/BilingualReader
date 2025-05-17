@@ -33,7 +33,7 @@
             layout="@layout/reader_manga_content"/>
 
         <FrameLayout
-            android:id="@+id/popup_manga_translate"
+            android:id="@+id/popup_manga_translate_bottom_sheet"
             style="@style/AppBackground.PopupBottom"
             android:layout_width="match_parent"
             android:layout_height="500dp"
@@ -43,12 +43,13 @@
             android:orientation="vertical"
             android:paddingTop="1dp"
             android:visibility="gone"
+            android:saveEnabled="false"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
             <ImageView
                 android:id="@+id/popup_manga_translate_center_button"
                 style="@style/TextTitle.Popup"
-                android:layout_width="70dp"
+                android:layout_width="@dimen/popup_button_center"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|top"
                 android:contentDescription="@string/popup_reading_manga_open"
@@ -58,7 +59,7 @@
             <ImageView
                 android:id="@+id/popup_manga_translate_floating_button"
                 style="@style/TextTitle.Popup"
-                android:layout_width="70dp"
+                android:layout_width="@dimen/popup_button_center"
                 android:layout_height="20dp"
                 android:layout_gravity="start|top"
                 android:layout_marginTop="1dp"
@@ -114,7 +115,7 @@
         </FrameLayout>
 
         <FrameLayout
-            android:id="@+id/popup_manga_configurations"
+            android:id="@+id/popup_manga_configurations_bottom_sheet"
             style="@style/AppBackground.PopupBottom"
             android:layout_width="match_parent"
             android:layout_height="500dp"
@@ -124,12 +125,13 @@
             android:orientation="vertical"
             android:paddingTop="1dp"
             android:visibility="gone"
+            android:saveEnabled="false"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
             <ImageView
                 android:id="@+id/popup_manga_configurations_center_button"
                 style="@style/TextTitle.Popup"
-                android:layout_width="70dp"
+                android:layout_width="@dimen/popup_button_center"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|top"
                 android:contentDescription="@string/popup_reading_manga_open"
@@ -158,13 +160,13 @@
                         android:id="@+id/popup_manga_configurations_tab_item_brightness"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/popup_reading_manga_tab_item_brightness" />
+                        android:text="@string/popup_reading_manga_tab_item_configuration_brightness" />
 
                     <com.google.android.material.tabs.TabItem
                         android:id="@+id/popup_manga_configurations_tab_item_bookmarks"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/popup_reading_manga_tab_item_bookmarks" />
+                        android:text="@string/popup_reading_manga_tab_item_configuration_bookmarks" />
 
                 </com.google.android.material.tabs.TabLayout>
 

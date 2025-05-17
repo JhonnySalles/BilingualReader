@@ -125,7 +125,6 @@ import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.LinkedList
-import kotlin.collections.iterator
 import kotlin.math.abs
 
 
@@ -158,7 +157,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private lateinit var mCoverMessage: TextView
     private lateinit var mCoverWarning: ImageView
 
-    private lateinit var mPopupConfiguration: FrameLayout
+    private var mPopupBottomSheet: Boolean = true
+    private var mPopupConfigurationBottom: FrameLayout? = null
+    private var mPopupConfigurationLeft: FrameLayout? = null
 
     private lateinit var mPageSeekBar: DottedSeekBar
     private lateinit var mGestureDetector: GestureDetector
@@ -183,7 +184,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private lateinit var mHistoryRepository : HistoryRepository
     private var mTextToSpeech: TextToSpeechController? = null
     private var mDialog: AlertDialog? = null
-    private var mMenuPopupBottomSheet: Boolean = false
 
     private var mIsSeekBarChange = false
     private var mPageStartReading = LocalDateTime.now()
@@ -280,7 +280,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         mViewPager = view.findViewById(R.id.fragment_book_reader_pager)
         mViewRecycler = view.findViewById(R.id.fragment_book_reader_recycler)
         mPageSeekBar = requireActivity().findViewById(R.id.reader_book_bottom_progress)
-        mPopupConfiguration = requireActivity().findViewById(R.id.popup_book_configuration)
+        mPopupBottomSheet = requireActivity().findViewById<ImageView>(R.id.popup_book_configuration_center_button) != null
+        mPopupConfigurationBottom = requireActivity().findViewById(R.id.popup_book_configuration_bottom_sheet)
+        mPopupConfigurationLeft = requireActivity().findViewById(R.id.popup_book_configuration_side_sheet)
 
         mCoverContent = view.findViewById(R.id.reader_book_cover_content)
         mCoverImage = view.findViewById(R.id.reader_book_cover)
@@ -320,7 +322,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             mCoverMessage.text = getString(R.string.reading_book_open_exception)
         }
 
-        mMenuPopupBottomSheet = requireActivity().findViewById<ImageView>(R.id.popup_book_configuration_center_button) == null
         mPageStartReading = LocalDateTime.now()
         mPagesAverage = mutableListOf()
 
@@ -1052,8 +1053,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     }, ANIMATION_DURATION + 100)
                 }
 
-                if (mPopupConfiguration.visibility != View.GONE)
-                    AnimationUtil.animatePopupClose(requireActivity(), mPopupConfiguration, !mMenuPopupBottomSheet, navigationColor = false)
+                val layout = if (mPopupBottomSheet) mPopupConfigurationBottom else mPopupConfigurationLeft
+                if (layout!!.visibility != View.GONE)
+                    AnimationUtil.animatePopupClose(requireActivity(), layout, mPopupBottomSheet, navigationColor = false)
             }, ANIMATION_DURATION)
         } else {
             Handler(Looper.getMainLooper()).postDelayed({ changeContentsVisibility(fullscreen)  }, ANIMATION_DURATION)

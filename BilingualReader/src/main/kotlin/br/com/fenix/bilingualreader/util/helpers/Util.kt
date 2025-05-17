@@ -30,6 +30,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.TypedValue
+import android.view.GestureDetector
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
@@ -75,6 +76,7 @@ import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import java.io.ByteArrayInputStream
@@ -1405,6 +1407,45 @@ class PopupUtil {
                 context.startActivity(intent)
             } catch (e: ActivityNotFoundException) {
                 Toast.makeText(context, context.getString(R.string.alert_error_call_google_translate), Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        fun onPopupTouch(activity: Activity, popup: FrameLayout, sheet: BottomSheetBehavior<FrameLayout>, centerButton: View, navigationColor: Boolean = true) {
+            val gesture = GestureDetector(activity, object : GestureDetector.SimpleOnGestureListener() {
+                override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+                    if (sheet.state == BottomSheetBehavior.STATE_COLLAPSED)
+                        sheet.state = BottomSheetBehavior.STATE_EXPANDED
+                    else
+                        sheet.state = BottomSheetBehavior.STATE_COLLAPSED
+                    return super.onSingleTapConfirmed(e)
+                }
+
+                override fun onDoubleTap(e: MotionEvent): Boolean {
+                    return super.onDoubleTap(e)
+                }
+                override fun onLongPress(e: MotionEvent) {
+                    super.onLongPress(e)
+                    AnimationUtil.animatePopupClose(activity, popup, navigationColor = navigationColor)
+                }
+
+                override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+                    if (e1 != null)
+                        if (abs(e1.y - e2.y) > 150) {
+                            if (e2.y > e1.y)
+                                AnimationUtil.animatePopupClose(activity, popup)
+                            else if (e2.y < e1.y)
+                                sheet.state = BottomSheetBehavior.STATE_EXPANDED
+                            return true
+                        }
+                    return super.onFling(e1, e2, velocityX, velocityY)
+                }
+            })
+
+            centerButton.setOnTouchListener { view, event ->
+                view.performClick()
+                gesture.onTouchEvent(event)
+                popup.parent.requestDisallowInterceptTouchEvent(true)
+                true
             }
         }
 

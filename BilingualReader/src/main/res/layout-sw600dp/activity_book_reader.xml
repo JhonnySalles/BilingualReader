@@ -52,10 +52,11 @@
         <FrameLayout
             android:id="@+id/popup_book_configuration_bottom_sheet"
             style="@style/AppBackground.PopupBottom"
-            android:layout_width="wrap_content"
+            android:layout_width="500dp"
             android:layout_height="500dp"
             android:layout_alignParentBottom="true"
             android:fitsSystemWindows="false"
+            android:layout_gravity="center_horizontal"
             android:gravity="center_horizontal"
             android:orientation="vertical"
             android:paddingTop="1dp"

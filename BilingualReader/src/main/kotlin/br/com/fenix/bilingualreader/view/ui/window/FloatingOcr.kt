@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader.view.ui.window
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Point
 import android.os.Build
 import android.os.Handler
@@ -62,9 +63,12 @@ class FloatingOcr constructor(
     private var minSize = 0
 
     init {
-        mPosition = Point(parent.height / 2, parent.width / 2)
         mLastSize = Size(context.resources.getDimension(R.dimen.floating_ocr_width).toInt(), context.resources.getDimension(R.dimen.floating_ocr_height).toInt())
         minSize = context.resources.getDimension(R.dimen.floating_ocr_min_size).toInt()
+        mPosition = if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
+            Point((parent.width / 2) - (mLastSize.width / 2), (parent.height / 2) - (mLastSize.height / 2))
+        else
+            Point((parent.height / 2) - (mLastSize.height / 2), (parent.width / 2) - (mLastSize.width / 2))
 
         with(mFloatingView) {
             mCloseButton = this.findViewById(R.id.window_ocr_close)

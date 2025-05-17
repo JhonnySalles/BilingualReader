@@ -50,33 +50,46 @@
             app:toolbarReaderCenter="@{true}" />
 
         <FrameLayout
-            android:id="@+id/popup_book_configuration_bottom_sheet"
-            style="@style/AppBackground.PopupBottom"
-            android:layout_width="wrap_content"
-            android:layout_height="500dp"
+            android:id="@+id/popup_book_configuration_side_sheet"
+            style="@style/AppBackground.PopupRight"
+            android:layout_width="430dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
+            android:layout_gravity="end"
             android:fitsSystemWindows="false"
-            android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:paddingTop="1dp"
+            android:paddingTop="10dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
             android:visibility="gone"
             android:saveEnabled="false"
-            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+            app:layout_behavior="com.google.android.material.sidesheet.SideSheetBehavior">
+
+            <TextView
+                style="@style/TextTitle"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:layout_marginStart="@dimen/margin_big"
+                android:text="@string/popup_reading_book_tab_title" />
 
             <ImageView
-                android:id="@+id/popup_book_configuration_center_button"
+                android:id="@+id/popup_book_configuration_close_button"
                 style="@style/TextTitle.Popup"
-                android:layout_width="@dimen/popup_button_center"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center|top"
-                android:contentDescription="@string/popup_reading_book_open"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ico_line_popup"/>
+                android:layout_gravity="end|top"
+                android:layout_marginTop="1dp"
+                android:layout_marginEnd="@dimen/margin_big"
+                android:contentDescription="@string/popup_reading_manga_close"
+                android:scaleType="center"
+                android:src="@drawable/ico_close"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
+                android:layout_marginTop="26dp"
                 android:orientation="vertical">
 
                 <com.google.android.material.tabs.TabLayout

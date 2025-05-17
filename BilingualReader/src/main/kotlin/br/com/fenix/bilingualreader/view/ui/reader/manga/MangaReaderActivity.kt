@@ -83,6 +83,7 @@ import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
 import br.com.fenix.bilingualreader.util.helpers.Util
@@ -99,6 +100,7 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.sidesheet.SideSheetBehavior
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
@@ -118,12 +120,16 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     private lateinit var mToolBar: MaterialToolbar
     private lateinit var mSubToolBar: LinearLayout
     private lateinit var mLanguageOcrDescription: TextView
-    private lateinit var mMenuPopupTranslate: FrameLayout
+    private var mMenuPopupTranslateBottom: FrameLayout? = null
+    private var mMenuPopupTranslateLeft: FrameLayout? = null
     private lateinit var mPopupTranslateView: ViewPager
-    private lateinit var mMenuPopupConfigurations: FrameLayout
+    private var mMenuPopupConfigurationsBottom: FrameLayout? = null
+    private var mMenuPopupConfigurationsLeft: FrameLayout? = null
     private lateinit var mPopupConfigurationsView: ViewPager
     private lateinit var mPopupConfigurationsTab: TabLayout
+    private lateinit var mLeftSheetTranslate: SideSheetBehavior<FrameLayout>
     private lateinit var mBottomSheetTranslate: BottomSheetBehavior<FrameLayout>
+    private lateinit var mLeftSheetConfigurations: SideSheetBehavior<FrameLayout>
     private lateinit var mBottomSheetConfigurations: BottomSheetBehavior<FrameLayout>
 
     private lateinit var mPopupMangaColorFilterFragment: PopupMangaColorFilterFragment
@@ -154,7 +160,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     private lateinit var mLibrary: Library
     private var mFragment: MangaReaderFragment? = null
     private var mManga: Manga? = null
-    private var mMenuPopupBottomSheet: Boolean = false
+    private var mMenuPopupBottomSheet: Boolean = true
     private var mDialog: AlertDialog? = null
 
     companion object {
@@ -196,32 +202,10 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         mReaderTitle = findViewById(R.id.reader_manga_bottom_progress_title)
         mReaderProgress = findViewById(R.id.reader_manga_bottom_progress)
         mProgressContent = findViewById(R.id.reader_manga_bottom_progress_content)
-        mMenuPopupTranslate = findViewById(R.id.popup_manga_translate)
-        mMenuPopupConfigurations = findViewById(R.id.popup_manga_configurations)
-
-        if (findViewById<ImageView>(R.id.popup_manga_translate_center_button) == null)
-            mMenuPopupBottomSheet = true
-        else {
-            mBottomSheetTranslate = BottomSheetBehavior.from(mMenuPopupTranslate).apply {
-                peekHeight = 195
-                this.state = BottomSheetBehavior.STATE_COLLAPSED
-                mBottomSheetTranslate = this
-            }
-            mBottomSheetTranslate.isDraggable = false
-
-            findViewById<ImageView>(R.id.popup_manga_translate_center_button).let {
-                it.setOnClickListener {
-                    if (mBottomSheetTranslate.state == BottomSheetBehavior.STATE_COLLAPSED)
-                        mBottomSheetTranslate.state = BottomSheetBehavior.STATE_EXPANDED
-                    else
-                        mBottomSheetTranslate.state = BottomSheetBehavior.STATE_COLLAPSED
-                }
-                it.setOnLongClickListener {
-                    AnimationUtil.animatePopupClose(this, mMenuPopupTranslate, !mMenuPopupBottomSheet, navigationColor = false)
-                    true
-                }
-            }
-        }
+        mMenuPopupTranslateBottom = findViewById(R.id.popup_manga_translate_bottom_sheet)
+        mMenuPopupTranslateLeft = findViewById(R.id.popup_manga_translate_side_sheet)
+        mMenuPopupConfigurationsBottom = findViewById(R.id.popup_manga_configurations_bottom_sheet)
+        mMenuPopupConfigurationsLeft = findViewById(R.id.popup_manga_configurations_side_sheet)
 
         val btnMenuFloating = findViewById<ImageView>(R.id.popup_manga_translate_floating_button)
         btnMenuFloating.setOnClickListener {
@@ -314,6 +298,29 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         mPopupTranslateTab = findViewById(R.id.popup_manga_translate_tab)
         mPopupTranslateView = findViewById(R.id.popup_manga_translate_view_pager)
 
+        if (findViewById<ImageView>(R.id.popup_manga_translate_center_button) == null) {
+            mMenuPopupBottomSheet = false
+            mLeftSheetTranslate = SideSheetBehavior.from(mMenuPopupTranslateLeft!!)
+            findViewById<ImageView>(R.id.popup_manga_translate_close_button)?.setOnClickListener {
+                AnimationUtil.animatePopupClose(this, mMenuPopupTranslateLeft!!, isVertical = false, navigationColor = false)
+            }
+            mPopupTranslateTab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab?) {
+                    mLeftSheetTranslate.isDraggable = mPopupTranslateTab.selectedTabPosition <= 0
+                }
+                override fun onTabUnselected(tab: TabLayout.Tab?) { }
+                override fun onTabReselected(tab: TabLayout.Tab?) { }
+            })
+        } else {
+            mBottomSheetTranslate = BottomSheetBehavior.from(mMenuPopupTranslateBottom!!).apply {
+                peekHeight = 195
+                this.state = BottomSheetBehavior.STATE_COLLAPSED
+                mBottomSheetTranslate = this
+            }
+            mBottomSheetTranslate.isDraggable = false
+            PopupUtils.onPopupTouch(this, mMenuPopupTranslateBottom!!, mBottomSheetTranslate, findViewById<ImageView>(R.id.popup_manga_translate_center_button), navigationColor = false)
+        }
+
         mClockAndBattery = findViewById(R.id.reader_manga_container_clock_battery)
         mBattery = findViewById(R.id.txt_battery)
         mTouchView = findViewById(R.id.reader_manga_container_touch_demonstration)
@@ -346,34 +353,30 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
         mPopupTranslateView.adapter = viewTranslatePagerAdapter
 
-        findViewById<ImageView>(R.id.popup_manga_translate_floating_close_button)?.setOnClickListener {
-            if (mMenuPopupTranslate.isVisible)
-                AnimationUtil.animatePopupClose(this, mMenuPopupTranslate, !mMenuPopupBottomSheet, navigationColor = false)
-        }
-
         mPopupConfigurationsTab = findViewById(R.id.popup_manga_configurations_tab)
         mPopupConfigurationsView = findViewById(R.id.popup_manga_configurations_view_pager)
 
         if (findViewById<ImageView>(R.id.popup_manga_configurations_center_button) != null) {
-            mBottomSheetConfigurations = BottomSheetBehavior.from(mMenuPopupConfigurations).apply {
+            mBottomSheetConfigurations = BottomSheetBehavior.from(mMenuPopupConfigurationsBottom!!).apply {
                 peekHeight = 195
                 this.state = BottomSheetBehavior.STATE_COLLAPSED
                 mBottomSheetConfigurations = this
             }
             mBottomSheetConfigurations.isDraggable = true
-
-            findViewById<ImageView>(R.id.popup_manga_configurations_center_button).let {
-                it.setOnClickListener {
-                    if (mBottomSheetConfigurations.state == BottomSheetBehavior.STATE_COLLAPSED)
-                        mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_HALF_EXPANDED
-                    else
-                        mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_COLLAPSED
-                }
-                it.setOnLongClickListener {
-                    AnimationUtil.animatePopupClose(this, mMenuPopupConfigurations, !mMenuPopupBottomSheet, navigationColor = false)
-                    true
-                }
+            PopupUtils.onPopupTouch(this, mMenuPopupConfigurationsBottom!!, mBottomSheetConfigurations, findViewById<ImageView>(R.id.popup_manga_configurations_center_button), navigationColor = false)
+        } else {
+            mLeftSheetConfigurations = SideSheetBehavior.from(mMenuPopupConfigurationsLeft!!)
+            findViewById<ImageView>(R.id.popup_manga_configurations_close_button)?.setOnClickListener {
+                AnimationUtil.animatePopupClose(this, mMenuPopupConfigurationsLeft!!, isVertical = false, navigationColor = false)
             }
+
+            mPopupConfigurationsTab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab?) {
+                    mLeftSheetConfigurations.isDraggable = mPopupConfigurationsTab.selectedTabPosition <= 0
+                }
+                override fun onTabUnselected(tab: TabLayout.Tab?) { }
+                override fun onTabReselected(tab: TabLayout.Tab?) { }
+            })
         }
 
         mPopupConfigurationsTab.setupWithViewPager(mPopupConfigurationsView)
@@ -381,11 +384,11 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         val viewColorPagerAdapter = ViewPagerAdapter(supportFragmentManager, 0)
         viewColorPagerAdapter.addFragment(
             mPopupMangaColorFilterFragment,
-            resources.getString(R.string.popup_reading_manga_tab_item_brightness)
+            resources.getString(R.string.popup_reading_manga_tab_item_configuration_brightness)
         )
         viewColorPagerAdapter.addFragment(
             mPopupMangaAnnotationsFragment,
-            resources.getString(R.string.popup_reading_manga_tab_item_bookmarks)
+            resources.getString(R.string.popup_reading_manga_tab_item_configuration_bookmarks)
         )
         mPopupConfigurationsView.adapter = viewColorPagerAdapter
         mPopupMangaAnnotationsFragment.setListener(this)
@@ -394,10 +397,11 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
             override fun onPageSelected(position: Int) {
                 if (viewColorPagerAdapter.getItem(position) == mPopupMangaAnnotationsFragment) {
-                    if (!mMenuPopupConfigurations.isVisible) {
+                    val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationsBottom else mMenuPopupConfigurationsLeft
+                    if (!layout!!.isVisible) {
                         var afterVisible: Runnable? = null
                         afterVisible = Runnable {
-                            if (!mMenuPopupConfigurations.isVisible)
+                            if (!layout!!.isVisible)
                                 mHandler.postDelayed(afterVisible!!, 300)
                             else
                                 refreshCover()
@@ -410,9 +414,18 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         })
 
         findViewById<MaterialButton>(R.id.reader_manga_btn_popup_color).setOnClickListener {
-            mMenuPopupTranslate.visibility = View.GONE
-            if (!mMenuPopupBottomSheet)
+            val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationsBottom else mMenuPopupConfigurationsLeft
+            val isOpened = layout!!.isVisible
+
+            if (mMenuPopupBottomSheet)
+                mMenuPopupTranslateBottom!!.visibility = View.GONE
+            else
+                mMenuPopupConfigurationsLeft!!.visibility = View.GONE
+
+            if (mMenuPopupBottomSheet)
                 mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_EXPANDED
+            else
+                mLeftSheetConfigurations.state = SideSheetBehavior.STATE_EXPANDED
 
             var index = -1
             for (i in 0 until viewColorPagerAdapter.count)
@@ -423,12 +436,8 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             if (index >= 0)
                 mPopupConfigurationsTab.selectTab(mPopupConfigurationsTab.getTabAt(index), true)
 
-            AnimationUtil.animatePopupOpen(this, mMenuPopupConfigurations, !mMenuPopupBottomSheet, navigationColor = false)
-        }
-
-        findViewById<ImageView>(R.id.popup_manga_color_close_button)?.setOnClickListener {
-            if (mMenuPopupConfigurations.isVisible)
-                AnimationUtil.animatePopupClose(this, mMenuPopupConfigurations, !mMenuPopupBottomSheet, navigationColor = false)
+            if (!isOpened)
+                AnimationUtil.animatePopupOpen(this, layout, mMenuPopupBottomSheet, navigationColor = false)
         }
 
         val buttonAnnotations = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_annotations)
@@ -447,10 +456,21 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 Animatable2.AnimationCallback() {
                 override fun onAnimationEnd(drawable: Drawable?) {
                     super.onAnimationEnd(drawable)
-                    mMenuPopupTranslate.visibility = View.GONE
-                    if (!mMenuPopupBottomSheet)
+                    val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationsBottom else mMenuPopupConfigurationsLeft
+                    val isOpened = layout!!.isVisible
+
+                    if (mMenuPopupBottomSheet)
+                        mMenuPopupTranslateBottom!!.visibility = View.GONE
+                    else
+                        mMenuPopupConfigurationsLeft!!.visibility = View.GONE
+
+                    if (mMenuPopupBottomSheet)
                         mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_EXPANDED
-                    AnimationUtil.animatePopupOpen(this@MangaReaderActivity, mMenuPopupConfigurations, !mMenuPopupBottomSheet, navigationColor = false)
+                    else
+                        mLeftSheetConfigurations.state = SideSheetBehavior.STATE_EXPANDED
+
+                    if (!isOpened)
+                        AnimationUtil.animatePopupOpen(this@MangaReaderActivity, layout, mMenuPopupBottomSheet, navigationColor = false)
                 }
             })
             (buttonAnnotations.icon as AnimatedVectorDrawable).reset()
@@ -774,7 +794,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
     @SuppressLint("MissingSuperCall")
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
-        savedInstanceState.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mLibrary)
+       savedInstanceState.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mLibrary)
 
         if (mManga != null)
             savedInstanceState.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, mManga)
@@ -888,25 +908,39 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             R.id.menu_item_reader_manga_favorite -> changeFavorite(item)
             R.id.menu_item_reader_manga_mark_page -> { }
             R.id.menu_item_reader_manga_popup_subtitle -> {
-                if (mMenuPopupTranslate.isGone) {
-                    mMenuPopupConfigurations.visibility = View.GONE
-                    if (!mMenuPopupBottomSheet)
-                        mBottomSheetTranslate.state = BottomSheetBehavior.STATE_EXPANDED
+                val layout = if (mMenuPopupBottomSheet) mMenuPopupTranslateBottom else mMenuPopupTranslateLeft
+                if (layout!!.isGone) {
+                    if (mMenuPopupBottomSheet)
+                        mMenuPopupConfigurationsBottom!!.visibility = View.GONE
+                    else
+                        mMenuPopupConfigurationsLeft!!.visibility = View.GONE
 
-                    AnimationUtil.animatePopupOpen(this, mMenuPopupTranslate, !mMenuPopupBottomSheet, navigationColor = false)
+                    if (mMenuPopupBottomSheet)
+                        mBottomSheetTranslate.state = BottomSheetBehavior.STATE_EXPANDED
+                    else
+                        mLeftSheetTranslate.state = SideSheetBehavior.STATE_EXPANDED
+
+                    AnimationUtil.animatePopupOpen(this, layout, mMenuPopupBottomSheet, navigationColor = false)
                 } else
-                    AnimationUtil.animatePopupClose(this, mMenuPopupTranslate, !mMenuPopupBottomSheet, navigationColor = false)
+                    AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = false)
             }
 
             R.id.menu_item_reader_manga_popup_color -> {
-                if (mMenuPopupConfigurations.isGone) {
-                    mMenuPopupTranslate.visibility = View.GONE
-                    if (!mMenuPopupBottomSheet)
-                        mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_EXPANDED
+                val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationsBottom else mMenuPopupConfigurationsLeft
+                if (layout!!.isGone) {
+                    if (mMenuPopupBottomSheet)
+                        mMenuPopupTranslateBottom!!.visibility = View.GONE
+                    else
+                        mMenuPopupTranslateLeft!!.visibility = View.GONE
 
-                    AnimationUtil.animatePopupOpen(this, mMenuPopupConfigurations, !mMenuPopupBottomSheet, navigationColor = false)
+                    if (mMenuPopupBottomSheet)
+                        mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_EXPANDED
+                    else
+                        mLeftSheetConfigurations.state = SideSheetBehavior.STATE_EXPANDED
+
+                    AnimationUtil.animatePopupOpen(this, layout, mMenuPopupBottomSheet, navigationColor = false)
                 } else
-                    AnimationUtil.animatePopupClose(this, mMenuPopupConfigurations, !mMenuPopupBottomSheet, navigationColor = false)
+                    AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = false)
             }
 
             R.id.menu_item_reader_manga_file_link -> openFileLink()
@@ -984,11 +1018,14 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     override fun onBackPressed() {
-        if (mMenuPopupTranslate.visibility != View.GONE || mMenuPopupConfigurations.visibility != View.GONE) {
-            if (mMenuPopupTranslate.visibility != View.GONE)
-                AnimationUtil.animatePopupClose(this, mMenuPopupTranslate, !mMenuPopupBottomSheet, navigationColor = false)
-            if (mMenuPopupConfigurations.visibility != View.GONE)
-                AnimationUtil.animatePopupClose(this, mMenuPopupConfigurations, !mMenuPopupBottomSheet, navigationColor = false)
+        val layoutTranslate = if (mMenuPopupBottomSheet) mMenuPopupTranslateBottom else mMenuPopupTranslateLeft
+        val layoutConfiguration = if (mMenuPopupBottomSheet) mMenuPopupConfigurationsBottom else mMenuPopupConfigurationsLeft
+
+        if (layoutTranslate!!.visibility != View.GONE || layoutConfiguration!!.visibility != View.GONE) {
+            if (layoutTranslate.visibility != View.GONE)
+                AnimationUtil.animatePopupClose(this, layoutTranslate, mMenuPopupBottomSheet, navigationColor = false)
+            if (layoutConfiguration!!.visibility != View.GONE)
+                AnimationUtil.animatePopupClose(this, layoutConfiguration, mMenuPopupBottomSheet, navigationColor = false)
             return
         }
 
@@ -1106,11 +1143,19 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     fun openFloatingSubtitle() {
-        if (mMenuPopupConfigurations.isVisible)
-            AnimationUtil.animatePopupClose(this, mMenuPopupConfigurations, !mMenuPopupBottomSheet, navigationColor = false)
+        if (mMenuPopupBottomSheet) {
+            if (mMenuPopupConfigurationsBottom!!.isVisible)
+                AnimationUtil.animatePopupClose(this, mMenuPopupConfigurationsBottom!!, mMenuPopupBottomSheet, navigationColor = false)
 
-        if (mMenuPopupTranslate.isVisible)
-            AnimationUtil.animatePopupClose(this, mMenuPopupTranslate, !mMenuPopupBottomSheet, navigationColor = false)
+            if (mMenuPopupTranslateBottom!!.isVisible)
+                AnimationUtil.animatePopupClose(this, mMenuPopupTranslateBottom!!, mMenuPopupBottomSheet, navigationColor = false)
+        } else {
+            if (mMenuPopupConfigurationsLeft!!.isVisible)
+                AnimationUtil.animatePopupClose(this, mMenuPopupConfigurationsLeft!!, mMenuPopupBottomSheet, navigationColor = false)
+
+            if (mMenuPopupTranslateLeft!!.isVisible)
+                AnimationUtil.animatePopupClose(this, mMenuPopupTranslateLeft!!, mMenuPopupBottomSheet, navigationColor = false)
+        }
 
         if (mFloatingSubtitleReader.isShowing)
             mFloatingSubtitleReader.dismiss()

@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.view.ui.window
 
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.view.GestureDetector
@@ -151,7 +152,8 @@ class FloatingButtons constructor(
 
         mFloatingView.setOnTouchListener(onTouchListener)
 
-        mMiddle = parent.width / 2
+        val width = if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) parent.height else parent.width
+        mMiddle = width - (mFloatingView.width /2) / 2
         inLeft = true
 
         mMoveWindow.setImageDrawable(mIconToRight)
@@ -176,7 +178,7 @@ class FloatingButtons constructor(
     fun show() {
         dismiss()
         isShowing = true
-        mPosition = Point(10, parent.width / 2)
+        mPosition = Point(10, mMiddle)
         mPopup?.showAtLocation(parent, Gravity.NO_GRAVITY, mPosition.x, mPosition.y)
     }
 

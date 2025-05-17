@@ -7,8 +7,8 @@ import android.os.Build
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatSeekBar
 import androidx.core.graphics.drawable.toBitmap
-import br.com.fenix.bilingualreader.R
 import androidx.core.graphics.withTranslation
+import br.com.fenix.bilingualreader.R
 
 
 /**

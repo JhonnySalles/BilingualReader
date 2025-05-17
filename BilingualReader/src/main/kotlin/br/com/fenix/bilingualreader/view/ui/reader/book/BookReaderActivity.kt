@@ -52,6 +52,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
 import br.com.fenix.bilingualreader.util.helpers.Util
@@ -60,6 +61,7 @@ import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.sidesheet.SideSheetBehavior
 import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -85,7 +87,8 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     private lateinit var mBackgroundProgress: ProgressBar
     private lateinit var mBackgroundClock: TextClock
 
-    private lateinit var mMenuPopupConfiguration: FrameLayout
+    private var mMenuPopupConfigurationBottom: FrameLayout? = null
+    private var mMenuPopupConfigurationLeft: FrameLayout? = null
     private lateinit var mPopupConfigurationTab: TabLayout
     private lateinit var mPopupConfigurationView: ViewPager
 
@@ -93,8 +96,9 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     private lateinit var mPopupReaderLayout: PopupBookLayout
     private lateinit var mPopupReaderLanguage: PopupBookLanguage
 
-    private var mMenuPopupBottomSheet: Boolean = false
+    private var mMenuPopupBottomSheet: Boolean = true
     private lateinit var mBottomSheetConfiguration: BottomSheetBehavior<FrameLayout>
+    private lateinit var mLeftSheetConfiguration: SideSheetBehavior<FrameLayout>
 
     private lateinit var mTouchView: ConstraintLayout
 
@@ -141,7 +145,9 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowTitleEnabled(true)
 
-        mMenuPopupConfiguration = findViewById(R.id.popup_book_configuration)
+        mMenuPopupBottomSheet = findViewById<ImageView>(R.id.popup_book_configuration_center_button) != null
+        mMenuPopupConfigurationBottom = findViewById(R.id.popup_book_configuration_bottom_sheet)
+        mMenuPopupConfigurationLeft = findViewById(R.id.popup_book_configuration_side_sheet)
         mPopupConfigurationTab = findViewById(R.id.popup_book_configuration_tab)
         mPopupConfigurationView = findViewById(R.id.popup_book_configuration_view_pager)
 
@@ -159,28 +165,26 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             }
         }
 
-        if (findViewById<ImageView>(R.id.popup_book_configuration_center_button) == null)
-            mMenuPopupBottomSheet = true
-        else {
-            mBottomSheetConfiguration = BottomSheetBehavior.from(mMenuPopupConfiguration).apply {
+        if (!mMenuPopupBottomSheet) {
+            mLeftSheetConfiguration = SideSheetBehavior.from(mMenuPopupConfigurationLeft!!)
+            findViewById<ImageView>(R.id.popup_book_configuration_close_button)?.setOnClickListener {
+                AnimationUtil.animatePopupClose(this, mMenuPopupConfigurationLeft!!, isVertical = false, navigationColor = false)
+            }
+            mPopupConfigurationTab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab?) {
+                    mLeftSheetConfiguration.isDraggable = mPopupConfigurationTab.selectedTabPosition <= 0
+                }
+                override fun onTabUnselected(tab: TabLayout.Tab?) { }
+                override fun onTabReselected(tab: TabLayout.Tab?) { }
+            })
+        } else {
+            mBottomSheetConfiguration = BottomSheetBehavior.from(mMenuPopupConfigurationBottom!!).apply {
                 peekHeight = 195
                 this.state = BottomSheetBehavior.STATE_COLLAPSED
                 mBottomSheetConfiguration = this
             }
             mBottomSheetConfiguration.isDraggable = false
-
-            findViewById<ImageView>(R.id.popup_book_configuration_center_button).let {
-                it.setOnClickListener {
-                    if (mBottomSheetConfiguration.state == BottomSheetBehavior.STATE_COLLAPSED)
-                        mBottomSheetConfiguration.state = BottomSheetBehavior.STATE_EXPANDED
-                    else
-                        mBottomSheetConfiguration.state = BottomSheetBehavior.STATE_COLLAPSED
-                }
-                it.setOnLongClickListener {
-                    AnimationUtil.animatePopupClose(this, mMenuPopupConfiguration, !mMenuPopupBottomSheet, navigationColor = false)
-                    true
-                }
-            }
+            PopupUtils.onPopupTouch(this, mMenuPopupConfigurationBottom!!, mBottomSheetConfiguration, findViewById<ImageView>(R.id.popup_book_configuration_center_button), navigationColor = false)
         }
 
         mPopupReaderFont = PopupBookFont()
@@ -446,13 +450,15 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             R.id.menu_item_reader_book_search -> {}
             R.id.menu_item_reader_book_annotation -> {}
             R.id.menu_item_reader_book_font_style -> {
-                if (mMenuPopupConfiguration.isGone) {
-                    if (!mMenuPopupBottomSheet)
+                val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationBottom else mMenuPopupConfigurationLeft
+                if (layout!!.isGone) {
+                    if (mMenuPopupBottomSheet)
                         mBottomSheetConfiguration.state = BottomSheetBehavior.STATE_EXPANDED
-
-                    AnimationUtil.animatePopupOpen(this, mMenuPopupConfiguration, !mMenuPopupBottomSheet, navigationColor = false)
+                    else
+                        mLeftSheetConfiguration.state = SideSheetBehavior.STATE_EXPANDED
+                    AnimationUtil.animatePopupOpen(this, layout, mMenuPopupBottomSheet, navigationColor = false)
                 } else
-                    AnimationUtil.animatePopupClose(this, mMenuPopupConfiguration, !mMenuPopupBottomSheet, navigationColor = false)
+                    AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = false)
             }
             R.id.menu_item_reader_book_mark_page -> {}
             R.id.menu_item_reader_book_view_touch_screen -> openTouchFunctions()
@@ -461,8 +467,9 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     }
 
     override fun onBackPressed() {
-        if (mMenuPopupConfiguration.visibility != View.GONE) {
-            AnimationUtil.animatePopupClose(this, mMenuPopupConfiguration, !mMenuPopupBottomSheet, navigationColor = false)
+        val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationBottom else mMenuPopupConfigurationLeft
+        if (layout!!.visibility != View.GONE) {
+            AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = false)
             return
         }
 
@@ -513,15 +520,17 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
 
 
     override fun configTouchFunctions() {
-        if (mMenuPopupConfiguration.visibility != View.GONE)
-            AnimationUtil.animatePopupClose(this, mMenuPopupConfiguration, !mMenuPopupBottomSheet, navigationColor = false)
+        val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationBottom else mMenuPopupConfigurationLeft
+        if (layout!!.visibility != View.GONE)
+            AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = false)
 
         mFragment?.configTouchFunctions()
     }
 
     override fun openTouchFunctions() {
-        if (mMenuPopupConfiguration.visibility != View.GONE)
-            AnimationUtil.animatePopupClose(this, mMenuPopupConfiguration, !mMenuPopupBottomSheet, navigationColor = false)
+        val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationBottom else mMenuPopupConfigurationLeft
+        if (layout!!.visibility != View.GONE)
+            AnimationUtil.animatePopupClose(this, layout, mMenuPopupBottomSheet, navigationColor = false)
 
         mFragment?.setFullscreen(true)
 

@@ -319,6 +319,7 @@
     <!-- READER POPUP TITLES -->
     <string name="popup_reading_book_open">Open</string>
     <string name="popup_reading_book_close">Close</string>
+    <string name="popup_reading_book_tab_title">Configuration</string>
     <string name="popup_reading_book_tab_item_font">Font</string>
     <string name="popup_reading_book_tab_item_layout">Layout</string>
     <string name="popup_reading_book_tab_item_language">Language</string>
@@ -540,9 +541,11 @@
     <string name="popup_reading_manga_open">Open</string>
     <string name="popup_reading_manga_close">Close</string>
     <string name="popup_reading_manga_floating_popup">Floating popup</string>
+    <string name="popup_reading_manga_tab_title_configuration">Configuration</string>
+    <string name="popup_reading_manga_tab_item_configuration_brightness">Brightness</string>
+    <string name="popup_reading_manga_tab_item_configuration_bookmarks">BookMarks</string>
+    <string name="popup_reading_manga_tab_title_subtitle">Subtitles</string>
     <string name="popup_reading_manga_tab_item_subtitle">Subtitles</string>
-    <string name="popup_reading_manga_tab_item_brightness">Brightness</string>
-    <string name="popup_reading_manga_tab_item_bookmarks">BookMarks</string>
     <string name="popup_reading_manga_tab_item_subtitle_import">Import</string>
     <string name="popup_reading_manga_tab_item_subtitle_vocabulary">Vocabulary</string>
 

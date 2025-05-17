@@ -133,8 +133,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mRoot: CoordinatorLayout
     private lateinit var mToolbarTop: AppBarLayout
     private lateinit var mPageNavLayout: LinearLayout
-    private lateinit var mPopupSubtitle: FrameLayout
-    private lateinit var mPopupColor: FrameLayout
+    private var mPopupSubtitleBottom: FrameLayout? = null
+    private var mPopupSubtitleLeft: FrameLayout? = null
+    private var mPopupColorBottom: FrameLayout? = null
+    private var mPopupColorLeft: FrameLayout? = null
     private lateinit var mToolbarBottom: LinearLayout
     private lateinit var mPageSeekBar: DottedSeekBar
     private lateinit var mPageNavTextView: TextView
@@ -183,7 +185,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mStorage: Storage
     private lateinit var mSubtitleController: SubTitleController
     private var mDialog: AlertDialog? = null
-    private var mMenuPopupBottomSheet: Boolean = false
+    private var mPopupBottomSheet: Boolean = false
 
     private val mLastPage = LinkedList<Pair<Int, Bitmap>>()
     private val mHandler = Handler(Looper.getMainLooper())
@@ -464,8 +466,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         mRoot = requireActivity().findViewById(R.id.root_activity_manga_reader)
         mToolbarTop = requireActivity().findViewById(R.id.reader_manga_toolbar_reader_top)
-        mPopupSubtitle = requireActivity().findViewById(R.id.popup_manga_translate)
-        mPopupColor = requireActivity().findViewById(R.id.popup_manga_configurations)
+        mPopupSubtitleBottom = requireActivity().findViewById(R.id.popup_manga_translate_bottom_sheet)
+        mPopupSubtitleLeft = requireActivity().findViewById(R.id.popup_manga_translate_side_sheet)
+        mPopupColorBottom = requireActivity().findViewById(R.id.popup_manga_configurations_bottom_sheet)
+        mPopupColorLeft = requireActivity().findViewById(R.id.popup_manga_configurations_side_sheet)
         mPageNavLayout = requireActivity().findViewById(R.id.reader_manga_bottom_progress_content)
         mToolbarBottom = requireActivity().findViewById(R.id.reader_manga_toolbar_reader_bottom)
         mPreviousButton = requireActivity().findViewById(R.id.reader_manga_nav_previous_file)
@@ -481,6 +485,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mLastPageContainer = requireActivity().findViewById(R.id.reader_last_page)
         mLastPageImage = requireActivity().findViewById(R.id.last_page_image)
         mLastPageText = requireActivity().findViewById(R.id.last_page_text)
+
+        mPopupBottomSheet = requireActivity().findViewById<ImageView>(R.id.popup_manga_translate_center_button) != null
 
         mTouchScreen = TouchUtils.getTouch(requireContext(), Type.MANGA)
         mLastPageContainer.visibility = View.GONE
@@ -509,8 +515,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mManga!!, mCoverImage, null, true)
             mHandler.postDelayed({ MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mManga!!, mCoverImage, null, false) }, 300)
         }
-
-        mMenuPopupBottomSheet = requireActivity().findViewById<ImageView>(R.id.popup_manga_translate_center_button) == null
 
         var run: Runnable? = null
         run = Runnable {
@@ -1509,11 +1513,19 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     }, ANIMATION_DURATION + 100)
                 }
 
-                if (mPopupSubtitle.visibility != View.GONE)
-                    AnimationUtil.animatePopupClose(requireActivity(), mPopupSubtitle, !mMenuPopupBottomSheet, navigationColor = false)
+                if (mPopupBottomSheet) {
+                    if (mPopupSubtitleBottom!!.visibility != View.GONE)
+                        AnimationUtil.animatePopupClose(requireActivity(), mPopupSubtitleBottom!!, mPopupBottomSheet, navigationColor = false)
 
-                if (mPopupColor.visibility != View.GONE)
-                    AnimationUtil.animatePopupClose(requireActivity(), mPopupColor, !mMenuPopupBottomSheet, navigationColor = false)
+                    if (mPopupColorBottom!!.visibility != View.GONE)
+                        AnimationUtil.animatePopupClose(requireActivity(), mPopupColorBottom!!, mPopupBottomSheet, navigationColor = false)
+                } else {
+                    if (mPopupSubtitleLeft!!.visibility != View.GONE)
+                        AnimationUtil.animatePopupClose(requireActivity(), mPopupSubtitleLeft!!, mPopupBottomSheet, navigationColor = false)
+
+                    if (mPopupColorLeft!!.visibility != View.GONE)
+                        AnimationUtil.animatePopupClose(requireActivity(), mPopupColorLeft!!, mPopupBottomSheet, navigationColor = false)
+                }
             }, ANIMATION_DURATION)
         } else {
             Handler(Looper.getMainLooper()).postDelayed({ changeContentsVisibility(fullscreen) }, ANIMATION_DURATION)

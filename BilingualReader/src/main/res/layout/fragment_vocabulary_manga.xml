@@ -123,7 +123,7 @@
             <ImageView
                 android:id="@+id/vocabulary_manga_popup_menu_order_filter_touch"
                 style="@style/TextTitle.Popup"
-                android:layout_width="70dp"
+                android:layout_width="@dimen/popup_button_center"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|top"
                 android:contentDescription="@string/popup_reading_manga_open"

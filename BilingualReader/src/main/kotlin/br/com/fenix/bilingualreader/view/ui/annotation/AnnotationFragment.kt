@@ -46,6 +46,7 @@ import br.com.fenix.bilingualreader.service.listener.AnnotationsListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.annotation.AnnotationLineAdapter
@@ -248,18 +249,7 @@ class AnnotationFragment : Fragment(), AnnotationListener {
         }
         mBottomSheet.isDraggable = true
 
-        root.findViewById<ImageView>(R.id.annotation_popup_filter_touch).let {
-            it.setOnClickListener {
-                if (mBottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED)
-                    mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
-                else
-                    mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-            }
-            it.setOnLongClickListener {
-                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupFilter)
-                true
-            }
-        }
+        PopupUtils.onPopupTouch(requireActivity(), mMenuPopupFilter, mBottomSheet, root.findViewById<ImageView>(R.id.annotation_popup_filter_touch))
 
         mPopupFilterTypeFragment = AnnotationPopupFilterType()
         mPopupFilterColorFragment = AnnotationPopupFilterColor()

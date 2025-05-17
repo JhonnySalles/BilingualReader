@@ -76,6 +76,7 @@ import br.com.fenix.bilingualreader.util.helpers.AdapterUtil.AdapterUtils
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.Notifications
+import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaGridCardAdapter
@@ -625,18 +626,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         }
         mBottomSheet.isDraggable = true
 
-        root.findViewById<ImageView>(R.id.manga_library_popup_menu_order_filter_touch).let {
-            it.setOnClickListener {
-                if (mBottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED)
-                    mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
-                else
-                    mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-            }
-            it.setOnLongClickListener {
-                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupLibrary)
-                true
-            }
-        }
+        PopupUtils.onPopupTouch(requireActivity(), mMenuPopupLibrary, mBottomSheet, root.findViewById<View>(R.id.manga_library_popup_menu_order_filter_touch))
 
         val viewFilterOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
         viewFilterOrderPagerAdapter.addFragment(

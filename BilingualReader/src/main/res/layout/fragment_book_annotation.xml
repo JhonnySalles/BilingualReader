@@ -110,7 +110,7 @@
             <ImageView
                 android:id="@+id/book_annotation_popup_filter_touch"
                 style="@style/TextTitle.Popup"
-                android:layout_width="70dp"
+                android:layout_width="@dimen/popup_button_center"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|top"
                 android:contentDescription="@string/annotation_popup_filter_open"
