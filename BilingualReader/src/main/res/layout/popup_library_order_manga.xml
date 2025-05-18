@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_margin="@dimen/margin_small"
         android:paddingTop="@dimen/margin"
         android:paddingBottom="@dimen/margin_bottom">
         <br.com.fenix.bilingualreader.view.components.TriStateCheckBox
@@ -43,6 +44,30 @@
             android:layout_height="match_parent"
             android:button="@null"
             android:text="@string/popup_library_manga_order_favorite"/>
+
+        <br.com.fenix.bilingualreader.view.components.TriStateCheckBox
+            android:id="@+id/popup_library_order_manga_genre"
+            style="@style/OrderCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:text="@string/popup_library_manga_order_genre"/>
+
+        <br.com.fenix.bilingualreader.view.components.TriStateCheckBox
+            android:id="@+id/popup_library_order_manga_author"
+            style="@style/OrderCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:text="@string/popup_library_manga_order_author"/>
+
+        <br.com.fenix.bilingualreader.view.components.TriStateCheckBox
+            android:id="@+id/popup_library_order_manga_series"
+            style="@style/OrderCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:text="@string/popup_library_manga_order_series"/>
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>

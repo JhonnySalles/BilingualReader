@@ -207,7 +207,7 @@ class FloatingSubtitleReader constructor(
             mResizer = this.findViewById(R.id.floating_manga_subtitle_resizer)
             setResizer()
 
-            mIconExpanded = AppCompatResources.getDrawable(context, R.drawable.ic_expanded)
+            mIconExpanded = AppCompatResources.getDrawable(context, R.drawable.ico_expanded)
             mIconRetracted =
                 AppCompatResources.getDrawable(context, R.drawable.ico_floating_subtitle_retracted)
 

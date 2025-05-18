@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ListView
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Kanjax
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
@@ -18,20 +19,28 @@ class PopupVocabulary(val context: Context, isFormatterInitialize: Boolean = tru
 
     private val mLOGGER = LoggerFactory.getLogger(PopupVocabulary::class.java)
 
+    companion object {
+        private var mLastPopup : AlertDialog? = null
+    }
+
     init {
         if (isFormatterInitialize)
             Formatter.initializeAsync(context)
     }
 
     fun getPopupVocabulary(id: Long) {
+        mLastPopup?.dismiss()
         val vocabulary = Formatter.getVocabulary(id)
         val popup = createVocabularyPopup(context, LayoutInflater.from(context), vocabulary)
-        MaterialAlertDialogBuilder(context, R.style.AppCompatMaterialAlertDialog)
+        mLastPopup = MaterialAlertDialogBuilder(context, R.style.AppCompatMaterialAlertDialog)
             .setView(popup)
             .setCancelable(true)
             .setPositiveButton(R.string.action_neutral) { _, _ -> }
+            .setOnDismissListener {
+                mLastPopup = null
+            }
             .create()
-            .show()
+        mLastPopup!!.show()
     }
 
     private fun createVocabularyPopup(context: Context, inflater: LayoutInflater, vocabulary: Vocabulary?): View? {

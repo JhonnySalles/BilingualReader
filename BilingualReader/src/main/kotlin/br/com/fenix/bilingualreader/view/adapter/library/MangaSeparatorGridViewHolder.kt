@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
@@ -14,6 +15,7 @@ import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.AdapterUtil.AdapterUtils
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.TextViewWithBorder
 import com.google.android.material.card.MaterialCardView
@@ -23,10 +25,7 @@ class MangaSeparatorGridViewHolder(var type: LibraryMangaType, itemView: View, p
 
     companion object {
         var mIsLandscape: Boolean = false
-        var mMangaCardWidth: Int = 0
-        var mMangaCardHeight: Int = 0
-        var mMangaCardWidthMedium: Int = 0
-        var mMangaCardWidthLandscapeMedium: Int = 0
+        var mMangaCardSize: Pair<Int, Int> = Pair(0, 0)
         var mMangaImage: Int = 0
         lateinit var mDefaultImageCover1: Bitmap
         lateinit var mDefaultImageCover2: Bitmap
@@ -37,10 +36,7 @@ class MangaSeparatorGridViewHolder(var type: LibraryMangaType, itemView: View, p
 
     init {
         mIsLandscape = itemView.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        mMangaCardWidth = itemView.resources.getDimension(R.dimen.manga_separator_grid_card_layout_width).toInt()
-        mMangaCardHeight = itemView.resources.getDimension(R.dimen.manga_separator_grid_card_layout_height).toInt()
-        mMangaCardWidthMedium = itemView.resources.getDimension(R.dimen.manga_separator_grid_card_layout_width_medium).toInt()
-        mMangaCardWidthLandscapeMedium = itemView.resources.getDimension(R.dimen.manga_separator_grid_card_layout_width_landscape_medium).toInt()
+        mMangaCardSize = AdapterUtils.getMangaCardSize(itemView.context, type, mIsLandscape)
         mMangaImage = itemView.resources.getDimension(R.dimen.manga_separator_grid_card_image).toInt()
 
         mDefaultImageCover1 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_1)
@@ -59,7 +55,10 @@ class MangaSeparatorGridViewHolder(var type: LibraryMangaType, itemView: View, p
         val mangaLastAccess = itemView.findViewById<TextViewWithBorder>(R.id.manga_grid_last_access)
         val mangaProgress = itemView.findViewById<ProgressBar>(R.id.manga_grid_progress)
         val cardView = itemView.findViewById<MaterialCardView>(R.id.manga_grid_card)
-        val favorite = itemView.findViewById<ImageView>(R.id.manga_grid_favorite)
+        val favorite = itemView.findViewById<LinearLayout>(R.id.manga_grid_favorite)
+        val favoriteIcon = itemView.findViewById<ImageView>(R.id.manga_grid_favorite_icon)
+        val config = itemView.findViewById<LinearLayout>(R.id.manga_grid_config)
+        val configIcon = itemView.findViewById<ImageView>(R.id.manga_grid_config_icon)
         val subtitle = itemView.findViewById<ImageView>(R.id.manga_grid_has_subtitle)
 
         if (manga.favorite)
@@ -69,23 +68,27 @@ class MangaSeparatorGridViewHolder(var type: LibraryMangaType, itemView: View, p
 
         subtitle.visibility  = if (manga.hasSubtitle) {
             if (manga.lastVocabImport != null)
-                subtitle.setImageResource(R.drawable.ic_subtitles_imported)
+                subtitle.setImageResource(R.drawable.ico_subtitles_imported)
             else
-                subtitle.setImageResource(R.drawable.ic_subtitles_exist)
+                subtitle.setImageResource(R.drawable.ico_subtitles_exist)
             View.VISIBLE
         } else View.GONE
 
-
-        cardView.layoutParams.height = mMangaCardHeight
-        mangaImage.layoutParams.height = mMangaImage
-        cardView.layoutParams.width = when (type) {
-            LibraryMangaType.SEPARATOR_MEDIUM -> if (mIsLandscape) mMangaCardWidthLandscapeMedium else mMangaCardWidthMedium
-            else ->  mMangaCardWidth
+        favorite.setOnClickListener {
+            manga.favorite = !manga.favorite
+            favoriteIcon.setImageResource(if (manga.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+            listener.onClickFavorite(manga)
         }
 
-        cardView.setOnClickListener { listener.onClick(manga) }
+        favoriteIcon.setImageResource(if (manga.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+        config.setOnClickListener { listener.onClickConfig(manga, cardView, configIcon, layoutPosition) }
+
+        cardView.layoutParams.width = mMangaCardSize.first
+        cardView.layoutParams.height = mMangaCardSize.second
+        mangaImage.layoutParams.height = mMangaImage
+        cardView.setOnClickListener { listener.onClick(manga, itemView) }
         cardView.setOnLongClickListener {
-            listener.onClickLong(manga, it, layoutPosition)
+            listener.onClickLong(manga, itemView, layoutPosition)
             true
         }
 
@@ -100,7 +103,7 @@ class MangaSeparatorGridViewHolder(var type: LibraryMangaType, itemView: View, p
         mangaImage.setImageBitmap(null)
         MangaImageCoverController.instance.setImageCoverAsync(itemView.context, manga, mangaImage, image)
 
-        val isSmall = manga.lastAccess != null && manga.bookMark > 0 && type != LibraryMangaType.GRID_BIG
+        val isSmall = manga.lastAccess != null && manga.bookMark > 0 && type != LibraryMangaType.GRID_BIG && type != LibraryMangaType.SEPARATOR_BIG
 
         mangaTitle.text = manga.title
         mangaFileType.text = Util.getExtensionFromPath(manga.path).uppercase()

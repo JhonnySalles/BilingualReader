@@ -12,6 +12,7 @@ import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import java.io.File
@@ -31,14 +32,17 @@ class Book(
     author: String,
     password: String,
     annotation: String,
-    year: String,
+    release: LocalDate?,
     genre: String,
     publisher: String,
+    series: String,
     isbn: String,
     pages: Int,
+    volume: String,
     chapter: Int,
     chapterDescription: String,
     bookMark: Int,
+    completed: Boolean,
     language: Languages,
     path: String,
     folder: String,
@@ -58,12 +62,12 @@ class Book(
 ) : Serializable, History {
 
     constructor(
-        id: Long?, title: String, author: String, password: String, annotation: String, year: String, genre: String, publisher: String, isbn: String,
-        pages: Int, chapter: Int, chapterDescription: String, bookMark: Int, language: Languages, path: String, name: String, fileType: FileType, folder: String,
-        fileSize: Long, favorite: Boolean, dateCreate: LocalDateTime?, fkLibrary: Long?, tags: MutableList<Long>, excluded: Boolean, lastAlteration: LocalDateTime?,
+        id: Long?, title: String, author: String, password: String, annotation: String, release: LocalDate, genre: String, publisher: String, series: String, isbn: String,
+        pages: Int, volume: String, chapter: Int, chapterDescription: String, bookMark: Int, completed: Boolean, language: Languages, path: String, name: String, fileType: FileType,
+        folder: String, fileSize: Long, favorite: Boolean, dateCreate: LocalDateTime?, fkLibrary: Long?, tags: MutableList<Long>, excluded: Boolean, lastAlteration: LocalDateTime?,
         fileAlteration: Date, lastVocabImport: LocalDateTime?, lastVerify: LocalDate?, lastAccess: LocalDateTime?, sort: LocalDateTime?
     ) : this(
-        id, title, author, password, annotation, year, genre, publisher, isbn, pages, chapter, chapterDescription, bookMark, language, path, folder,
+        id, title, author, password, annotation, release, genre, publisher, series, isbn, pages, volume, chapter, chapterDescription, bookMark, completed, language, path, folder,
         name, fileType, fileSize, favorite, fkLibrary, tags, excluded, dateCreate, lastAccess, lastAlteration, fileAlteration, lastVocabImport, lastVerify
     ) {
         this.sort = sort
@@ -72,10 +76,10 @@ class Book(
 
     @Ignore
     constructor(
-        fkLibrary: Long?, title: String, author: String, annotation: String, year: String, genre: String, publisher: String, isbn: String, path: String,
+        fkLibrary: Long?, title: String, author: String, annotation: String, release: LocalDate, genre: String, publisher: String, series : String, isbn: String, path: String,
         folder: String, name: String, fileSize: Long, pages: Int
     ) : this(
-        null, title, author, "", annotation, year, genre, publisher, isbn, pages, 0, "", 0,
+        null, title, author, "", annotation, release, genre, publisher, series, isbn, pages, "", 0, "", 0, false,
         Languages.ENGLISH, path, folder, name, FileType.UNKNOWN, fileSize, false, fkLibrary, mutableListOf(), false,
         LocalDateTime.now(), null, LocalDateTime.now(), Date(), null, null
     ) {
@@ -85,9 +89,10 @@ class Book(
 
     @Ignore
     constructor(fkLibrary: Long?, id: Long?, file: File) : this(
-        id, "",  "", "",  "", "",  "", "", "", 1, 0,
-        "", 0, Languages.ENGLISH, file.path, file.parent, file.name, FileType.UNKNOWN, file.length(), false,
-        fkLibrary, mutableListOf(), false, LocalDateTime.now(), null, LocalDateTime.now(), Date(), null, null
+        id, file.nameWithoutExtension,  "", "",  "", null,  "", "", "","", 1, "", 0,
+        "", 0, false, Languages.ENGLISH, file.path, file.parent, file.name, FileType.UNKNOWN, file.length(), false,
+        fkLibrary, mutableListOf(), false, LocalDateTime.now(), null, null, Date(file.lastModified()),
+        null, null
     ) {
         this.fileType = FileUtil.getFileType(file.name)
         this.fileAlteration = Date(this.file.lastModified())
@@ -109,8 +114,8 @@ class Book(
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.ANNOTATION)
     var annotation: String = annotation
 
-    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.YEAR)
-    var year: String = year
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.RELEASE)
+    var release: LocalDate? = release
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.GENRE)
     var genre: String = genre
@@ -118,11 +123,17 @@ class Book(
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.PUBLISHER)
     var publisher: String = publisher
 
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.SERIES)
+    var series: String = series
+
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.ISBN)
     var isbn: String = isbn
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.PAGES)
     override var pages: Int = pages
+
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.VOLUME)
+    override var volume: String = volume
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.CHAPTER)
     var chapter: Int = chapter
@@ -132,6 +143,13 @@ class Book(
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.BOOK_MARK)
     override var bookMark: Int = bookMark
+        set(value) {
+            field = value
+            this.completed = value >= pages
+        }
+
+    @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.COMPLETED)
+    override var completed: Boolean = completed
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.LANGUAGE)
     var language: Languages = language
@@ -237,12 +255,13 @@ class Book(
         return result
     }
 
-    fun update(book: Book) : Boolean {
+    fun update(book: Book, isFull: Boolean = false) : Boolean {
         val updated = this.bookMark != book.bookMark || this.favorite != book.favorite ||
                 this.pages != book.pages || this.language != book.language ||
                 this.tags != book.tags || this.lastAccess != book.lastAccess
 
         this.bookMark = book.bookMark
+        this.completed = book.completed
         this.pages = book.pages
         this.tags = book.tags
         this.language = book.language
@@ -251,15 +270,62 @@ class Book(
         this.lastAlteration = book.lastAlteration
         this.lastVocabImport = book.lastVocabImport
 
+        if (isFull) {
+            this.title = book.title
+            this.author = book.author
+            this.password = book.password
+            this.annotation = book.annotation
+            this.release = book.release
+            this.genre = book.genre
+            this.volume = book.volume
+            this.chapter = book.chapter
+            this.chapterDescription = book.chapterDescription
+            this.extension = book.extension
+            this.publisher = book.publisher
+            this.series = book.series
+            this.isbn = book.isbn
+        }
+
         return updated
     }
 
-    fun update(meta: EbookMeta, language: Libraries) {
+    fun update(meta: EbookMeta, language: Libraries) : Boolean {
+        val metaRelease = if (meta.release != null) GeneralConsts.dateToDateTime(meta.release).toLocalDate() else null
+
+        val series = meta.sequence ?: let {
+            var index = -1
+            if (title.contains(" vol.",true)) {
+                index = title.lastIndexOf(" vol.", 0, true)
+                if (index < 0)
+                    index = title.indexOf(" vol.", 0, true)
+            } else if (title.contains("volume", true)){
+                index = title.lastIndexOf("volume", 0, true)
+                if (index < 0)
+                    index = title.indexOf("volume", 0, true)
+            }
+            if (index > -1) title.substring(0, index).trim() else ""
+        }
+
+        val updated = this.title != meta.title || this.author != (meta.author ?: "") || this.annotation != (meta.annotation ?: "") ||
+                this.genre != (meta.genre ?: "") || this.publisher != (meta.publisher ?: "") || this.series != series ||
+                this.isbn != (meta.isbn ?: "") || this.release != metaRelease
+
         this.title = meta.title
         this.author = meta.author ?: ""
         this.annotation = meta.annotation ?: ""
         this.genre = meta.genre ?: ""
+        this.publisher = meta.publisher ?: ""
+        this.series = series
+        this.isbn = meta.isbn ?: ""
+        this.release = metaRelease
         this.fileSize = file.length()
+
+        if (meta.getsIndex() > 0)
+            this.volume = meta.getsIndex().toString()
+        else if (title.lowercase().contains(" vol."))
+            this.volume = title.lowercase().substringAfterLast("vol.", "").substringBefore("—").trim().replace(Regex("[^\\d.][\\s\\S]+"), "")
+        else
+            this.volume = fileName.lowercase().substringAfterLast("volume", "").trim().replace(Regex("[^\\d.][\\s\\S]+"), "")
 
         this.language = when (meta.lang) {
             "ja", "jp" -> Languages.JAPANESE
@@ -275,6 +341,8 @@ class Book(
         this.fileType = FileUtil.getFileType(file.name)
         this.fileAlteration = Date(this.file.lastModified())
         this.lastVocabImport = null
+
+        return updated
     }
 
 }

@@ -3,6 +3,8 @@ package br.com.ebook.foobnix.ext;
 import android.util.Base64;
 
 import org.ebookdroid.core.codec.OutlineLink;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParser;
 
 import java.io.BufferedReader;
@@ -16,7 +18,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -26,7 +30,6 @@ import java.util.zip.ZipOutputStream;
 
 import br.com.ebook.BaseExtractor;
 import br.com.ebook.Config;
-import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.StreamUtils;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.hypen.HypenUtils;
@@ -37,6 +40,8 @@ import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.sys.TempHolder;
 
 public class Fb2Extractor extends BaseExtractor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Fb2Extractor.class);
     public static final String FOOTER_NOTES_SIGN = "***";
     public static final String FOOTER_AFTRER_BOODY = "[!]";
 
@@ -66,10 +71,8 @@ public class Fb2Extractor extends BaseExtractor {
                     if (imageID == null && xpp.getName().equals("image")) {
                         imageID = xpp.getAttributeValue(0);
 
-                        if (TxtUtils.isNotEmpty(imageID)) {
+                        if (TxtUtils.isNotEmpty(imageID))
                             imageID = imageID.replace("#", "");
-                        }
-
                     }
                     if (imageID != null && xpp.getName().equals("binary") && imageID.equals(xpp.getAttributeValue(null, "id"))) {
                         decode = Base64.decode(xpp.nextText(), Base64.DEFAULT);
@@ -79,7 +82,7 @@ public class Fb2Extractor extends BaseExtractor {
                 eventType = xpp.next();
             }
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error get book cover: {}", e.getMessage(), e);
         }
         return decode;
     }
@@ -100,17 +103,15 @@ public class Fb2Extractor extends BaseExtractor {
                     if (xpp.getName().equals("image")) {
                         if (imageID == null) {
                             imageID = xpp.getAttributeValue(0);
-                            if (TxtUtils.isNotEmpty(imageID)) {
+                            if (TxtUtils.isNotEmpty(imageID))
                                 imageID = imageID.replace("#", "");
-                            }
                         }
                         if (imageCover == null) {
                             imageCover = xpp.getAttributeValue(0);
-                            if (TxtUtils.isNotEmpty(imageCover) && imageCover.toLowerCase(Locale.US).contains("cover")) {
+                            if (TxtUtils.isNotEmpty(imageCover) && imageCover.toLowerCase(Locale.getDefault()).contains("cover"))
                                 imageCover = imageID = imageCover.replace("#", "");
-                            } else {
+                            else
                                 imageCover = null;
-                            }
                         }
                     }
 
@@ -122,7 +123,7 @@ public class Fb2Extractor extends BaseExtractor {
                 eventType = xpp.next();
             }
         } catch (Exception e) {
-            LOG.e(e, path);
+            LOGGER.error("Error get book cover: {}", e.getMessage(), e);
         }
         return decode;
     }
@@ -138,29 +139,25 @@ public class Fb2Extractor extends BaseExtractor {
             boolean findAnnotation = false;
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
-                    if ("annotation".equals(xpp.getName())) {
+                    if ("annotation".equals(xpp.getName()))
                         findAnnotation = true;
-                    }
-                    if ("body".equals(xpp.getName())) {
+
+                    if ("body".equals(xpp.getName()))
                         break;
-                    }
                 }
                 if (eventType == XmlPullParser.TEXT) {
-                    if (findAnnotation) {
+                    if (findAnnotation)
                         info = info + " " + xpp.getText();
-                    }
-
                 }
                 if (eventType == XmlPullParser.END_TAG) {
-                    if ("annotation".equals(xpp.getName())) {
+                    if ("annotation".equals(xpp.getName()))
                         break;
-                    }
                 }
 
                 eventType = xpp.next();
             }
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error get book overview: {}", e.getMessage(), e);
         }
 
         return info;
@@ -186,45 +183,61 @@ public class Fb2Extractor extends BaseExtractor {
             String sequence = "";
             String lang = "";
             String number = "";
+            String isbn = null;
+            String publisher = null;
+            Date release = null;
             boolean titleInfo = false;
 
             int eventType = xpp.getEventType();
             while (eventType != XmlPullParser.END_DOCUMENT) {
 
                 if (eventType == XmlPullParser.START_TAG) {
-
-                    if (xpp.getName().equals("title-info")) {
+                    if (xpp.getName().equals("title-info"))
                         titleInfo = true;
-                    }
 
                     if (titleInfo) {
-                        if (xpp.getName().equals("book-title")) {
+                        if (xpp.getName().equals("book-title"))
                             bookTitle = xpp.nextText();
-                        } else if (xpp.getName().equals("lang")) {
+                        else if (xpp.getName().equals("lang"))
                             lang = xpp.nextText();
-                        } else if (firstName == null && xpp.getName().equals("first-name")) {
+                        else if (firstName == null && xpp.getName().equals("first-name"))
                             firstName = xpp.nextText();
-                        } else if (lastName == null && xpp.getName().equals("last-name")) {
+                        else if (lastName == null && xpp.getName().equals("last-name"))
                             lastName = xpp.nextText();
-                        } else if (xpp.getName().equals("genre")) {
+                        else if (xpp.getName().equals("genre"))
                             genre = xpp.nextText() + "," + genre;
-                        } else if (xpp.getName().equals("sequence")) {
+                        else if (xpp.getName().equals("sequence")) {
                             sequence = xpp.getAttributeValue(null, "name");
                             String current = xpp.getAttributeValue(null, "number");
-                            if (TxtUtils.isNotEmpty(current) && !("0".equals(current) || "00".equals(current))) {
+                            if (TxtUtils.isNotEmpty(current) && !("0".equals(current) || "00".equals(current)))
                                 number = current;
+                        } else if (xpp.getName().equals("isbn"))
+                            isbn = xpp.nextText();
+                        else if (xpp.getName().equals("publisher"))
+                            publisher = xpp.nextText();
+                        else if (xpp.getName().equals("date")) {
+                            String date = xpp.nextText();
+                            try {
+                                if (date.contains("T"))
+                                    release = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).parse(date);
+                                else {
+                                    try {
+                                        release = new SimpleDateFormat("dd.M.yyyy", Locale.getDefault()).parse(date);
+                                    } catch (Exception e) {
+                                        release = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(date);
+                                    }
+                                }
+                            } catch (Exception e) {
                             }
                         }
                     }
 
-                    if (xpp.getName().equals("body")) {
+                    if (xpp.getName().equals("body"))
                         break;
-                    }
                 }
                 if (eventType == XmlPullParser.END_TAG) {
-                    if (xpp.getName().equals("title-info")) {
+                    if (xpp.getName().equals("title-info"))
                         titleInfo = false;
-                    }
                 }
 
                 eventType = xpp.next();
@@ -239,21 +252,22 @@ public class Fb2Extractor extends BaseExtractor {
             }
 
             if (TxtUtils.isNotEmpty(number)) {
-                EbookMeta ebookMeta = new EbookMeta(bookTitle, firstName + " " + lastName, sequence, genre);
+                EbookMeta ebookMeta = new EbookMeta(bookTitle, firstName + " " + lastName, sequence, genre, isbn, publisher, release);
                 try {
                     ebookMeta.setLang(lang);
                     ebookMeta.setsIndex(Integer.parseInt(number));
                 } catch (Exception e) {
-                    LOG.e(e);
+                    if (Config.SHOW_LOG)
+                        LOGGER.warn("Error to set index: {}", e.getMessage(), e);
                 }
                 return ebookMeta;
             } else {
-                EbookMeta ebookMeta = new EbookMeta(bookTitle, firstName + " " + lastName, sequence, genre);
+                EbookMeta ebookMeta = new EbookMeta(bookTitle, firstName + " " + lastName, sequence, genre, isbn, publisher, release);
                 ebookMeta.setLang(lang);
                 return ebookMeta;
             }
         } catch (Exception e) {
-            LOG.e(e, "!!!!", inputFile);
+            LOGGER.error("Error get book meta information: {} - {}", e.getMessage(), inputFile, e);
         }
         return EbookMeta.Empty();
     }
@@ -274,9 +288,8 @@ public class Fb2Extractor extends BaseExtractor {
             String key = "";
 
             while (eventType != XmlPullParser.END_DOCUMENT) {
-                if (TempHolder.get().loadingCancelled) {
+                if (TempHolder.get().loadingCancelled)
                     break;
-                }
                 if (eventType == XmlPullParser.START_TAG) {
                     if (xpp.getName().equals("a")) {
                         String type = xpp.getAttributeValue(null, "type");
@@ -284,10 +297,8 @@ public class Fb2Extractor extends BaseExtractor {
                             isLink = true;
 
                             link = xpp.getAttributeValue(null, "l:href");
-                            if (link == null) {
+                            if (link == null)
                                 link = xpp.getAttributeValue(null, "xlink:href");
-                            }
-
                         }
                     } else if (xpp.getName().equals("section")) {
                         sectionId = xpp.getAttributeValue(null, "id");
@@ -296,21 +307,20 @@ public class Fb2Extractor extends BaseExtractor {
                 } else if (eventType == XmlPullParser.TEXT) {
                     if (sectionId != null) {
                         String trim = xpp.getText().trim();
-                        if (trim.length() > 0) {
+                        if (trim.length() > 0)
                             text.append(trim + " ");
-                        }
                     }
                     if (isLink) {
                         key = key + " " + xpp.getText();
                         if (Config.SHOW_LOG)
-                            LOG.d("key", key);
+                            LOGGER.info("key {}", key);
                     }
                 } else if (eventType == XmlPullParser.END_TAG) {
                     if (sectionId != null && xpp.getName().equals("section")) {
                         String keyEnd = StreamUtils.getKeyByValue(map, sectionId);
                         map.put(keyEnd, text.toString());
                         if (Config.SHOW_LOG)
-                            LOG.d("getFooterNotes section", sectionId, keyEnd, ">", text.toString());
+                            LOGGER.info("getFooterNotes section: {} - {} > {}", sectionId, keyEnd, text.toString());
                         sectionId = null;
                         text = null;
                     } else if (xpp.getName().equals("a")) {
@@ -323,7 +333,7 @@ public class Fb2Extractor extends BaseExtractor {
                             link = link.replace("#", "");
                             map.put(key, link);
                             if (Config.SHOW_LOG)
-                                LOG.d("getFooterNotes", key, ">", link);
+                                LOGGER.info("getFooterNotes: {} > {}", key, link);
 
                             isLink = false;
                             key = "";
@@ -334,7 +344,7 @@ public class Fb2Extractor extends BaseExtractor {
                 eventType = xpp.next();
             }
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error get footer notes: {}", e.getMessage(), e);
         }
         return map;
     }
@@ -347,7 +357,7 @@ public class Fb2Extractor extends BaseExtractor {
             out.write(generateFb2File.toByteArray());
             out.close();
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error convert FB2: {}", e.getMessage(), e);
             return false;
         }
         return true;
@@ -356,7 +366,6 @@ public class Fb2Extractor extends BaseExtractor {
 
     @Override
     public boolean convert(String inputFile, String toName) {
-
         try {
             ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(new File(toName)));
             zos.setLevel(0);
@@ -374,15 +383,14 @@ public class Fb2Extractor extends BaseExtractor {
             ByteArrayOutputStream generateFb2File = generateFb2File(inputFile, encoding, false);
             writeToZip(zos, "OEBPS/fb2.fb2", new ByteArrayInputStream(generateFb2File.toByteArray()));
             if (Config.SHOW_LOG)
-                LOG.d("Fb2Context convert true");
+                LOGGER.info("Fb2Context convert true");
             zos.close();
             return true;
         } catch (Exception e) {
-            LOG.d("Fb2Context convert false error");
-            LOG.e(e);
+            LOGGER.error("Error convert fb2: {}", e.getMessage(), e);
         }
         if (Config.SHOW_LOG)
-            LOG.d("Fb2Context convert false");
+            LOGGER.info("Fb2Context convert false");
         return false;
     }
 
@@ -400,24 +408,21 @@ public class Fb2Extractor extends BaseExtractor {
             meta = meta.replace("%creator%", author);
 
             writeToZip(zos, "OEBPS/content.opf", meta);
-            if (TxtUtils.isListNotEmpty(outline)) {
+            if (TxtUtils.isListNotEmpty(outline))
                 writeToZip(zos, "OEBPS/fb2.ncx", genetateNCXbyOutline(outline));
-            }
 
-            for (File file : inputFolder.listFiles()) {
+            for (File file : inputFolder.listFiles())
                 writeToZip(zos, "OEBPS/" + file.getName(), new FileInputStream(file));
-            }
 
             if (Config.SHOW_LOG)
-                LOG.d("Fb2Context convert true");
+                LOGGER.info("Fb2Context convert true");
             zos.close();
             return true;
         } catch (Exception e) {
-            LOG.d("Fb2Context convert false error");
-            LOG.e(e);
+            LOGGER.error("Error convert folder to epub: {}", e.getMessage(), e);
         }
         if (Config.SHOW_LOG)
-            LOG.d("Fb2Context convert false");
+            LOGGER.info("Fb2Context convert false");
         return false;
     }
 
@@ -430,9 +435,8 @@ public class Fb2Extractor extends BaseExtractor {
 
         int count = 0;
 
-        if (BookCSS.get().isAutoHypens) {
+        if (BookCSS.get().isAutoHypens)
             HypenUtils.applyLanguage(BookCSS.get().hypenLang);
-        }
 
         boolean isEncoding = false;
         boolean isFindBodyEnd = false;
@@ -441,9 +445,8 @@ public class Fb2Extractor extends BaseExtractor {
         long init = System.currentTimeMillis();
 
         while ((line = input.readLine()) != null) {
-            if (TempHolder.get().loadingCancelled) {
+            if (TempHolder.get().loadingCancelled)
                 break;
-            }
 
             if (!isEncoding && line.contains("windows-1251")) {
                 line = line.replace("windows-1251", "utf-8");
@@ -459,22 +462,19 @@ public class Fb2Extractor extends BaseExtractor {
                 isEncoding = true;
             }
 
-            if (fixXML) {
+            if (fixXML)
                 line = line.replace("l:href==", "l:href=");
-            }
 
             String subLine[] = line.split("</");
 
             for (int i = 0; i < subLine.length; i++) {
-                if (i == 0) {
+                if (i == 0)
                     line = subLine[i];
-                } else {
+                else
                     line = "</" + subLine[i];
-                }
 
-                if (BookCSS.get().isAutoHypens && line.contains("<title")) {
+                if (BookCSS.get().isAutoHypens && line.contains("<title"))
                     titleBegin = true;
-                }
 
                 if (line.contains("</title>")) {
                     titleBegin = false;
@@ -503,7 +503,8 @@ public class Fb2Extractor extends BaseExtractor {
         }
 
         long delta = System.currentTimeMillis() - init;
-        LOG.d("generateFb2File", delta / 1000.0);
+        if (Config.SHOW_LOG)
+            LOGGER.info("generateFb2File: {}", delta / 1000.0);
         input.close();
         writer.close();
 
@@ -520,21 +521,19 @@ public class Fb2Extractor extends BaseExtractor {
         HypenUtils.applyLanguage(BookCSS.get().hypenLang);
 
         while ((line = input.readLine()) != null) {
-            if (TempHolder.get().loadingCancelled) {
+            if (TempHolder.get().loadingCancelled)
                 break;
-            }
-            if (!line.endsWith(" ")) {
+
+            if (!line.endsWith(" "))
                 line = line + " ";
-            }
 
             String subLine[] = line.split("</");
 
             for (int i = 0; i < subLine.length; i++) {
-                if (i == 0) {
+                if (i == 0)
                     line = subLine[i];
-                } else {
+                else
                     line = "</" + subLine[i];
-                }
 
                 line = HypenUtils.applyHypnes(line);
                 writer.print(line);
@@ -546,9 +545,9 @@ public class Fb2Extractor extends BaseExtractor {
 
     public static String genetateNCX(List<String> titles) {
         StringBuilder navs = new StringBuilder();
-        for (int i = 0; i < titles.size(); i++) {
+        for (int i = 0; i < titles.size(); i++)
             navs.append(createNavPoint(i + 1, titles.get(i)));
-        }
+
         return NCX.replace("%nav%", navs.toString());
     }
 
@@ -580,16 +579,14 @@ public class Fb2Extractor extends BaseExtractor {
         int dividerSection = -1;
         String dividerLine = null;
         while (eventType != XmlPullParser.END_DOCUMENT) {
-            if (TempHolder.get().loadingCancelled) {
+            if (TempHolder.get().loadingCancelled)
                 break;
-            }
+
             if (eventType == XmlPullParser.START_TAG) {
-                if (xpp.getName().equals("section")) {
+                if (xpp.getName().equals("section"))
                     section++;
-                }
-                if (xpp.getName().equals("title")) {
+                if (xpp.getName().equals("title"))
                     isTitle = true;
-                }
 
             } else if (eventType == XmlPullParser.END_TAG) {
                 if (xpp.getName().equals("title")) {
@@ -597,30 +594,26 @@ public class Fb2Extractor extends BaseExtractor {
                     title = "[" + xpp.getName() + "]" + title;
                     titles.add(section + DIVIDER + title);
                     title = "";
-                    if (section == dividerSection) {
+                    if (section == dividerSection)
                         titles.remove(dividerLine);
-                    }
                 }
-                if (xpp.getName().equals("section")) {
+                if (xpp.getName().equals("section"))
                     section--;
-                }
-                if (xpp.getName().equals("body")) {
+
+                if (xpp.getName().equals("body"))
                     break;
-                }
 
             } else if (eventType == XmlPullParser.TEXT) {
-                if (isTitle) {
+                if (isTitle)
                     title = title + " " + xpp.getText().trim();
-                }
             }
             eventType = xpp.next();
         }
-        if (!titles.isEmpty() && titles.get(titles.size() - 1).endsWith(DIVIDER)) {
+        if (!titles.isEmpty() && titles.get(titles.size() - 1).endsWith(DIVIDER))
             titles.remove(titles.size() - 1);
-        }
-        if (!titles.isEmpty() && titles.get(titles.size() - 1).endsWith(FOOTER_NOTES_SIGN)) {
+
+        if (!titles.isEmpty() && titles.get(titles.size() - 1).endsWith(FOOTER_NOTES_SIGN))
             titles.remove(titles.size() - 1);
-        }
 
         return titles;
     }
@@ -631,11 +624,11 @@ public class Fb2Extractor extends BaseExtractor {
             InputStream encodingCheck = new FileInputStream(fb2);
             byte[] header = new byte[80];
             encodingCheck.read(header);
-            if (new String(header).toLowerCase(Locale.US).contains("windows-1251")) {
+            if (new String(header).toLowerCase(Locale.getDefault()).contains("windows-1251"))
                 encoding = "cp1251";
-            } else if (new String(header).toLowerCase(Locale.US).contains("windows-1252")) {
+            else if (new String(header).toLowerCase(Locale.getDefault()).contains("windows-1252"))
                 encoding = "cp1252";
-            }
+
             encodingCheck.close();
             return encoding;
         } catch (Exception e) {

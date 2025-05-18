@@ -13,7 +13,6 @@ import android.view.animation.AnimationUtils
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.PopupMenu
-import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -24,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.Libraries
+import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.listener.LibrariesCardListener
 import br.com.fenix.bilingualreader.service.repository.Storage
@@ -65,8 +65,9 @@ class ConfigLibrariesFragment : Fragment() {
         mRecycleView.layoutAnimation = AnimationUtils.loadLayoutAnimation(requireContext(), R.anim.layout_animation_library_line)
         mRecycleView.addItemDecoration(RecyclerViewItemDecoration(requireContext(), R.drawable.config_library_list_divider))
 
+        val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(requireContext()).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         mToolbar = view.findViewById(R.id.toolbar_configuration_libraries)
-        MenuUtil.tintColor(requireContext(), view.findViewById<TextView>(R.id.config_libraries_title))
+        MenuUtil.tintToolbar(mToolbar, theme)
 
         (requireActivity() as MenuActivity).setActionBar(mToolbar)
 
@@ -265,7 +266,7 @@ class ConfigLibrariesFragment : Fragment() {
         }
 
         mLibraryLanguageAutoComplete.setText(
-            mMapLanguage.filterValues { it == mLibraryTypeSelect }.keys.first(),
+            mMapLanguage.entries.first { it.value == mLibraryTypeSelect }.key,
             false
         )
 

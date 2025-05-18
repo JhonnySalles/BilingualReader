@@ -10,14 +10,36 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_margin="@dimen/margin_small"
         android:paddingTop="@dimen/margin"
         android:paddingBottom="@dimen/margin_bottom">
         <CheckBox
-            android:id="@+id/popup_library_book_type_grid"
+            android:id="@+id/popup_library_book_type_grid_big"
             style="@style/CheckBox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/popup_library_book_type_grid"/>
+            android:text="@string/popup_library_book_type_grid_big"/>
+
+        <CheckBox
+            android:id="@+id/popup_library_book_type_grid_medium"
+            style="@style/CheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/popup_library_book_type_grid_medium"/>
+
+        <CheckBox
+            android:id="@+id/popup_library_book_type_separator_big"
+            style="@style/CheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/popup_library_book_type_separator_big"/>
+
+        <CheckBox
+            android:id="@+id/popup_library_book_type_separator_medium"
+            style="@style/CheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/popup_library_book_type_separator_medium"/>
 
         <CheckBox
             android:id="@+id/popup_library_book_type_line"

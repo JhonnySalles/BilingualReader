@@ -4,14 +4,14 @@
     style="@style/AppBackground.Accent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.ui.book.BookAnnotationPopupFilterType">
+    tools:context=".view.ui.annotation.AnnotationPopupFilterType">
 
     <ListView
         android:id="@+id/popup_annotation_filter_chapter_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerHorizontal="true"
-        android:layout_margin="5dp"
+        android:layout_margin="@dimen/margin_small"
         android:dividerHeight="0dp"
         android:divider="@null"
         android:choiceMode="multipleChoice"

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_manga_config_book_mark"
+        android:title="@string/menu_manga_config_book_mark"/>
+    <item
+        android:id="@+id/menu_manga_config_detail"
+        android:title="@string/menu_manga_config_detail"/>
+    <item
+        android:id="@+id/menu_manga_config_clear_progress"
+        android:title="@string/menu_manga_config_clear_progress"/>
+    <item
+        android:id="@+id/menu_manga_config_delete"
+        android:title="@string/menu_manga_config_delete"/>
+</menu>

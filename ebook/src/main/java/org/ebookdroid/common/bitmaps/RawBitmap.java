@@ -6,13 +6,17 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 
 import org.ebookdroid.BookType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
 import br.com.ebook.foobnix.sys.TempHolder;
 
 public final class RawBitmap {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RawBitmap.class);
 
     int[] pixels;
     int width;
@@ -96,7 +100,8 @@ public final class RawBitmap {
             TempHolder.get().path = jopa;
         }
 
-        LOG.d("nativeInvert", TempHolder.get().path, BookType.DJVU.is(TempHolder.get().path));
+        if (Config.SHOW_LOG)
+            LOGGER.info("nativeInvert: {} - {}", TempHolder.get().path, BookType.DJVU.is(TempHolder.get().path));
 
         if (!MagicHelper.isNeedMagic() && BookType.DJVU.is(TempHolder.get().path)) {
             nativeInvert(pixels, width, height);
@@ -106,9 +111,8 @@ public final class RawBitmap {
             return;
         }
         if (!(MagicHelper.isNeedMagic() && AppState.get().isCustomizeBgAndColors)) {
-            if (!TempHolder.get().isTextFormat) {
+            if (!TempHolder.get().isTextFormat)
                 nativeInvert(pixels, width, height);
-            }
         }
 
     }

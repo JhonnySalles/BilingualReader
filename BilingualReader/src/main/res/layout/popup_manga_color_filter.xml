@@ -10,7 +10,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_small">
 
         <!-- Color filter -->
 
@@ -193,7 +194,7 @@
             app:layout_constraintBottom_toBottomOf="@id/popup_manga_seekbar_blue_light_alpha"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/popup_manga_seekbar_blue_light_alpha"
-            app:srcCompat="@drawable/ic_blue_light"/>
+            app:srcCompat="@drawable/ico_blue_light"/>
 
         <SeekBar
             android:id="@+id/popup_manga_seekbar_blue_light_alpha"

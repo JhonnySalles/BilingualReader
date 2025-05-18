@@ -2,16 +2,20 @@ package br.com.ebook.foobnix.pdf.info;
 
 import android.content.Context;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
 import br.com.ebook.Config;
-import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.ext.EpubExtractor;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 
 public class FontExtractor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FontExtractor.class);
 
     public static void extractFonts(final Context c) {
         if (c == null) {
@@ -31,7 +35,7 @@ public class FontExtractor {
             File fontsDir = getFontsDir(c, to);
             if (fontsDir.exists()) {
                 if (Config.SHOW_LOG)
-                    LOG.d("FontExtractor Dir exists", fontsDir);
+                    LOGGER.info("FontExtractor Dir exists: {}", fontsDir);
             } else {
                 fontsDir.mkdirs();
             }
@@ -40,7 +44,7 @@ public class FontExtractor {
                 File fontFile = new File(fontsDir, fontName);
                 if (!fontFile.exists()) {
                     if (Config.SHOW_LOG)
-                        LOG.d("FontExtractor Copy file" + fontName, "to", fontFile);
+                        LOGGER.info("FontExtractor Copy file {} to {}", fontName, fontFile);
                     InputStream open = c.getAssets().open(from + "/" + fontName);
                     EpubExtractor.writeToStream(open, new FileOutputStream(fontFile));
                     open.close();
@@ -48,7 +52,7 @@ public class FontExtractor {
             }
 
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error extract inside: {}", e.getMessage(), e);
         }
     }
 

@@ -12,6 +12,8 @@ interface History {
     var title: String
     var bookMark: Int
     var pages: Int
+    var completed: Boolean
+    var volume: String
     var favorite: Boolean
     var excluded: Boolean
     var fileSize: Long

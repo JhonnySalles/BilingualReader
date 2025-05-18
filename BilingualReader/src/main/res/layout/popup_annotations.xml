@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/frame_popup_tag_root"
+    android:id="@+id/frame_popup_annotation_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -52,7 +52,7 @@
                 android:contentDescription="@string/annotation_colors_yellow"
                 app:iconTint="@color/text_select_yellow"
                 app:iconSize="@dimen/popup_annotation_colors_icon_size"
-                app:icon="@drawable/ic_text_view_select_yellow"/>
+                app:icon="@drawable/ico_text_view_select_yellow"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_annotation_green"
@@ -63,7 +63,7 @@
                 android:layout_marginStart="@dimen/popup_annotation_colors_margin"
                 app:iconTint="@color/text_select_green"
                 app:iconSize="@dimen/popup_annotation_colors_icon_size"
-                app:icon="@drawable/ic_text_view_select_green"/>
+                app:icon="@drawable/ico_text_view_select_green"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_annotation_blue"
@@ -74,7 +74,7 @@
                 android:layout_marginStart="@dimen/popup_annotation_colors_margin"
                 app:iconTint="@color/text_select_blue"
                 app:iconSize="@dimen/popup_annotation_colors_icon_size"
-                app:icon="@drawable/ic_text_view_select_blue"/>
+                app:icon="@drawable/ico_text_view_select_blue"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_annotation_red"
@@ -85,7 +85,7 @@
                 android:layout_marginStart="@dimen/popup_annotation_colors_margin"
                 app:iconTint="@color/text_select_red"
                 app:iconSize="@dimen/popup_annotation_colors_icon_size"
-                app:icon="@drawable/ic_text_view_select_red"/>
+                app:icon="@drawable/ico_text_view_select_red"/>
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

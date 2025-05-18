@@ -12,6 +12,8 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -22,13 +24,15 @@ import java.util.Map;
 import java.util.Scanner;
 
 import br.com.ebook.Config;
-import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.ResultResponse;
 import br.com.ebook.foobnix.entity.FileMeta;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 
 public class ExportSettingsManager {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExportSettingsManager.class);
+
     public static final String PREFIX_BOOKMARKS_PREFERENCES = "ViewerPreferences";// DO
                                                                                   // NOT
                                                                                   // CHANGE!!!!
@@ -62,11 +66,11 @@ public class ExportSettingsManager {
     }
 
     public boolean exportAll(File toFile) {
-        if (toFile == null) {
+        if (toFile == null)
             return false;
-        }
+
         if (Config.SHOW_LOG)
-            LOG.d("TEST", "Export all to" + toFile.getPath());
+            LOGGER.info("Export all to {}", toFile.getPath());
 
         try {
             AppState.get().save(c);
@@ -89,18 +93,18 @@ public class ExportSettingsManager {
                 fileConfig = new File(toFile, name);
             }
             if (Config.SHOW_LOG)
-                LOG.d("TEXT", "exoprt to " + name);
+                LOGGER.info("TEXT export to {}", name);
 
             FileWriter file = new FileWriter(fileConfig);
             if (Config.SHOW_LOG)
-                LOG.d("TEXT", "exoprt to " + fileConfig.getPath());
+                LOGGER.info("TEXT export to {}", fileConfig.getPath());
             String string = root.toString(5);
             file.write(string);
             file.flush();
             file.close();
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Error to export all: {}", e.getMessage(), e);
             Toast.makeText(c, e.getMessage(), Toast.LENGTH_LONG).show();
         }
         return false;
@@ -110,11 +114,10 @@ public class ExportSettingsManager {
         try {
             final String format = Settings.System.getString(a.getContentResolver(), Settings.System.DATE_FORMAT);
             String time;
-            if (TextUtils.isEmpty(format)) {
+            if (TextUtils.isEmpty(format))
                 time = DateFormat.getMediumDateFormat(a).format(System.currentTimeMillis());
-            } else {
+            else
                 time = new SimpleDateFormat(format).format(System.currentTimeMillis());
-            }
 
             String name = String.format("%s%s", time, ext);
             return name;
@@ -124,14 +127,16 @@ public class ExportSettingsManager {
     }
 
     public boolean importAll(File file) {
-        if (file == null) {
+        if (file == null)
             return false;
-        }
+
         if (Config.SHOW_LOG)
-            LOG.d("TEST", "Import all from " + file.getPath());
+            LOGGER.info("Import all from {}", file.getPath());
+
         try {
             String json = new Scanner(file).useDelimiter("\\A").next();
-            LOG.d("[IMPORT]", json);
+            if (Config.SHOW_LOG)
+                LOGGER.info("[IMPORT]: {}", json);
             JSONObject jsonObject = new JSONObject(json);
 
             importFromJSon(jsonObject.optJSONObject(PREFIX_PDF), pdfSP);
@@ -168,7 +173,7 @@ public class ExportSettingsManager {
 
             return true;
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error import all: {}", e.getMessage(), e);
             Toast.makeText(c, e.getMessage(), Toast.LENGTH_LONG).show();
         }
         return false;
@@ -177,28 +182,27 @@ public class ExportSettingsManager {
 
     public static JSONArray fileMetaToJSON(List<FileMeta> list) {
         JSONArray jsonObject = new JSONArray();
-        if (list == null) {
+        if (list == null)
             return jsonObject;
-        }
-        for (FileMeta value : list) {
+
+        for (FileMeta value : list)
             jsonObject.put(value.getPath());
-        }
+
         return jsonObject;
     }
 
     public static void jsonToMeta(JSONArray jsonObject, ResultResponse<String> action) {
-        if (jsonObject == null) {
+        if (jsonObject == null)
             return;
-        }
+
         try {
             for (int i = jsonObject.length() - 1; i >= 0; i--) {
                 String path = jsonObject.getString(i);
-                if (path != null) {
+                if (path != null)
                     action.onResultRecive(path);
-                }
             }
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error join metadata: {}", e.getMessage(), e);
         }
     }
 
@@ -206,13 +210,13 @@ public class ExportSettingsManager {
         JSONObject jsonObject = new JSONObject();
         Map<String, ?> all = sp.getAll();
         for (String key : all.keySet()) {
-            if (exclude != null && key.startsWith(exclude)) {
+            if (exclude != null && key.startsWith(exclude))
                 continue;
-            }
+
             Object value = all.get(key);
             jsonObject.put(key, value);
             if (Config.SHOW_LOG)
-                LOG.d("export", key, value);
+                LOGGER.info("export: {} - {}", key, value);
         }
         return jsonObject;
     }
@@ -220,11 +224,11 @@ public class ExportSettingsManager {
     public static void importFromJSon(JSONObject jsonObject, SharedPreferences sp) throws JSONException {
         if (jsonObject == null) {
             if (Config.SHOW_LOG)
-                LOG.d("TEST", "import null");
+                LOGGER.info("import null");
             return;
         }
         if (Config.SHOW_LOG)
-            LOG.d("importFromJSon", jsonObject);
+            LOGGER.info("importFromJSon", jsonObject);
 
         Iterator<String> keys = jsonObject.keys();
         Editor edit = sp.edit();
@@ -232,26 +236,26 @@ public class ExportSettingsManager {
             String name = keys.next();
             Object res = jsonObject.get(name);
             if (Config.SHOW_LOG)
-                LOG.d("import", "name", name, "type");
-            if (res instanceof String) {
+                LOGGER.info("import name{}type", name);
+
+            if (res instanceof String)
                 edit.putString(name, (String) res);
-            } else if (res instanceof Float) {
+            else if (res instanceof Float)
                 edit.putFloat(name, (Float) res);
-            } else if (res instanceof Double) {
+            else if (res instanceof Double)
                 edit.putFloat(name, ((Double) res).floatValue());
-            } else if (res instanceof Integer) {
+            else if (res instanceof Integer)
                 edit.putInt(name, (Integer) res);
-            } else if (res instanceof Boolean) {
+            else if (res instanceof Boolean)
                 edit.putBoolean(name, (Boolean) res);
-            }
         }
         edit.commit();
     }
 
     public static ExportSettingsManager getInstance(Context c) {
-        if (instance == null) {
+        if (instance == null)
             instance = new ExportSettingsManager(c);
-        }
+
         return instance;
     }
 

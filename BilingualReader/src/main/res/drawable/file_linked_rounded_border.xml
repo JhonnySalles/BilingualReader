@@ -8,5 +8,5 @@
         android:right="1dp"
         android:top="0dp" />
     <corners android:radius="6dp" />
-    <solid android:color="?attr/colorOnSurfaceInverse" />
+    <solid android:color="?attr/colorSurfaceInverse" />
 </shape>

@@ -51,7 +51,6 @@ import br.com.fenix.bilingualreader.service.listener.PageLinkCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.PageLinkConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
-import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.page_link.PageLinkCardAdapter
@@ -150,9 +149,6 @@ class PagesLinkFragment : Fragment() {
         mPagesIndex = root.findViewById(R.id.pages_link_pages_index)
         mMangaName = root.findViewById(R.id.pages_link_name_manga)
 
-        MenuUtil.tintColor(requireContext(), mFileLink)
-        MenuUtil.tintColor(requireContext(), mFileLinkLanguage)
-
         mContentButton = root.findViewById(R.id.pages_link_buttons_content)
         mSave = root.findViewById(R.id.pages_link_save_button)
         mReload = root.findViewById(R.id.pages_link_reload_button)
@@ -189,9 +185,19 @@ class PagesLinkFragment : Fragment() {
             (mScrollUp.drawable as AnimatedVectorDrawable).start()
             mRecyclerPageLink.smoothScrollToPosition(0)
         }
+        mScrollUp.setOnLongClickListener {
+            (mScrollUp.drawable as AnimatedVectorDrawable).start()
+            mRecyclerPageLink.scrollToPosition(0)
+            true
+        }
         mScrollDown.setOnClickListener {
             (mScrollDown.drawable as AnimatedVectorDrawable).start()
             mRecyclerPageLink.smoothScrollToPosition((mRecyclerPageLink.adapter as RecyclerView.Adapter).itemCount)
+        }
+        mScrollDown.setOnLongClickListener {
+            (mScrollDown.drawable as AnimatedVectorDrawable).start()
+            mRecyclerPageLink.scrollToPosition((mRecyclerPageLink.adapter as RecyclerView.Adapter).itemCount -1)
+            true
         }
 
         mRecyclerPageLink.setOnScrollChangeListener { _, _, _, _, yOld ->
@@ -531,9 +537,7 @@ class PagesLinkFragment : Fragment() {
         }
     }
 
-    override fun onActivityResult(
-        requestCode: Int, resultCode: Int, resultData: Intent?
-    ) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == GeneralConsts.REQUEST.OPEN_PAGE_LINK) {
                 resultData?.data?.also { uri ->
@@ -820,12 +824,12 @@ class PagesLinkFragment : Fragment() {
         val name = TextView(requireContext())
         name.text = if (isMangaIndexes) manga else file
         name.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_index_dialog_size))
-        name.setTextColor(requireContext().getColorFromAttr(R.attr.colorPrimary))
+        name.setTextColor(requireContext().getColorFromAttr(R.attr.colorOnBackground))
         title.addView(name)
         val index = TextView(requireContext())
         index.text = resources.getString(R.string.reading_manga_page_index)
         index.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_small_index_dialog_size))
-        index.setTextColor(requireContext().getColorFromAttr(R.attr.colorSecondary))
+        index.setTextColor(requireContext().getColorFromAttr(R.attr.colorPrimary))
         title.addView(index)
 
         MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)

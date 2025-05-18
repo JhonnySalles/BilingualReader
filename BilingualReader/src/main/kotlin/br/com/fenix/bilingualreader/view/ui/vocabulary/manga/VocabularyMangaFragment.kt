@@ -43,6 +43,7 @@ import br.com.fenix.bilingualreader.service.listener.VocabularyCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyLoadState
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaListCardAdapter
@@ -105,6 +106,7 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        menu.clear()
         inflater.inflate(R.menu.menu_vocabulary, menu)
         super.onCreateOptionsMenu(menu, inflater)
 
@@ -142,8 +144,7 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
             }
         })
 
-        val searchSrcTextView =
-            miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
+        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
         searchSrcTextView.setTextAppearance(R.style.SearchShadow)
 
         MenuUtil.longClick(requireActivity(), R.id.menu_vocabulary_list_order) {
@@ -174,11 +175,7 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
         return super.onOptionsItemSelected(menuItem)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_vocabulary_manga, container, false)
 
         mMapOrder = hashMapOf(
@@ -201,11 +198,6 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
         mMenuPopupFilterOrder = root.findViewById(R.id.vocabulary_manga_popup_menu_order_filter)
         mPopupFilterOrderTab = root.findViewById(R.id.vocabulary_manga_popup_order_filter_tab)
         mPopupFilterOrderView = root.findViewById(R.id.vocabulary_manga_popup_order_filter_view_pager)
-
-        root.findViewById<ImageView>(R.id.vocabulary_manga_popup_menu_order_filter_close)
-            .setOnClickListener {
-                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupFilterOrder)
-            }
 
         mScrollUp.visibility = View.GONE
         mScrollDown.visibility = View.GONE
@@ -240,9 +232,19 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
             (mScrollUp.drawable as AnimatedVectorDrawable).start()
             mRecyclerView.smoothScrollToPosition(0)
         }
+        mScrollUp.setOnLongClickListener {
+            (mScrollUp.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.scrollToPosition(0)
+            true
+        }
         mScrollDown.setOnClickListener {
             (mScrollDown.drawable as AnimatedVectorDrawable).start()
             mRecyclerView.smoothScrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount)
+        }
+        mScrollDown.setOnLongClickListener {
+            (mScrollDown.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.scrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount -1)
+            true
         }
 
         mRecyclerView.setOnScrollChangeListener { _, _, _, _, yOld ->
@@ -286,7 +288,8 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
         }
 
         mPopupFilterOrderTab.setupWithViewPager(mPopupFilterOrderView)
-        mPopupOrderFragment = VocabularyPopupOrder(this)
+        mPopupOrderFragment = VocabularyPopupOrder()
+        mPopupOrderFragment.setListener(this)
 
         BottomSheetBehavior.from(mMenuPopupFilterOrder).apply {
             peekHeight = 195
@@ -295,13 +298,7 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
         }
         mBottomSheet.isDraggable = true
 
-        root.findViewById<ImageView>(R.id.vocabulary_manga_popup_menu_order_filter_touch)
-            .setOnClickListener {
-                if (mBottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED)
-                    mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
-                else
-                    mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-            }
+        PopupUtils.onPopupTouch(requireActivity(), mMenuPopupFilterOrder, mBottomSheet, root.findViewById<ImageView>(R.id.vocabulary_manga_popup_menu_order_filter_touch))
 
         val viewOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
         viewOrderPagerAdapter.addFragment(
@@ -431,6 +428,7 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
     }
 
     override fun onDestroy() {
+        mPopupOrderFragment.clearListener()
         VocabularyMangaListCardAdapter.clearVocabularyMangaList()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

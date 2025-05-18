@@ -10,6 +10,8 @@ import br.com.fenix.bilingualreader.service.parses.book.ImageParse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -18,6 +20,8 @@ import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.io.FileNotFoundException
+import java.io.IOException
 
 
 class BookImageCoverController private constructor() {
@@ -45,7 +49,8 @@ class BookImageCoverController private constructor() {
         try {
             synchronized(instance.lru) {
                 if (instance.lru.get(key) == null)
-                    instance.lru.put(key, bitmap)
+                    instance.lru.remove(key)
+                instance.lru.put(key, bitmap)
             }
         } catch (e: Exception) {
             mLOGGER.warn("Error save image on LruCache: " + e.message, e)
@@ -64,8 +69,7 @@ class BookImageCoverController private constructor() {
     private fun saveBitmapToCache(context: Context, key: String, bitmap: Bitmap) {
         try {
             saveBitmapToLru(key, bitmap)
-            val cacheDir =
-                File(GeneralConsts.getCacheDir(context), GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
+            val cacheDir = File(GeneralConsts.getCoverDir(context), GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
             if (!cacheDir.exists())
                 cacheDir.mkdir()
 
@@ -74,6 +78,10 @@ class BookImageCoverController private constructor() {
             image.writeBytes(byte)
         } catch (e: Exception) {
             mLOGGER.error("Error save bitmap to cache: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error save bitmap to cache: " + e.message)
+                recordException(e)
+            }
         }
     }
 
@@ -82,18 +90,19 @@ class BookImageCoverController private constructor() {
             var image = retrieveBitmapFromLru(key)
             if (image != null) return image
 
-            val file = File(
-                GeneralConsts.getCacheDir(context),
-                GeneralConsts.CACHE_FOLDER.BOOK_COVERS + '/' + key
-            )
+            val file = File(GeneralConsts.getCoverDir(context), GeneralConsts.CACHE_FOLDER.BOOK_COVERS + '/' + key)
 
             if (file.exists()) {
-                image = BitmapFactory.decodeFile(file.absolutePath)
+                image = BitmapFactory.decodeFile(file.absolutePath) ?: return null
                 saveBitmapToLru(key, image)
                 return image
             }
         } catch (e: Exception) {
             mLOGGER.error("Error retrieve bitmap from cache: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error retrieve bitmap from cache: " + e.message)
+                recordException(e)
+            }
         }
         return null
     }
@@ -106,15 +115,9 @@ class BookImageCoverController private constructor() {
         return getCoverFromFile(context, generateHash(file), file)
     }
 
-    private fun generateHash(file: File): String =
-        Util.MD5(file.path + file.name)
+    private fun generateHash(file: File): String = Util.MD5(file.path + file.name)
 
-    private fun getCoverFromFile(
-        context: Context,
-        hash: String,
-        file: File,
-        isCoverSize: Boolean = true
-    ): Bitmap? {
+    private fun getCoverFromFile(context: Context, hash: String, file: File, isCoverSize: Boolean = true): Bitmap? {
         val cover: Bitmap?
 
         if (isCoverSize) {
@@ -148,19 +151,29 @@ class BookImageCoverController private constructor() {
     fun setImageCoverAsync(context: Context, book: Book, isCoverSize: Boolean = true, function: (Bitmap?) -> (Unit)) {
         CoroutineScope(thread).launch {
             try {
-                var image: Bitmap? = null
-                val deferred = async {
-                    image = getBookCover(context, book, isCoverSize)
-                }
-                deferred.await()
-                withContext(Dispatchers.Main) {
-                    function(image)
+                async {
+                    val image: Bitmap? = getBookCover(context, book, isCoverSize)
+                    withContext(Dispatchers.Main) {
+                        function(image)
+                    }
                 }
             } catch (m: OutOfMemoryError) {
                 System.gc()
                 mLOGGER.error("Memory full, cleaning", m)
+            } catch (m: IOException) {
+                mLOGGER.error("Error to load image async: " + book.name, m)
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error to load image async: " + m.message)
+                    recordException(m)
+                }
+            } catch (e: FileNotFoundException) {
+                mLOGGER.error("File not found. Error to load image async: " + book.name, e)
             } catch (e: Exception) {
-                mLOGGER.error("Error to load image async", e)
+                mLOGGER.error("Error to load image async: " + e.message, e)
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error to load image async: " + e.message)
+                    recordException(e)
+                }
             }
         }
     }

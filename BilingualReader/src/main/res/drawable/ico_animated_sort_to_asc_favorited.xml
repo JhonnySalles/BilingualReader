@@ -4,8 +4,8 @@
     <aapt:attr name="android:drawable">
         <vector
             android:name="vector"
-            android:width="24dp"
-            android:height="24dp"
+            android:width="30dp"
+            android:height="30dp"
             android:viewportWidth="24"
             android:viewportHeight="24">
             <group android:name="group_3">
@@ -13,7 +13,7 @@
                     <path
                         android:name="bar_ico1"
                         android:pathData="M 3 12 L 17 12"
-                        android:strokeColor="?attr/colorSecondary"
+                        android:strokeColor="?attr/colorOnSecondary"
                         android:strokeWidth="2"
                         android:strokeLineCap="round"
                         android:strokeLineJoin="round"/>
@@ -22,7 +22,7 @@
                     <path
                         android:name="bar_ico2"
                         android:pathData="M 3 17 L 13 17"
-                        android:strokeColor="?attr/colorSecondary"
+                        android:strokeColor="?attr/colorOnSecondary"
                         android:strokeWidth="2"
                         android:strokeLineCap="round"
                         android:strokeLineJoin="round"/>
@@ -31,7 +31,7 @@
                     <path
                         android:name="bar_ico3"
                         android:pathData="M 3 7 L 21 7"
-                        android:strokeColor="?attr/colorSecondary"
+                        android:strokeColor="?attr/colorOnSecondary"
                         android:strokeWidth="2"
                         android:strokeLineCap="round"
                         android:strokeLineJoin="round"/>
@@ -53,7 +53,7 @@
                         <path
                             android:name="arrow_bar"
                             android:pathData="M 6 19 L 6 4"
-                            android:strokeColor="?attr/colorSecondary"
+                            android:strokeColor="?attr/colorOnSecondary"
                             android:strokeAlpha="0"
                             android:strokeWidth="2"
                             android:strokeLineCap="round"
@@ -63,7 +63,7 @@
                         android:name="arrow_point"
                         android:pathData="M 9.935 16.581 L 5.935 20.581 L 1.935 16.581"
                         android:fillAlpha="0"
-                        android:strokeColor="?attr/colorSecondary"
+                        android:strokeColor="?attr/colorOnSecondary"
                         android:strokeAlpha="0"
                         android:strokeWidth="2"
                         android:strokeLineCap="round"
@@ -74,7 +74,7 @@
                 <path
                     android:name="ico_favorite"
                     android:pathData="M 22.716 15.622 C 21.622 14.528 19.85 14.527 18.756 15.62 C 17.663 14.526 15.889 14.525 14.796 15.618 C 13.702 16.711 13.701 18.484 14.794 19.578 L 18.752 23.54 L 22.713 19.582 C 23.808 18.489 23.809 16.716 22.716 15.622 Z"
-                    android:fillColor="?attr/colorSecondary"
+                    android:fillColor="?attr/colorOnSecondary"
                     android:strokeWidth="1"/>
             </group>
         </vector>

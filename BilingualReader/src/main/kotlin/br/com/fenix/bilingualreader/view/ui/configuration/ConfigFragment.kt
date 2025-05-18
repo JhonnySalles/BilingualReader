@@ -10,7 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
@@ -22,7 +21,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.FontType
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Order
-import br.com.fenix.bilingualreader.model.enums.PageMode
+import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.ShareMarkCloud
@@ -30,11 +29,15 @@ import br.com.fenix.bilingualreader.model.enums.TextSpeech
 import br.com.fenix.bilingualreader.model.enums.ThemeMode
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.service.listener.ApiListener
 import br.com.fenix.bilingualreader.service.listener.FontsListener
 import br.com.fenix.bilingualreader.service.listener.ThemesListener
 import br.com.fenix.bilingualreader.service.repository.DataBase
+import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.service.sharemark.ShareMarkBase
+import br.com.fenix.bilingualreader.service.update.Releases
+import br.com.fenix.bilingualreader.service.update.UpdateApp
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.BackupError
 import br.com.fenix.bilingualreader.util.helpers.ErrorRestoreDatabase
@@ -59,17 +62,22 @@ import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Scope
 import com.google.android.gms.tasks.Task
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import com.google.api.services.drive.DriveScopes
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import org.lucasr.twowayview.TwoWayView
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
@@ -91,22 +99,27 @@ class ConfigFragment : Fragment() {
     private lateinit var mConfigSystemShareMarkEnabled: SwitchMaterial
     private lateinit var mConfigSystemShareMarkType: TextInputLayout
     private lateinit var mConfigSystemShareMarkTypeAutoComplete: MaterialAutoCompleteTextView
-    private lateinit var mConfigSystemShareMarkAccount: Button
+    private lateinit var mConfigSystemShareMarkAccount: MaterialButton
     private lateinit var mConfigSystemShareMarkSignIn: SignInButton
-    private lateinit var mConfigSystemShareMarkLastSync: Button
+    private lateinit var mConfigSystemShareMarkMangaLastSync: MaterialButton
+    private lateinit var mConfigSystemShareMarkBookLastSync: MaterialButton
 
-    private lateinit var mConfigSystemBackup: Button
-    private lateinit var mConfigSystemRestore: Button
+    private lateinit var mConfigSystemBackup: MaterialButton
+    private lateinit var mConfigSystemRestore: MaterialButton
     private lateinit var mConfigSystemLastBackup: TextView
 
-    private lateinit var mConfigCoversDelete: Button
+    private lateinit var mConfigUpdateApp: MaterialButton
+
+    private lateinit var mConfigCoversDelete: MaterialButton
+
+    private lateinit var mConfigStatisticsDelete: MaterialButton
 
     private var mConfigSystemThemeModeSelect: ThemeMode = ThemeMode.SYSTEM
     private var mConfigSystemThemeSelect: Themes = Themes.ORIGINAL
     private var mConfigSystemDateSelect: String = GeneralConsts.CONFIG.DATA_FORMAT[0]
     private var mConfigSystemDateSmall: String = GeneralConsts.CONFIG.DATA_FORMAT_SMALL[0]
     private val mConfigSystemDatePattern = GeneralConsts.CONFIG.DATA_FORMAT
-    private val mConfigSystemDateSmallPattern = GeneralConsts.CONFIG.DATA_FORMAT
+    private val mConfigSystemDateSmallPattern = GeneralConsts.CONFIG.DATA_FORMAT_SMALL
 
     private lateinit var mConfigSystemShareMarkCloudMap: HashMap<String, ShareMarkCloud>
     private var mConfigSystemShareMarkCloudSelect = ShareMarkCloud.GOOGLE_DRIVE
@@ -116,7 +129,7 @@ class ConfigFragment : Fragment() {
     private lateinit var mMangaLibraryPathAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mMangaLibraryOrder: TextInputLayout
     private lateinit var mMangaLibraryOrderAutoComplete: MaterialAutoCompleteTextView
-    private lateinit var mMangaLibrariesButton: Button
+    private lateinit var mMangaLibrariesButton: MaterialButton
 
     private lateinit var mMangaDefaultSubtitleLanguage: TextInputLayout
     private lateinit var mMangaDefaultSubtitleLanguageAutoComplete: MaterialAutoCompleteTextView
@@ -125,11 +138,15 @@ class ConfigFragment : Fragment() {
 
     private lateinit var mMangaReaderComicMode: TextInputLayout
     private lateinit var mMangaReaderComicModeAutoComplete: MaterialAutoCompleteTextView
-    private lateinit var mMangaReaderPageMode: TextInputLayout
-    private lateinit var mMangaPageModeAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mMangaReaderScrollingMode: TextInputLayout
+    private lateinit var mMangaScrollingModeAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mMangaReaderPaginationType: TextInputLayout
+    private lateinit var mMangaPaginationTypeAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mMangaShowClockAndBattery: SwitchMaterial
     private lateinit var mMangaUseMagnifierType: SwitchMaterial
     private lateinit var mMangaKeepZoomBetweenPages: SwitchMaterial
+
+    private lateinit var mMangaTouchScreenButton: MaterialButton
 
     private lateinit var mMangaUseDualPageCalculate: SwitchMaterial
     private lateinit var mMangaUsePathNameForLinked: SwitchMaterial
@@ -138,42 +155,54 @@ class ConfigFragment : Fragment() {
     private var mMangaDefaultSubtitleTranslateSelect: Languages = Languages.PORTUGUESE
 
     private lateinit var mMangaMapOrder: HashMap<String, Order>
-    private lateinit var mMangaMapPageMode: HashMap<String, PageMode>
     private lateinit var mMangaMapReaderMode: HashMap<String, ReaderMode>
     private lateinit var mMangaMapLanguage: HashMap<String, Languages>
     private lateinit var mMangaMapThemeMode: HashMap<String, ThemeMode>
     private lateinit var mMangaMapThemes: HashMap<String, Themes>
+    private lateinit var mMangaMapScrollingMode: HashMap<String, ScrollingType>
+    private lateinit var mMangaMapPaginationType: HashMap<String, PaginationType>
 
-    private var mMangaPageModeSelectType: PageMode = PageMode.Comics
-    private var mMangaReaderModeSelectType: ReaderMode = ReaderMode.FIT_WIDTH
+    private var mMangaReaderModeSelect: ReaderMode = ReaderMode.FIT_WIDTH
+    private var mMangaScrollingModeSelect: ScrollingType = ScrollingType.Horizontal
+    private var mMangaPaginationSelect: PaginationType = PaginationType.Default
     private var mMangaOrderSelect: Order = Order.Name
 
     // --------------------------------------------------------- Book ---------------------------------------------------------
-    private lateinit var mBookLibrariesButton: Button
+    private lateinit var mBookLibrariesButton: MaterialButton
     private lateinit var mBookLibraryPath: TextInputLayout
     private lateinit var mBookLibraryPathAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mBookLibraryOrder: TextInputLayout
     private lateinit var mBookLibraryOrderAutoComplete: MaterialAutoCompleteTextView
-    private lateinit var mBookScrollingMode: TextInputLayout
-    private lateinit var mBookScrollingModeAutoComplete: MaterialAutoCompleteTextView
 
     private lateinit var mBookReadingTTS: TextInputLayout
-    private lateinit var mBookReadingTTSAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mBookReadingTTSAutoCompleteNormal: MaterialAutoCompleteTextView
+    private lateinit var mBookReadingTTSAutoCompleteJapanese: MaterialAutoCompleteTextView
+    private lateinit var mBookReadingSpeed: Slider
 
+    private lateinit var mBookFontSize: Slider
     private lateinit var mBookFontTypeNormal: TwoWayView
     private lateinit var mBookFontTypeJapanese: TwoWayView
-    private lateinit var mBookFontSize: Slider
+    private lateinit var mBookFontJapaneseStyle: SwitchMaterial
 
-    private lateinit var mBookProcessJapaneseText: SwitchMaterial
-    private lateinit var mBookTextWithFurigana: SwitchMaterial
-    private lateinit var mBookProcessVocabulary: SwitchMaterial
+    private lateinit var mBookTouchScreenButton: MaterialButton
+
+    private lateinit var mBookReaderScrollingMode: TextInputLayout
+    private lateinit var mBookScrollingModeAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mBookReaderPaginationType: TextInputLayout
+    private lateinit var mBookPaginationTypeAutoComplete: MaterialAutoCompleteTextView
+    private lateinit var mBookReaderProcessJapaneseText: SwitchMaterial
+    private lateinit var mBookReaderTextWithFurigana: SwitchMaterial
+    private lateinit var mBookReaderProcessVocabulary: SwitchMaterial
 
     private var mBookOrderSelect: Order = Order.Name
     private var mBookScrollingModeSelect: ScrollingType = ScrollingType.Pagination
-    private var mBookReadingTTSSelect: TextSpeech = TextSpeech.getDefault()
+    private var mBookPaginationSelect: PaginationType = PaginationType.Default
+    private var mBookReadingTTSSelectNormal: TextSpeech = TextSpeech.getDefault(false)
+    private var mBookReadingTTSSelectJapanese: TextSpeech = TextSpeech.getDefault(true)
 
     private lateinit var mBookMapOrder: HashMap<String, Order>
     private lateinit var mBookMapScrollingMode: HashMap<String, ScrollingType>
+    private lateinit var mBookMapPaginationType: HashMap<String, PaginationType>
     private lateinit var mBookMapReadingTTS: Map<String, TextSpeech>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -190,19 +219,25 @@ class ConfigFragment : Fragment() {
         mBookLibraryPathAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_library_path)
         mBookLibraryOrder = view.findViewById(R.id.config_book_library_order)
         mBookLibraryOrderAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_library_order)
-        mBookScrollingMode = view.findViewById(R.id.config_book_scrolling_mode)
-        mBookScrollingModeAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_scrolling_mode)
 
-        mBookReadingTTS = view.findViewById(R.id.config_book_tts_voice)
-        mBookReadingTTSAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_tts_voice)
+        mBookReadingTTS = view.findViewById(R.id.config_book_tts_voice_normal)
+        mBookReadingTTSAutoCompleteNormal = view.findViewById(R.id.config_book_menu_autocomplete_tts_voice_normal)
+        mBookReadingTTSAutoCompleteJapanese = view.findViewById(R.id.config_book_menu_autocomplete_tts_voice_japanese)
+        mBookReadingSpeed = view.findViewById(R.id.config_book_tts_speed)
 
         mBookFontTypeNormal = view.findViewById(R.id.config_book_list_fonts_normal)
         mBookFontTypeJapanese = view.findViewById(R.id.config_book_list_fonts_japanese)
+        mBookFontJapaneseStyle = view.findViewById(R.id.config_book_font_japanese_style)
         mBookFontSize = view.findViewById(R.id.config_book_font_size)
 
-        mBookProcessJapaneseText = view.findViewById(R.id.config_book_process_japanese_text)
-        mBookTextWithFurigana = view.findViewById(R.id.config_book_text_with_furigana)
-        mBookProcessVocabulary = view.findViewById(R.id.config_book_process_vocabulary)
+        mBookTouchScreenButton = view.findViewById(R.id.config_book_touch_screen)
+        mBookReaderScrollingMode = view.findViewById(R.id.config_book_reader_scrolling_mode)
+        mBookScrollingModeAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_scrolling_mode)
+        mBookReaderPaginationType = view.findViewById(R.id.config_book_reader_pagination_type)
+        mBookPaginationTypeAutoComplete = view.findViewById(R.id.config_book_menu_autocomplete_pagination_type)
+        mBookReaderProcessJapaneseText = view.findViewById(R.id.config_book_reader_process_japanese_text)
+        mBookReaderTextWithFurigana = view.findViewById(R.id.config_book_reader_text_with_furigana)
+        mBookReaderProcessVocabulary = view.findViewById(R.id.config_book_reader_process_vocabulary)
 
         mConfigSystemThemeMode = view.findViewById(R.id.config_system_theme_mode)
         mConfigSystemThemeModeAutoComplete = view.findViewById(R.id.config_system_menu_autocomplete_theme_mode)
@@ -215,8 +250,12 @@ class ConfigFragment : Fragment() {
 
         mMangaReaderComicMode = view.findViewById(R.id.config_manga_reader_comic_mode)
         mMangaReaderComicModeAutoComplete = view.findViewById(R.id.config_manga_menu_autocomplete_reader_comic_mode)
-        mMangaReaderPageMode = view.findViewById(R.id.config_manga_reader_page_mode)
-        mMangaPageModeAutoComplete = view.findViewById(R.id.config_manga_menu_autocomplete_page_mode)
+        mMangaReaderScrollingMode = view.findViewById(R.id.config_manga_reader_scrolling_mode)
+        mMangaScrollingModeAutoComplete  = view.findViewById(R.id.config_manga_menu_autocomplete_scrolling_mode)
+        mMangaReaderPaginationType  = view.findViewById(R.id.config_manga_reader_pagination_type)
+        mMangaPaginationTypeAutoComplete  = view.findViewById(R.id.config_manga_menu_autocomplete_pagination_type)
+
+        mMangaTouchScreenButton = view.findViewById(R.id.config_manga_touch_screen)
         mMangaShowClockAndBattery = view.findViewById(R.id.config_manga_switch_show_clock_and_battery)
         mMangaUseMagnifierType = view.findViewById(R.id.config_manga_switch_use_magnifier_type)
         mMangaKeepZoomBetweenPages = view.findViewById(R.id.config_manga_switch_keep_zoom_between_pages)
@@ -228,7 +267,8 @@ class ConfigFragment : Fragment() {
         mConfigSystemShareMarkTypeAutoComplete = view.findViewById(R.id.config_system_menu_autocomplete_share_mark_type)
         mConfigSystemShareMarkAccount = view.findViewById(R.id.config_system_share_mark_signed_account)
         mConfigSystemShareMarkSignIn = view.findViewById(R.id.config_system_share_mark_sign_in_button)
-        mConfigSystemShareMarkLastSync = view.findViewById(R.id.config_system_share_mark_last_sync)
+        mConfigSystemShareMarkMangaLastSync = view.findViewById(R.id.config_system_share_mark_manga_last_sync)
+        mConfigSystemShareMarkBookLastSync = view.findViewById(R.id.config_system_share_mark_book_last_sync)
 
         mMangaUseDualPageCalculate = view.findViewById(R.id.config_manga_switch_use_dual_page_calculate)
         mMangaUsePathNameForLinked = view.findViewById(R.id.config_manga_switch_use_path_name_for_linked)
@@ -237,7 +277,10 @@ class ConfigFragment : Fragment() {
         mConfigSystemRestore = view.findViewById(R.id.config_system_restore)
         mConfigSystemLastBackup = view.findViewById(R.id.config_system_last_backup)
 
+        mConfigUpdateApp = view.findViewById(R.id.config_update_app)
         mConfigCoversDelete = view.findViewById(R.id.config_covers_delete)
+        mConfigStatisticsDelete = view.findViewById(R.id.config_statistics_delete)
+
 
         mMangaLibraryPathAutoComplete.setOnClickListener {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
@@ -257,35 +300,62 @@ class ConfigFragment : Fragment() {
         mMangaMapLanguage = Util.getLanguages(requireContext())
 
         mMangaMapOrder = hashMapOf(
-            getString(R.string.config_option_manga_order_name) to Order.Name,
-            getString(R.string.config_option_manga_order_date) to Order.Date,
-            getString(R.string.config_option_manga_order_access) to Order.LastAccess,
-            getString(R.string.config_option_manga_order_favorite) to Order.Favorite
+            getString(R.string.option_order_name) to Order.Name,
+            getString(R.string.option_order_date) to Order.Date,
+            getString(R.string.option_order_access) to Order.LastAccess,
+            getString(R.string.option_order_favorite) to Order.Favorite,
+            getString(R.string.option_order_author) to Order.Author,
+            getString(R.string.option_order_genre) to Order.Genre,
+            getString(R.string.option_order_series) to Order.Series
         )
 
         mBookMapOrder = hashMapOf(
-            getString(R.string.config_option_book_order_name) to Order.Name,
-            getString(R.string.config_option_book_order_date) to Order.Date,
-            getString(R.string.config_option_book_order_access) to Order.LastAccess,
-            getString(R.string.config_option_book_order_favorite) to Order.Favorite,
-            getString(R.string.config_option_book_order_author) to Order.Author,
-            getString(R.string.config_option_book_order_genre) to Order.Genre
-        )
-
-        mMangaMapPageMode = hashMapOf(
-            getString(R.string.menu_manga_reading_mode_left_to_right) to PageMode.Comics,
-            getString(R.string.menu_manga_reading_mode_right_to_left) to PageMode.Manga
+            getString(R.string.option_order_name) to Order.Name,
+            getString(R.string.option_order_date) to Order.Date,
+            getString(R.string.option_order_access) to Order.LastAccess,
+            getString(R.string.option_order_favorite) to Order.Favorite,
+            getString(R.string.option_order_author) to Order.Author,
+            getString(R.string.option_order_genre) to Order.Genre,
+            getString(R.string.option_order_series) to Order.Series
         )
 
         mMangaMapReaderMode = hashMapOf(
-            getString(R.string.menu_manga_view_mode_aspect_fill) to ReaderMode.ASPECT_FILL,
-            getString(R.string.menu_manga_view_mode_aspect_fit) to ReaderMode.ASPECT_FIT,
-            getString(R.string.menu_manga_view_mode_fit_width) to ReaderMode.FIT_WIDTH
+            getString(R.string.config_manga_view_mode_aspect_fill) to ReaderMode.ASPECT_FILL,
+            getString(R.string.config_manga_view_mode_aspect_fit) to ReaderMode.ASPECT_FIT,
+            getString(R.string.config_manga_view_mode_fit_width) to ReaderMode.FIT_WIDTH
+        )
+
+        mMangaMapScrollingMode = hashMapOf(
+            getString(R.string.config_manga_scrolling_horizontal) to ScrollingType.Horizontal,
+            getString(R.string.config_manga_scrolling_horizontal_right_to_left) to ScrollingType.HorizontalRightToLeft,
+            getString(R.string.config_manga_scrolling_vertical) to ScrollingType.Vertical,
+            getString(R.string.config_manga_scrolling_scrolling) to ScrollingType.Scrolling,
+            getString(R.string.config_manga_scrolling_scrolling_divider) to ScrollingType.ScrollingDivider
         )
 
         mBookMapScrollingMode = hashMapOf(
-            getString(R.string.config_book_scrolling_Infinity_Scrolling) to ScrollingType.Scrolling,
-            getString(R.string.config_book_scrolling_Pagination) to ScrollingType.Pagination
+            getString(R.string.config_book_scrolling_infinity_scrolling) to ScrollingType.Scrolling,
+            getString(R.string.config_book_scrolling_pagination) to ScrollingType.Pagination,
+            getString(R.string.config_book_scrolling_pagination_vertical) to ScrollingType.PaginationVertical,
+            getString(R.string.config_book_scrolling_pagination_right_to_left) to ScrollingType.PaginationRightToLeft
+        )
+
+        mMangaMapPaginationType = hashMapOf(
+            getString(R.string.config_manga_pagination_default) to PaginationType.Default,
+            getString(R.string.config_manga_pagination_page_curl) to PaginationType.CurlPage,
+            getString(R.string.config_manga_pagination_page_stack) to PaginationType.Stack,
+            getString(R.string.config_manga_pagination_page_zoom) to PaginationType.Zooming,
+            getString(R.string.config_manga_pagination_page_fade) to PaginationType.Fade,
+            getString(R.string.config_manga_pagination_page_depth) to PaginationType.Depth
+        )
+
+        mBookMapPaginationType = hashMapOf(
+            getString(R.string.config_book_pagination_default) to PaginationType.Default,
+            getString(R.string.config_book_pagination_page_curl) to PaginationType.CurlPage,
+            getString(R.string.config_book_pagination_page_stack) to PaginationType.Stack,
+            getString(R.string.config_book_pagination_page_zoom) to PaginationType.Zooming,
+            getString(R.string.config_book_pagination_page_fade) to PaginationType.Fade,
+            getString(R.string.config_book_pagination_page_depth) to PaginationType.Depth
         )
 
         mBookMapReadingTTS = TextSpeech.getByDescriptions(requireContext())
@@ -352,7 +422,7 @@ class ConfigFragment : Fragment() {
         mMangaReaderComicModeAutoComplete.setAdapter(adapterReaderMode)
         mMangaReaderComicModeAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
-                mMangaReaderModeSelectType =
+                mMangaReaderModeSelect =
                     if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
                         mMangaMapReaderMode.containsKey(
                             parent.getItemAtPosition(position).toString()
@@ -363,20 +433,19 @@ class ConfigFragment : Fragment() {
                         ReaderMode.FIT_WIDTH
             }
 
-        val adapterPageMode = ArrayAdapter(requireContext(), R.layout.list_item, mMangaMapPageMode.keys.toTypedArray())
-        mMangaPageModeAutoComplete.setAdapter(adapterPageMode)
-        mMangaPageModeAutoComplete.onItemClickListener =
+        val adapterMangaScrollingMode = ArrayAdapter(requireContext(), R.layout.list_item, mMangaMapScrollingMode.keys.sorted().toTypedArray())
+        mMangaScrollingModeAutoComplete.setAdapter(adapterMangaScrollingMode)
+        mMangaScrollingModeAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
-                mMangaPageModeSelectType =
-                    if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
-                        mMangaMapPageMode.containsKey(parent.getItemAtPosition(position).toString())
-                    )
-                        mMangaMapPageMode[parent.getItemAtPosition(position).toString()]!!
-                    else
-                        PageMode.Comics
+                mMangaScrollingModeSelect = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                    mMangaMapScrollingMode.containsKey(parent.getItemAtPosition(position).toString())
+                )
+                    mMangaMapScrollingMode[parent.getItemAtPosition(position).toString()]!!
+                else
+                    ScrollingType.Horizontal
             }
 
-        val adapterBookScrollingMode = ArrayAdapter(requireContext(), R.layout.list_item, mBookMapScrollingMode.keys.toTypedArray())
+        val adapterBookScrollingMode = ArrayAdapter(requireContext(), R.layout.list_item, mBookMapScrollingMode.keys.sorted().toTypedArray())
         mBookScrollingModeAutoComplete.setAdapter(adapterBookScrollingMode)
         mBookScrollingModeAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
@@ -388,16 +457,52 @@ class ConfigFragment : Fragment() {
                     ScrollingType.Pagination
             }
 
-        val adapterBookReadingTTS = ArrayAdapter(requireContext(), R.layout.list_item, mBookMapReadingTTS.keys.toTypedArray())
-        mBookReadingTTSAutoComplete.setAdapter(adapterBookReadingTTS)
-        mBookReadingTTSAutoComplete.onItemClickListener =
+
+        val adapterMangaPaginationMode = ArrayAdapter(requireContext(), R.layout.list_item, mMangaMapPaginationType.keys.sorted().toTypedArray())
+        mMangaPaginationTypeAutoComplete.setAdapter(adapterMangaPaginationMode)
+        mMangaPaginationTypeAutoComplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
-                mBookReadingTTSSelect = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                mMangaPaginationSelect = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                    mMangaMapPaginationType.containsKey(parent.getItemAtPosition(position).toString())
+                )
+                    mMangaMapPaginationType[parent.getItemAtPosition(position).toString()]!!
+                else
+                    PaginationType.Default
+            }
+
+        val adapterBookPaginationMode = ArrayAdapter(requireContext(), R.layout.list_item, mBookMapPaginationType.keys.sorted().toTypedArray())
+        mBookPaginationTypeAutoComplete.setAdapter(adapterBookPaginationMode)
+        mBookPaginationTypeAutoComplete.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                mBookPaginationSelect = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                    mBookMapPaginationType.containsKey(parent.getItemAtPosition(position).toString())
+                )
+                    mBookMapPaginationType[parent.getItemAtPosition(position).toString()]!!
+                else
+                    PaginationType.Default
+            }
+
+        val adapterBookReadingTTS = ArrayAdapter(requireContext(), R.layout.list_item, mBookMapReadingTTS.keys.toTypedArray())
+        mBookReadingTTSAutoCompleteNormal.setAdapter(adapterBookReadingTTS)
+        mBookReadingTTSAutoCompleteNormal.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                mBookReadingTTSSelectNormal = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
                     mBookMapReadingTTS.containsKey(parent.getItemAtPosition(position).toString())
                 )
                     mBookMapReadingTTS[parent.getItemAtPosition(position).toString()]!!
                 else
-                    TextSpeech.getDefault()
+                    TextSpeech.getDefault(false)
+            }
+
+        mBookReadingTTSAutoCompleteJapanese.setAdapter(adapterBookReadingTTS)
+        mBookReadingTTSAutoCompleteJapanese.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                mBookReadingTTSSelectJapanese = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
+                    mBookMapReadingTTS.containsKey(parent.getItemAtPosition(position).toString())
+                )
+                    mBookMapReadingTTS[parent.getItemAtPosition(position).toString()]!!
+                else
+                    TextSpeech.getDefault(false)
             }
 
         val themesMode = ArrayAdapter(requireContext(), R.layout.list_item, mMangaMapThemeMode.keys.toTypedArray())
@@ -456,11 +561,7 @@ class ConfigFragment : Fragment() {
             val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
                 type = "application/*"
-                putExtra(
-                    Intent.EXTRA_MIME_TYPES, arrayOf(
-                        "application/sqlite3"
-                    )
-                )
+                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/sqlite3"))
 
                 val fileName: String = "BilingualReader_" + SimpleDateFormat(
                     GeneralConsts.PATTERNS.BACKUP_DATE_PATTERN,
@@ -473,13 +574,33 @@ class ConfigFragment : Fragment() {
             startActivityForResult(intent, GeneralConsts.REQUEST.GENERATE_BACKUP)
         }
 
-        mConfigSystemRestore.setOnClickListener {
-            val i = Intent(Intent.ACTION_GET_CONTENT)
-            i.type = "*/*"
-            startActivityForResult(
-                Intent.createChooser(i, getString(R.string.config_database_select_file)),
-                GeneralConsts.REQUEST.RESTORE_BACKUP
-            )
+        mConfigSystemRestore.setOnClickListener { choiceBackup() }
+
+        mConfigUpdateApp.setOnClickListener {
+            mConfigUpdateApp.isEnabled = false
+            val update = UpdateApp(requireContext())
+            update.consult(object : ApiListener<Releases> {
+                override fun onSuccess(result: Releases) {
+                    mConfigUpdateApp.isEnabled = true
+                    if (result.releases.isEmpty())
+                        Toast.makeText(requireContext(), getString(R.string.config_update_app_empty), Toast.LENGTH_SHORT).show()
+                    else {
+                        MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+                            .setTitle(getString(R.string.config_update_app_title))
+                            .setMessage(getString(R.string.config_update_app_description, result.releases[0].version))
+                            .setPositiveButton(R.string.action_confirm) { _, _ ->
+                                update.download(result.releases[0].downloadUri)
+                            }
+                            .setNegativeButton(R.string.action_cancel) { _, _ -> }
+                            .create().show()
+                    }
+                }
+
+                override fun onFailure(message: String) {
+                    mConfigUpdateApp.isEnabled = true
+                    Toast.makeText(requireContext(), getString(R.string.config_update_app_error), Toast.LENGTH_SHORT).show()
+                }
+            })
         }
 
         mConfigCoversDelete.setOnClickListener {
@@ -488,14 +609,14 @@ class ConfigFragment : Fragment() {
                 .setMessage(getString(R.string.config_covers_delete_description))
                 .setPositiveButton(R.string.action_confirm) { _, _ ->
                     try {
-                        val cacheManga = File(GeneralConsts.getCacheDir(requireContext()), GeneralConsts.CACHE_FOLDER.MANGA_COVERS)
+                        val cacheManga = File(GeneralConsts.getCoverDir(requireContext()), GeneralConsts.CACHE_FOLDER.MANGA_COVERS)
                         if (cacheManga.exists())
                             cacheManga.listFiles()?.let {
                                 for (f in it)
                                     f.delete()
                             }
 
-                        val cacheBook = File(GeneralConsts.getCacheDir(requireContext()), GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
+                        val cacheBook = File(GeneralConsts.getCoverDir(requireContext()), GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
                         if (cacheBook.exists())
                             cacheBook.listFiles()?.let {
                                 for (f in it)
@@ -506,6 +627,31 @@ class ConfigFragment : Fragment() {
                     } catch (e: Exception) {
                         mLOGGER.error("Error delete bitmap to cache: " + e.message, e)
                         Toast.makeText(requireContext(), getString(R.string.config_covers_delete_error), Toast.LENGTH_SHORT).show()
+                        Firebase.crashlytics.apply {
+                            setCustomKey("message", "Error delete bitmap to cache: " + e.message)
+                            recordException(e)
+                        }
+                    }
+                }
+                .setNegativeButton(R.string.action_cancel) { _, _ -> }
+                .create().show()
+        }
+
+        mConfigStatisticsDelete.setOnClickListener {
+            MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+                .setTitle(getString(R.string.config_statistics_clear_title))
+                .setMessage(getString(R.string.config_statistics_clear_description))
+                .setPositiveButton(R.string.action_confirm) { _, _ ->
+                    try {
+                        HistoryRepository(requireContext()).clearAll()
+                        Toast.makeText(requireContext(), getString(R.string.config_statistics_clear_success), Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        mLOGGER.error("Error delete statistics: " + e.message, e)
+                        Toast.makeText(requireContext(), getString(R.string.config_statistics_clear_error), Toast.LENGTH_SHORT).show()
+                        Firebase.crashlytics.apply {
+                            setCustomKey("message", "Error delete statistics: " + e.message)
+                            recordException(e)
+                        }
                     }
                 }
                 .setNegativeButton(R.string.action_cancel) { _, _ -> }
@@ -547,13 +693,26 @@ class ConfigFragment : Fragment() {
             true
         }
 
-        mConfigSystemShareMarkLastSync.setOnLongClickListener {
+        mConfigSystemShareMarkMangaLastSync.setOnLongClickListener {
             MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
                 .setTitle(getString(R.string.config_system_share_mark_clear_last_sync_title))
                 .setMessage(getString(R.string.config_system_share_mark_clear_last_sync))
                 .setPositiveButton(R.string.action_confirm) { _, _ ->
-                    ShareMarkBase.clearLastSync(requireContext())
-                    mConfigSystemShareMarkLastSync.visibility = View.GONE
+                    ShareMarkBase.clearLastSync(requireContext(), Type.MANGA)
+                    mConfigSystemShareMarkMangaLastSync.visibility = View.GONE
+                }
+                .setNegativeButton(R.string.action_cancel) { _, _ -> }
+                .create().show()
+            true
+        }
+
+        mConfigSystemShareMarkBookLastSync.setOnLongClickListener {
+            MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+                .setTitle(getString(R.string.config_system_share_mark_clear_last_sync_title))
+                .setMessage(getString(R.string.config_system_share_mark_clear_last_sync))
+                .setPositiveButton(R.string.action_confirm) { _, _ ->
+                    ShareMarkBase.clearLastSync(requireContext(), Type.BOOK)
+                    mConfigSystemShareMarkBookLastSync.visibility = View.GONE
                 }
                 .setNegativeButton(R.string.action_cancel) { _, _ -> }
                 .create().show()
@@ -565,22 +724,23 @@ class ConfigFragment : Fragment() {
             startActivityForResult(googleSignInClient.signInIntent, GeneralConsts.REQUEST.GOOGLE_SIGN_IN)
         }
 
+        mMangaTouchScreenButton.setOnClickListener { openTouchFunction(Type.MANGA) }
+        mBookTouchScreenButton.setOnClickListener { openTouchFunction(Type.BOOK) }
+
         googleSigIn(GoogleSignIn.getLastSignedInAccount(requireContext()))
 
         mViewModel.loadLibrary(null)
     }
 
-    override fun onDestroyView() {
+    override fun onStop() {
         saveConfig()
+        super.onStop()
+    }
 
-        mViewModel.removeLibraryDefault(
-            mMangaLibraryPath.editText?.text.toString(),
-            mBookLibraryPath.editText?.text.toString()
-        )
-        ViewModelProvider(this)[MangaLibraryViewModel::class.java]
-            .setDefaultLibrary(LibraryUtil.getDefault(requireContext(), Type.MANGA))
-        ViewModelProvider(this)[BookLibraryViewModel::class.java]
-            .setDefaultLibrary(LibraryUtil.getDefault(requireContext(), Type.BOOK))
+    override fun onDestroyView() {
+        mViewModel.removeLibraryDefault(mMangaLibraryPath.editText?.text.toString(), mBookLibraryPath.editText?.text.toString())
+        ViewModelProvider(this)[MangaLibraryViewModel::class.java].setDefaultLibrary(LibraryUtil.getDefault(requireContext(), Type.MANGA))
+        ViewModelProvider(this)[BookLibraryViewModel::class.java].setDefaultLibrary(LibraryUtil.getDefault(requireContext(), Type.BOOK))
         (requireActivity() as MainActivity).setLibraries(mViewModel.getListLibrary())
 
         super.onDestroyView()
@@ -680,11 +840,7 @@ class ConfigFragment : Fragment() {
                         if (DataBase.validDatabaseFile(requireContext(), it))
                             DataBase.restoreDatabase(requireContext(), file)
                         else
-                            MsgUtil.alert(
-                                requireContext(),
-                                getString(R.string.config_database_restore),
-                                getString(R.string.config_database_invalid_file)
-                            ) { _, _ -> }
+                            MsgUtil.alert(requireContext(), getString(R.string.config_database_restore), getString(R.string.config_database_invalid_file)) { _, _ -> }
                     }
                 } catch (e: InvalidDatabase) {
                     MsgUtil.error(
@@ -768,13 +924,18 @@ class ConfigFragment : Fragment() {
             )
 
             this.putString(
-                GeneralConsts.KEYS.READER.MANGA_PAGE_MODE,
-                mMangaPageModeSelectType.toString()
+                GeneralConsts.KEYS.READER.MANGA_READER_MODE,
+                mMangaReaderModeSelect.toString()
             )
 
             this.putString(
-                GeneralConsts.KEYS.READER.MANGA_READER_MODE,
-                mMangaReaderModeSelectType.toString()
+                GeneralConsts.KEYS.READER.MANGA_PAGE_SCROLLING_MODE,
+                mMangaScrollingModeSelect.toString()
+            )
+
+            this.putString(
+                GeneralConsts.KEYS.READER.MANGA_PAGE_PAGINATION_TYPE,
+                mMangaPaginationSelect.toString()
             )
 
             this.putBoolean(
@@ -813,23 +974,43 @@ class ConfigFragment : Fragment() {
             )
 
             this.putString(
-                GeneralConsts.KEYS.READER.BOOK_READER_TTS,
-                mBookReadingTTSSelect.toString()
+                GeneralConsts.KEYS.READER.BOOK_PAGE_PAGINATION_TYPE,
+                mBookPaginationSelect.toString()
+            )
+
+            this.putString(
+                GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_NORMAL,
+                mBookReadingTTSSelectNormal.toString()
+            )
+
+            this.putString(
+                GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_JAPANESE,
+                mBookReadingTTSSelectJapanese.toString()
+            )
+
+            this.putFloat(
+                GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED,
+                mBookReadingSpeed.value
             )
 
             this.putBoolean(
                 GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT,
-                mBookProcessJapaneseText.isChecked
+                mBookReaderProcessJapaneseText.isChecked
             )
 
             this.putBoolean(
                 GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT,
-                mBookTextWithFurigana.isChecked
+                mBookReaderTextWithFurigana.isChecked
+            )
+
+            this.putBoolean(
+                GeneralConsts.KEYS.READER.BOOK_FONT_JAPANESE_STYLE,
+                mBookFontJapaneseStyle.isChecked
             )
 
             this.putBoolean(
                 GeneralConsts.KEYS.READER.BOOK_PROCESS_VOCABULARY,
-                mBookProcessVocabulary.isChecked
+                mBookReaderProcessVocabulary.isChecked
             )
 
             this.putFloat(
@@ -893,16 +1074,22 @@ class ConfigFragment : Fragment() {
 
         mMangaLibraryPath.editText?.setText(mViewModel.getDefault(Type.MANGA))
 
-        mMangaPageModeSelectType = PageMode.valueOf(
-            sharedPreferences.getString(
-                GeneralConsts.KEYS.READER.MANGA_PAGE_MODE,
-                PageMode.Comics.toString()
-            )!!
-        )
-        mMangaReaderModeSelectType = ReaderMode.valueOf(
+        mMangaReaderModeSelect = ReaderMode.valueOf(
             sharedPreferences.getString(
                 GeneralConsts.KEYS.READER.MANGA_READER_MODE,
                 ReaderMode.FIT_WIDTH.toString()
+            )!!
+        )
+        mMangaScrollingModeSelect = ScrollingType.valueOf(
+            sharedPreferences.getString(
+                GeneralConsts.KEYS.READER.MANGA_PAGE_SCROLLING_MODE,
+                ScrollingType.Horizontal.toString()
+            )!!
+        )
+        mMangaPaginationSelect = PaginationType.valueOf(
+            sharedPreferences.getString(
+                GeneralConsts.KEYS.READER.MANGA_PAGE_PAGINATION_TYPE,
+                PaginationType.Default.toString()
             )!!
         )
         mMangaOrderSelect = Order.valueOf(
@@ -924,23 +1111,27 @@ class ConfigFragment : Fragment() {
             )!!
         )
         mMangaLibraryOrderAutoComplete.setText(
-            mMangaMapOrder.filterValues { it == mMangaOrderSelect }.keys.first(),
+            mMangaMapOrder.entries.first { it.value == mMangaOrderSelect }.key,
             false
         )
         mMangaDefaultSubtitleLanguageAutoComplete.setText(
-            mMangaMapLanguage.filterValues { it == mMangaDefaultSubtitleLanguageSelect }.keys.first(),
+            mMangaMapLanguage.entries.first { it.value == mMangaDefaultSubtitleLanguageSelect }.key,
             false
         )
         mMangaSubtitleTranslateAutoComplete.setText(
-            mMangaMapLanguage.filterValues { it == mMangaDefaultSubtitleTranslateSelect }.keys.first(),
+            mMangaMapLanguage.entries.first { it.value == mMangaDefaultSubtitleTranslateSelect }.key,
             false
         )
         mMangaReaderComicModeAutoComplete.setText(
-            mMangaMapReaderMode.filterValues { it == mMangaReaderModeSelectType }.keys.first(),
+            mMangaMapReaderMode.entries.first { it.value == mMangaReaderModeSelect }.key,
             false
         )
-        mMangaPageModeAutoComplete.setText(
-            mMangaMapPageMode.filterValues { it == mMangaPageModeSelectType }.keys.first(),
+        mMangaScrollingModeAutoComplete.setText(
+            mMangaMapScrollingMode.entries.first { it.value == mMangaScrollingModeSelect }.key,
+            false
+        )
+        mMangaPaginationTypeAutoComplete.setText(
+            mMangaMapPaginationType.entries.first { it.value == mMangaPaginationSelect }.key,
             false
         )
         mMangaShowClockAndBattery.isChecked = sharedPreferences.getBoolean(
@@ -984,39 +1175,70 @@ class ConfigFragment : Fragment() {
             )!!
         )
 
-        mBookReadingTTSSelect = TextSpeech.valueOf(
+        mBookPaginationSelect = PaginationType.valueOf(
             sharedPreferences.getString(
-                GeneralConsts.KEYS.READER.BOOK_READER_TTS,
-                TextSpeech.getDefault().toString()
+                GeneralConsts.KEYS.READER.BOOK_PAGE_PAGINATION_TYPE,
+                PaginationType.Default.toString()
             )!!
         )
 
+        mBookReadingTTSSelectNormal = TextSpeech.valueOf(
+            sharedPreferences.getString(
+                GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_NORMAL,
+                TextSpeech.getDefault(false).toString()
+            )!!
+        )
+
+        mBookReadingTTSSelectJapanese = TextSpeech.valueOf(
+            sharedPreferences.getString(
+                GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_JAPANESE,
+                TextSpeech.getDefault(true).toString()
+            )!!
+        )
+
+        mBookReadingSpeed.value = sharedPreferences.getFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED_DEFAULT)
+
         mBookLibraryOrderAutoComplete.setText(
-            mBookMapOrder.filterValues { it == mBookOrderSelect }.keys.first(),
+            mBookMapOrder.entries.first { it.value == mBookOrderSelect }.key,
             false
         )
 
         mBookScrollingModeAutoComplete.setText(
-            mBookMapScrollingMode.filterValues { it == mBookScrollingModeSelect }.keys.first(),
+            mBookMapScrollingMode.entries.first { it.value == mBookScrollingModeSelect }.key,
             false
         )
 
-        mBookReadingTTSAutoComplete.setText(
-            mBookMapReadingTTS.filterValues { it == mBookReadingTTSSelect }.keys.first(),
+        mBookPaginationTypeAutoComplete.setText(
+            mBookMapPaginationType.entries.first { it.value == mBookPaginationSelect }.key,
             false
         )
 
-        mBookProcessJapaneseText.isChecked = sharedPreferences.getBoolean(
+        mBookReadingTTSAutoCompleteNormal.setText(
+            mBookMapReadingTTS.entries.first { it.value == mBookReadingTTSSelectNormal }.key,
+            false
+        )
+
+        mBookReadingTTSAutoCompleteJapanese.setText(
+            mBookMapReadingTTS.entries.first { it.value == mBookReadingTTSSelectJapanese }.key,
+            false
+        )
+
+        mBookReaderProcessJapaneseText.isChecked = sharedPreferences.getBoolean(
             GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT,
             true
         )
 
-        mBookTextWithFurigana.isChecked = sharedPreferences.getBoolean(
+        mBookReaderTextWithFurigana.isChecked = sharedPreferences.getBoolean(
             GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT,
             true
         )
 
-        mBookProcessVocabulary.isChecked = sharedPreferences.getBoolean(
+        mBookFontJapaneseStyle.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.READER.BOOK_FONT_JAPANESE_STYLE,
+            false
+        )
+
+        mBookReaderProcessVocabulary.isChecked = sharedPreferences.getBoolean(
             GeneralConsts.KEYS.READER.BOOK_PROCESS_VOCABULARY,
             false
         )
@@ -1043,7 +1265,7 @@ class ConfigFragment : Fragment() {
         )
 
         mConfigSystemShareMarkTypeAutoComplete.setText(
-            mConfigSystemShareMarkCloudMap.filterValues { it == mConfigSystemShareMarkCloudSelect }.keys.first(),
+            mConfigSystemShareMarkCloudMap.entries.first { it.value == mConfigSystemShareMarkCloudSelect }.key,
             false
         )
 
@@ -1093,14 +1315,24 @@ class ConfigFragment : Fragment() {
             )!!
         )
         mConfigSystemThemeModeAutoComplete.setText(
-            mMangaMapThemeMode.filterValues { it == mConfigSystemThemeModeSelect }.keys.first(),
+            mMangaMapThemeMode.entries.first { it.value == mConfigSystemThemeModeSelect }.key,
             false
         )
 
-        mConfigSystemShareMarkLastSync.visibility = if (sharedPreferences.contains(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA)) {
+        mConfigSystemShareMarkMangaLastSync.visibility = if (sharedPreferences.contains(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA)) {
             val sync = sharedPreferences.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, Date().toString())
             val dateSync = SimpleDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME, Locale.getDefault()).parse(sync)
-            mConfigSystemShareMarkLastSync.text = SimpleDateFormat(mConfigSystemDateSelect + " " + GeneralConsts.PATTERNS.TIME_PATTERN, Locale.getDefault()).format(dateSync)
+            val lastSync = SimpleDateFormat(mConfigSystemDateSelect + " " + GeneralConsts.PATTERNS.TIME_PATTERN, Locale.getDefault()).format(dateSync)
+            mConfigSystemShareMarkMangaLastSync.text = getString(R.string.config_system_share_mark_manga, lastSync)
+            View.VISIBLE
+        } else
+            View.GONE
+
+        mConfigSystemShareMarkBookLastSync.visibility = if (sharedPreferences.contains(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK)) {
+            val sync = sharedPreferences.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, Date().toString())
+            val dateSync = SimpleDateFormat(GeneralConsts.SHARE_MARKS.PARSE_DATE_TIME, Locale.getDefault()).parse(sync)
+            val lastSync = SimpleDateFormat(mConfigSystemDateSelect + " " + GeneralConsts.PATTERNS.TIME_PATTERN, Locale.getDefault()).format(dateSync)
+            mConfigSystemShareMarkBookLastSync.text = getString(R.string.config_system_share_mark_book, lastSync)
             View.VISIBLE
         } else
             View.GONE
@@ -1262,6 +1494,52 @@ class ConfigFragment : Fragment() {
             mConfigSystemShareMarkSignIn.visibility = View.VISIBLE
             mConfigSystemShareMarkAccount.text = ""
         }
+    }
+
+    private fun choiceBackup() {
+        val selectDatabase = getString(R.string.config_database_restore_select_backup)
+        val backups = mutableMapOf<String, String>()
+        backups[selectDatabase] = selectDatabase
+
+        val pattern = DateTimeFormatter.ofPattern(mConfigSystemDateSelect + " " + GeneralConsts.PATTERNS.TIME_PATTERN)
+        val autoBackups = File(requireContext().filesDir, "/databasebackup")
+        if (autoBackups.exists())
+            autoBackups.listFiles()?.let {
+                for (bkp in it.sortedDescending()) {
+                    val name = bkp.name.replace("BilingualReader.db-", "").substringBeforeLast(".")
+                    val date = LocalDateTime.parse(name.substring(0, 10) + "T" + name.substring(11))
+                    backups[date.format(pattern)] = bkp.name
+                    if (backups.size > 3)
+                        break
+                }
+            }
+
+        val items = backups.keys.toTypedArray()
+        MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatMaterialAlertList)
+            .setTitle(R.string.config_database_restore)
+            .setItems(items) { _, selected ->
+                val origin = items[selected]
+                if (origin == selectDatabase) {
+                    val i = Intent(Intent.ACTION_GET_CONTENT)
+                    i.type = "*/*"
+                    startActivityForResult(
+                        Intent.createChooser(i, getString(R.string.config_database_select_file)),
+                        GeneralConsts.REQUEST.RESTORE_BACKUP
+                    )
+                } else
+                    DataBase.restoreDatabase(requireContext(), File(autoBackups, backups[origin]!!))
+            }
+            .show()
+    }
+
+    private fun openTouchFunction(type: Type) {
+        val intent = Intent(requireContext(), MenuActivity::class.java)
+        val bundle = Bundle()
+        bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_touch_screen_config)
+        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.TYPE, type)
+        intent.putExtras(bundle)
+        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+        startActivityForResult(intent, GeneralConsts.REQUEST.TOUCH_CONFIGURATION, null)
     }
 
 }

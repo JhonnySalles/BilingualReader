@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/book_annotation_margin"
-    android:background="@drawable/book_mark_custom_ripple"
+    android:background="@drawable/custom_ripple_annotation"
     android:clickable="true"
     android:focusable="true"
     android:orientation="vertical">
@@ -21,10 +21,10 @@
             style="@style/Button.IconOnly"
             android:layout_width="@dimen/book_annotation_button_size"
             android:layout_height="@dimen/book_annotation_button_size"
-            android:textColor="?attr/colorSecondary"
+            android:textColor="?attr/colorPrimary"
             android:contentDescription="@string/book_annotation_list_favorite"
             app:iconSize="@dimen/book_annotation_icon_size"
-            app:iconTint="?attr/colorSecondary"
+            app:iconTint="?attr/colorPrimary"
             app:icon="@drawable/ico_animated_favorited_unmarked"/>
 
         <TextView
@@ -41,11 +41,11 @@
             style="@style/Button.IconOnly"
             android:layout_width="@dimen/book_annotation_button_size"
             android:layout_height="@dimen/book_annotation_button_size"
-            android:textColor="?attr/colorPrimary"
+            android:textColor="?attr/colorOnBackground"
             android:contentDescription="@string/book_annotation_list_options"
             android:layout_marginStart="5dp"
             app:iconSize="@dimen/book_annotation_icon_size"
-            app:iconTint="?attr/colorPrimary"
+            app:iconTint="?attr/colorOnBackground"
             app:icon="@drawable/ico_animated_options"/>
     </LinearLayout>
 
@@ -77,11 +77,11 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical">
                 <ImageView
-                    style="@style/TextNormal.BookAnnotation"
+                    android:id="@+id/book_annotation_note_icon"
                     android:layout_width="@dimen/book_annotation_note_icon_size"
                     android:layout_height="@dimen/book_annotation_note_icon_size"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/ic_book_mark_note"/>
+                    android:background="@drawable/ico_animated_book_mark_note"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/book_annotation_without_note"
@@ -100,7 +100,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
-                    android:textColor="?attr/colorOnSecondaryContainer"
+                    android:textColor="?attr/colorPrimaryContainer"
                     android:textSize="@dimen/book_annotation_note_text_size"/>
             </LinearLayout>
         </LinearLayout>

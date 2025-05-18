@@ -2,6 +2,8 @@ package br.com.fenix.bilingualreader.util.helpers
 
 import android.graphics.Bitmap
 import androidx.room.TypeConverter
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Date
@@ -10,7 +12,7 @@ class Converters {
 
     @TypeConverter
     fun fromBase64(image: String): Bitmap {
-        return ImageUtil.decodeImageBase64(image)
+        return ImageUtil.decodeImageBase64(image)!!
     }
 
     @TypeConverter
@@ -77,6 +79,23 @@ class Converters {
             return ""
 
         return array.joinToString(",")
+    }
+
+    @TypeConverter
+    fun fromIntMap(value: String): Map<Int, String> {
+        if (value.isEmpty())
+            return mapOf()
+
+        val mapType = object : TypeToken<Map<Int, String>>() {}.type
+        return Gson().fromJson(value, mapType)
+    }
+
+    @TypeConverter
+    fun intMapToString(map: Map<Int, String>): String {
+        if (map.isEmpty())
+            return ""
+
+        return Gson().toJson(map)
     }
 
     @TypeConverter

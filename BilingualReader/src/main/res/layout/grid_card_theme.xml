@@ -15,7 +15,7 @@
         android:layout_margin="1dp"
         app:strokeWidth="3dp"
         app:strokeColor="?attr/colorPrimaryContainer"
-        app:rippleColor="?attr/colorTertiary">
+        app:rippleColor="?attr/colorPrimaryContainer">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             style="@style/ThemeBackground"

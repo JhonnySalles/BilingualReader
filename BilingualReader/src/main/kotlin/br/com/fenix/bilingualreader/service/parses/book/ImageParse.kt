@@ -42,16 +42,7 @@ class ImageParse(var context: Context) {
 
     fun getCoverPage(path: String, isCoverSize: Boolean): Bitmap? {
         val size = if (isCoverSize) ReaderConsts.COVER.BOOK_COVER_THUMBNAIL_WIDTH else ReaderConsts.COVER.BOOK_COVER_READER_WIDTH
-        val pageHtml = PageUrl(
-            path,
-            0,
-            size,
-            0,
-            false,
-            true,
-            0
-        )
-
+        val pageHtml = PageUrl(path, 0, size, 0, false, true, 0)
         return mImageExtractor.proccessCoverPage(pageHtml)
     }
 }

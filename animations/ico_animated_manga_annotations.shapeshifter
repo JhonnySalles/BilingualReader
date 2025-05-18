@@ -1,0 +1,146 @@
+{
+  "version": 1,
+  "layers": {
+    "vectorLayer": {
+      "id": "824568",
+      "name": "vector",
+      "type": "vector",
+      "width": 6,
+      "height": 8,
+      "children": [
+        {
+          "id": "824569",
+          "name": "base_bookmark",
+          "type": "group",
+          "pivotX": 29,
+          "pivotY": 14,
+          "translateX": -24.71786,
+          "translateY": -10.00812,
+          "children": [
+            {
+              "id": "824570",
+              "name": "bookmark_marked",
+              "type": "path",
+              "pathData": "M 28.657 10.528 L 28.657 12.115 C 28.657 12.261 28.777 12.38 28.92 12.38 L 30.245 12.38 Z",
+              "fillColor": "#ffffff",
+              "fillType": "evenOdd"
+            },
+            {
+              "id": "824571",
+              "name": "bookmark_page",
+              "type": "path",
+              "pathData": "M 27.599 10.528 L 28.393 10.528 L 28.393 12.116 C 28.393 12.41 28.63 12.645 28.924 12.645 L 30.245 12.645 L 30.245 17.143 C 30.245 17.436 30.008 17.672 29.716 17.672 L 25.746 17.672 C 25.454 17.672 25.218 17.434 25.218 17.141 L 25.218 11.059 C 25.218 10.766 25.456 10.528 25.749 10.528 L 26.012 10.528 L 26.012 13.703 L 26.805 12.909 L 27.599 13.703 Z",
+              "fillColor": "#ffffff",
+              "fillType": "evenOdd"
+            },
+            {
+              "id": "824572",
+              "name": "bookmark_bookmark",
+              "type": "path",
+              "pathData": "M 26.276 10.528 L 26.276 13.068 L 26.805 12.539 L 27.335 13.068 L 27.335 10.528 Z",
+              "fillColor": "#ffffff"
+            }
+          ]
+        }
+      ]
+    },
+    "hiddenLayerIds": []
+  },
+  "timeline": {
+    "animation": {
+      "id": "824591",
+      "name": "anim",
+      "duration": 1000,
+      "blocks": [
+        {
+          "id": "824592",
+          "layerId": "824572",
+          "propertyName": "pathData",
+          "startTime": 15,
+          "endTime": 407,
+          "interpolator": "ANTICIPATE",
+          "type": "path",
+          "fromValue": "M 26.276 10.528 L 26.276 13.068 L 26.805 12.539 L 27.335 13.068 L 27.335 10.528 Z",
+          "toValue": "M 26.276 10.528 L 26.289 11.023 L 26.818 10.711 L 27.335 11.049 L 27.335 10.528 Z"
+        },
+        {
+          "id": "824593",
+          "layerId": "824571",
+          "propertyName": "pathData",
+          "startTime": 15,
+          "endTime": 407,
+          "interpolator": "ANTICIPATE",
+          "type": "path",
+          "fromValue": "M 27.599 10.528 L 28.393 10.528 L 28.393 12.116 C 28.393 12.41 28.63 12.645 28.924 12.645 L 30.245 12.645 L 30.245 17.143 C 30.245 17.436 30.008 17.672 29.716 17.672 L 25.746 17.672 C 25.454 17.672 25.218 17.434 25.218 17.141 L 25.218 11.059 C 25.218 10.766 25.456 10.528 25.749 10.528 L 26.012 10.528 L 26.012 13.703 L 26.805 12.909 L 27.599 13.703 Z",
+          "toValue": "M 27.599 10.528 L 28.393 10.528 L 28.393 12.116 C 28.393 12.41 28.63 12.645 28.924 12.645 L 30.245 12.645 L 30.245 17.143 C 30.245 17.436 30.008 17.672 29.716 17.672 L 25.746 17.672 C 25.454 17.672 25.218 17.434 25.218 17.141 L 25.218 11.059 C 25.218 10.766 25.456 10.528 25.749 10.528 L 26.012 10.528 L 25.999 11.479 L 26.805 11.043 L 27.586 11.518 Z"
+        },
+        {
+          "id": "824594",
+          "layerId": "824572",
+          "propertyName": "pathData",
+          "startTime": 541,
+          "endTime": 933,
+          "interpolator": "OVERSHOOT",
+          "type": "path",
+          "fromValue": "M 26.276 10.528 L 26.289 11.023 L 26.818 10.711 L 27.335 11.049 L 27.335 10.528 Z",
+          "toValue": "M 26.276 10.528 L 26.276 13.068 L 26.805 12.539 L 27.335 13.068 L 27.335 10.528 Z"
+        },
+        {
+          "id": "824595",
+          "layerId": "824571",
+          "propertyName": "pathData",
+          "startTime": 541,
+          "endTime": 933,
+          "interpolator": "OVERSHOOT",
+          "type": "path",
+          "fromValue": "M 27.599 10.528 L 28.393 10.528 L 28.393 12.116 C 28.393 12.41 28.63 12.645 28.924 12.645 L 30.245 12.645 L 30.245 17.143 C 30.245 17.436 30.008 17.672 29.716 17.672 L 25.746 17.672 C 25.454 17.672 25.218 17.434 25.218 17.141 L 25.218 11.059 C 25.218 10.766 25.456 10.528 25.749 10.528 L 26.012 10.528 L 25.999 11.479 L 26.805 11.043 L 27.586 11.518 Z",
+          "toValue": "M 27.599 10.528 L 28.393 10.528 L 28.393 12.116 C 28.393 12.41 28.63 12.645 28.924 12.645 L 30.245 12.645 L 30.245 17.143 C 30.245 17.436 30.008 17.672 29.716 17.672 L 25.746 17.672 C 25.454 17.672 25.218 17.434 25.218 17.141 L 25.218 11.059 C 25.218 10.766 25.456 10.528 25.749 10.528 L 26.012 10.528 L 26.012 13.703 L 26.805 12.909 L 27.599 13.703 Z"
+        },
+        {
+          "id": "824596",
+          "layerId": "824569",
+          "propertyName": "scaleX",
+          "startTime": 334,
+          "endTime": 508,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.9
+        },
+        {
+          "id": "824597",
+          "layerId": "824569",
+          "propertyName": "scaleY",
+          "startTime": 334,
+          "endTime": 508,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.9
+        },
+        {
+          "id": "824598",
+          "layerId": "824569",
+          "propertyName": "scaleX",
+          "startTime": 508,
+          "endTime": 682,
+          "interpolator": "OVERSHOOT",
+          "type": "number",
+          "fromValue": 0.9,
+          "toValue": 1
+        },
+        {
+          "id": "824599",
+          "layerId": "824569",
+          "propertyName": "scaleY",
+          "startTime": 508,
+          "endTime": 682,
+          "interpolator": "OVERSHOOT",
+          "type": "number",
+          "fromValue": 0.9,
+          "toValue": 1
+        }
+      ]
+    }
+  }
+}

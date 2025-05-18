@@ -4,11 +4,13 @@ import android.graphics.Bitmap;
 
 import org.ebookdroid.droids.mupdf.codec.exceptions.MuPdfPasswordException;
 import org.ebookdroid.droids.mupdf.codec.exceptions.MuPdfPasswordRequiredException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.concurrent.atomic.AtomicLong;
 
-import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.ext.CacheZipUtils;
 import br.com.ebook.foobnix.ext.CacheZipUtils.CacheDir;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
@@ -16,6 +18,8 @@ import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 import br.com.ebook.foobnix.sys.TempHolder;
 
 public abstract class AbstractCodecContext implements CodecContext {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCodecContext.class);
 
     private static final AtomicLong SEQ = new AtomicLong();
 
@@ -35,7 +39,8 @@ public abstract class AbstractCodecContext implements CodecContext {
 
     public CodecDocument openDocumentInnerCanceled(String fileName, String password) {
         CodecDocument openDocument = openDocumentInner(fileName, password);
-        LOG.d("removeTempFiles1", TempHolder.get().loadingCancelled);
+        if (Config.SHOW_LOG)
+            LOGGER.info("removeTempFiles1: {}", TempHolder.get().loadingCancelled);
         if (TempHolder.get().loadingCancelled) {
             TempHolder.get().clear();
             removeTempFiles();
@@ -45,7 +50,9 @@ public abstract class AbstractCodecContext implements CodecContext {
     }
 
     public void removeTempFiles() {
-        LOG.d("removeTempFiles2", TempHolder.get().loadingCancelled);
+        if (Config.SHOW_LOG)
+            LOGGER.info("removeTempFiles2: {}", TempHolder.get().loadingCancelled);
+
         if (TempHolder.get().loadingCancelled) {
             recycle();
             CacheZipUtils.removeFiles(CacheZipUtils.CACHE_BOOK_DIR.listFiles());
@@ -54,21 +61,25 @@ public abstract class AbstractCodecContext implements CodecContext {
 
     @Override
     public CodecDocument openDocument(String fileNameOriginal, String password) {
-        LOG.d("Open-Document", fileNameOriginal);
+        if (Config.SHOW_LOG)
+            LOGGER.info("Open-Document: {}", fileNameOriginal);
         // TempHolder.get().loadingCancelled = false;
         if (ExtUtils.isZip(fileNameOriginal)) {
-            LOG.d("Open-Document ZIP", fileNameOriginal);
+            if (Config.SHOW_LOG)
+                LOGGER.info("Open-Document ZIP: {}", fileNameOriginal);
             return openDocumentInnerCanceled(fileNameOriginal, password);
         }
 
 
-        LOG.d("Open-Document 2 LANG:", BookCSS.get().hypenLang, fileNameOriginal);
+        if (Config.SHOW_LOG)
+            LOGGER.info("Open-Document 2 LANG: {} - {}", BookCSS.get().hypenLang, fileNameOriginal);
 
         File cacheFileName = getCacheFileName(fileNameOriginal);
         CacheZipUtils.removeFiles(CacheZipUtils.CACHE_BOOK_DIR.listFiles(), cacheFileName);
 
         if (cacheFileName != null && cacheFileName.isFile()) {
-            LOG.d("Open-Document from cache", fileNameOriginal);
+            if (Config.SHOW_LOG)
+                LOGGER.error("Open-Document from cache: {}", fileNameOriginal);
             return openDocumentInnerCanceled(fileNameOriginal, password);
         }
 
@@ -76,16 +87,17 @@ public abstract class AbstractCodecContext implements CodecContext {
         CacheZipUtils.createAllCacheDirs();
         try {
             String fileName = CacheZipUtils.extracIfNeed(fileNameOriginal, CacheDir.ZipApp).unZipPath;
-            LOG.d("Open-Document extract", fileName);
-            if (!ExtUtils.isValidFile(fileName)) {
+            if (Config.SHOW_LOG)
+                LOGGER.error("Open-Document extract: {}", fileName);
+            if (!ExtUtils.isValidFile(fileName))
                 return null;
-            }
+
             try {
                 return openDocumentInnerCanceled(fileName, password);
             } catch (MuPdfPasswordException e) {
                 throw new MuPdfPasswordRequiredException();
             } catch (Throwable e) {
-                LOG.e(e);
+                LOGGER.error("Error open document: {}", e.getMessage(), e);
                 return null;
             }
         } finally {

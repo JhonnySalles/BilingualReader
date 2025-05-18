@@ -2,8 +2,8 @@
     xmlns:aapt="http://schemas.android.com/aapt">
     <aapt:attr name="android:drawable">
         <vector
-            android:width="100dp"
-            android:height="100dp"
+            android:width="30dp"
+            android:height="30dp"
             android:viewportWidth="500"
             android:viewportHeight="500">
             <group android:name="_R_G"
@@ -24,7 +24,7 @@
                         <path
                             android:name="_R_G_L_0_G_L_2_G_D_0_P_0"
                             android:fillAlpha="1"
-                            android:fillColor="?attr/colorPrimary"
+                            android:fillColor="?attr/colorOnBackground"
                             android:fillType="nonZero"
                             android:pathData=" M-167.43 -40 C-154.98,-40 -144.86,-29.89 -144.86,-17.43 C-144.86,-4.98 -154.98,5.14 -167.43,5.14 C-179.89,5.14 -190,-4.98 -190,-17.43 C-190,-29.89 -179.89,-40 -167.43,-40c " />
                         <path
@@ -32,7 +32,7 @@
                             android:pathData=" M-167.43 -40 C-154.98,-40 -144.86,-29.89 -144.86,-17.43 C-144.86,-4.98 -154.98,5.14 -167.43,5.14 C-179.89,5.14 -190,-4.98 -190,-17.43 C-190,-29.89 -179.89,-40 -167.43,-40c "
                             android:strokeWidth="8"
                             android:strokeAlpha="1"
-                            android:strokeColor="?attr/colorPrimary"
+                            android:strokeColor="?attr/colorOnBackground"
                             android:strokeLineCap="round"
                             android:strokeLineJoin="round" />
                     </group>
@@ -43,7 +43,7 @@
                         <path
                             android:name="_R_G_L_0_G_L_1_G_D_0_P_0"
                             android:fillAlpha="1"
-                            android:fillColor="?attr/colorPrimary"
+                            android:fillColor="?attr/colorOnBackground"
                             android:fillType="nonZero"
                             android:pathData=" M-167.43 -40 C-154.98,-40 -144.86,-29.89 -144.86,-17.43 C-144.86,-4.98 -154.98,5.14 -167.43,5.14 C-179.89,5.14 -190,-4.98 -190,-17.43 C-190,-29.89 -179.89,-40 -167.43,-40c " />
                         <path
@@ -51,7 +51,7 @@
                             android:pathData=" M-167.43 -40 C-154.98,-40 -144.86,-29.89 -144.86,-17.43 C-144.86,-4.98 -154.98,5.14 -167.43,5.14 C-179.89,5.14 -190,-4.98 -190,-17.43 C-190,-29.89 -179.89,-40 -167.43,-40c "
                             android:strokeWidth="8"
                             android:strokeAlpha="1"
-                            android:strokeColor="?attr/colorPrimary"
+                            android:strokeColor="?attr/colorOnBackground"
                             android:strokeLineCap="round"
                             android:strokeLineJoin="round" />
                     </group>
@@ -62,7 +62,7 @@
                         <path
                             android:name="_R_G_L_0_G_L_0_G_D_0_P_0"
                             android:fillAlpha="1"
-                            android:fillColor="?attr/colorPrimary"
+                            android:fillColor="?attr/colorOnBackground"
                             android:fillType="nonZero"
                             android:pathData=" M-167.43 -40 C-154.98,-40 -144.86,-29.89 -144.86,-17.43 C-144.86,-4.98 -154.98,5.14 -167.43,5.14 C-179.89,5.14 -190,-4.98 -190,-17.43 C-190,-29.89 -179.89,-40 -167.43,-40c " />
                         <path
@@ -70,7 +70,7 @@
                             android:pathData=" M-167.43 -40 C-154.98,-40 -144.86,-29.89 -144.86,-17.43 C-144.86,-4.98 -154.98,5.14 -167.43,5.14 C-179.89,5.14 -190,-4.98 -190,-17.43 C-190,-29.89 -179.89,-40 -167.43,-40c "
                             android:strokeWidth="8"
                             android:strokeAlpha="1"
-                            android:strokeColor="?attr/colorPrimary"
+                            android:strokeColor="?attr/colorOnBackground"
                             android:strokeLineCap="round"
                             android:strokeLineJoin="round" />
                     </group>

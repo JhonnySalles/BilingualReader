@@ -19,9 +19,14 @@ import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil
 import br.com.fenix.bilingualreader.view.ui.popup.PopupTextSelect
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
+import org.slf4j.LoggerFactory
 
 
-class TextViewSelectCallback(val context: Context, val holder: TextViewPager.TextViewPagerHolder, val page: Int, val createSpan: (annotation: BookAnnotation, start: Int, end: Int) -> (Unit), val listener: TextSelectCallbackListener?) : ActionMode.Callback {
+class TextViewSelectCallback(val context: Context, val holder: TextViewAdapter.TextViewPagerHolder, val page: Int, val createSpan: (annotation: BookAnnotation, start: Int, end: Int) -> (Unit), val listener: TextSelectCallbackListener?) : ActionMode.Callback {
+
+    private val mLOGGER = LoggerFactory.getLogger(TextViewSelectCallback::class.java)
 
     private val mTextView: TextView = holder.textView
     private val mMenuCustom : PopupTextSelect = PopupTextSelect(holder.popupTextSelect, this)
@@ -34,8 +39,7 @@ class TextViewSelectCallback(val context: Context, val holder: TextViewPager.Tex
             mode?.menuInflater?.inflate(R.menu.menu_text_view_select, menu)
         } else
             mMenuCustom.setAction(mode)
-        
-        return true;
+        return true
     }
 
     override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
@@ -44,7 +48,7 @@ class TextViewSelectCallback(val context: Context, val holder: TextViewPager.Tex
             menu?.removeItem(android.R.id.shareText)
         } else
             menu?.clear()
-        return true;
+        return true
     }
 
     override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
@@ -67,7 +71,13 @@ class TextViewSelectCallback(val context: Context, val holder: TextViewPager.Tex
                 R.id.popup_text_select_functions_select_all, android.R.id.selectAll -> selectAllText()
 
                 R.id.popup_text_select_functions_tts, R.id.menu_text_select_functions_tts -> {
-                    listener?.textSelectReadingFrom(page, mTextView.text.substring(start, end))
+                    var index = mTextView.text.length
+                    val next = mTextView.text.substring(start, index)
+                    if (next.contains("\n"))
+                        index = next.indexOf("\n")
+
+                    val text = mTextView.text.substring(start, start + index).trim()
+                    listener?.textSelectReadingFrom(page, text)
                     mode?.finish()
                 }
 
@@ -137,7 +147,16 @@ class TextViewSelectCallback(val context: Context, val holder: TextViewPager.Tex
     private fun translateText(text: String) = PopupUtil.googleTranslate(context, text)
 
     override fun onDestroyActionMode(mode: ActionMode?) {
-
+        try {
+            if (!ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT)
+                holder.popupTextSelect.dismiss()
+        } catch (e : Exception) {
+            mLOGGER.error("Error to destroy action mode: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error to destroy action mode: " + e.message)
+                recordException(e)
+            }
+        }
     }
 
 }

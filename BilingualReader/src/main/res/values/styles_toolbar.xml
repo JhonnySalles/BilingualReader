@@ -11,7 +11,7 @@
 
     <style name="MainToolbarStyle" parent="Widget.MaterialComponents.Toolbar">
         <item name="android:background">@color/transparent</item>
-        <item name="android:textColorPrimary">?attr/colorSurfaceVariant</item>
+        <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
         <item name="android:textColorSecondary">?attr/colorOnSurfaceVariant</item>
         <item name="colorControlNormal">?attr/colorOnSurfaceVariant</item>
         <item name="android:drawableTint">?attr/colorOnSurfaceVariant</item>
@@ -24,90 +24,79 @@
         <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
         <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
         <item name="colorControlNormal">?attr/toolbarTitleAccents</item> <!-- butons -->
-        <item name="android:textColor">?attr/toolbarTitleAccents</item> <!-- text menu -->
+        <item name="android:textColor">?attr/colorPrimary</item> <!-- text menu -->
         <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
         <item name="iconTint">?attr/toolbarTitleAccents</item> <!--Icons -->
-    </style>
-
-    <style name="MainToolbarTheme.BloodRed" parent="Theme.MangaReader.BloodRed">
-        <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
-        <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
-        <item name="colorControlNormal">?attr/toolbarTitleAccents</item>
-        <item name="android:textColor">?attr/toolbarTitleAccents</item>
-        <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
-        <item name="iconTint">?attr/toolbarTitleAccents</item>
-    </style>
-
-    <style name="MainToolbarTheme.Red" parent="Theme.MangaReader.Red">
-        <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
-        <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
-        <item name="colorControlNormal">?attr/toolbarTitleAccents</item>
-        <item name="android:textColor">?attr/toolbarTitleAccents</item>
-        <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
-        <item name="iconTint">?attr/toolbarTitleAccents</item>
-    </style>
-
-    <style name="MainToolbarTheme.OceanBlue" parent="Theme.MangaReader.OceanBlue">
-        <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
-        <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
-        <item name="colorControlNormal">?attr/toolbarTitleAccents</item>
-        <item name="android:textColor">?attr/toolbarTitleAccents</item>
-        <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
-        <item name="iconTint">?attr/toolbarTitleAccents</item>
+        <item name="colorAccent">?attr/toolbarTitleAccents</item> <!--Cursor -->
     </style>
 
     <style name="MainToolbarTheme.Blue" parent="Theme.MangaReader.Blue">
         <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
         <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
-        <item name="colorControlNormal">?attr/toolbarTitleAccents</item>
-        <item name="android:textColor">?attr/toolbarTitleAccents</item>
+        <item name="colorControlNormal">?attr/toolbarTitleAccents</item> <!-- butons -->
+        <item name="android:textColor">?attr/colorPrimary</item> <!-- text menu -->
         <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
-        <item name="iconTint">?attr/toolbarTitleAccents</item>
+        <item name="iconTint">?attr/toolbarTitleAccents</item> <!--Icons -->
     </style>
 
-    <style name="MainToolbarTheme.ForestGreen" parent="Theme.MangaReader.ForestGreen">
+    <style name="MainToolbarTheme.OceanBlue" parent="Theme.MangaReader.OceanBlue">
         <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
         <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
-        <item name="colorControlNormal">?attr/toolbarTitleAccents</item>
-        <item name="android:textColor">?attr/toolbarTitleAccents</item>
+        <item name="colorControlNormal">?attr/toolbarTitleAccents</item> <!-- butons -->
+        <item name="android:textColor">?attr/colorPrimary</item> <!-- text menu -->
         <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
-        <item name="iconTint">?attr/toolbarTitleAccents</item>
+        <item name="iconTint">?attr/toolbarTitleAccents</item> <!--Icons -->
+        <item name="colorAccent">?attr/toolbarTitleAccents</item> <!--Cursor -->
     </style>
 
     <style name="MainToolbarTheme.Green" parent="Theme.MangaReader.Green">
         <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
         <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
-        <item name="colorControlNormal">?attr/toolbarTitleAccents</item>
-        <item name="android:textColor">?attr/toolbarTitleAccents</item>
+        <item name="colorControlNormal">?attr/toolbarTitleAccents</item> <!-- butons -->
+        <item name="android:textColor">?attr/colorPrimary</item> <!-- text menu -->
         <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
-        <item name="iconTint">?attr/toolbarTitleAccents</item>
+        <item name="iconTint">?attr/toolbarTitleAccents</item> <!--Icons -->
+        <item name="colorAccent">?attr/toolbarTitleAccents</item> <!--Cursor -->
     </style>
 
-    <style name="MainToolbarTheme.NeonBlue" parent="Theme.MangaReader.NeonBlue">
+    <style name="MainToolbarTheme.ForestGreen" parent="Theme.MangaReader.ForestGreen">
         <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
         <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
-        <item name="colorControlNormal">?attr/toolbarTitleAccents</item>
-        <item name="android:textColor">?attr/toolbarTitleAccents</item>
+        <item name="colorControlNormal">?attr/toolbarTitleAccents</item> <!-- butons -->
+        <item name="android:textColor">?attr/colorPrimary</item> <!-- text menu -->
         <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
-        <item name="iconTint">?attr/toolbarTitleAccents</item>
-    </style>
-
-    <style name="MainToolbarTheme.NeonGreen" parent="Theme.MangaReader.NeonGreen">
-        <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
-        <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
-        <item name="colorControlNormal">?attr/toolbarTitleAccents</item>
-        <item name="android:textColor">?attr/toolbarTitleAccents</item>
-        <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
-        <item name="iconTint">?attr/toolbarTitleAccents</item>
+        <item name="iconTint">?attr/toolbarTitleAccents</item> <!--Icons -->
+        <item name="colorAccent">?attr/toolbarTitleAccents</item> <!--Cursor -->
     </style>
 
     <style name="MainToolbarTheme.Pink" parent="Theme.MangaReader.Pink">
         <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
         <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
-        <item name="colorControlNormal">?attr/toolbarTitleAccents</item>
-        <item name="android:textColor">?attr/toolbarTitleAccents</item>
+        <item name="colorControlNormal">?attr/toolbarTitleAccents</item> <!-- butons -->
+        <item name="android:textColor">?attr/colorPrimary</item> <!-- text menu -->
         <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
-        <item name="iconTint">?attr/toolbarTitleAccents</item>
+        <item name="iconTint">?attr/toolbarTitleAccents</item> <!--Icons -->
+        <item name="colorAccent">?attr/toolbarTitleAccents</item> <!--Cursor -->
+    </style>
+
+    <style name="MainToolbarTheme.Red" parent="Theme.MangaReader.Red">
+        <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
+        <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
+        <item name="colorControlNormal">?attr/toolbarTitleAccents</item> <!-- butons -->
+        <item name="android:textColor">?attr/colorPrimary</item> <!-- text menu -->
+        <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
+        <item name="iconTint">?attr/toolbarTitleAccents</item> <!--Icons -->
+        <item name="colorAccent">?attr/toolbarTitleAccents</item> <!--Cursor -->
+    </style>
+
+    <style name="MainToolbarTheme.BloodRed" parent="Theme.MangaReader.BloodRed">
+        <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
+        <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
+        <item name="colorControlNormal">?attr/toolbarTitleAccents</item> <!-- butons -->
+        <item name="android:textColor">?attr/colorPrimary</item> <!-- text menu -->
+        <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
+        <item name="iconTint">?attr/toolbarTitleAccents</item> <!--Icons -->
+        <item name="colorAccent">?attr/toolbarTitleAccents</item> <!--Cursor -->
     </style>
 
     <style name="TitleShadow" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
@@ -126,7 +115,7 @@
     </style>
 
     <style name="SearchShadow" parent="Widget.AppCompat.SearchView">
-        <item name="android:textColor">?attr/colorSurfaceVariant</item>
+        <item name="android:textColor">?attr/toolbarTitleColor</item>
         <item name="android:shadowColor">@color/shadow</item>
         <item name="android:shadowDx">3</item>
         <item name="android:shadowDy">3</item>
@@ -146,45 +135,6 @@
         <item name="iconTint">?attr/toolbarTitleAccents</item> <!--Icons -->
     </style>
 
-    <style name="MainToolbarThemeWithShadow.BloodRed" parent="Theme.MangaReader.BloodRed">
-        <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
-        <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
-        <item name="android:textColor">?attr/toolbarTitleAccents</item> <!-- text menu -->
-        <item name="titleTextColor">?attr/toolbarTitleColor</item>
-        <item name="titleTextAppearance">@style/TitleShadow</item>
-        <item name="subtitleTextColor">?attr/toolbarTitleAccents</item>
-        <item name="subtitleTextAppearance">@style/SubTitleShadow</item>
-        <item name="colorControlNormal">?attr/toolbarTitleAccents</item>
-        <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
-        <item name="iconTint">?attr/toolbarTitleAccents</item>
-    </style>
-
-    <style name="MainToolbarThemeWithShadow.Red" parent="Theme.MangaReader.Red">
-        <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
-        <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
-        <item name="android:textColor">?attr/toolbarTitleAccents</item> <!-- text menu -->
-        <item name="titleTextColor">?attr/toolbarTitleColor</item>
-        <item name="titleTextAppearance">@style/TitleShadow</item>
-        <item name="subtitleTextColor">?attr/toolbarTitleAccents</item>
-        <item name="subtitleTextAppearance">@style/SubTitleShadow</item>
-        <item name="colorControlNormal">?attr/toolbarTitleAccents</item>
-        <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
-        <item name="iconTint">?attr/toolbarTitleAccents</item>
-    </style>
-
-    <style name="MainToolbarThemeWithShadow.OceanBlue" parent="Theme.MangaReader.OceanBlue">
-        <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
-        <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
-        <item name="android:textColor">?attr/toolbarTitleAccents</item> <!-- text menu -->
-        <item name="titleTextColor">?attr/toolbarTitleColor</item>
-        <item name="titleTextAppearance">@style/TitleShadow</item>
-        <item name="subtitleTextColor">?attr/toolbarTitleAccents</item>
-        <item name="subtitleTextAppearance">@style/SubTitleShadow</item>
-        <item name="colorControlNormal">?attr/toolbarTitleAccents</item>
-        <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
-        <item name="iconTint">?attr/toolbarTitleAccents</item>
-    </style>
-
     <style name="MainToolbarThemeWithShadow.Blue" parent="Theme.MangaReader.Blue">
         <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
         <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
@@ -193,22 +143,9 @@
         <item name="titleTextAppearance">@style/TitleShadow</item>
         <item name="subtitleTextColor">?attr/toolbarTitleAccents</item>
         <item name="subtitleTextAppearance">@style/SubTitleShadow</item>
-        <item name="colorControlNormal">?attr/toolbarTitleAccents</item>
+        <item name="colorControlNormal">?attr/toolbarTitleAccents</item> <!-- butons -->
         <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
-        <item name="iconTint">?attr/toolbarTitleAccents</item>
-    </style>
-
-    <style name="MainToolbarThemeWithShadow.ForestGreen" parent="Theme.MangaReader.ForestGreen">
-        <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
-        <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
-        <item name="android:textColor">?attr/toolbarTitleAccents</item> <!-- text menu -->
-        <item name="titleTextColor">?attr/toolbarTitleColor</item>
-        <item name="titleTextAppearance">@style/TitleShadow</item>
-        <item name="subtitleTextColor">?attr/toolbarTitleAccents</item>
-        <item name="subtitleTextAppearance">@style/SubTitleShadow</item>
-        <item name="colorControlNormal">?attr/toolbarTitleAccents</item>
-        <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
-        <item name="iconTint">?attr/toolbarTitleAccents</item>
+        <item name="iconTint">?attr/toolbarTitleAccents</item> <!--Icons -->
     </style>
 
     <style name="MainToolbarThemeWithShadow.Green" parent="Theme.MangaReader.Green">
@@ -219,35 +156,9 @@
         <item name="titleTextAppearance">@style/TitleShadow</item>
         <item name="subtitleTextColor">?attr/toolbarTitleAccents</item>
         <item name="subtitleTextAppearance">@style/SubTitleShadow</item>
-        <item name="colorControlNormal">?attr/toolbarTitleAccents</item>
+        <item name="colorControlNormal">?attr/toolbarTitleAccents</item> <!-- butons -->
         <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
-        <item name="iconTint">?attr/toolbarTitleAccents</item>
-    </style>
-
-    <style name="MainToolbarThemeWithShadow.NeonBlue" parent="Theme.MangaReader.NeonBlue">
-        <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
-        <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
-        <item name="android:textColor">?attr/toolbarTitleAccents</item> <!-- text menu -->
-        <item name="titleTextColor">?attr/toolbarTitleColor</item>
-        <item name="titleTextAppearance">@style/TitleShadow</item>
-        <item name="subtitleTextColor">?attr/toolbarTitleAccents</item>
-        <item name="subtitleTextAppearance">@style/SubTitleShadow</item>
-        <item name="colorControlNormal">?attr/toolbarTitleAccents</item>
-        <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
-        <item name="iconTint">?attr/toolbarTitleAccents</item>
-    </style>
-
-    <style name="MainToolbarThemeWithShadow.NeonGreen" parent="Theme.MangaReader.NeonGreen">
-        <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
-        <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
-        <item name="android:textColor">?attr/toolbarTitleAccents</item> <!-- text menu -->
-        <item name="titleTextColor">?attr/toolbarTitleColor</item>
-        <item name="titleTextAppearance">@style/TitleShadow</item>
-        <item name="subtitleTextColor">?attr/toolbarTitleAccents</item>
-        <item name="subtitleTextAppearance">@style/SubTitleShadow</item>
-        <item name="colorControlNormal">?attr/toolbarTitleAccents</item>
-        <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
-        <item name="iconTint">?attr/toolbarTitleAccents</item>
+        <item name="iconTint">?attr/toolbarTitleAccents</item> <!--Icons -->
     </style>
 
     <style name="MainToolbarThemeWithShadow.Pink" parent="Theme.MangaReader.Pink">
@@ -258,34 +169,65 @@
         <item name="titleTextAppearance">@style/TitleShadow</item>
         <item name="subtitleTextColor">?attr/toolbarTitleAccents</item>
         <item name="subtitleTextAppearance">@style/SubTitleShadow</item>
-        <item name="colorControlNormal">?attr/toolbarTitleAccents</item>
+        <item name="colorControlNormal">?attr/toolbarTitleAccents</item> <!-- butons -->
         <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
-        <item name="iconTint">?attr/toolbarTitleAccents</item>
+        <item name="iconTint">?attr/toolbarTitleAccents</item> <!--Icons -->
+    </style>
+
+    <style name="MainToolbarThemeWithShadow.Red" parent="Theme.MangaReader.Red">
+        <item name="android:textColorPrimary">?attr/toolbarTitleColor</item>
+        <item name="android:textColorSecondary">?attr/toolbarTitleAccents</item>
+        <item name="android:textColor">?attr/toolbarTitleAccents</item> <!-- text menu -->
+        <item name="titleTextColor">?attr/toolbarTitleColor</item>
+        <item name="titleTextAppearance">@style/TitleShadow</item>
+        <item name="subtitleTextColor">?attr/toolbarTitleAccents</item>
+        <item name="subtitleTextAppearance">@style/SubTitleShadow</item>
+        <item name="colorControlNormal">?attr/toolbarTitleAccents</item> <!-- butons -->
+        <item name="colorControlHighlight">?attr/toolbarTitleAccents</item>
+        <item name="iconTint">?attr/toolbarTitleAccents</item> <!--Icons -->
     </style>
 
     <style name="ReaderToolbarTheme" parent="Base.Theme.MangaReader">
-        <item name="android:textColor">?attr/colorSurfaceVariant</item>
-        <item name="android:textColorPrimary">?attr/colorSurfaceVariant</item>
-        <item name="android:textColorSecondary">?attr/colorSurfaceVariant</item>
+        <item name="android:textColor">@color/manga_reader_readerTextTitleColor</item>
+        <item name="android:textColorPrimary">@color/manga_reader_readerTextTitleColor</item>
+        <item name="android:textColorSecondary">@color/manga_reader_readerTextTitleColor</item>
         <item name="android:ellipsize">end</item>
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
     </style>
 
-    <style name="ReaderSubToolbarTheme" parent="Base.Theme.MangaReader">
-        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
-        <item name="android:textColorPrimary">?attr/colorOnSurfaceVariant</item>
-        <item name="android:textColorSecondary">?attr/colorOnSurfaceVariant</item>
+    <style name="ReaderBookToolbarTheme" parent="Base.Theme.MangaReader">
+        <item name="android:textColor">?attr/colorPrimaryContainer</item>
+        <item name="android:textColorPrimary">?attr/colorPrimaryContainer</item>
+        <item name="android:textColorSecondary">?attr/colorPrimaryContainer</item>
         <item name="android:ellipsize">start</item>
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:shadowColor">@color/shadow</item>
+        <item name="android:shadowDx">1.5</item>
+        <item name="android:shadowDy">1.3</item>
+        <item name="android:shadowRadius">1.6</item>
     </style>
 
-    <style name="ReaderBookToolbarTheme" parent="Base.Theme.MangaReader">
-        <item name="android:textColor">?attr/colorTertiary</item>
-        <item name="android:textColorPrimary">?attr/colorTertiary</item>
-        <item name="android:textColorSecondary">?attr/colorTertiary</item>
+    <style name="ConfigLibrariesToolbarTheme" parent="Base.Theme.MangaReader">
+        <item name="android:textColor">?attr/colorPrimaryContainer</item>
+        <item name="android:textColorPrimary">?attr/colorPrimaryContainer</item>
+        <item name="android:textColorSecondary">?attr/colorPrimaryContainer</item>
+        <item name="android:ellipsize">start</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:shadowColor">@color/shadow</item>
+        <item name="android:shadowDx">1.5</item>
+        <item name="android:shadowDy">1.3</item>
+        <item name="android:shadowRadius">1.6</item>
+    </style>
+
+    <style name="SelectMangaToolbarTheme" parent="Base.Theme.MangaReader">
+        <item name="android:textColor">?attr/colorPrimaryContainer</item>
+        <item name="android:textColorPrimary">?attr/colorPrimaryContainer</item>
+        <item name="android:textColorSecondary">?attr/colorPrimaryContainer</item>
         <item name="android:ellipsize">start</item>
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
@@ -297,10 +239,10 @@
     </style>
 
     <style name="MainNavigation" parent="Base.Theme.MangaReader">
-        <item name="android:background">?attr/colorSurface</item>
-        <item name="itemTextColor">?attr/colorPrimary</item>
-        <item name="itemIconTint">?attr/colorSecondary</item>
-        <item name="subheaderColor">?attr/colorSecondary</item>
+        <item name="itemTextColor">?attr/colorOnBackground</item>
+        <item name="itemIconTint">?attr/colorPrimary</item>
+        <item name="subheaderColor">?attr/colorPrimary</item>
+        <item name="android:listDivider">?attr/colorOutline</item>
     </style>
 
     <style name="MainNavigationTitle" parent="Base.Theme.MangaReader">

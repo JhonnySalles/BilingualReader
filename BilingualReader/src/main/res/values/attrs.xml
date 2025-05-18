@@ -41,16 +41,30 @@
     </declare-styleable>
 
     <declare-styleable name="DottedSeekBar">
-        <attr name="dots_positions" format="reference"/>
-        <attr name="dots_drawable" format="reference"/>
+        <attr name="dots_positions_primary" format="reference"/>
+        <attr name="dots_positions_secondary" format="reference"/>
+        <attr name="dots_drawable_primary" format="reference"/>
+        <attr name="dots_drawable_secondary" format="reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="ZoomRecyclerView">
+        <attr format="float" name="min_scale"/>
+        <attr format="float" name="max_scale"/>
+        <attr format="float" name="default_scale"/>
+        <attr format="integer" name="zoom_duration"/>
+        <attr format="boolean" name="zoom_pinch_enabled"/>
+        <attr format="boolean" name="zoom_enabled"/>
     </declare-styleable>
 
     <bool name="isNight">false</bool>
 
+    <!-- App Colors -->
     <attr format="reference" name="statusBarColor"/>
     <attr format="reference" name="toolbarStartColor"/>
     <attr format="reference" name="toolbarCenterColor"/>
     <attr format="reference" name="toolbarEndColor"/>
     <attr format="reference" name="toolbarTitleColor"/>
     <attr format="reference" name="toolbarTitleAccents"/>
+
+    <attr format="reference" name="detailTextInverse"/>
 </resources>

@@ -12,6 +12,11 @@ class HistoryRepository(var context: Context) {
     private var mDataBase = DataBase.getDataBase(context).getHistoryDao()
 
 
+    fun clearAll() {
+        for (history in mDataBase.findAll())
+            mDataBase.delete(history)
+    }
+
     fun save(obj: History): Long {
         return if (obj.id != null) {
             mDataBase.update(obj)
@@ -27,5 +32,7 @@ class HistoryRepository(var context: Context) {
     fun notify(obj: History) {
         mDataBase.notify(obj.type, obj.fkLibrary, obj.fkReference)
     }
+
+    fun find(type: Type, idLibrary: Long, idReference: Long) = mDataBase.find(type, idLibrary, idReference)
 
 }

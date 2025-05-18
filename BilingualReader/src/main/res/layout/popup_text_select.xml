@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/frame_popup_tag_root"
+    android:id="@+id/frame_popup_text_select_root"
+    style="@style/PopupTextSelect"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:padding="@dimen/margin_small"
@@ -11,14 +12,12 @@
     <LinearLayout
         android:layout_width="@dimen/popup_text_select_width"
         android:layout_height="@dimen/popup_text_select_height"
-        android:layout_marginTop="@dimen/margin_small"
-        android:layout_marginBottom="@dimen/margin_small"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
             android:orientation="horizontal"
             android:gravity="center_horizontal">
 
@@ -29,7 +28,7 @@
                 android:layout_height="@dimen/popup_text_select_colors_size"
                 android:contentDescription="@string/annotation_colors_yellow"
                 app:iconSize="@dimen/popup_text_select_colors_icon_size"
-                app:icon="@drawable/ic_text_view_select_all"/>
+                app:icon="@drawable/ico_animated_text_view_select_all"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_text_select_functions_copy"
@@ -39,7 +38,7 @@
                 android:contentDescription="@string/annotation_colors_yellow"
                 android:layout_marginStart="@dimen/popup_text_select_colors_margin"
                 app:iconSize="@dimen/popup_text_select_colors_icon_size"
-                app:icon="@drawable/ic_text_view_copy"/>
+                app:icon="@drawable/ico_animated_text_view_copy"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_text_select_functions_search"
@@ -49,7 +48,7 @@
                 android:contentDescription="@string/annotation_colors_blue"
                 android:layout_marginStart="@dimen/popup_text_select_colors_margin"
                 app:iconSize="@dimen/popup_text_select_colors_icon_size"
-                app:icon="@drawable/ic_text_view_find"/>
+                app:icon="@drawable/ico_animated_text_view_find"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_text_select_functions_translate"
@@ -59,7 +58,7 @@
                 android:contentDescription="@string/annotation_colors_green"
                 android:layout_marginStart="@dimen/popup_text_select_colors_margin"
                 app:iconSize="@dimen/popup_text_select_colors_icon_size"
-                app:icon="@drawable/ic_text_view_translate"/>
+                app:icon="@drawable/ico_text_view_translate"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_text_select_functions_tts"
@@ -69,7 +68,7 @@
                 android:contentDescription="@string/annotation_colors_red"
                 android:layout_marginStart="@dimen/popup_text_select_colors_margin"
                 app:iconSize="@dimen/popup_text_select_colors_icon_size"
-                app:icon="@drawable/ic_text_view_tts"/>
+                app:icon="@drawable/ico_animated_text_view_tts"/>
         </LinearLayout>
 
         <com.google.android.material.divider.MaterialDivider
@@ -84,7 +83,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin"
+            android:layout_marginTop="@dimen/margin_small"
             android:orientation="horizontal"
             android:gravity="center_horizontal">
             <com.google.android.material.button.MaterialButton
@@ -95,7 +94,7 @@
                 android:contentDescription="@string/annotation_colors_yellow"
                 app:iconTint="@color/text_select_yellow"
                 app:iconSize="@dimen/popup_text_select_colors_icon_size"
-                app:icon="@drawable/ic_text_view_select_yellow"/>
+                app:icon="@drawable/ico_text_view_select_yellow"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_text_select_green"
@@ -106,7 +105,7 @@
                 android:layout_marginStart="@dimen/popup_text_select_colors_margin"
                 app:iconTint="@color/text_select_green"
                 app:iconSize="@dimen/popup_text_select_colors_icon_size"
-                app:icon="@drawable/ic_text_view_select_green"/>
+                app:icon="@drawable/ico_text_view_select_green"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_text_select_blue"
@@ -117,7 +116,7 @@
                 android:layout_marginStart="@dimen/popup_text_select_colors_margin"
                 app:iconTint="@color/text_select_blue"
                 app:iconSize="@dimen/popup_text_select_colors_icon_size"
-                app:icon="@drawable/ic_text_view_select_blue"/>
+                app:icon="@drawable/ico_text_view_select_blue"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_text_select_red"
@@ -128,7 +127,7 @@
                 android:layout_marginStart="@dimen/popup_text_select_colors_margin"
                 app:iconTint="@color/text_select_red"
                 app:iconSize="@dimen/popup_text_select_colors_icon_size"
-                app:icon="@drawable/ic_text_view_select_red"/>
+                app:icon="@drawable/ico_text_view_select_red"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/popup_text_select_erase"
@@ -138,7 +137,7 @@
                 android:contentDescription="@string/annotation_colors_red"
                 android:layout_marginStart="@dimen/popup_text_select_colors_margin"
                 app:iconSize="@dimen/popup_text_select_colors_icon_size"
-                app:icon="@drawable/ic_text_view_select_erase"/>
+                app:icon="@drawable/ico_animated_text_select_erase"/>
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

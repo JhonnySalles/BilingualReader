@@ -86,13 +86,14 @@ class BookSearchFragment : Fragment(), BookParseListener {
             val path = it.getString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PATH)
             val password = it.getString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PASSWORD)
             val fontSize = it.getInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE)
+            val isJapaneseStyle = it.getBoolean(GeneralConsts.KEYS.OBJECT.DOCUMENT_JAPANESE_STYLE)
 
             if (it.containsKey(GeneralConsts.KEYS.OBJECT.BOOK_FONT_SIZE))
                 mFontSize = it.getFloat(GeneralConsts.KEYS.OBJECT.BOOK_FONT_SIZE)
 
             val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-            val parse = SharedData.getDocumentParse() ?: DocumentParse(path!!, password!!, fontSize, isLandscape, this)
+            val parse = SharedData.getDocumentParse() ?: DocumentParse(path!!, password!!, fontSize, isLandscape, isJapaneseStyle,this)
             mViewModelBookSearch.initialize(requireContext(), book, parse)
 
             if (it.containsKey(GeneralConsts.KEYS.OBJECT.BOOK_SEARCH)) {
@@ -103,6 +104,7 @@ class BookSearchFragment : Fragment(), BookParseListener {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        menu.clear()
         inflater.inflate(R.menu.menu_book_search, menu)
         super.onCreateOptionsMenu(menu, inflater)
 
@@ -174,9 +176,19 @@ class BookSearchFragment : Fragment(), BookParseListener {
             (mScrollUp.drawable as AnimatedVectorDrawable).start()
             mRecyclerView.smoothScrollToPosition(0)
         }
+        mScrollUp.setOnLongClickListener {
+            (mScrollUp.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.scrollToPosition(0)
+            true
+        }
         mScrollDown.setOnClickListener {
             (mScrollDown.drawable as AnimatedVectorDrawable).start()
             mRecyclerView.smoothScrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount)
+        }
+        mScrollDown.setOnLongClickListener {
+            (mScrollDown.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.scrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount -1)
+            true
         }
 
         mRecyclerView.setOnScrollChangeListener { _, _, _, _, yOld ->

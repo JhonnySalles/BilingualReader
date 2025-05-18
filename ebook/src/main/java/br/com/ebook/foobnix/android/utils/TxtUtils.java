@@ -9,6 +9,9 @@ import android.widget.TextView;
 
 import androidx.core.util.Pair;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.UnsupportedEncodingException;
 import java.lang.Character.UnicodeBlock;
 import java.nio.charset.Charset;
@@ -19,11 +22,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.entity.FileMeta;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.sys.TempHolder;
 
 public class TxtUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TxtUtils.class);
 
     public static String LONG_DASH = "–";
     public static String SMALL_DASH = " - ";
@@ -53,7 +59,7 @@ public class TxtUtils {
         if (str == null) {
             return str;
         }
-        return str.toLowerCase(Locale.US);
+        return str.toLowerCase(Locale.getDefault());
 
     }
 
@@ -166,7 +172,8 @@ public class TxtUtils {
         if (pageHTML == null) {
             return "";
         }
-        LOG.d("pageHTML [before]", pageHTML);
+        if (Config.SHOW_LOG)
+            LOGGER.info("pageHTML [before]: {}", pageHTML);
         pageHTML = pageHTML.replace("<b>", "").replace("</b>", "").replace("<i>", "").replace("</i>", "").replace("<tt>", "").replace("</tt>", "");
         pageHTML = pageHTML.replace("<br/>", " ");
         pageHTML = replaceEndLine(pageHTML);
@@ -177,7 +184,8 @@ public class TxtUtils {
         pageHTML = pageHTML.replace("  ", " ").replace("  ", " ");
         pageHTML = pageHTML.replace(".", ". ").replace(" .", ".").replace(" .", ".");
         pageHTML = pageHTML.replaceAll("(?u)(\\w+)(-\\s)", "$1");
-        LOG.d("pageHTML [after]", pageHTML);
+        if (Config.SHOW_LOG)
+            LOGGER.info("pageHTML [after]: {}", pageHTML);
         return pageHTML;
     }
 
@@ -334,7 +342,8 @@ public class TxtUtils {
     static List<String> dividers = Arrays.asList(" - ", " _ ", "_-_", "+-+");
 
     public static Pair<String, String> getTitleAuthorByPath(String name) {
-        LOG.d("getTitleAuthorByPath", name);
+        if (Config.SHOW_LOG)
+            LOGGER.info("getTitleAuthorByPath: {}", name);
         String author = "";
         String title = "";
         try {
@@ -377,9 +386,9 @@ public class TxtUtils {
             }
 
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error get title author by path: {}", e.getMessage(), e);
         }
-        return new Pair<String, String>(title, author);
+        return new Pair<>(title, author);
     }
 
     static List<String> trash = Arrays.asList("-", "—", "_", "  ");
@@ -507,7 +516,8 @@ public class TxtUtils {
             boolean n2 = Character.isUpperCase(line.charAt(line.length() - 3));
             return a1 && a2 && n1 && n2;
         } catch (Exception e) {
-            LOG.e(e);
+            if (Config.SHOW_LOG)
+                LOGGER.error("Error valid is line start and end uppercase: {}", e.getMessage(), e);
         }
         return false;
     }
@@ -525,13 +535,14 @@ public class TxtUtils {
 
             if (TxtUtils.isNotEmpty(id)) {
                 String string = footNotes.get(id);
-                LOG.d("Find note for id", string);
+                if (Config.SHOW_LOG)
+                    LOGGER.info("Find note for id: {}", string);
                 string = string.trim().replaceAll("^[0-9]+ ", "");
                 return string;
             }
 
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error get footer note: {}", e.getMessage(), e);
             return "";
         }
 
@@ -681,19 +692,17 @@ public class TxtUtils {
     }
 
     public static String ellipsize(String title, int size) {
-        if (TxtUtils.isEmpty(title)) {
+        if (TxtUtils.isEmpty(title))
             return "";
-        }
-        if (title.length() <= size) {
+
+        if (title.length() <= size)
             return title;
-        }
 
         String substring = title.substring(0, size);
-        if (substring.endsWith(" ")) {
+        if (substring.endsWith(" "))
             return substring;
-        }
-        return substring + " ...";
 
+        return substring + " ...";
     }
 
 }

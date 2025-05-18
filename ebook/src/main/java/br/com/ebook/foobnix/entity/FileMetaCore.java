@@ -8,13 +8,14 @@ import org.ebookdroid.BookType;
 import org.ebookdroid.common.cache.CacheManager;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 
 import br.com.ebook.Config;
-import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.ext.CacheZipUtils;
 import br.com.ebook.foobnix.ext.CacheZipUtils.CacheDir;
@@ -28,6 +29,7 @@ import br.com.ebook.foobnix.ext.PdfExtract;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
 
 public class FileMetaCore {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileMetaCore.class);
     private static FileMetaCore in = new FileMetaCore();
 
     public static FileMetaCore get() {
@@ -43,7 +45,7 @@ public class FileMetaCore {
             }
 
             if (Config.SHOW_LOG)
-                LOG.d("checkOrCreateMetaInfo", path);
+                LOGGER.info("checkOrCreateMetaInfo: {}", path);
             if (new File(path).isFile()) {
                 FileMeta fileMeta = new FileMeta(path);
                 if (TxtUtils.isEmpty(fileMeta.getTitle())) {
@@ -53,21 +55,21 @@ public class FileMetaCore {
                     FileMetaCore.get().upadteBasicMeta(fileMeta, new File(path));
                     FileMetaCore.get().udpateFullMeta(fileMeta, ebookMeta);
                     if (Config.SHOW_LOG)
-                        LOG.d("checkOrCreateMetaInfo", "UPDATE", path);
+                        LOGGER.info("checkOrCreateMetaInfo -- UPDATE: {}", path);
                 } else {
                     if (Config.SHOW_LOG)
-                        LOG.d("checkOrCreateMetaInfo", "LOAD", path);
+                        LOGGER.info("checkOrCreateMetaInfo -- LOAD: {}", path);
                 }
             }
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error check or create metainfo: {}", e.getMessage(), e);
         }
     }
 
     public EbookMeta getEbookMeta(String path, CacheDir folder, boolean withPDF) {
         EbookMeta ebookMeta = EbookMeta.Empty();
         try {
-            if (path.toLowerCase(Locale.US).endsWith(".zip")) {
+            if (path.toLowerCase(Locale.getDefault()).endsWith(".zip")) {
                 CacheZipUtils.cacheLock.lock();
                 try {
                     UnZipRes res = CacheZipUtils.extracIfNeed(path, folder);
@@ -82,7 +84,7 @@ public class FileMetaCore {
             }
 
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error get ebook meta: {}", e.getMessage(), e);
         }
         return ebookMeta;
 
@@ -104,16 +106,15 @@ public class FileMetaCore {
         if (CalirbeExtractor.isCalibre(unZipPath)) {
             ebookMeta = CalirbeExtractor.getBookMetaInformation(unZipPath);
             if (Config.SHOW_LOG)
-                LOG.d("isCalibre find", unZipPath);
-        } else if (BookType.EPUB.is(unZipPath)) {
+                LOGGER.info("isCalibre find: {}", unZipPath);
+        } else if (BookType.EPUB.is(unZipPath))
             ebookMeta = EpubExtractor.get().getBookMetaInformation(unZipPath);
-        } else if (BookType.FB2.is(unZipPath)) {
+        else if (BookType.FB2.is(unZipPath))
             ebookMeta = Fb2Extractor.get().getBookMetaInformation(unZipPath);
-        } else if (BookType.MOBI.is(unZipPath)) {
+        else if (BookType.MOBI.is(unZipPath))
             ebookMeta = MobiExtract.getBookMetaInformation(unZipPath, true);
-        } else if (withDPF && isNeedToExtractPDFMeta(unZipPath)) {
+        else if (withDPF && isNeedToExtractPDFMeta(unZipPath))
             ebookMeta = PdfExtract.getBookMetaInformation(unZipPath);
-        }
 
         if (TxtUtils.isEmpty(ebookMeta.getTitle())) {
             Pair<String, String> pair = TxtUtils.getTitleAuthorByPath(fileName);
@@ -129,13 +130,13 @@ public class FileMetaCore {
             }
         }
 
-        if (ebookMeta.getsIndex() != null) {
+        /*if (ebookMeta.getsIndex() != null) {
             ebookMeta.setTitle(ebookMeta.getTitle() + " [" + ebookMeta.getsIndex() + "]");
         }
 
         if (path.endsWith(".zip") && !path.endsWith("fb2.zip")) {
             ebookMeta.setTitle("{" + fileNameOriginal + "} " + ebookMeta.getTitle());
-        }
+        }*/
 
         return ebookMeta;
     }
@@ -163,7 +164,7 @@ public class FileMetaCore {
             info = Jsoup.clean(info, Whitelist.none());
             info = info.replace("&nbsp;", " ");
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error get book overview: {}", e.getMessage(), e);
         }
         return info;
     }
@@ -190,12 +191,10 @@ public class FileMetaCore {
         fileMeta.setSizeTxt(ExtUtils.readableFileSize(file.length()));
         fileMeta.setDateTxt(ExtUtils.getDateFormat(file));
 
-        if (BookType.FB2.is(file.getName())) {
+        if (BookType.FB2.is(file.getName()))
             fileMeta.setPathTxt(TxtUtils.encode1251(file.getName()));
-        } else {
+        else
             fileMeta.setPathTxt(file.getName());
-
-        }
     }
 
 }

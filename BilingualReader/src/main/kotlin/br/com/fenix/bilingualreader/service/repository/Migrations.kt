@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.service.repository
 
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import org.slf4j.LoggerFactory
 
@@ -40,6 +41,22 @@ class Migrations {
             override fun migrate(database: SupportSQLiteDatabase) {
                 mLOGGER.info("Start migration 1 - 2...")
 
+                database.execSQL("CREATE TABLE IF NOT EXISTS " + DataBaseConsts.MANGA_ANNOTATION.TABLE_NAME + " (" +
+                        DataBaseConsts.MANGA_ANNOTATION.COLUMNS.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.FK_ID_MANGA + " INTEGER NOT NULL, " +
+                        DataBaseConsts.MANGA_ANNOTATION.COLUMNS.PAGE + " INTEGER NOT NULL, " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.PAGES + " INTEGER NOT NULL, " +
+                        DataBaseConsts.MANGA_ANNOTATION.COLUMNS.TYPE+ " TEXT NOT NULL, " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.CHAPTER + " TEXT NOT NULL, " +
+                        DataBaseConsts.MANGA_ANNOTATION.COLUMNS.FOLDER + " TEXT NOT NULL, " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.ANNOTATION + " TEXT NOT NULL, " +
+                        DataBaseConsts.MANGA_ANNOTATION.COLUMNS.ALTERATION + " TEXT NOT NULL, " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.CREATED + " TEXT NOT NULL)")
+
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_" + DataBaseConsts.MANGA_ANNOTATION.TABLE_NAME + "_" + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.FK_ID_MANGA + "_" + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.CHAPTER +
+                        " ON " + DataBaseConsts.MANGA_ANNOTATION.TABLE_NAME + "(" + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.FK_ID_MANGA + ", " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.CHAPTER + ")")
+
+                try {
+                    database.execSQL("ALTER TABLE " + DataBaseConsts.MANGA.TABLE_NAME + " ADD COLUMN " + DataBaseConsts.MANGA.COLUMNS.CHAPTERS_PAGES + " TEXT DEFAULT '' NOT NULL")
+                } catch (e : Exception) {
+                    mLOGGER.error("Error to alter table and create column chapters page: " + e.message, e)
+                }
+
                 mLOGGER.info("Completed migration 1 - 2.")
             }
         }
@@ -48,6 +65,12 @@ class Migrations {
         val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 mLOGGER.info("Start migration 2 - 3...")
+
+                try {
+                    database.execSQL("ALTER TABLE " + DataBaseConsts.BOOK_CONFIGURATION.TABLE_NAME + " ADD COLUMN " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.PAGINATION + " TEXT DEFAULT '" + PaginationType.Default.name + "' NOT NULL")
+                } catch (e : Exception) {
+                    mLOGGER.error("Error to alter table and create column pagination: " + e.message, e)
+                }
 
                 mLOGGER.info("Completed migration 2 - 3.")
             }

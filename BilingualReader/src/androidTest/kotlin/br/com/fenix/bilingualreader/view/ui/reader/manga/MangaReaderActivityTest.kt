@@ -83,9 +83,6 @@ class MangaReaderActivityTest {
         onView(withId(R.id.root_frame_manga_reader)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
-        onView(withId(R.id.reader_manga_btn_floating_popup)).perform(click())
-
-        waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
         onView(withId(R.id.root_frame_manga_reader)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
@@ -101,13 +98,13 @@ class MangaReaderActivityTest {
         onView(withId(R.id.root_frame_manga_reader)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
-        onView(withId(R.id.reader_manga_btn_popup_subtitle)).perform(click())
-
-        waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
         onView(withId(R.id.root_frame_manga_reader)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
         onView(withId(R.id.reader_manga_btn_menu_ocr)).perform(click())
+
+        waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
+        onView(withId(R.id.reader_manga_btn_menu_chapters)).perform(click())
 
         waiter.await(awaitProcessSeconds, TimeUnit.SECONDS)
         onView(withId(R.id.root_frame_manga_reader)).perform(click())

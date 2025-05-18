@@ -21,6 +21,8 @@ import org.ebookdroid.core.codec.CodecPage;
 import org.ebookdroid.core.codec.CodecPageInfo;
 import org.ebookdroid.core.crop.PageCropper;
 import org.ebookdroid.droids.mupdf.codec.exceptions.MuPdfPasswordException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -32,7 +34,6 @@ import java.util.Locale;
 import br.com.ebook.BaseExtractor;
 import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.Dips;
-import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.Safe;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.entity.FileMeta;
@@ -57,6 +58,8 @@ public class ImageExtractor implements ImageDownloader {
     static {
         System.loadLibrary("mypdf");
     }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImageExtractor.class);
 
     public static final int COVER_PAGE_WITH_EFFECT = -3;
     public static final int COVER_PAGE_NO_EFFECT = -2;
@@ -102,23 +105,23 @@ public class ImageExtractor implements ImageDownloader {
 
         Bitmap cover = null;
 
-        if (ebookMeta.coverImage != null) {
+        if (ebookMeta.coverImage != null)
             cover = BaseExtractor.arrayToBitmap(ebookMeta.coverImage, pageUrl.getWidth());
-        } else if (BookType.EPUB.is(unZipPath)) {
+        else if (BookType.EPUB.is(unZipPath))
             cover = BaseExtractor.arrayToBitmap(EpubExtractor.get().getBookCover(unZipPath), pageUrl.getWidth());
-        } else if (BookType.FB2.is(unZipPath)) {
+        else if (BookType.FB2.is(unZipPath))
             cover = BaseExtractor.arrayToBitmap(Fb2Extractor.get().getBookCover(unZipPath), pageUrl.getWidth());
-        } else if (BookType.MOBI.is(unZipPath)) {
+        else if (BookType.MOBI.is(unZipPath))
             cover = BaseExtractor.arrayToBitmap(MobiExtract.getBookCover(unZipPath), pageUrl.getWidth());
-        } else if (BookType.RTF.is(unZipPath)) {
+        else if (BookType.RTF.is(unZipPath))
             cover = BaseExtractor.arrayToBitmap(RtfExtract.getImageCover(unZipPath), pageUrl.getWidth());
-        } else if (BookType.PDF.is(unZipPath) || BookType.DJVU.is(unZipPath) || BookType.TIFF.is(unZipPath)) {
+        else if (BookType.PDF.is(unZipPath) || BookType.DJVU.is(unZipPath) || BookType.TIFF.is(unZipPath))
             cover = proccessOtherPage(pageUrl, fileMeta);
-        } else if (BookType.CBZ.is(unZipPath)) {
+        else if (BookType.CBZ.is(unZipPath))
             cover = BaseExtractor.arrayToBitmap(CbzCbrExtractor.getBookCover(unZipPath), pageUrl.getWidth());
-        } else if (ExtUtils.isFileArchive(unZipPath)) {
+        else if (ExtUtils.isFileArchive(unZipPath)) {
             String ext = ExtUtils.getFileExtension(unZipPath);
-            cover = BaseExtractor.getBookCoverWithTitle("...", "  [" + ext.toUpperCase(Locale.US) + "]", true);
+            cover = BaseExtractor.getBookCoverWithTitle("...", "  [" + ext.toUpperCase(Locale.getDefault()) + "]", true);
             pageUrl.tempWithWatermakr = true;
         } else if (ExtUtils.isFontFile(unZipPath)) {
             cover = BaseExtractor.getBookCoverWithTitle("font", "", true);
@@ -131,7 +134,7 @@ public class ImageExtractor implements ImageDownloader {
         }
 
         if (Config.SHOW_LOG)
-            LOG.d("udpateFullMeta ImageExtractor", fileMeta.getAuthor());
+            LOGGER.info("udpateFullMeta ImageExtractor: {}", fileMeta.getAuthor());
         //AppDB.get().update(fileMeta);
 
         return cover;
@@ -140,7 +143,7 @@ public class ImageExtractor implements ImageDownloader {
     public InputStream generalCoverWithEffect(PageUrl pageUrl, Bitmap cover) {
         try {
             if (Config.SHOW_LOG)
-                LOG.d("generalCoverWithEffect", pageUrl.getWidth(), cover.getWidth(), " --- ", pageUrl.getHeight(), cover.getHeight());
+                LOGGER.info("generalCoverWithEffect: {} - {} --- {} - {}", pageUrl.getWidth(), cover.getWidth(), pageUrl.getHeight(), cover.getHeight());
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             Bitmap res;
             if (AppState.get().isBookCoverEffect || pageUrl.getPage() == COVER_PAGE_WITH_EFFECT) {
@@ -161,7 +164,7 @@ public class ImageExtractor implements ImageDownloader {
             byteArray = null;
             return byteArrayInputStream;
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error get cover with effect: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -172,31 +175,32 @@ public class ImageExtractor implements ImageDownloader {
 
         boolean isNeedDisableMagicInPDFDjvu = false;
         if (Config.SHOW_LOG)
-            LOG.d("Page Number", pageUrl.getPage());
-        if (pageUrl.getPage() == COVER_PAGE || pageUrl.getPage() == COVER_PAGE_NO_EFFECT || pageUrl.getPage() == COVER_PAGE_WITH_EFFECT) {
+            LOGGER.info("Page Number: {}", pageUrl.getPage());
+
+        if (pageUrl.getPage() == COVER_PAGE || pageUrl.getPage() == COVER_PAGE_NO_EFFECT || pageUrl.getPage() == COVER_PAGE_WITH_EFFECT)
             isNeedDisableMagicInPDFDjvu = true;
-        }
-        if (page < 0) {
+
+        if (page < 0)
             page = 0;
-        }
-        if (pageUrl.isCrop()) {
-            // isNeedDisableMagicInPDFDjvu = true;
-        }
+
+        /*if (pageUrl.isCrop()) {
+            isNeedDisableMagicInPDFDjvu = true;
+        }*/
 
         CodecDocument codeCache = null;
         if (isNeedDisableMagicInPDFDjvu) {
             codeCache = singleCodecContext(path, "", pageUrl.getWidth(), pageUrl.getHeight());
             if (meta != null && codeCache != null && FileMetaCore.isNeedToExtractPDFMeta(path)) {
                 String bookAuthor = codeCache.getBookAuthor();
-                if (TxtUtils.isNotEmpty(bookAuthor)) {
+                if (TxtUtils.isNotEmpty(bookAuthor))
                     meta.setAuthor(bookAuthor);
-                }
+
                 String bookTitle = codeCache.getBookTitle();
-                if (TxtUtils.isNotEmpty(bookTitle)) {
+                if (TxtUtils.isNotEmpty(bookTitle))
                     meta.setTitle(bookTitle);
-                }
+
                 if (Config.SHOW_LOG)
-                    LOG.d("PDF getBookAuthor", bookAuthor, bookTitle);
+                    LOGGER.info("PDF getBookAuthor: {} - {}", bookAuthor, bookTitle);
             }
         } else {
             codeCache = getNewCodecContext(path, "", pageUrl.getWidth(), pageUrl.getHeight(), AppState.get().fontSizeSp);
@@ -204,7 +208,7 @@ public class ImageExtractor implements ImageDownloader {
 
         if (codeCache == null) {
             if (Config.SHOW_LOG)
-                LOG.d("TEST", "codecDocument == null" + path);
+                LOGGER.info("codecDocument == null - {}", path);
             return null;
         }
 
@@ -218,8 +222,8 @@ public class ImageExtractor implements ImageDownloader {
         int height = (int) (width * k);
 
         if (Config.SHOW_LOG) {
-            LOG.d("Bitmap", width, height);
-            LOG.d("Bitmap pageInfo.height", pageInfo.width, pageInfo.height);
+            LOGGER.info("Bitmap: {} - {}", width, height);
+            LOGGER.info("Bitmap pageInfo.height: {} - {}", pageInfo.width, pageInfo.height);
         }
 
         BitmapRef bitmapRef = null;
@@ -227,14 +231,14 @@ public class ImageExtractor implements ImageDownloader {
 
         if (pageUrl.getNumber() == 0) {
             rectF = new RectF(0, 0, 1f, 1f);
-            if (isNeedDisableMagicInPDFDjvu) {
+            if (isNeedDisableMagicInPDFDjvu)
                 MagicHelper.isNeedMagic = false;
-            }
+
             bitmapRef = pageCodec.renderBitmap(width, height, rectF);
 
-            if (isNeedDisableMagicInPDFDjvu) {
+            if (isNeedDisableMagicInPDFDjvu)
                 MagicHelper.isNeedMagic = true;
-            }
+
             bitmap = bitmapRef.getBitmap();
 
             if (pageUrl.isCrop()) {
@@ -249,19 +253,16 @@ public class ImageExtractor implements ImageDownloader {
             bitmapRef = pageCodec.renderBitmap((int) (width * right), height, rectF);
             bitmap = bitmapRef.getBitmap();
 
-            if (pageUrl.isCrop()) {
+            if (pageUrl.isCrop())
                 bitmap = cropBitmap(bitmap);
-            }
-
         } else if (pageUrl.getNumber() == 2) {
             float right = (float) pageUrl.getCutp() / 100;
             rectF = new RectF(right, 0, 1f, 1f);
             bitmapRef = pageCodec.renderBitmap((int) (width * (1 - right)), height, rectF);
             bitmap = bitmapRef.getBitmap();
 
-            if (pageUrl.isCrop()) {
+            if (pageUrl.isCrop())
                 bitmap = cropBitmap(bitmap);
-            }
         }
 
         if (pageUrl.isInvert()) {
@@ -269,8 +270,8 @@ public class ImageExtractor implements ImageDownloader {
             bmp.invert();
             bitmap.recycle();
             bitmap = bmp.toBitmap().getBitmap();
-
         }
+
         if (pageUrl.getRotate() > 0) {
             final Matrix matrix = new Matrix();
             matrix.postRotate(pageUrl.getRotate());
@@ -279,16 +280,15 @@ public class ImageExtractor implements ImageDownloader {
             bitmap = bitmap1;
         }
 
-        if (!pageCodec.isRecycled()) {
+        if (!pageCodec.isRecycled())
             pageCodec.recycle();
-        }
-        if (isNeedDisableMagicInPDFDjvu) {
-            codeCache.recycle();
-        }
 
-        if (!isNeedDisableMagicInPDFDjvu && MagicHelper.isNeedBookBackgroundImage()) {
+        if (isNeedDisableMagicInPDFDjvu)
+            codeCache.recycle();
+
+
+        if (!isNeedDisableMagicInPDFDjvu && MagicHelper.isNeedBookBackgroundImage())
             bitmap = MagicHelper.updateWithBackground(bitmap);
-        }
 
         return bitmap;
     }
@@ -318,27 +318,25 @@ public class ImageExtractor implements ImageDownloader {
         bitmap.recycle();
         codecDocumentLocal.getPage(page).recycle();
         Bitmap result = codecDocumentLocal.getPage(page).renderBitmap((int) nWidth, (int) nHeiht, rectF).getBitmap();
-        return new Pair<Bitmap, RectF>(result, rectF);
-
+        return new Pair<>(result, rectF);
     }
 
     @Override
     public synchronized InputStream getStream(final String imageUri, final Object extra) throws IOException {
-        try {
-            return getStreamInner(imageUri);
-        } finally {
-        }
+        return getStreamInner(imageUri);
     }
 
     public synchronized InputStream getStreamInner(final String imageUri) throws IOException {
-        LOG.d("TEST", "url: " + imageUri);
+        if (Config.SHOW_LOG)
+            LOGGER.info("url: {}", imageUri);
 
         if (imageUri.startsWith(Safe.TXT_SAFE_RUN)) {
-            LOG.d("MUPDF!", Safe.TXT_SAFE_RUN, "begin", imageUri);
+            if (Config.SHOW_LOG)
+                LOGGER.info("MUPDF! {} {} {}", Safe.TXT_SAFE_RUN, "begin", imageUri);
             // try {
             // Thread.sleep(1500);
             // } catch (InterruptedException e) {
-            // e.printStackTrace();
+            // LOGGER.error("Error to export all: " + e.getMessage(), e);
             // }
             return baseImage.getStream("assets://opds/web111.png", null);
         }
@@ -349,15 +347,17 @@ public class ImageExtractor implements ImageDownloader {
             // uri = uri.replace("data:image/jpg;base64,", "");
             // uri = uri.replace("data:image/gif;base64,", "");
             uri = uri.substring(uri.indexOf(",") + 1);
-            LOG.d("Load image data ", uri);
+            if (Config.SHOW_LOG)
+                LOGGER.info("Load image data: {}", uri);
             return new ByteArrayInputStream(Base64.decode(uri, Base64.DEFAULT));
         }
 
-        if (!imageUri.startsWith("{")) {
+        if (!imageUri.startsWith("{"))
             return baseImage.getStream(imageUri, null);
-        }
+
         if (sp.contains("" + imageUri.hashCode())) {
-            LOG.d("Error FILE", imageUri);
+            if (Config.SHOW_LOG)
+                LOGGER.info("Error FILE: {}", imageUri);
             return messageFile("#crash", "");
         }
 
@@ -406,18 +406,19 @@ public class ImageExtractor implements ImageDownloader {
                 return bitmapToStream;
             } else {
                 if (pageUrl.isDouble()) {
-                    LOG.d("isDouble", pageUrl.getHeight(), pageUrl.getWidth());
-                    if (AppState.get().isDoubleCoverAlone) {
+                    if (Config.SHOW_LOG)
+                        LOGGER.error("isDouble: {} - {}", pageUrl.getHeight(), pageUrl.getWidth());
+
+                    if (AppState.get().isDoubleCoverAlone)
                         pageUrl.setPage(pageUrl.getPage() - 1);
-                    }
 
                     Bitmap bitmap1 = proccessOtherPage(pageUrl, null);
                     pageUrl.setPage(pageUrl.getPage() + 1);
 
                     Bitmap bitmap2 = null;
-                    if (pageUrl.getPage() < pageCount) {
+                    if (pageUrl.getPage() < pageCount)
                         bitmap2 = proccessOtherPage(pageUrl, null);
-                    } else {
+                    else {
                         bitmap2 = Bitmap.createBitmap(bitmap1);
                         Canvas canvas = new Canvas(bitmap2);
                         canvas.drawColor(Color.WHITE);
@@ -448,7 +449,7 @@ public class ImageExtractor implements ImageDownloader {
         } catch (MuPdfPasswordException e) {
             return messageFile("#password", file.getName());
         } catch (final Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error get stream inner: {}", e.getMessage(), e);
             return messageFile("#error", "");
         } catch (OutOfMemoryError e2) {
             AppState.get().pagesInMemory = 1;
@@ -478,16 +479,21 @@ public class ImageExtractor implements ImageDownloader {
 
             return byteArrayInputStream;
         } catch (Exception e) {
+            if (Config.SHOW_LOG)
+                LOGGER.error("Error bitmap to stream: {}", e.getMessage(), e);
             return null;
         }
     }
 
     private InputStream bitmapToStreamRAW(Bitmap bitmap) {
         try {
-            LOG.d("Rerurn bitmapToStreamRAW");
+            if (Config.SHOW_LOG)
+                LOGGER.error("Rerurn bitmapToStreamRAW");
             return new InputStreamBitmap(bitmap);
             // return bitmapToStream(bitmap);
         } catch (Exception e) {
+            if (Config.SHOW_LOG)
+                LOGGER.error("Error bitmap to stream raw: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -504,12 +510,14 @@ public class ImageExtractor implements ImageDownloader {
             codeCache.recycle();
             codeCache = null;
             pathCache = null;
-            LOG.d("getNewCodecContext codeCache recycle");
+            if (Config.SHOW_LOG)
+                LOGGER.error("getNewCodecContext codeCache recycle");
         }
         if (codecContex != null) {
             codecContex.recycle();
             codecContex = null;
-            LOG.d("getNewCodecContext codecContex recycle");
+            if (Config.SHOW_LOG)
+                LOGGER.error("getNewCodecContext codecContex recycle");
         }
 
         TempHolder.get().clear();
@@ -527,16 +535,16 @@ public class ImageExtractor implements ImageDownloader {
             CodecContext codecContex = BookType.getCodecContextByPath(path);
             TempHolder.get().init(path);
 
-            LOG.d("CodecContext", codecContex);
+            if (Config.SHOW_LOG)
+                LOGGER.error("CodecContext: {}", codecContex);
 
-            if (codecContex == null) {
+            if (codecContex == null)
                 return null;
-            }
 
             TempHolder.get().loadingCancelled = false;
             return codecContex.openDocument(path, passw);
         } catch (RuntimeException e) {
-            LOG.e(e);
+            LOGGER.error("Error get single codec context: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -544,10 +552,13 @@ public class ImageExtractor implements ImageDownloader {
     public static synchronized CodecDocument getNewCodecContext(final String path, String passw, int w, int h, int font) {
 
         if (path.equals(pathCache) /* && whCache == h + w */ && codeCache != null && !codeCache.isRecycled()) {
-            LOG.d("getNewCodecContext cache", path, w, h);
+            if (Config.SHOW_LOG)
+                LOGGER.error("getNewCodecContext cache {} : {} - {}", path, w, h);
             return codeCache;
         }
-        LOG.d("getNewCodecContext new", path, w, h);
+
+        if (Config.SHOW_LOG)
+            LOGGER.error("getNewCodecContext new {} : {} - {}", path, w, h);
 
         clearCodeDocument();
 
@@ -560,21 +571,24 @@ public class ImageExtractor implements ImageDownloader {
             w = Dips.screenWidth();
             h = Dips.screenHeight();
         }
-        LOG.d("getNewCodecContext after", w, h);
+
+        if (Config.SHOW_LOG)
+            LOGGER.error("getNewCodecContext after: {} - {}", w, h);
 
         codecContex = BookType.getCodecContextByPath(path);
         TempHolder.get().init(path);
 
-        LOG.d("CodecContext", codecContex);
+        if (Config.SHOW_LOG)
+            LOGGER.error("CodecContext: {}", codecContex);
 
-        if (codecContex == null) {
+        if (codecContex == null)
             return null;
-        }
 
         // CacheZipUtils.cacheLock.lock();
         // try {
         // String zipPath = CacheZipUtils.extracIfNeed(path, CacheDir.ZipApp).unZipPath;
-        // LOG.d("getCodecContext", zipPath);
+        // if (Config.SHOW_LOG)
+        //     LOGGER.error("getCodecContext: {}", zipPath);
         // codeCache = ctx.openDocument(zipPath, passw);
         // } finally {
         // CacheZipUtils.cacheLock.unlock();
@@ -583,7 +597,8 @@ public class ImageExtractor implements ImageDownloader {
         TempHolder.get().loadingCancelled = false;
         codeCache = codecContex.openDocument(path, passw);
         if (codeCache == null) {
-            LOG.d("[Open doc is null 1", path);
+            if (Config.SHOW_LOG)
+                LOGGER.error("[Open doc is null 1: {}", path);
             return null;
         }
 
@@ -591,7 +606,6 @@ public class ImageExtractor implements ImageDownloader {
         pathCache = path;
         whCache = h + w;
         return codeCache;
-
     }
 
     private InputStream messageFile(String msg, String name) {

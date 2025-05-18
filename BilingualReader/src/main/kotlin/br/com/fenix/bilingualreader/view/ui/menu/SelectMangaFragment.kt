@@ -31,8 +31,10 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.Order
+import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.AdapterUtil.AdapterUtils
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaGridCardAdapter
@@ -88,6 +90,7 @@ class SelectMangaFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        menu.clear()
         inflater.inflate(R.menu.menu_select_manga, menu)
         super.onCreateOptionsMenu(menu, inflater)
 
@@ -128,7 +131,8 @@ class SelectMangaFragment : Fragment() {
         mScrollDown = root.findViewById(R.id.select_manga_scroll_down)
         mToolbar = root.findViewById(R.id.toolbar_select_manga)
         mTitle = root.findViewById(R.id.toolbar_select_manga_title)
-        MenuUtil.tintColor(requireContext(), mTitle)
+        val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(requireContext()).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
+        MenuUtil.tintToolbar(mToolbar, theme)
 
         (requireActivity() as MenuActivity).setActionBar(mToolbar)
 
@@ -141,9 +145,19 @@ class SelectMangaFragment : Fragment() {
             (mScrollUp.drawable as AnimatedVectorDrawable).start()
             mRecycler.smoothScrollToPosition(0)
         }
+        mScrollUp.setOnLongClickListener {
+            (mScrollUp.drawable as AnimatedVectorDrawable).start()
+            mRecycler.scrollToPosition(0)
+            true
+        }
         mScrollDown.setOnClickListener {
             (mScrollDown.drawable as AnimatedVectorDrawable).start()
             mRecycler.smoothScrollToPosition((mRecycler.adapter as RecyclerView.Adapter).itemCount)
+        }
+        mScrollDown.setOnLongClickListener {
+            (mScrollDown.drawable as AnimatedVectorDrawable).start()
+            mRecycler.scrollToPosition((mRecycler.adapter as RecyclerView.Adapter).itemCount -1)
+            true
         }
 
         mRecycler.setOnScrollChangeListener { _, _, _, _, yOld ->
@@ -187,11 +201,15 @@ class SelectMangaFragment : Fragment() {
         }
 
         mListener = object : MangaCardListener {
-            override fun onClick(manga: Manga) {
+            override fun onClick(manga: Manga, root: View) {
                 val bundle = Bundle()
                 bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
                 (requireActivity() as MenuActivity).onBack(bundle)
             }
+
+            override fun onClickFavorite(manga: Manga) { }
+
+            override fun onClickConfig(manga: Manga, root: View, item: View, position: Int) { }
 
             override fun onClickLong(manga: Manga, view: View, position: Int) {}
         }
@@ -254,10 +272,7 @@ class SelectMangaFragment : Fragment() {
     }
 
     private fun titleLibrary() {
-        if (mViewModel.getLibrary().language == Libraries.DEFAULT)
-            mTitle.text = getString(R.string.app_name)
-        else
-            mTitle.text = mViewModel.getLibrary().title
+        mTitle.text = mViewModel.getLibrary().title
     }
 
     private fun observer() {
@@ -282,15 +297,7 @@ class SelectMangaFragment : Fragment() {
 
     private fun getGridLayout(type: LibraryMangaType): RecyclerView.LayoutManager {
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        val columnWidth: Int = when (type) {
-            LibraryMangaType.SEPARATOR_BIG -> resources.getDimension(R.dimen.manga_separator_grid_card_layout_width).toInt()
-            LibraryMangaType.SEPARATOR_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.manga_separator_grid_card_layout_width_landscape_medium).toInt() else resources.getDimension(R.dimen.manga_separator_grid_card_layout_width_medium).toInt()
-            LibraryMangaType.GRID_BIG -> resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
-            LibraryMangaType.GRID_MEDIUM -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_landscape_medium).toInt() else resources.getDimension(R.dimen.manga_grid_card_layout_width_medium).toInt()
-            LibraryMangaType.GRID_SMALL -> if (isLandscape) resources.getDimension(R.dimen.manga_grid_card_layout_width_small).toInt() else resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
-            else -> resources.getDimension(R.dimen.manga_grid_card_layout_width).toInt()
-        } + 1
-
+        val columnWidth: Int = AdapterUtils.getMangaCardSize(requireContext(), type, isLandscape).first + 1
         val spaceCount: Int = max(1, (Resources.getSystem().displayMetrics.widthPixels -3) / columnWidth)
         return when (type) {
             LibraryMangaType.SEPARATOR_BIG,

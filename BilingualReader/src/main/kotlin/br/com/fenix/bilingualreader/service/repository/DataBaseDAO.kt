@@ -21,6 +21,7 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.LinkedFile
 import br.com.fenix.bilingualreader.model.entity.LinkedPage
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
 import br.com.fenix.bilingualreader.model.entity.Statistics
 import br.com.fenix.bilingualreader.model.entity.SubTitle
 import br.com.fenix.bilingualreader.model.entity.Tags
@@ -69,6 +70,8 @@ interface DataBaseDAO<T> {
 @Dao
 abstract class BaseDAO<T, ID>(private val mTABLE: String, private val mCOLUMN_ID : String) : DataBaseDAO<T> {
 
+    open fun findAll() : List<T> = list(SimpleSQLiteQuery("SELECT * FROM $mTABLE "))
+
     open fun exist(id: ID): Boolean = query(SimpleSQLiteQuery("SELECT * FROM $mTABLE WHERE $mCOLUMN_ID = ${id.toString()}")) != null
 
     open fun find(id: ID): T? = query(SimpleSQLiteQuery("SELECT * FROM $mTABLE WHERE $mCOLUMN_ID = ${id.toString()}"))
@@ -108,20 +111,21 @@ abstract class MangaDAO : BaseDAO<Manga, Long>(DataBaseConsts.MANGA.TABLE_NAME, 
         "SELECT * FROM ( " +
                 " SELECT ${DataBaseConsts.MANGA.COLUMNS.ID}, ${DataBaseConsts.MANGA.COLUMNS.TITLE}, ${DataBaseConsts.MANGA.COLUMNS.FILE_PATH}, " +
                 "        ${DataBaseConsts.MANGA.COLUMNS.FILE_FOLDER}, ${DataBaseConsts.MANGA.COLUMNS.FILE_NAME}, ${DataBaseConsts.MANGA.COLUMNS.FILE_SIZE}, ${DataBaseConsts.MANGA.COLUMNS.FILE_TYPE}, " +
-                "        ${DataBaseConsts.MANGA.COLUMNS.PAGES}, ${DataBaseConsts.MANGA.COLUMNS.CHAPTERS}, ${DataBaseConsts.MANGA.COLUMNS.BOOK_MARK}, ${DataBaseConsts.MANGA.COLUMNS.FAVORITE}, " +
-                "        ${DataBaseConsts.MANGA.COLUMNS.HAS_SUBTITLE}, ${DataBaseConsts.MANGA.COLUMNS.AUTHOR}, ${DataBaseConsts.MANGA.COLUMNS.SERIES}, ${DataBaseConsts.MANGA.COLUMNS.PUBLISHER}, " +
-                "        ${DataBaseConsts.MANGA.COLUMNS.VOLUME}, ${DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY}, ${DataBaseConsts.MANGA.COLUMNS.EXCLUDED}, ${DataBaseConsts.MANGA.COLUMNS.DATE_CREATE}, " +
-                "        ${DataBaseConsts.MANGA.COLUMNS.FILE_ALTERATION}, ${DataBaseConsts.MANGA.COLUMNS.LAST_VOCABULARY_IMPORT}, ${DataBaseConsts.MANGA.COLUMNS.LAST_VERIFY}, " +
-                "        ${DataBaseConsts.MANGA.COLUMNS.RELEASE}, ${DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION}, ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, " +
-                "        ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS} AS ${DataBaseConsts.MANGA.COLUMNS.SORT}  " +
+                "        ${DataBaseConsts.MANGA.COLUMNS.PAGES}, ${DataBaseConsts.MANGA.COLUMNS.CHAPTERS}, ${DataBaseConsts.MANGA.COLUMNS.CHAPTERS_PAGES}, ${DataBaseConsts.MANGA.COLUMNS.BOOK_MARK}, " +
+                "        ${DataBaseConsts.MANGA.COLUMNS.COMPLETED}, ${DataBaseConsts.MANGA.COLUMNS.FAVORITE}, ${DataBaseConsts.MANGA.COLUMNS.HAS_SUBTITLE}, ${DataBaseConsts.MANGA.COLUMNS.AUTHOR}, " +
+                "        ${DataBaseConsts.MANGA.COLUMNS.SERIES}, ${DataBaseConsts.MANGA.COLUMNS.GENRE}, ${DataBaseConsts.MANGA.COLUMNS.PUBLISHER}, ${DataBaseConsts.MANGA.COLUMNS.VOLUME}, " +
+                "        ${DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY}, ${DataBaseConsts.MANGA.COLUMNS.EXCLUDED}, ${DataBaseConsts.MANGA.COLUMNS.DATE_CREATE}, ${DataBaseConsts.MANGA.COLUMNS.FILE_ALTERATION}, " +
+                "        ${DataBaseConsts.MANGA.COLUMNS.LAST_VOCABULARY_IMPORT}, ${DataBaseConsts.MANGA.COLUMNS.LAST_VERIFY}, ${DataBaseConsts.MANGA.COLUMNS.RELEASE}, ${DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION}, " +
+                "        ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS} AS ${DataBaseConsts.MANGA.COLUMNS.SORT}  " +
                 " FROM " + DataBaseConsts.MANGA.TABLE_NAME +
                 " WHERE " + DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS + " is not null " +
                 "UNION" +
                 " SELECT null AS ${DataBaseConsts.MANGA.COLUMNS.ID}, '' AS ${DataBaseConsts.MANGA.COLUMNS.TITLE}, '' AS ${DataBaseConsts.MANGA.COLUMNS.FILE_PATH}, " +
                 "        '' AS ${DataBaseConsts.MANGA.COLUMNS.FILE_FOLDER}, '' AS ${DataBaseConsts.MANGA.COLUMNS.FILE_NAME}, 0 AS ${DataBaseConsts.MANGA.COLUMNS.FILE_SIZE}, " +
-                "        'UNKNOWN' AS ${DataBaseConsts.MANGA.COLUMNS.FILE_TYPE}, 0 AS ${DataBaseConsts.MANGA.COLUMNS.PAGES}, '' AS ${DataBaseConsts.MANGA.COLUMNS.CHAPTERS}, " +
-                "        0 AS ${DataBaseConsts.MANGA.COLUMNS.BOOK_MARK}, 0 AS ${DataBaseConsts.MANGA.COLUMNS.FAVORITE}, 1 AS ${DataBaseConsts.MANGA.COLUMNS.HAS_SUBTITLE}, " +
-                "        '' AS ${DataBaseConsts.MANGA.COLUMNS.AUTHOR}, '' AS ${DataBaseConsts.MANGA.COLUMNS.SERIES}, '' AS ${DataBaseConsts.MANGA.COLUMNS.PUBLISHER}, " +
+                "        'UNKNOWN' AS ${DataBaseConsts.MANGA.COLUMNS.FILE_TYPE}, 0 AS ${DataBaseConsts.MANGA.COLUMNS.PAGES}, '' AS ${DataBaseConsts.MANGA.COLUMNS.CHAPTERS},  " +
+                "        '' AS ${DataBaseConsts.MANGA.COLUMNS.CHAPTERS_PAGES}, 0 AS ${DataBaseConsts.MANGA.COLUMNS.BOOK_MARK}, 0 AS ${DataBaseConsts.MANGA.COLUMNS.COMPLETED}, " +
+                "        0 AS ${DataBaseConsts.MANGA.COLUMNS.FAVORITE}, 1 AS ${DataBaseConsts.MANGA.COLUMNS.HAS_SUBTITLE}, '' AS ${DataBaseConsts.MANGA.COLUMNS.AUTHOR}, " +
+                "        '' AS ${DataBaseConsts.MANGA.COLUMNS.SERIES}, '' AS ${DataBaseConsts.MANGA.COLUMNS.GENRE}, '' AS ${DataBaseConsts.MANGA.COLUMNS.PUBLISHER}, " +
                 "        '' AS ${DataBaseConsts.MANGA.COLUMNS.VOLUME}, -1 AS ${DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY}, 0 AS ${DataBaseConsts.MANGA.COLUMNS.EXCLUDED}, " +
                 "        null AS ${DataBaseConsts.MANGA.COLUMNS.DATE_CREATE}, 0 AS ${DataBaseConsts.MANGA.COLUMNS.FILE_ALTERATION}, null AS ${DataBaseConsts.MANGA.COLUMNS.LAST_VOCABULARY_IMPORT}, " +
                 "        null AS ${DataBaseConsts.MANGA.COLUMNS.LAST_VERIFY}, ${DataBaseConsts.MANGA.COLUMNS.RELEASE}, null AS ${DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION}, " +
@@ -167,8 +171,8 @@ abstract class MangaDAO : BaseDAO<Manga, Long>(DataBaseConsts.MANGA.TABLE_NAME, 
     @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 0 ORDER BY " + DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS + " DESC LIMIT 2")
     abstract fun getLastOpen(): List<Manga>?
 
-    @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS + " >= :date ORDER BY " + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY + ", " + DataBaseConsts.MANGA.COLUMNS.FILE_NAME)
-    abstract fun listSync(date: String): List<Manga>
+    @Query("SELECT * FROM " + DataBaseConsts.MANGA.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS + " >= :date OR " + DataBaseConsts.MANGA.COLUMNS.LAST_ALTERATION + " > :date ORDER BY " + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY + ", " + DataBaseConsts.MANGA.COLUMNS.FILE_NAME)
+    abstract fun listSync(date: LocalDateTime): List<Manga>
 
 }
 
@@ -197,11 +201,11 @@ abstract class BookDAO : BaseDAO<Book, Long>(DataBaseConsts.BOOK.TABLE_NAME, Dat
     @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.BOOK.COLUMNS.FILE_PATH + " = :path")
     abstract fun getByPath(path: String): Book?
 
-    @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.BOOK.COLUMNS.FILE_FOLDER + " = :folder ORDER BY " + DataBaseConsts.BOOK.COLUMNS.TITLE)
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 AND " + DataBaseConsts.BOOK.COLUMNS.FILE_FOLDER + " = :folder ORDER BY " + DataBaseConsts.BOOK.COLUMNS.FILE_PATH)
     abstract fun listByFolder(folder: String): List<Book>
 
-    @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + " = :library AND " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 ORDER BY " + DataBaseConsts.BOOK.COLUMNS.TITLE)
-    abstract fun listOrderByTitle(library: Long?): List<Book>
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + " = :library AND " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 ORDER BY " + DataBaseConsts.BOOK.COLUMNS.FILE_PATH)
+    abstract fun listOrderByPath(library: Long?): List<Book>
 
     @Query("UPDATE " + DataBaseConsts.BOOK.TABLE_NAME + " SET " + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " = :marker " + " WHERE " + DataBaseConsts.BOOK.COLUMNS.ID + " = :id ")
     abstract fun updateBookMark(id: Long, marker: Int)
@@ -218,37 +222,37 @@ abstract class BookDAO : BaseDAO<Book, Long>(DataBaseConsts.BOOK.TABLE_NAME, Dat
     @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 ORDER BY " + DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS + " DESC LIMIT 2")
     abstract fun getLastOpen(): List<Book>?
 
-    @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS + " >= :date ORDER BY " + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + ", " + DataBaseConsts.BOOK.COLUMNS.FILE_NAME)
-    abstract fun listSync(date: Date): List<Book>
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS + " >= :date OR " + DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION + " > :date ORDER BY " + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + ", " + DataBaseConsts.BOOK.COLUMNS.FILE_NAME)
+    abstract fun listSync(date: LocalDateTime): List<Book>
 
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
         "SELECT * FROM ( " +
                 " SELECT ${DataBaseConsts.BOOK.COLUMNS.ID}, ${DataBaseConsts.BOOK.COLUMNS.TITLE}, ${DataBaseConsts.BOOK.COLUMNS.AUTHOR}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.PASSWORD}, ${DataBaseConsts.BOOK.COLUMNS.ANNOTATION}, ${DataBaseConsts.BOOK.COLUMNS.YEAR}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.GENRE}, ${DataBaseConsts.BOOK.COLUMNS.PUBLISHER}, ${DataBaseConsts.BOOK.COLUMNS.ISBN}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.PAGES}, ${DataBaseConsts.BOOK.COLUMNS.CHAPTER}, ${DataBaseConsts.BOOK.COLUMNS.CHAPTER_DESCRIPTION}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.BOOK_MARK}, ${DataBaseConsts.BOOK.COLUMNS.LANGUAGE}, ${DataBaseConsts.BOOK.COLUMNS.FILE_PATH}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.PASSWORD}, ${DataBaseConsts.BOOK.COLUMNS.ANNOTATION}, ${DataBaseConsts.BOOK.COLUMNS.RELEASE}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.GENRE}, ${DataBaseConsts.BOOK.COLUMNS.PUBLISHER}, ${DataBaseConsts.BOOK.COLUMNS.SERIES}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.ISBN}, ${DataBaseConsts.BOOK.COLUMNS.PAGES}, ${DataBaseConsts.BOOK.COLUMNS.VOLUME}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.CHAPTER}, ${DataBaseConsts.BOOK.COLUMNS.CHAPTER_DESCRIPTION}, ${DataBaseConsts.BOOK.COLUMNS.BOOK_MARK}, " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.COMPLETED}, ${DataBaseConsts.BOOK.COLUMNS.LANGUAGE}, ${DataBaseConsts.BOOK.COLUMNS.FILE_PATH}, " +
                 "        ${DataBaseConsts.BOOK.COLUMNS.FILE_NAME}, ${DataBaseConsts.BOOK.COLUMNS.FILE_TYPE}, ${DataBaseConsts.BOOK.COLUMNS.FILE_FOLDER}, " +
                 "        ${DataBaseConsts.BOOK.COLUMNS.FILE_SIZE}, ${DataBaseConsts.BOOK.COLUMNS.FAVORITE}, ${DataBaseConsts.BOOK.COLUMNS.DATE_CREATE}, " +
                 "        ${DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY}, ${DataBaseConsts.BOOK.COLUMNS.TAGS}, ${DataBaseConsts.BOOK.COLUMNS.EXCLUDED}, " +
                 "        ${DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION}, ${DataBaseConsts.BOOK.COLUMNS.FILE_ALTERATION}, ${DataBaseConsts.BOOK.COLUMNS.LAST_VOCABULARY_IMPORT}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.LAST_VERIFY}, ${DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS}, " +
-                "        ${DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS} AS ${DataBaseConsts.BOOK.COLUMNS.SORT}  " +
+                "        ${DataBaseConsts.BOOK.COLUMNS.LAST_VERIFY}, ${DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS}, ${DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS} AS ${DataBaseConsts.BOOK.COLUMNS.SORT}  " +
                 " FROM " + DataBaseConsts.BOOK.TABLE_NAME +
                 " WHERE " + DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS + " is not null " +
                 "UNION" +
                 " SELECT null AS ${DataBaseConsts.BOOK.COLUMNS.ID}, '' AS ${DataBaseConsts.BOOK.COLUMNS.TITLE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.AUTHOR}, " +
-                "        '' AS ${DataBaseConsts.BOOK.COLUMNS.PASSWORD}, '' AS ${DataBaseConsts.BOOK.COLUMNS.ANNOTATION}, ${DataBaseConsts.BOOK.COLUMNS.YEAR}, " +
-                "        '' AS ${DataBaseConsts.BOOK.COLUMNS.GENRE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.PUBLISHER}, '' AS ${DataBaseConsts.BOOK.COLUMNS.ISBN}, " +
-                "        0 AS ${DataBaseConsts.BOOK.COLUMNS.PAGES}, '' AS ${DataBaseConsts.BOOK.COLUMNS.CHAPTER}, '' AS ${DataBaseConsts.BOOK.COLUMNS.CHAPTER_DESCRIPTION}, " +
-                "        0 AS ${DataBaseConsts.BOOK.COLUMNS.BOOK_MARK}, ${DataBaseConsts.BOOK.COLUMNS.LANGUAGE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_PATH}, " +
+                "        '' AS ${DataBaseConsts.BOOK.COLUMNS.PASSWORD}, '' AS ${DataBaseConsts.BOOK.COLUMNS.ANNOTATION}, ${DataBaseConsts.BOOK.COLUMNS.RELEASE}, " +
+                "        '' AS ${DataBaseConsts.BOOK.COLUMNS.GENRE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.PUBLISHER}, '' AS ${DataBaseConsts.BOOK.COLUMNS.SERIES}, " +
+                "        '' AS ${DataBaseConsts.BOOK.COLUMNS.ISBN}, 0 AS ${DataBaseConsts.BOOK.COLUMNS.PAGES}, '' AS ${DataBaseConsts.BOOK.COLUMNS.VOLUME}, " +
+                "        0 AS ${DataBaseConsts.BOOK.COLUMNS.CHAPTER}, '' AS ${DataBaseConsts.BOOK.COLUMNS.CHAPTER_DESCRIPTION}, 0 AS ${DataBaseConsts.BOOK.COLUMNS.BOOK_MARK}, " +
+                "        0 AS ${DataBaseConsts.BOOK.COLUMNS.COMPLETED}, ${DataBaseConsts.BOOK.COLUMNS.LANGUAGE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_PATH}, " +
                 "        '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_NAME}, ${DataBaseConsts.BOOK.COLUMNS.FILE_TYPE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_FOLDER}, " +
-                "        0 AS ${DataBaseConsts.BOOK.COLUMNS.FILE_SIZE}, false AS ${DataBaseConsts.BOOK.COLUMNS.FAVORITE}, null AS ${DataBaseConsts.BOOK.COLUMNS.DATE_CREATE}, " +
-                "        -1 AS ${DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY}, '' AS ${DataBaseConsts.BOOK.COLUMNS.TAGS}, false AS ${DataBaseConsts.BOOK.COLUMNS.EXCLUDED}, " +
-                "        null AS ${DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION}, false AS ${DataBaseConsts.BOOK.COLUMNS.FILE_ALTERATION}, " +
-                "        null AS ${DataBaseConsts.BOOK.COLUMNS.LAST_VOCABULARY_IMPORT}, null AS ${DataBaseConsts.BOOK.COLUMNS.LAST_VERIFY}, " +
-                "        Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '23:59:59.999' AS ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, " +
+                "        0 AS ${DataBaseConsts.BOOK.COLUMNS.FILE_SIZE}, 0 AS ${DataBaseConsts.BOOK.COLUMNS.FAVORITE}, null AS ${DataBaseConsts.BOOK.COLUMNS.DATE_CREATE}, " +
+                "        -1 AS ${DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY}, '' AS ${DataBaseConsts.BOOK.COLUMNS.TAGS}, 0 AS ${DataBaseConsts.BOOK.COLUMNS.EXCLUDED}, " +
+                "        null AS ${DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION}, 0 AS ${DataBaseConsts.BOOK.COLUMNS.FILE_ALTERATION}, null AS ${DataBaseConsts.BOOK.COLUMNS.LAST_VOCABULARY_IMPORT}, " +
+                "        null AS ${DataBaseConsts.BOOK.COLUMNS.LAST_VERIFY}, Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '23:59:59.999' AS ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, " +
                 "        Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '25:60:60.000' AS ${DataBaseConsts.MANGA.COLUMNS.SORT} " +
                 " FROM  " + DataBaseConsts.BOOK.TABLE_NAME +
                 " WHERE " + DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS + " is not null " +
@@ -627,47 +631,48 @@ abstract class LibrariesDAO : BaseDAO<Library, Long>(DataBaseConsts.LIBRARIES.TA
 
 
 @Dao
+abstract class MangaAnnotationDAO : BaseDAO<MangaAnnotation, Long>(DataBaseConsts.MANGA_ANNOTATION.TABLE_NAME, DataBaseConsts.MANGA_ANNOTATION.COLUMNS.ID) {
+
+    @Query(
+        "SELECT * FROM " + DataBaseConsts.MANGA_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.FK_ID_MANGA + " = :idManga " +
+                "ORDER BY ${DataBaseConsts.MANGA_ANNOTATION.COLUMNS.ALTERATION} DESC"
+    )
+    abstract fun findAllByManga(idManga: Long): List<MangaAnnotation>
+
+    @Query("SELECT * FROM " + DataBaseConsts.MANGA_ANNOTATION.TABLE_NAME + " ORDER BY " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.FK_ID_MANGA + ", ${DataBaseConsts.MANGA_ANNOTATION.COLUMNS.PAGE} ASC")
+    abstract fun findAllOrderByManga() : List<MangaAnnotation>
+
+    @Query(
+        "SELECT * FROM " + DataBaseConsts.MANGA_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.FK_ID_MANGA + " = :idManga " +
+                "ORDER BY ${DataBaseConsts.MANGA_ANNOTATION.COLUMNS.ALTERATION} DESC"
+    )
+    abstract fun findByManga(idManga: Long): List<MangaAnnotation>
+
+    @Query("SELECT * FROM " + DataBaseConsts.MANGA_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.FK_ID_MANGA + " = :idManga AND " + DataBaseConsts.MANGA_ANNOTATION.COLUMNS.PAGE + " = :page")
+    abstract fun findByPage(idManga: Long, page: Int): List<MangaAnnotation>
+
+}
+
+
+@Dao
 abstract class BookAnnotationDAO : BaseDAO<BookAnnotation, Long>(DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME, DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ID) {
 
     @Query(
-        "SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook " +
+        "SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + " = :idBook " +
         "ORDER BY ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION} DESC"
     )
     abstract fun findAllByBook(idBook: Long): List<BookAnnotation>
 
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
-    @Query(
-        "SELECT * FROM ( " +
-                " SELECT ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ID}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGE}, " +
-                "        ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGES}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FONT_SIZE}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TYPE}, " +
-                "        ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER_NUMBER}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TEXT}, " +
-                "        ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ANNOTATION}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FAVORITE}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COLOR}, " +
-                "        ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.RANGE}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CREATED}, " +
-                "        0 AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COUNT} " +
-                " FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME +
-                " WHERE " + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + " = :idBook " +
-                "UNION" +
-                " SELECT null AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ID}, 0 AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK}, 0 AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGE}, " +
-                "        0 AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGES}, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FONT_SIZE}, 'BookMark' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TYPE}, " +
-                "        mark.${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER_NUMBER}, mark.${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER}, '' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.TEXT}, " +
-                "        '' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ANNOTATION}, false AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FAVORITE}, 'None' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COLOR}, " +
-                "        '' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.RANGE}, '2000-01-01T00:00:00.000' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION}, '2000-01-01T00:00:00.000' AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CREATED}, " +
-                "        (SELECT Count(*) FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " aux WHERE aux." + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + " = mark." + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + "" +
-                "         AND aux." + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER + " = mark." + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER + ") AS ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COUNT} " +
-                " FROM  " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " mark " +
-                " WHERE mark." + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + " = :idBook " +
-                " GROUP BY ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER_NUMBER}) " +
-                "ORDER BY ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CHAPTER_NUMBER} ASC, ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.COUNT} DESC "
-    )
-    abstract fun list(idBook: Long): List<BookAnnotation>
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " ORDER BY " + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + ", ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION} DESC")
+    abstract fun findAllOrderByBook() : List<BookAnnotation>
 
     @Query(
-        "SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook " +
+        "SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + " = :idBook " +
         "ORDER BY ${DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ALTERATION} DESC"
     )
     abstract fun findByBook(idBook: Long): List<BookAnnotation>
 
-    @Query("SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK + " = :idBook AND " + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGE + " = :page")
+    @Query("SELECT * FROM " + DataBaseConsts.BOOK_ANNOTATION.TABLE_NAME + " WHERE " + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK + " = :idBook AND " + DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGE + " = :page")
     abstract fun findByPage(idBook: Long, page: Int): List<BookAnnotation>
 
 }
@@ -718,13 +723,72 @@ abstract class HistoryDAO :  BaseDAO<History, Long>(DataBaseConsts.HISTORY.TABLE
     @Query("UPDATE " + DataBaseConsts.HISTORY.TABLE_NAME + " SET " + DataBaseConsts.HISTORY.COLUMNS.NOTIFIED + " = 1 WHERE " + DataBaseConsts.HISTORY.COLUMNS.ID + " = :id")
     abstract fun notify(id: Long)
 
+    @Query("SELECT * FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " WHERE " + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = :type AND " + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + " = :idLibrary AND " + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + " = :idReference ORDER BY " + DataBaseConsts.HISTORY.COLUMNS.ID)
+    abstract fun find(type: Type, idLibrary: Long, idReference: Long) : List<History>
+
 }
 
 
 @Dao
 abstract class StatisticsDAO {
     companion object {
-        const val SELECT = "SELECT SUM(" + DataBaseConsts.STATISTICS.COLUMNS.READING + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.READING + ", " +
+        const val HISTORY_BOOK = " SELECT H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + ", H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + ", H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + ", " +
+                "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 1 THEN (H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ") ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_PAGES + ", " +
+                "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 1 THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ", " +
+                "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 0 THEN (H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ") ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ", " +
+                "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 0 THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
+                "          COALESCE(H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ", 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ", COALESCE(H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + ", 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
+                "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 1 THEN 1 ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + "," +
+                "          H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START +
+                "   FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " H " +
+                "   WHERE H." + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = 'BOOK' "
+
+        const val SELECT_BOOK = " SELECT CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " > 0 AND B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " < B." + DataBaseConsts.BOOK.COLUMNS.PAGES + " THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.READING + ", " +
+                "          CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " <= 0 THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.TO_READ + ", " +
+                "          CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.LIBRARY + "," +
+                "          CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " > 0 AND B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " >= B." + DataBaseConsts.BOOK.COLUMNS.PAGES + " THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.READ + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_PAGES + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_PAGES + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES  + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + " ,0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + "," +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + ", 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + ", " +
+                "          H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START +
+                "   FROM " + DataBaseConsts.BOOK.TABLE_NAME + " B " +
+                "   LEFT JOIN (" + HISTORY_BOOK + ") AS H ON H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + " = B." + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY +
+                "     AND H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + " = B." + DataBaseConsts.BOOK.COLUMNS.ID
+
+        const val HISTORY_MANGA = " SELECT H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + ", H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + ", H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + ", " +
+                "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 1 THEN (H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ") ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_PAGES + ", " +
+                "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 1 THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ", " +
+                "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 0 THEN (H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ") ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ", " +
+                "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 0 THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
+                "          COALESCE(H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_END + " - H." + DataBaseConsts.HISTORY.COLUMNS.PAGE_START + ", 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ", COALESCE(H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + ", 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
+                "          COALESCE(CASE WHEN H." + DataBaseConsts.HISTORY.COLUMNS.COMPLETED + " = 1 THEN 1 ELSE 0 END, 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + "," +
+                "          H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START +
+                "   FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " H " +
+                "   WHERE H." + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = 'MANGA' "
+
+        const val SELECT_MANGA = " SELECT CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " > 0 AND M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " < M." + DataBaseConsts.MANGA.COLUMNS.PAGES + " THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.READING + ", " +
+                "          CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " <= 0 THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.TO_READ + ", " +
+                "          CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 0 THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.LIBRARY + "," +
+                "          CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " > 0 AND M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " >= M." + DataBaseConsts.MANGA.COLUMNS.PAGES + " THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.READ + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_PAGES + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_PAGES + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES  + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + " ,0) AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + "," +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ",0) AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
+                "          COALESCE(H." + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + ", 0) AS " + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + ", " +
+                "          H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START +
+                "   FROM " + DataBaseConsts.MANGA.TABLE_NAME + " M " +
+                "   LEFT JOIN (" + HISTORY_MANGA + ") AS H ON H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + " = M." + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY +
+                "     AND H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + " = M." + DataBaseConsts.MANGA.COLUMNS.ID
+
+        private const val HAVING_NOT_NULL = " HAVING " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " IS NOT NULL"
+
+        private const val SELECT_FIELDS = " SUM(" + DataBaseConsts.STATISTICS.COLUMNS.READING + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.READING + ", " +
                 "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.TO_READ + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.TO_READ + ", " +
                 "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.LIBRARY + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.LIBRARY + ", " +
                 "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.READ + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.READ + ", " +
@@ -734,62 +798,51 @@ abstract class StatisticsDAO {
                 "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
                 "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ", " +
                 "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
-                "  " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " AS " + DataBaseConsts.STATISTICS.COLUMNS.DATE_TIME + ", " + DataBaseConsts.STATISTICS.COLUMNS.TYPE +
-                " FROM (" +
-                "       SELECT CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " > 0 AND M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " < M." + DataBaseConsts.MANGA.COLUMNS.PAGES + " THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.READING + ", " +
-                "              CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " <= 0 THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.TO_READ + ", " +
-                "              CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.EXCLUDED + " = 0 THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.LIBRARY + "," +
-                "              CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " > 0 AND M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " >= M." + DataBaseConsts.MANGA.COLUMNS.PAGES + " THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.READ + ", " +
-                "              CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " > 0 AND M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " >= M." + DataBaseConsts.MANGA.COLUMNS.PAGES + " THEN H." + DataBaseConsts.MANGA.COLUMNS.PAGES + " ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_PAGES + ", " +
-                "              CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " > 0 AND M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " >= M." + DataBaseConsts.MANGA.COLUMNS.PAGES + " THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ", " +
-                "              CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " > 0 AND M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " < M." + DataBaseConsts.MANGA.COLUMNS.PAGES + " THEN M." + DataBaseConsts.MANGA.COLUMNS.PAGES + " ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ", " +
-                "              CASE WHEN M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " > 0 AND M." + DataBaseConsts.MANGA.COLUMNS.BOOK_MARK + " < M." + DataBaseConsts.MANGA.COLUMNS.PAGES + " THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
-                "              M." + DataBaseConsts.MANGA.COLUMNS.PAGES + " AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ", H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
-                "              H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 'MANGA' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE +
-                "       FROM " + DataBaseConsts.MANGA.TABLE_NAME + " M " +
-                "       LEFT JOIN " + DataBaseConsts.HISTORY.TABLE_NAME + " H ON H." + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = 'MANGA' " +
-                "         AND H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + " = M." + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY +
-                "         AND H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + " = M." + DataBaseConsts.MANGA.COLUMNS.ID + ")" +
-                "   UNION ALL   " +
-                "SELECT SUM(" + DataBaseConsts.STATISTICS.COLUMNS.READING + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.READING + ", " +
-                "       SUM(" + DataBaseConsts.STATISTICS.COLUMNS.TO_READ + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.TO_READ + ", " +
-                "       SUM(" + DataBaseConsts.STATISTICS.COLUMNS.LIBRARY + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.LIBRARY + ", " +
-                "       SUM(" + DataBaseConsts.STATISTICS.COLUMNS.READ + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.READ + ", " +
-                "       SUM(" + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_PAGES + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_PAGES + "," +
-                "       SUM(" + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ", " +
-                "       SUM(" + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ", " +
-                "       SUM(" + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
-                "       SUM(" + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ", " +
-                "       SUM(" + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
-                "   " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " AS " + DataBaseConsts.STATISTICS.COLUMNS.DATE_TIME + ", " + DataBaseConsts.STATISTICS.COLUMNS.TYPE +
-                " FROM (" +
-                "       SELECT CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " > 0 AND B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " < B." + DataBaseConsts.BOOK.COLUMNS.PAGES + " THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.READING + ", " +
-                "              CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " <= 0 THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.TO_READ + ", " +
-                "              CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.EXCLUDED + " = 0 THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.LIBRARY + "," +
-                "              CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " > 0 AND B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " >= B." + DataBaseConsts.BOOK.COLUMNS.PAGES + " THEN 1 ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.READ + ", " +
-                "              CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " > 0 AND B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " >= B." + DataBaseConsts.BOOK.COLUMNS.PAGES + " THEN H." + DataBaseConsts.BOOK.COLUMNS.PAGES + " ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_PAGES + ", " +
-                "              CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " > 0 AND B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " >= B." + DataBaseConsts.BOOK.COLUMNS.PAGES + " THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.COMPLETE_READING_SECONDS + ", " +
-                "              CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " > 0 AND B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " < B." + DataBaseConsts.BOOK.COLUMNS.PAGES + " THEN B." + DataBaseConsts.BOOK.COLUMNS.PAGES + " ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_PAGES + ", " +
-                "              CASE WHEN B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " > 0 AND B." + DataBaseConsts.BOOK.COLUMNS.BOOK_MARK + " < B." + DataBaseConsts.BOOK.COLUMNS.PAGES + " THEN H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " ELSE 0 END AS " + DataBaseConsts.STATISTICS.COLUMNS.CURRENT_READING_SECONDS + "," +
-                "              B." + DataBaseConsts.BOOK.COLUMNS.PAGES + " AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_PAGES + ", H." + DataBaseConsts.HISTORY.COLUMNS.SECONDS_READ + " AS " + DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS + ", " +
-                "              H." + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 'BOOK' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE +
-                "       FROM " + DataBaseConsts.BOOK.TABLE_NAME + " B " +
-                "       LEFT JOIN " + DataBaseConsts.HISTORY.TABLE_NAME + " H ON H." + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = 'BOOK' " +
-                "         AND H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY + " = B." + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY +
-                "         AND H." + DataBaseConsts.HISTORY.COLUMNS.FK_ID_REFERENCE + " = B." + DataBaseConsts.BOOK.COLUMNS.ID + ")"
+                "      SUM(" + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + ") AS " + DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH + ", " +
+                "  " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " AS " + DataBaseConsts.STATISTICS.COLUMNS.DATE_TIME
 
-        private const val GROUP_BY_YEAR = SELECT + " WHERE " + DataBaseConsts.HISTORY.COLUMNS.TYPE + " = :type AND " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " >= :dateStart" +
-                "   AND " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " <= :dateEnd GROUP BY SUBSTR(" + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 6,7)"
+        const val SELECT = "SELECT " + SELECT_FIELDS +  ", 'MANGA' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " FROM (" + SELECT_MANGA +
+                " GROUP BY M." + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY + ", M." + DataBaseConsts.MANGA.COLUMNS.ID +  ") " +
+                "   UNION ALL   " +
+                " SELECT " + SELECT_FIELDS + ", 'BOOK' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " FROM (" + SELECT_BOOK +
+                " GROUP BY B." + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + ", B." + DataBaseConsts.BOOK.COLUMNS.ID + ") "
+
+        private const val GROUP_BY_YEAR = " WHERE " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " >= :dateStart" +
+                "   AND " + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + " <= :dateEnd GROUP BY SUBSTR(" + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 6,2) "
+
+        private const val WHERE_MANGA_LIBRARY = " WHERE M." + DataBaseConsts.MANGA.COLUMNS.FK_ID_LIBRARY + " = :library "
+        private const val WHERE_BOOK_LIBRARY = " WHERE B." + DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY + " = :library "
+
+        const val SELECT_YEAR_MANGA = "SELECT " + SELECT_FIELDS + ", 'MANGA' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE +
+                " FROM (" + SELECT_MANGA +  ") " + GROUP_BY_YEAR
+
+        const val SELECT_YEAR_BOOK = "  SELECT " + SELECT_FIELDS + ", 'BOOK' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE +
+                " FROM (" + SELECT_BOOK +  ") " + GROUP_BY_YEAR
+
+        const val SELECT_YEAR_LIBRARY_MANGA = "SELECT " + SELECT_FIELDS + ", 'MANGA' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE +
+                " FROM (" + SELECT_MANGA + WHERE_MANGA_LIBRARY +  ") " + GROUP_BY_YEAR
+
+        const val SELECT_YEAR_LIBRARY_BOOK = "  SELECT " + SELECT_FIELDS + ", 'BOOK' AS " + DataBaseConsts.STATISTICS.COLUMNS.TYPE +
+                " FROM (" + SELECT_BOOK + WHERE_BOOK_LIBRARY +  ") " + GROUP_BY_YEAR
     }
 
     @Query(SELECT)
     abstract fun statistics(): List<Statistics>
 
-    @Query(GROUP_BY_YEAR)
-    abstract fun statistics(type: Type, dateStart: LocalDateTime, dateEnd: LocalDateTime): List<Statistics>
+    @Query(SELECT_YEAR_BOOK)
+    abstract fun statisticsBook(dateStart: LocalDateTime, dateEnd: LocalDateTime): List<Statistics>
 
-    @Query("SELECT SUBSTR(" + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 1, 4) AS YEAR FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " GROUP BY YEAR")
-    abstract fun listYears(): MutableList<Int>
+    @Query(SELECT_YEAR_MANGA)
+    abstract fun statisticsManga(dateStart: LocalDateTime, dateEnd: LocalDateTime): List<Statistics>
+
+    @Query(SELECT_YEAR_LIBRARY_BOOK)
+    abstract fun statisticsBook(dateStart: LocalDateTime, dateEnd: LocalDateTime, library: Long): List<Statistics>
+
+    @Query(SELECT_YEAR_LIBRARY_MANGA)
+    abstract fun statisticsManga(dateStart: LocalDateTime, dateEnd: LocalDateTime, library: Long): List<Statistics>
+
+    @Query("SELECT SUBSTR(" + DataBaseConsts.HISTORY.COLUMNS.DATE_TIME_START + ", 1, 4) AS YEAR FROM " + DataBaseConsts.HISTORY.TABLE_NAME + " WHERE " + DataBaseConsts.STATISTICS.COLUMNS.TYPE + " = :type GROUP BY YEAR")
+    abstract fun listYears(type : String): MutableList<Int>
 
 }
 

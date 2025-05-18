@@ -21,16 +21,23 @@ class BookLineViewHolder(itemView: View, private val listener: BookCardListener)
 
     companion object {
         lateinit var mDefaultImageCover: Bitmap
+
+        var mDescriptionAuthor: String = ""
+        var mDescriptionPublisher: String = ""
     }
 
     init {
-        mDefaultImageCover = BitmapFactory.decodeResource(itemView.resources, R.mipmap.app_icon)
+        mDefaultImageCover = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_2)
+
+        mDescriptionPublisher = itemView.context.getString(R.string.book_library_line_publisher) + " "
+        mDescriptionAuthor = itemView.context.getString(R.string.book_library_line_authors) + " "
     }
 
     fun bind(book: Book) {
         val bookImage = itemView.findViewById<ImageView>(R.id.book_line_image_cover)
         val bookTitle = itemView.findViewById<TextView>(R.id.book_line_title)
-        val bookSubTitle = itemView.findViewById<TextView>(R.id.book_line_sub_title)
+        val bookAuthor = itemView.findViewById<TextView>(R.id.book_line_author)
+        val bookPublisher = itemView.findViewById<TextView>(R.id.book_line_publisher)
         val bookFileName = itemView.findViewById<TextView>(R.id.book_line_file_name)
         val bookFileSize = itemView.findViewById<TextView>(R.id.book_line_file_size)
         val bookType = itemView.findViewById<TextView>(R.id.book_line_file_type)
@@ -39,49 +46,53 @@ class BookLineViewHolder(itemView: View, private val listener: BookCardListener)
 
         val cardView = itemView.findViewById<LinearLayout>(R.id.book_line_card)
         val bookProgress = itemView.findViewById<ProgressBar>(R.id.book_line_progress)
-        val favorite = itemView.findViewById<ImageView>(R.id.book_line_favorite)
-        val config = itemView.findViewById<ImageView>(R.id.book_line_config)
+        val favorite = itemView.findViewById<LinearLayout>(R.id.book_line_favorite)
+        val favoriteIcon = itemView.findViewById<ImageView>(R.id.book_line_favorite_icon)
+        val config = itemView.findViewById<LinearLayout>(R.id.book_line_config)
+        val configIcon = itemView.findViewById<ImageView>(R.id.book_line_config_icon)
 
         bookImage.setImageBitmap(null)
         BookImageCoverController.instance.setImageCoverAsync(itemView.context, book, bookImage, mDefaultImageCover)
 
-        cardView.setOnClickListener { listener.onClick(book) }
+        cardView.setOnClickListener { listener.onClick(book, itemView) }
         cardView.setOnLongClickListener {
-            listener.onClickLong(book, it, layoutPosition)
+            listener.onClickLong(book, itemView, layoutPosition)
             true
         }
+
 
         favorite.setOnClickListener {
             book.favorite = !book.favorite
-            favorite.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+            favoriteIcon.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
             listener.onClickFavorite(book)
         }
-        config.setOnClickListener { listener.onClickConfig(book, cardView, it, layoutPosition) }
-        config.setOnLongClickListener {
-            listener.onClickLongConfig(book, cardView, it, layoutPosition)
-            true
-        }
 
-        favorite.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+        favoriteIcon.setImageResource(if (book.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
+        config.setOnClickListener { listener.onClickConfig(book, cardView, configIcon, layoutPosition) }
 
         bookImage.setImageBitmap(null)
         BookImageCoverController.instance.setImageCoverAsync(itemView.context, book, bookImage, mDefaultImageCover)
 
         bookTitle.text = book.title
-        bookSubTitle.text = book.author
+        bookAuthor.text = if (book.author.isNotEmpty()) mDescriptionAuthor + book.author else ""
         bookFileName.text = book.fileName
         bookFileSize.text = FileUtil.formatSize(book.fileSize)
         bookType.text = Util.getExtensionFromPath(book.path).uppercase()
-        val percent: Float =if (book.bookMark > 0) ((book.bookMark.toFloat() / book.pages) * 100) else 0f
+        val percent: Float = if (book.bookMark >= book.pages) 100f else if (book.bookMark > 0) ((book.bookMark.toFloat() / book.pages) * 100) else 0f
         bookPagesRead.text = if (book.bookMark > 0)
            itemView.context.getString(R.string.book_page_read, book.bookMark, book.pages, Util.formatDecimal(percent))
         else
             Util.formatDecimal(percent)
 
-        bookLastAccess.text = if (book.lastAccess == null) "" else GeneralConsts.formatterDateTime(
-            itemView.context,
-            book.lastAccess!!
-        )
+        bookPublisher.text = ""
+        bookPublisher.visibility = if (book.publisher.isNotEmpty()) {
+            bookPublisher.text = mDescriptionPublisher + book.publisher
+            View.VISIBLE
+        } else
+            View.GONE
+
+        bookLastAccess.text = if (book.lastAccess == null) "" else GeneralConsts.formatterDateTime(itemView.context, book.lastAccess!!)
+        bookLastAccess.visibility = if (book.lastAccess == null) View.GONE else View.VISIBLE
 
         bookProgress.max = book.pages
         bookProgress.setProgress(book.bookMark, false)

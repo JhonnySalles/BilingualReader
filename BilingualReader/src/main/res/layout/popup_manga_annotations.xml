@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/AppBackground.Accent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/margin"
+    tools:context=".view.ui.reader.manga.PopupMangaAnnotationsFragment">
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/popup_manga_annotations_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="@dimen/margin_bottom"
+        android:clipToPadding="false"
+        android:orientation="horizontal"
+        android:scrollbarStyle="outsideOverlay"
+        android:scrollbars="horizontal" />
+</LinearLayout>

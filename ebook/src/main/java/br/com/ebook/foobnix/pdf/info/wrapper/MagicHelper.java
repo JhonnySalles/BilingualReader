@@ -16,17 +16,21 @@ import android.widget.TextView;
 
 import androidx.core.graphics.ColorUtils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
 import br.com.ebook.foobnix.android.utils.Dips;
-import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
 import br.com.ebook.foobnix.pdf.info.IMG;
 
 public class MagicHelper {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MagicHelper.class);
 
     public static volatile boolean isNeedMagic = true;
     public static volatile boolean isNeedBC = true;
@@ -77,9 +81,11 @@ public class MagicHelper {
         int sourceWidth = source.getWidth();
         int sourceHeight = source.getHeight();
 
-        LOG.d("scaleCenterCrop", sourceWidth, sourceHeight, newHeight, newWidth);
+        if (br.com.ebook.Config.SHOW_LOG)
+            LOGGER.info("scaleCenterCrop: {} - {} || {} - {}", sourceWidth, sourceHeight, newHeight, newWidth);
 
-        LOG.d("RATIO", (float) sourceHeight / sourceWidth);
+        if (br.com.ebook.Config.SHOW_LOG)
+            LOGGER.info("RATIO: {}", (float) sourceHeight / sourceWidth);
 
         // Compute the scaling factors to fit the new height and width,
         // respectively.
@@ -119,9 +125,8 @@ public class MagicHelper {
 
         canvas.drawBitmap(source, null, targetRect, paint);
 
-        if (withEffect) {
+        if (withEffect)
             applyBookEffect(dest);
-        }
 
         source.recycle();
         source = null;
@@ -186,15 +191,14 @@ public class MagicHelper {
         textView.buildDrawingCache(true);
 
         Bitmap drawingCache = textView.getDrawingCache();
-        if (drawingCache == null) {
+        if (drawingCache == null)
             return null;
-        }
 
         Bitmap updates = null;
         try {
             updates = updateWithBackground(drawingCache, transparency, loadBitmap(path));
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error update TextView BG: {}", e.getMessage(), e);
         }
 
         textView.setDrawingCacheEnabled(false);
@@ -212,7 +216,7 @@ public class MagicHelper {
         try {
             return BitmapFactory.decodeStream(context.getAssets().open(filePath));
         } catch (IOException e) {
-            LOG.e(e);
+            LOGGER.error("Error bitmap from asset: {}", e.getMessage(), e);
         }
         return null;
     }
@@ -230,9 +234,9 @@ public class MagicHelper {
     static int mainColor = Color.TRANSPARENT;
 
     public static Bitmap getBackgroundImage() {
-        if (bg1 != null && getImagePath().equals(bgPath)) {
+        if (bg1 != null && getImagePath().equals(bgPath))
             return bg1;
-        }
+
         bgPath = getImagePath();
         bg1 = loadBitmap(getImagePath());
         mainColor = getDominantColor(bg1);
@@ -240,19 +244,18 @@ public class MagicHelper {
     }
 
     public static Bitmap loadBitmap(String name) {
-        if (TxtUtils.isEmpty(name)) {
+        if (TxtUtils.isEmpty(name))
             return null;
-        }
+
         BitmapFactory.Options opt = new BitmapFactory.Options();
         opt.inPreferredConfig = Config.RGB_565;
 
-        if (name.startsWith("/") && !new File(name).exists()) {
+        if (name.startsWith("/") && !new File(name).exists())
             return loadBitmap(MagicHelper.IMAGE_BG_1);
-        }
 
-        if (name.startsWith("/")) {
+        if (name.startsWith("/"))
             return BitmapFactory.decodeFile(name, opt);
-        }
+
         /*try {
             InputStream oldBook = eBookApplication.context.getAssets().open(name);
             Bitmap decodeStream = BitmapFactory.decodeStream(oldBook);
@@ -260,7 +263,7 @@ public class MagicHelper {
             decodeStream.recycle();
             return res;
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error load bitmap: {}", e.getMessage(), e);
             return null;
         }*/
         return null;
@@ -398,9 +401,9 @@ public class MagicHelper {
     }
 
     public void udpateColorsMagic(Bitmap bitmap) {
-        if (!isNeedMagic()) {
+        if (!isNeedMagic())
             return;
-        }
+
         int pixels[] = new int[bitmap.getWidth() * bitmap.getHeight()];
         bitmap.getPixels(pixels, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
         MagicHelper.udpateColorsMagic(pixels);
@@ -428,9 +431,8 @@ public class MagicHelper {
     @Deprecated
     // experimanttal
     public static void udpateColorsMagic1(int[] allpixels) {
-        if (!isNeedMagic()) {
+        if (!isNeedMagic())
             return;
-        }
 
         int textColor = MagicHelper.getTextColor();
         int bgColor = MagicHelper.getBgColor();
@@ -467,10 +469,11 @@ public class MagicHelper {
     }
 
     public static void udpateColorsMagic(int[] allpixels) {
-        if (!isNeedMagic()) {
+        if (!isNeedMagic())
             return;
-        }
-        LOG.d("MAGIC ON");
+
+        if (br.com.ebook.Config.SHOW_LOG)
+            LOGGER.info("MAGIC ON");
 
         int textColor = MagicHelper.getTextColor();
         int bgColor = MagicHelper.getBgColor();
@@ -483,7 +486,7 @@ public class MagicHelper {
                 allpixels[i] = textColor;
                 continue;
             }
-            //
+
             if (color == Color.WHITE || color == first) {
                 allpixels[i] = bgColor;
                 continue;
@@ -688,7 +691,8 @@ public class MagicHelper {
         src.getPixels(arr, 0, src.getWidth(), 0, 0, src.getWidth(), src.getHeight());
         quickContrast3(arr, contrast, brigtness);
         Bitmap bmOut = Bitmap.createBitmap(src.getWidth(), src.getHeight(), Config.RGB_565);
-        LOG.d("Bitmap config", "RGB_565", src.getConfig() == Config.RGB_565, "ARGB_8888", src.getConfig() == Config.ARGB_8888);
+        if (br.com.ebook.Config.SHOW_LOG)
+            LOGGER.info("Bitmap config RGB_565: {}\nARGB_8888: {}", src.getConfig() == Config.RGB_565, src.getConfig() == Config.ARGB_8888);
         bmOut.setPixels(arr, 0, src.getWidth(), 0, 0, src.getWidth(), src.getHeight());
         return bmOut;
 
@@ -727,9 +731,9 @@ public class MagicHelper {
             int sum = (r + g + b) / 3;
 
             int nexSum = sum;
-            if (i > 1) {
+            if (i > 1)
                 nexSum = Math.min(prevSum, sum);
-            }
+
             prevSum = sum;
             arr[i] = Color.rgb(nexSum, nexSum, nexSum);
         }
@@ -744,6 +748,7 @@ public class MagicHelper {
                 prevSum = 0;
                 continue;
             }
+
             if (color == Color.WHITE) {
                 arr[i] = Color.rgb(prevSum, prevSum, prevSum);
                 prevSum = 255;
@@ -764,11 +769,10 @@ public class MagicHelper {
                 sum = sum - extra_contrast;
             }
 
-            if (sum > 255) {
+            if (sum > 255)
                 sum = 255;
-            } else if (sum < 0) {
+            else if (sum < 0)
                 sum = 0;
-            }
 
             int nexSum = sum;
             if (AppState.get().bolderTextOnImage) {
@@ -805,11 +809,11 @@ public class MagicHelper {
                 lum = i; // take the input
                 lum = lum - delta_brightness; // apply brightness variation
                 lum = (int) (((lum - 128) * contrast) + 128); // apply contrast
-                if (lum < 0) { // flatten excess
+                if (lum < 0) // flatten excess
                     lum = 0;
-                } else if (lum > 255) {
+                else if (lum > 255)
                     lum = 255;
-                }
+
                 brightnessContrastMap[i] = (lum << 16) + (lum << 8) + lum; // compose
                 // greyscale
             }
@@ -820,9 +824,9 @@ public class MagicHelper {
         for (int i = 0; i < arr.length; i++) {
             // Get luminosity. Also use G and B, with 2x R
             int temp = arr[i];
-            if (temp == Color.WHITE || temp == Color.BLACK) {
+            if (temp == Color.WHITE || temp == Color.BLACK)
                 continue;
-            }
+
             lum = ((temp & 0x00FF0000) >> 17) + ((temp & 0x0000FF00) >> 10) + ((temp & 0x000000FF) >> 2);
             // retrieve output from map
             arr[i] = brightnessContrastMap[lum];
@@ -850,9 +854,7 @@ public class MagicHelper {
             int lum_next = ((temp & 0x00FF0000) >> 17) + ((temp & 0x0000FF00) >> 10) + ((temp & 0x000000FF) >> 2);
 
             lum = (lum_this * lum_next) >> 8; // multiply with offset
-
             arr[i] = sharpenMap[lum];
-
             lum_this = lum_next;
 
         }
@@ -874,9 +876,8 @@ public class MagicHelper {
         int divsum = (div + 1) >> 1;
         divsum *= divsum;
         int dv[] = new int[256 * divsum];
-        for (i = 0; i < 256 * divsum; i++) {
+        for (i = 0; i < 256 * divsum; i++)
             dv[i] = (i / divsum);
-        }
 
         yw = yi = 0;
 
@@ -914,7 +915,6 @@ public class MagicHelper {
             stackpointer = radius;
 
             for (x = 0; x < w; x++) {
-
                 r[yi] = dv[rsum];
                 g[yi] = dv[gsum];
                 b[yi] = dv[bsum];
@@ -930,9 +930,9 @@ public class MagicHelper {
                 goutsum -= sir[1];
                 boutsum -= sir[2];
 
-                if (y == 0) {
+                if (y == 0)
                     vmin[x] = Math.min(x + radius + 1, wm);
-                }
+
                 p = pix[yw + vmin[x]];
 
                 sir[0] = (p & 0xff0000) >> 16;
@@ -990,9 +990,8 @@ public class MagicHelper {
                     boutsum += sir[2];
                 }
 
-                if (i < hm) {
+                if (i < hm)
                     yp += w;
-                }
             }
             yi = x;
             stackpointer = radius;

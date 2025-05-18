@@ -29,7 +29,9 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:translationY="-99dp"
-        android:layout_gravity="top"/>
+        android:layout_gravity="top"
+        android:layout_marginStart="@dimen/reader_title_margin_negative"
+        android:layout_marginEnd="@dimen/reader_title_margin_negative"/>
 
     <!-- action bar -->
     <com.google.android.material.appbar.AppBarLayout
@@ -37,7 +39,11 @@
         style="@style/AppBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/MainToolbarContentTheme">
+        android:theme="@style/MainToolbarContentTheme"
+        android:layout_marginStart="@dimen/reader_title_margin_negative"
+        android:layout_marginEnd="@dimen/reader_title_margin_negative"
+        android:paddingStart="@dimen/reader_title_margin_positive"
+        android:paddingEnd="@dimen/reader_title_margin_positive">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/main_toolbar"

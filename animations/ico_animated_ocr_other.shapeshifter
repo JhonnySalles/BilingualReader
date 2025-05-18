@@ -1,0 +1,611 @@
+{
+  "version": 1,
+  "layers": {
+    "vectorLayer": {
+      "id": "2209",
+      "name": "vector",
+      "type": "vector",
+      "width": 6,
+      "height": 8,
+      "children": [
+        {
+          "id": "2471",
+          "name": "base_ocr",
+          "type": "group",
+          "pivotX": 23,
+          "pivotY": 15,
+          "translateX": -18.66434,
+          "translateY": -10.02516,
+          "children": [
+            {
+              "id": "2457",
+              "name": "ocr_page",
+              "type": "path",
+              "pathData": "M 22.339 10.525 L 19.696 10.525 C 19.402 10.525 19.164 10.763 19.164 11.056 L 19.164 17.138 C 19.164 17.431 19.4 17.669 19.693 17.669 L 23.663 17.669 C 23.955 17.669 24.191 17.433 24.191 17.14 L 24.191 12.642 L 22.87 12.642 C 22.577 12.642 22.339 12.407 22.339 12.113 Z",
+              "fillColor": "#ffffff",
+              "fillType": "evenOdd"
+            },
+            {
+              "id": "2393",
+              "name": "ocr_marker",
+              "type": "path",
+              "pathData": "M 22.604 10.525 L 22.604 12.112 C 22.604 12.258 22.723 12.377 22.866 12.377 L 24.191 12.377 Z",
+              "fillColor": "#ffffff",
+              "fillType": "evenOdd"
+            },
+            {
+              "id": "465525",
+              "name": "base_ocr_line_1",
+              "type": "group",
+              "pivotX": 20,
+              "children": [
+                {
+                  "id": "2441",
+                  "name": "ocr_line_1",
+                  "type": "path",
+                  "pathData": "M 19.958 11.583 L 19.958 11.848 L 21.81 11.848 L 21.81 11.583 Z",
+                  "fillColor": "#000000",
+                  "fillType": "evenOdd"
+                }
+              ]
+            },
+            {
+              "id": "465526",
+              "name": "base_ocr_line_2",
+              "type": "group",
+              "pivotX": 20,
+              "children": [
+                {
+                  "id": "2449",
+                  "name": "ocr_line_2",
+                  "type": "path",
+                  "pathData": "M 19.958 12.377 L 19.958 12.642 L 21.281 12.642 L 21.281 12.377 Z",
+                  "fillColor": "#000000",
+                  "fillType": "evenOdd"
+                }
+              ]
+            },
+            {
+              "id": "465527",
+              "name": "base_ocr_line_3",
+              "type": "group",
+              "pivotX": 20,
+              "children": [
+                {
+                  "id": "2433",
+                  "name": "ocr_line_3",
+                  "type": "path",
+                  "pathData": "M 19.958 13.171 L 19.958 13.436 L 23.398 13.436 L 23.398 13.171 Z",
+                  "fillColor": "#000000",
+                  "fillType": "evenOdd"
+                }
+              ]
+            },
+            {
+              "id": "465528",
+              "name": "base_ocr_line_4",
+              "type": "group",
+              "pivotX": 20,
+              "children": [
+                {
+                  "id": "2425",
+                  "name": "ocr_line_4",
+                  "type": "path",
+                  "pathData": "M 19.958 13.965 L 19.958 14.229 L 22.604 14.229 L 22.604 13.965 Z",
+                  "fillColor": "#000000",
+                  "fillType": "evenOdd"
+                }
+              ]
+            },
+            {
+              "id": "465529",
+              "name": "base_ocr_line_5",
+              "type": "group",
+              "pivotX": 20,
+              "children": [
+                {
+                  "id": "2417",
+                  "name": "ocr_line_5",
+                  "type": "path",
+                  "pathData": "M 19.958 14.758 L 19.958 15.023 L 23.398 15.023 L 23.398 14.758 Z",
+                  "fillColor": "#000000",
+                  "fillType": "evenOdd"
+                }
+              ]
+            },
+            {
+              "id": "465530",
+              "name": "base_ocr_line_6",
+              "type": "group",
+              "pivotX": 20,
+              "children": [
+                {
+                  "id": "2409",
+                  "name": "ocr_line_6",
+                  "type": "path",
+                  "pathData": "M 19.958 15.552 L 19.958 15.817 L 22.339 15.817 L 22.339 15.552 Z",
+                  "fillColor": "#000000",
+                  "fillType": "evenOdd"
+                }
+              ]
+            },
+            {
+              "id": "465531",
+              "name": "base_ocr_line_7",
+              "type": "group",
+              "pivotX": 20,
+              "children": [
+                {
+                  "id": "2401",
+                  "name": "ocr_line_7",
+                  "type": "path",
+                  "pathData": "M 19.958 16.346 L 19.958 16.611 L 23.398 16.611 L 23.398 16.346 Z",
+                  "fillColor": "#000000",
+                  "fillType": "evenOdd"
+                }
+              ]
+            },
+            {
+              "id": "2914",
+              "name": "ocr_scanner",
+              "type": "group",
+              "pivotX": 40,
+              "pivotY": 15,
+              "translateX": -18.10209,
+              "translateY": -0.8,
+              "children": [
+                {
+                  "id": "2815",
+                  "name": "ocr_scanner_line",
+                  "type": "path",
+                  "pathData": "M 42.523 15.161 L 42.523 14.632 L 42.788 14.632 L 42.788 15.955 L 42.523 15.955 L 42.523 15.426 L 36.967 15.426 L 36.967 15.955 L 36.702 15.955 L 36.702 14.632 L 36.967 14.632 L 36.967 15.161 Z",
+                  "fillColor": "#555555",
+                  "fillType": "evenOdd"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "hiddenLayerIds": []
+  },
+  "timeline": {
+    "animation": {
+      "id": "2",
+      "name": "anim",
+      "duration": 1500,
+      "blocks": [
+        {
+          "id": "465532",
+          "layerId": "2914",
+          "propertyName": "translateY",
+          "startTime": 0,
+          "endTime": 171,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": -0.8,
+          "toValue": 2
+        },
+        {
+          "id": "468497",
+          "layerId": "2914",
+          "propertyName": "scaleY",
+          "startTime": 114,
+          "endTime": 214,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.9
+        },
+        {
+          "id": "468524",
+          "layerId": "2914",
+          "propertyName": "scaleX",
+          "startTime": 114,
+          "endTime": 214,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.9
+        },
+        {
+          "id": "488493",
+          "layerId": "2914",
+          "propertyName": "translateY",
+          "startTime": 232,
+          "endTime": 1267,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 2,
+          "toValue": -4
+        },
+        {
+          "id": "489690",
+          "layerId": "2914",
+          "propertyName": "translateY",
+          "startTime": 1329,
+          "endTime": 1500,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": -4,
+          "toValue": -0.8
+        },
+        {
+          "id": "496321",
+          "layerId": "2914",
+          "propertyName": "scaleY",
+          "startTime": 1267,
+          "endTime": 1367,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.9,
+          "toValue": 1
+        },
+        {
+          "id": "496322",
+          "layerId": "2914",
+          "propertyName": "scaleX",
+          "startTime": 1267,
+          "endTime": 1367,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.9,
+          "toValue": 1
+        },
+        {
+          "id": "511222",
+          "layerId": "465525",
+          "propertyName": "scaleX",
+          "startTime": 806,
+          "endTime": 1075,
+          "interpolator": "ANTICIPATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "517255",
+          "layerId": "465526",
+          "propertyName": "scaleX",
+          "startTime": 711,
+          "endTime": 980,
+          "interpolator": "ANTICIPATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "517282",
+          "layerId": "465531",
+          "propertyName": "scaleX",
+          "startTime": 327,
+          "endTime": 596,
+          "interpolator": "ANTICIPATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "517309",
+          "layerId": "465530",
+          "propertyName": "scaleX",
+          "startTime": 413,
+          "endTime": 682,
+          "interpolator": "ANTICIPATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "517336",
+          "layerId": "465529",
+          "propertyName": "scaleX",
+          "startTime": 488,
+          "endTime": 757,
+          "interpolator": "ANTICIPATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "517363",
+          "layerId": "465528",
+          "propertyName": "scaleX",
+          "startTime": 553,
+          "endTime": 822,
+          "interpolator": "ANTICIPATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "517390",
+          "layerId": "465527",
+          "propertyName": "scaleX",
+          "startTime": 648,
+          "endTime": 917,
+          "interpolator": "ANTICIPATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "519081",
+          "layerId": "465531",
+          "propertyName": "scaleX",
+          "startTime": 661,
+          "endTime": 873,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "522852",
+          "layerId": "465528",
+          "propertyName": "scaleX",
+          "startTime": 911,
+          "endTime": 1136,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "522853",
+          "layerId": "465529",
+          "propertyName": "scaleX",
+          "startTime": 825,
+          "endTime": 1044,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "522854",
+          "layerId": "465530",
+          "propertyName": "scaleX",
+          "startTime": 820,
+          "endTime": 1039,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "522855",
+          "layerId": "465527",
+          "propertyName": "scaleX",
+          "startTime": 980,
+          "endTime": 1205,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "522856",
+          "layerId": "465526",
+          "propertyName": "scaleX",
+          "startTime": 1039,
+          "endTime": 1264,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "522857",
+          "layerId": "465525",
+          "propertyName": "scaleX",
+          "startTime": 1136,
+          "endTime": 1367,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "626106",
+          "layerId": "2409",
+          "propertyName": "fillAlpha",
+          "startTime": 504,
+          "endTime": 711,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.3
+        },
+        {
+          "id": "633465",
+          "layerId": "2417",
+          "propertyName": "fillAlpha",
+          "startTime": 589,
+          "endTime": 796,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.3
+        },
+        {
+          "id": "643710",
+          "layerId": "2425",
+          "propertyName": "fillAlpha",
+          "startTime": 661,
+          "endTime": 868,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.3
+        },
+        {
+          "id": "649509",
+          "layerId": "2433",
+          "propertyName": "fillAlpha",
+          "startTime": 748,
+          "endTime": 955,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.3
+        },
+        {
+          "id": "657024",
+          "layerId": "2449",
+          "propertyName": "fillAlpha",
+          "startTime": 807,
+          "endTime": 1014,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.3
+        },
+        {
+          "id": "662251",
+          "layerId": "2441",
+          "propertyName": "fillAlpha",
+          "startTime": 919,
+          "endTime": 1126,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.3
+        },
+        {
+          "id": "676812",
+          "layerId": "2409",
+          "propertyName": "fillAlpha",
+          "startTime": 860,
+          "endTime": 1044,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.3,
+          "toValue": 1
+        },
+        {
+          "id": "676813",
+          "layerId": "2417",
+          "propertyName": "fillAlpha",
+          "startTime": 891,
+          "endTime": 1075,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.3,
+          "toValue": 1
+        },
+        {
+          "id": "676814",
+          "layerId": "2425",
+          "propertyName": "fillAlpha",
+          "startTime": 952,
+          "endTime": 1136,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.3,
+          "toValue": 1
+        },
+        {
+          "id": "676815",
+          "layerId": "2433",
+          "propertyName": "fillAlpha",
+          "startTime": 980,
+          "endTime": 1164,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.3,
+          "toValue": 1
+        },
+        {
+          "id": "676816",
+          "layerId": "2449",
+          "propertyName": "fillAlpha",
+          "startTime": 1044,
+          "endTime": 1228,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.3,
+          "toValue": 1
+        },
+        {
+          "id": "676817",
+          "layerId": "2441",
+          "propertyName": "fillAlpha",
+          "startTime": 1164,
+          "endTime": 1348,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.3,
+          "toValue": 1
+        },
+        {
+          "id": "729416",
+          "layerId": "2401",
+          "propertyName": "fillAlpha",
+          "startTime": 413,
+          "endTime": 620,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.3
+        },
+        {
+          "id": "731679",
+          "layerId": "2401",
+          "propertyName": "fillAlpha",
+          "startTime": 735,
+          "endTime": 919,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.3,
+          "toValue": 1
+        },
+        {
+          "id": "824344",
+          "layerId": "2471",
+          "propertyName": "scaleX",
+          "startTime": 0,
+          "endTime": 193,
+          "interpolator": "ANTICIPATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.9
+        },
+        {
+          "id": "824345",
+          "layerId": "2471",
+          "propertyName": "scaleY",
+          "startTime": 0,
+          "endTime": 193,
+          "interpolator": "ANTICIPATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.9
+        },
+        {
+          "id": "824346",
+          "layerId": "2471",
+          "propertyName": "scaleY",
+          "startTime": 263,
+          "endTime": 456,
+          "interpolator": "OVERSHOOT",
+          "type": "number",
+          "fromValue": 0.9,
+          "toValue": 1
+        },
+        {
+          "id": "824347",
+          "layerId": "2471",
+          "propertyName": "scaleX",
+          "startTime": 263,
+          "endTime": 456,
+          "interpolator": "OVERSHOOT",
+          "type": "number",
+          "fromValue": 0.9,
+          "toValue": 1
+        }
+      ]
+    }
+  }
+}

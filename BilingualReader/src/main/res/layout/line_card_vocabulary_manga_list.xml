@@ -22,16 +22,16 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/vocabulary_manga_list_image_card"
         style="@style/AppBackground.Card"
-        android:layout_width="@dimen/vocabulary_manga_cover_size"
+        android:layout_width="@dimen/vocabulary_manga_cover_width"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         app:strokeWidth="0.0dp"
-        app:rippleColor="?attr/colorTertiary">
+        app:rippleColor="?attr/colorPrimaryContainer">
 
         <ImageView
             android:id="@+id/vocabulary_manga_list_image_cover"
-            android:layout_width="@dimen/vocabulary_manga_cover_size"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/vocabulary_manga_cover_width"
+            android:layout_height="@dimen/vocabulary_manga_cover_height"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
             app:srcCompat="@mipmap/book_cover_2" />

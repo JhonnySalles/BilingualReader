@@ -12,48 +12,48 @@
         style="@style/FloatingButton.Actions.Close"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_close" />
+        android:src="@drawable/ico_close" />
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/floating_manga_buttons_page_linked"
         style="@style/FloatingButton.Actions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_page_linked" />
+        android:src="@drawable/ico_page_linked" />
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/floating_manga_buttons_draw_text"
         style="@style/FloatingButton.Actions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_draw_text" />
+        android:src="@drawable/ico_draw_text" />
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/floating_manga_buttons_ocr_google_vision"
         style="@style/FloatingButton.Actions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_ocr_google_vision" />
+        android:src="@drawable/ico_ocr_google_vision" />
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/floating_manga_buttons_floating_window"
         style="@style/FloatingButton.Actions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_floating_window" />
+        android:src="@drawable/ico_floating_window" />
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/floating_manga_buttons_file_link"
         style="@style/FloatingButton.Actions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_file_link" />
+        android:src="@drawable/ico_file_link" />
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/floating_manga_buttons_move_window"
         style="@style/FloatingButton.Actions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_floating_button_change_right" />
+        android:src="@drawable/ico_floating_button_change_right" />
 
 </LinearLayout>

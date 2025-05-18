@@ -1,6 +1,8 @@
 package br.com.fenix.bilingualreader.view.ui.detail.book
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Rect
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.net.Uri
 import android.os.Bundle
@@ -14,28 +16,42 @@ import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.text.HtmlCompat
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.model.interfaces.History
+import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
+import br.com.fenix.bilingualreader.service.controller.ImageController
 import br.com.fenix.bilingualreader.service.listener.InformationCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ColorUtil
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
+import br.com.fenix.bilingualreader.util.helpers.ListUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.view.adapter.detail.TagsCardAdapter
+import br.com.fenix.bilingualreader.view.adapter.detail.manga.InformationRelatedCardAdapter
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
-import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
+import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
+import br.com.fenix.bilingualreader.view.ui.popup.PopupTags
+import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
+import org.lucasr.twowayview.TwoWayView
 import org.slf4j.LoggerFactory
 
 
@@ -60,6 +76,8 @@ class BookDetailFragment : Fragment() {
     private lateinit var mButtonsContent: LinearLayout
     private lateinit var mFavoriteButton: MaterialButton
     private lateinit var mMakReadButton: MaterialButton
+    private lateinit var mBookMakButton: MaterialButton
+    private lateinit var mAddTagButton: MaterialButton
     private lateinit var mClearHistoryButton: MaterialButton
     private lateinit var mDeleteButton: MaterialButton
     private lateinit var mVocabularyButton: MaterialButton
@@ -70,18 +88,39 @@ class BookDetailFragment : Fragment() {
     private lateinit var mInformationContent: LinearLayout
     private lateinit var mInformationImage: ImageView
     private lateinit var mInformationSynopsis: TextView
+    private lateinit var mInformationTitle: TextView
+    private lateinit var mInformationAuthor: TextView
     private lateinit var mInformationAnnotation: TextView
     private lateinit var mInformationPublish: TextView
-    private lateinit var mInformationYear: TextView
+    private lateinit var mInformationRelease: TextView
+    private lateinit var mInformationLanguage: TextView
+    private lateinit var mInformationVolume: TextView
     private lateinit var mInformationIsbn: TextView
     private lateinit var mInformationGenres: TextView
     private lateinit var mInformationFile: TextView
+    private lateinit var mInformationTags: TwoWayView
     private lateinit var mTagsList: ListView
+
+    private lateinit var mWebInformationContent: LinearLayout
+    private lateinit var mWebInformationImage: ImageView
+    private lateinit var mWebInformationSynopsis: TextView
+    private lateinit var mWebInformationAlternativeTitles: TextView
+    private lateinit var mWebInformationStatus: TextView
+    private lateinit var mWebInformationPublish: TextView
+    private lateinit var mWebInformationVolumes: TextView
+    private lateinit var mWebInformationAuthors: TextView
+    private lateinit var mWebInformationGenres: TextView
+    private lateinit var mWebInformationOrigin: TextView
+    private lateinit var mWebInfoRelatedContent: LinearLayout
+    private lateinit var mWebInfoRelatedRelatedList: RecyclerView
+    private lateinit var mWebInfoRelatedOrigin: TextView
+    private lateinit var mWebInfoListener: InformationCardListener
 
     private lateinit var mBookLanguage: TextInputLayout
     private lateinit var mBookLanguageAutoComplete: MaterialAutoCompleteTextView
 
     private lateinit var mListener: InformationCardListener
+    private lateinit var mPopupTag: PopupTags
 
     private var mSubtitles: MutableList<String> = mutableListOf()
     private var mChapters: MutableList<String> = mutableListOf()
@@ -96,7 +135,7 @@ class BookDetailFragment : Fragment() {
         mBackgroundImage = root.findViewById(R.id.book_detail_background_image)
         mImage = root.findViewById(R.id.book_detail_book_image)
 
-        mBookLanguage = root.findViewById(R.id.book_detail_information_language)
+        mBookLanguage = root.findViewById(R.id.book_detail_information_book_language)
         mBookLanguageAutoComplete = root.findViewById(R.id.book_detail_information_menu_autocomplete_language)
 
         mTitle = root.findViewById(R.id.book_detail_title)
@@ -113,6 +152,8 @@ class BookDetailFragment : Fragment() {
         mFavoriteButton = root.findViewById(R.id.book_detail_button_favorite)
         mClearHistoryButton = root.findViewById(R.id.book_detail_button_clear_history)
         mMakReadButton = root.findViewById(R.id.book_detail_button_mark_read)
+        mBookMakButton = root.findViewById(R.id.book_detail_button_book_mark)
+        mAddTagButton = root.findViewById(R.id.book_detail_button_add_tag)
         mDeleteButton = root.findViewById(R.id.book_detail_button_delete)
         mVocabularyButton = root.findViewById(R.id.book_detail_button_vocabulary)
 
@@ -123,13 +164,32 @@ class BookDetailFragment : Fragment() {
         mInformationContent = root.findViewById(R.id.book_detail_information)
         mInformationImage = root.findViewById(R.id.book_detail_information_image)
         mInformationSynopsis = root.findViewById(R.id.book_detail_information_synopsis)
+        mInformationTitle = root.findViewById(R.id.book_detail_information_title)
+        mInformationAuthor = root.findViewById(R.id.book_detail_information_author)
         mInformationAnnotation = root.findViewById(R.id.book_detail_information_annotation)
         mInformationPublish = root.findViewById(R.id.book_detail_information_publish)
-        mInformationYear = root.findViewById(R.id.book_detail_information_year)
+        mInformationLanguage = root.findViewById(R.id.book_detail_information_language)
+        mInformationRelease = root.findViewById(R.id.book_detail_information_release)
+        mInformationVolume = root.findViewById(R.id.book_detail_information_volume)
         mInformationIsbn = root.findViewById(R.id.book_detail_information_isbn)
         mInformationGenres = root.findViewById(R.id.book_detail_information_genres)
         mInformationFile = root.findViewById(R.id.book_detail_information_file)
+        mInformationTags = root.findViewById(R.id.book_detail_information_tags)
         mTagsList = root.findViewById(R.id.book_detail_information_tags_list)
+
+        mWebInformationContent = root.findViewById(R.id.book_detail_web_information)
+        mWebInformationImage = root.findViewById(R.id.book_detail_web_information_image)
+        mWebInformationSynopsis = root.findViewById(R.id.book_detail_web_information_synopsis)
+        mWebInformationAlternativeTitles = root.findViewById(R.id.book_detail_web_information_alternative_titles)
+        mWebInformationStatus = root.findViewById(R.id.book_detail_web_information_status)
+        mWebInformationPublish = root.findViewById(R.id.book_detail_web_information_publish)
+        mWebInformationVolumes = root.findViewById(R.id.book_detail_web_information_volumes_chapters)
+        mWebInformationAuthors = root.findViewById(R.id.book_detail_web_information_author)
+        mWebInformationGenres = root.findViewById(R.id.book_detail_web_information_genres)
+        mWebInformationOrigin = root.findViewById(R.id.book_detail_web_information_origin)
+        mWebInfoRelatedContent = root.findViewById(R.id.book_detail_web_information_relations)
+        mWebInfoRelatedRelatedList = root.findViewById(R.id.book_detail_relations_lists)
+        mWebInfoRelatedOrigin = root.findViewById(R.id.book_detail_relations_origin)
 
         val languages = resources.getStringArray(R.array.languages)
         mMapLanguage = hashMapOf(
@@ -139,14 +199,11 @@ class BookDetailFragment : Fragment() {
         )
 
         mBookLanguageAutoComplete.setAdapter(ArrayAdapter(requireContext(), R.layout.list_item, mMapLanguage.keys.toTypedArray()))
-        mBookLanguageAutoComplete.onItemClickListener =
-            AdapterView.OnItemClickListener { parent, _, position, _ ->
-                val lang = if (parent.getItemAtPosition(position).toString().isNotEmpty() &&
-                        mMapLanguage.containsKey(parent.getItemAtPosition(position).toString())
-                    )
+        mBookLanguageAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
+                val lang = if (parent.getItemAtPosition(position).toString().isNotEmpty() && mMapLanguage.containsKey(parent.getItemAtPosition(position).toString()))
                         mMapLanguage[parent.getItemAtPosition(position).toString()]!!
                     else
-                    mViewModel.book.value?.language ?: Languages.JAPANESE
+                        mViewModel.book.value?.language ?: Languages.JAPANESE
 
                 mViewModel.changeLanguage(lang)
             }
@@ -155,6 +212,18 @@ class BookDetailFragment : Fragment() {
         mMakReadButton.setOnClickListener {
             (mMakReadButton.icon as AnimatedVectorDrawable).start()
             markRead()
+        }
+        mAddTagButton.setOnClickListener {
+            (mAddTagButton.icon as AnimatedVectorDrawable).start()
+            mViewModel.book.value?.run {
+                mPopupTag.getPopupTags(this) {
+                    mViewModel.loadTags()
+                }
+            }
+        }
+        mBookMakButton.setOnClickListener {
+            (mBookMakButton.icon as AnimatedVectorDrawable).start()
+            openBookMark()
         }
         mDeleteButton.setOnClickListener {
             (mDeleteButton.icon as AnimatedVectorDrawable).start()
@@ -169,10 +238,23 @@ class BookDetailFragment : Fragment() {
             openVocabulary()
         }
 
-        mFileLinksList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mFileLinks)
-        mChaptersList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mChapters)
-        mTagsList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mTags)
+        mFileLinksList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_detail, mFileLinks)
+        mChaptersList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_detail, mChapters)
+        mTagsList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_detail, mTags)
+        mInformationTags.adapter = TagsCardAdapter(requireContext(), mutableListOf())
 
+        mWebInfoRelatedRelatedList.adapter = InformationRelatedCardAdapter()
+        mWebInfoRelatedRelatedList.layoutManager = LinearLayoutManager(requireContext())
+
+        mPopupTag = PopupTags(requireContext())
+
+        mImage.setOnClickListener {
+            val reload = openImage(mViewModel.cover.value)
+            BookImageCoverController.instance.setImageCoverAsync(requireContext(), mViewModel.book.value!!, false) {
+                if (it != null)
+                    reload(it)
+            }
+        }
         mTitle.setOnLongClickListener {
             mViewModel.book.value?.let { bk -> FileUtil(requireContext()).copyName(bk) }
             true
@@ -181,16 +263,16 @@ class BookDetailFragment : Fragment() {
         mChaptersList.setOnItemClickListener { _, _, index, _ ->
             mViewModel.book.value?.let {
                 if (index >= 0 && mChapters.size > index) {
-                    val folder = mChapters[index]
-                    val page = mViewModel.getPage(folder)
+                    val chapter = mChapters[index]
+                    val page = mViewModel.getPage(chapter)
                     it.bookMark = page
                     mViewModel.save(it)
-                    val intent = Intent(context, MangaReaderActivity::class.java)
+                    val intent = Intent(context, BookReaderActivity::class.java)
                     val bundle = Bundle()
                     bundle.putSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY, mViewModel.library)
-                    bundle.putString(GeneralConsts.KEYS.MANGA.NAME, it.title)
-                    bundle.putInt(GeneralConsts.KEYS.MANGA.MARK, it.bookMark)
-                    bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, it)
+                    bundle.putString(GeneralConsts.KEYS.BOOK.NAME, it.title)
+                    bundle.putInt(GeneralConsts.KEYS.BOOK.MARK, it.bookMark)
+                    bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, it)
                     intent.putExtras(bundle)
                     context?.startActivity(intent)
                 }
@@ -209,6 +291,22 @@ class BookDetailFragment : Fragment() {
             }
         }
 
+        mWebInformationContent.setOnLongClickListener {
+            if (mViewModel.webInformation.value != null)
+                openUrl(mViewModel.webInformation.value!!.link)
+            true
+        }
+
+        mWebInfoListener = object : InformationCardListener {
+            override fun onClickLong(url: String) {
+                openUrl(url)
+            }
+        }
+
+        (mWebInfoRelatedRelatedList.adapter as InformationRelatedCardAdapter).attachListener(
+            mWebInfoListener
+        )
+
         observer()
 
         arguments?.let {
@@ -226,12 +324,11 @@ class BookDetailFragment : Fragment() {
 
     private fun observer() {
         mViewModel.cover.observe(viewLifecycleOwner) {
-            mBackgroundImage.setImageBitmap(it)
-            mImage.setImageBitmap(it)
-
             val isDark = resources.getBoolean(R.bool.isNight)
             ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, false, isDark)
             if (it != null) {
+                mBackgroundImage.setImageBitmap(it)
+                mImage.setImageBitmap(it)
                 ColorUtil.isDarkColor(it) { l ->
                     ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, l, isDark)
                 }
@@ -241,7 +338,7 @@ class BookDetailFragment : Fragment() {
         mViewModel.book.observe(viewLifecycleOwner) {
             if (it != null) {
                 mBookLanguageAutoComplete.setText(
-                    mMapLanguage.filterValues { lan -> lan == it.language }.keys.first(),
+                    mMapLanguage.entries.first { lan -> lan.value == it.language }.key,
                     false
                 )
 
@@ -267,7 +364,7 @@ class BookDetailFragment : Fragment() {
                 mFavoriteButton.tag = it.favorite
 
                 if (it.excluded) {
-                    mDeleted.text = getString(R.string.book_detail_manga_deleted)
+                    mDeleted.text = getString(R.string.book_detail_book_deleted)
                     mDeleted.visibility = View.VISIBLE
                 } else {
                     mDeleted.text = ""
@@ -321,32 +418,92 @@ class BookDetailFragment : Fragment() {
                 mInformationImage.visibility = View.GONE
                 mInformationImage.setImageBitmap(null)
 
-                mInformationAnnotation.text = requireContext().getString(R.string.book_detail_information_annotation, it.annotation)
-                mInformationPublish.text = requireContext().getString(R.string.book_detail_information_publisher, it.publisher)
-                mInformationYear.text = requireContext().getString(R.string.book_detail_information_year, it.year)
-                mInformationIsbn.text = requireContext().getString(R.string.book_detail_information_isbn, it.isbn)
-                mInformationGenres.text = requireContext().getString(R.string.book_detail_information_genres, it.genres)
-                mInformationFile.text = requireContext().getString(R.string.book_detail_information_file, it.file)
+                mInformationAnnotation.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_annotation, it.annotation), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationPublish.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_publisher, it.publisher), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationAuthor.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_author, it.authors), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationTitle.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_title, it.title), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationRelease.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_release, it.release), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationVolume.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_volume, it.volumes), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationLanguage.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_language, it.language), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationIsbn.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_isbn, it.isbn), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationGenres.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_genres, it.genres), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationFile.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_file, it.file), HtmlCompat.FROM_HTML_MODE_COMPACT)
+
+                val genres = ListUtil.listFromString(it.genres)
+                if (genres.isNotEmpty())
+                    (mInformationTags.adapter as TagsCardAdapter).updateList(genres.toMutableList())
+                else
+                    (mInformationTags.adapter as TagsCardAdapter).clearList()
+
             } else {
                 mInformationContent.visibility = View.GONE
                 mInformationImage.visibility = View.GONE
 
                 mInformationSynopsis.text = ""
-                mInformationAnnotation.text = ""
-                mInformationPublish.text = ""
-                mInformationYear.text = ""
-                mInformationIsbn.text = ""
-                mInformationGenres.text = ""
-                mInformationFile.text = ""
+                mInformationAnnotation.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_annotation, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationPublish.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_publisher, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationAuthor.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_author, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationTitle.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_title, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationRelease.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_release, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationLanguage.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_language, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationVolume.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_volume, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationIsbn.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_isbn, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationGenres.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_genres, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mInformationFile.text = HtmlCompat.fromHtml(requireContext().getString(R.string.book_detail_information_file, ""), HtmlCompat.FROM_HTML_MODE_COMPACT)
+
+                (mInformationTags.adapter as TagsCardAdapter).clearList()
             }
         }
+
+        mViewModel.webInformation.observe(viewLifecycleOwner) {
+            if (it != null) {
+                mWebInformationContent.visibility = View.VISIBLE
+                mWebInformationSynopsis.text = it.synopsis.replace("\\n", "\n")
+
+                mWebInformationImage.visibility = View.GONE
+                mWebInformationImage.setImageBitmap(null)
+
+                if (it.imageLink != null)
+                    ImageController.instance.setImageAsync(requireContext(), it.imageLink!!, mWebInformationImage)
+
+                mWebInformationAlternativeTitles.text = HtmlCompat.fromHtml(it.alternativeTitles, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mWebInformationStatus.text = HtmlCompat.fromHtml(it.status, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mWebInformationPublish.text = HtmlCompat.fromHtml(it.release, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mWebInformationVolumes.text = HtmlCompat.fromHtml(it.volumes + ", " + it.chapters, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mWebInformationAuthors.text = HtmlCompat.fromHtml(it.authors, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mWebInformationGenres.text = HtmlCompat.fromHtml(it.genres, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                mWebInformationOrigin.text = it.origin
+            } else {
+                mWebInformationContent.visibility = View.GONE
+                mWebInformationImage.visibility = View.GONE
+
+                mWebInformationSynopsis.text = ""
+                mWebInformationAlternativeTitles.text = ""
+                mWebInformationStatus.text = ""
+                mWebInformationPublish.text = ""
+                mWebInformationVolumes.text = ""
+                mWebInformationAuthors.text = ""
+                mWebInformationGenres.text = ""
+                mWebInformationOrigin.text = ""
+            }
+        }
+
+        mViewModel.webInformationRelations.observe(viewLifecycleOwner) {
+            mWebInfoRelatedContent.visibility = if (it != null && it.isNotEmpty()) View.VISIBLE else View.GONE
+            updateRelatedList(it)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mViewModel.getInformation()
     }
 
     private fun deleteFile() {
         val book = mViewModel.book.value ?: return
         MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
-            .setTitle(getString(R.string.manga_library_menu_delete))
-            .setMessage(getString(R.string.manga_library_menu_delete_description) + "\n" + book.file.name)
+            .setTitle(getString(R.string.book_library_menu_delete))
+            .setMessage(getString(R.string.book_library_menu_delete_description) + "\n" + book.file.name)
             .setPositiveButton(
                 R.string.action_positive
             ) { _, _ ->
@@ -371,10 +528,25 @@ class BookDetailFragment : Fragment() {
         mViewModel.markRead()
     }
 
+    private fun openBookMark() {
+        val book = mViewModel.book.value ?: return
+        val onUpdate: (History) -> (Unit) = { mViewModel.save(book) }
+        PopupBookMark(requireActivity(), requireActivity().supportFragmentManager)
+            .getPopupBookMark(book, onUpdate) { change, book ->
+                if (change)
+                    onUpdate(book)
+            }
+    }
+
     private fun favorite() {
         val book = mViewModel.book.value ?: return
         book.favorite = !book.favorite
         mViewModel.save(book)
+    }
+
+    private fun updateRelatedList(list: MutableList<Information>?) {
+        (mWebInfoRelatedRelatedList.adapter as InformationRelatedCardAdapter).updateList(list)
+        mWebInfoRelatedOrigin.text = if (list.isNullOrEmpty()) "" else list[0].origin
     }
 
     private fun openUrl(url: String) {
@@ -400,6 +572,35 @@ class BookDetailFragment : Fragment() {
                 R.anim.fade_out_fragment_remove_exit
             )
             startActivity(intent)
+        }
+    }
+
+    private fun openImage(image: Bitmap?) : (Bitmap) -> (Unit) {
+        val layout = LayoutInflater.from(requireContext()).inflate(R.layout.popup_detail_image, null, false)
+        val imageView = layout.findViewById<ImageView>(R.id.popup_detail_image)
+        imageView.setImageBitmap(image)
+
+        val popup = MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+            .setView(layout)
+            .create()
+
+        ImageUtil.setZoomPinch(requireContext(), imageView) { popup.dismiss() }
+        layout.findViewById<LinearLayout>(R.id.popup_detail_image_background).setOnClickListener { popup.dismiss() }
+
+        popup.window?.run {
+            val display = Rect()
+            requireActivity().window.decorView.getWindowVisibleDisplayFrame(display)
+            setLayout((display.width() * 0.93).toInt(), attributes.height)
+        }
+
+        popup.show()
+        return {
+            try {
+                if (popup.isShowing)
+                    imageView.setImageBitmap(it)
+            } catch (e : Exception) {
+
+            }
         }
     }
 }

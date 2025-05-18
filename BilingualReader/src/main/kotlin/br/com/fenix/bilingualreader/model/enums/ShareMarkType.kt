@@ -4,6 +4,7 @@ import android.content.Intent
 
 enum class ShareMarkType {
     SUCCESS,
+    SYNC_IN_PROGRESS,
     NOTIFY_DATA_SET,
     NOT_ALTERATION,
 
@@ -20,12 +21,12 @@ enum class ShareMarkType {
     var intent: Intent? = null
 
     companion object {
-        var send: Boolean = false
-        var receive: Boolean = false
+        var send: Int = 0
+        var receive: Int = 0
 
         fun clear() {
-            send = false
-            receive = false
+            send = 0
+            receive = 0
         }
     }
 }

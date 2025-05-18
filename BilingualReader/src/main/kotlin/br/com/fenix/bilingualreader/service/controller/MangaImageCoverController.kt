@@ -14,6 +14,8 @@ import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -52,7 +54,8 @@ class MangaImageCoverController private constructor() {
         try {
             synchronized(instance.lru) {
                 if (instance.lru.get(key) == null)
-                    instance.lru.put(key, bitmap)
+                    instance.lru.remove(key)
+                instance.lru.put(key, bitmap)
             }
         } catch (e: Exception) {
             mLOGGER.warn("Error save image on LruCache: " + e.message, e)
@@ -71,7 +74,7 @@ class MangaImageCoverController private constructor() {
     private fun saveBitmapToCache(context: Context, key: String, bitmap: Bitmap) {
         try {
             saveBitmapToLru(key, bitmap)
-            val cacheDir = File(GeneralConsts.getCacheDir(context), GeneralConsts.CACHE_FOLDER.MANGA_COVERS)
+            val cacheDir = File(GeneralConsts.getCoverDir(context), GeneralConsts.CACHE_FOLDER.MANGA_COVERS)
             if (!cacheDir.exists())
                 cacheDir.mkdir()
 
@@ -80,6 +83,10 @@ class MangaImageCoverController private constructor() {
             image.writeBytes(byte)
         } catch (e: Exception) {
             mLOGGER.error("Error save bitmap to cache: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error save bitmap to cache: " + e.message)
+                recordException(e)
+            }
         }
     }
 
@@ -88,15 +95,19 @@ class MangaImageCoverController private constructor() {
             var image = retrieveBitmapFromLru(key)
             if (image != null) return image
 
-            val file = File(GeneralConsts.getCacheDir(context), GeneralConsts.CACHE_FOLDER.MANGA_COVERS + '/' + key)
+            val file = File(GeneralConsts.getCoverDir(context), GeneralConsts.CACHE_FOLDER.MANGA_COVERS + '/' + key)
 
             if (file.exists()) {
-                image = BitmapFactory.decodeFile(file.absolutePath)
+                image = BitmapFactory.decodeFile(file.absolutePath) ?: return null
                 saveBitmapToLru(key, image)
                 return image
             }
         } catch (e: Exception) {
             mLOGGER.error("Error retrieve bitmap from cache: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error retrieve bitmap from cache: " + e.message)
+                recordException(e)
+            }
         }
         return null
     }
@@ -178,31 +189,32 @@ class MangaImageCoverController private constructor() {
         return image
     }
 
-    fun setImageCoverAsync(
-        context: Context,
-        manga: Manga,
-        isCoverSize: Boolean = true,
-        function: (Bitmap?) -> (Unit)
-    ) {
+    fun setImageCoverAsync(context: Context, manga: Manga, isCoverSize: Boolean = true, function: (Bitmap?) -> (Unit)) {
         CoroutineScope(thread).launch {
             try {
-                var image: Bitmap? = null
-                val deferred = async {
-                    image = getMangaCover(context, manga, isCoverSize)
-                }
-                deferred.await()
-                withContext(Dispatchers.Main) {
-                    function(image)
+                async {
+                    val image: Bitmap? = getMangaCover(context, manga, isCoverSize)
+                    withContext(Dispatchers.Main) {
+                        function(image)
+                    }
                 }
             } catch (m: OutOfMemoryError) {
                 System.gc()
                 mLOGGER.error("Memory full, cleaning", m)
             } catch (m: IOException) {
                 mLOGGER.error("Error to load image async: " + manga.name, m)
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error to load image async: " + m.message)
+                    recordException(m)
+                }
             } catch (e: FileNotFoundException) {
                 mLOGGER.error("File not found. Error to load image async: " + manga.name, e)
             } catch (e: Exception) {
                 mLOGGER.error("Error to load image async: " + manga.name, e)
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error to load image async: " + e.message)
+                    recordException(e)
+                }
             }
         }
     }

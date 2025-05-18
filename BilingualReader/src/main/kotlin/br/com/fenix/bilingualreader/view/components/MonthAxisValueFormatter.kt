@@ -12,7 +12,7 @@ class MonthAxisValueFormatter(context: Context) : ValueFormatter() {
 
     private fun getDescription(value: Float): String {
         val month = (value - 1).toInt()
-        return if (month > 0 && month < mMonths.size) mMonths[month] else ""
+        return if (month > -1 && month < mMonths.size) mMonths[month] else ""
     }
 
     override fun getAxisLabel(value: Float, axis: AxisBase): String {

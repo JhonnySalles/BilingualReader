@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/ic_tts_close" android:state_pressed="true"/>
-    <item android:drawable="@drawable/ic_tts_close" android:state_focused="true"/>
-    <item android:drawable="@drawable/ic_tts_close"/>
+    <item android:drawable="@drawable/ico_tts_close" android:state_pressed="true"/>
+    <item android:drawable="@drawable/ico_tts_close" android:state_focused="true"/>
+    <item android:drawable="@drawable/ico_tts_close"/>
 </selector>

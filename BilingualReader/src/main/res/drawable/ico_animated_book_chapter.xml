@@ -4,8 +4,8 @@
     <aapt:attr name="android:drawable">
         <vector
             android:name="vector"
-            android:width="24dp"
-            android:height="24dp"
+            android:width="30dp"
+            android:height="30dp"
             android:viewportWidth="24"
             android:viewportHeight="24">
             <group android:name="base">
@@ -17,7 +17,7 @@
                         <path
                             android:name="line1_aux"
                             android:pathData="M 8 5 C 7.448 5 7 5.448 7 6 C 7 6.552 7.448 7 8 7 L 21 7 C 21.552 7 22 6.552 22 6 C 22 5.448 21.552 5 21 5 L 8 5 Z"
-                            android:fillColor="?attr/colorSecondary"
+                            android:fillColor="?attr/colorPrimary"
                             android:fillAlpha="0"/>
                     </group>
                     <group
@@ -27,7 +27,7 @@
                         <path
                             android:name="point1"
                             android:pathData="M 3.5 7.5 C 4.328 7.5 5 6.828 5 6 C 5 5.172 4.328 4.5 3.5 4.5 C 2.672 4.5 2 5.172 2 6 C 2 6.828 2.672 7.5 3.5 7.5 Z"
-                            android:fillColor="?attr/colorSecondary"/>
+                            android:fillColor="?attr/colorPrimary"/>
                     </group>
                     <group
                         android:name="line1_base"
@@ -35,7 +35,7 @@
                         <path
                             android:name="line1"
                             android:pathData="M 8 5 C 7.448 5 7 5.448 7 6 C 7 6.552 7.448 7 8 7 L 21 7 C 21.552 7 22 6.552 22 6 C 22 5.448 21.552 5 21 5 L 8 5 Z"
-                            android:fillColor="?attr/colorSecondary"/>
+                            android:fillColor="?attr/colorPrimary"/>
                     </group>
                 </group>
                 <group android:name="base2">
@@ -45,7 +45,7 @@
                         <path
                             android:name="line2_aux"
                             android:pathData="M 8 11 C 7.448 11 7 11.448 7 12 C 7 12.552 7.448 13 8 13 L 21 13 C 21.552 13 22 12.552 22 12 C 22 11.448 21.552 11 21 11 L 8 11 Z"
-                            android:fillColor="?attr/colorSecondary"
+                            android:fillColor="?attr/colorPrimary"
                             android:fillAlpha="0"/>
                     </group>
                     <group
@@ -55,7 +55,7 @@
                         <path
                             android:name="point2"
                             android:pathData="M 5 12 C 5 12.828 4.328 13.5 3.5 13.5 C 2.672 13.5 2 12.828 2 12 C 2 11.172 2.672 10.5 3.5 10.5 C 4.328 10.5 5 11.172 5 12 Z"
-                            android:fillColor="?attr/colorSecondary"/>
+                            android:fillColor="?attr/colorPrimary"/>
                     </group>
                     <group
                         android:name="line2_base"
@@ -63,7 +63,7 @@
                         <path
                             android:name="line2"
                             android:pathData="M 8 11 C 7.448 11 7 11.448 7 12 C 7 12.552 7.448 13 8 13 L 21 13 C 21.552 13 22 12.552 22 12 C 22 11.448 21.552 11 21 11 L 8 11 Z"
-                            android:fillColor="?attr/colorSecondary"/>
+                            android:fillColor="?attr/colorPrimary"/>
                     </group>
                 </group>
                 <group android:name="base3">
@@ -73,7 +73,7 @@
                         <path
                             android:name="line3_aux"
                             android:pathData="M 10.519 18 C 10.519 17.448 11.023 17 11.433 17 L 21.078 17 C 21.488 17 21.935 17.448 21.935 18 C 21.935 18.552 21.488 19 21.078 19 L 11.433 19 C 11.023 19 10.519 18.552 10.519 18 Z"
-                            android:fillColor="?attr/colorSecondary"
+                            android:fillColor="?attr/colorPrimary"
                             android:fillAlpha="0"/>
                     </group>
                     <group
@@ -83,7 +83,7 @@
                         <path
                             android:name="point3"
                             android:pathData="M 7.94 19.5 C 8.768 19.5 9.44 18.828 9.44 18 C 9.44 17.172 8.768 16.5 7.94 16.5 C 7.112 16.5 6.44 17.172 6.44 18 C 6.44 18.828 7.112 19.5 7.94 19.5 Z"
-                            android:fillColor="?attr/colorSecondary"/>
+                            android:fillColor="?attr/colorPrimary"/>
                     </group>
                     <group
                         android:name="line3_base"
@@ -91,7 +91,7 @@
                         <path
                             android:name="line3"
                             android:pathData="M 10.519 18 C 10.519 17.448 11.023 17 11.433 17 L 21.078 17 C 21.488 17 21.935 17.448 21.935 18 C 21.935 18.552 21.488 19 21.078 19 L 11.433 19 C 11.023 19 10.519 18.552 10.519 18 Z"
-                            android:fillColor="?attr/colorSecondary"
+                            android:fillColor="?attr/colorPrimary"
                             android:strokeWidth="0.861357"/>
                     </group>
                 </group>

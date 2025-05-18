@@ -4,41 +4,42 @@
     style="@style/AppBackground.Accent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.ui.book.BookAnnotationPopupFilterType">
+    tools:context=".view.ui.annotation.AnnotationPopupFilterType">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="@dimen/margin"
+        android:layout_margin="@dimen/margin_small"
+        android:paddingTop="@dimen/margin_small"
         android:paddingBottom="@dimen/margin_bottom">
         <CheckBox
             android:id="@+id/popup_annotation_filter_type_favorite"
             style="@style/CheckBox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/book_annotation_popup_filter_favorite"/>
+            android:text="@string/annotation_popup_filter_favorite"/>
 
         <CheckBox
             android:id="@+id/popup_annotation_filter_type_detach"
             style="@style/CheckBox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/book_annotation_popup_filter_detach"/>
+            android:text="@string/annotation_popup_filter_detach"/>
 
         <CheckBox
             android:id="@+id/popup_annotation_filter_type_page_marker"
             style="@style/CheckBox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/book_annotation_popup_filter_page_marker"/>
+            android:text="@string/annotation_popup_filter_page_marker"/>
 
         <CheckBox
             android:id="@+id/popup_annotation_filter_type_book_marker"
             style="@style/CheckBox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/book_annotation_popup_filter_book_marker"/>
+            android:text="@string/annotation_popup_filter_book_marker"/>
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>

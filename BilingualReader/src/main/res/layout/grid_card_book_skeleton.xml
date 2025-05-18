@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/book_grid_skeleton_height_big"
+    android:layout_marginBottom="@dimen/history_skeleton_item_margin"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/grid_skeleton_items"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <include layout="@layout/grid_card_book_skeleton_item"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/book_grid_skeleton_item_margin"/>
+</LinearLayout>

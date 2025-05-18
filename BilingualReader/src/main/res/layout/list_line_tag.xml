@@ -20,10 +20,10 @@
         style="@style/Button.IconOnly"
         android:layout_width="18dp"
         android:layout_height="18dp"
-        android:textColor="?attr/colorPrimary"
+        android:textColor="?attr/colorOnBackground"
         android:contentDescription="@string/book_tags_delete"
         android:layout_marginStart="5dp"
         app:iconSize="20dp"
-        app:iconTint="?attr/colorPrimary"
+        app:iconTint="?attr/colorOnBackground"
         app:icon="@drawable/ico_animated_delete_tags"/>
 </LinearLayout>

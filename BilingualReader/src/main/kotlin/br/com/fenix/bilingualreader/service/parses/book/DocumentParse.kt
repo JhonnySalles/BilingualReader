@@ -14,9 +14,10 @@ import br.com.ebook.foobnix.pdf.info.TintUtil
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState
 import br.com.ebook.foobnix.sys.ImageExtractor
 import br.com.ebook.foobnix.sys.TempHolder
-import br.com.fenix.bilingualreader.model.exceptions.BookLoadException
 import br.com.fenix.bilingualreader.service.listener.BookParseListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import org.ebookdroid.common.cache.CacheManager
 import org.ebookdroid.core.codec.CodecDocument
 import org.ebookdroid.core.codec.CodecPage
@@ -28,12 +29,12 @@ import java.lang.Thread.sleep
 import java.util.Date
 
 
-class DocumentParse(var path: String, var password: String = "", var fontSize: Int, var isLandscape: Boolean, var listener: BookParseListener? = null) : CodecDocument {
+class DocumentParse(var path: String, var password: String = "", var fontSize: Int, var isLandscape: Boolean, var isVertical: Boolean, var listener: BookParseListener? = null) : CodecDocument {
 
     private val mLOGGER = LoggerFactory.getLogger(DocumentParse::class.java)
 
-    private var mWidth: Int = Resources.getSystem().displayMetrics.widthPixels - Dips.dpToPx(5)
-    private var mHeight: Int = Resources.getSystem().displayMetrics.heightPixels - Dips.dpToPx(5)
+    private var mWidth: Int = (if (isVertical) Resources.getSystem().displayMetrics.heightPixels else Resources.getSystem().displayMetrics.widthPixels) - Dips.dpToPx(5)
+    private var mHeight: Int = (if (isVertical) Resources.getSystem().displayMetrics.widthPixels else Resources.getSystem().displayMetrics.heightPixels) - Dips.dpToPx(5)
 
     init {
         System.loadLibrary("mypdf")
@@ -87,13 +88,20 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
                 if (diff < 2000)
                     sleep(2000 - diff)
             } catch (e: Exception) {
-                mLOGGER.error(e.message, e)
-                throw BookLoadException("Could not open selected book: $path")
+                mLOGGER.error("Could not open document file: $path -- " + e.message, e)
+                mMainHandler.post {
+                    listener?.onLoading(true, false)
+                    onEnding(false)
+                }
             } finally {
                 isLoading = false
-                mMainHandler.post {
-                    listener?.onLoading(true, isLoaded)
-                    onEnding(isLoaded)
+                try {
+                    mMainHandler.post {
+                        listener?.onLoading(true, isLoaded)
+                        onEnding(isLoaded)
+                    }
+                } catch (e: Exception) {
+                    mLOGGER.error(e.message, e)
                 }
             }
         }.start()
@@ -102,8 +110,16 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
     fun clear() {
         isLoaded = false
         if (mCodecDocument != null) {
-            mCodecDocument!!.recycle()
-            mCodecDocument = null
+            try {
+                mCodecDocument!!.recycle()
+                mCodecDocument = null
+            } catch (e : Exception) {
+                mLOGGER.error("Error to close document file: " + e.message, e)
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error to close document file: " + e.message)
+                    recordException(e)
+                }
+            }
         }
     }
 
@@ -117,6 +133,11 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
         if (isLoading)
             listener?.onLoading(true)
         TempHolder.get().loadingCancelled
+    }
+
+    fun destroy() {
+        listener = null
+        mCodecDocument?.recycle()
     }
 
     fun getChapter(page: Int): Pair<Int, String>? {
@@ -133,17 +154,16 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
         return chapter
     }
 
-    fun getChapters(): List<Pair<Int, String>> {
-        val chapter: MutableList<Pair<Int, String>> = mutableListOf()
+    fun getChapters(): Map<String, Int> {
+        val chapter: MutableMap<String, Int> = mutableMapOf()
         if (mCodecDocument != null && mCodecDocument?.outline != null && mCodecDocument?.outline!!.isNotEmpty())
             for (link in mCodecDocument!!.outline!!) {
                 val number = link.link.replace(Regex("[^\\d+]"), "")
-                if (number.isNotEmpty()) {
-                    chapter.add(Pair(number.toInt(), link.title))
-                }
+                if (number.isNotEmpty())
+                    chapter[link.title] = number.toInt()
             }
 
-        return chapter.toList()
+        return chapter
     }
 
     override fun getDocumentHandle(): Long {

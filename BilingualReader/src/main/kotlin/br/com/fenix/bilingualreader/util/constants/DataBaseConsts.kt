@@ -10,7 +10,9 @@ class DataBaseConsts private constructor() {
             const val TITLE = "title"
             const val PAGES = "pages"
             const val CHAPTERS = "chapters"
+            const val CHAPTERS_PAGES = "chapters_pages"
             const val BOOK_MARK = "book_mark"
+            const val COMPLETED = "completed"
             const val FILE_PATH = "path"
             const val FILE_NAME = "name"
             const val FILE_TYPE = "type"
@@ -19,6 +21,7 @@ class DataBaseConsts private constructor() {
             const val FAVORITE = "favorite"
             const val HAS_SUBTITLE = "has_subtitle"
             const val AUTHOR = "author"
+            const val GENRE = "genre"
             const val SERIES = "series"
             const val PUBLISHER = "publisher"
             const val RELEASE = "release"
@@ -36,16 +39,20 @@ class DataBaseConsts private constructor() {
         }
     }
 
-    object COVER {
-        const val TABLE_NAME = "Covers"
+    object MANGA_ANNOTATION {
+        const val TABLE_NAME = "MangaMark"
 
         object COLUMNS {
             const val ID = "id"
             const val FK_ID_MANGA = "id_manga"
-            const val NAME = "name"
-            const val SIZE = "size"
+            const val CHAPTER = "chapter"
+            const val FOLDER = "folder"
+            const val PAGE = "page"
+            const val PAGES = "pages"
             const val TYPE = "type"
-            const val IMAGE = "image"
+            const val ANNOTATION = "annotation"
+            const val ALTERATION = "alteration"
+            const val CREATED = "created"
         }
     }
 
@@ -156,14 +163,17 @@ class DataBaseConsts private constructor() {
 
             const val PASSWORD = "password"
             const val ANNOTATION = "annotation"
-            const val YEAR = "year"
+            const val RELEASE = "release"
             const val GENRE = "genre"
             const val PUBLISHER = "publisher"
+            const val SERIES = "series"
             const val ISBN = "isbn"
             const val PAGES = "pages"
+            const val VOLUME = "volume"
             const val CHAPTER = "chapter"
             const val CHAPTER_DESCRIPTION = "chapter_description"
             const val BOOK_MARK = "book_mark"
+            const val COMPLETED = "completed"
             const val LANGUAGE = "language"
 
             const val FILE_PATH = "path"
@@ -207,7 +217,6 @@ class DataBaseConsts private constructor() {
             const val RANGE = "range"
             const val ALTERATION = "alteration"
             const val CREATED = "created"
-            const val COUNT = "count"
         }
     }
 
@@ -232,6 +241,7 @@ class DataBaseConsts private constructor() {
             const val MARGIN = "margin"
             const val SPACING = "spacing"
             const val SCROLLING = "scrolling"
+            const val PAGINATION = "pagination"
             const val FONT_TYPE = "font_type"
             const val FONT_SIZE = "font_size"
         }
@@ -315,6 +325,7 @@ class DataBaseConsts private constructor() {
             const val PAGE_START = "page_start"
             const val PAGE_END = "page_end"
             const val PAGES = "pages"
+            const val COMPLETED = "completed"
             const val VOLUME = "volume"
             const val CHAPTERS_READ = "chapters_READ"
             const val DATE_TIME_START = "date_time_start"
@@ -340,6 +351,8 @@ class DataBaseConsts private constructor() {
 
             const val TOTAL_READ_PAGES = "total_read_pages"
             const val TOTAL_READ_SECONDS = "total_read_seconds"
+
+            const val READ_BY_MONTH = "read_by_month"
 
             const val DATE_TIME = "date_time"
             const val TYPE = "type"

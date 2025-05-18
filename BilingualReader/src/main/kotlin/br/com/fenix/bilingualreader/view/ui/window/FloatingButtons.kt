@@ -1,19 +1,17 @@
 package br.com.fenix.bilingualreader.view.ui.window
 
 import android.content.Context
-import android.content.res.Resources
-import android.graphics.PixelFormat
+import android.content.res.Configuration
 import android.graphics.Point
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.view.GestureDetector
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.LinearLayout
+import android.widget.PopupWindow
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatImageButton
@@ -21,31 +19,34 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.ImageLoadType
 import br.com.fenix.bilingualreader.service.controller.SubTitleController
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess
-import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import kotlin.math.abs
 
 
 class FloatingButtons constructor(
     private val context: Context,
-    private val activity: AppCompatActivity
+    private val activity: AppCompatActivity,
+    private val parent : View
 ) {
-
-    private var windowManager: WindowManager? = null
-        get() {
-            if (field == null) field =
-                (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager)
-            return field
-        }
 
     private var mFloatingView: View = LayoutInflater.from(context).inflate(R.layout.floating_manga_buttons, null)
 
-    private lateinit var layoutParams: WindowManager.LayoutParams
+    private var mPopup: PopupWindow? = null
+        get() {
+            if (field == null) {
+                field = PopupWindow(parent, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                field?.contentView = mFloatingView
+                field?.isFocusable = false
+                field?.isOutsideTouchable = false
+                field?.setOnDismissListener { isShowing = false }
+            }
+            return field
+        }
 
-    private var lastX: Int = 0
-    private var lastY: Int = 0
-    private var firstX: Int = 0
-    private var firstY: Int = 0
+    private var mLastX: Int = 0
+    private var mLastY: Int = 0
+    private var mFirstX: Int = 0
+    private var mFirstY: Int = 0
 
     var isShowing = false
 
@@ -65,19 +66,11 @@ class FloatingButtons constructor(
     }
 
     private fun moveWindow(toLeft: Boolean) {
-        if (toLeft) {
-            mMoveWindow.setImageDrawable(mIconToRight)
-            inLeft = true
-            layoutParams.x = 10
-        } else {
-            mMoveWindow.setImageDrawable(mIconToLeft)
-            inLeft = false
-            layoutParams.x = mRealDisplaySize.x - (mContent.width + 10)
-        }
-
-        windowManager?.apply {
-            updateViewLayout(mFloatingView, layoutParams)
-        }
+        inLeft = if (toLeft)
+            false
+        else
+            true
+        onMove()
     }
 
     private val mOnFlingDetector = GestureDetector(context, mOnFlingListener)
@@ -85,37 +78,35 @@ class FloatingButtons constructor(
     private val onTouchListener = View.OnTouchListener { view, event ->
         view.performClick()
         mOnFlingDetector.onTouchEvent(event)
-        val totalDeltaX = lastX - firstX
-        val totalDeltaY = lastY - firstY
+        val totalDeltaX = mLastX - mFirstX
+        val totalDeltaY = mLastY - mFirstY
 
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                lastX = event.rawX.toInt()
-                lastY = event.rawY.toInt()
-                firstX = lastX
-                firstY = lastY
+                mLastX = event.rawX.toInt()
+                mLastY = event.rawY.toInt()
+                mFirstX = mLastX
+                mFirstY = mLastY
             }
             MotionEvent.ACTION_UP -> {
                 //view.performClick()
             }
             MotionEvent.ACTION_MOVE -> {
-                val deltaX = event.rawX.toInt() - lastX
-                val deltaY = event.rawY.toInt() - lastY
-                lastX = event.rawX.toInt()
-                lastY = event.rawY.toInt()
+                val deltaX = event.rawX.toInt() - mLastX
+                val deltaY = event.rawY.toInt() - mLastY
+                mLastX = event.rawX.toInt()
+                mLastY = event.rawY.toInt()
                 if (abs(totalDeltaX) >= 5 || abs(totalDeltaY) >= 5) {
                     if (event.pointerCount == 1) {
-                        layoutParams.x += deltaX
-                        layoutParams.y += deltaY
-                        windowManager?.apply {
-                            updateViewLayout(mFloatingView, layoutParams)
-                        }
+                        mPosition.x += deltaX
+                        mPosition.y += deltaY
+                        mPopup?.update(mPosition.x, mPosition.y, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                     }
 
-                    if (layoutParams.x > mMiddle && inLeft) {
+                    if (mPosition.x > mMiddle && inLeft) {
                         inLeft = false
                         mMoveWindow.setImageDrawable(mIconToLeft)
-                    } else if (layoutParams.x < mMiddle && !inLeft) {
+                    } else if (mPosition.x < mMiddle && !inLeft) {
                         inLeft = true
                         mMoveWindow.setImageDrawable(mIconToRight)
                     }
@@ -131,8 +122,8 @@ class FloatingButtons constructor(
     private var mMoveWindow: AppCompatImageButton
     private var mIconToRight: Drawable?
     private var mIconToLeft: Drawable?
+    private var mPosition : Point
 
-    private var mRealDisplaySize: Point
     private val mMiddle: Int
     private var inLeft = true
 
@@ -155,65 +146,45 @@ class FloatingButtons constructor(
             mMoveWindow = this.findViewById(R.id.floating_manga_buttons_move_window)
             mMoveWindow.setOnClickListener { onMove() }
 
-            mIconToRight =
-                AppCompatResources.getDrawable(context, R.drawable.ic_floating_button_change_right)
-            mIconToLeft =
-                AppCompatResources.getDrawable(context, R.drawable.ic_floating_button_change_left)
-
+            mIconToRight = AppCompatResources.getDrawable(context, R.drawable.ico_floating_button_change_right)
+            mIconToLeft = AppCompatResources.getDrawable(context, R.drawable.ico_floating_button_change_left)
         }
 
         mFloatingView.setOnTouchListener(onTouchListener)
 
-        val metrics = Resources.getSystem().displayMetrics
-        val displaySize = Point(metrics.widthPixels, metrics.heightPixels)
-        mRealDisplaySize = displaySize
-        mMiddle = mRealDisplaySize.x / 2
+        val width = if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) parent.height else parent.width
+        mMiddle = width - (mFloatingView.width /2) / 2
         inLeft = true
 
-        val layoutType = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O)
-            WindowManager.LayoutParams.TYPE_PHONE
-        else
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-
-        layoutParams = WindowManager.LayoutParams().apply {
-            format = PixelFormat.TRANSLUCENT
-            flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-            type = layoutType
-            gravity = Gravity.TOP or Gravity.LEFT
-            width = ViewGroup.LayoutParams.WRAP_CONTENT
-            height = ViewGroup.LayoutParams.WRAP_CONTENT
-            x = 10
-            y = mRealDisplaySize.y / 2
-        }
+        mMoveWindow.setImageDrawable(mIconToRight)
+        inLeft = true
+        mPosition = Point(10, mMiddle)
     }
 
     private fun onMove() {
         if (inLeft) {
             mMoveWindow.setImageDrawable(mIconToLeft)
             inLeft = false
-            layoutParams.x = mRealDisplaySize.x - (mContent.width + 10)
+            mPosition.x = parent.width - (mContent.width + 10)
+            mPopup?.update(mPosition.x, mPosition.y, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         } else {
             mMoveWindow.setImageDrawable(mIconToRight)
             inLeft = true
-            layoutParams.x = 10
-        }
-
-        windowManager?.apply {
-            updateViewLayout(mFloatingView, layoutParams)
+            mPosition.x = 10
+            mPopup?.update(mPosition.x, mPosition.y, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         }
     }
 
     fun show() {
-        if (ComponentsUtil.canDrawOverlays(context)) {
-            dismiss()
-            isShowing = true
-            windowManager?.addView(mFloatingView, layoutParams)
-        }
+        dismiss()
+        isShowing = true
+        mPosition = Point(10, mMiddle)
+        mPopup?.showAtLocation(parent, Gravity.NO_GRAVITY, mPosition.x, mPosition.y)
     }
 
     fun dismiss() {
         if (isShowing) {
-            windowManager?.removeView(mFloatingView)
+            mPopup?.dismiss()
             isShowing = false
         }
     }

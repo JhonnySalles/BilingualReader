@@ -20,6 +20,7 @@ class SharedData {
         val chapters: LiveData<List<Chapters>> = mListChapters
 
         fun isProcessed(obj: Any?) : Boolean = obj != mProcessed || mListChapters.value!!.isEmpty()
+        fun isImageNull() : Boolean = mListChapters.value!!.any { it.image == null }
 
         fun clearChapters() {
             mProcessed = null

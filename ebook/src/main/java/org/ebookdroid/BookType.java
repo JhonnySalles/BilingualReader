@@ -12,6 +12,8 @@ import org.ebookdroid.droids.TxtContext;
 import org.ebookdroid.droids.ZipContext;
 import org.ebookdroid.droids.djvu.codec.DjvuContext;
 import org.ebookdroid.droids.mupdf.codec.PdfContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,10 +22,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.Config;
 
 public enum BookType {
-
     PDF(PdfContext.class, Arrays.asList("pdf", "xps"), Arrays.asList("application/pdf")),
     TIFF(PdfContext.class, Arrays.asList("tiff", "tif"), Arrays.asList("image/tiff")),
 
@@ -46,6 +47,9 @@ public enum BookType {
 
     ZIP(ZipContext.class, Arrays.asList("zip"), Arrays.asList("application/zip", "application/x-compressed", "application/x-compressed-zip", "application/x-zip-compressed"));
 
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BookType.class);
+
     private final static Map<String, BookType> extensionToActivity;
 
     private final static Map<String, BookType> mimeTypesToActivity;
@@ -54,13 +58,13 @@ public enum BookType {
         extensionToActivity = new HashMap<>();
         for (final BookType a : values()) {
             for (final String ext : a.extensions) {
-                extensionToActivity.put(ext.toLowerCase(Locale.US), a);
+                extensionToActivity.put(ext.toLowerCase(Locale.getDefault()), a);
             }
         }
         mimeTypesToActivity = new HashMap<>();
         for (final BookType a : values()) {
             for (final String type : a.mimeTypes) {
-                mimeTypesToActivity.put(type.toLowerCase(Locale.US), a);
+                mimeTypesToActivity.put(type.toLowerCase(Locale.getDefault()), a);
             }
         }
     }
@@ -82,7 +86,7 @@ public enum BookType {
             return false;
         }
 
-        path = path.toLowerCase(Locale.US);
+        path = path.toLowerCase(Locale.getDefault());
         for (final String ext : extensions) {
             if (path.endsWith(ext) || path.endsWith(ext + ".zip")) {
                 return true;
@@ -118,7 +122,7 @@ public enum BookType {
         try {
             return activityType.contextClass.newInstance();
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error get codec context by type: {}", e.getMessage(), e);
         }
         return null;
     }
@@ -128,7 +132,8 @@ public enum BookType {
         try {
             ctx = getByUri(path).contextClass.newInstance();
         } catch (Exception e) {
-            LOG.e(e);
+            if (Config.SHOW_LOG)
+                LOGGER.error("Error get codec context by path: {}", e.getMessage(), e);
         }
         return ctx;
     }
@@ -141,7 +146,7 @@ public enum BookType {
         if (path == null) {
             return false;
         }
-        path = path.toLowerCase(Locale.US);
+        path = path.toLowerCase(Locale.getDefault());
 
         for (final BookType a : values()) {
             for (final String ext : a.extensions) {
@@ -159,7 +164,7 @@ public enum BookType {
             return null;
         }
 
-        uri = uri.toLowerCase(Locale.US);
+        uri = uri.toLowerCase(Locale.getDefault());
 
         for (final String ext : extensionToActivity.keySet()) {
             if (uri.endsWith("." + ext)) {

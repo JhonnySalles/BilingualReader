@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -23,6 +24,11 @@ import java.util.concurrent.TimeUnit
 
 class GeneralConsts private constructor() {
     companion object {
+        fun getCoverDir(context: Context): File? {
+            val caches = context.externalCacheDirs
+            return caches.last()
+        }
+
         fun getCacheDir(context: Context): File? {
             return context.externalCacheDir
         }
@@ -91,20 +97,20 @@ class GeneralConsts private constructor() {
 
         @TargetApi(26)
         fun formatCountDays(context: Context, dateTime: LocalDateTime?): String {
+            val today = LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0, 0))
             return if (dateTime == null)
                 ""
-            else if (dateTime.isAfter(LocalDateTime.now().minusDays(1)))
+            else if (dateTime.isAfter(today))
                 context.getString(R.string.date_format_today)
-            else if (dateTime.isAfter(LocalDateTime.now().minusDays(7)))
+            else if (dateTime.isAfter(today.minusDays(1)))
+                context.getString(R.string.date_format_yesterday)
+            else if (dateTime.isAfter(today.minusDays(7)))
                 context.getString(
                     R.string.date_format_day_ago,
-                    ChronoUnit.DAYS.between(dateTime, LocalDateTime.now()).toString()
+                    ChronoUnit.DAYS.between(dateTime, today).toString()
                 )
             else
-                formatterDate(
-                    context,
-                    dateTime
-                )
+                formatterDate(context, dateTime)
         }
 
         fun formatCountDays(context: Context, dateTime: Date?): String {
@@ -133,6 +139,10 @@ class GeneralConsts private constructor() {
                     )
             }
         }
+    }
+
+    object DEFAULTS {
+        const val DEFAULT_HANDLE_SEARCH_FILTER = 500L
     }
 
     object PATTERNS {
@@ -169,6 +179,7 @@ class GeneralConsts private constructor() {
         object LIBRARIES {
             const val MANGA_INDEX_LIBRARIES = 1000
             const val BOOK_INDEX_LIBRARIES = 2000
+            const val NOTIFICATION_SOLICITED = "NOTIFICATION_SOLICITED"
         }
 
         object SUBTITLE {
@@ -179,7 +190,8 @@ class GeneralConsts private constructor() {
 
         object READER {
             const val MANGA_READER_MODE = "MANGA_READER_MODE"
-            const val MANGA_PAGE_MODE = "MANGA_READER_PAGE_MODE"
+            const val MANGA_PAGE_SCROLLING_MODE = "MANGA_PAGE_SCROLLING_MODE"
+            const val MANGA_PAGE_PAGINATION_TYPE = "MANGA_PAGE_PAGINATION_TYPE"
             const val MANGA_SHOW_CLOCK_AND_BATTERY = "MANGA_SHOW_CLOCK_AND_BATTERY"
             const val MANGA_USE_MAGNIFIER_TYPE = "MANGA_USE_MAGNIFIER_TYPE"
             const val MANGA_KEEP_ZOOM_BETWEEN_PAGES = "MANGA_KEEP_ZOOM_BETWEEN_PAGES"
@@ -188,14 +200,42 @@ class GeneralConsts private constructor() {
             const val BOOK_PAGE_MARGIN = "BOOK_PAGE_MARGIN"
             const val BOOK_PAGE_SPACING = "BOOK_PAGE_SPACING"
             const val BOOK_PAGE_SCROLLING_MODE = "BOOK_PAGE_SCROLLING_MODE"
+            const val BOOK_PAGE_PAGINATION_TYPE = "BOOK_PAGE_PAGINATION_TYPE"
             const val BOOK_PAGE_FONT_TYPE_NORMAL = "BOOK_PAGE_FONT_TYPE_NORMAL"
             const val BOOK_PAGE_FONT_TYPE_JAPANESE = "BOOK_PAGE_FONT_TYPE_JAPANESE"
             const val BOOK_PAGE_FONT_SIZE = "BOOK_PAGE_FONT_SIZE"
             const val BOOK_PAGE_FONT_SIZE_DEFAULT = 12f
             const val BOOK_PROCESS_JAPANESE_TEXT = "BOOK_PROCESS_JAPANESE_TEXT"
             const val BOOK_GENERATE_FURIGANA_ON_TEXT = "BOOK_GENERATE_FURIGANA_ON_TEXT"
+            const val BOOK_FONT_JAPANESE_STYLE = "BOOK_FONT_JAPANESE_STYLE"
             const val BOOK_PROCESS_VOCABULARY = "BOOK_PROCESS_VOCABULARY"
-            const val BOOK_READER_TTS = "BOOK_READER_TTS"
+            const val BOOK_READER_TTS_VOICE_NORMAL = "BOOK_READER_TTS_VOICE_NORMAL"
+            const val BOOK_READER_TTS_VOICE_JAPANESE = "BOOK_READER_TTS_VOICE_JAPANESE"
+            const val BOOK_READER_TTS_SPEED = "BOOK_READER_TTS_SPEED"
+            const val BOOK_READER_TTS_SPEED_DEFAULT = 0f
+        }
+
+        object TOUCH {
+            const val MANGA_TOUCH_DEMONSTRATION = "MANGA_TOUCH_DEMONSTRATION"
+            const val BOOK_TOUCH_DEMONSTRATION = "BOOK_TOUCH_DEMONSTRATION"
+
+            const val MANGA_TOP = "MANGA_TOUCH_TOP"
+            const val MANGA_TOP_RIGHT = "MANGA_TOUCH_TOP_RIGHT"
+            const val MANGA_TOP_LEFT = "MANGA_TOUCH_TOP_LEFT"
+            const val MANGA_RIGHT = "MANGA_TOUCH_RIGHT"
+            const val MANGA_LEFT = "MANGA_TOUCH_LEFT"
+            const val MANGA_BOTTOM = "MANGA_TOUCH_BOTTOM"
+            const val MANGA_BOTTOM_RIGHT = "MANGA_TOUCH_BOTTOM_RIGHT"
+            const val MANGA_BOTTOM_LEFT = "MANGA_TOUCH_BOTTOM_LEFT"
+
+            const val BOOK_TOP = "BOOK_TOUCH_TOP"
+            const val BOOK_TOP_RIGHT = "BOOK_TOUCH_TOP_RIGHT"
+            const val BOOK_TOP_LEFT = "BOOK_TOUCH_TOP_LEFT"
+            const val BOOK_RIGHT = "BOOK_TOUCH_RIGHT"
+            const val BOOK_LEFT = "BOOK_TOUCH_LEFT"
+            const val BOOK_BOTTOM = "BOOK_TOUCH_BOTTOM"
+            const val BOOK_BOTTOM_RIGHT = "BOOK_TOUCH_BOTTOM_RIGHT"
+            const val BOOK_BOTTOM_LEFT = "BOOK_TOUCH_BOTTOM_LEFT"
         }
 
         object SYSTEM {
@@ -238,9 +278,11 @@ class GeneralConsts private constructor() {
             const val PAGE_LINK = "PAGE_LINK"
             const val LIBRARY = "LIBRARY"
             const val BOOK = "BOOK_OBJECT"
+            const val TYPE = "TYPE_OBJECT"
             const val DOCUMENT_PATH = "DOCUMENT_PATH"
             const val DOCUMENT_FONT_SIZE = "DOCUMENT_FONT_SIZE"
             const val DOCUMENT_PASSWORD = "DOCUMENT_PASSWORD"
+            const val DOCUMENT_JAPANESE_STYLE = "DOCUMENT_JAPANESE_STYLE"
             const val BOOK_FONT_SIZE = "BOOK_FONT_SIZE"
             const val BOOK_ANNOTATION = "BOOK_ANNOTATION_OBJECT"
             const val BOOK_SEARCH = "BOOK_SEARCH_OBJECT"
@@ -269,6 +311,7 @@ class GeneralConsts private constructor() {
             const val LAST_BACKUP = "LAST_BACKUP"
             const val BACKUP_RESTORE_ROLLBACK_FILE_NAME = "BilingualReaderBackup.db"
             const val RESTORE_DATABASE = "RESTORE_DATABASE"
+            const val LAST_AUTO_BACKUP = "LAST_AUTO_BACKUP"
         }
 
         object FRAGMENT {
@@ -300,8 +343,8 @@ class GeneralConsts private constructor() {
     }
 
     object CONFIG {
-        val DATA_FORMAT = listOf("dd/MM/yyyy", "MM/dd/yy", "dd/MM/yy", "yyyy-MM-dd")
-        val DATA_FORMAT_SMALL = listOf("dd/MM/yy", "MM/dd/yy", "dd/MM/yy", "yy-MM-dd")
+        val DATA_FORMAT = listOf("dd/MM/yyyy", "MM/dd/yyyy", "dd/MM/yy", "yyyy-MM-dd", "yy-MM-dd")
+        val DATA_FORMAT_SMALL = listOf("dd/MM/yy", "MM/dd/yy", "yy-MM-dd")
     }
 
     object CACHE_FOLDER {
@@ -346,10 +389,9 @@ class GeneralConsts private constructor() {
 
     object REQUEST {
         const val PERMISSION_DRAW_OVERLAYS = 505
-        const val PERMISSION_DRAW_OVERLAYS_FLOATING_OCR = 506
-        const val PERMISSION_DRAW_OVERLAYS_FLOATING_SUBTITLE = 507
-        const val PERMISSION_DRAW_OVERLAYS_FLOATING_BUTTONS = 508
+        const val PERMISSION_DRAW_OVERLAYS_FLOATING_SUBTITLE = 506
         const val PERMISSION_WRITE_BACKUP = 509
+        const val PERMISSION_NOTIFICATIONS = 510
         const val OPEN_JSON = 205
         const val OPEN_PAGE_LINK = 206
         const val OPEN_MANGA_FOLDER = 105
@@ -360,16 +402,18 @@ class GeneralConsts private constructor() {
         const val CONFIG_LIBRARIES = 600
         const val SELECT_MANGA = 601
         const val MANGA_DETAIL = 602
-        const val MANGA_CHAPTERS = 603
-        const val BOOK_DETAIL = 604
-        const val BOOK_SEARCH = 605
-        const val BOOK_ANNOTATION = 606
-        const val BOOK_CHAPTERS = 607
+        const val BOOK_DETAIL = 610
+        const val BOOK_SEARCH = 611
+        const val BOOK_ANNOTATION = 612
+        const val CHAPTERS = 620
+        const val TOUCH_CONFIGURATION = 630
         const val GOOGLE_SIGN_IN = 700
         const val DRIVE_AUTHORIZATION = 701
     }
 
     object SHARE_MARKS {
+        val MIN_DATE_TIME: LocalDateTime = LocalDateTime.of(2000, 1, 1, 0, 0)
+
         const val PARSE_DATE_TIME = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
         const val DATE_TIME = "yyyyMMdd HHmmss"
         const val FILE_EXTENSION = ".json"

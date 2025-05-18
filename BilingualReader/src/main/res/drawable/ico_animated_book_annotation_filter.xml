@@ -15,24 +15,24 @@
                 <path
                     android:name="bar_1"
                     android:pathData="M 5.081 21.814 L 5.081 2.465"
-                    android:fillColor="?attr/colorSecondary"
-                    android:strokeColor="?attr/colorSecondary"
+                    android:fillColor="?attr/colorOnSecondary"
+                    android:strokeColor="?attr/colorOnSecondary"
                     android:strokeWidth="1.54593"
                     android:strokeLineCap="round"
                     android:strokeLineJoin="round"/>
                 <path
                     android:name="bar_2"
                     android:pathData="M 12.053 21.814 L 12.053 2.465"
-                    android:fillColor="?attr/colorSecondary"
-                    android:strokeColor="?attr/colorSecondary"
+                    android:fillColor="?attr/colorOnSecondary"
+                    android:strokeColor="?attr/colorOnSecondary"
                     android:strokeWidth="1.54593"
                     android:strokeLineCap="round"
                     android:strokeLineJoin="round"/>
                 <path
                     android:name="bar_3"
                     android:pathData="M 18.911 21.814 L 18.911 2.465"
-                    android:fillColor="?attr/colorSecondary"
-                    android:strokeColor="?attr/colorSecondary"
+                    android:fillColor="?attr/colorOnSecondary"
+                    android:strokeColor="?attr/colorOnSecondary"
                     android:strokeWidth="1.54593"
                     android:strokeLineCap="round"
                     android:strokeLineJoin="round"/>
@@ -40,7 +40,7 @@
                     <path
                         android:name="point_1"
                         android:pathData="M 5.018 3.889 C 6.197 3.889 7.153 4.832 7.153 5.995 C 7.153 7.159 6.197 8.102 5.018 8.102 C 3.839 8.102 2.883 7.159 2.883 5.995 C 2.883 4.832 3.839 3.889 5.018 3.889 Z"
-                        android:fillColor="?attr/colorSecondary"
+                        android:fillColor="?attr/colorOnSecondary"
                         android:strokeAlpha="0"
                         android:strokeWidth="1.28991"/>
                 </group>
@@ -48,7 +48,7 @@
                     <path
                         android:name="point_2"
                         android:pathData="M 12.043 15.964 C 13.222 15.964 14.178 16.907 14.178 18.07 C 14.178 19.233 13.222 20.176 12.043 20.176 C 10.864 20.176 9.908 19.233 9.908 18.07 C 9.908 16.907 10.864 15.964 12.043 15.964 Z"
-                        android:fillColor="?attr/colorSecondary"
+                        android:fillColor="?attr/colorOnSecondary"
                         android:strokeAlpha="0"
                         android:strokeWidth="1.28991"/>
                 </group>
@@ -59,7 +59,7 @@
                     <path
                         android:name="point_3"
                         android:pathData="M 19.011 9.934 C 20.19 9.934 21.146 10.877 21.146 12.04 C 21.146 13.204 20.19 14.146 19.011 14.146 C 17.832 14.146 16.876 13.204 16.876 12.04 C 16.876 10.877 17.832 9.934 19.011 9.934 Z"
-                        android:fillColor="?attr/colorSecondary"
+                        android:fillColor="?attr/colorOnSecondary"
                         android:strokeAlpha="0"
                         android:strokeWidth="1.28991"/>
                 </group>

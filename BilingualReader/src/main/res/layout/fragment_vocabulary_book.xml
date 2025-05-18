@@ -56,7 +56,7 @@
                     android:layout_height="match_parent"
                     android:hint="@string/vocabulary_book"
                     android:enabled="true"
-                    app:startIconDrawable="@drawable/ic_file">
+                    app:startIconDrawable="@drawable/ico_file">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/vocabulary_book_edittext"
@@ -118,24 +118,12 @@
             <ImageView
                 android:id="@+id/vocabulary_book_popup_menu_order_filter_touch"
                 style="@style/TextTitle.Popup"
-                android:layout_width="70dp"
+                android:layout_width="@dimen/popup_button_center"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|top"
                 android:contentDescription="@string/popup_reading_manga_open"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_line_popup"/>
-
-            <ImageView
-                android:id="@+id/vocabulary_book_popup_menu_order_filter_close"
-                style="@style/TextTitle.Popup"
-                android:layout_width="70dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|top"
-                android:layout_marginTop="1dp"
-                android:layout_marginEnd="@dimen/margin_small"
-                android:contentDescription="@string/popup_reading_manga_close"
-                android:scaleType="center"
-                android:src="@drawable/ic_close"/>
+                android:src="@drawable/ico_line_popup"/>
 
             <LinearLayout
                 android:layout_width="match_parent"

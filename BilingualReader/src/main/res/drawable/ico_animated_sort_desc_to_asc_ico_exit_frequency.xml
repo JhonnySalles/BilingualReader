@@ -4,8 +4,8 @@
     <aapt:attr name="android:drawable">
         <vector
             android:name="vector"
-            android:width="24dp"
-            android:height="24dp"
+            android:width="30dp"
+            android:height="30dp"
             android:viewportWidth="24"
             android:viewportHeight="24">
             <group android:name="group_3">
@@ -13,7 +13,7 @@
                     <path
                         android:name="bar_ico1"
                         android:pathData="M 3 12 L 17 12"
-                        android:strokeColor="?attr/colorSecondary"
+                        android:strokeColor="?attr/colorOnSecondary"
                         android:strokeWidth="2"
                         android:strokeLineCap="round"
                         android:strokeLineJoin="round"/>
@@ -22,7 +22,7 @@
                     <path
                         android:name="bar_ico2"
                         android:pathData="M 3 17 L 13 17"
-                        android:strokeColor="?attr/colorSecondary"
+                        android:strokeColor="?attr/colorOnSecondary"
                         android:strokeWidth="2"
                         android:strokeLineCap="round"
                         android:strokeLineJoin="round"/>
@@ -31,7 +31,7 @@
                     <path
                         android:name="bar_ico3"
                         android:pathData="M 3 7 L 21 7"
-                        android:strokeColor="?attr/colorSecondary"
+                        android:strokeColor="?attr/colorOnSecondary"
                         android:strokeWidth="2"
                         android:strokeLineCap="round"
                         android:strokeLineJoin="round"/>

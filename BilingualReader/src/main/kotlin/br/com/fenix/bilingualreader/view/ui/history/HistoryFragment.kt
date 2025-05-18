@@ -1,9 +1,17 @@
 package br.com.fenix.bilingualreader.view.ui.history
 
 import android.annotation.SuppressLint
+import android.app.SearchManager
 import android.content.Intent
 import android.content.res.Resources
+import android.database.Cursor
+import android.database.MatrixCursor
+import android.graphics.drawable.AnimatedVectorDrawable
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.provider.BaseColumns
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.Menu
@@ -12,9 +20,13 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.widget.AbsListView
 import android.widget.AutoCompleteTextView
+import android.widget.CursorAdapter
+import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.SearchView
+import android.widget.SimpleCursorAdapter
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -30,19 +42,37 @@ import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.history.HistoryCardAdapter
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import io.supercharge.shimmerlayout.ShimmerLayout
 import java.time.LocalDateTime
+import kotlin.math.ceil
 
 
 class HistoryFragment : Fragment() {
 
     private lateinit var mViewModel: HistoryViewModel
     private lateinit var mRecyclerView: RecyclerView
+    private lateinit var mScrollUp: FloatingActionButton
+    private lateinit var mScrollDown: FloatingActionButton
     private lateinit var miSearch: MenuItem
     private lateinit var searchView: SearchView
+    private lateinit var miFilterType: MenuItem
+
+    private lateinit var mSkeletonLayout: LinearLayout
+    private lateinit var mShimmer: ShimmerLayout
+    private lateinit var mInflater: LayoutInflater
+
+    private var mFilterType: Type? = null
+
+    private val mHandler = Handler(Looper.getMainLooper())
+    private val mDismissUpButton = Runnable { mScrollUp.hide() }
+    private val mDismissDownButton = Runnable { mScrollDown.hide() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,25 +80,44 @@ class HistoryFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_history_manga, menu)
+        menu.clear()
+        inflater.inflate(R.menu.menu_history, menu)
         super.onCreateOptionsMenu(menu, inflater)
 
         val miLibrary = menu.findItem(R.id.menu_history_library)
         miLibrary.subMenu?.clear()
-        miLibrary.subMenu?.add(requireContext().getString(R.string.history_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
+        miLibrary.subMenu?.add(Menu.NONE, Menu.NONE, 100, requireContext().getString(R.string.history_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
                 filterLibrary(null)
+                (miLibrary.icon as AnimatedVectorDrawable).start()
                 true
             }
 
+        miLibrary.subMenu?.add(Menu.NONE, Menu.NONE, 101, mViewModel.mDefaultLibrary.title)?.setOnMenuItemClickListener { _: MenuItem? ->
+            filterLibrary(mViewModel.mDefaultLibrary)
+            (miLibrary.icon as AnimatedVectorDrawable).start()
+            true
+        }
+
+        val manga = miLibrary.subMenu?.addSubMenu(Menu.NONE, Menu.NONE, 102,requireContext().getString(R.string.history_manga))
+        val book = miLibrary.subMenu?.addSubMenu(Menu.NONE, Menu.NONE, 103,requireContext().getString(R.string.history_book))
         for (library in mViewModel.getLibraryList())
-            miLibrary.subMenu?.add(library.title)?.setOnMenuItemClickListener { _: MenuItem? ->
-                filterLibrary(library)
-                true
+            when (library.type) {
+                Type.BOOK -> book!!.add(library.title)?.setOnMenuItemClickListener { _: MenuItem? ->
+                    filterLibrary(library)
+                    (miLibrary.icon as AnimatedVectorDrawable).start()
+                    true
+                }
+
+                Type.MANGA -> manga!!.add(library.title)?.setOnMenuItemClickListener { _: MenuItem? ->
+                    filterLibrary(library)
+                    (miLibrary.icon as AnimatedVectorDrawable).start()
+                    true
+                }
             }
 
-        val miTypes = menu.findItem(R.id.menu_history_type)
-        miTypes.subMenu?.clear()
-        miTypes.subMenu?.add(requireContext().getString(R.string.history_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
+        miFilterType = menu.findItem(R.id.menu_history_type)
+        miFilterType.subMenu?.clear()
+        miFilterType.subMenu?.add(requireContext().getString(R.string.history_menu_choice_all))?.setOnMenuItemClickListener { _: MenuItem? ->
             filterType(null)
             true
         }
@@ -78,28 +127,109 @@ class HistoryFragment : Fragment() {
                 Type.MANGA -> requireContext().getString(R.string.history_manga)
                 Type.BOOK -> requireContext().getString(R.string.history_book)
             }
-            miTypes.subMenu?.add(title)?.setOnMenuItemClickListener { _: MenuItem? ->
+            miFilterType.subMenu?.add(title)?.setOnMenuItemClickListener { _: MenuItem? ->
                 filterType(type)
                 true
             }
         }
 
+        val iconType: Int = if (mFilterType == null)
+            R.drawable.ico_menu_type_all
+        else when (mFilterType) {
+            Type.MANGA -> R.drawable.ico_menu_type_manga
+            Type.BOOK -> R.drawable.ico_menu_type_book
+            else -> R.drawable.ico_menu_type_all
+        }
+        miFilterType.setIcon(iconType)
+
         miSearch = menu.findItem(R.id.menu_history_search)
         searchView = miSearch.actionView as SearchView
         searchView.imeOptions = EditorInfo.IME_ACTION_DONE
+
+        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
+        searchSrcTextView.threshold = 1
+        searchSrcTextView.setDropDownBackgroundResource(R.drawable.list_item_suggestion_background)
+        searchSrcTextView.setTextAppearance(R.style.SearchShadow)
+
+        val from = arrayOf(SearchManager.SUGGEST_COLUMN_TEXT_1)
+        val to = intArrayOf(R.id.list_item_suggestion)
+        val suggestions = Util.getHistoryFilters(requireContext()).keys.toList()
+        val cursorAdapter = SimpleCursorAdapter(requireContext(), R.layout.list_item_suggestion, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER)
+
+        searchView.suggestionsAdapter = cursorAdapter
+        searchView.setOnSuggestionListener(object: SearchView.OnSuggestionListener {
+            override fun onSuggestionSelect(position: Int): Boolean {
+                return false
+            }
+
+            override fun onSuggestionClick(position: Int): Boolean {
+                val cursor = searchView.suggestionsAdapter.getItem(position) as Cursor?
+                if( cursor != null) {
+                    val colum = cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1)
+                    val selection = cursor.getString(colum)
+                    val query = searchView.query.toString().substringBeforeLast('@', "") + " " + selection
+                    searchView.setQuery(query.trim(), false)
+                }
+                return true
+            }
+        })
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
             }
 
+            private var runFilter = Runnable { }
+            private var lastSuggestion = ""
             override fun onQueryTextChange(newText: String?): Boolean {
-                filter(newText)
+                val cursor = MatrixCursor(arrayOf(BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1))
+                cursorAdapter.changeCursor(cursor)
+
+                if (newText != null) {
+                    var substring = newText.substringAfterLast('@', "")
+                    if (substring.isNotEmpty()) {
+                        if (!substring.contains(':')) {
+                            substring = substring.replace("@", "")
+                            suggestions.forEachIndexed { index, suggestion ->
+                                if (substring.isEmpty())
+                                    cursor.addRow(arrayOf(index, "@$suggestion:"))
+                                else if (suggestion.contains(substring, true))
+                                    cursor.addRow(arrayOf(index, "@$suggestion:"))
+                            }
+                            return false
+                        } else if (!substring.contains(' ')) {
+                            mViewModel.getSuggestions(substring).let{
+                                substring = substring.substringBefore(":")
+                                it.forEachIndexed { index, suggestion ->
+                                    run {
+                                        if (suggestion.contains(' '))
+                                            cursor.addRow(arrayOf(index, "@$substring:\"$suggestion\" "))
+                                        else
+                                            cursor.addRow(arrayOf(index, "@$substring:$suggestion "))
+                                    }
+                                }
+                            }
+                            return false
+                        }
+                    } else if (newText.endsWith("@", true)) {
+                        suggestions.forEachIndexed { index, suggestion ->
+                            cursor.addRow(arrayOf(index, "@$suggestion:"))
+                        }
+                        return false
+                    }
+                }
+
+                if (newText?.trim().equals(lastSuggestion, true))
+                    return false
+                lastSuggestion = newText?.trim() ?: ""
+
+                mHandler.removeCallbacks(runFilter)
+                runFilter = Runnable { filter(newText) }
+                mHandler.postDelayed(runFilter, GeneralConsts.DEFAULTS.DEFAULT_HANDLE_SEARCH_FILTER)
+
                 return false
             }
         })
-
-        val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
-        searchSrcTextView.setTextAppearance(R.style.SearchShadow)
     }
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
@@ -107,6 +237,11 @@ class HistoryFragment : Fragment() {
             R.id.menu_history_library -> {}
         }
         return super.onOptionsItemSelected(menuItem)
+    }
+
+    override fun onDestroyOptionsMenu() {
+        mViewModel.clearFilter()
+        super.onDestroyOptionsMenu()
     }
 
     private fun filter(text: String?) {
@@ -123,15 +258,22 @@ class HistoryFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mViewModel = ViewModelProvider(this)[HistoryViewModel::class.java]
+
         val root = inflater.inflate(R.layout.fragment_history, container, false)
         mRecyclerView = root.findViewById(R.id.history_list)
+        mScrollUp = root.findViewById(R.id.history_scroll_up)
+        mScrollDown = root.findViewById(R.id.history_scroll_down)
+
+        mSkeletonLayout = root.findViewById(R.id.skeleton_layout)
+        mShimmer = root.findViewById(R.id.shimmer_skeleton)
+        mInflater = inflater
+
         ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecyclerView)
         observer()
         return root
     }
 
-    private var itemTouchHelperCallback =
-        object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+    private var itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
                 return false
             }
@@ -166,7 +308,7 @@ class HistoryFragment : Fragment() {
         val historyAdapter = HistoryCardAdapter()
         mRecyclerView.adapter = historyAdapter
         mRecyclerView.layoutManager = GridLayoutManager(requireContext(), 1)
-        val listenner = object : HistoryCardListener {
+        val listener = object : HistoryCardListener {
             override fun onClick(history: History) {
                 when (history) {
                     is Manga -> open(history)
@@ -181,7 +323,84 @@ class HistoryFragment : Fragment() {
                 }
             }
         }
-        historyAdapter.attachListener(listenner)
+        historyAdapter.attachListener(listener)
+
+        mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState != AbsListView.OnScrollListener.SCROLL_STATE_FLING)
+                    setAnimationRecycler(true)
+            }
+        })
+
+        mRecyclerView.setOnScrollChangeListener { _, _, _, _, yOld ->
+            if (yOld > 20 && mScrollDown.visibility == View.VISIBLE) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (mHandler.hasCallbacks(mDismissDownButton))
+                        mHandler.removeCallbacks(mDismissDownButton)
+                } else
+                    mHandler.removeCallbacks(mDismissDownButton)
+
+                mScrollDown.hide()
+            } else if (yOld < -20 && mScrollUp.visibility == View.VISIBLE) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (mHandler.hasCallbacks(mDismissUpButton))
+                        mHandler.removeCallbacks(mDismissUpButton)
+                } else
+                    mHandler.removeCallbacks(mDismissUpButton)
+
+                mScrollUp.hide()
+            }
+
+            if (yOld > 180) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (mHandler.hasCallbacks(mDismissUpButton))
+                        mHandler.removeCallbacks(mDismissUpButton)
+                } else
+                    mHandler.removeCallbacks(mDismissUpButton)
+
+                mHandler.postDelayed(mDismissUpButton, 3000)
+                mScrollUp.show()
+            } else if (yOld < -180) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (mHandler.hasCallbacks(mDismissDownButton))
+                        mHandler.removeCallbacks(mDismissDownButton)
+                } else
+                    mHandler.removeCallbacks(mDismissDownButton)
+
+                mHandler.postDelayed(mDismissDownButton, 3000)
+                mScrollDown.show()
+            }
+        }
+
+        mScrollUp.visibility = View.GONE
+        mScrollDown.visibility = View.GONE
+
+        mScrollUp.setOnClickListener {
+            setAnimationRecycler(false)
+            (mScrollUp.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.smoothScrollToPosition(0)
+        }
+        mScrollUp.setOnLongClickListener {
+            (mScrollUp.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.scrollToPosition(0)
+            true
+        }
+        mScrollDown.setOnClickListener {
+            setAnimationRecycler(false)
+            (mScrollDown.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.smoothScrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount)
+        }
+        mScrollDown.setOnLongClickListener {
+            (mScrollDown.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.scrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount -1)
+            true
+        }
+
+    }
+
+    private fun setAnimationRecycler(isAnimate: Boolean) {
+        (mRecyclerView.adapter as HistoryCardAdapter).isAnimation = isAnimate
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -200,9 +419,49 @@ class HistoryFragment : Fragment() {
     }
 
     private fun observer() {
+        mViewModel.loading.observe(viewLifecycleOwner) {
+            if (it)
+                showSkeleton(it)
+            else
+                animateReplaceSkeleton()
+        }
+
         mViewModel.history.observe(viewLifecycleOwner) {
             updateList(it)
         }
+
+        mViewModel.type.observe(viewLifecycleOwner) {
+            onChangeIconFilterType(it)
+        }
+    }
+
+    private fun onChangeIconFilterType(type: Type?) {
+        if (!::miFilterType.isInitialized || mFilterType == type)
+            return
+
+        val icon: Int? = if (type == null)  {
+            when (mFilterType) {
+                Type.MANGA -> R.drawable.ico_animated_menu_type_filter_manga_to_all
+                Type.BOOK -> R.drawable.ico_animated_menu_type_filter_book_to_all
+                else -> null
+            }
+        } else if (mFilterType == null)  {
+            when (type) {
+                Type.MANGA -> R.drawable.ico_animated_menu_type_filter_all_to_manga
+                Type.BOOK -> R.drawable.ico_animated_menu_type_filter_all_to_book
+            }
+        } else {
+            when (type) {
+                Type.MANGA -> R.drawable.ico_animated_menu_type_filter_book_to_manga
+                Type.BOOK -> R.drawable.ico_animated_menu_type_filter_manga_to_book
+            }
+        }
+
+
+        if (icon != null)
+            MenuUtil.animatedSequenceDrawable(miFilterType, icon)
+
+        mFilterType = type
     }
 
     private fun open(manga: Manga) {
@@ -368,6 +627,46 @@ class HistoryFragment : Fragment() {
         }
 
         popup.show()
+    }
+
+    private fun getSkeletonRowCount(): Int {
+        val pxHeight: Int = Resources.getSystem().displayMetrics.heightPixels
+        val skeletonTitleHeight = resources.getDimension(R.dimen.history_skeleton_title_height).toInt()
+        val skeletonRowHeight = resources.getDimension(R.dimen.history_skeleton_height).toInt()
+        return ceil(((pxHeight - skeletonTitleHeight) / skeletonRowHeight).toDouble()).toInt()
+    }
+
+    private fun showSkeleton(show: Boolean) {
+        if (show) {
+            mSkeletonLayout.removeAllViews()
+
+            mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_history_skeleton_title, null))
+            for (i in 0..getSkeletonRowCount())
+                mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_history_skeleton, null))
+
+            mRecyclerView.animate().cancel()
+            mSkeletonLayout.animate().cancel()
+
+            mShimmer.visibility = View.VISIBLE
+            mRecyclerView.visibility = View.GONE
+            mSkeletonLayout.visibility = View.VISIBLE
+            mShimmer.startShimmerAnimation()
+            mSkeletonLayout.bringToFront()
+        } else {
+            mShimmer.stopShimmerAnimation()
+            mShimmer.visibility = View.GONE
+            mSkeletonLayout.visibility = View.GONE
+            mRecyclerView.visibility = View.VISIBLE
+            setAnimationRecycler(true)
+        }
+    }
+
+    private fun animateReplaceSkeleton() {
+        setAnimationRecycler(false)
+        mRecyclerView.visibility = View.VISIBLE
+        mRecyclerView.alpha = 0f
+        mRecyclerView.animate().alpha(1f).setDuration(700).start()
+        mSkeletonLayout.animate().alpha(0f).setDuration(1000).withEndAction { showSkeleton(false) }.start()
     }
 
 }

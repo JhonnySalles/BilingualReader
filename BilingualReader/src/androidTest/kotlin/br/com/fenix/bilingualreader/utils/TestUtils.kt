@@ -20,10 +20,10 @@ import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.utils.MangaTestUtil.MangaTestUtils.generateCovers
 import java.io.File
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.Date
 
 
@@ -90,10 +90,12 @@ class MangaTestUtil {
                 10,
                 intArrayOf(2, 4),
                 5,
+                false,
                 (1..2).random() > 1,
                 (1..2).random() > 1,
                 "Teste (writer), Teste (penciller).",
                 "Séries",
+                "Generos",
                 "Publisher",
                 (1..15).random().toString(),
                 TestUtil.getRandomDate(),
@@ -139,10 +141,12 @@ class MangaTestUtil {
                 10,
                 intArrayOf(2, 4),
                 5,
+                false,
                 (1..2).random() > 1,
                 (1..2).random() > 1,
                 "Teste (writer), Teste (penciller).",
                 "Séries",
+                "Generos",
                 "Publisher",
                 (1..15).random().toString(),
                 TestUtil.getRandomDate(),
@@ -179,10 +183,12 @@ class MangaTestUtil {
                         125,
                         intArrayOf(5, 15, 50, 75, 91, 115),
                         (0..100).random(),
+                        false,
                         i in 2..5,
                         (1..2).random() > 1,
                         "Teste (writer), Teste (penciller).",
                         "Séries",
+                        "Generos",
                         "Publisher",
                         (1..15).random().toString(),
                         TestUtil.getRandomDate(),
@@ -239,16 +245,17 @@ class BookTestUtil {
                 "Author",
                 "",
                 "Annotation",
-                TestUtil.getRandomDateTime().format(
-                    DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                ),
+                TestUtil.getRandomDateTime().toLocalDate(),
                 "Genre",
                 "Publisher",
+                "Series",
                 "Isbn",
                 150,
+                "",
                 0,
                 "",
                 10,
+                false,
                 Languages.ENGLISH,
                 bookPath,
                 Util.getFolderFromPath(bookPath),
@@ -295,16 +302,17 @@ class BookTestUtil {
                 "Author",
                 "",
                 "Annotation",
-                TestUtil.getRandomDateTime().format(
-                    DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                ),
+                TestUtil.getRandomDateTime().toLocalDate(),
                 "Genre",
                 "Publisher",
+                "Series",
                 "Isbn",
                 150,
+                "",
                 0,
                 "",
                 0,
+                false,
                 Languages.ENGLISH,
                 BOOK_TEST_FILE_PATH,
                 Util.getFolderFromPath(BOOK_TEST_FILE_PATH),
@@ -341,16 +349,17 @@ class BookTestUtil {
                         "Author",
                         "",
                         "Annotation",
-                        TestUtil.getRandomDateTime().format(
-                            DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                        ),
+                        TestUtil.getRandomDateTime().toLocalDate(),
                         "Genre",
                         "Publisher",
+                        "Series",
                         "Isbn",
                         150,
+                        "",
                         0,
                         "",
                         0,
+                        false,
                         Languages.ENGLISH,
                         BOOK_TEST_FILE_PATH,
                         Util.getFolderFromPath(BOOK_TEST_FILE_PATH),
@@ -414,8 +423,7 @@ class BookTestUtil {
                         (1..3).random() < 2,
                         colors[i]!!,
                         LocalDateTime.now(),
-                        LocalDateTime.now(),
-                        i
+                        LocalDateTime.now()
                     )
                 )
             }

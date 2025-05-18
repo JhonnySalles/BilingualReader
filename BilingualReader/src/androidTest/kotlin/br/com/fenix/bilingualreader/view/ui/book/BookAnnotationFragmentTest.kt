@@ -78,6 +78,7 @@ class BookAnnotationFragmentTest {
         bundle.putString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PATH, book.path)
         bundle.putString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PASSWORD, book.password)
         bundle.putInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE, fontSize.toInt())
+        bundle.putBoolean(GeneralConsts.KEYS.OBJECT.DOCUMENT_JAPANESE_STYLE, false)
 
         intent?.putExtras(bundle)
     }

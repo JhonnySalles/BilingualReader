@@ -32,6 +32,10 @@ data class Statistics (
     val totalReadPages: Long,
     @ColumnInfo(name = DataBaseConsts.STATISTICS.COLUMNS.TOTAL_READ_SECONDS)
     val totalReadSeconds: Long,
+
+    @ColumnInfo(name = DataBaseConsts.STATISTICS.COLUMNS.READ_BY_MONTH)
+    val readByMonth: Long,
+
     @ColumnInfo(name = DataBaseConsts.STATISTICS.COLUMNS.DATE_TIME)
     val dateTime: LocalDateTime?,
     @PrimaryKey(autoGenerate = false)

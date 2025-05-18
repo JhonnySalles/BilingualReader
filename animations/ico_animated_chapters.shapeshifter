@@ -1,0 +1,406 @@
+{
+  "version": 1,
+  "layers": {
+    "vectorLayer": {
+      "id": "824568",
+      "name": "vector",
+      "type": "vector",
+      "width": 6,
+      "height": 8,
+      "children": [
+        {
+          "id": "824573",
+          "name": "base_chapters",
+          "type": "group",
+          "pivotX": 35,
+          "pivotY": 15,
+          "translateX": -30.69918,
+          "translateY": -10.28149,
+          "children": [
+            {
+              "id": "824574",
+              "name": "chapters_marker",
+              "type": "path",
+              "pathData": "M 34.639 10.681 L 34.639 12.268 C 34.639 12.415 34.758 12.534 34.901 12.534 L 36.226 12.534 Z",
+              "fillColor": "#ffffff",
+              "fillType": "evenOdd"
+            },
+            {
+              "id": "824575",
+              "name": "chapters_page",
+              "type": "path",
+              "pathData": "M 34.374 10.681 L 31.731 10.681 C 31.437 10.681 31.199 10.919 31.199 11.213 L 31.199 17.294 C 31.199 17.587 31.435 17.825 31.728 17.825 L 35.698 17.825 C 35.99 17.825 36.226 17.59 36.226 17.297 L 36.226 12.798 L 34.905 12.798 C 34.612 12.798 34.374 12.564 34.374 12.27 Z",
+              "fillColor": "#ffffff"
+            },
+            {
+              "id": "824576",
+              "name": "chapters_point_animation_1",
+              "type": "group",
+              "pivotX": 32.3,
+              "pivotY": 13.7,
+              "children": [
+                {
+                  "id": "824577",
+                  "name": "chapters_point_1",
+                  "type": "path",
+                  "pathData": "M 31.993 13.327 L 31.993 14.121 L 32.787 14.121 L 32.787 13.327 Z",
+                  "fillColor": "#000000"
+                },
+                {
+                  "id": "824578",
+                  "name": "chapters_check_1",
+                  "type": "path",
+                  "pathData": "M 32.258 13.592 L 32.258 13.856 L 32.522 13.856 L 32.522 13.592 Z",
+                  "fillColor": "#ffffff"
+                }
+              ]
+            },
+            {
+              "id": "824579",
+              "name": "chapters_point_animation_2",
+              "type": "group",
+              "pivotX": 32.3,
+              "pivotY": 15,
+              "children": [
+                {
+                  "id": "824580",
+                  "name": "chapters_point_2",
+                  "type": "path",
+                  "pathData": "M 31.993 14.65 L 31.993 15.444 L 32.787 15.444 L 32.787 14.65 Z",
+                  "fillColor": "#000000"
+                },
+                {
+                  "id": "824581",
+                  "name": "chapters_check_2",
+                  "type": "path",
+                  "pathData": "M 32.258 14.915 L 32.258 15.179 L 32.522 15.179 L 32.522 14.915 Z",
+                  "fillColor": "#ffffff"
+                }
+              ]
+            },
+            {
+              "id": "824582",
+              "name": "chapters_point_animation_3",
+              "type": "group",
+              "pivotX": 32.3,
+              "pivotY": 16.4,
+              "children": [
+                {
+                  "id": "824583",
+                  "name": "chapters_point_3",
+                  "type": "path",
+                  "pathData": "M 31.993 15.973 L 31.993 16.767 L 32.787 16.767 L 32.787 15.973 Z",
+                  "fillColor": "#000000"
+                },
+                {
+                  "id": "824584",
+                  "name": "chapters_check_3",
+                  "type": "path",
+                  "pathData": "M 32.258 16.238 L 32.258 16.502 L 32.522 16.502 L 32.522 16.238 Z",
+                  "fillColor": "#ffffff"
+                }
+              ]
+            },
+            {
+              "id": "824585",
+              "name": "chapters_line_animation_1",
+              "type": "group",
+              "pivotX": 33.3,
+              "children": [
+                {
+                  "id": "824586",
+                  "name": "chapters_line_1",
+                  "type": "path",
+                  "pathData": "M 33.316 13.592 L 33.316 13.856 L 35.433 13.856 L 35.433 13.592 Z",
+                  "fillColor": "#000000"
+                }
+              ]
+            },
+            {
+              "id": "824587",
+              "name": "chapters_line_animation_2",
+              "type": "group",
+              "pivotX": 33.3,
+              "children": [
+                {
+                  "id": "824588",
+                  "name": "chapters_line_2",
+                  "type": "path",
+                  "pathData": "M 33.316 14.915 L 33.316 15.179 L 35.433 15.179 L 35.433 14.915 Z",
+                  "fillColor": "#000000"
+                }
+              ]
+            },
+            {
+              "id": "824589",
+              "name": "chapters_line_animation_3",
+              "type": "group",
+              "pivotX": 33.3,
+              "children": [
+                {
+                  "id": "824590",
+                  "name": "chapters_line_3",
+                  "type": "path",
+                  "pathData": "M 33.316 16.238 L 33.316 16.502 L 35.433 16.502 L 35.433 16.238 Z",
+                  "fillColor": "#000000"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "hiddenLayerIds": []
+  },
+  "timeline": {
+    "animation": {
+      "id": "824591",
+      "name": "anim",
+      "duration": 1000,
+      "blocks": [
+        {
+          "id": "824600",
+          "layerId": "824589",
+          "propertyName": "scaleX",
+          "startTime": 45,
+          "endTime": 425,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "824601",
+          "layerId": "824573",
+          "propertyName": "scaleX",
+          "startTime": 258,
+          "endTime": 484,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.9
+        },
+        {
+          "id": "824602",
+          "layerId": "824573",
+          "propertyName": "scaleY",
+          "startTime": 258,
+          "endTime": 484,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.9
+        },
+        {
+          "id": "824603",
+          "layerId": "824573",
+          "propertyName": "scaleX",
+          "startTime": 547,
+          "endTime": 773,
+          "interpolator": "ANTICIPATE_OVERSHOOT",
+          "type": "number",
+          "fromValue": 0.9,
+          "toValue": 1
+        },
+        {
+          "id": "824604",
+          "layerId": "824573",
+          "propertyName": "scaleY",
+          "startTime": 547,
+          "endTime": 773,
+          "interpolator": "ANTICIPATE_OVERSHOOT",
+          "type": "number",
+          "fromValue": 0.9,
+          "toValue": 1
+        },
+        {
+          "id": "824605",
+          "layerId": "824587",
+          "propertyName": "scaleX",
+          "startTime": 114,
+          "endTime": 488,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "824606",
+          "layerId": "824585",
+          "propertyName": "scaleX",
+          "startTime": 193,
+          "endTime": 567,
+          "interpolator": "ACCELERATE",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "824607",
+          "layerId": "824589",
+          "propertyName": "scaleX",
+          "startTime": 484,
+          "endTime": 864,
+          "interpolator": "DECELERATE",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "824608",
+          "layerId": "824587",
+          "propertyName": "scaleX",
+          "startTime": 547,
+          "endTime": 921,
+          "interpolator": "DECELERATE",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "824609",
+          "layerId": "824585",
+          "propertyName": "scaleX",
+          "startTime": 626,
+          "endTime": 1000,
+          "interpolator": "DECELERATE",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "824610",
+          "layerId": "824576",
+          "propertyName": "scaleX",
+          "startTime": 10,
+          "endTime": 328,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "824611",
+          "layerId": "824576",
+          "propertyName": "scaleY",
+          "startTime": 10,
+          "endTime": 328,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "824612",
+          "layerId": "824576",
+          "propertyName": "scaleY",
+          "startTime": 407,
+          "endTime": 725,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "824613",
+          "layerId": "824576",
+          "propertyName": "scaleX",
+          "startTime": 407,
+          "endTime": 725,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "824614",
+          "layerId": "824579",
+          "propertyName": "scaleX",
+          "startTime": 89,
+          "endTime": 407,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "824615",
+          "layerId": "824579",
+          "propertyName": "scaleY",
+          "startTime": 89,
+          "endTime": 407,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "824616",
+          "layerId": "824582",
+          "propertyName": "scaleX",
+          "startTime": 191,
+          "endTime": 509,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "824617",
+          "layerId": "824582",
+          "propertyName": "scaleY",
+          "startTime": 191,
+          "endTime": 509,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 1,
+          "toValue": 0.1
+        },
+        {
+          "id": "824618",
+          "layerId": "824582",
+          "propertyName": "scaleY",
+          "startTime": 682,
+          "endTime": 1000,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "824619",
+          "layerId": "824582",
+          "propertyName": "scaleX",
+          "startTime": 682,
+          "endTime": 1000,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "824620",
+          "layerId": "824579",
+          "propertyName": "scaleX",
+          "startTime": 508,
+          "endTime": 826,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        },
+        {
+          "id": "824621",
+          "layerId": "824579",
+          "propertyName": "scaleY",
+          "startTime": 508,
+          "endTime": 826,
+          "interpolator": "FAST_OUT_SLOW_IN",
+          "type": "number",
+          "fromValue": 0.1,
+          "toValue": 1
+        }
+      ]
+    }
+  }
+}

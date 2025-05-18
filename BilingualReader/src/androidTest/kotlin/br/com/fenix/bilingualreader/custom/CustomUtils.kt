@@ -26,13 +26,7 @@ class CustomUtils {
             return bitmap
         }
 
-        fun sameBitmap(
-            context: Context,
-            drawable: Drawable?,
-            resourceId: Int,
-            view: View,
-            ignoreColor: Boolean
-        ): Boolean {
+        fun sameBitmap(context: Context, drawable: Drawable?, resourceId: Int, view: View, ignoreColor: Boolean): Boolean {
             var drawable = drawable
             val otherDrawable: Drawable? = context.resources.getDrawable(resourceId)
             if (drawable == null || otherDrawable == null) {

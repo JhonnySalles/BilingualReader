@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin_small"
         android:hint="@string/popup_reading_language_book"
-        app:startIconDrawable="@drawable/ic_language">
+        app:startIconDrawable="@drawable/ico_language">
 
         <com.google.android.material.textfield.MaterialAutoCompleteTextView
             android:id="@+id/popup_book_language_menu_autocomplete_book_language"
@@ -45,7 +45,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin_small"
         android:hint="@string/popup_reading_language_tts_voice"
-        app:startIconDrawable="@drawable/ic_book_tts">
+        app:startIconDrawable="@drawable/ico_book_tts">
 
         <com.google.android.material.textfield.MaterialAutoCompleteTextView
             android:id="@+id/popup_book_language_menu_autocomplete_tts_voice"
@@ -54,6 +54,38 @@
             android:layout_height="wrap_content" />
 
     </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin">
+        <TextView
+            style="@style/TextNormal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_gravity="center"
+            android:text="@string/popup_reading_tts_speed_slow"/>
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/popup_book_language_tts_speed"
+            style="@style/Slider.TTS"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:maxHeight="2dp"
+            android:minHeight="2dp"/>
+
+        <TextView
+            style="@style/TextNormal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin"
+            android:layout_gravity="center"
+            android:text="@string/popup_reading_tts_speed_fast" />
+    </LinearLayout>
 
     <com.google.android.material.divider.MaterialDivider
         style="@style/MaterialDivider"

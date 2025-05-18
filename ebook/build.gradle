@@ -53,13 +53,16 @@ dependencies {
     implementation 'org.greenrobot:greendao:3.2.2'
     implementation 'org.greenrobot:eventbus:3.1.1'
     implementation 'org.greenrobot:greendao-api:3.2.2'
-    implementation 'org.jsoup:jsoup:1.10.3'
+    implementation 'org.jsoup:jsoup:1.12.2'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
     implementation files('libs/rtfparserkit-1.10.0.jar')
 
     // Mupdf
     implementation 'com.darwinsys:hirondelle-date4j:1.5.1'
+
+    //Log
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
 
     // Test
     implementation 'androidx.core:core-ktx:1.1.0'

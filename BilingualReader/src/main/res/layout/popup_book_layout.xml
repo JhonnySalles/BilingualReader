@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/AppBackground.Accent"
@@ -19,17 +19,19 @@
         android:layout_marginBottom="5dp">
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/popup_book_layout_scrolling_type"
+            android:id="@+id/popup_book_layout_scrolling_mode"
             style="@style/TextInputDropMenu"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/popup_reading_layout_scrolling_type"
+            android:hint="@string/popup_reading_layout_scrolling_mode"
+            android:layout_margin="@dimen/margin_small"
+            app:startIconDrawable="@drawable/ico_reading_mode"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                android:id="@+id/popup_book_layout_scrolling_type_menu_autocomplete"
+                android:id="@+id/popup_book_layout_scrolling_mode_menu_autocomplete"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -37,6 +39,26 @@
                 android:inputType="none"
                 android:maxLines="1"
                 tools:ignore="LabelFor" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/popup_book_layout_pagination_type"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/popup_reading_layout_pagination_type"
+            android:layout_margin="@dimen/margin_small"
+            app:startIconDrawable="@drawable/ico_pagination_type"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_scrolling_mode">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/popup_book_layout_pagination_type_menu_autocomplete"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -49,12 +71,13 @@
             android:layout_marginTop="@dimen/margin_big"
             android:layout_marginRight="@dimen/margin"
             android:layout_marginBottom="@dimen/margin_small"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_scrolling_type"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_pagination_type"/>
 
         <TextView
             android:id="@+id/popup_book_layout_margin_description"
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
@@ -118,12 +141,13 @@
             android:layout_marginTop="@dimen/margin_big"
             android:layout_marginRight="@dimen/margin"
             android:layout_marginBottom="@dimen/margin_small"
-            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_margin_small"/>
 
         <TextView
             android:id="@+id/popup_book_layout_spacing_description"
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
@@ -187,12 +211,13 @@
             android:layout_marginTop="@dimen/margin_big"
             android:layout_marginRight="@dimen/margin"
             android:layout_marginBottom="@dimen/margin_small"
-            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_spacing_small"/>
 
         <TextView
             android:id="@+id/popup_book_layout_alignment_description"
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
@@ -261,6 +286,30 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_alignment_description"/>
 
+        <com.google.android.material.divider.MaterialDivider
+            android:id="@+id/popup_book_layout_reading_touch_divider"
+            style="@style/MaterialDivider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="@dimen/margin_big"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_alignment_justify"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/popup_book_layout_reading_touch_screen"
+            style="@style/Button.LabelStart"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="@string/popup_reading_layout_reading_view_touch"
+            android:layout_margin="@dimen/margin"
+            app:icon="@drawable/ico_config_touch_screen"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/popup_book_layout_reading_touch_divider" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-</LinearLayout>
+</androidx.core.widget.NestedScrollView>

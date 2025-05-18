@@ -14,6 +14,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import org.ebookdroid.core.codec.PageLink;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Arrays;
@@ -22,7 +24,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import br.com.ebook.Config;
-import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.ResultResponse;
 import br.com.ebook.foobnix.android.utils.Safe;
 import br.com.ebook.foobnix.android.utils.TxtUtils;
@@ -36,6 +37,8 @@ import br.com.ebook.universalimageloader.core.ImageLoader;
 
 @SuppressLint("NewApi")
 public abstract class DocumentController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DocumentController.class);
 
     public final static List<Integer> orientationIds = Arrays.asList(//
             ActivityInfo.SCREEN_ORIENTATION_SENSOR, //
@@ -223,7 +226,7 @@ public abstract class DocumentController {
             final int last = getLinkHistory().removeLast();
             onScrollY(last);
             if (Config.SHOW_LOG)
-                LOG.d("onLinkHistory", last);
+                LOGGER.info("onLinkHistory: {}", last);
 
         }
     }
@@ -234,7 +237,7 @@ public abstract class DocumentController {
             a.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
 //            Keyboards.hideNavigation(a);
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error ren full screen: {}", e.getMessage(), e);
         }
     }
 
@@ -248,7 +251,7 @@ public abstract class DocumentController {
                 decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
             }
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error ren normal screen: {}", e.getMessage(), e);
         }
     }
 

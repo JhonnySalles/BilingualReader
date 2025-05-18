@@ -39,11 +39,11 @@
         style="@style/Button.IconOnly"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        android:textColor="?attr/colorPrimary"
+        android:textColor="?attr/colorOnBackground"
         android:contentDescription="@string/book_search_history_delete"
         android:layout_marginStart="@dimen/margin_small"
         app:iconSize="@dimen/book_search_list_icon_size"
-        app:iconTint="?attr/colorPrimary"
+        app:iconTint="?attr/colorOnBackground"
         app:icon="@drawable/ico_animated_delete_history"/>
 
 </LinearLayout>

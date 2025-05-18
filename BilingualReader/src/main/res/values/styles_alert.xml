@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="AppCompatAlertDialogStyle" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
-        <item name="colorAccent">?attr/colorSecondary</item>
-        <item name="android:textColor">?attr/colorPrimary</item>
-        <item name="android:textColorPrimary">?attr/colorPrimary</item>
-        <item name="android:background">?attr/colorOnBackground</item>
+        <item name="colorAccent">?attr/colorSurfaceContainer</item>
+        <item name="android:textColor">?attr/colorOnBackground</item>
+        <item name="android:textColorPrimary">?attr/colorOnBackground</item>
+        <item name="android:background">?attr/colorSurfaceContainer</item>
         <item name="colorControlHighlight">?attr/colorTertiary</item>
+
         <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
         <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
 
@@ -17,7 +18,7 @@
     </style>
 
     <style name="NegativeButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textColor">?attr/colorOnBackground</item>
     </style>
 
     <style name="ErrorButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
@@ -25,7 +26,7 @@
     </style>
 
     <style name="PositiveButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="android:textColor">?attr/colorPrimaryContainer</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
     </style>
 
     <style name="FloatingTab" parent="TextAppearance.Design.Tab">
@@ -34,14 +35,14 @@
     </style>
 
     <style name="AppCompatMaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
-        <item name="colorAccent">?attr/colorSecondary</item>
-        <item name="android:textColorPrimary">?attr/colorPrimary</item>
-        <item name="textColorAlertDialogListItem">?attr/colorPrimary</item>
-        <item name="android:textColor">?attr/colorPrimary</item>
-        <item name="android:textColorAlertDialogListItem">?attr/colorPrimary</item>
-        <item name="android:textColorSecondary">?attr/colorPrimary</item>
-        <item name="android:background">?attr/colorOnBackground</item>
-        <item name="colorControlHighlight">?attr/colorTertiary</item>
+        <item name="colorAccent">?attr/colorSurfaceContainer</item>
+        <item name="android:textColorPrimary">?attr/colorOnBackground</item>
+        <item name="textColorAlertDialogListItem">?attr/colorOnBackground</item>
+        <item name="android:textColor">?attr/colorOnBackground</item>
+        <item name="android:textColorAlertDialogListItem">?attr/colorOnBackground</item>
+        <item name="android:textColorSecondary">?attr/colorOnBackground</item>
+        <item name="android:background">?attr/colorSurfaceContainer</item>
+        <item name="colorControlHighlight">?attr/colorPrimary</item>
 
         <item name="materialAlertDialogTitleTextStyle">@style/AppCompatAlertDialogTitle</item>
         <item name="materialAlertDialogBodyTextStyle">@style/AppCompatAlertDialogContent</item>
@@ -62,14 +63,14 @@
     </style>
 
     <style name="AppCompatMaterialAlertList" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
-        <item name="colorAccent">?attr/colorSecondary</item>
-        <item name="android:textColorPrimary">?attr/colorPrimary</item>
-        <item name="textColorAlertDialogListItem">?attr/colorPrimary</item>
-        <item name="android:textColor">?attr/colorPrimary</item>
-        <item name="android:textColorAlertDialogListItem">?attr/colorPrimary</item>
-        <item name="android:textColorSecondary">?attr/colorPrimary</item>
-        <item name="android:background">?attr/colorOnBackground</item>
-        <item name="colorControlHighlight">?attr/colorTertiary</item>
+        <item name="colorAccent">?attr/colorSurfaceContainer</item>
+        <item name="android:textColorPrimary">?attr/colorOnBackground</item>
+        <item name="textColorAlertDialogListItem">?attr/colorOnBackground</item>
+        <item name="android:textColor">?attr/colorOnBackground</item>
+        <item name="android:textColorAlertDialogListItem">?attr/colorOnBackground</item>
+        <item name="android:textColorSecondary">?attr/colorOnBackground</item>
+        <item name="android:background">?attr/colorSurfaceContainer</item>
+        <item name="colorControlHighlight">?attr/colorPrimary</item>
 
         <item name="materialAlertDialogTitleTextStyle">@style/AppCompatAlertDialogTitle</item>
         <item name="materialAlertDialogBodyTextStyle">@style/AppCompatAlertDialogList</item>
@@ -81,7 +82,7 @@
     <style name="AppCompatMaterialErrorDialogStyle" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
         <item name="colorAccent">?attr/colorError</item>
         <item name="android:textColorPrimary">?attr/colorError</item>
-        <item name="android:background">?attr/colorSurface</item>
+        <item name="android:background">?attr/android:colorBackground</item>
         <item name="colorControlHighlight">?attr/colorError</item>
         <item name="buttonBarNegativeButtonStyle">@style/ErrorButtonStyle</item>
         <item name="buttonBarPositiveButtonStyle">@style/ErrorButtonStyle</item>
@@ -93,17 +94,32 @@
     </style>
 
     <style name="AppCompatAlertDialogTitle" parent="@style/MaterialAlertDialog.MaterialComponents.Title.Text">
-        <item name="android:textColor">?attr/colorSecondary</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
     </style>
 
     <style name="AppCompatAlertDialogContent" parent="@style/MaterialAlertDialog.MaterialComponents.Body.Text">
-        <item name="android:textColor">?attr/colorPrimary</item>
-        <item name="android:textColorPrimary">?attr/colorPrimary</item>
+        <item name="android:textColor">?attr/colorOnBackground</item>
+        <item name="android:textColorPrimary">?attr/colorOnBackground</item>
     </style>
 
     <style name="AppCompatAlertDialogList" parent="@style/MaterialAlertDialog.MaterialComponents.Body.Text">
-        <item name="android:textColor">?attr/colorPrimary</item>
-        <item name="android:textColorPrimary">?attr/colorPrimary</item>
+        <item name="android:textColor">?attr/colorOnBackground</item>
+        <item name="android:textColorPrimary">?attr/colorOnBackground</item>
+    </style>
+
+    <style name="AppCompatMaterialDatePicker" parent="@style/ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="materialCalendarHeaderDivider">@style/AppCompatMaterialDatePickerHeaderDivider</item>
+        <item name="materialCalendarHeaderTitle">@style/AppCompatMaterialDatePickerTitle</item>
+        <item name="materialCalendarHeaderSelection">@style/AppCompatMaterialDatePickerSelection</item>
+    </style>
+
+    <style name="AppCompatMaterialDatePickerTitle" parent="@style/Widget.MaterialComponents.MaterialCalendar.HeaderSelection">
+    </style>
+
+    <style name="AppCompatMaterialDatePickerSelection" parent="@style/Widget.MaterialComponents.MaterialCalendar.HeaderSelection">
+    </style>
+
+    <style name="AppCompatMaterialDatePickerHeaderDivider" parent="@style/Widget.MaterialComponents.MaterialCalendar.HeaderDivider">
     </style>
 
 </resources>

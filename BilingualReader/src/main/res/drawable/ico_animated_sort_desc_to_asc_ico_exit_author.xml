@@ -4,8 +4,8 @@
     <aapt:attr name="android:drawable">
         <vector
             android:name="vector"
-            android:width="24dp"
-            android:height="24dp"
+            android:width="30dp"
+            android:height="30dp"
             android:viewportWidth="24"
             android:viewportHeight="24">
             <group android:name="group_3">
@@ -13,7 +13,7 @@
                     <path
                         android:name="bar_ico1"
                         android:pathData="M 3 12 L 17 12"
-                        android:strokeColor="?attr/colorSecondary"
+                        android:strokeColor="?attr/colorOnSecondary"
                         android:strokeWidth="2"
                         android:strokeLineCap="round"
                         android:strokeLineJoin="round"/>
@@ -22,7 +22,7 @@
                     <path
                         android:name="bar_ico2"
                         android:pathData="M 3 17 L 13 17"
-                        android:strokeColor="?attr/colorSecondary"
+                        android:strokeColor="?attr/colorOnSecondary"
                         android:strokeWidth="2"
                         android:strokeLineCap="round"
                         android:strokeLineJoin="round"/>
@@ -31,7 +31,7 @@
                     <path
                         android:name="bar_ico3"
                         android:pathData="M 3 7 L 21 7"
-                        android:strokeColor="?attr/colorSecondary"
+                        android:strokeColor="?attr/colorOnSecondary"
                         android:strokeWidth="2"
                         android:strokeLineCap="round"
                         android:strokeLineJoin="round"/>
@@ -41,7 +41,7 @@
                 <path
                     android:name="ico_author"
                     android:pathData="M 18.693 12.575 C 17.128 12.575 15.859 13.844 15.859 15.409 C 15.859 16.973 17.128 18.242 18.693 18.242 C 20.258 18.242 21.526 16.973 21.526 15.409 C 21.526 13.844 20.258 12.575 18.693 12.575 Z M 16.117 19.272 C 14.694 19.272 13.541 20.425 13.541 21.848 L 13.541 23.393 C 13.541 23.678 13.772 23.909 14.056 23.909 L 23.329 23.909 C 23.614 23.909 23.844 23.678 23.844 23.393 L 23.844 21.848 C 23.844 20.425 22.691 19.272 21.268 19.272 Z"
-                    android:fillColor="?attr/colorSecondary"
+                    android:fillColor="?attr/colorOnSecondary"
                     android:strokeWidth="1"/>
             </group>
         </vector>

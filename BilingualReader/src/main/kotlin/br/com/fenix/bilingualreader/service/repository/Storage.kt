@@ -15,6 +15,7 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import java.time.LocalDateTime
 
 class Storage(context: Context) {
 
@@ -64,12 +65,12 @@ class Storage(context: Context) {
 
     fun updateBookMark(manga: Manga) = mMangaRepository.updateBookMark(manga)
 
-    fun save(manga: Manga): Long {
+    fun save(manga: Manga, lastAlteration: LocalDateTime? = LocalDateTime.now()): Long {
         return if (manga.id != null) {
-            mMangaRepository.update(manga)
+            mMangaRepository.update(manga, lastAlteration)
             manga.id!!
         } else
-            mMangaRepository.save(manga)
+            mMangaRepository.save(manga, lastAlteration)
     }
 
     // Used to get the cache images
@@ -144,12 +145,12 @@ class Storage(context: Context) {
 
     fun listBookDeleted(library: Library): List<Book> = mBookRepository.listDeleted(library)
 
-    fun save(book: Book): Long {
+    fun save(book: Book, lastAlteration: LocalDateTime? = LocalDateTime.now()): Long {
         return if (book.id != null) {
-            mBookRepository.update(book)
+            mBookRepository.update(book, lastAlteration)
             book.id!!
         } else
-            mBookRepository.save(book)
+            mBookRepository.save(book, lastAlteration)
     }
 
     fun getPrevBook(library: Library, book: Book): Book? {
@@ -158,7 +159,7 @@ class Storage(context: Context) {
         var prev = if (idx > 0) books[idx - 1] else null
 
         if (prev == null) {
-            books = mBookRepository.listOrderByTitle(library)
+            books = mBookRepository.listOrderByPath(library)
             idx = books!!.indexOf(book)
             prev = if (idx > 0) books[idx - 1] else null
         }
@@ -172,7 +173,7 @@ class Storage(context: Context) {
         var next = if (idx != books.size - 1) books[idx + 1] else null
 
         if (next == null) {
-            books = mBookRepository.listOrderByTitle(library)
+            books = mBookRepository.listOrderByPath(library)
             idx = books!!.indexOf(book)
             next = if (idx != books.size - 1) books[idx + 1] else null
         }

@@ -84,7 +84,7 @@ class BookParsesTest {
         val waiter = CountDownLatch(1)
 
         for (book in books) {
-            val parse = DocumentParse(book.path, book.password, fontSize, false)
+            val parse = DocumentParse(book.path, book.password, fontSize, isLandscape = false, isVertical = false)
 
             TestCase.assertTrue(
                 "Book " + book.name + " (" + book.extension + ") not loaded. Please verify in " + BookParsesTest::class.java.name,

@@ -19,7 +19,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.media.ExifInterface
-import br.com.ebook.foobnix.android.utils.LOG
+import br.com.ebook.Config
 import br.com.ebook.foobnix.sys.InputStreamBitmap
 import br.com.ebook.universalimageloader.core.assist.ImageScaleType
 import br.com.ebook.universalimageloader.core.assist.ImageSize
@@ -32,6 +32,7 @@ import br.com.ebook.universalimageloader.utils.IoUtils.closeSilently
 import br.com.ebook.universalimageloader.utils.L.d
 import br.com.ebook.universalimageloader.utils.L.e
 import br.com.ebook.universalimageloader.utils.L.w
+import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.io.InputStream
 
@@ -50,6 +51,9 @@ class BaseImageDecoder
  * match
  * [            ImageLoaderConfiguration.writeDebugLogs()][ImageLoaderConfiguration.Builder.writeDebugLogs]
  */(protected val loggingEnabled: Boolean) : ImageDecoder {
+
+    private val mLOGGER = LoggerFactory.getLogger(BaseImageDecoder::class.java)
+
     /**
      * Decodes image from URI into [Bitmap]. Image is scaled close to
      * incoming [target size][ImageSize] during decoding (depend on
@@ -179,7 +183,8 @@ class BaseImageDecoder
 
     @Throws(IOException::class)
     protected fun resetStream(imageStream: InputStream, decodingInfo: ImageDecodingInfo?): InputStream? {
-        LOG.d("UIL resetStream")
+        if (Config.SHOW_LOG)
+            mLOGGER.info("UIL resetStream")
         if (imageStream.markSupported()) {
             try {
                 imageStream.reset()

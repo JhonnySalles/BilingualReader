@@ -8,6 +8,9 @@ import android.net.Uri;
 import android.os.Environment;
 import android.view.KeyEvent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +24,6 @@ import java.util.concurrent.TimeUnit;
 
 import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.Dips;
-import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.android.utils.MemoryUtils;
 import br.com.ebook.foobnix.android.utils.Objects;
 import br.com.ebook.foobnix.android.utils.Objects.IgnoreHashCode;
@@ -30,6 +32,8 @@ import br.com.ebook.foobnix.pdf.info.Urls;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 
 public class AppState {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppState.class);
 
     public static final String PROXY_HTTP = "HTTP";
     public static final String PROXY_SOCKS = "SOCKS";
@@ -569,14 +573,14 @@ public class AppState {
                 //DragingPopup.loadCache(a);
                 PasswordState.get().load(a);
                 if (Config.SHOW_LOG)
-                    LOG.d("AppState Load lasta", lastClosedActivity);
+                    LOGGER.info("AppState Load lasta: {}", lastClosedActivity);
             } else {
                 if (Config.SHOW_LOG)
-                    LOG.d("AppState is Loaded", lastClosedActivity);
+                    LOGGER.info("AppState is Loaded: {}", lastClosedActivity);
             }
             isLoaded = true;
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error load app state: {}", e.getMessage(), e);
         }
     }
 
@@ -618,18 +622,18 @@ public class AppState {
             //DragingPopup.saveCache(a);
             PasswordState.get().save(a);
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error save app state: {}", e.getMessage(), e);
         }
     }
 
     public void saveIn(final Context a) {
-        if (a == null) {
+        if (a == null)
             return;
-        }
+
         int currentHash = Objects.hashCode(AppState.get(), false);
         if (currentHash == hashCode) {
             if (Config.SHOW_LOG)
-                LOG.d("Objects", "Ignore save hashCode the same");
+                LOGGER.info("Objects: Ignore save hashCode the same");
             return;
         }
         sp = a.getSharedPreferences(ExportSettingsManager.PREFIX_PDF, Context.MODE_PRIVATE);

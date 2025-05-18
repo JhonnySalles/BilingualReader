@@ -19,6 +19,7 @@ import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
+import android.view.View
 import android.view.ViewConfiguration
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.Interpolator
@@ -26,18 +27,31 @@ import android.widget.OverScroller
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.ViewCompat
 import androidx.core.view.drawToBitmap
+import androidx.viewpager2.widget.ViewPager2
+import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.ReaderMode
+import br.com.fenix.bilingualreader.model.interfaces.BaseImageView
 import br.com.fenix.bilingualreader.service.functions.AutoScroll
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
+import org.slf4j.LoggerFactory
 import kotlin.math.abs
+import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.sign
 
 
-open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCompatImageView(context, attributeSet), AutoScroll {
+open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCompatImageView(context, attributeSet), AutoScroll, BaseImageView {
+
+    companion object {
+        const val ZOOM_DURATION = 200
+        const val SCROLL_DURATION = 300
+    }
 
     constructor(context: Context) : this(context, null)
+
+    private val mLOGGER = LoggerFactory.getLogger(ImageViewPage::class.java)
 
     private var mViewMode: ReaderMode
     private var mHaveFrame = false
@@ -51,7 +65,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
     private var mMaxScale = 0F
     private var mZoomScale = 0F
     private var mOriginalScale = 0F
-    private val m = FloatArray(9)
+    private val mValues = FloatArray(9)
     private var mMatrix: Matrix = Matrix()
 
     var useMagnifierType = false
@@ -70,6 +84,18 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
     private val mMagnifierSize: Float
     private val mMagnifierRadius: Float
     private val mRightZoomScale: PointF
+
+    private var mTouchSlop = 0
+    private var mInitialX = 0f
+    private var mInitialY = 0f
+    private val mParentViewPager: ViewPager2?
+        get() {
+            var v: View? = parent as? View
+            while (v != null && v !is ViewPager2) {
+                v = v.parent as? View
+            }
+            return v as? ViewPager2
+        }
 
     fun setViewMode(viewMode: ReaderMode) {
         mViewMode = viewMode
@@ -100,7 +126,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
             v.performClick()
 
             mPinch = event.pointerCount > 1
-            if (event.pointerCount > 1) {
+            if (mPinch) {
                 mScaleGestureDetector.onTouchEvent(event)
                 parent.requestDisallowInterceptTouchEvent(true)
             } else
@@ -108,6 +134,9 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
 
             if (mZooming)
                 parent.requestDisallowInterceptTouchEvent(true)
+
+            if (!mZooming && !mPinch)
+                validScrollingTouchEventInViewPager(event)
 
             mOuterTouchListener?.onTouch(v, event)
             onTouchEvent(event)
@@ -136,7 +165,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
         mBorder.strokeWidth = resources.getDimension(R.dimen.reader_zoom_border)
 
         mBackground = Paint()
-        mBackground.color = context.getColorFromAttr(R.attr.colorOnSurface)
+        mBackground.color = context.getColorFromAttr(R.attr.colorSurface)
         mBackground.style = Paint.Style.FILL
 
         val displayMetrics = Resources.getSystem().displayMetrics
@@ -144,28 +173,30 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
         mRightZoomScale = if (isLandscape) PointF(displayMetrics.widthPixels.toFloat() * displayMetrics.density, 0f)  else PointF(displayMetrics.heightPixels.toFloat(), 0f)
     }
 
+    override fun isVisible(): Boolean = visibility == VISIBLE
+
     override fun autoScroll(isBack: Boolean): Boolean {
         val displayMetrics = Resources.getSystem().displayMetrics
 
         val distance = if (isBack)
-            m[Matrix.MTRANS_Y] + (displayMetrics.heightPixels).toFloat()
+            mValues[Matrix.MTRANS_Y] + (displayMetrics.heightPixels).toFloat()
         else
-            m[Matrix.MTRANS_Y] - (displayMetrics.heightPixels).toFloat()
+            mValues[Matrix.MTRANS_Y] - (displayMetrics.heightPixels).toFloat()
 
         val imageSize = computeCurrentImageSize()
         val imageHeight = imageSize.y
-        mMatrix.getValues(m)
+        mMatrix.getValues(mValues)
 
-        val isScroll = if (imageHeight < (displayMetrics.heightPixels).toFloat())
+        val isScroll = if (imageHeight < height)
             true
         else if (isBack)
-            m[Matrix.MTRANS_Y] >= 0F
+            mValues[Matrix.MTRANS_Y] >= 0F
         else if (imageHeight > height)
-            (m[Matrix.MTRANS_Y] * -1) >= (imageHeight - height).toFloat()
+            (mValues[Matrix.MTRANS_Y] * -1) >= (imageHeight - height).toFloat()
         else
-            (m[Matrix.MTRANS_Y] * -1) >= (height / 2 - imageHeight / 2).toFloat()
+            (mValues[Matrix.MTRANS_Y] * -1) >= (height / 2 - imageHeight / 2).toFloat()
 
-        post(ScrollAnimation(0F, m[Matrix.MTRANS_Y], 0F, distance))
+        post(ScrollAnimation(0F, mValues[Matrix.MTRANS_Y], 0F, distance))
 
         return !isScroll
     }
@@ -199,30 +230,31 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
             max(dHeight, vHeight) * multiple / dHeight
     }
 
-    fun getScrollPercent(): Triple<Float, Float, Float> {
+    override val isApplyPercent: Boolean = true
+    override fun getScrollPercent(): Triple<Float, Float, Float> {
         val imageSize = computeCurrentImageSize()
         return Triple(
-            (m[Matrix.MTRANS_X] / imageSize.x),
-            (m[Matrix.MTRANS_Y] / imageSize.y),
+            (mValues[Matrix.MTRANS_X] / imageSize.x),
+            (mValues[Matrix.MTRANS_Y] / imageSize.y),
             getMultipleScale()
         )
     }
 
-    fun setScrollPercent(percent: Triple<Float, Float, Float>) {
+    override fun setScrollPercent(percent: Triple<Float, Float, Float>) {
         val (x, y, zoom) = percent
         val scale = generateScale(zoom)
         mMatrix.setScale(scale, scale)
-        mMatrix.getValues(m)
+        mMatrix.getValues(mValues)
         val imageSize = computeCurrentImageSize()
-        val posY = m[Matrix.MTRANS_Y] + (imageSize.y * y)
-        val posX = m[Matrix.MTRANS_X] + (imageSize.x * x)
+        val posY = mValues[Matrix.MTRANS_Y] + (imageSize.y * y)
+        val posX = mValues[Matrix.MTRANS_X] + (imageSize.x * x)
         mMatrix.postTranslate(posX, posY)
         imageMatrix = mMatrix
         postInvalidate()
     }
 
-    override fun setOnTouchListener(listenner: OnTouchListener?) {
-        mOuterTouchListener = listenner
+    override fun setOnTouchListener(listener: OnTouchListener?) {
+        mOuterTouchListener = listener
     }
 
     fun setTranslateToRightEdge(translate: Boolean) {
@@ -279,8 +311,8 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
 
     inner class PrivateScaleDetector : SimpleOnScaleGestureListener() {
         override fun onScale(detector: ScaleGestureDetector): Boolean {
-            mMatrix.getValues(m)
-            val scale = m[Matrix.MSCALE_X]
+            mMatrix.getValues(mValues)
+            val scale = mValues[Matrix.MSCALE_X]
             var scaleFactor = detector.scaleFactor
             val scaleNew = scale * scaleFactor
             var scalable = true
@@ -291,10 +323,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
                 scaleFactor = mMinScale / scale
                 scalable = false
             }
-            mMatrix.postScale(
-                scaleFactor, scaleFactor,
-                detector.focusX, detector.focusY
-            )
+            mMatrix.postScale(scaleFactor, scaleFactor, detector.focusX, detector.focusY)
             imageMatrix = mMatrix
             return scalable
         }
@@ -327,11 +356,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
                 minY = offset.y
                 maxY = offset.y
             }
-            mScroller.fling(
-                offset.x, offset.y,
-                velocityX.toInt(), velocityY.toInt(),
-                minX, maxX, minY, maxY
-            )
+            mScroller.fling(offset.x, offset.y, velocityX.toInt(), velocityY.toInt(), minX, maxX, minY, maxY)
             ViewCompat.postInvalidateOnAnimation(this@ImageViewPage)
             return true
         }
@@ -370,23 +395,23 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
         if (!mScroller.isFinished && mScroller.computeScrollOffset()) {
             val curX = mScroller.currX
             val curY = mScroller.currY
-            mMatrix.getValues(m)
-            m[Matrix.MTRANS_X] = curX.toFloat()
-            m[Matrix.MTRANS_Y] = curY.toFloat()
-            mMatrix.setValues(m)
+            mMatrix.getValues(mValues)
+            mValues[Matrix.MTRANS_X] = curX.toFloat()
+            mValues[Matrix.MTRANS_Y] = curY.toFloat()
+            mMatrix.setValues(mValues)
             imageMatrix = mMatrix
             ViewCompat.postInvalidateOnAnimation(this)
         }
         super.computeScroll()
     }
 
-    fun getPointerCoordinate(e: MotionEvent): FloatArray {
+    override fun getPointerCoordinate(e: MotionEvent): FloatArray {
         val index = e.actionIndex
         val coordinates = floatArrayOf(e.getX(index), e.getY(index))
         val matrix = Matrix()
         imageMatrix.invert(matrix)
-        m[Matrix.MTRANS_X] = mScroller.currX.toFloat()
-        m[Matrix.MTRANS_Y] = mScroller.currY.toFloat()
+        mValues[Matrix.MTRANS_X] = mScroller.currX.toFloat()
+        mValues[Matrix.MTRANS_Y] = mScroller.currY.toFloat()
         matrix.mapPoints(coordinates)
         val imageSize = computeCurrentImageSize()
         return floatArrayOf(
@@ -398,15 +423,15 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
     }
 
     open fun getCurrentScale(): Float {
-        mMatrix.getValues(m)
-        return m[Matrix.MSCALE_X]
+        mMatrix.getValues(mValues)
+        return mValues[Matrix.MSCALE_X]
     }
 
     open fun computeCurrentImageSize(): Point {
         val size = Point()
         val d: Drawable = drawable ?: return size
-        mMatrix.getValues(m)
-        val scale = m[Matrix.MSCALE_X]
+        mMatrix.getValues(mValues)
+        val scale = mValues[Matrix.MSCALE_X]
         val width = d.intrinsicWidth * scale
         val height = d.intrinsicHeight * scale
         size[width.toInt()] = height.toInt()
@@ -415,9 +440,9 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
 
     open fun computeCurrentOffset(): Point {
         val offset = Point()
-        mMatrix.getValues(m)
-        val transX = m[Matrix.MTRANS_X]
-        val transY = m[Matrix.MTRANS_Y]
+        mMatrix.getValues(mValues)
+        val transX = mValues[Matrix.MTRANS_X]
+        val transY = mValues[Matrix.MTRANS_Y]
         offset[transX.toInt()] = transY.toInt()
         return offset
     }
@@ -429,7 +454,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
 
     open fun fixMatrix(matrix: Matrix): Matrix {
         if (drawable == null) return matrix
-        matrix.getValues(m)
+        matrix.getValues(mValues)
         val imageSize = computeCurrentImageSize()
         val imageWidth = imageSize.x
         val imageHeight = imageSize.y
@@ -437,28 +462,87 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
         val maxTransY: Float = (imageHeight - height).toFloat()
 
         if (imageWidth > width)
-            m[Matrix.MTRANS_X] = min(0F, max(m[Matrix.MTRANS_X], -maxTransX))
+            mValues[Matrix.MTRANS_X] = min(0F, max(mValues[Matrix.MTRANS_X], -maxTransX))
         else
-            m[Matrix.MTRANS_X] = (width / 2 - imageWidth / 2).toFloat()
+            mValues[Matrix.MTRANS_X] = (width / 2 - imageWidth / 2).toFloat()
 
         if (imageHeight > height)
-            m[Matrix.MTRANS_Y] = min(0F, max(m[Matrix.MTRANS_Y], -maxTransY))
+            mValues[Matrix.MTRANS_Y] = min(0F, max(mValues[Matrix.MTRANS_Y], -maxTransY))
         else
-            m[Matrix.MTRANS_Y] = (height / 2 - imageHeight / 2).toFloat()
+            mValues[Matrix.MTRANS_Y] = (height / 2 - imageHeight / 2).toFloat()
 
-        matrix.setValues(m)
+        matrix.setValues(mValues)
         return matrix
     }
 
+    private fun canChildScroll(orientation: Int, delta: Float): Boolean {
+        val direction = -delta.sign.toInt()
+        return when (orientation) {
+            0 -> canScrollHorizontally(direction)
+            1 -> canScrollVertically(direction)
+            else -> throw IllegalArgumentException()
+        }
+    }
+
+    private fun validScrollingTouchEventInViewPager(e: MotionEvent) {
+        val orientation = mParentViewPager?.orientation ?: return
+
+        // Early return if child can't scroll in same direction as parent
+        if (!canChildScroll(orientation, -1f) && !canChildScroll(orientation, 1f))
+            return
+
+
+        if (e.action == MotionEvent.ACTION_DOWN) {
+            mInitialX = e.x
+            mInitialY = e.y
+            parent.requestDisallowInterceptTouchEvent(true)
+        } else if (e.action == MotionEvent.ACTION_MOVE) {
+            val dx = e.x - mInitialX
+            val dy = e.y - mInitialY
+            val isVpHorizontal = orientation == ORIENTATION_HORIZONTAL
+
+            // assuming ViewPager2 touch-slop is 2x touch-slop of child
+            val scaledDx = dx.absoluteValue * if (isVpHorizontal) .5f else 1f
+            val scaledDy = dy.absoluteValue * if (isVpHorizontal) 1f else .5f
+
+            if (scaledDx > mTouchSlop || scaledDy > mTouchSlop) {
+                if (isVpHorizontal == (scaledDy > scaledDx))
+                    parent.requestDisallowInterceptTouchEvent(false)
+                else {
+                    if (canChildScroll(orientation, if (isVpHorizontal) dx else dy))
+                        parent.requestDisallowInterceptTouchEvent(true)
+                    else
+                        parent.requestDisallowInterceptTouchEvent(false)
+                }
+            }
+        }
+    }
+
+    override fun canScrollVertically(direction: Int): Boolean {
+        if (drawable == null)
+            return false
+
+        val imageHeight = computeCurrentImageSize().y.toFloat()
+        val offsetY = computeCurrentOffset().x.toFloat()
+        if (offsetY >= 0 && direction < 0)
+            return false
+        else if (abs(offsetY) + height >= imageHeight && direction > 0)
+            return false
+
+        return true
+    }
+
     override fun canScrollHorizontally(direction: Int): Boolean {
-        if (drawable == null) return false
+        if (drawable == null)
+            return false
+
         val imageWidth = computeCurrentImageSize().x.toFloat()
         val offsetX = computeCurrentOffset().x.toFloat()
-        if (offsetX >= 0 && direction < 0) {
+        if (offsetX >= 0 && direction < 0)
             return false
-        } else if (abs(offsetX) + width >= imageWidth && direction > 0) {
+        else if (abs(offsetX) + width >= imageWidth && direction > 0)
             return false
-        }
+
         return true
     }
 
@@ -479,13 +563,14 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
                 mZooming = false
                 this.invalidate()
             }
-            else -> {}
+            else -> { }
         }
 
         return true
     }
 
     override fun onDraw(canvas: Canvas) {
+        canvas.save()
         super.onDraw(canvas)
         if (mZooming && !mPinch) {
             mPaint.shader = mShader
@@ -536,15 +621,10 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
                 )
             }
         }
+        canvas.restore()
     }
 
-    companion object {
-        const val ZOOM_DURATION = 200
-        const val SCROLL_DURATION = 300
-    }
-
-    inner class ZoomAnimation(x: Float, y: Float, scale: Float) :
-        Runnable {
+    inner class ZoomAnimation(x: Float, y: Float, scale: Float) : Runnable {
         private var mX: Float
         private var mY: Float
         private var mScale: Float
@@ -555,24 +635,24 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
             var t = (System.currentTimeMillis() - mStartTime).toFloat() / ZOOM_DURATION
             val interpolateRatio = mInterpolator.getInterpolation(t)
             t = if (t > 1f) 1f else t
-            mMatrix.getValues(m)
+            mMatrix.getValues(mValues)
             val newScale = mStartScale + interpolateRatio * (mScale - mStartScale)
-            val newScaleFactor = newScale / m[Matrix.MSCALE_X]
+            val newScaleFactor = newScale / mValues[Matrix.MSCALE_X]
             mMatrix.postScale(newScaleFactor, newScaleFactor, mX, mY)
             imageMatrix = mMatrix
             if (t < 1f) {
                 post(this)
             } else {
                 // set exact scale
-                mMatrix.getValues(m)
+                mMatrix.getValues(mValues)
                 mMatrix.setScale(mScale, mScale)
-                mMatrix.postTranslate(m[Matrix.MTRANS_X], m[Matrix.MTRANS_Y])
+                mMatrix.postTranslate(mValues[Matrix.MTRANS_X], mValues[Matrix.MTRANS_Y])
                 setImageMatrix(mMatrix)
             }
         }
 
         init {
-            mMatrix.getValues(m)
+            mMatrix.getValues(mValues)
             mX = x
             mY = y
             mScale = scale
@@ -582,8 +662,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
         }
     }
 
-    inner class ScrollAnimation(xInitial: Float, yInitial: Float, xFinal: Float, yFinal: Float) :
-        Runnable {
+    inner class ScrollAnimation(xInitial: Float, yInitial: Float, xFinal: Float, yFinal: Float) : Runnable {
         private var mYInitial: Float = yInitial
         private var mXInitial: Float = xInitial
         private var mYFinal: Float = yFinal

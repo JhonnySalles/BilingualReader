@@ -70,7 +70,7 @@
                 android:id="@+id/pages_link_icon_pages_not_linked"
                 android:layout_width="@dimen/page_link_list_not_link_icon_height_tablet"
                 android:layout_height="@dimen/page_link_list_not_link_icon_height_tablet"
-                android:src="@drawable/ic_file_not_linked"
+                android:src="@drawable/ico_file_not_linked"
                 android:contentDescription="@string/page_link_page_not_linked"
                 android:layout_gravity="center"
                 android:gravity="center"
@@ -135,7 +135,7 @@
                         android:layout_weight="1.5"
                         android:layout_marginEnd="@dimen/page_link_language_margin"
                         android:hint="@string/page_link_file"
-                        app:startIconDrawable="@drawable/ic_file">
+                        app:startIconDrawable="@drawable/ico_file">
 
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/pages_link_file_link_autocomplete"
@@ -154,7 +154,7 @@
                         android:layout_weight="0.9"
                         android:layout_marginStart="@dimen/page_link_language_margin"
                         android:hint="@string/page_link_file_language"
-                        app:startIconDrawable="@drawable/ic_translate">
+                        app:startIconDrawable="@drawable/ico_translate">
 
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/pages_link_language_autocomplete"
@@ -178,7 +178,6 @@
                 android:textColor="?attr/colorPrimaryInverse"
                 android:textSize="@dimen/page_link_card_page_number_size"
                 android:layout_marginTop="@dimen/page_link_card_page_name_margin"
-                android:background="?attr/colorOnSurface"
                 android:paddingStart="2dp"
                 android:paddingEnd="2dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -279,7 +278,7 @@
             android:contentDescription="@string/page_link_full_screen"
             android:layout_marginEnd="5dp"
             android:visibility="gone"
-            app:icon="@drawable/ic_force_reload_image"
+            app:icon="@drawable/ico_force_reload_image"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/pages_link_buttons_content"/>
 
@@ -338,9 +337,9 @@
                     android:max="100"
                     android:progress="100"
                     android:visibility="invisible"
-                    app:rippleColor="?attr/colorTertiary"
+                    app:rippleColor="?attr/colorPrimaryContainer"
                     app:indicatorSize="@dimen/page_link_loading_progress_size"
-                    app:indicatorColor="?attr/colorTertiary"
+                    app:indicatorColor="?attr/colorPrimaryContainer"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"

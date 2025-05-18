@@ -6,6 +6,8 @@ import android.graphics.Color;
 import androidx.collection.LruCache;
 
 import org.ebookdroid.common.LengthUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -14,9 +16,11 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
-import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.Config;
 
 public class BitmapManager {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BitmapManager.class);
 
     private final static long BITMAP_MEMORY_LIMIT = Runtime.getRuntime().freeMemory() / 2;
 
@@ -67,7 +71,8 @@ public class BitmapManager {
         try {
             createBitmap = Bitmap.createBitmap(width, height, config);
         } catch (Throwable e) {
-            LOG.e(e);
+            if (Config.SHOW_LOG)
+                LOGGER.error("Error get bitmap: {}", e.getMessage(), e);
             createBitmap = Bitmap.createBitmap(1, 1, config);
         }
         BitmapRef ref = new BitmapRef(createBitmap, generation.get());

@@ -4,7 +4,7 @@
     <shortcut
         android:shortcutId="library"
         android:enabled="true"
-        android:icon="@drawable/ic_shortcut_library"
+        android:icon="@drawable/ico_shortcut_library"
         android:shortcutShortLabel="@string/menu_library"
         android:shortcutLongLabel="@string/menu_library"
         android:shortcutDisabledMessage="@string/menu_library">
@@ -20,7 +20,7 @@
     <shortcut
         android:shortcutId="history"
         android:enabled="true"
-        android:icon="@drawable/ic_shortcut_history"
+        android:icon="@drawable/ico_shortcut_history"
         android:shortcutShortLabel="@string/menu_history"
         android:shortcutLongLabel="@string/menu_history"
         android:shortcutDisabledMessage="@string/menu_history">
@@ -29,7 +29,6 @@
             android:targetPackage="br.com.fenix.bilingualreader"
             android:targetClass="br.com.fenix.bilingualreader.MainActivity"
             android:data="history"/>
-
         <categories android:name="android.shortcut.conversation" />
         <capability-binding android:key="actions.intent.CREATE_MESSAGE" />
     </shortcut>

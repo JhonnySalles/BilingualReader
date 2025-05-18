@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/frame_annotation"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/default_navigator_header_margin_top"
+    android:clipToPadding="false"
+    android:clipChildren="false"
+    tools:context=".view.ui.annotation.AnnotationFragment">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/annotation_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/annotation_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/annotation_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true"
+                android:clipToPadding="false"
+                android:columnCount="1"
+                android:layoutAnimation="@anim/layout_animation_library_line"
+                android:paddingBottom="@dimen/annotation_list_padding"
+                android:scrollbars="vertical"
+                app:layout_constrainedHeight="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/annotation_scroll_up"
+                style="@style/FloatingActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|center"
+                android:layout_margin="@dimen/annotation_scrolling_button_margin"
+                android:contentDescription="@string/action_scroll_up"
+                android:src="@drawable/ico_animated_scroll_up"
+                android:visibility="gone"
+                app:borderWidth="@dimen/annotation_up_border"
+                app:fabCustomSize="@dimen/annotation_up_width"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/annotation_recycler_view"
+                app:maxImageSize="@dimen/annotation_up_image_width" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/annotation_scroll_down"
+                style="@style/FloatingActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center"
+                android:layout_margin="@dimen/annotation_scrolling_button_margin"
+                android:contentDescription="@string/action_scroll_down"
+                android:src="@drawable/ico_animated_scroll_down"
+                android:visibility="gone"
+                app:borderWidth="@dimen/annotation_down_border"
+                app:fabCustomSize="@dimen/annotation_down_width"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:maxImageSize="@dimen/annotation_down_image_width" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <FrameLayout
+            android:id="@+id/annotation_popup_filter"
+            style="@style/AppBackground.PopupBottom"
+            android:layout_width="match_parent"
+            android:layout_height="450dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingTop="1dp"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+            <ImageView
+                android:id="@+id/annotation_popup_filter_touch"
+                style="@style/TextTitle.Popup"
+                android:layout_width="@dimen/popup_button_center"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|top"
+                android:contentDescription="@string/annotation_popup_filter_open"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ico_line_popup"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:orientation="vertical">
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/annotation_popup_filter_tab"
+                    style="@style/PopupTab"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:tabGravity="fill"
+                    app:tabMode="fixed"
+                    app:tabPaddingBottom="0dp"
+                    app:tabPaddingEnd="0dp"
+                    app:tabPaddingStart="0dp"
+                    app:tabPaddingTop="0dp">
+
+                    <com.google.android.material.tabs.TabItem
+                        android:id="@+id/annotation_tab_item_filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/annotation_tab_item_filter" />
+
+                    <com.google.android.material.tabs.TabItem
+                        android:id="@+id/annotation_tab_item_chapters"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/annotation_tab_item_chapters" />
+
+                </com.google.android.material.tabs.TabLayout>
+
+                <androidx.viewpager.widget.ViewPager
+                    android:id="@+id/annotation_popup_order_filter_view_pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingTop="2dp"
+                    app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+            </LinearLayout>
+        </FrameLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</FrameLayout>

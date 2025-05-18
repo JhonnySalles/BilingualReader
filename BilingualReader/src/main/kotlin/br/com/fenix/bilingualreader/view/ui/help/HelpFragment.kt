@@ -22,6 +22,10 @@ class HelpFragment : Fragment() {
     private lateinit var mLibraryTitle: TextView
     private lateinit var mReaderContent: TextView
     private lateinit var mReaderTitle: TextView
+    private lateinit var mReaderMangaContent: TextView
+    private lateinit var mReaderMangaTitle: TextView
+    private lateinit var mReaderBookContent: TextView
+    private lateinit var mReaderBookTitle: TextView
     private lateinit var mSubtitleContent: TextView
     private lateinit var mSubtitleTitle: TextView
     private lateinit var mSubtitleImportContent: TextView
@@ -38,6 +42,12 @@ class HelpFragment : Fragment() {
     private lateinit var mFloatingPopupTitle: TextView
     private lateinit var mLanguageSupportContent: TextView
     private lateinit var mLanguageSupportTitle: TextView
+    private lateinit var mStatisticsContent: TextView
+    private lateinit var mStatisticsTitle: TextView
+    private lateinit var mThemesContent: TextView
+    private lateinit var mThemesTitle: TextView
+    private lateinit var mShareContent: TextView
+    private lateinit var mShareTitle: TextView
 
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
     private val mHandler = Handler(Looper.getMainLooper())
@@ -54,6 +64,11 @@ class HelpFragment : Fragment() {
         mScrollUp.setOnClickListener {
             (mScrollUp.drawable as AnimatedVectorDrawable).start()
             mScrollView.smoothScrollTo(0, 0)
+        }
+        mScrollUp.setOnLongClickListener {
+            (mScrollUp.drawable as AnimatedVectorDrawable).start()
+            mScrollView.scrollTo(0, 0)
+            true
         }
         mScrollUp.visibility = View.GONE
         mScrollView.setOnScrollChangeListener { _, _, yNew, _, yOld ->
@@ -83,6 +98,10 @@ class HelpFragment : Fragment() {
         mLibraryTitle = view.findViewById(R.id.help_library_title)
         mReaderContent = view.findViewById(R.id.help_reader_content)
         mReaderTitle = view.findViewById(R.id.help_reader_title)
+        mReaderMangaContent = view.findViewById(R.id.help_reader_manga_content)
+        mReaderMangaTitle = view.findViewById(R.id.help_reader_manga_title)
+        mReaderBookContent = view.findViewById(R.id.help_reader_book_content)
+        mReaderBookTitle = view.findViewById(R.id.help_reader_book_title)
         mSubtitleContent = view.findViewById(R.id.help_subtitle_content)
         mSubtitleTitle = view.findViewById(R.id.help_subtitle_title)
         mSubtitleImportContent = view.findViewById(R.id.help_subtitle_import_content)
@@ -99,9 +118,17 @@ class HelpFragment : Fragment() {
         mFloatingPopupTitle = view.findViewById(R.id.help_floating_popup_title)
         mLanguageSupportContent = view.findViewById(R.id.help_language_support_content)
         mLanguageSupportTitle = view.findViewById(R.id.help_language_support_title)
+        mStatisticsContent = view.findViewById(R.id.help_statistics_content)
+        mStatisticsTitle = view.findViewById(R.id.help_statistics_title)
+        mThemesContent = view.findViewById(R.id.help_themes_content)
+        mThemesTitle = view.findViewById(R.id.help_themes_title)
+        mShareContent = view.findViewById(R.id.help_share_content)
+        mShareTitle = view.findViewById(R.id.help_share_title)
 
         mLibraryContent.setOnClickListener { mScrollView.smoothScrollTo(0, mLibraryTitle.top) }
         mReaderContent.setOnClickListener { mScrollView.smoothScrollTo(0, mReaderTitle.top) }
+        mReaderMangaContent.setOnClickListener { mScrollView.smoothScrollTo(0, mReaderMangaTitle.top) }
+        mReaderBookContent.setOnClickListener { mScrollView.smoothScrollTo(0, mReaderBookTitle.top) }
         mSubtitleContent.setOnClickListener { mScrollView.smoothScrollTo(0, mSubtitleTitle.top) }
         mSubtitleImportContent.setOnClickListener { mScrollView.smoothScrollTo(0, mSubtitleImportTitle.top) }
         mSubtitleDataContent.setOnClickListener { mScrollView.smoothScrollTo(0, mSubtitleDataTitle.top) }
@@ -110,6 +137,9 @@ class HelpFragment : Fragment() {
         mKanjiContent.setOnClickListener { mScrollView.smoothScrollTo(0, mKanjiTitle.top) }
         mFloatingPopupContent.setOnClickListener { mScrollView.smoothScrollTo(0, mFloatingPopupTitle.top) }
         mLanguageSupportContent.setOnClickListener { mScrollView.smoothScrollTo(0, mLanguageSupportTitle.top) }
+        mStatisticsContent.setOnClickListener { mScrollView.smoothScrollTo(0, mStatisticsTitle.top) }
+        mThemesContent.setOnClickListener { mScrollView.smoothScrollTo(0, mThemesTitle.top) }
+        mShareContent.setOnClickListener { mScrollView.smoothScrollTo(0, mShareTitle.top) }
     }
 
     override fun onDestroy() {

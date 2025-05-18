@@ -2,8 +2,8 @@
     xmlns:aapt="http://schemas.android.com/aapt">
     <aapt:attr name="android:drawable">
         <vector
-            android:width="100dp"
-            android:height="100dp"
+            android:width="50dp"
+            android:height="50dp"
             android:viewportWidth="500"
             android:viewportHeight="500">
             <group android:name="_R_G">
@@ -27,7 +27,7 @@
                                 android:pathData=" M-83.33 41.66 C-83.33,41.66 -0.01,-41.67 -0.01,-41.67 C-0.01,-41.67 83.33,41.67 83.33,41.67 "
                                 android:strokeWidth="40.3"
                                 android:strokeAlpha="1"
-                                android:strokeColor="?attr/colorPrimary"
+                                android:strokeColor="?attr/colorOnBackground"
                                 android:strokeLineCap="round"
                                 android:strokeLineJoin="round" />
                         </group>
@@ -45,7 +45,7 @@
                                 android:pathData=" M-83.33 41.66 C-83.33,41.66 -0.01,-41.67 -0.01,-41.67 C-0.01,-41.67 83.33,41.67 83.33,41.67 "
                                 android:strokeWidth="40.3"
                                 android:strokeAlpha="1"
-                                android:strokeColor="?attr/colorPrimary"
+                                android:strokeColor="?attr/colorOnBackground"
                                 android:strokeLineCap="round"
                                 android:strokeLineJoin="round" />
                         </group>

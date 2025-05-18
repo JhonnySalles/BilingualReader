@@ -59,7 +59,7 @@
                     android:textSize="@dimen/manga_detail_title_size_tablet"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="@dimen/margin_small"
                     android:transitionName="transition_manga_title"
                     android:layout_gravity="bottom"/>
 
@@ -101,7 +101,7 @@
                             style="@style/TextNormal.MangaDetail"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
+                            android:layout_marginTop="@dimen/margin"
                             android:layout_marginBottom="2dp"
                             android:textSize="@dimen/manga_detail_folder_size"/>
 
@@ -141,7 +141,7 @@
                     style="@style/ProgressBar"
                     android:layout_width="match_parent"
                     android:layout_height="5dp"
-                    android:layout_margin="5dp"
+                    android:layout_margin="@dimen/margin_small"
                     android:transitionName="transition_progress_bar"/>
 
             </LinearLayout>
@@ -158,7 +158,8 @@
                 app:layout_constraintTop_toBottomOf="@+id/manga_detail_title_content">
 
                 <HorizontalScrollView
-                    android:id="@+id/help_scroll_view"
+                    android:id="@+id/manga_detail_scroll_view"
+                    style="@style/AppBackground.Accent"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:clipToPadding="false">
@@ -166,14 +167,11 @@
                     <LinearLayout
                         android:id="@+id/manga_detail_buttons"
                         style="@style/AppBackground.Accent"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_gravity="bottom"
                         android:orientation="horizontal"
-                        android:paddingLeft="5dp"
-                        android:paddingTop="5dp"
-                        android:paddingRight="5dp"
-                        android:paddingBottom="5dp"
+                        android:padding="@dimen/padding_small"
                         android:gravity="center_horizontal">
 
                         <com.google.android.material.button.MaterialButton
@@ -182,6 +180,7 @@
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
+                            android:minWidth="@dimen/manga_detail_button_min_width_small"
                             android:contentDescription="@string/manga_detail_favorite"
                             android:text="@string/manga_detail_favorite"
                             app:iconPadding="@dimen/manga_detail_icon_padding"
@@ -196,7 +195,8 @@
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:layout_marginStart="5dp"
+                            android:minWidth="@dimen/manga_detail_button_min_width_big"
+                            android:layout_marginStart="@dimen/margin_small"
                             android:contentDescription="@string/manga_detail_mark_read"
                             android:text="@string/manga_detail_mark_read"
                             app:iconPadding="@dimen/manga_detail_icon_padding"
@@ -211,7 +211,8 @@
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:layout_marginStart="5dp"
+                            android:minWidth="@dimen/manga_detail_button_min_width_big"
+                            android:layout_marginStart="@dimen/margin_small"
                             android:contentDescription="@string/manga_detail_clear_history"
                             android:text="@string/manga_detail_clear_history"
                             app:iconPadding="@dimen/manga_detail_icon_padding"
@@ -221,13 +222,29 @@
                             app:cornerRadius="@dimen/manga_detail_icon_rounded"/>
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/manga_detail_button_book_mark"
+                            style="@style/Button.Detail"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:minWidth="@dimen/manga_detail_button_min_width_small"
+                            android:layout_marginStart="@dimen/margin_small"
+                            android:contentDescription="@string/manga_detail_book_mark"
+                            android:text="@string/manga_detail_book_mark"
+                            app:iconPadding="@dimen/manga_detail_icon_padding"
+                            app:iconGravity="textTop"
+                            app:icon="@drawable/ico_animated_define_book_mark"
+                            app:iconSize="@dimen/manga_detail_icon_size"
+                            app:cornerRadius="@dimen/manga_detail_icon_rounded"/>
+
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/manga_detail_button_delete"
                             style="@style/Button.Detail"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:layout_marginStart="5dp"
-                            android:layout_marginEnd="5dp"
+                            android:minWidth="@dimen/manga_detail_button_min_width_small"
+                            android:layout_marginStart="@dimen/margin_small"
                             android:contentDescription="@string/manga_detail_delete"
                             android:text="@string/manga_detail_delete"
                             app:iconPadding="@dimen/manga_detail_icon_padding"
@@ -242,8 +259,8 @@
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1.1"
-                            android:layout_marginStart="5dp"
-                            android:layout_marginEnd="5dp"
+                            android:minWidth="@dimen/manga_detail_button_min_width_medium"
+                            android:layout_marginStart="@dimen/margin_small"
                             android:contentDescription="@string/manga_detail_vocabulary"
                             android:text="@string/manga_detail_vocabulary"
                             android:singleLine="true"
@@ -254,21 +271,22 @@
                             app:cornerRadius="@dimen/manga_detail_icon_rounded"/>
 
                     </LinearLayout>
+
                 </HorizontalScrollView>
 
                 <LinearLayout
                     android:id="@+id/manga_detail_local_information"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="@dimen/margin_small"
                     android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/manga_detail_local_information_title"
-                        style="@style/TextTitle"
+                        style="@style/TextTitle.MangaDetail"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="@dimen/margin_small"
                         android:layout_gravity="center_horizontal"
                         android:text="@string/manga_detail_local_information_title"/>
 
@@ -278,8 +296,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textSize="@dimen/manga_detail_local_information_texts_size" />
 
                     <TextView
@@ -287,18 +305,17 @@
                         style="@style/TextNormal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textSize="@dimen/manga_detail_local_information_texts_size" />
 
                     <LinearLayout
-                        android:id="@+id/manga_detail_local_information_volume_release_publisher"
+                        android:id="@+id/manga_detail_local_information_volume_release"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:orientation="horizontal"
-                        android:visibility="gone">
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:orientation="horizontal">
                         <TextView
                             android:id="@+id/manga_detail_local_information_volume"
                             style="@style/TextNormal"
@@ -306,8 +323,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginTop="1dp"
-                            android:layout_marginStart="10dp"
-                            android:layout_marginEnd="10dp"
+                            android:layout_marginStart="@dimen/margin"
+                            android:layout_marginEnd="@dimen/margin"
                             android:textSize="@dimen/manga_detail_local_information_texts_size" />
 
                         <TextView
@@ -317,21 +334,40 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginTop="1dp"
-                            android:layout_marginStart="10dp"
-                            android:layout_marginEnd="10dp"
+                            android:layout_marginStart="@dimen/margin"
+                            android:layout_marginEnd="@dimen/margin"
                             android:textSize="@dimen/manga_detail_local_information_texts_size" />
+                    </LinearLayout>
 
+                    <LinearLayout
+                        android:id="@+id/manga_detail_local_information_publisher_language"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:orientation="horizontal">
                         <TextView
                             android:id="@+id/manga_detail_local_information_publisher"
                             style="@style/TextNormal"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginTop="1dp"
-                            android:layout_marginStart="10dp"
-                            android:layout_marginEnd="10dp"
+                            android:layout_marginStart="@dimen/margin"
+                            android:layout_marginEnd="@dimen/margin"
                             android:textSize="@dimen/manga_detail_local_information_texts_size" />
+
+                        <TextView
+                            android:id="@+id/manga_detail_local_information_language"
+                            style="@style/TextNormal"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginTop="1dp"
+                            android:layout_marginStart="@dimen/margin"
+                            android:layout_marginEnd="@dimen/margin"
+                            android:textSize="@dimen/manga_detail_local_information_texts_size"
+                            android:visibility="gone"/>
                     </LinearLayout>
+
 
                     <LinearLayout
                         android:id="@+id/manga_detail_local_information_comic_info"
@@ -340,44 +376,24 @@
                         android:orientation="vertical"
                         android:visibility="gone">
 
-                        <LinearLayout
-                            android:id="@+id/manga_detail_local_information_comic_info_title_language"
-                            android:layout_width="match_parent"
+                        <TextView
+                            android:id="@+id/manga_detail_local_information_comic_info_title"
+                            style="@style/TextNormal"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="5dp"
-                            android:orientation="horizontal"
-                            android:visibility="gone">
-                            <TextView
-                                android:id="@+id/manga_detail_local_information_comic_info_title"
-                                style="@style/TextNormal"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginTop="1dp"
-                                android:layout_marginStart="10dp"
-                                android:layout_marginEnd="10dp"
-                                android:textSize="@dimen/manga_detail_local_information_texts_size" />
-
-                            <TextView
-                                android:id="@+id/manga_detail_local_information_comic_info_language"
-                                style="@style/TextNormal"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginTop="1dp"
-                                android:layout_marginStart="10dp"
-                                android:layout_marginEnd="10dp"
-                                android:textSize="@dimen/manga_detail_local_information_texts_size" />
-                        </LinearLayout>
+                            android:layout_marginTop="@dimen/margin_small"
+                            android:layout_marginStart="@dimen/margin"
+                            android:layout_marginEnd="@dimen/margin"
+                            android:textSize="@dimen/manga_detail_local_information_texts_size"/>
 
                         <TextView
                             android:id="@+id/manga_detail_local_information_comic_info_story_arch"
                             style="@style/TextNormal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="5dp"
-                            android:layout_marginStart="10dp"
-                            android:layout_marginEnd="10dp"
+                            android:layout_marginTop="@dimen/margin_small"
+                            android:layout_marginStart="@dimen/margin"
+                            android:layout_marginEnd="@dimen/margin"
                             android:textSize="@dimen/manga_detail_local_information_texts_size" />
 
                         <TextView
@@ -385,9 +401,9 @@
                             style="@style/TextNormal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="5dp"
-                            android:layout_marginStart="10dp"
-                            android:layout_marginEnd="10dp"
+                            android:layout_marginTop="@dimen/margin_small"
+                            android:layout_marginStart="@dimen/margin"
+                            android:layout_marginEnd="@dimen/margin"
                             android:textSize="@dimen/manga_detail_local_information_texts_size" />
 
                         <TextView
@@ -395,9 +411,9 @@
                             style="@style/TextNormal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="5dp"
-                            android:layout_marginStart="10dp"
-                            android:layout_marginEnd="10dp"
+                            android:layout_marginTop="@dimen/margin_small"
+                            android:layout_marginStart="@dimen/margin"
+                            android:layout_marginEnd="@dimen/margin"
                             android:textSize="@dimen/manga_detail_local_information_texts_size" />
 
                         <TextView
@@ -405,9 +421,9 @@
                             style="@style/TextNormal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="5dp"
-                            android:layout_marginStart="10dp"
-                            android:layout_marginEnd="10dp"
+                            android:layout_marginTop="@dimen/margin_small"
+                            android:layout_marginStart="@dimen/margin"
+                            android:layout_marginEnd="@dimen/margin"
                             android:textSize="@dimen/manga_detail_local_information_texts_size" />
 
                         <TextView
@@ -415,16 +431,27 @@
                             style="@style/TextNormal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="5dp"
-                            android:layout_marginStart="10dp"
-                            android:layout_marginEnd="10dp"
+                            android:layout_marginTop="@dimen/margin_small"
+                            android:layout_marginStart="@dimen/margin"
+                            android:layout_marginEnd="@dimen/margin"
                             android:textSize="@dimen/manga_detail_local_information_texts_size" />
+
+                        <org.lucasr.twowayview.TwoWayView
+                            android:id="@+id/manga_detail_local_information_comic_info_tags"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/manga_detail_local_information_tags_height"
+                            android:layout_marginTop="@dimen/margin_small"
+                            android:clipToPadding="false"
+                            android:drawSelectorOnTop="false"
+                            android:orientation="horizontal"
+                            android:scrollbarStyle="outsideOverlay"
+                            android:scrollbars="horizontal" />
 
                         <LinearLayout
                             android:id="@+id/manga_detail_local_information_comic_info_book_marks_content"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="5dp"
+                            android:layout_marginTop="@dimen/margin_small"
                             android:orientation="vertical"
                             android:visibility="gone">
                             <com.google.android.material.divider.MaterialDivider
@@ -438,10 +465,10 @@
 
                             <TextView
                                 android:id="@+id/manga_detail_local_information_comic_info_book_marks_title"
-                                style="@style/TextTitle"
+                                style="@style/TextTitle.MangaDetail"
                                 android:layout_height="wrap_content"
                                 android:layout_width="wrap_content"
-                                android:layout_marginTop="5dp"
+                                android:layout_marginTop="@dimen/margin_small"
                                 android:layout_marginStart="15dp"
                                 android:textSize="@dimen/manga_detail_local_information_comic_info_book_marks_size"
                                 android:layout_gravity="center_horizontal"
@@ -451,7 +478,7 @@
                                 android:id="@+id/manga_detail_local_information_comic_info_book_marks"
                                 android:layout_width="match_parent"
                                 android:layout_height="200dp"
-                                android:layout_margin="5dp"
+                                android:layout_margin="@dimen/margin_small"
                                 android:nestedScrollingEnabled="true"
                                 android:divider="@drawable/line_list_divider"
                                 android:dividerHeight="1dp"/>
@@ -463,7 +490,7 @@
                     android:id="@+id/manga_detail_chapters"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="@dimen/margin_small"
                     android:orientation="vertical">
 
                     <com.google.android.material.divider.MaterialDivider
@@ -477,10 +504,10 @@
 
                     <TextView
                         android:id="@+id/manga_detail_chapters_title"
-                        style="@style/TextTitle"
+                        style="@style/TextTitle.MangaDetail"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="@dimen/margin_small"
                         android:layout_gravity="center_horizontal"
                         android:text="@string/manga_detail_chapters_title"/>
 
@@ -488,7 +515,7 @@
                         android:id="@+id/manga_detail_chapters_list"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
-                        android:layout_margin="5dp"
+                        android:layout_margin="@dimen/margin_small"
                         android:nestedScrollingEnabled="true"
                         android:divider="@drawable/line_list_divider"
                         android:dividerHeight="1dp"/>
@@ -499,7 +526,7 @@
                     android:id="@+id/manga_detail_files_link_detail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="@dimen/margin_small"
                     android:orientation="vertical"
                     android:visibility="gone">
 
@@ -507,25 +534,25 @@
                         style="@style/MaterialDivider"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="@dimen/margin"
                         android:layout_marginLeft="@dimen/margin"
                         android:layout_marginRight="@dimen/margin" />
 
                     <TextView
-                        style="@style/TextTitle"
+                        style="@style/TextTitle.MangaDetail"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
                         android:layout_marginStart="@dimen/margin"
                         android:layout_marginBottom="@dimen/margin_small"
                         android:text="@string/manga_detail_file_links_title"
                         android:gravity="center_horizontal"
-                        android:layout_marginTop="5dp"/>
+                        android:layout_marginTop="@dimen/margin_small"/>
 
                     <ListView
                         android:id="@+id/manga_detail_files_links_list"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
-                        android:layout_margin="5dp"
+                        android:layout_margin="@dimen/margin_small"
                         android:nestedScrollingEnabled="true"
                         android:divider="@drawable/line_list_divider"
                         android:dividerHeight="1dip"/>
@@ -536,7 +563,7 @@
                     android:id="@+id/manga_detail_subtitle_content"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="@dimen/margin_small"
                     android:orientation="vertical"
                     android:visibility="gone">
 
@@ -544,17 +571,17 @@
                         style="@style/MaterialDivider"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="@dimen/margin"
                         android:layout_marginLeft="@dimen/margin"
                         android:layout_marginRight="@dimen/margin"/>
 
                     <TextView
-                        style="@style/TextTitle"
+                        style="@style/TextTitle.MangaDetail"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
                         android:text="@string/manga_detail_subtitles_title"
                         android:gravity="center_horizontal"
-                        android:layout_marginTop="5dp"/>
+                        android:layout_marginTop="@dimen/margin_small"/>
 
                     <Button
                         android:id="@+id/manga_detail_subtitles_import_vocabulary"
@@ -565,13 +592,13 @@
                         android:layout_marginEnd="@dimen/margin"
                         android:layout_marginBottom="@dimen/margin"
                         android:text="@string/manga_detail_subtitles_import_vocabulary"
-                        app:icon="@drawable/ic_subtitles_exist" />
+                        app:icon="@drawable/ico_subtitles_exist" />
 
                     <ListView
                         android:id="@+id/manga_detail_subtitles_list"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
-                        android:layout_margin="5dp"
+                        android:layout_margin="@dimen/margin_small"
                         android:nestedScrollingEnabled="true"
                         android:divider="@drawable/line_list_divider"
                         android:dividerHeight="1dip"/>
@@ -582,7 +609,7 @@
                     android:id="@+id/manga_detail_web_information"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="@dimen/margin_small"
                     android:orientation="vertical"
                     android:visibility="gone">
 
@@ -590,24 +617,24 @@
                         style="@style/MaterialDivider"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="@dimen/margin"
                         android:layout_marginLeft="@dimen/margin"
                         android:layout_marginRight="@dimen/margin" />
 
                     <TextView
-                        style="@style/TextTitle"
+                        style="@style/TextTitle.MangaDetail"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="@dimen/margin_small"
                         android:text="@string/manga_detail_web_information"
                         android:gravity="center_horizontal"/>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp">
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin">
 
                         <ImageView
                             android:id="@+id/manga_detail_web_information_image"
@@ -616,7 +643,7 @@
                             android:maxHeight="@dimen/manga_detail_web_information_related_image_max_size"
                             android:adjustViewBounds="true"
                             android:scaleType="centerCrop"
-                            android:layout_marginEnd="5dp"
+                            android:layout_marginEnd="@dimen/margin_small"
                             android:visibility="gone"/>
 
                         <TextView
@@ -635,8 +662,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textAppearance="?attr/textAppearanceSubtitle2"
                         android:textSize="@dimen/manga_detail_information_texts_size" />
 
@@ -646,8 +673,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textAppearance="?attr/textAppearanceSubtitle2"
                         android:textSize="@dimen/manga_detail_information_texts_size" />
 
@@ -657,8 +684,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textAppearance="?attr/textAppearanceSubtitle2"
                         android:textSize="@dimen/manga_detail_information_texts_size" />
 
@@ -668,8 +695,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textAppearance="?attr/textAppearanceSubtitle2"
                         android:textSize="@dimen/manga_detail_information_texts_size" />
 
@@ -679,8 +706,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textAppearance="?attr/textAppearanceSubtitle2"
                         android:textSize="@dimen/manga_detail_information_texts_size" />
 
@@ -690,8 +717,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textAppearance="?attr/textAppearanceSubtitle2"
                         android:textSize="@dimen/manga_detail_information_texts_size" />
 
@@ -700,8 +727,8 @@
                         style="@style/TextTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:layout_marginTop="1dp"
                         android:textAppearance="?attr/textAppearanceSubtitle2"
                         android:textSize="@dimen/manga_detail_web_information_origin_size" />
@@ -712,7 +739,7 @@
                     android:id="@+id/manga_detail_web_information_relations"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="@dimen/margin_small"
                     android:orientation="vertical"
                     android:visibility="gone">
 
@@ -720,25 +747,25 @@
                         style="@style/MaterialDivider"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="@dimen/margin"
                         android:layout_marginLeft="@dimen/margin"
                         android:layout_marginRight="@dimen/margin"/>
 
                     <TextView
-                        style="@style/TextTitle"
+                        style="@style/TextTitle.MangaDetail"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
                         android:text="@string/manga_detail_related"
                         android:gravity="center_horizontal"
-                        android:layout_marginTop="5dp"/>
+                        android:layout_marginTop="@dimen/margin_small"/>
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/manga_detail_relations_lists"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginTop="@dimen/margin"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:nestedScrollingEnabled="true"
                         android:divider="@drawable/line_list_divider"
                         android:dividerHeight="1dip"/>
@@ -748,8 +775,8 @@
                         style="@style/TextTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="@dimen/margin"
+                        android:layout_marginEnd="@dimen/margin"
                         android:textAppearance="?attr/textAppearanceSubtitle2"
                         android:textSize="@dimen/manga_detail_web_information_origin_size" />
 

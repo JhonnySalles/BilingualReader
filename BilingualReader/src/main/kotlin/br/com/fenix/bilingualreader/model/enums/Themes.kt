@@ -4,15 +4,13 @@ import br.com.fenix.bilingualreader.R
 
 enum class Themes(private val value: Int) {
     ORIGINAL(R.style.Theme_MangaReader),
-    BLOOD_RED(R.style.Theme_MangaReader_BloodRed),
     BLUE(R.style.Theme_MangaReader_Blue),
-    FOREST_GREEN(R.style.Theme_MangaReader_ForestGreen),
-    GREEN(R.style.Theme_MangaReader_Green),
-    NEON_BLUE(R.style.Theme_MangaReader_NeonBlue),
-    NEON_GREEN(R.style.Theme_MangaReader_NeonGreen),
     OCEAN_BLUE(R.style.Theme_MangaReader_OceanBlue),
+    GREEN(R.style.Theme_MangaReader_Green),
+    FOREST_GREEN(R.style.Theme_MangaReader_ForestGreen),
     PINK(R.style.Theme_MangaReader_Pink),
-    RED(R.style.Theme_MangaReader_Red);
+    RED(R.style.Theme_MangaReader_Red),
+    BLOOD_RED(R.style.Theme_MangaReader_BloodRed);
 
     open fun getValue() : Int = this.value
 }

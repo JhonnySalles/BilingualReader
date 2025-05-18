@@ -15,8 +15,6 @@
  */
 package br.com.ebook.universalimageloader.core.assist
 
-import br.com.ebook.universalimageloader.core.assist.FailReason.FailType
-
 /**
  * Presents the reason why image loading and displaying was failed
  *

@@ -17,6 +17,7 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.SubTitleChapter
 import br.com.fenix.bilingualreader.model.enums.FileType
+import br.com.fenix.bilingualreader.model.enums.Import
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.ListMode
@@ -32,6 +33,8 @@ import br.com.fenix.bilingualreader.service.sharemark.ShareMarkBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.Util
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -60,6 +63,9 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     private var mLibrary: Library = Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
     private val mMangaRepository: MangaRepository = MangaRepository(app.applicationContext)
     private val mPreferences = GeneralConsts.getSharedPreferences(app.applicationContext)
+
+    private var mLoading = MutableLiveData<Boolean>(false)
+    val loading: LiveData<Boolean> = mLoading
 
     private var mWordFilter = ""
 
@@ -140,6 +146,10 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                 if (stack.value.second.id == idLibrary)
                     stack.value.third.clear()
         }
+    }
+
+    fun clearHistory(manga: Manga) {
+        mMangaRepository.clearHistory(manga)
     }
 
     fun save(obj: Manga): Manga {
@@ -225,6 +235,14 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
         return index
     }
 
+    fun updateList(index : Int) : Int {
+        val manga = mListMangas.value!![index]
+        mMangaRepository.get(manga.id!!)?.let {
+            manga.update(it, true)
+        }
+        return index
+    }
+
     fun updateList(refreshComplete: (Boolean, indexes: MutableList<Pair<ListMode, Int>>) -> (Unit)) {
         var change = false
         val indexes = mutableListOf<Pair<ListMode, Int>>()
@@ -234,7 +252,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                 change = true
                 for (manga in list) {
                     if (mListMangasFull.value!!.contains(manga)) {
-                        if (mListMangasFull.value!![mListMangasFull.value!!.indexOf(manga)].update(manga)) {
+                        if (mListMangasFull.value!![mListMangasFull.value!!.indexOf(manga)].update(manga, true)) {
                             val index = mListMangas.value!!.indexOf(manga)
                             if (index > -1)
                                 indexes.add(Pair(ListMode.MOD, index))
@@ -278,21 +296,30 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     }
 
     fun list(refreshComplete: (Boolean) -> (Unit)) {
-        val list = mMangaRepository.list(mLibrary)
-        if (list != null) {
-            if (mListMangasFull.value == null || mListMangasFull.value!!.isEmpty()) {
-                mListMangas.value = list.toMutableList()
-                mListMangasFull.value = list.toMutableList()
-                setSuggestions(mListMangasFull.value)
-            } else
-                update(list)
-        } else {
-            mListMangasFull.value = mutableListOf()
-            mListMangas.value = mutableListOf()
-            setSuggestions(mListMangasFull.value)
-        }
+        mLoading.value = true
+        CoroutineScope(Dispatchers.IO).launch {
+            async {
+                val list = mMangaRepository.list(mLibrary)
+                withContext(Dispatchers.Main) {
+                    mLoading.value = false
 
-        refreshComplete(mListMangas.value!!.isNotEmpty())
+                    if (list != null) {
+                        if (mListMangasFull.value == null || mListMangasFull.value!!.isEmpty()) {
+                            mListMangas.value = list.toMutableList()
+                            mListMangasFull.value = list.toMutableList()
+                            setSuggestions(mListMangasFull.value)
+                        } else
+                            update(list)
+                    } else {
+                        mListMangasFull.value = mutableListOf()
+                        mListMangas.value = mutableListOf()
+                        setSuggestions(mListMangasFull.value)
+                    }
+
+                    refreshComplete(mListMangas.value!!.isNotEmpty())
+                }
+            }
+        }
     }
 
     fun changeLibraryType() {
@@ -399,10 +426,15 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                     }
                 } catch (e: Exception) {
                     mLOGGER.error("Error generate suggestion: " + e.message, e)
+                    Firebase.crashlytics.apply {
+                        setCustomKey("message", "Error generate suggestion: " + e.message)
+                        recordException(e)
+                    }
                 }
             }
         }
     }
+
     fun getSuggestions(filter : String): List<String> {
         val type = filter.substringBeforeLast(':')
         val condition = filter.substringAfterLast(':')
@@ -531,7 +563,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
      * @param context    Context system
      * @param processed  Function call when processed, parameter is true if can notify list change
      */
-    fun processShareMarks(context: Context, processed: (result: ShareMarkType) -> (Unit)) {
+    fun processShareMarks(context: Context, idNotification : Int, processed: (result: ShareMarkType, idNotification: Int) -> (Unit)) {
         if (!mProcessShareMark) {
             mProcessShareMark = true
             val share = ShareMarkBase.getInstance(context)
@@ -542,6 +574,8 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                     mListMangasFull.value?.find { manga -> manga.id == item.id }?.let { manga ->
                         manga.favorite = item.favorite
                         manga.bookMark = item.bookMark
+                        manga.pages = item.pages
+                        manga.completed = item.completed
                         manga.lastAccess = item.lastAccess
                     }
                 }
@@ -549,15 +583,16 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
             share.mangaShareMark(process) {
                 mProcessShareMark = false
                 if ((it == ShareMarkType.SUCCESS || it == ShareMarkType.NOT_ALTERATION) && notify)
-                    processed(ShareMarkType.NOTIFY_DATA_SET)
+                    processed(ShareMarkType.NOTIFY_DATA_SET, idNotification)
                 else
-                    processed(it)
+                    processed(it, idNotification)
             }
-        }
+        } else
+            processed(ShareMarkType.SYNC_IN_PROGRESS, idNotification)
     }
 
     var mImportingVocab = false
-    fun importVocabulary() {
+    fun importVocabulary(import: Import = Import.FULL_ITEMS) {
         if (mImportingVocab)
             return
 
@@ -582,8 +617,21 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                 try {
                     val size = list.size
                     for ((index, manga) in list.withIndex()) {
-                        if (manga.lastVocabImport != null && manga.lastVocabImport!!.isAfter(LocalDateTime.now().minusDays(1)))
-                            continue;
+                        when (import) {
+                            Import.DEFAULT ->  {
+                                if (manga.lastVocabImport != null && manga.lastVocabImport!!.isAfter(LocalDateTime.now().minusDays(1)))
+                                    continue
+                            }
+                            Import.RE_IMPORT -> {
+                                if (manga.lastVocabImport == null)
+                                    continue
+                            }
+                            Import.NEW_ITEMS -> {
+                                if (manga.lastVocabImport != null)
+                                    continue
+                            }
+                            Import.FULL_ITEMS -> { }
+                        }
 
                         withContext(Dispatchers.Main) {
                             notification.setContentText(manga.name).setProgress(size, index, false).setOngoing(true)
@@ -635,7 +683,11 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                             notificationManager.notify(notifyId, notification.build())
                     }
                 } catch (e: Exception) {
-                    mLOGGER.error("Error to import vocabulary", e)
+                    mLOGGER.error("Error to import vocabulary: " + e.message, e)
+                    Firebase.crashlytics.apply {
+                        setCustomKey("message", "Error to import vocabulary: " + e.message)
+                        recordException(e)
+                    }
                 } finally {
                     withContext(Dispatchers.Main) {
                         mImportingVocab = false

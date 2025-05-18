@@ -98,10 +98,11 @@
                 android:minHeight="2dp"
                 android:paddingTop="5dp"
                 android:paddingBottom="10dp"
-                android:progressDrawable="@drawable/reader_nav_progress"
-                android:thumb="@drawable/reader_nav_thumb_big"
-                custom:dots_drawable="@drawable/ico_progress_dot"
-                android:thumbOffset="6dp"/>
+                android:progressDrawable="@drawable/reader_progress_pointer"
+                android:thumb="@drawable/reader_progress_thumb_big"
+                android:thumbOffset="6dp"
+                custom:dots_drawable_primary="@drawable/ico_progress_primary_dot_big"
+                custom:dots_drawable_secondary="@drawable/ico_progress_secondary_dot_big"/>
 
             <TextView
                 android:id="@+id/reader_book_toolbar_bottom_author"

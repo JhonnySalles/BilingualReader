@@ -1,6 +1,8 @@
 package br.com.fenix.bilingualreader.view.ui.detail.manga
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Rect
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.net.Uri
 import android.os.Bundle
@@ -24,19 +26,26 @@ import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Type
-import br.com.fenix.bilingualreader.service.controller.MangaImageController
+import br.com.fenix.bilingualreader.model.interfaces.History
+import br.com.fenix.bilingualreader.service.controller.ImageController
+import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import br.com.fenix.bilingualreader.service.listener.InformationCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ColorUtil
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
+import br.com.fenix.bilingualreader.util.helpers.ListUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
+import br.com.fenix.bilingualreader.view.adapter.detail.TagsCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.detail.manga.InformationRelatedCardAdapter
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
+import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.lucasr.twowayview.TwoWayView
 import org.slf4j.LoggerFactory
 
 
@@ -59,6 +68,7 @@ class MangaDetailFragment : Fragment() {
     private lateinit var mFavoriteButton: MaterialButton
     private lateinit var mMakReadButton: MaterialButton
     private lateinit var mClearHistoryButton: MaterialButton
+    private lateinit var mBookMakButton: MaterialButton
     private lateinit var mDeleteButton: MaterialButton
     private lateinit var mVocabularyButton: MaterialButton
     private lateinit var mChaptersList: ListView
@@ -94,7 +104,6 @@ class MangaDetailFragment : Fragment() {
 
     private lateinit var mLocalInformationComicInfo: LinearLayout
 
-    private lateinit var mLocalInformationComicInfoTitleLanguageContent: LinearLayout
     private lateinit var mLocalInformationComicInfoTitle: TextView
     private lateinit var mLocalInformationComicInfoLanguage: TextView
     private lateinit var mLocalInformationComicInfoStoryArch: TextView
@@ -102,6 +111,7 @@ class MangaDetailFragment : Fragment() {
     private lateinit var mLocalInformationComicInfoCharacters: TextView
     private lateinit var mLocalInformationComicInfoTeams: TextView
     private lateinit var mLocalInformationComicInfoLocations: TextView
+    private lateinit var mLocalInformationComicInfoTags: TwoWayView
 
     private lateinit var mLocalInformationComicInfoBookMarksContent: LinearLayout
     private lateinit var mLocalInformationComicInfoBookMarks: ListView
@@ -111,11 +121,7 @@ class MangaDetailFragment : Fragment() {
     private var mFileLinks: MutableList<String> = mutableListOf()
     private var mBookMarks: MutableList<String> = mutableListOf()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_manga_detail, container, false)
 
         mRootScroll = root.findViewById(R.id.manga_detail_scroll)
@@ -130,6 +136,7 @@ class MangaDetailFragment : Fragment() {
         mButtonsContent = root.findViewById(R.id.manga_detail_buttons)
         mFavoriteButton = root.findViewById(R.id.manga_detail_button_favorite)
         mClearHistoryButton = root.findViewById(R.id.manga_detail_button_clear_history)
+        mBookMakButton = root.findViewById(R.id.manga_detail_button_book_mark)
         mMakReadButton = root.findViewById(R.id.manga_detail_button_mark_read)
         mDeleteButton = root.findViewById(R.id.manga_detail_button_delete)
         mVocabularyButton = root.findViewById(R.id.manga_detail_button_vocabulary)
@@ -144,21 +151,21 @@ class MangaDetailFragment : Fragment() {
         mLocalInformationSeries = root.findViewById(R.id.manga_detail_local_information_series)
         mLocalInformationAuthors = root.findViewById(R.id.manga_detail_local_information_authors)
 
-        mLocalInformationVolumeReleasePublisherContent = root.findViewById(R.id.manga_detail_local_information_volume_release_publisher)
+        mLocalInformationVolumeReleasePublisherContent = root.findViewById(R.id.manga_detail_local_information_volume_release)
         mLocalInformationVolume = root.findViewById(R.id.manga_detail_local_information_volume)
         mLocalInformationRelease = root.findViewById(R.id.manga_detail_local_information_release)
         mLocalInformationPublisher = root.findViewById(R.id.manga_detail_local_information_publisher)
 
         mLocalInformationComicInfo = root.findViewById(R.id.manga_detail_local_information_comic_info)
 
-        mLocalInformationComicInfoTitleLanguageContent = root.findViewById(R.id.manga_detail_local_information_comic_info_title_language)
         mLocalInformationComicInfoTitle = root.findViewById(R.id.manga_detail_local_information_comic_info_title)
-        mLocalInformationComicInfoLanguage = root.findViewById(R.id.manga_detail_local_information_comic_info_language)
+        mLocalInformationComicInfoLanguage = root.findViewById(R.id.manga_detail_local_information_language)
         mLocalInformationComicInfoStoryArch = root.findViewById(R.id.manga_detail_local_information_comic_info_story_arch)
         mLocalInformationComicInfoGenre = root.findViewById(R.id.manga_detail_local_information_comic_info_genre)
         mLocalInformationComicInfoCharacters = root.findViewById(R.id.manga_detail_local_information_comic_info_characters)
         mLocalInformationComicInfoTeams = root.findViewById(R.id.manga_detail_local_information_comic_info_teams)
         mLocalInformationComicInfoLocations = root.findViewById(R.id.manga_detail_local_information_comic_info_locations)
+        mLocalInformationComicInfoTags = root.findViewById(R.id.manga_detail_local_information_comic_info_tags)
 
         mLocalInformationComicInfoBookMarksContent = root.findViewById(R.id.manga_detail_local_information_comic_info_book_marks_content)
         mLocalInformationComicInfoBookMarks = root.findViewById(R.id.manga_detail_local_information_comic_info_book_marks)
@@ -182,6 +189,10 @@ class MangaDetailFragment : Fragment() {
             (mMakReadButton.icon as AnimatedVectorDrawable).start()
             markRead()
         }
+        mBookMakButton.setOnClickListener {
+            (mBookMakButton.icon as AnimatedVectorDrawable).start()
+            openBookMark()
+        }
         mDeleteButton.setOnClickListener {
             (mDeleteButton.icon as AnimatedVectorDrawable).start()
             deleteFile()
@@ -197,13 +208,22 @@ class MangaDetailFragment : Fragment() {
 
         mImportVocabulary.setOnClickListener { mViewModel.importVocabulary() }
 
-        mSubtitlesList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mSubtitles)
-        mFileLinksList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mFileLinks)
-        mChaptersList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mChapters)
-        mLocalInformationComicInfoBookMarks.adapter = ArrayAdapter(requireContext(), R.layout.list_item_all_text, mBookMarks)
+        mSubtitlesList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_detail, mSubtitles)
+        mFileLinksList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_detail, mFileLinks)
+        mChaptersList.adapter = ArrayAdapter(requireContext(), R.layout.list_item_detail, mChapters)
+        mLocalInformationComicInfoBookMarks.adapter = ArrayAdapter(requireContext(), R.layout.list_item_detail, mBookMarks)
+        mLocalInformationComicInfoTags.adapter = TagsCardAdapter(requireContext(), mutableListOf())
 
         mWebInfoRelatedRelatedList.adapter = InformationRelatedCardAdapter()
         mWebInfoRelatedRelatedList.layoutManager = LinearLayoutManager(requireContext())
+
+        mImage.setOnClickListener {
+            val reload = openImage(mViewModel.cover.value)
+            MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mViewModel.manga.value!!, false) {
+                if (it != null)
+                    reload(it)
+            }
+        }
 
         mTitle.setOnLongClickListener {
             mViewModel.manga.value?.let { mg -> FileUtil(requireContext()).copyName(mg) }
@@ -274,12 +294,11 @@ class MangaDetailFragment : Fragment() {
 
     private fun observer() {
         mViewModel.cover.observe(viewLifecycleOwner) {
-            mBackgroundImage.setImageBitmap(it)
-            mImage.setImageBitmap(it)
-
             val isDark = resources.getBoolean(R.bool.isNight)
             ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, false, isDark)
             if (it != null) {
+                mBackgroundImage.setImageBitmap(it)
+                mImage.setImageBitmap(it)
                 ColorUtil.isDarkColor(it) { l ->
                     ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, l, isDark)
                 }
@@ -290,12 +309,8 @@ class MangaDetailFragment : Fragment() {
             if (it != null) {
                 mTitle.text = it.name
                 mFolder.text = it.path
-                val folder = mViewModel.getChapterFolder(it.bookMark)
-                mBookMark.text = "${it.bookMark} / ${it.pages}" + if (folder.isNotEmpty()) " - $folder" else ""
-                mLastAccess.text = if (it.lastAccess == null) "" else GeneralConsts.formatterDate(
-                    requireContext(),
-                    it.lastAccess!!
-                )
+                mBookMark.text = "${it.bookMark} / ${it.pages}"
+                mLastAccess.text = if (it.lastAccess == null) "" else GeneralConsts.formatterDate(requireContext(), it.lastAccess!!)
                 mProgress.max = it.pages
                 mProgress.setProgress(it.bookMark, false)
 
@@ -436,14 +451,6 @@ class MangaDetailFragment : Fragment() {
                 mLocalInformationComicInfoLanguage.text = HtmlCompat.fromHtml(it.languageDescription, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mLocalInformationComicInfoLanguage.visibility = if (it.languageDescription.isNotEmpty()) View.VISIBLE else View.GONE
 
-                mLocalInformationComicInfoTitleLanguageContent.visibility =
-                    if (mLocalInformationComicInfoTitle.visibility == View.VISIBLE ||
-                        mLocalInformationComicInfoLanguage.visibility == View.VISIBLE
-                    )
-                        View.VISIBLE
-                    else
-                        View.GONE
-
                 mLocalInformationComicInfoStoryArch.text = HtmlCompat.fromHtml(it.storyArch, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mLocalInformationComicInfoStoryArch.visibility = if (it.storyArch.isNotEmpty()) View.VISIBLE else View.GONE
                 mLocalInformationComicInfoGenre.text = HtmlCompat.fromHtml(it.genres, HtmlCompat.FROM_HTML_MODE_COMPACT)
@@ -461,6 +468,14 @@ class MangaDetailFragment : Fragment() {
                 } else
                     mLocalInformationComicInfoBookMarksContent.visibility = View.GONE
 
+                mViewModel.manga.value.let { m ->
+                    val genres = ListUtil.listFromString(m?.genre ?: "")
+                    if (genres.isNotEmpty())
+                        (mLocalInformationComicInfoTags.adapter as TagsCardAdapter).updateList(genres.toMutableList())
+                    else
+                        (mLocalInformationComicInfoTags.adapter as TagsCardAdapter).clearList()
+                }
+
                 mLocalInformationComicInfo.visibility =
                     if (mLocalInformationComicInfoStoryArch.visibility == View.VISIBLE ||
                         mLocalInformationComicInfoGenre.visibility == View.VISIBLE || mLocalInformationComicInfoCharacters.visibility == View.VISIBLE ||
@@ -477,14 +492,15 @@ class MangaDetailFragment : Fragment() {
 
                 mLocalInformationComicInfoTitle.text = ""
                 mLocalInformationComicInfoLanguage.text = ""
+                mLocalInformationComicInfoLanguage.visibility = View.GONE
 
                 mLocalInformationComicInfoGenre.text = ""
                 mLocalInformationComicInfoCharacters.text = ""
                 mLocalInformationComicInfoTeams.text = ""
                 mLocalInformationComicInfoLocations.text = ""
+                (mLocalInformationComicInfoTags.adapter as TagsCardAdapter).clearList()
 
                 mLocalInformationVolumeReleasePublisherContent.visibility = View.GONE
-                mLocalInformationComicInfoTitleLanguageContent.visibility = View.GONE
                 mLocalInformationComicInfo.visibility = View.GONE
                 mLocalInformationComicInfoBookMarksContent.visibility = View.GONE
             }
@@ -499,19 +515,12 @@ class MangaDetailFragment : Fragment() {
                 mWebInformationImage.setImageBitmap(null)
 
                 if (it.imageLink != null)
-                    MangaImageController.instance.setImageAsync(
-                        requireContext(),
-                        it.imageLink!!,
-                        mWebInformationImage
-                    )
+                    ImageController.instance.setImageAsync(requireContext(), it.imageLink!!, mWebInformationImage)
 
                 mWebInformationAlternativeTitles.text = HtmlCompat.fromHtml(it.alternativeTitles, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mWebInformationStatus.text = HtmlCompat.fromHtml(it.status, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mWebInformationPublish.text = HtmlCompat.fromHtml(it.release, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                mWebInformationVolumes.text = HtmlCompat.fromHtml(
-                    it.volumes + ", " + it.chapters,
-                    HtmlCompat.FROM_HTML_MODE_COMPACT
-                )
+                mWebInformationVolumes.text = HtmlCompat.fromHtml(it.volumes + ", " + it.chapters, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mWebInformationAuthors.text = HtmlCompat.fromHtml(it.authors, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mWebInformationGenres.text = HtmlCompat.fromHtml(it.genres, HtmlCompat.FROM_HTML_MODE_COMPACT)
                 mWebInformationOrigin.text = it.origin
@@ -531,8 +540,7 @@ class MangaDetailFragment : Fragment() {
         }
 
         mViewModel.webInformationRelations.observe(viewLifecycleOwner) {
-            mWebInfoRelatedContent.visibility =
-                if (it != null && it.isNotEmpty()) View.VISIBLE else View.GONE
+            mWebInfoRelatedContent.visibility = if (it != null && it.isNotEmpty()) View.VISIBLE else View.GONE
             updateRelatedList(it)
         }
 
@@ -565,6 +573,16 @@ class MangaDetailFragment : Fragment() {
 
     private fun markRead() {
         mViewModel.markRead()
+    }
+
+    private fun openBookMark() {
+        val manga = mViewModel.manga.value ?: return
+        val onUpdate: (History) -> (Unit) = { mViewModel.save(manga) }
+        PopupBookMark(requireActivity(), requireActivity().supportFragmentManager)
+            .getPopupBookMark(manga, onUpdate) { change, manga ->
+                if (change)
+                    onUpdate(manga)
+            }
     }
 
     private fun favorite() {
@@ -613,5 +631,34 @@ class MangaDetailFragment : Fragment() {
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.MANGA, manga)
         intent.putExtras(bundle)
         context?.startActivity(intent)
+    }
+
+    private fun openImage(image: Bitmap?) : (Bitmap) -> (Unit) {
+        val layout = LayoutInflater.from(requireContext()).inflate(R.layout.popup_detail_image, null, false)
+        val imageView = layout.findViewById<ImageView>(R.id.popup_detail_image)
+        imageView.setImageBitmap(image)
+
+        val popup = MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatMaterialAlertDialog)
+            .setView(layout)
+            .create()
+
+        ImageUtil.setZoomPinch(requireContext(), imageView) { popup.dismiss() }
+        layout.findViewById<LinearLayout>(R.id.popup_detail_image_background).setOnClickListener { popup.dismiss() }
+
+        popup.window?.run {
+            val display = Rect()
+            requireActivity().window.decorView.getWindowVisibleDisplayFrame(display)
+            setLayout((display.width() * 0.93).toInt(), attributes.height)
+        }
+
+        popup.show()
+        return {
+            try {
+                if (popup.isShowing)
+                    imageView.setImageBitmap(it)
+            } catch (_ : Exception) {
+
+            }
+        }
     }
 }

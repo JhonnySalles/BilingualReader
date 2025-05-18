@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_reader_content">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="android.view.Gravity" />
+
+        <variable
+            name="toolbarReaderCenter"
+            type="Boolean" />
+    </data>
+
+    <RelativeLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:custom="http://schemas.android.com/apk/res/br.com.fenix.bilingualreader"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
+
+        <include
+            android:id="@+id/reader_manga_container_clock_battery"
+            layout="@layout/reader_clock_battery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/margin"
+            android:visibility="gone" />
+
+        <include
+            android:id="@+id/reader_manga_container_chapters_list"
+            layout="@layout/list_manga_reader_chapters"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="@dimen/manga_chapter_margin_bottom"
+            android:visibility="gone" />
+
+        <include
+            android:id="@+id/reader_last_page"
+            layout="@layout/last_page_manga"
+            android:layout_width="@dimen/last_page_card_layout_width"
+            android:layout_height="@dimen/last_page_card_layout_height"
+            android:layout_marginStart="10dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="140dp"
+            android:layout_marginEnd="10dp"
+            android:layout_alignParentStart="true"
+            android:visibility="gone"/>
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/reader_manga_toolbar_reader_top"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_reader_toolbar_background"
+            android:theme="@style/MainToolbarContentTheme"
+            app:elevation="0dp">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/reader_manga_toolbar_reader"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/default_navigator_header_size"
+                app:popupTheme="@style/MainToolbarStyle"
+                style="@style/MainToolbarThemeWithShadow"/>
+
+            <LinearLayout
+                android:id="@+id/reader_manga_sub_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:background="@color/title_background_semitransparent"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/reader_manga_ocr_language"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:gravity="center_vertical"
+                    android:textColor="?attr/toolbarTitleAccents"
+                    android:textSize="@dimen/floating_ocr_language_text_size" />
+            </LinearLayout>
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <LinearLayout
+            android:id="@+id/reader_manga_bottom_progress_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="55dp"
+            android:layout_marginRight="55dp"
+            android:layout_marginBottom="80dp"
+            android:background="@drawable/reader_progress_background"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingLeft="10dp"
+            android:paddingTop="2dp"
+            android:paddingRight="10dp">
+
+            <TextView
+                android:id="@+id/reader_manga_bottom_progress_title"
+                style="@style/TextTitle.PageNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/title_small_size" />
+
+            <!-- Not use style, because progress color from drawable -->
+            <br.com.fenix.bilingualreader.view.components.DottedSeekBar
+                android:id="@+id/reader_manga_bottom_progress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="2dp"
+                android:minHeight="2dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="10dp"
+                android:progressDrawable="@drawable/reader_progress_pointer"
+                android:thumb="@drawable/reader_progress_thumb_small"
+                android:thumbOffset="6dp"
+                custom:dots_drawable_primary="@drawable/ico_progress_primary_dot_small"
+                custom:dots_drawable_secondary="@drawable/ico_progress_secondary_dot_small"/>
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/reader_manga_nav_previous_file"
+            style="@style/Button.ReaderButtons.Navigator"
+            android:layout_width="@dimen/reader_change_comic_size"
+            android:layout_height="@dimen/reader_change_comic_size"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="5dp"
+            android:layout_marginBottom="85dp"
+            android:contentDescription="@string/reading_manga_button_previous_file"
+            app:icon="@drawable/ico_animated_manga_before"
+            app:iconGravity="textStart"
+            app:rippleColor="?attr/colorPrimaryContainer"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/reader_manga_nav_next_file"
+            style="@style/Button.ReaderButtons.Navigator"
+            android:layout_width="@dimen/reader_change_comic_size"
+            android:layout_height="@dimen/reader_change_comic_size"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="85dp"
+            android:contentDescription="@string/reading_manga_button_next_file"
+            app:icon="@drawable/ico_animated_manga_next"
+            app:iconGravity="textStart"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <LinearLayout
+            android:id="@+id/reader_manga_toolbar_reader_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/app_reader_toolbar_background_inverse"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/reader_manga_btn_screen_rotate"
+                style="@style/Button.ReaderButtons"
+                android:layout_width="@dimen/reader_button_width"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="5dp"
+                android:contentDescription="@string/reading_manga_button_screen_rotate"
+                android:minHeight="@dimen/popup_reader_button_min_height"
+                app:icon="@drawable/ico_animated_screen_rotation_portrait" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/reader_manga_btn_menu_ocr"
+                style="@style/Button.ReaderButtons"
+                android:layout_width="@dimen/popup_reader_button_width"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="5dp"
+                android:contentDescription="@string/reading_manga_button_menu_ocr"
+                android:insetLeft="11dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                android:minHeight="@dimen/reader_button_width"
+                app:iconSize="30dp"
+                app:iconTint="@null"
+                app:icon="@drawable/ico_animated_ocr" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/reader_manga_btn_menu_chapters"
+                style="@style/Button.ReaderButtons"
+                android:layout_width="@dimen/reader_button_width"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="5dp"
+                android:contentDescription="@string/reading_manga_button_menu_chapters"
+                android:insetLeft="11dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                android:minHeight="@dimen/popup_reader_button_min_height"
+                app:iconSize="30dp"
+                app:iconTint="@null"
+                app:icon="@drawable/ico_animated_chapters" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/reader_manga_btn_menu_annotations"
+                style="@style/Button.ReaderButtons"
+                android:layout_width="@dimen/reader_button_width"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="5dp"
+                android:contentDescription="@string/reading_manga_button_menu_chapters"
+                android:insetLeft="11dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                android:minHeight="@dimen/popup_reader_button_min_height"
+                app:iconSize="30dp"
+                app:iconTint="@null"
+                app:icon="@drawable/ico_animated_manga_annotations" />
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/reader_manga_btn_popup_color"
+                style="@style/Button.ReaderButtons"
+                android:layout_width="@dimen/reader_button_width"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="5dp"
+                android:contentDescription="@string/reading_manga_button_color"
+                android:minHeight="@dimen/popup_reader_button_min_height"
+                app:icon="@drawable/ico_color_settings" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/reader_manga_btn_menu_page_linked"
+                style="@style/Button.ReaderButtons"
+                android:layout_width="@dimen/reader_button_width"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="5dp"
+                android:contentDescription="@string/reading_manga_button_page_linked"
+                android:minHeight="@dimen/popup_reader_button_min_height"
+                app:icon="@drawable/ico_animated_page_linked_insert" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/reader_manga_btn_menu_file_link"
+                style="@style/Button.ReaderButtons"
+                android:layout_width="@dimen/reader_button_width"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="5dp"
+                android:contentDescription="@string/reading_manga_button_file_link"
+                android:minHeight="@dimen/popup_reader_button_min_height"
+                app:icon="@drawable/ico_animated_file_link" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/reader_manga_btn_floating_buttons"
+                style="@style/Button.ReaderButtons"
+                android:layout_width="@dimen/popup_reader_button_width"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="5dp"
+                android:contentDescription="@string/reading_manga_button_floating_buttons"
+                android:minHeight="@dimen/reader_button_width"
+                app:icon="@drawable/ico_animated_floating_buttons" />
+
+        </LinearLayout>
+    </RelativeLayout>
+</layout>

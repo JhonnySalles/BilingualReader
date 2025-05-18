@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/history_skeleton_title_height"
+    android:orientation="vertical">
+    <View
+        android:layout_width="120dp"
+        android:layout_height="@dimen/history_skeleton_item_height"
+        android:layout_marginStart="@dimen/history_skeleton_item_margin"
+        android:background="@drawable/skeleton"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/history_skeleton_item_margin"/>
+</LinearLayout>

@@ -17,6 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
+            android:layout_marginEnd="@dimen/margin"
             android:layout_marginBottom="@dimen/margin_small"
             android:gravity="center"
             android:text="@string/config_sector_book" />
@@ -31,7 +32,7 @@
             android:layout_marginBottom="@dimen/margin_small" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
@@ -45,7 +46,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/config_book_library_order"
-            app:startIconDrawable="@drawable/ic_order">
+            app:startIconDrawable="@drawable/ico_order">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_book_menu_autocomplete_library_order"
@@ -63,7 +64,7 @@
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/config_book_library_folder"
             app:endIconMode="clear_text"
-            app:startIconDrawable="@drawable/ic_sd_storage">
+            app:startIconDrawable="@drawable/ico_sd_storage">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_book_menu_autocomplete_library_path"
@@ -75,14 +76,14 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/config_book_libraries"
             style="@style/Button.LabelStart"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_margin="@dimen/margin_small"
             android:text="@string/config_title_libraries"
-            app:icon="@drawable/ic_library_small" />
+            app:icon="@drawable/ico_library_small" />
 
         <com.google.android.material.divider.MaterialDivider
             style="@style/MaterialDivider"
@@ -94,7 +95,7 @@
             android:layout_marginBottom="@dimen/margin_small" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
@@ -102,13 +103,13 @@
             android:text="@string/config_book_reading" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/config_book_scrolling_mode"
+            android:id="@+id/config_book_reader_scrolling_mode"
             style="@style/TextInputDropMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/config_book_scrolling_mode"
-            app:startIconDrawable="@drawable/ic_reading_mode">
+            app:startIconDrawable="@drawable/ico_reading_mode">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_book_menu_autocomplete_scrolling_mode"
@@ -118,22 +119,50 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_book_reader_pagination_type"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_book_pagination_type"
+            app:startIconDrawable="@drawable/ico_pagination_type">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/config_book_menu_autocomplete_pagination_type"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/config_book_touch_screen"
+            style="@style/Button.LabelStart"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_book_reading_touch_screen"
+            app:icon="@drawable/ico_view_touch_screen" />
+
         <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/config_book_process_japanese_text"
+            android:id="@+id/config_book_reader_process_japanese_text"
             style="@style/SwitchMaterial"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/config_book_process_japanese_text" />
 
         <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/config_book_text_with_furigana"
+            android:id="@+id/config_book_reader_text_with_furigana"
             style="@style/SwitchMaterial"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/config_book_text_with_furigana" />
 
         <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/config_book_process_vocabulary"
+            android:id="@+id/config_book_reader_process_vocabulary"
             style="@style/SwitchMaterial"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -149,7 +178,7 @@
             android:layout_marginBottom="@dimen/margin_small" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
@@ -157,21 +186,69 @@
             android:text="@string/config_book_tts" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/config_book_tts_voice"
+            android:id="@+id/config_book_tts_voice_normal"
             style="@style/TextInputDropMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
-            android:hint="@string/config_book_tts_voice"
-            app:startIconDrawable="@drawable/ic_book_tts">
+            android:hint="@string/config_book_tts_voice_normal"
+            app:startIconDrawable="@drawable/ico_book_tts">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                android:id="@+id/config_book_menu_autocomplete_tts_voice"
+                android:id="@+id/config_book_menu_autocomplete_tts_voice_normal"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_book_tts_voice_japanese"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_book_tts_voice_japanese"
+            app:startIconDrawable="@drawable/ico_book_tts">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/config_book_menu_autocomplete_tts_voice_japanese"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                style="@style/TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin"
+                android:layout_marginEnd="@dimen/margin_small"
+                android:layout_gravity="center"
+                android:text="@string/popup_reading_tts_speed_slow"/>
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/config_book_tts_speed"
+                style="@style/Slider.TTS"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxHeight="2dp"
+                android:minHeight="2dp"/>
+
+            <TextView
+                style="@style/TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginEnd="@dimen/margin"
+                android:layout_gravity="center"
+                android:text="@string/popup_reading_tts_speed_fast" />
+        </LinearLayout>
 
         <com.google.android.material.divider.MaterialDivider
             style="@style/MaterialDivider"
@@ -183,7 +260,7 @@
             android:layout_marginBottom="@dimen/margin_small" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
@@ -208,7 +285,7 @@
             app:layout_constraintVertical_bias="0" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
@@ -232,6 +309,13 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0" />
 
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/config_book_font_japanese_style"
+            style="@style/SwitchMaterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/config_book_font_japanese_style" />
+
         <com.google.android.material.divider.MaterialDivider
             style="@style/MaterialDivider"
             android:layout_width="match_parent"
@@ -242,7 +326,7 @@
             android:layout_marginBottom="@dimen/margin_small" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"

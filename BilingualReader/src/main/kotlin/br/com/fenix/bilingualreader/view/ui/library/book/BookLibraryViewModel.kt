@@ -22,6 +22,8 @@ import br.com.fenix.bilingualreader.service.repository.TagsRepository
 import br.com.fenix.bilingualreader.service.sharemark.ShareMarkBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -47,6 +49,9 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     private val mTagsRepository: TagsRepository = TagsRepository(app.applicationContext)
     private val mPreferences = GeneralConsts.getSharedPreferences(app.applicationContext)
 
+    private var mLoading = MutableLiveData<Boolean>(false)
+    val loading: LiveData<Boolean> = mLoading
+
     private var mWordFilter = ""
 
     private var mOrder = MutableLiveData(Pair(Order.Name, false))
@@ -54,7 +59,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     private var mTypeFilter = MutableLiveData(FilterType.None)
     val typeFilter: LiveData<FilterType> = mTypeFilter
 
-    private var mLibraryType = MutableLiveData(LibraryBookType.GRID)
+    private var mLibraryType = MutableLiveData(LibraryBookType.GRID_BIG)
     val libraryType: LiveData<LibraryBookType> = mLibraryType
 
     private var mListBookFull = MutableLiveData<MutableList<Book>>(mutableListOf())
@@ -210,16 +215,24 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         return index
     }
 
+    fun updateList(index : Int) : Int {
+        val book = mListBook.value!![index]
+        mBookRepository.get(book.id!!)?.let {
+            book.update(it, true)
+        }
+        return index
+    }
+
     fun updateList(refreshComplete: (Boolean, indexes: MutableList<Pair<ListMode, Int>>) -> (Unit)) {
         var change = false
         val indexes = mutableListOf<Pair<ListMode, Int>>()
         if (mListBookFull.value != null && mListBookFull.value!!.isNotEmpty()) {
             val list = mBookRepository.listRecentChange(mLibrary)
-            if (list != null && list.isNotEmpty()) {
+            if (list.isNotEmpty()) {
                 change = true
                 for (Book in list) {
                     if (mListBookFull.value!!.contains(Book)) {
-                        if (mListBookFull.value!![mListBookFull.value!!.indexOf(Book)].update(Book)) {
+                        if (mListBookFull.value!![mListBookFull.value!!.indexOf(Book)].update(Book, true)) {
                             val index = mListBook.value!!.indexOf(Book)
                             if (index > -1)
                                 indexes.add(Pair(ListMode.MOD, index))
@@ -232,7 +245,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                 }
             }
             val listDel = mBookRepository.listRecentDeleted(mLibrary)
-            if (listDel != null && listDel.isNotEmpty()) {
+            if (listDel.isNotEmpty()) {
                 change = true
                 for (Book in listDel) {
                     if (mListBookFull.value!!.contains(Book)) {
@@ -245,15 +258,9 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             }
         } else {
             val list = mBookRepository.list(mLibrary)
-            if (list != null) {
-                indexes.add(Pair(ListMode.FULL, list.size))
-                mListBook.value = list.toMutableList()
-                mListBookFull.value = list.toMutableList()
-            } else {
-                mListBook.value = mutableListOf()
-                mListBookFull.value = mutableListOf()
-                indexes.add(Pair(ListMode.FULL, 0))
-            }
+            indexes.add(Pair(ListMode.FULL, list.size))
+            mListBook.value = list.toMutableList()
+            mListBookFull.value = list.toMutableList()
             //Receive value force refresh, not necessary notify
             change = false
         }
@@ -263,21 +270,24 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     }
 
     fun list(refreshComplete: (Boolean) -> (Unit)) {
-        val list = mBookRepository.list(mLibrary)
-        if (list != null) {
-            if (mListBookFull.value == null || mListBookFull.value!!.isEmpty()) {
-                mListBook.value = list.toMutableList()
-                mListBookFull.value = list.toMutableList()
-                setSuggestions(mListBookFull.value)
-            } else
-                update(list)
-        } else {
-            mListBookFull.value = mutableListOf()
-            mListBook.value = mutableListOf()
-            setSuggestions(mListBookFull.value)
-        }
+        mLoading.value = true
+        CoroutineScope(Dispatchers.IO).launch {
+            async {
+                val list = mBookRepository.list(mLibrary)
+                withContext(Dispatchers.Main) {
+                    mLoading.value = false
 
-        refreshComplete(mListBook.value!!.isNotEmpty())
+                    if (mListBookFull.value == null || mListBookFull.value!!.isEmpty()) {
+                        mListBook.value = list.toMutableList()
+                        mListBookFull.value = list.toMutableList()
+                        setSuggestions(mListBookFull.value)
+                    } else
+                        update(list)
+
+                    refreshComplete(mListBook.value!!.isNotEmpty())
+                }
+            }
+        }
     }
 
     fun clearHistory(book: Book) {
@@ -291,7 +301,11 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
 
     fun changeLibraryType() {
         val type = when (mLibraryType.value) {
-            LibraryBookType.LINE -> LibraryBookType.GRID
+            LibraryBookType.LINE -> LibraryBookType.GRID_BIG
+            LibraryBookType.GRID_BIG -> LibraryBookType.GRID_MEDIUM
+            LibraryBookType.GRID_MEDIUM -> LibraryBookType.SEPARATOR_BIG
+            LibraryBookType.SEPARATOR_BIG -> LibraryBookType.SEPARATOR_MEDIUM
+            LibraryBookType.SEPARATOR_MEDIUM -> LibraryBookType.LINE
             else -> LibraryBookType.LINE
         }
         setLibraryType(type)
@@ -324,6 +338,10 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                     mListBookFull.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenByDescending { it.name })
                     mListBook.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenByDescending { it.name })
                 }
+                Order.Author -> {
+                    mListBookFull.value!!.sortWith(compareByDescending<Book> { it.author }.thenByDescending { it.name })
+                    mListBook.value!!.sortWith(compareByDescending<Book> { it.author }.thenByDescending { it.name })
+                }
                 else -> {
                     mListBookFull.value!!.sortByDescending { it.name }
                     mListBook.value!!.sortByDescending { it.name }
@@ -342,6 +360,10 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                 Order.Favorite -> {
                     mListBookFull.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenBy { it.name })
                     mListBook.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenBy { it.name })
+                }
+                Order.Author -> {
+                    mListBookFull.value!!.sortWith(compareByDescending<Book> { it.author }.thenBy { it.name })
+                    mListBook.value!!.sortWith(compareByDescending<Book> { it.author }.thenBy { it.name })
                 }
                 else -> {
                     mListBookFull.value!!.sortBy { it.name }
@@ -380,6 +402,10 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                     }
                 } catch (e: Exception) {
                     mLOGGER.error("Error generate suggestion: " + e.message, e)
+                    Firebase.crashlytics.apply {
+                        setCustomKey("message", "Error generate suggestion: " + e.message)
+                        recordException(e)
+                    }
                 }
             }
         }
@@ -452,8 +478,8 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                 return false
         }
 
-        return filterPattern.isEmpty() || book.name.lowercase(Locale.getDefault())
-            .contains(filterPattern) || book.fileType.compareExtension(filterPattern)
+        return filterPattern.isEmpty() || book.name.lowercase(Locale.getDefault()).contains(filterPattern) ||
+                book.title.lowercase(Locale.getDefault()).contains(filterPattern) || book.fileType.compareExtension(filterPattern)
     }
 
     private val mBookFilter = object : Filter() {
@@ -461,18 +487,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             mWordFilter = constraint.toString()
             val filteredList: MutableList<Book> = mutableListOf()
 
-            if (constraint == null || constraint.isEmpty()) {
-                filteredList.addAll(mListBookFull.value!!.filter(Objects::nonNull))
-            } else {
-                val filterPattern = constraint.toString().lowercase(Locale.getDefault()).trim()
-
-                filteredList.addAll(mListBookFull.value!!.filter(Objects::nonNull).filter {
-                    it.name.lowercase(Locale.getDefault()).contains(filterPattern) ||
-                            it.extension.lowercase(Locale.getDefault()).contains(filterPattern)
-                })
-            }
-
-            if ((constraint == null || constraint.isEmpty()) && mTypeFilter.value == FilterType.None) {
+            if (constraint.isNullOrEmpty() && mTypeFilter.value == FilterType.None) {
                 filteredList.addAll(mListBookFull.value!!.filter(Objects::nonNull))
             } else {
                 var filterPattern = constraint.toString()
@@ -512,7 +527,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         }
     }
 
-    fun processShareMarks(context: Context, processed: (result: ShareMarkType) -> (Unit)) {
+    fun processShareMarks(context: Context, idNotification: Int, processed: (shareMark: ShareMarkType, idNotification: Int) -> Unit) {
         if (!mProcessShareMark) {
             mProcessShareMark = true
             val share = ShareMarkBase.getInstance(context)
@@ -523,6 +538,8 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                     mListBookFull.value?.find { book -> book.id == item.id }?.let { book ->
                         book.favorite = item.favorite
                         book.bookMark = item.bookMark
+                        book.pages = item.pages
+                        book.completed = item.completed
                         book.lastAccess = item.lastAccess
                     }
                 }
@@ -530,10 +547,11 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             share.bookShareMark(process) {
                 mProcessShareMark = false
                 if ((it == ShareMarkType.SUCCESS || it == ShareMarkType.NOT_ALTERATION) && notify)
-                    processed(ShareMarkType.NOTIFY_DATA_SET)
+                    processed(ShareMarkType.NOTIFY_DATA_SET, idNotification)
                 else
-                    processed(it)
+                    processed(it, idNotification)
             }
-        }
+        } else
+            processed(ShareMarkType.SYNC_IN_PROGRESS, idNotification)
     }
 }

@@ -4,10 +4,14 @@ import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import com.github.junrar.Archive
+import com.github.junrar.exception.CrcErrorException
 import com.github.junrar.exception.RarException
 import com.github.junrar.rarfile.FileHeader
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.core.Persister
+import org.slf4j.LoggerFactory
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
@@ -17,6 +21,8 @@ import java.io.InputStream
 
 
 class RarParse : Parse {
+
+    private val mLOGGER = LoggerFactory.getLogger(RarParse::class.java)
 
     private val mHeaders = ArrayList<FileHeader>()
     private var mArchive: Archive? = null
@@ -112,14 +118,20 @@ class RarParse : Parse {
         return getPagePaths().filter { it.value != 0 }.map { it.value }.toIntArray()
     }
 
+    override fun isComicInfo(): Boolean = mComicInfo != null
+
     override fun getComicInfo(): ComicInfo? {
-        return if (mComicInfo != null) {
+        return if (isComicInfo()) {
             val page = getPageStream(mComicInfo!!)
             val serializer: Serializer = Persister()
             try {
                 serializer.read(ComicInfo::class.java, page)
             } catch (e: Exception) {
-                e.printStackTrace()
+                mLOGGER.error("Error to get comic info: " + e.message, e)
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error to get comic info: " + e.message)
+                    recordException(e)
+                }
                 null
             }
         } else
@@ -142,7 +154,7 @@ class RarParse : Parse {
         return getPageStream(mHeaders[num])
     }
 
-    private fun getPageStream(header: FileHeader): InputStream {
+    private fun getPageStream(header: FileHeader, isFirst : Boolean = true): InputStream {
         return try {
             if (mCacheDir != null) {
                 val name = getName(header)
@@ -154,9 +166,18 @@ class RarParse : Parse {
                     val os = FileOutputStream(cacheFile)
                     try {
                         mArchive!!.extractFile(header, os)
+                    } catch (e : CrcErrorException) {
+                        cacheFile.delete()
+                        if (isFirst) {
+                            Thread.sleep(200)
+                            getPageStream(header, false)
+                        } else {
+                            mLOGGER.error("Error to get page stream: " + e.message, e)
+                            throw e
+                        }
                     } catch (e: Exception) {
                         cacheFile.delete()
-                        e.printStackTrace()
+                        mLOGGER.error("Error to get page stream: " + e.message, e)
                         throw e
                     } finally {
                         os.close()
@@ -166,6 +187,7 @@ class RarParse : Parse {
             }
             mArchive!!.getInputStream(header)
         } catch (e: RarException) {
+            mLOGGER.error("Error to get page stream: " + e.message, e)
             throw IOException("Unable to parse rar: " + e.message, e)
         }
     }

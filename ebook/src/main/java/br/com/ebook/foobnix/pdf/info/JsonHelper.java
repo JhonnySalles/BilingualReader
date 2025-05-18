@@ -1,6 +1,8 @@
 package br.com.ebook.foobnix.pdf.info;
 
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,9 +14,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import br.com.ebook.foobnix.android.utils.LOG;
-
 public class JsonHelper {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JsonHelper.class);
 
     public static Map<String, String> fileToMap(File jsonFile) {
         String json = JsonHelper.fileToString(jsonFile);
@@ -28,7 +30,7 @@ public class JsonHelper {
             fw.flush();
             fw.close();
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error map to file: {}", e.getMessage(), e);
         }
     }
 
@@ -39,31 +41,30 @@ public class JsonHelper {
             StringBuilder total = new StringBuilder();
             String line;
 
-            while ((line = r.readLine()) != null) {
+            while ((line = r.readLine()) != null)
                 total.append(line);
-            }
+
             return total.toString();
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error file to string: {}", e.getMessage(), e);
         }
         return "";
     }
 
     public static String mapToJson(Map<String, String> map) {
         try {
-            if (map == null) {
+            if (map == null)
                 return "";
-            }
+
             JSONObject obj = new JSONObject();
             for (String key : map.keySet()) {
                 String value = map.get(key);
-                if (key != null && value != null) {
+                if (key != null && value != null)
                     obj.put(key, value);
-                }
             }
             return obj.toString();
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error map to json: {}", e.getMessage(), e);
         }
         return "";
     }
@@ -81,7 +82,7 @@ public class JsonHelper {
 
             return map;
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error json to map: {}", e.getMessage(), e);
         }
         return map;
     }

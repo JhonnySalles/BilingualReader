@@ -54,7 +54,7 @@
                 <path
                     android:name="scannerbar"
                     android:pathData="M 20.561 6.722 L 108.674 6.722 Q 110.823 6.722 110.823 8.872 L 110.823 8.872 Q 110.823 11.021 108.674 11.021 L 20.561 11.021 Q 18.412 11.021 18.412 8.872 L 18.412 8.872 Q 18.412 6.722 20.561 6.722 Z"
-                    android:fillColor="?attr/colorSecondary"
+                    android:fillColor="?attr/colorPrimary"
                     android:fillAlpha="0"/>
             </group>
             <group android:name="group">

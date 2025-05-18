@@ -34,7 +34,7 @@
                         android:layout_width="@dimen/floating_manga_reader_button_width"
                         android:layout_height="@dimen/floating_manga_reader_button_width"
                         android:layout_marginTop="5dp"
-                        android:src="@drawable/ic_ocr_clear_list"
+                        android:src="@drawable/ico_ocr_clear_list"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintTop_toTopOf="parent"/>
 
@@ -105,7 +105,7 @@
                 android:layout_width="@dimen/floating_manga_reader_button_width"
                 android:layout_height="@dimen/floating_manga_reader_button_width"
                 android:layout_marginTop="10dp"
-                android:src="@drawable/ic_translate"
+                android:src="@drawable/ico_translate"
                 tools:layout_editor_absoluteY="0dp" />
 
             <androidx.appcompat.widget.AppCompatImageButton
@@ -114,7 +114,7 @@
                 android:layout_width="@dimen/floating_manga_reader_button_width"
                 android:layout_height="@dimen/floating_manga_reader_button_width"
                 android:layout_marginTop="10dp"
-                android:src="@drawable/ic_refresh"
+                android:src="@drawable/ico_refresh"
                 tools:layout_editor_absoluteY="0dp" />
 
             <androidx.appcompat.widget.AppCompatImageButton
@@ -124,7 +124,7 @@
                 android:layout_height="@dimen/floating_manga_reader_button_width"
                 android:layout_gravity="top|start"
                 android:layout_marginTop="10dp"
-                android:src="@drawable/ic_draw_text" />
+                android:src="@drawable/ico_draw_text" />
         </LinearLayout>
 
         <androidx.core.widget.NestedScrollView
@@ -217,7 +217,7 @@
             android:layout_width="@dimen/floating_manga_reader_button_width"
             android:layout_height="@dimen/floating_manga_reader_button_width"
             android:layout_marginStart="10dp"
-            android:src="@drawable/ic_google_translate" />
+            android:src="@drawable/ico_google_translate" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/floating_manga_subtitle_page_linked"
@@ -225,7 +225,7 @@
             android:layout_width="@dimen/floating_manga_reader_button_width"
             android:layout_height="@dimen/floating_manga_reader_button_width"
             android:layout_marginStart="10dp"
-            android:src="@drawable/ic_page_linked" />
+            android:src="@drawable/ico_page_linked" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/floating_manga_subtitle_change_subtitle"
@@ -233,7 +233,7 @@
             android:layout_width="@dimen/floating_manga_reader_button_width"
             android:layout_height="@dimen/floating_manga_reader_button_width"
             android:layout_marginStart="10dp"
-            android:src="@drawable/ic_subtitle" />
+            android:src="@drawable/ico_subtitle" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/floating_manga_subtitle_change_ocr"
@@ -241,7 +241,7 @@
             android:layout_width="@dimen/floating_manga_reader_button_width"
             android:layout_height="@dimen/floating_manga_reader_button_width"
             android:layout_marginStart="10dp"
-            android:src="@drawable/ic_reader_ocr" />
+            android:src="@drawable/ico_reader_ocr" />
 
     </LinearLayout>
 
@@ -257,6 +257,6 @@
         android:layout_width="@dimen/floating_reader_button_close"
         android:layout_height="@dimen/floating_reader_button_close"
         android:layout_gravity="top|end"
-        android:src="@drawable/ic_close" />
+        android:src="@drawable/ico_close" />
 
 </FrameLayout>

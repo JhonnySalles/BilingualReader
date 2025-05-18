@@ -35,7 +35,7 @@ class PopupAnnotations(var context: Context) {
                     super.updateDrawState(ds)
                     ds.isUnderlineText = false
                     ds.bgColor = color
-                    ds.color = context.getColorFromAttr(R.attr.colorPrimary)
+                    ds.color = context.getColorFromAttr(R.attr.colorOnBackground)
                 }
             }
         }
@@ -61,7 +61,7 @@ class PopupAnnotations(var context: Context) {
                 mAnnotation.annotation = mEdit.text.toString()
                 annotation.update(mAnnotation)
                 if (annotation.id == null)
-                    mRepository.save(annotation)
+                    annotation.id = mRepository.save(annotation)
                 else
                     mRepository.update(annotation)
                 mPopup.dismiss()
@@ -73,7 +73,7 @@ class PopupAnnotations(var context: Context) {
 
     private fun createPopup(context: Context, inflater: LayoutInflater, annotation: BookAnnotation): View? {
         val root = inflater.inflate(R.layout.popup_annotations, null, false)
-        root.findViewById<TextView>(R.id.popup_annotation_title).text = context.getString(R.string.book_annotation_popup_title, annotation.page, context.getString(annotation.type.getDescription()))
+        root.findViewById<TextView>(R.id.popup_annotation_title).text = context.getString(R.string.book_annotation_popup_title, annotation.page, context.getString(annotation.markType.getDescription()))
         mEdit = root.findViewById(R.id.popup_annotation_edit)
         mEdit.setText(annotation.annotation)
 
@@ -93,22 +93,22 @@ class PopupAnnotations(var context: Context) {
                 btn.icon = when (btn.id) {
                     R.id.popup_annotation_yellow -> AppCompatResources.getDrawable(
                         context,
-                        if (mAnnotation.color == Color.Yellow) R.drawable.ic_text_view_select_yellow_selected else R.drawable.ic_text_view_select_yellow
+                        if (mAnnotation.color == Color.Yellow) R.drawable.ico_text_view_select_yellow_selected else R.drawable.ico_text_view_select_yellow
                     )
 
                     R.id.popup_annotation_green -> AppCompatResources.getDrawable(
                         context,
-                        if (mAnnotation.color == Color.Green) R.drawable.ic_text_view_select_green_selected else R.drawable.ic_text_view_select_green
+                        if (mAnnotation.color == Color.Green) R.drawable.ico_text_view_select_green_selected else R.drawable.ico_text_view_select_green
                     )
 
                     R.id.popup_annotation_blue -> AppCompatResources.getDrawable(
                         context,
-                        if (mAnnotation.color == Color.Blue) R.drawable.ic_text_view_select_blue_selected else R.drawable.ic_text_view_select_blue
+                        if (mAnnotation.color == Color.Blue) R.drawable.ico_text_view_select_blue_selected else R.drawable.ico_text_view_select_blue
                     )
 
                     R.id.popup_annotation_red -> AppCompatResources.getDrawable(
                         context,
-                        if (mAnnotation.color == Color.Red) R.drawable.ic_text_view_select_red_selected else R.drawable.ic_text_view_select_red
+                        if (mAnnotation.color == Color.Red) R.drawable.ico_text_view_select_red_selected else R.drawable.ico_text_view_select_red
                     )
 
                     else -> btn.icon

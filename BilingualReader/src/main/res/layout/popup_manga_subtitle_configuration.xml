@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_margin="@dimen/margin_small"
         android:paddingTop="@dimen/margin"
         android:paddingBottom="@dimen/margin_bottom">
 
@@ -34,7 +35,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:startIconDrawable="@drawable/ic_sd_storage">
+            app:startIconDrawable="@drawable/ico_sd_storage">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/popup_manga_menu_autocomplete_external_subtitle_select_path"
@@ -54,7 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/popup_reading_manga_import_subtitle_selected"
-            app:startIconDrawable="@drawable/ic_language">
+            app:startIconDrawable="@drawable/ico_language">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/popup_manga_menu_autocomplete_subtitle_selected"
@@ -70,7 +71,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/popup_reading_manga_import_subtitle_translate"
-            app:startIconDrawable="@drawable/ic_translate">
+            app:startIconDrawable="@drawable/ico_translate">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/popup_manga_menu_autocomplete_subtitle_language"

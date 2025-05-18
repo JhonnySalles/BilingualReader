@@ -1,5 +1,8 @@
 package org.ebookdroid.common;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -10,6 +13,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class StringUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(StringUtils.class);
 
     public static final NaturalStringComparator NSC = new NaturalStringComparator();
 
@@ -34,7 +39,7 @@ public class StringUtils {
             }
             return sb.toString();
         } catch (final NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            LOGGER.error("Error to export all: {}", e.getMessage(), e);
         }
         return null;
     }

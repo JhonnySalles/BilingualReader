@@ -55,7 +55,6 @@ class Information() {
 
     var annotation: String = ""
     var publisher: String = ""
-    var year: String = ""
     var isbn: String = ""
     var file: String = ""
 
@@ -219,16 +218,16 @@ class Information() {
     }
 
     private fun setBook(context: Context, book: Book): Information {
+        this.title = book.title
+        this.series = book.series
         this.genres = book.genre
+        this.authors = book.author
         this.annotation = book.annotation
         this.publisher = book.publisher
-        this.year = book.year
+        this.release = if (book.release != null) GeneralConsts.formatterDate(context, book.release!!) else ""
         this.isbn = book.isbn
-        this.file =
-            book.fileName + "  " + FileUtil.formatSize(book.fileSize) + "  " + GeneralConsts.formatterDate(
-                context,
-                book.fileAlteration
-            )
+        this.file = book.fileName + "." + book.extension + " - " + FileUtil.formatSize(book.fileSize) + " - " + GeneralConsts.formatterDate(context, book.fileAlteration)
+        this.volumes = book.volume
 
         return this
     }

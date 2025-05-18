@@ -22,8 +22,8 @@ class LibraryMangaPopupType : Fragment() {
     private lateinit var mTypeGridBig: CheckBox
     private lateinit var mTypeGridMedium: CheckBox
     private lateinit var mTypeGridSmall: CheckBox
+    private lateinit var mTypeSeparatorBig: CheckBox
     private lateinit var mTypeSeparatorMedium: CheckBox
-    private lateinit var mTypeSeparatorSmall: CheckBox
     private lateinit var mTypeLine: CheckBox
 
     private lateinit var mCheckMap : Map<LibraryMangaType, CheckBox>
@@ -39,8 +39,8 @@ class LibraryMangaPopupType : Fragment() {
         mTypeGridBig = root.findViewById(R.id.popup_library_manga_type_grid_big)
         mTypeGridMedium = root.findViewById(R.id.popup_library_manga_type_grid_medium)
         mTypeGridSmall = root.findViewById(R.id.popup_library_manga_type_grid_small)
-        mTypeSeparatorMedium = root.findViewById(R.id.popup_library_manga_type_separator_big)
-        mTypeSeparatorSmall = root.findViewById(R.id.popup_library_manga_type_separator_medium)
+        mTypeSeparatorBig = root.findViewById(R.id.popup_library_manga_type_separator_big)
+        mTypeSeparatorMedium = root.findViewById(R.id.popup_library_manga_type_separator_medium)
         mTypeLine = root.findViewById(R.id.popup_library_manga_type_line)
 
         mTypeGridSmall.visibility = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) View.VISIBLE else View.GONE
@@ -49,8 +49,8 @@ class LibraryMangaPopupType : Fragment() {
             Pair(LibraryMangaType.GRID_BIG, mTypeGridBig),
             Pair(LibraryMangaType.GRID_MEDIUM, mTypeGridMedium),
             Pair(LibraryMangaType.GRID_SMALL, mTypeGridSmall),
-            Pair(LibraryMangaType.SEPARATOR_BIG, mTypeSeparatorMedium),
-            Pair(LibraryMangaType.SEPARATOR_MEDIUM, mTypeSeparatorSmall),
+            Pair(LibraryMangaType.SEPARATOR_BIG, mTypeSeparatorBig),
+            Pair(LibraryMangaType.SEPARATOR_MEDIUM, mTypeSeparatorMedium),
             Pair(LibraryMangaType.LINE, mTypeLine)
         )
 

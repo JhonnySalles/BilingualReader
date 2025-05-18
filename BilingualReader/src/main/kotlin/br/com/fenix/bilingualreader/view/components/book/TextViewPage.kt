@@ -20,17 +20,16 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
         const val TEXT_MAX_SIZE = 140f
         const val TEXT_MIN_SIZE = 40f
         const val STEP = 4
-
-        private val mLOGGER = LoggerFactory.getLogger(TextViewPage::class.java)
     }
 
     constructor(context: Context) : this(context, null) {}
+
+    private val mLOGGER = LoggerFactory.getLogger(TextViewPage::class.java)
 
     override fun performClick(): Boolean {
         super.performClick()
         return true
     }
-
 
     private var mCustomMovement: MovementMethod? = null
     private var mGestureDetector: GestureDetector
@@ -38,7 +37,7 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
     private var mSelectionListener: SelectionChangeListener? = null
     private var mIsChangeSize: Boolean = true
     private var mOriginalSize: Float
-    private var mZooming = false
+    private var mIsZoom = false
 
     init {
         mOriginalSize = textSize
@@ -59,9 +58,6 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
                 return@setOnTouchListener true
             } else
                 setTextIsSelectable(true)
-
-            if (mZooming)
-                parent.requestDisallowInterceptTouchEvent(true)
 
             if (mGestureDetector.onTouchEvent(event))
                 return@setOnTouchListener true
@@ -85,8 +81,8 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
             mOriginalSize = textSize
     }
 
-    override fun setOnTouchListener(listenner: OnTouchListener?) {
-        mOuterTouchListener = listenner
+    override fun setOnTouchListener(listener: OnTouchListener?) {
+        mOuterTouchListener = listener
     }
 
     fun setCustomMovement(movement: MovementMethod) {
@@ -110,14 +106,14 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
             mSelectionListener?.onTextUnselected()
     }
 
-    private var mBaseDistZoomIn = 0
-    private var mBaseDistZoomOut = 0
+    private var mLastZoomDistance = 0f
 
     fun resetZoom() {
-        if (mZooming)
+        if (mIsZoom)
             try {
                 mIsChangeSize = false
                 setTextSize(TypedValue.COMPLEX_UNIT_PX, mOriginalSize)
+                mIsZoom = false
             } finally {
                 mIsChangeSize = true
             }
@@ -127,32 +123,26 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
         if (event.pointerCount == 2) {
             try {
                 mIsChangeSize = false
-
                 val action = event.action
                 val pure = action and MotionEvent.ACTION_MASK
-
                 if (pure == MotionEvent.ACTION_POINTER_DOWN && textSize <= TEXT_MAX_SIZE && textSize >= TEXT_MIN_SIZE) {
-                    mBaseDistZoomIn = getDistance(event)
-                    mBaseDistZoomOut = getDistance(event)
+                    mLastZoomDistance = getDistance(event)
                 } else {
+                    var finalSize = textSize
                     val currentDistance = getDistance(event)
-                    if (currentDistance > mBaseDistZoomIn) {
-                        var finalSize: Float = textSize + STEP
-                        if (finalSize > TEXT_MAX_SIZE) {
+                    if (currentDistance > mLastZoomDistance) {
+                        finalSize = textSize + STEP
+                        if (finalSize > TEXT_MAX_SIZE)
                             finalSize = TEXT_MAX_SIZE
-                        }
-                        setTextSize(TypedValue.COMPLEX_UNIT_PX, finalSize)
-                        mZooming = true
-                    } else {
-                        if (currentDistance < mBaseDistZoomOut) {
-                            var finalSize: Float = textSize - STEP
-                            if (finalSize < TEXT_MIN_SIZE)
-                                finalSize = TEXT_MIN_SIZE
-
-                            setTextSize(TypedValue.COMPLEX_UNIT_PX, finalSize)
-                            mZooming = true
-                        }
+                    } else if (currentDistance < mLastZoomDistance) {
+                        finalSize = textSize - STEP
+                        if (finalSize < TEXT_MIN_SIZE)
+                            finalSize = TEXT_MIN_SIZE
                     }
+
+                    mLastZoomDistance = currentDistance
+                    setTextSize(TypedValue.COMPLEX_UNIT_PX, finalSize)
+                    mIsZoom = finalSize != TEXT_MIN_SIZE
                 }
             } finally {
                 mIsChangeSize = true
@@ -162,10 +152,10 @@ open class TextViewPage(context: Context, attributeSet: AttributeSet?) : AppComp
         return false
     }
 
-    private fun getDistance(event: MotionEvent): Int {
-        val dx = (event.getX(0) - event.getX(1)).toInt()
-        val dy = (event.getY(0) - event.getY(1)).toInt()
-        return sqrt((dx * dx + dy * dy).toDouble()).toInt()
+    private fun getDistance(event: MotionEvent): Float {
+        val dx = event.getX(0) - event.getX(1)
+        val dy = event.getY(0) - event.getY(1)
+        return sqrt(dx * dx + dy * dy)
     }
 
     inner class SimpleGestureListener : GestureDetector.SimpleOnGestureListener() {

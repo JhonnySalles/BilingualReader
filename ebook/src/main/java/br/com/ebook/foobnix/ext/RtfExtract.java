@@ -11,6 +11,9 @@ import com.rtfparserkit.parser.standard.StandardRtfParser;
 import com.rtfparserkit.rtf.Command;
 import com.rtfparserkit.utils.HexUtils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -18,14 +21,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 
-import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.hypen.HypenUtils;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 
 public class RtfExtract {
 
-	public static FooterNote extract(String inputPath, final String outputDir, final String fileName)
-			throws IOException {
+	private static final Logger LOGGER = LoggerFactory.getLogger(RtfExtract.class);
+
+	public static FooterNote extract(String inputPath, final String outputDir, final String fileName) throws IOException {
 
 		File file = new File(outputDir, fileName);
 		try {
@@ -77,7 +81,7 @@ public class RtfExtract {
 							writer.write("<img src='" + imageName + "' />");
 
 						} catch (Exception e) {
-							LOG.e(e);
+							LOGGER.error("Error to process string: {}", e.getMessage(), e);
 						}
 					}
 				}
@@ -108,7 +112,7 @@ public class RtfExtract {
 			writer.close();
 
 		} catch (Exception e) {
-			LOG.e(e);
+			LOGGER.error("Error to extract: {}", e.getMessage(), e);
 		}
 		return new FooterNote(file.getPath(), null);
 	}
@@ -143,7 +147,8 @@ public class RtfExtract {
 
 			});
 		} catch (Exception e) {
-			LOG.e(e);
+			if (Config.SHOW_LOG)
+				LOGGER.error("Error get image cover: {}", e.getMessage(), e);
 		}
 
 		return decode;

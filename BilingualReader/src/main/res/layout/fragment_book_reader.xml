@@ -8,9 +8,17 @@
     android:orientation="vertical">
 
     <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/fragment_book_reader"
+        android:id="@+id/fragment_book_reader_pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+
+    <br.com.fenix.bilingualreader.view.components.manga.ZoomRecyclerView
+        android:id="@+id/fragment_book_reader_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        app:zoom_enabled="true"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/reader_book_cover_content"
@@ -21,7 +29,7 @@
             android:id="@+id/reader_book_cover"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:transitionName="transition_manga_cover"
+            android:transitionName="transition_book_cover"
             android:layout_marginStart="@dimen/book_reader_cover_margin_start_end"
             android:layout_marginEnd="@dimen/book_reader_cover_margin_start_end"
             android:layout_marginTop="@dimen/book_reader_cover_margin_top_bottom"
@@ -40,10 +48,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="@dimen/book_reader_cover_message"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
+
+        <ImageView
+            android:id="@+id/reader_book_cover_warning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ico_warning"
+            android:visibility="gone"
+            app:layout_constraintVertical_bias="0.3"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/reader_book_cover_message"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

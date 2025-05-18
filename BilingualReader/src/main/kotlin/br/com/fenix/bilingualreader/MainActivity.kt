@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.edit
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -37,6 +38,7 @@ import br.com.fenix.bilingualreader.util.helpers.MsgUtil
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.view.ui.about.AboutFragment
+import br.com.fenix.bilingualreader.view.ui.annotation.AnnotationFragment
 import br.com.fenix.bilingualreader.view.ui.configuration.ConfigFragment
 import br.com.fenix.bilingualreader.view.ui.help.HelpFragment
 import br.com.fenix.bilingualreader.view.ui.history.HistoryFragment
@@ -47,12 +49,15 @@ import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.statistics.StatisticsFragment
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyFragment
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.time.LocalDate
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainListener {
@@ -85,10 +90,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mMangaLibraryModel.isLaunch && mBookLibraryModel.isLaunch
         }
 
-        val isDark : Boolean = when (ThemeMode.valueOf(
-            GeneralConsts.getSharedPreferences(this)
-                .getString(GeneralConsts.KEYS.THEME.THEME_MODE, ThemeMode.SYSTEM.toString())!!
-        )) {
+        val isDark : Boolean = when (ThemeMode.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_MODE, ThemeMode.SYSTEM.toString())!!)) {
             ThemeMode.DARK -> {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                 true
@@ -110,8 +112,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         initializeBook()
         createNotificationChannel()
+        DataBase.initializeBackup(this)
 
-        //setContentView(R.layout.activity_main)
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
@@ -182,6 +184,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
 
             intent.dataString?.let {
+                mMangaLibraryModel.isLaunch = false
+                mBookLibraryModel.isLaunch = false
                 fragment = when (it) {
                     "history" -> HistoryFragment()
                     else -> fragment
@@ -212,7 +216,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 f.delete()
                         }
                 } catch (e: Exception) {
-                    mLOGGER.error("Error clearing cache folders.", e)
+                    mLOGGER.error("Error clearing cache folders: " + e.message, e)
+                    Firebase.crashlytics.run {
+                        setCustomKey("message", "Error clearing cache folders: " + e.message)
+                        recordException(e)
+                    }
                 }
             }
         }
@@ -225,7 +233,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             if (libraries.isNotEmpty())
                 setLibraries(libraries)
         } catch (e: Exception) {
-            mLOGGER.error("Error clearing cache folders.", e)
+            mLOGGER.error("Error clearing cache folders: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error clearing cache folders: " + e.message)
+                recordException(e)
+            }
         }
     }
 
@@ -247,6 +259,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             R.id.menu_configuration -> ConfigFragment()
             R.id.menu_statistics -> StatisticsFragment()
+            R.id.menu_annotations -> AnnotationFragment()
             R.id.menu_help -> HelpFragment()
             R.id.menu_about -> AboutFragment()
             R.id.menu_history -> HistoryFragment()
@@ -307,12 +320,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         else if (fragment is BookLibraryFragment)
             mBookLibraryModel.saveLastLibrary()
 
-        mFragmentManager.beginTransaction().setCustomAnimations(
-            R.anim.slide_fragment_add_enter,
-            R.anim.slide_fragment_add_exit,
-            R.anim.slide_fragment_remove_enter,
-            R.anim.slide_fragment_remove_exit
-        )
+        mFragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_fragment_add_enter, R.anim.slide_fragment_add_exit,
+            R.anim.slide_fragment_remove_enter, R.anim.slide_fragment_remove_exit)
             .replace(R.id.main_content_root, fragment)
             .addToBackStack(null)
             .commit()
@@ -379,7 +388,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         NotificationManagerCompat.from(this).cancelAll()
         clearCache()
         DataBase.close()
+
+        val preferences = GeneralConsts.getSharedPreferences(this)
+        if (LocalDate.now().isAfter(LocalDate.parse(preferences.getString(GeneralConsts.KEYS.DATABASE.LAST_AUTO_BACKUP, "2025-01-01")))) {
+            GeneralConsts.getSharedPreferences(this).edit(commit = true) { putString(GeneralConsts.KEYS.DATABASE.LAST_AUTO_BACKUP, LocalDate.now().toString()) }
+            DataBase.autoBackupDatabase(this)
+        }
+
         super.onDestroy()
     }
-
 }

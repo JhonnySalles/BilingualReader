@@ -6,10 +6,11 @@ import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
 
-class BookGridCardAdapter : RecyclerView.Adapter<BookGridViewHolder>(), BaseAdapter<Book, BookCardListener> {
+class BookGridCardAdapter(var type: LibraryBookType) : RecyclerView.Adapter<BookGridViewHolder>(), BaseAdapter<Book, BookCardListener> {
 
     private lateinit var mListener: BookCardListener
     private var mMangaList: MutableList<Book> = mutableListOf()
@@ -17,7 +18,7 @@ class BookGridCardAdapter : RecyclerView.Adapter<BookGridViewHolder>(), BaseAdap
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookGridViewHolder {
         val item = LayoutInflater.from(parent.context).inflate(R.layout.grid_card_book, parent, false)
-        return BookGridViewHolder(item, mListener)
+        return BookGridViewHolder(type, item, mListener)
     }
 
     override fun onBindViewHolder(holder: BookGridViewHolder, position: Int) {

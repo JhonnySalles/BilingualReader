@@ -3,15 +3,18 @@ package org.ebookdroid.droids;
 import org.ebookdroid.core.codec.CodecDocument;
 import org.ebookdroid.droids.mupdf.codec.MuPdfDocument;
 import org.ebookdroid.droids.mupdf.codec.PdfContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.ext.CacheZipUtils;
 import br.com.ebook.foobnix.ext.RtfExtract;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 
 public class RtfContext extends PdfContext {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(RtfContext.class);
 
 	File cacheFile;
 
@@ -28,7 +31,7 @@ public class RtfContext extends PdfContext {
 			try {
 				RtfExtract.extract(fileName, CacheZipUtils.CACHE_BOOK_DIR.getPath(), cacheFile.getName());
 			} catch (Exception e) {
-				LOG.e(e);
+				LOGGER.error("Error open document inner: {}", e.getMessage(), e);
 			}
 		}
 

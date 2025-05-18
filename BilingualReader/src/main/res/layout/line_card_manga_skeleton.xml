@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/manga_line_skeleton_height"
+    android:layout_marginBottom="@dimen/history_skeleton_item_margin"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <View
+            android:layout_width="@dimen/manga_line_skeleton_card_image_width"
+            android:layout_height="@dimen/manga_line_skeleton_card_image_height"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_gravity="center"
+            android:background="@drawable/skeleton"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="@dimen/manga_line_skeleton_item_margin"
+            android:paddingRight="@dimen/manga_line_skeleton_item_margin"
+            android:layout_marginEnd="@dimen/margin">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/manga_line_skeleton_item_height"
+                android:layout_marginStart="@dimen/manga_line_skeleton_item_margin"
+                android:layout_marginEnd="50dp"
+                android:background="@drawable/skeleton"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="@dimen/book_line_skeleton_item_margin_top"
+                android:layout_gravity="bottom">
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_gravity="bottom">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/manga_line_skeleton_item_small_height"
+                        android:layout_marginStart="@dimen/manga_line_skeleton_item_margin"
+                        android:layout_marginEnd="100dp"
+                        android:background="@drawable/skeleton"/>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/manga_line_skeleton_item_small_height"
+                        android:layout_marginStart="@dimen/manga_line_skeleton_item_margin"
+                        android:layout_marginEnd="170dp"
+                        android:layout_marginTop="@dimen/manga_line_skeleton_item_margin_top"
+                        android:background="@drawable/skeleton"/>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/manga_line_skeleton_item_small_height"
+                        android:layout_marginStart="@dimen/manga_line_skeleton_item_margin"
+                        android:layout_marginEnd="50dp"
+                        android:layout_marginTop="@dimen/manga_line_skeleton_item_margin_top"
+                        android:background="@drawable/skeleton"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/manga_line_skeleton_item_margin_top"
+                        android:orientation="horizontal">
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_weight="2"
+                            android:layout_height="@dimen/manga_line_skeleton_item_small_height"
+                            android:layout_marginStart="@dimen/manga_line_skeleton_item_margin"
+                            android:layout_marginEnd="@dimen/manga_line_skeleton_item_margin"
+                            android:background="@drawable/skeleton"/>
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_weight="1.3"
+                            android:layout_height="@dimen/manga_line_skeleton_item_small_height"
+                            android:layout_marginStart="@dimen/manga_line_skeleton_item_margin"
+                            android:layout_marginEnd="@dimen/manga_line_skeleton_item_margin"
+                            android:background="@drawable/skeleton"/>
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="@dimen/manga_line_skeleton_item_small_height"
+                            android:layout_marginStart="@dimen/manga_line_skeleton_item_margin"
+                            android:layout_marginEnd="@dimen/manga_line_skeleton_item_margin"
+                            android:background="@drawable/skeleton"/>
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_weight="2"
+                            android:layout_height="@dimen/manga_line_skeleton_item_small_height"
+                            android:layout_marginStart="@dimen/manga_line_skeleton_item_margin"
+                            android:background="@drawable/skeleton"/>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/manga_line_skeleton_item_progress_height"
+                        android:layout_marginTop="@dimen/manga_line_skeleton_item_margin_top"
+                        android:layout_marginStart="@dimen/manga_line_skeleton_item_margin"
+                        android:background="@drawable/skeleton"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_gravity="bottom">
+
+                    <View
+                        android:layout_width="@dimen/history_skeleton_item_height"
+                        android:layout_height="@dimen/history_skeleton_item_height"
+                        android:layout_marginStart="10dp"
+                        android:background="@drawable/skeleton"/>
+
+                    <View
+                        android:layout_width="@dimen/history_skeleton_item_height"
+                        android:layout_height="@dimen/history_skeleton_item_height"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginStart="10dp"
+                        android:background="@drawable/skeleton"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/manga_line_skeleton_item_margin"/>
+</LinearLayout>

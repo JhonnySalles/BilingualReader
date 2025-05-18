@@ -4,9 +4,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/manga_grid_card"
     style="@style/AppBackground.Card"
-    android:layout_width="@dimen/manga_grid_card_layout_width"
-    android:layout_height="@dimen/manga_grid_card_layout_height"
-    android:layout_margin="8dp"
+    android:layout_width="@dimen/manga_grid_card_layout_width_big"
+    android:layout_height="@dimen/manga_grid_card_layout_height_big"
+    android:layout_margin="@dimen/margin_small"
     app:strokeWidth="0.0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -16,6 +16,7 @@
         android:orientation="vertical">
 
         <!-- Media -->
+
         <ImageView
             android:id="@+id/manga_grid_image_cover"
             android:layout_width="match_parent"
@@ -24,9 +25,11 @@
             android:scaleType="centerCrop"
             android:transitionName="transition_manga_cover"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
             app:srcCompat="@mipmap/book_cover_2" />
 
         <LinearLayout
@@ -112,27 +115,50 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageView
+    <LinearLayout
         android:id="@+id/manga_grid_favorite"
-        style="@style/IconFavorite"
-        android:layout_width="@dimen/manga_grid_favorite"
-        android:layout_height="@dimen/manga_grid_favorite"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/ic_favorite_mark_border"
-        android:src="@drawable/ico_favorite_mark"
-        android:visibility="gone" />
+        android:layout_width="@dimen/manga_grid_favorite_content_big"
+        android:layout_height="@dimen/manga_grid_favorite_content_big"
+        android:layout_gravity="start"
+        android:gravity="start">
+        <ImageView
+            android:id="@+id/manga_grid_favorite_icon"
+            style="@style/IconFavorite"
+            android:layout_width="@dimen/manga_grid_favorite_big"
+            android:layout_height="@dimen/manga_grid_favorite_big"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/ico_favorite_mark_border"
+            android:src="@drawable/ico_favorite_unmark"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/manga_grid_config"
+        android:layout_width="@dimen/manga_grid_config_content_small"
+        android:layout_height="@dimen/manga_grid_config_content_small"
+        android:layout_gravity="end"
+        android:gravity="end">
+        <ImageView
+            android:id="@+id/manga_grid_config_icon"
+            style="@style/IconConfig"
+            android:layout_width="@dimen/manga_grid_config_small"
+            android:layout_height="@dimen/manga_grid_config_small"
+            android:layout_marginEnd="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/ico_config_border"
+            android:src="@drawable/ico_config"/>
+    </LinearLayout>
+
 
     <ImageView
         android:id="@+id/manga_grid_has_subtitle"
         style="@style/IconSubtitles"
-        android:layout_width="@dimen/manga_grid_subtitle"
-        android:layout_height="@dimen/manga_grid_subtitle"
-        android:layout_marginEnd="5dp"
+        android:layout_width="@dimen/manga_grid_subtitle_small"
+        android:layout_height="@dimen/manga_grid_subtitle_small"
+        android:layout_marginStart="30dp"
         android:layout_marginTop="5dp"
-        android:background="@drawable/ic_subtitles_border"
-        android:layout_gravity="end"
-        android:src="@drawable/ic_subtitles_exist"
+        android:background="@drawable/ico_subtitles_border"
+        android:src="@drawable/ico_subtitles_exist"
         android:visibility="gone"/>
 
 </com.google.android.material.card.MaterialCardView>

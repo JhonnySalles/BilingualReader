@@ -36,14 +36,22 @@ import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
+import br.com.fenix.bilingualreader.model.enums.Color
+import br.com.fenix.bilingualreader.model.enums.Filter
 import br.com.fenix.bilingualreader.model.enums.ListMode
 import br.com.fenix.bilingualreader.model.enums.MarkType
-import br.com.fenix.bilingualreader.service.listener.BookAnnotationListener
+import br.com.fenix.bilingualreader.service.listener.AnnotationListener
+import br.com.fenix.bilingualreader.service.listener.AnnotationsListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
+import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.view.adapter.book.BookAnnotationHeaderViewHolder
 import br.com.fenix.bilingualreader.view.adapter.book.BookAnnotationLineAdapter
+import br.com.fenix.bilingualreader.view.ui.annotation.AnnotationPopupFilterChapter
+import br.com.fenix.bilingualreader.view.ui.annotation.AnnotationPopupFilterColor
+import br.com.fenix.bilingualreader.view.ui.annotation.AnnotationPopupFilterType
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupAnnotations
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -53,7 +61,7 @@ import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
 
 
-class BookAnnotationFragment : Fragment() {
+class BookAnnotationFragment : Fragment(), AnnotationListener {
 
     private val mLOGGER = LoggerFactory.getLogger(BookAnnotationFragment::class.java)
 
@@ -70,13 +78,13 @@ class BookAnnotationFragment : Fragment() {
     private lateinit var mPopupFilterView: ViewPager
     private lateinit var mPopupFilterTab: TabLayout
     private lateinit var mPopupChaptersTab: TabLayout
-    private lateinit var mPopupFilterTypeFragment: BookAnnotationPopupFilterType
-    private lateinit var mPopupFilterColorFragment: BookAnnotationPopupFilterColor
-    private lateinit var mPopupFilterChapterFragment: BookAnnotationPopupFilterChapter
+    private lateinit var mPopupFilterTypeFragment: AnnotationPopupFilterType
+    private lateinit var mPopupFilterColorFragment: AnnotationPopupFilterColor
+    private lateinit var mPopupFilterChapterFragment: AnnotationPopupFilterChapter
     private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
 
     private lateinit var mRecyclerView: RecyclerView
-    private lateinit var mListener: BookAnnotationListener
+    private lateinit var mListener: AnnotationsListener
 
     private lateinit var mBook: Book
 
@@ -95,6 +103,7 @@ class BookAnnotationFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        menu.clear()
         inflater.inflate(R.menu.menu_book_annotation, menu)
         super.onCreateOptionsMenu(menu, inflater)
 
@@ -107,6 +116,10 @@ class BookAnnotationFragment : Fragment() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText != null)
+                    mViewModel.search(newText)
+                else
+                    mViewModel.clearSearch()
                 return false
             }
         })
@@ -117,7 +130,10 @@ class BookAnnotationFragment : Fragment() {
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
-            R.id.menu_book_annotation_filters -> onOpenMenuFilter()
+            R.id.menu_book_annotation_filters -> {
+                (menuItem.icon as AnimatedVectorDrawable).start()
+                onOpenMenuFilter()
+            }
         }
         return super.onOptionsItemSelected(menuItem)
     }
@@ -141,9 +157,19 @@ class BookAnnotationFragment : Fragment() {
             (mScrollUp.drawable as AnimatedVectorDrawable).start()
             mRecyclerView.smoothScrollToPosition(0)
         }
+        mScrollUp.setOnLongClickListener {
+            (mScrollUp.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.scrollToPosition(0)
+            true
+        }
         mScrollDown.setOnClickListener {
             (mScrollDown.drawable as AnimatedVectorDrawable).start()
             mRecyclerView.smoothScrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount)
+        }
+        mScrollDown.setOnLongClickListener {
+            (mScrollDown.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.scrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount -1)
+            true
         }
 
         mRecyclerView.setOnScrollChangeListener { _, _, _, _, yOld ->
@@ -190,11 +216,6 @@ class BookAnnotationFragment : Fragment() {
         mPopupFilterTab = root.findViewById(R.id.book_annotation_popup_filter_tab)
         mPopupFilterView = root.findViewById(R.id.book_annotation_popup_order_filter_view_pager)
 
-        root.findViewById<ImageView>(R.id.book_annotation_popup_filter_close)
-            .setOnClickListener {
-                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupFilter)
-            }
-
         mPopupFilterTab.setupWithViewPager(mPopupFilterView)
 
         BottomSheetBehavior.from(mMenuPopupFilter).apply {
@@ -204,22 +225,20 @@ class BookAnnotationFragment : Fragment() {
         }
         mBottomSheet.isDraggable = true
 
-        root.findViewById<ImageView>(R.id.book_annotation_popup_filter_touch)
-            .setOnClickListener {
-                if (mBottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED)
-                    mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
-                else
-                    mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-            }
+        PopupUtils.onPopupTouch(requireActivity(), mMenuPopupFilter, mBottomSheet, root.findViewById<ImageView>(R.id.book_annotation_popup_filter_touch))
 
-        mPopupFilterTypeFragment = BookAnnotationPopupFilterType()
-        mPopupFilterColorFragment = BookAnnotationPopupFilterColor()
-        mPopupFilterChapterFragment = BookAnnotationPopupFilterChapter()
+        mPopupFilterTypeFragment = AnnotationPopupFilterType()
+        mPopupFilterColorFragment = AnnotationPopupFilterColor()
+        mPopupFilterChapterFragment = AnnotationPopupFilterChapter()
+
+        mPopupFilterTypeFragment.setListener(this)
+        mPopupFilterColorFragment.setListener(this)
+        mPopupFilterChapterFragment.setListener(this)
 
         val viewOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
-        viewOrderPagerAdapter.addFragment(mPopupFilterTypeFragment, resources.getString(R.string.book_annotation_tab_item_filter))
-        viewOrderPagerAdapter.addFragment(mPopupFilterColorFragment, resources.getString(R.string.book_annotation_tab_item_color))
-        viewOrderPagerAdapter.addFragment(mPopupFilterChapterFragment, resources.getString(R.string.book_annotation_tab_item_chapters))
+        viewOrderPagerAdapter.addFragment(mPopupFilterTypeFragment, resources.getString(R.string.annotation_tab_item_filter))
+        viewOrderPagerAdapter.addFragment(mPopupFilterColorFragment, resources.getString(R.string.annotation_tab_item_color))
+        viewOrderPagerAdapter.addFragment(mPopupFilterChapterFragment, resources.getString(R.string.annotation_tab_item_chapters))
 
         mPopupFilterView.adapter = viewOrderPagerAdapter
 
@@ -235,23 +254,23 @@ class BookAnnotationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mListener = object : BookAnnotationListener {
-            override fun onClick(annotation: BookAnnotation) {
+        mListener = object : AnnotationsListener {
+            override fun onClick(annotation: br.com.fenix.bilingualreader.model.interfaces.Annotation) {
                 val bundle = Bundle()
-                bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK_ANNOTATION, annotation)
+                bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK_ANNOTATION, annotation as BookAnnotation)
                 (requireActivity() as MenuActivity).onBack(bundle)
             }
 
-            override fun onClickFavorite(annotation: BookAnnotation) {
-                mViewModel.save(annotation)
+            override fun onClickFavorite(annotation: br.com.fenix.bilingualreader.model.interfaces.Annotation) {
+                mViewModel.save(annotation as BookAnnotation)
             }
 
-            override fun onClickOptions(annotation: BookAnnotation, view: View, position: Int) {
+            override fun onClickOptions(annotation: br.com.fenix.bilingualreader.model.interfaces.Annotation, view: View, position: Int) {
                 val wrapper = ContextThemeWrapper(requireContext(), R.style.PopupMenu)
                 val popup = PopupMenu(wrapper, view, 0, R.attr.popupMenuStyle, R.style.PopupMenu)
                 popup.menuInflater.inflate(R.menu.menu_item_book_annotation, popup.menu)
 
-                if (annotation.type != MarkType.Annotation)
+                if ((annotation as BookAnnotation).markType != MarkType.Annotation)
                     popup.menu.removeItem(R.id.menu_item_item_book_annotation_change_detach)
 
                 popup.setOnMenuItemClickListener { item ->
@@ -274,12 +293,12 @@ class BookAnnotationFragment : Fragment() {
                             val name = TextView(requireContext())
                             name.text = getString(R.string.book_annotation_change_detach_title)
                             name.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_index_dialog_size))
-                            name.setTextColor(requireContext().getColorFromAttr(R.attr.colorPrimary))
+                            name.setTextColor(requireContext().getColorFromAttr(R.attr.colorOnBackground))
                             title.addView(name)
                             val index = TextView(requireContext())
                             index.text = getString(R.string.book_annotation_change_detach_description)
                             index.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_small_index_dialog_size))
-                            index.setTextColor(requireContext().getColorFromAttr(R.attr.colorSecondary))
+                            index.setTextColor(requireContext().getColorFromAttr(R.attr.colorOnSecondary))
                             title.addView(index)
 
                             MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
@@ -300,12 +319,12 @@ class BookAnnotationFragment : Fragment() {
                 popup.show()
             }
 
-            override fun onClickNote(annotation: BookAnnotation, position: Int) {
+            override fun onClickNote(annotation: br.com.fenix.bilingualreader.model.interfaces.Annotation, position: Int) {
                 val onDelete = { obj: BookAnnotation ->
                     mViewModel.delete(obj)
                     true
                 }
-                PopupAnnotations(requireContext()).popup(annotation, onDelete) { alter ->
+                PopupAnnotations(requireContext()).popup(annotation as BookAnnotation, onDelete) { alter ->
                     if (alter)
                         notifyDataSet(position)
                 }
@@ -326,6 +345,23 @@ class BookAnnotationFragment : Fragment() {
     private fun observer() {
         mViewModel.annotation.observe(viewLifecycleOwner) {
             (mRecyclerView.adapter as BookAnnotationLineAdapter).updateList(it)
+        }
+
+        mViewModel.typeFilter.observe(viewLifecycleOwner) {
+            mPopupFilterTypeFragment.setFilters(it)
+        }
+
+        mViewModel.colorFilter.observe(viewLifecycleOwner) {
+            mPopupFilterColorFragment.setColors(it)
+        }
+
+        mViewModel.chapters.observe(viewLifecycleOwner) {
+            mPopupFilterChapterFragment.setChapters(it)
+        }
+
+
+        mViewModel.chapterFilter.observe(viewLifecycleOwner) {
+            mPopupFilterChapterFragment.setChaptersFilter(it)
         }
     }
 
@@ -379,6 +415,13 @@ class BookAnnotationFragment : Fragment() {
                 val position = viewHolder.bindingAdapterPosition
                 deleteAnnotation(annotation, position)
             }
+
+            override fun getSwipeDirs (recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
+                if (viewHolder is BookAnnotationHeaderViewHolder)
+                    return 0
+
+                return super.getSwipeDirs(recyclerView, viewHolder)
+            }
         }
 
     private fun deleteAnnotation(annotation: BookAnnotation, position: Int) {
@@ -389,7 +432,7 @@ class BookAnnotationFragment : Fragment() {
                 .setMessage(
                     getString(
                         R.string.book_annotation_delete_description,
-                        getString(annotation.type.getDescription()).lowercase()
+                        getString(annotation.markType.getDescription()).lowercase()
                     )
                 )
                 .setPositiveButton(
@@ -428,6 +471,24 @@ class BookAnnotationFragment : Fragment() {
         override fun getPageTitle(position: Int): CharSequence {
             return fragmentTitle[position]
         }
+    }
+
+    override fun getFilters(): Set<Filter> = mViewModel.typeFilter.value!!
+
+    override fun filterType(filter: Filter, isRemove: Boolean) {
+        mViewModel.filterType(filter, isRemove)
+    }
+
+    override fun getColors(): Set<Color> = mViewModel.colorFilter.value!!
+
+    override fun filterColor(color: Color, isRemove: Boolean) {
+        mViewModel.filterColor(color, isRemove)
+    }
+
+    override fun getChapters(): Map<String, Float> = mViewModel.chapters.value!!
+
+    override fun filterChapter(chapter: String, isRemove: Boolean) {
+        mViewModel.filterChapter(chapter, isRemove)
     }
 
 }

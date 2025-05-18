@@ -4,8 +4,8 @@
     <aapt:attr name="android:drawable">
         <vector
             android:name="vector"
-            android:width="350dp"
-            android:height="350dp"
+            android:width="50dp"
+            android:height="50dp"
             android:viewportWidth="350"
             android:viewportHeight="350">
             <group
@@ -23,7 +23,7 @@
                         android:name="arrowleft"
                         android:pathData="M 47.89 218.23 C 18.3 188.64 0 147.77 0 102.62 C 0 63.76 13.56 28.06 36.21 0"
                         android:fillAlpha="0"
-                        android:strokeColor="?attr/colorSecondary"
+                        android:strokeColor="?attr/colorPrimary"
                         android:strokeWidth="20"/>
                     <group
                         android:name="tipleft"
@@ -32,7 +32,7 @@
                             android:name="lefttip"
                             android:pathData="M 0 5.61 C 0 5.61 43.46 0 43.46 0 C 43.46 0 52.02 43.37 52.02 43.37"
                             android:fillAlpha="0"
-                            android:strokeColor="?attr/colorSecondary"
+                            android:strokeColor="?attr/colorOnSecondary"
                             android:strokeWidth="20"/>
                     </group>
                 </group>
@@ -43,9 +43,9 @@
                     <path
                         android:name="phone"
                         android:pathData="M 62 -87.5 C 62 -87.5 62 87.5 62 87.5 C 62 98.54 53.04 107.5 42 107.5 C 42 107.5 -42 107.5 -42 107.5 C -53.04 107.5 -62 98.54 -62 87.5 C -62 87.5 -62 -87.5 -62 -87.5 C -62 -98.54 -53.04 -107.5 -42 -107.5 C -42 -107.5 42 -107.5 42 -107.5 C 53.04 -107.5 62 -98.54 62 -87.5"
-                        android:fillColor="?attr/colorSecondary"
+                        android:fillColor="?attr/colorPrimary"
                         android:fillAlpha="0"
-                        android:strokeColor="?attr/colorSecondary"
+                        android:strokeColor="?attr/colorOnSecondary"
                         android:strokeWidth="20"/>
                     <group
                         android:name="btn"
@@ -53,8 +53,8 @@
                         <path
                             android:name="button"
                             android:pathData="M 0 -10.5 C 5.79 -10.5 10.5 -5.79 10.5 0 C 10.5 5.79 5.79 10.5 0 10.5 C -5.79 10.5 -10.5 5.79 -10.5 0 C -10.5 -5.79 -5.79 -10.5 0 -10.5"
-                            android:fillColor="?attr/colorSecondary"
-                            android:strokeColor="?attr/colorSecondary"
+                            android:fillColor="?attr/colorPrimary"
+                            android:strokeColor="?attr/colorOnSecondary"
                             android:strokeWidth="10"/>
                     </group>
                 </group>
@@ -67,7 +67,7 @@
                         android:name="arrowright"
                         android:pathData="M 0 0 C 29.59 29.59 47.89 70.46 47.89 115.6 C 47.89 160.75 29.59 201.62 0 231.21"
                         android:fillAlpha="0"
-                        android:strokeColor="?attr/colorSecondary"
+                        android:strokeColor="?attr/colorOnSecondary"
                         android:strokeWidth="20"
                         android:strokeLineCap="round"
                         android:strokeLineJoin="round"/>
@@ -79,7 +79,7 @@
                             android:name="righttip"
                             android:pathData="M 53.69 35.34 C 53.69 35.34 10.54 42.93 10.54 42.93 C 10.54 42.93 0 0 0 0"
                             android:fillAlpha="0"
-                            android:strokeColor="?attr/colorSecondary"
+                            android:strokeColor="?attr/colorOnSecondary"
                             android:strokeWidth="20"/>
                     </group>
                 </group>

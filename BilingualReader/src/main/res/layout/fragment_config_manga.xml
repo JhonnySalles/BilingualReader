@@ -17,6 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
+            android:layout_marginEnd="@dimen/margin"
             android:layout_marginBottom="@dimen/margin_small"
             android:gravity="center"
             android:text="@string/config_sector_manga" />
@@ -31,7 +32,7 @@
             android:layout_marginBottom="@dimen/margin_small" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
@@ -45,7 +46,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/config_manga_library_order"
-            app:startIconDrawable="@drawable/ic_order">
+            app:startIconDrawable="@drawable/ico_order">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_manga_menu_autocomplete_library_order"
@@ -63,7 +64,7 @@
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/config_manga_library_folder"
             app:endIconMode="clear_text"
-            app:startIconDrawable="@drawable/ic_sd_storage">
+            app:startIconDrawable="@drawable/ico_sd_storage">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_manga_menu_autocomplete_library_path"
@@ -75,7 +76,7 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/config_manga_libraries"
             style="@style/Button.LabelStart"
             android:layout_width="match_parent"
@@ -84,7 +85,7 @@
             android:layout_marginEnd="@dimen/margin_small"
             android:layout_marginBottom="@dimen/margin_small"
             android:text="@string/config_title_libraries"
-            app:icon="@drawable/ic_library_small" />
+            app:icon="@drawable/ico_library_small" />
 
         <com.google.android.material.divider.MaterialDivider
             style="@style/MaterialDivider"
@@ -96,7 +97,7 @@
             android:layout_marginBottom="@dimen/margin_small" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
@@ -110,7 +111,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/config_manga_default_subtitle_language"
-            app:startIconDrawable="@drawable/ic_language">
+            app:startIconDrawable="@drawable/ico_language">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_manga_menu_autocomplete_default_subtitle_language"
@@ -128,7 +129,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
             android:hint="@string/config_manga_default_subtitle_translate"
-            app:startIconDrawable="@drawable/ic_translate">
+            app:startIconDrawable="@drawable/ico_translate">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_manga_menu_autocomplete_default_subtitle_translate"
@@ -148,7 +149,7 @@
             android:layout_marginBottom="@dimen/margin_small" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
@@ -161,8 +162,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
-            android:hint="@string/menu_manga_view_mode"
-            app:startIconDrawable="@drawable/ic_book_open">
+            android:hint="@string/config_manga_view_mode"
+            app:startIconDrawable="@drawable/ico_book_open">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/config_manga_menu_autocomplete_reader_comic_mode"
@@ -172,23 +173,50 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/config_manga_reader_page_mode"
+            android:id="@+id/config_manga_reader_scrolling_mode"
             style="@style/TextInputDropMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_small"
-            android:hint="@string/menu_manga_reading_mode"
-            app:startIconDrawable="@drawable/ic_reader_mode">
+            android:hint="@string/config_manga_scrolling_mode"
+            app:startIconDrawable="@drawable/ico_reading_mode">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                android:id="@+id/config_manga_menu_autocomplete_page_mode"
+                android:id="@+id/config_manga_menu_autocomplete_scrolling_mode"
                 style="@style/AutoCompleteDropMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/config_manga_reader_pagination_type"
+            style="@style/TextInputDropMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:hint="@string/config_manga_pagination_type"
+            app:startIconDrawable="@drawable/ico_pagination_type">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/config_manga_menu_autocomplete_pagination_type"
+                style="@style/AutoCompleteDropMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/config_manga_touch_screen"
+            style="@style/Button.LabelStart"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/config_manga_reading_touch_screen"
+            app:icon="@drawable/ico_view_touch_screen" />
 
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/config_manga_switch_show_clock_and_battery"
@@ -221,7 +249,7 @@
             android:layout_marginBottom="@dimen/margin_small" />
 
         <TextView
-            style="@style/TextTitle.Config"
+            style="@style/TextTitle.SubTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"

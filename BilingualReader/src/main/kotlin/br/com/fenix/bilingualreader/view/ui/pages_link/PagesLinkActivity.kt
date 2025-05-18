@@ -10,6 +10,8 @@ import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -120,7 +122,11 @@ class PagesLinkActivity : AppCompatActivity() {
                         }
                     }
                 } catch (e: Exception) {
-                    mLOGGER.error("Error clearing cache folders.", e)
+                    mLOGGER.error("Error clearing cache folders: " + e.message, e)
+                    Firebase.crashlytics.run {
+                        setCustomKey("message", "Error clearing cache folders: " + e.message)
+                        recordException(e)
+                    }
                 }
             }
         }

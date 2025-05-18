@@ -6,16 +6,25 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.media.MediaPlayer
-import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.text.Html
 import android.widget.Toast
+import androidx.annotation.OptIn
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.net.toFile
 import androidx.core.net.toUri
+import androidx.media3.common.C
+import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Speech
@@ -27,19 +36,22 @@ import br.com.fenix.bilingualreader.service.services.NotificationBroadcastReceiv
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import io.github.whitemagic2014.tts.TTS
 import io.github.whitemagic2014.tts.TTSVoice
 import io.github.whitemagic2014.tts.bean.Voice
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.time.LocalTime
 import java.util.stream.Collectors
 
 
-class TextToSpeechController(val context: Context, book: Book, parse: DocumentParse?, cover: Bitmap?, val fontSize: Int) : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
+class TextToSpeechController(val context: Context, book: Book, parse: DocumentParse?, cover: Bitmap?, val fontSize: Int) {
 
     companion object {
         const val LIMIT_CACHE = 3
-        const val SHOW_LOG = true
+        const val SHOW_LOG = false
     }
 
     private var mListener = mutableListOf<TTSListener>()
@@ -60,20 +72,23 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
     init {
         val sharedPreferences = GeneralConsts.getSharedPreferences(context)
-        val language: TextSpeech = TextSpeech.valueOf(sharedPreferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS, TextSpeech.getDefault().toString())!!)
+        val language: TextSpeech = TextSpeech.valueOf(sharedPreferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_NORMAL, TextSpeech.getDefault(false).toString())!!)
+        val speed: Float = sharedPreferences.getFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED_DEFAULT)
         val providers = TTSVoice.provides()
 
         mVoice = if (providers.any { it.shortName.equals(language.getNameAzure(), ignoreCase = true) })
             providers.stream().filter { v: Voice -> v.shortName == language.getNameAzure() }.collect(Collectors.toList())[0]
         else
             providers.first()
+
+        mVoiceRate = if (speed < 0) "-$speed%" else "+$speed%"
     }
 
     fun addListener(listener: TTSListener) = mListener.add(listener)
 
     fun removeListener(listener: TTSListener) = mListener.remove(listener)
 
-    fun setVoice(language: TextSpeech, rate: Float = 0f, volume: Int = 0): Boolean {
+    fun setVoice(language: TextSpeech, rate: Float, volume: Int = 0): Boolean {
         return try {
             val providers = TTSVoice.provides()
 
@@ -86,14 +101,18 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
             val voice = providers.stream().filter { v: Voice -> v.shortName.equals(language.getNameAzure(), ignoreCase = true) }.collect(Collectors.toList())[0]
             val changeVoice = mVoice != voice
             mVoice = voice
-            mVoiceRate = "+$rate%"
+            mVoiceRate = if (rate < 0) "-$rate%" else "+$rate%"
             mVoiceVolume = "+$volume%"
 
             if (changeVoice)
                 generateCache()
             true
         } catch (e: Exception) {
-            mLOGGER.error("Error to set voice.", e)
+            mLOGGER.error("Error to set voice: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error to set voice: " + e.message)
+                recordException(e)
+            }
             false
         }
     }
@@ -107,9 +126,24 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
     fun stop() {
         mStop = true
         setStatus(AudioStatus.STOP)
+        if (!::mThread.isInitialized || LocalTime.now().minusSeconds(10).isAfter(mLasExecution)) {
+            mLasExecution = LocalTime.now()
+            if (::mThread.isInitialized)
+                try {
+                    mThread.interrupt()
+                } catch (e: Exception) {
+                    mLOGGER.error("Error to stop tts: " + e.message, e)
+                    Firebase.crashlytics.apply {
+                        setCustomKey("message", "Error to stop tts: " + e.message)
+                        recordException(e)
+                    }
+                }
+            endingThread()
+        }
     }
 
     private var mLastDelay: Runnable? = null
+    private var mForcePlay: Runnable? = null
 
     private fun preparePlay(isPageChange: Boolean = false) {
         if (!::mThreadHandler.isInitialized)
@@ -196,7 +230,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
             }
 
             if (isBefore) {
-                for (i in mLines.size downTo 0) {
+                for (i in (mLines.size -1) downTo 0) {
                     val item = mLines[i]
                     if (page == item.page && item.html.contains(text)) {
                         mLine = i
@@ -227,6 +261,8 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
         if (status == AudioStatus.PLAY || status == AudioStatus.PAUSE)
             changeNotification()
     }
+
+    fun getStatus() = mStatus
 
     private lateinit var mNotificationManager: NotificationManagerCompat
     private lateinit var mNotification: NotificationCompat.Builder
@@ -272,9 +308,9 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
         }
     }
 
-    private fun generateTTS(speach: Speech, loaded: (Uri?) -> (Unit)) {
+    private fun generateTTS(speach: Speech, loaded: (MediaItem?) -> (Unit)) {
         if (speach.audio != null) {
-            loaded(speach.audio)
+            loaded(null)
             return
         }
 
@@ -293,12 +329,17 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 //.voicePitch()
                 .storage(mCache.absolutePath).trans()
             speach.audio = File(mCache, audio).toUri()
+            speach.media = MediaItem.fromUri(speach.audio!!)
             if (SHOW_LOG)
                 mLOGGER.warn("Audio tts generated finish. ${speach.audio}")
         } catch (e: Exception) {
-            mLOGGER.error("Error to generate tts.", e)
+            mLOGGER.error("Error to generate tts: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error to generate tts: " + e.message)
+                recordException(e)
+            }
         } finally {
-            loaded(speach.audio)
+            loaded(speach.media)
         }
     }
 
@@ -306,7 +347,6 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
         mCache.listFiles()?.forEach { it.delete() }
     }
 
-    private var mMedia: MediaPlayer? = null
     private fun play(speech: Speech, isPageChange: Boolean = false, isChange: Boolean = false) {
         if (speech.audio == null)
             return
@@ -316,34 +356,40 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 mLOGGER.warn("Prepare to playing audio tts.")
 
             if (isChange) {
-                mMedia?.stop()
-                mMedia?.release()
+                mMainHandler.post {
+                    mPlayer.stop()
+                }
             }
 
             mReading = speech
             speech.isRead = true
             mPlayAudio = true
-            mMedia = MediaPlayer.create(context, speech.audio)
+
             mMainHandler.post {
+                mPlayer.clearMediaItems()
+                mPlayer.addMediaItem(speech.media!!)
+
                 if (SHOW_LOG)
                     mLOGGER.warn("Playing tts -- Page: $mPage - Line: $mLine :: ${speech.text}.")
 
                 processNotification(isPageChange)
                 mListener.forEach { it.readingLine(speech) }
+
+                mPlayer.prepare()
+                mPlayer.playWhenReady = true
             }
-            mMedia!!.isLooping = false
-            mMedia!!.setOnPreparedListener(this)
-            mMedia!!.setOnErrorListener(this)
-            mMedia!!.setOnCompletionListener(this)
-            mMedia!!.start()
+
         } catch (e: Exception) {
             mLOGGER.error("Error to playing audio tts: ${speech.audio}", e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error to playing audio tts: ${speech.audio}")
+                recordException(e)
+            }
             mPlayAudio = false
         }
     }
 
     private var mPlayAudio = false
-    private var mPrepare = false
     private var mPause = false
     private var mStop = false
 
@@ -352,11 +398,75 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
     private lateinit var mReading: Speech
     private val mLines: MutableList<Speech> = mutableListOf()
     private lateinit var mThreadHandler : Handler
+    private lateinit var mPlayer: ExoPlayer
 
+    private lateinit var mThread: Thread
+    private var mLasExecution = LocalTime.now()
+
+    @OptIn(UnstableApi::class)
     private fun execute(page: Int, initial: String) {
         setStatus(AudioStatus.PREPARE)
 
-        Thread {
+        mPlayer = ExoPlayer.Builder(context).setLoadControl(
+            DefaultLoadControl.Builder().setPrioritizeTimeOverSizeThresholds(true).build(),
+        ).build().apply {
+            repeatMode = Player.REPEAT_MODE_OFF
+            volume = 1f
+        }
+
+        PlayerView(context).player = mPlayer
+
+        mPlayer.addListener(object : Player.Listener {
+            override fun onPlayerError(error: PlaybackException) {
+                super.onPlayerError(error)
+                if (SHOW_LOG)
+                    mLOGGER.warn("Error to playing audio tts: ${mReading.audio}.")
+
+                mPlayAudio = false
+            }
+
+            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+                if (playbackState == ExoPlayer.STATE_READY) {
+                    if (mForcePlay != null) {
+                       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                           if (mMainHandler.hasCallbacks(mForcePlay!!))
+                               mMainHandler.removeCallbacks(mForcePlay!!)
+                       } else
+                           mMainHandler.removeCallbacks(mForcePlay!!)
+                   }
+
+                    mForcePlay = Runnable {
+                        mForcePlay = null
+                        mPlayAudio = false
+                        if (SHOW_LOG)
+                            mLOGGER.warn("Force play next audio by time duration...")
+                    }
+
+                    if (mPlayer.duration > C.TIME_UNSET)
+                        mMainHandler.postDelayed(mForcePlay!!, mPlayer.duration + 500L)
+                }
+            }
+
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                mPlayAudio = isPlaying
+
+                if (!isPlaying) {
+                    if (mForcePlay != null) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            if (mMainHandler.hasCallbacks(mForcePlay!!))
+                                mMainHandler.removeCallbacks(mForcePlay!!)
+                        } else
+                            mMainHandler.removeCallbacks(mForcePlay!!)
+                        mForcePlay = null
+                    }
+                }
+
+                if (SHOW_LOG)
+                    mLOGGER.warn(if (isPlaying) "Audio tts reproduced initialize..." else "Audio tts reproduced finished.")
+            }
+        })
+
+        mThread = Thread {
             Looper.prepare()
 
             mThreadHandler = Handler(Looper.myLooper()!!)
@@ -370,17 +480,21 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 mPage = page
                 mLine = -1
                 mLines.addAll(formatHtml(page, mParse!!.getPage(page).pageHTMLWithImages))
-                if (initial.isNotEmpty())
+                if (initial.isNotEmpty()) {
+                    val find = initial.substringBefore(",", initial.substringBefore(".", initial))
                     for ((index, line) in mLines.withIndex()) {
-                        if (line.html.contains(initial)) {
+                        if (line.html.contains(find)) {
                             mLine = index - 1
                             break
                         }
                     }
+                }
 
                 createNotification()
 
                 while (!mStop) {
+                    mLasExecution = LocalTime.now()
+
                     if (mPause) {
                         if (mStatus != AudioStatus.PAUSE)
                             setStatus(AudioStatus.PAUSE)
@@ -391,13 +505,10 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                     if (mStatus != AudioStatus.PLAY)
                         setStatus(AudioStatus.PLAY)
 
-                    //Need because on onCompletion not running
-                    mPlayAudio = mMedia?.isPlaying ?: mPlayAudio
-
-                    if (mPlayAudio || mPrepare) {
+                    if (mPlayAudio) {
                         if (SHOW_LOG)
-                            mLOGGER.warn("Audio tts playing or preparing")
-                        Thread.sleep(250)
+                            mLOGGER.warn("Audio tts is playing")
+                        Thread.sleep(500)
                         continue
                     }
 
@@ -433,12 +544,10 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
                         mReading = mLines[mLine]
                         if (mReading.audio != null)
-                            play(mReading, isPageChange)
+                            play(mReading)
                         else {
-                            mPrepare = true
                             generateTTS(mReading) { uri ->
-                                mPrepare = false
-                                play(mReading, isPageChange)
+                                play(mReading)
                             }
                         }
 
@@ -449,31 +558,44 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                             if (mLine + i < mLines.size)
                                 generateTTS(mLines[mLine + i]) { }
                     } finally {
-                        Thread.sleep(500)
+                        if (mPlayAudio)
+                            Thread.sleep(1000)
                     }
                 }
             } catch (e: Exception) {
-                mLOGGER.error("Error to reading page on tts.", e)
-            } finally {
-                onDestroy()
-                setStatus(AudioStatus.ENDING)
-                mMainHandler.post {
-                    mListener.forEach { it.stopTTS() }
+                mLOGGER.error("Error to reading page on tts: " + e.message, e)
+                Toast.makeText(context, context.getString(R.string.tts_error), Toast.LENGTH_LONG).show()
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error to reading page on tts: " + e.message)
+                    recordException(e)
                 }
+            } finally {
+                endingThread()
             }
-        }.start()
+        }
+        mThread.start()
+    }
+
+    private fun endingThread() {
+        onDestroy()
+        setStatus(AudioStatus.ENDING)
+        mMainHandler.post {
+            mListener.forEach { it.stopTTS() }
+        }
     }
 
     private fun generateCache() {
         for (i in mLine until mLines.size)
-            if (i < mLines.size)
+            if (i < mLines.size) {
+                mLines[i].audio?.toFile()?.delete()
                 mLines[i].audio = null
+            }
     }
 
     private fun formatHtml(page: Int, html: String): MutableList<Speech> {
-        val separator = "<br>"
         var sequence = 0
-        val lines = TextUtil.replaceEndLine(html, separator).split(separator).map { Speech(page, ++sequence, TextUtil.replaceHtmlTTS(it), TextUtil.replaceHtmlTags(it).trim()) }
+        val lines = TextUtil.replaceImages(TextUtil.formatHtml(html)).split(".", "。")
+            .map { Speech(page, ++sequence, TextUtil.replaceHtmlTTS(it).replace("<br/>", " ").replace(" -", "-"), Html.fromHtml(it).toString().trim()) }
         return lines.filter { it.text.trim().isNotEmpty() }.toMutableList()
     }
 
@@ -484,51 +606,23 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 context.unregisterReceiver(broadcastReceiver)
                 mNotificationManager.cancel(mNotifyId)
             } catch (e: Exception) {
-                mLOGGER.error("Error to cancel tts notification.", e)
+                mLOGGER.error("Error to cancel tts notification: " + e.message, e)
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error to cancel tts notification: " + e.message)
+                    recordException(e)
+                }
             }
         }
-        mMedia?.release()
-        mStop = true
-        mParse = null
-        mMedia = null
-    }
 
-    override fun onPrepared(media: MediaPlayer?) {
-        val media = media ?: mMedia
+        mMainHandler.removeCallbacksAndMessages(null)
+        mThreadHandler.removeCallbacksAndMessages(null)
 
-        if(media!!.isPlaying)
-            media.pause()
-
-        media.start()
-
-        if (SHOW_LOG)
-            mLOGGER.warn("Prepare is end,playing audio tts: ${mReading.audio}.")
-    }
-
-    override fun onError(p0: MediaPlayer?, error: Int, extra: Int): Boolean {
-        if (SHOW_LOG)
-            mLOGGER.warn("Error to playing audio tts: ${mReading.audio}.")
-
-        when (error) {
-            MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK -> mLOGGER.error("MediaPlayer Error", "MEDIA ERROR NOT VALID FOR PROGRESSIVE PLAYBACK $extra")
-            MediaPlayer.MEDIA_ERROR_SERVER_DIED -> mLOGGER.error("MediaPlayer Error", "MEDIA ERROR SERVER DIED $extra")
-            MediaPlayer.MEDIA_ERROR_UNKNOWN -> mLOGGER.error("MediaPlayer Error", "MEDIA ERROR UNKNOWN $extra")
+        mMainHandler.post {
+            mPlayer.release()
         }
 
-        mPlayAudio = false
-        mMedia!!.release()
-        mMedia = null
-
-        return true
-    }
-
-    override fun onCompletion(p0: MediaPlayer?) {
-        mPlayAudio = false
-        mMedia!!.release()
-        mMedia = null
-
-        if (SHOW_LOG)
-            mLOGGER.warn("Audio tts reproduced finished.")
+        mStop = true
+        mParse = null
     }
 
 }

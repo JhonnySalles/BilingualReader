@@ -12,8 +12,7 @@ class VocabularyMangaListCardAdapter : RecyclerView.Adapter<VocabularyMangaListV
 
     companion object {
         private var mMangaList: MutableMap<Long, Bitmap?> = mutableMapOf()
-        fun clearVocabularyMangaList() =
-            mMangaList.clear()
+        fun clearVocabularyMangaList() = mMangaList.clear()
     }
 
     private var mList: List<VocabularyManga> = listOf()
@@ -22,12 +21,8 @@ class VocabularyMangaListCardAdapter : RecyclerView.Adapter<VocabularyMangaListV
         holder.bind(mList[position], mMangaList)
     }
 
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): VocabularyMangaListViewHolder {
-        val item = LayoutInflater.from(parent.context)
-            .inflate(R.layout.line_card_vocabulary_manga_list, parent, false)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VocabularyMangaListViewHolder {
+        val item = LayoutInflater.from(parent.context).inflate(R.layout.line_card_vocabulary_manga_list, parent, false)
         return VocabularyMangaListViewHolder(item)
     }
 

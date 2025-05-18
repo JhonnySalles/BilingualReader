@@ -11,6 +11,7 @@ import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.view.View
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.collection.arraySetOf
 import androidx.core.graphics.drawable.toBitmap
@@ -28,6 +29,7 @@ import br.com.fenix.bilingualreader.model.entity.SubTitleText
 import br.com.fenix.bilingualreader.model.entity.SubTitleVolume
 import br.com.fenix.bilingualreader.model.enums.ImageLoadType
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.model.interfaces.BaseImageView
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
@@ -42,6 +44,8 @@ import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderFragment
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
@@ -133,6 +137,10 @@ class SubTitleController private constructor(private val context: Context) {
             mUseFileLink = sharedPreferences.getBoolean(GeneralConsts.KEYS.PAGE_LINK.USE_IN_SEARCH_TRANSLATE, false)
         } catch (e: Exception) {
             mLOGGER.error("Preferences languages not loaded: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Preferences languages not loaded: " + e.message)
+                recordException(e)
+            }
         }
     }
 
@@ -676,7 +684,7 @@ class SubTitleController private constructor(private val context: Context) {
         if (mReaderFragment == null || subTitlePageSelected.value == null || subTitlePageSelected.value?.subTitleTexts!!.isEmpty())
             return
 
-        val view: ImageViewPage = mReaderFragment!!.getCurrencyImageView() ?: return
+        val view: ImageView = mReaderFragment!!.getCurrencyImageView() ?: return
         if (!clearDrawing()) {
             target = MyTarget(view, ImageLoadType.TEXT)
             mReaderFragment!!.loadImage(target!!, MangaReaderFragment.mCurrentPage, false)
@@ -684,7 +692,7 @@ class SubTitleController private constructor(private val context: Context) {
     }
 
     private fun drawPageLinked(path: Uri) {
-        val view: ImageViewPage = mReaderFragment?.getCurrencyImageView() ?: return
+        val view: ImageView = mReaderFragment?.getCurrencyImageView() ?: return
 
         if (!clearDrawing()) {
             target = MyTarget(view)
@@ -704,11 +712,10 @@ class SubTitleController private constructor(private val context: Context) {
 
         override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
             val layout = mLayout.get() ?: return
-            val iv = layout.findViewById<View>(R.id.page_image_view) as ImageViewPage
+            val imageView = layout.findViewById<View>(R.id.page_image_view) as BaseImageView
             when (type) {
                 ImageLoadType.TEXT -> {
                     mImageBackup[MangaReaderFragment.mCurrentPage] = bitmap
-
                     val image: Bitmap = bitmap.copy(bitmap.config, true)
                     val canvas = Canvas(image)
                     val paint = Paint()
@@ -732,12 +739,12 @@ class SubTitleController private constructor(private val context: Context) {
                             paint
                         )
                     }
-                    if (isKeepScroll) {
-                        val percentScroll = iv.getScrollPercent()
-                        iv.setImageBitmap(image)
-                        iv.setScrollPercent(percentScroll)
+                    if (isKeepScroll && imageView.isApplyPercent) {
+                        val percentScroll = imageView.getScrollPercent()
+                        (imageView as ImageView).setImageBitmap(image)
+                        imageView.setScrollPercent(percentScroll)
                     } else
-                        iv.setImageBitmap(image)
+                        (imageView as ImageView).setImageBitmap(image)
                 }
                 ImageLoadType.OCR,
                 ImageLoadType.TRANSLATE -> {
@@ -778,34 +785,42 @@ class SubTitleController private constructor(private val context: Context) {
                                 }
 
                                 mImageBackup[MangaReaderFragment.mCurrentPage] = bitmap
-                                if (isKeepScroll) {
-                                    val percentScroll = iv.getScrollPercent()
-                                    iv.setImageBitmap(newBitmap)
-                                    iv.setScrollPercent(percentScroll)
+                                if (isKeepScroll && imageView.isApplyPercent) {
+                                    val percentScroll = imageView.getScrollPercent()
+                                    (imageView as ImageView).setImageBitmap(newBitmap)
+                                    imageView.setScrollPercent(percentScroll)
                                 } else
-                                    iv.setImageBitmap(newBitmap)
+                                    (imageView as ImageView).setImageBitmap(newBitmap)
                             }
                         }
                         .addOnFailureListener { e ->
-                            mLOGGER.error("Error process ocr image", e)
+                            mLOGGER.error("Error process ocr image: " + e.message, e)
                             Toast.makeText(context, (context.resources.getString(R.string.ocr_google_vision_error) + " " + e.message).trim(), Toast.LENGTH_SHORT).show()
+                            Firebase.crashlytics.apply {
+                                setCustomKey("message", "Error process ocr image: " + e.message)
+                                recordException(e)
+                            }
                         }
                 }
                 else -> {
-                    mImageBackup[MangaReaderFragment.mCurrentPage] = iv.drawable.toBitmap()
+                    mImageBackup[MangaReaderFragment.mCurrentPage] = (imageView as ImageView).drawable.toBitmap()
 
-                    if (isKeepScroll) {
-                        val percentScroll = iv.getScrollPercent()
-                        iv.setImageBitmap(bitmap)
-                        iv.setScrollPercent(percentScroll)
+                    if (isKeepScroll && imageView.isApplyPercent) {
+                        val percentScroll = imageView.getScrollPercent()
+                        imageView.setImageBitmap(bitmap)
+                        imageView.setScrollPercent(percentScroll)
                     } else
-                        iv.setImageBitmap(bitmap)
+                        imageView.setImageBitmap(bitmap)
                 }
             }
         }
 
         override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
             mLOGGER.error("Bitmap load fail: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Bitmap load fail: " + e.message)
+                recordException(e)
+            }
         }
 
         override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
@@ -1014,10 +1029,13 @@ class SubTitleController private constructor(private val context: Context) {
 
     private fun clearDrawing() : Boolean {
         return if (isDrawing()) {
-            val view: ImageViewPage = mReaderFragment!!.getCurrencyImageView() ?: return false
-            val percentScroll = view.getScrollPercent()
-            view.setImageBitmap(mImageBackup.remove(MangaReaderFragment.mCurrentPage))
-            view.setScrollPercent(percentScroll)
+            val view: ImageView = mReaderFragment!!.getCurrencyImageView() ?: return false
+            if (view is ImageViewPage) {
+                val percentScroll = view.getScrollPercent()
+                view.setImageBitmap(mImageBackup.remove(MangaReaderFragment.mCurrentPage))
+                view.setScrollPercent(percentScroll)
+            } else
+                view.setImageBitmap(mImageBackup.remove(MangaReaderFragment.mCurrentPage))
             true
         } else
             false
@@ -1029,7 +1047,7 @@ class SubTitleController private constructor(private val context: Context) {
     }
 
     fun drawOcrPage(type: ImageLoadType, ocr: OcrProcess) {
-        val view: ImageViewPage = mReaderFragment?.getCurrencyImageView() ?: return
+        val view: ImageView = mReaderFragment?.getCurrencyImageView() ?: return
         mOcrLang = ocr.getLanguage() ?: return
         if (!clearDrawing())
             mReaderFragment!!.loadImage(MyTarget(view, type), MangaReaderFragment.mCurrentPage, false)

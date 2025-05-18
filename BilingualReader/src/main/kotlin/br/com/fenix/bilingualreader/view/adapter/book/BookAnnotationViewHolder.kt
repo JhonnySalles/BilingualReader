@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.view.adapter.book
 
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.view.View
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -9,11 +10,11 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.MarkType
-import br.com.fenix.bilingualreader.service.listener.BookAnnotationListener
+import br.com.fenix.bilingualreader.service.listener.AnnotationsListener
 import com.google.android.material.button.MaterialButton
 
 
-class BookAnnotationViewHolder(itemView: View, private val listener: BookAnnotationListener) : RecyclerView.ViewHolder(itemView) {
+class BookAnnotationViewHolder(itemView: View, private val listener: AnnotationsListener) : RecyclerView.ViewHolder(itemView) {
 
     fun bind(mark: BookAnnotation, position: Int) {
         val root = itemView.findViewById<LinearLayout>(R.id.book_annotation_root)
@@ -29,12 +30,24 @@ class BookAnnotationViewHolder(itemView: View, private val listener: BookAnnotat
         val addNote = itemView.findViewById<MaterialButton>(R.id.book_annotation_without_note)
         val note = itemView.findViewById<TextView>(R.id.book_annotation_note)
 
+        var icoAnimation: AnimatedVectorDrawable
+        val iconNote = itemView.findViewById<ImageView>(R.id.book_annotation_note_icon).apply {
+            icoAnimation = background as AnimatedVectorDrawable
+        }
+
         root.setOnClickListener { listener.onClick(mark) }
-        addNote.setOnClickListener { listener.onClickNote(mark, position) }
+        addNote.setOnClickListener {
+            icoAnimation.start()
+            listener.onClickNote(mark, position)
+        }
         note.setOnClickListener { listener.onClickNote(mark, position) }
         options.setOnClickListener {
             (options.icon as AnimatedVectorDrawable).start()
             listener.onClickOptions(mark, options, position)
+        }
+
+        iconNote.setOnClickListener {
+            icoAnimation.start()
         }
 
         favorite.setOnClickListener {
@@ -48,7 +61,7 @@ class BookAnnotationViewHolder(itemView: View, private val listener: BookAnnotat
 
         text.text = mark.text
 
-        if (mark.type == MarkType.PageMark) {
+        if (mark.markType == MarkType.PageMark) {
             title.text = itemView.context.getString(R.string.book_annotation_list_title_mark, mark.page + 1, mark.pages)
             note.text = ""
             color.visibility = View.GONE

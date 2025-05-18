@@ -38,6 +38,7 @@ import br.com.fenix.bilingualreader.service.listener.PopupOrderListener
 import br.com.fenix.bilingualreader.service.listener.VocabularyCardListener
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyLoadState
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaListCardAdapter
@@ -181,11 +182,6 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
         mPopupFilterOrderTab = root.findViewById(R.id.vocabulary_popup_order_filter_tab)
         mPopupFilterOrderView = root.findViewById(R.id.vocabulary_popup_order_filter_view_pager)
 
-        root.findViewById<ImageView>(R.id.vocabulary_popup_menu_order_filter_close)
-            .setOnClickListener {
-                AnimationUtil.animatePopupClose(requireActivity(), mMenuPopupFilterOrder)
-            }
-
         mScrollUp.visibility = View.GONE
         mScrollDown.visibility = View.GONE
 
@@ -201,9 +197,19 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
             (mScrollUp.drawable as AnimatedVectorDrawable).start()
             mRecyclerView.smoothScrollToPosition(0)
         }
+        mScrollUp.setOnLongClickListener {
+            (mScrollUp.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.scrollToPosition(0)
+            true
+        }
         mScrollDown.setOnClickListener {
             (mScrollDown.drawable as AnimatedVectorDrawable).start()
             mRecyclerView.smoothScrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount)
+        }
+        mScrollDown.setOnLongClickListener {
+            (mScrollDown.drawable as AnimatedVectorDrawable).start()
+            mRecyclerView.scrollToPosition((mRecyclerView.adapter as RecyclerView.Adapter).itemCount -1)
+            true
         }
 
         mRecyclerView.setOnScrollChangeListener { _, _, _, _, yOld ->
@@ -247,7 +253,8 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
         }
 
         mPopupFilterOrderTab.setupWithViewPager(mPopupFilterOrderView)
-        mPopupOrderFragment = VocabularyPopupOrder(this)
+        mPopupOrderFragment = VocabularyPopupOrder()
+        mPopupOrderFragment.setListener(this)
 
         BottomSheetBehavior.from(mMenuPopupFilterOrder).apply {
             peekHeight = 195
@@ -256,13 +263,7 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
         }
         mBottomSheet.isDraggable = true
 
-        root.findViewById<ImageView>(R.id.vocabulary_popup_menu_order_filter_touch)
-            .setOnClickListener {
-                if (mBottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED)
-                    mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
-                else
-                    mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-            }
+        PopupUtils.onPopupTouch(requireActivity(), mMenuPopupFilterOrder, mBottomSheet, root.findViewById<ImageView>(R.id.vocabulary_popup_menu_order_filter_touch))
 
         val viewOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
         viewOrderPagerAdapter.addFragment(
@@ -371,7 +372,7 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
 
         Toast.makeText(
             requireContext(),
-            getString(R.string.menu_manga_reading_order_change) + " ${mMapOrder[orderBy]}",
+            getString(R.string.menu_manga_reading_order_change, mMapOrder[orderBy]),
             Toast.LENGTH_SHORT
         ).show()
 
@@ -382,6 +383,8 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
     }
 
     override fun onDestroy() {
+        if (::mPopupOrderFragment.isInitialized)
+            mPopupOrderFragment.clearListener()
         VocabularyMangaListCardAdapter.clearVocabularyMangaList()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

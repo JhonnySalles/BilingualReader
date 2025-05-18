@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/menu_manga_library_search"
-        android:icon="@drawable/ic_search"
+        android:icon="@drawable/ico_search"
         android:orderInCategory="100"
         android:title="@string/menu_search"
         android:visible="true"
@@ -27,7 +27,7 @@
 
     <item
         android:id="@+id/menu_manga_library_import_vocab"
-        android:icon="@drawable/ic_import_vocabulary"
+        android:icon="@drawable/ico_import_vocabulary"
         android:orderInCategory="199"
         android:title="@string/menu_manga_vocabulary_import"
         android:visible="true"

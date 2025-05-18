@@ -330,16 +330,16 @@
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin">
+            android:layout_margin="@dimen/margin"
+            android:gravity="center">
             <ImageView
                 android:layout_width="@dimen/statistics_icon_size"
                 android:layout_height="@dimen/statistics_icon_size"
-                android:src="@drawable/ic_statistics_manga" />
+                android:src="@drawable/ico_statistics_manga" />
 
             <TextView
                 style="@style/TextNormal"
-                android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginStart="@dimen/margin"
                 android:gravity="center_vertical"
@@ -348,25 +348,26 @@
             <TextView
                 android:id="@+id/statistics_manga_total_read_pages"
                 style="@style/TextTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin"
-                android:gravity="center_vertical" />
+                android:textAlignment="textEnd" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin">
+            android:layout_margin="@dimen/margin"
+            android:gravity="center">
             <ImageView
                 android:layout_width="@dimen/statistics_icon_size"
                 android:layout_height="@dimen/statistics_icon_size"
-                android:src="@drawable/ic_statistics_time" />
+                android:src="@drawable/ico_statistics_time" />
 
             <TextView
                 style="@style/TextNormal"
-                android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginStart="@dimen/margin"
                 android:gravity="center_vertical"
@@ -375,25 +376,26 @@
             <TextView
                 android:id="@+id/statistics_manga_total_read_times"
                 style="@style/TextTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin"
-                android:gravity="center_vertical" />
+                android:textAlignment="textEnd" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin">
+            android:layout_margin="@dimen/margin"
+            android:gravity="center">
             <ImageView
                 android:layout_width="@dimen/statistics_icon_size"
                 android:layout_height="@dimen/statistics_icon_size"
-                android:src="@drawable/ic_statistics_average" />
+                android:src="@drawable/ico_statistics_average" />
 
             <TextView
                 style="@style/TextNormal"
-                android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginStart="@dimen/margin"
                 android:gravity="center_vertical"
@@ -402,10 +404,11 @@
             <TextView
                 android:id="@+id/statistics_manga_total_read_average"
                 style="@style/TextTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin"
-                android:gravity="center_vertical" />
+                android:textAlignment="textEnd" />
         </LinearLayout>
 
         <LinearLayout
@@ -423,22 +426,48 @@
                 android:gravity="center"
                 android:text="@string/statistics_read_by_month" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/statistics_manga_chart_year"
-                style="@style/TextInputDropMenu"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/margin_small"
-                android:hint="@string/statistics_chart_year"
-                app:startIconDrawable="@drawable/ic_statistics_chart_year">
+                android:layout_marginTop="@dimen/margin_big"
+                android:orientation="horizontal">
 
-                <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                    android:id="@+id/statistics_manga_chart_year_auto_complete"
-                    style="@style/AutoCompleteDropMenu"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/statistics_manga_chart_year"
+                    style="@style/TextInputDropMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_margin="@dimen/margin_small"
+                    android:hint="@string/statistics_chart_year"
+                    app:startIconDrawable="@drawable/ico_statistics_chart_year">
 
-            </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/statistics_manga_chart_year_auto_complete"
+                        style="@style/AutoCompleteDropMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/statistics_manga_chart_library"
+                    style="@style/TextInputDropMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_margin="@dimen/margin_small"
+                    android:hint="@string/statistics_chart_library"
+                    app:startIconDrawable="@drawable/ico_statistics_chart_manga_library">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/statistics_manga_chart_library_auto_complete"
+                        style="@style/AutoCompleteDropMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
 
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/statistics_manga_chart"

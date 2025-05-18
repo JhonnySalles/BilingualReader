@@ -13,3 +13,5 @@ local.properties
 /BilingualReader/debug/BilingualReader_1.0.1-debug.apk
 /BilingualReader/debug
 /olds
+/app-distribution.json
+BilingualReader/src/main/assets/app-distribution.json

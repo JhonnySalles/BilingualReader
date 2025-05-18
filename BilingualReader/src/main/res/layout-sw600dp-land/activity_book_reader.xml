@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_activity_book_reader">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        style="@style/AppBackground.Reader"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        tools:context=".view.ui.reader.manga.MangaReaderActivity">
+
+        <FrameLayout
+            android:id="@+id/root_frame_book_reader"
+            style="@style/AppBackground.Reader"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="20dp"
+            android:fitsSystemWindows="false" />
+
+        <include
+            android:id="@+id/container_book_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:fitsSystemWindows="false"
+            layout="@layout/reader_book_progress"/>
+
+        <include
+            android:id="@+id/container_book_tts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone"
+            android:fitsSystemWindows="false"
+            layout="@layout/reader_book_tts"/>
+
+        <include
+            android:id="@+id/reader_book_container_touch_demonstration"
+            layout="@layout/reader_book_touch_demonstration"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
+
+        <include
+            layout="@layout/reader_book_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:toolbarReaderCenter="@{true}" />
+
+        <FrameLayout
+            android:id="@+id/popup_book_configuration_side_sheet"
+            style="@style/AppBackground.PopupRight"
+            android:layout_width="430dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="end"
+            android:fitsSystemWindows="false"
+            android:orientation="vertical"
+            android:paddingTop="10dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:visibility="gone"
+            android:saveEnabled="false"
+            app:layout_behavior="com.google.android.material.sidesheet.SideSheetBehavior">
+
+            <TextView
+                style="@style/TextTitle"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:layout_marginStart="@dimen/margin_big"
+                android:text="@string/popup_reading_book_tab_title" />
+
+            <ImageView
+                android:id="@+id/popup_book_configuration_close_button"
+                style="@style/TextTitle.Popup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|top"
+                android:layout_marginTop="1dp"
+                android:layout_marginEnd="@dimen/margin_big"
+                android:contentDescription="@string/popup_reading_manga_close"
+                android:scaleType="center"
+                android:src="@drawable/ico_close"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="26dp"
+                android:orientation="vertical">
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/popup_book_configuration_tab"
+                    style="@style/PopupTab"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:tabGravity="fill"
+                    app:tabMode="fixed"
+                    app:tabPaddingBottom="0dp"
+                    app:tabPaddingEnd="0dp"
+                    app:tabPaddingStart="0dp"
+                    app:tabPaddingTop="0dp">
+
+                    <com.google.android.material.tabs.TabItem
+                        android:id="@+id/popup_book_configuration_item_font"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/popup_reading_book_tab_item_font" />
+
+                    <com.google.android.material.tabs.TabItem
+                        android:id="@+id/popup_book_configuration_item_layout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/popup_reading_book_tab_item_layout" />
+
+                </com.google.android.material.tabs.TabLayout>
+
+                <androidx.viewpager.widget.ViewPager
+                    android:id="@+id/popup_book_configuration_view_pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingTop="2dp"
+                    app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+            </LinearLayout>
+        </FrameLayout>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

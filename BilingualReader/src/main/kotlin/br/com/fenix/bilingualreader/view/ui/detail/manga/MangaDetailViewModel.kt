@@ -30,6 +30,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
 
@@ -77,6 +79,8 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
         mLocalInformation.value = null
         mWebInformationRelations.value = mutableListOf()
 
+        MangaImageCoverController.instance.setImageCoverAsync(app.applicationContext, manga, true) { mCover.value = it }
+
         CoroutineScope(Dispatchers.IO).launch {
             val parse = ParseFactory.create(manga.file) ?: return@launch
             try {
@@ -86,25 +90,27 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
                     (parse as RarParse?)!!.setCacheDirectory(cacheDir)
                 }
 
-                MangaImageCoverController.instance.getMangaCover(app.applicationContext, manga, true).let {
-                    withContext(Dispatchers.Main) {
-                        mCover.value = it
-                    }
-                }
-
+                var update = false
                 val info = parse.getComicInfo()
                 if (info != null) {
                     if (manga.update(info))
-                        mMangaRepository.update(manga)
+                        update = true
                     withContext(Dispatchers.Main) {
                         mLocalInformation.value = Information(app.applicationContext, info)
                     }
                 }
 
                 if (manga.hasSubtitle != parse.hasSubtitles()) {
+                    update = true
                     manga.hasSubtitle = parse.hasSubtitles()
                     manga.lastVocabImport = null
+                }
+
+                if (update) {
                     mMangaRepository.update(manga)
+                    withContext(Dispatchers.Main) {
+                        mManga.value = manga
+                    }
                 }
 
                 val paths = parse.getPagePaths()
@@ -122,6 +128,7 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
                     image = MangaImageCoverController.instance.getMangaCover(app.applicationContext, manga, false)
                 }
                 deferred.await()
+                CountDownLatch(1).await(1, TimeUnit.SECONDS)
                 withContext(Dispatchers.Main) {
                     mCover.value = image
                 }
@@ -157,8 +164,7 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
         val name = Util.getNameFromMangaTitle(mManga.value?.title ?: "").replace(PATTERN, "")
 
         mWebInformation.value = list.find {
-            it.title.replace(PATTERN, "").trim().equals(name, true) ||
-                    it.alternativeTitles.contains(name, true)
+            it.title.replace(PATTERN, "").trim().equals(name, true) || it.alternativeTitles.contains(name, true)
         }
         if (mWebInformation.value != null)
             list.remove(mWebInformation.value)

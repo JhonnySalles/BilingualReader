@@ -39,11 +39,7 @@ class PopupMangaSubtitleReader : Fragment() {
 
     private lateinit var mSubTitleController: SubTitleController
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.popup_manga_subtitle_reader, container, false)
 
         mSubtitlePageAutoComplete = root.findViewById(R.id.popup_manga_subtitle_menu_autocomplete_page_selected)

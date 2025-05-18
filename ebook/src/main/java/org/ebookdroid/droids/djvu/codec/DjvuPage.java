@@ -12,18 +12,21 @@ import org.ebookdroid.core.codec.Annotation;
 import org.ebookdroid.core.codec.PageLink;
 import org.ebookdroid.core.codec.PageTextBox;
 import org.ebookdroid.droids.mupdf.codec.TextWord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import br.com.ebook.foobnix.android.utils.LOG;
+import br.com.ebook.Config;
 import br.com.ebook.foobnix.pdf.info.model.AnnotationType;
 import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
 import br.com.ebook.foobnix.sys.TempHolder;
 
 public class DjvuPage extends AbstractCodecPage {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DjvuPage.class);
     private final long contextHandle;
     private final long docHandle;
     private final int pageNo;
@@ -45,9 +48,9 @@ public class DjvuPage extends AbstractCodecPage {
 
     @Override
     public int getWidth() {
-        if (w == 0) {
+        if (w == 0)
             w = getWidth(pageHandle);
-        }
+
         return w;
     }
 
@@ -58,9 +61,9 @@ public class DjvuPage extends AbstractCodecPage {
 
     @Override
     public int getHeight() {
-        if (h == 0) {
+        if (h == 0)
             h = getHeight(pageHandle);
-        }
+
         return h;
     }
 
@@ -76,7 +79,8 @@ public class DjvuPage extends AbstractCodecPage {
 
     @Override
     public BitmapRef renderBitmap(final int width, final int height, final RectF pageSliceBounds) {
-        LOG.d("Render DJVU Page", width, height, pageSliceBounds);
+        if (Config.SHOW_LOG)
+            LOGGER.info("Render DJVU Page: {}x{} - {}", width, height, pageSliceBounds);
         final int renderMode = 0;// 0-color,1-black,2 color only, 3 mask, 4 backgroud, 5 foreground
         BitmapRef bmp = null;
         if (width > 0 && height > 0) {
@@ -84,17 +88,17 @@ public class DjvuPage extends AbstractCodecPage {
             final int[] buffer = new int[width * height];
             renderPageWrapper(pageHandle, contextHandle, width, height, pageSliceBounds.left, pageSliceBounds.top, pageSliceBounds.width(), pageSliceBounds.height(), buffer, renderMode);
 
-            if (MagicHelper.isNeedBC) {
+            if (MagicHelper.isNeedBC)
                 MagicHelper.applyQuickContrastAndBrightness(buffer, width, height);
-            }
 
             MagicHelper.udpateColorsMagic(buffer);
             bmp.getBitmap().setPixels(buffer, 0, width, 0, 0, width, height);
             return bmp;
         }
-        if (bmp == null) {
+
+        if (bmp == null)
             bmp = BitmapManager.getBitmap("Djvu page", 100, 100, Bitmap.Config.RGB_565);
-        }
+
         // final Canvas c = new Canvas(bmp.getBitmap());
         // final Paint paint = new Paint();
         // paint.setColor(Color.GRAY);
@@ -114,7 +118,6 @@ public class DjvuPage extends AbstractCodecPage {
     @Override
     public void addAnnotation(float[] color, PointF[][] points, float width, float alpha) {
         // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -126,7 +129,8 @@ public class DjvuPage extends AbstractCodecPage {
 
         RectF rectF = new RectF(0, 0, 1f, 1f);
         float k = (float) originH / originW;
-        LOG.d("TEST", "Render!" + " w" + originW + " H " + originH + " " + k + " " + width * k);
+        if (Config.SHOW_LOG)
+            LOGGER.info("Render! w{} H {} {} {}", originW, originH, k, width * k);
         BitmapRef renderBitmap = renderBitmap(width, (int) (width * k), rectF);
         return renderBitmap.getBitmap();
     }
@@ -145,7 +149,8 @@ public class DjvuPage extends AbstractCodecPage {
                 return;
             }
 
-            LOG.d("MUPDF! recycle page", docHandle, pageHandle);
+            if (Config.SHOW_LOG)
+                LOGGER.info("MUPDF! recycle page: {} - {}", docHandle, pageHandle);
             long p = pageHandle;
             pageHandle = 0;
             free(p);
@@ -179,7 +184,7 @@ public class DjvuPage extends AbstractCodecPage {
                             link.targetPage = Integer.parseInt(link.url.substring(1)) - 1;
                             link.url = null;
                         } catch (final NumberFormatException ex) {
-                            ex.printStackTrace();
+                            LOGGER.error("Error open document inner: {}", ex.getMessage(), ex);
                         }
                     }
                 }
@@ -198,9 +203,8 @@ public class DjvuPage extends AbstractCodecPage {
         if (LengthUtils.isNotEmpty(list)) {
             final float width = getWidth();
             final float height = getHeight();
-            for (final PageTextBox ptb : list) {
+            for (final PageTextBox ptb : list)
                 normalizeTextBox(ptb, width, height);
-            }
         }
         return list;
     }

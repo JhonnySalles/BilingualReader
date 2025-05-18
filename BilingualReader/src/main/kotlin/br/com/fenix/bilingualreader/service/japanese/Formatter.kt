@@ -20,6 +20,8 @@ import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.helpers.JapaneseCharacter
 import br.com.fenix.bilingualreader.view.ui.popup.PopupKanji
 import br.com.fenix.bilingualreader.view.ui.popup.PopupVocabulary
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
@@ -88,7 +90,11 @@ class Formatter {
                         HTML_N4 = "#668cff"
                         HTML_N5 = "#b366ff"
                     } catch (e: Exception) {
-                        mLOGGER.warn("Error in open tokenizer file." + e.message, e)
+                        mLOGGER.error("Error in open tokenizer file." + e.message, e)
+                        Firebase.crashlytics.apply {
+                            setCustomKey("message", "Error in open tokenizer file: " + e.message)
+                            recordException(e)
+                        }
                     }
                 }
             }
@@ -468,7 +474,7 @@ class Formatter {
                             SuperRubySpan(
                                 generateFurigana(furigana),
                                 SuperReplacementSpan.Alignment.CENTER,
-                                SuperReplacementSpan.Alignment.CENTER
+                                SuperReplacementSpan.Alignment.JUSTIFIED
                             ),
                             t.position, t.position + t.surface.length,
                             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -496,7 +502,7 @@ class Formatter {
                                 SuperRubySpan(
                                     generateFurigana(furigana),
                                     SuperReplacementSpan.Alignment.CENTER,
-                                    SuperReplacementSpan.Alignment.CENTER
+                                    SuperReplacementSpan.Alignment.JUSTIFIED
                                 ),
                                 t.begin(), t.end(),
                                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE

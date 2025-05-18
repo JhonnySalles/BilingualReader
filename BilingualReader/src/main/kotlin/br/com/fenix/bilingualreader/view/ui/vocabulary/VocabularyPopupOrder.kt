@@ -12,7 +12,7 @@ import br.com.fenix.bilingualreader.view.components.TriStateCheckBox
 import org.slf4j.LoggerFactory
 
 
-class VocabularyPopupOrder(var listener: PopupOrderListener) : Fragment() {
+class VocabularyPopupOrder : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(VocabularyPopupOrder::class.java)
 
@@ -21,6 +21,15 @@ class VocabularyPopupOrder(var listener: PopupOrderListener) : Fragment() {
     private lateinit var mOrderFavorite: TriStateCheckBox
 
     private lateinit var mCheckList : ArrayList<TriStateCheckBox>
+    private var listener: PopupOrderListener? = null
+
+    fun setListener(listener: PopupOrderListener) {
+        this.listener = listener
+    }
+
+    fun clearListener() {
+        this.listener = null
+    }
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -32,7 +41,7 @@ class VocabularyPopupOrder(var listener: PopupOrderListener) : Fragment() {
 
         mCheckList = arrayListOf(mOrderDescription, mOrderFrequency, mOrderFavorite)
 
-        setChecked(mCheckList, listener.popupGetOrder()?.first ?: Order.Description, listener.popupGetOrder()?.second ?: false)
+        setChecked(mCheckList, listener?.popupGetOrder()?.first ?: Order.Description, listener?.popupGetOrder()?.second ?: false)
         addListener()
         observer()
         return root
@@ -80,14 +89,14 @@ class VocabularyPopupOrder(var listener: PopupOrderListener) : Fragment() {
 
             mOrderDescription.state = getNextState(mOrderDescription)
             when (mOrderDescription.state) {
-                TriStateCheckBox.STATE_INDETERMINATE -> listener.popupSorted(
+                TriStateCheckBox.STATE_INDETERMINATE -> listener?.popupSorted(
                     Order.Description,
                     true
                 )
-                TriStateCheckBox.STATE_CHECKED -> listener.popupSorted(Order.Description)
+                TriStateCheckBox.STATE_CHECKED -> listener?.popupSorted(Order.Description)
                 TriStateCheckBox.STATE_UNCHECKED -> {
                     mOrderDescription.state = TriStateCheckBox.STATE_CHECKED
-                    listener.popupSorted(Order.Description)
+                    listener?.popupSorted(Order.Description)
                 }
                 else -> {}
             }
@@ -104,11 +113,11 @@ class VocabularyPopupOrder(var listener: PopupOrderListener) : Fragment() {
 
             mOrderFrequency.state = getNextState(mOrderFrequency, true)
             when (mOrderFrequency.state) {
-                TriStateCheckBox.STATE_INDETERMINATE -> listener.popupSorted(Order.Frequency, true)
-                TriStateCheckBox.STATE_CHECKED -> listener.popupSorted(Order.Frequency)
+                TriStateCheckBox.STATE_INDETERMINATE -> listener?.popupSorted(Order.Frequency, true)
+                TriStateCheckBox.STATE_CHECKED -> listener?.popupSorted(Order.Frequency)
                 TriStateCheckBox.STATE_UNCHECKED -> {
                     mOrderDescription.state = TriStateCheckBox.STATE_CHECKED
-                    listener.popupSorted(Order.Description)
+                    listener?.popupSorted(Order.Description)
                 }
                 else -> {}
             }
@@ -125,11 +134,11 @@ class VocabularyPopupOrder(var listener: PopupOrderListener) : Fragment() {
 
             mOrderFavorite.state = getNextState(mOrderFavorite)
             when (mOrderFavorite.state) {
-                TriStateCheckBox.STATE_INDETERMINATE -> listener.popupSorted(Order.Favorite, true)
-                TriStateCheckBox.STATE_CHECKED -> listener.popupSorted(Order.Favorite)
+                TriStateCheckBox.STATE_INDETERMINATE -> listener?.popupSorted(Order.Favorite, true)
+                TriStateCheckBox.STATE_CHECKED -> listener?.popupSorted(Order.Favorite)
                 TriStateCheckBox.STATE_UNCHECKED -> {
                     mOrderDescription.state = TriStateCheckBox.STATE_CHECKED
-                    listener.popupSorted(Order.Description)
+                    listener?.popupSorted(Order.Description)
                 }
                 else -> {}
             }
@@ -144,7 +153,7 @@ class VocabularyPopupOrder(var listener: PopupOrderListener) : Fragment() {
     }
 
     private fun observer() {
-        listener.popupGetObserver().observe(viewLifecycleOwner) {
+        listener?.popupGetObserver()?.observe(viewLifecycleOwner) {
             removeListener(mCheckList)
             setChecked(mCheckList, it.first, it.second)
             addListener()

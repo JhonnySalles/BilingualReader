@@ -1,6 +1,8 @@
 package br.com.ebook.foobnix.ext;
 
 import org.ebookdroid.BookType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -14,10 +16,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import br.com.ebook.Config;
-import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
 
 public class CbzCbrExtractor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CbzCbrExtractor.class);
 
     public static boolean isZip(String path) {
         try {
@@ -30,7 +33,7 @@ public class CbzCbrExtractor {
                 return true;
             }
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error to extract: {}", e.getMessage(), e);
         }
         return false;
     }
@@ -46,10 +49,10 @@ public class CbzCbrExtractor {
                 Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
                 List<String> names = new ArrayList<String>();
-                while ((nextEntry = entries.nextElement()) != null) {
+                while (entries.hasMoreElements() && (nextEntry = entries.nextElement()) != null) {
                     String name = nextEntry.getName();
                     if (Config.SHOW_LOG)
-                        LOG.d("Name", name);
+                        LOGGER.info("Name: {}", name);
                     if (ExtUtils.isImagePath(name)) {
                         names.add(name);
                     }
@@ -61,7 +64,7 @@ public class CbzCbrExtractor {
                 nextEntry = null;
 
                 String first = names.get(0);
-                while ((nextEntry = entries.nextElement()) != null) {
+                while (entries.hasMoreElements() && (nextEntry = entries.nextElement()) != null) {
                     if (nextEntry.getName().equals(first)) {
                         CacheZipUtils.writeToStream(zipFile.getInputStream(nextEntry), out);
                         break;
@@ -72,7 +75,7 @@ public class CbzCbrExtractor {
             }
 
         } catch (Exception e) {
-            LOG.e(e);
+            LOGGER.error("Error get book cover: {}", e.getMessage(), e);
         }
         return out.toByteArray();
     }

@@ -12,6 +12,8 @@ import androidx.paging.cachedIn
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.transformLatest
@@ -126,7 +128,11 @@ class VocabularyViewModel(application: Application) : AndroidViewModel(applicati
                     nextKey = if (list.isEmpty()) null else page + 1
                 )
             } catch (e: Exception) {
-                mLOGGER.error("Error paging list vocabulary.", e)
+                mLOGGER.error("Error paging list vocabulary: " + e.message, e)
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error paging list vocabulary: " + e.message)
+                    recordException(e)
+                }
                 LoadResult.Error(e)
             }
         }

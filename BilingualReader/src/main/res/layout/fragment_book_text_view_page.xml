@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<br.com.fenix.bilingualreader.view.components.PageCurlFrame
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/frame_reader_page_root"
-    style="@style/AppBackground.Reader"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -13,7 +13,7 @@
         android:layout_height="90dp"
         android:layout_gravity="end|top"
         android:contentDescription="@string/reading_book_page_mark"
-        android:src="@drawable/ic_book_reader_page_mark"
+        android:src="@drawable/ico_book_reader_page_mark"
         android:translationY="-20dp"/>
 
     <br.com.fenix.bilingualreader.view.components.book.NotifyingScrollView
@@ -39,7 +39,7 @@
             android:layout_marginTop="@dimen/book_reader_text_margin_top_bottom"
             android:layout_marginBottom="@dimen/book_reader_text_margin_top_bottom"
             android:layout_marginStart="@dimen/book_reader_text_margin"
-            android:layout_marginEnd="@dimen/book_reader_text_margin"/>
+            android:layout_marginEnd="@dimen/book_reader_text_margin" />
     </br.com.fenix.bilingualreader.view.components.book.NotifyingScrollView>
 
     <br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
@@ -48,4 +48,4 @@
         android:layout_height="match_parent"
         android:visibility="gone"/>
 
-</FrameLayout>
+</br.com.fenix.bilingualreader.view.components.PageCurlFrame>

@@ -23,6 +23,7 @@
 
     <string name="date_format_unknown">desconhecido</string>
     <string name="date_format_today">Hoje</string>
+    <string name="date_format_yesterday">Ontem</string>
     <string name="date_format_day_ago">%s dias atrás.</string>
 
     <string-array name="mouth_descriptions">
@@ -58,6 +59,7 @@
     <string name="menu_help">Ajuda</string>
     <string name="menu_about">Sobre</string>
     <string name="menu_statistics">Estatística</string>
+    <string name="menu_annotations">Anotações</string>
     <string name="menu_config">Configuração</string>
     <string name="menu_history">Histórico</string>
     <string name="menu_vocabulary">Vocabulário</string>
@@ -68,7 +70,7 @@
     <!-- STATISTICS -->
     <string name="statistics_sector_system">Statistics</string>
     <string name="statistics_sector_manga">Manga / Comic</string>
-    <string name="statistics_sector_book">Book</string>
+    <string name="statistics_sector_book">Livro</string>
 
     <string name="statistics_reading">Lendo</string>
     <string name="statistics_to_read">Pendentes</string>
@@ -87,6 +89,8 @@
 
     <string name="statistics_read_by_month">%s leituras / mês</string>
     <string name="statistics_chart_year">Ano</string>
+    <string name="statistics_chart_library">Biblioteca</string>
+    <string name="statistics_chart_library_all">Todos</string>
     <string name="statistics_average">%d minutos por página</string>
 
     <string name="statistics_format_days">%d dias</string>
@@ -110,6 +114,8 @@
     <string name="config_title_database">Banco de dados</string>
     <string name="config_title_themes">Temas</string>
     <string name="config_title_cover">Capas</string>
+    <string name="config_title_statistics">Estatísticas</string>
+    <string name="config_title_update">Atualização do App</string>
 
     <string name="config_manga_switch_use_path_name_for_linked">Utilizar o caminho da página para vincular as páginas?</string>
     <string name="config_manga_switch_use_dual_page_calculate">Considerar página dupla pelo calculo das dimensões?</string>
@@ -118,22 +124,11 @@
     <string name="config_manga_default_subtitle_language">Linguagem padrão</string>
     <string name="config_manga_default_subtitle_translate">Tradução padrão</string>
 
-    <string name="config_option_manga_order_name">Por nome</string>
-    <string name="config_option_manga_order_date">Por data</string>
-    <string name="config_option_manga_order_access">Último acesso</string>
-    <string name="config_option_manga_order_favorite">Favoritos primeiro</string>
-
-    <string name="config_option_book_order_name">Por nome</string>
-    <string name="config_option_book_order_date">Por data</string>
-    <string name="config_option_book_order_access">Último acesso</string>
-    <string name="config_option_book_order_favorite">Favoritos primeiro</string>
-    <string name="config_option_book_order_author">Autor</string>
-    <string name="config_option_book_order_genre">Gênero</string>
-
     <string name="config_option_vocabulary_order_description">Por descrição</string>
     <string name="config_option_vocabulary_order_frequency">Por frequência</string>
     <string name="config_option_vocabulary_order_favorite">Favoritos primeiro</string>
 
+    <string name="config_manga_reading_touch_screen">Funções touch</string>
     <string name="config_manga_reading_show_clock_and_battery">Mostrar o relógio e o percentual bateria?</string>
     <string name="config_manga_reading_use_magnifier_type">Utiliza o zoom em modo de lupa?</string>
     <string name="config_manga_reading_keep_zoom_between_pages">Manter o zoom entre as páginas?</string>
@@ -147,6 +142,8 @@
     <string name="config_system_share_mark_account">Conta Google: %s</string>
     <string name="config_system_share_mark_sign_in_error">Erro ao logar!</string>
     <string name="config_system_share_mark_sign_out_title">Deslogar</string>
+    <string name="config_system_share_mark_manga">Manga / Comic - %s</string>
+    <string name="config_system_share_mark_book">Livro - %s</string>
     <string name="config_system_share_mark_sign_out">Deslogar a conta?</string>
     <string name="config_system_share_mark_clear_last_sync_title">Limpeza sincronização</string>
     <string name="config_system_share_mark_clear_last_sync">Deseja limpar a data e hora da última sincronização?</string>
@@ -156,6 +153,7 @@
     <string name="config_database_last_backup">Último backup: %1$s\</string>
     <string name="config_database_backup">Backup</string>
     <string name="config_database_restore">Restaurar</string>
+    <string name="config_database_restore_select_backup">Selecione um arquivo de backup</string>
     <string name="config_database_select_file">Selecione um arquivo do banco de dados</string>
     <string name="config_database_invalid_file">Arquivo selecionado inválido.</string>
     <string name="config_database_backup_success">Backup realizado com sucesso.</string>
@@ -171,6 +169,20 @@
     <string name="config_covers_delete_success">Cache limpo com sucesso.</string>
     <string name="config_covers_delete_error">Erro ao limpar cache de capas.</string>
 
+    <string name="config_statistics_clear">Limpar estatística</string>
+    <string name="config_statistics_clear_title">Limpar estatística</string>
+    <string name="config_statistics_clear_description">Deseja realmente limpar as estatísticas?</string>
+    <string name="config_statistics_clear_success">Estatísticas limpa com sucesso.</string>
+    <string name="config_statistics_clear_error">Erro ao limpar as estatísticas.</string>
+
+    <string name="config_update_app">Download e atualização do App</string>
+    <string name="config_update_app_title">Atualização do App</string>
+    <string name="config_update_app_description">Baixar e atualização o aplicativo para a versão %s?</string>
+    <string name="config_update_app_empty">Não encontrado nenhuma versão do aplicativo para atualização.</string>
+    <string name="config_update_app_error">Erro ao atualização o aplicativo.</string>
+    <string name="config_update_app_error_download">Erro no download do aplicativo.</string>
+    <string name="config_update_app_error_update">Erro na atualização do aplicativo, necessário executar manualmente o apk na pasta de download.</string>
+
     <string name="config_theme_mode">Modo tema</string>
     <string-array name="theme_mode">
         <item>Sistema</item>
@@ -184,8 +196,6 @@
         <item>Azul</item>
         <item>Forest Green</item>
         <item>Verde</item>
-        <item>Azul Neon</item>
-        <item>Verde Neon</item>
         <item>Ocean Blue</item>
         <item>Rosa</item>
         <item>Vermelho</item>
@@ -197,18 +207,32 @@
     <string name="config_book_library_folder">Caminho da biblioteca</string>
     <string name="config_book_type_normal">Book type normal</string>
     <string name="config_book_type_japanese">Tipo livro japonês</string>
+    <string name="config_book_font_japanese_style">Escrita no estilo japonês (texto vertical)</string>
     <string name="config_book_font_size">Tamanho da fonte</string>
 
+    <string name="config_book_reading_touch_screen">Funções touch</string>
     <string name="config_book_reading">Leitura</string>
     <string name="config_book_process_japanese_text">Processar texto em livro japonês</string>
     <string name="config_book_text_with_furigana">Gerar furigana em texto japonês</string>
     <string name="config_book_process_vocabulary">Processar vocabulário do livro</string>
+
     <string name="config_book_scrolling_mode">Modo de rolagem</string>
-    <string name="config_book_scrolling_Pagination">Pagination</string>
-    <string name="config_book_scrolling_Infinity_Scrolling">Infinity Scrolling</string>
+    <string name="config_book_scrolling_pagination">Paginação (Padrão)</string>
+    <string name="config_book_scrolling_pagination_vertical">Paginação (Vertical)</string>
+    <string name="config_book_scrolling_pagination_right_to_left">Paginação (Direita para esquerda)</string>
+    <string name="config_book_scrolling_infinity_scrolling">Rolagem infinita</string>
+
+    <string name="config_book_pagination_type">Animação de transição de página</string>
+    <string name="config_book_pagination_default">Padrão</string>
+    <string name="config_book_pagination_page_curl">Ondulação de página</string>
+    <string name="config_book_pagination_page_stack">Pilhas de página</string>
+    <string name="config_book_pagination_page_zoom">Zoom de página</string>
+    <string name="config_book_pagination_page_fade">Desbotamento de página</string>
+    <string name="config_book_pagination_page_depth">Profundidade de página</string>
 
     <string name="config_book_tts">Texto para fala</string>
-    <string name="config_book_tts_voice">Voz</string>
+    <string name="config_book_tts_voice_normal">Voz normal</string>
+    <string name="config_book_tts_voice_japanese">Voz japonesa</string>
 
     <!-- CONFIG LIBRARIES -->
     <string name="menu_libraries_delete_library">Apagar Biblioteca</string>
@@ -226,6 +250,22 @@
     <string name="config_libraries_title_path_required">Caminho da biblioteca é obrigatória</string>
     <string name="config_libraries_title_path_default">O caminho foi definido como padrão</string>
 
+    <!-- UPDATE POPUP TITLES -->
+    <string name="popup_update_title">Atualizar App</string>
+    <string name="popup_update_description">Downloading…</string>
+
+    <!-- ORDER -->
+    <string name="option_order_none">Nenhum</string>
+    <string name="option_order_name">Por nome</string>
+    <string name="option_order_date">Por data</string>
+    <string name="option_order_access">Por último acesso</string>
+    <string name="option_order_favorite">Favoritos primeiro</string>
+    <string name="option_order_author">Por autor</string>
+    <string name="option_order_genre">Por gênero</string>
+    <string name="option_order_series">Por série</string>
+    <string name="option_order_description">Por descrição</string>
+    <string name="option_order_frequency">Por frequencia</string>
+
     <!-- LANGUAGE -->
     <string name="languages_choice">Selecione a linguagem</string>
     <string name="languages_description">Linguagem: %1$s</string>
@@ -237,14 +277,13 @@
     </string-array>
 
     <!-- READER - BOOK -->
-    <string name="book_share_mark_processed">Marcadores compartilhados com a cloud</string>
-    <string name="book_share_mark_processed_receive">Marcadores atualizados da cloud</string>
-    <string name="book_share_mark_processed_send">Marcadores enviados para cloud</string>
+    <string name="book_share_mark_processed">Marcadores sincronizado. Enviado %d, Recebido %d</string>
     <string name="book_share_mark_unprocessed">Marcadores não compartilhados</string>
     <string name="book_share_mark_without_alteration">Nenhuma alteração em marcadores encontrada</string>
     <string name="book_share_mark_error_download">Ocorreu um erro no download dos marcadores</string>
     <string name="book_share_mark_error_upload">Ocorreu um erro no upload dos marcadores</string>
     <string name="book_share_mark_error_network">Não foi possível conectar a cloud, verifique sua internet</string>
+    <string name="book_share_mark_sync_in_progress">Existe uma sincronização em andamento, aguarde sua finalização</string>
 
     <string name="book_share_mark_drive_need_permission">Necessário permissão para acessar o Google drive</string>
     <string name="book_share_mark_drive_need_sign_in">Necessário logar na conta do Google</string>
@@ -258,6 +297,8 @@
     <string name="menu_book_reading_annotation">Anotações</string>
     <string name="menu_book_reading_font_and_page">Fonte e página</string>
     <string name="menu_book_reading_book_mark">Marcador</string>
+    <string name="menu_book_reading_view_touch">Funções touch</string>
+    <string name="menu_book_reading_config_touch">Configura funções touch</string>
 
     <string name="reading_book_title_position">Posição %d de %d • %s%%</string>
     <string name="reading_book_title_chapter">Capítulo %d: %s</string>
@@ -278,6 +319,7 @@
     <!-- READER POPUP TITLES -->
     <string name="popup_reading_book_open">Abrir</string>
     <string name="popup_reading_book_close">Fechar</string>
+    <string name="popup_reading_book_tab_title">Configuração</string>
     <string name="popup_reading_book_tab_item_font">Fonte</string>
     <string name="popup_reading_book_tab_item_layout">Layout</string>
     <string name="popup_reading_book_tab_item_language">Linguagem</string>
@@ -287,9 +329,12 @@
     <string name="popup_reading_language_tts_voice">Voz</string>
     <string name="popup_reading_language_tts_voice_empty">Necessário informar um tipo de voz</string>
     <string name="popup_reading_language_tts_voice_not_locate">A voz selecionada não foi encontrada</string>
+    <string name="popup_reading_tts_speed_slow">Lento</string>
+    <string name="popup_reading_tts_speed_fast">Rápido</string>
 
     <!-- READER POPUP LAYOUT -->
-    <string name="popup_reading_layout_scrolling_type">Tipo de rolagem</string>
+    <string name="popup_reading_layout_scrolling_mode">Tipo de rolagem</string>
+    <string name="popup_reading_layout_pagination_type">Animação de transição de página</string>
     <string name="popup_reading_layout_margin">Margem</string>
     <string name="popup_reading_layout_margin_small">Pequena</string>
     <string name="popup_reading_layout_margin_medium">Medio</string>
@@ -302,6 +347,7 @@
     <string name="popup_reading_layout_alignment_complete">Completo</string>
     <string name="popup_reading_layout_alignment_right">Direita</string>
     <string name="popup_reading_layout_alignment_left">Esquerda</string>
+    <string name="popup_reading_layout_reading_view_touch">Funções touch</string>
 
     <!-- BOOK ANNOTATION -->
     <string name="book_annotation_menu_search">Procurar</string>
@@ -330,17 +376,16 @@
     <string name="book_annotation_menu_item_delete">Deletar</string>
     <string name="book_annotation_menu_item_change_detach">Trocar de destaque</string>
 
-    <!-- BOOK ANNOTATION POPUP LAYOUT -->
-    <string name="book_annotation_popup_filter_open">Abrir</string>
-    <string name="book_annotation_popup_filter_close">Fechar</string>
-    <string name="book_annotation_tab_item_filter">Filtros</string>
-    <string name="book_annotation_tab_item_color">Cores</string>
-    <string name="book_annotation_tab_item_chapters">Capítulos</string>
+    <!-- ANNOTATION POPUP LAYOUT -->
+    <string name="annotation_popup_filter_open">Abrir</string>
+    <string name="annotation_tab_item_filter">Filtros</string>
+    <string name="annotation_tab_item_color">Cores</string>
+    <string name="annotation_tab_item_chapters">Capítulos</string>
 
-    <string name="book_annotation_popup_filter_favorite">Favoritos</string>
-    <string name="book_annotation_popup_filter_detach">Destaque</string>
-    <string name="book_annotation_popup_filter_page_marker">Marcador de página</string>
-    <string name="book_annotation_popup_filter_book_marker">Marcador de livro</string>
+    <string name="annotation_popup_filter_favorite">Favoritos</string>
+    <string name="annotation_popup_filter_detach">Destaque</string>
+    <string name="annotation_popup_filter_page_marker">Marcador de página</string>
+    <string name="annotation_popup_filter_book_marker">Marcador de livro</string>
 
     <!-- BOOK ANNOTATION DETACH -->
     <string name="book_annotation_change_detach_title">Destaque</string>
@@ -385,36 +430,51 @@
 
     <!-- READER - MANGA / COMIC -->
     <string name="reader_reload">Recarregar</string>
-    <string name="reader_not_found">Não encontrado</string>
+    <string name="reader_manga_not_found">Não encontrado</string>
     <string name="file_not_found">Arquivo não encontrado</string>
 
-    <string name="manga_share_mark_processed">Marcadores compartilhados a cloud</string>
-    <string name="manga_share_mark_processed_receive">Marcadores atualizados da cloud</string>
-    <string name="manga_share_mark_processed_send">Marcadores enviados para cloud</string>
+    <string name="manga_share_mark_processed">Marcadores sincronizado. Enviado %d, Recebido %d</string>
     <string name="manga_share_mark_unprocessed">Marcadores não compartilhados na cloud</string>
     <string name="manga_share_mark_without_alteration">Nenhuma alteração em marcadores encontrada</string>
     <string name="manga_share_mark_error_download">Ocorreu um erro no download dos marcadores</string>
     <string name="manga_share_mark_error_upload">Ocorreu um erro no upload dos marcadores</string>
     <string name="manga_share_mark_error_network">Não foi possível conectar a cloud, verifique sua internet</string>
+    <string name="manga_share_mark_sync_in_progress">Existe uma sincronização em andamento, aguarde sua finalização</string>
 
     <string name="manga_share_mark_drive_need_permission">Necessário permissão para o Google drive</string>
     <string name="manga_share_mark_drive_need_sign_in">Necessário logar na conta do Google</string>
     <string name="manga_share_mark_firebase_not_connected">Não foi possível conectar no firebase</string>
 
-    <string name="menu_manga_view_mode">Modo de preenchimento</string>
-    <string name="menu_manga_view_mode_aspect_fill">Aspecto preencher</string>
-    <string name="menu_manga_view_mode_aspect_fit">Aspecto ajustar</string>
-    <string name="menu_manga_view_mode_fit_width">Ajustar à largura</string>
+    <string name="config_manga_view_mode">Modo de preenchimento</string>
+    <string name="config_manga_view_mode_aspect_fill">Aspecto preencher</string>
+    <string name="config_manga_view_mode_aspect_fit">Aspecto ajustar</string>
+    <string name="config_manga_view_mode_fit_width">Ajustar à largura</string>
 
     <string name="menu_manga_reading_mode">Modo de leitura</string>
-    <string name="menu_manga_reading_mode_left_to_right">Comic</string>
-    <string name="menu_manga_reading_mode_right_to_left">Manga</string>
+    <string name="menu_manga_reading_mode_comic">Comic</string>
+    <string name="menu_manga_reading_mode_manga">Manga</string>
+
+    <string name="config_manga_scrolling_mode">Modo de rolagem</string>
+    <string name="config_manga_scrolling_vertical">Vertical</string>
+    <string name="config_manga_scrolling_horizontal">Horizontal (Esquerda para direita)</string>
+    <string name="config_manga_scrolling_horizontal_right_to_left">Horizontal (Direita para esquerda)</string>
+    <string name="config_manga_scrolling_scrolling">Tira longa</string>
+    <string name="config_manga_scrolling_scrolling_divider">Tira longa com espaçamento</string>
+
+    <string name="config_manga_pagination_type">Animação de transição de página</string>
+    <string name="config_manga_pagination_default">Padrão</string>
+    <string name="config_manga_pagination_page_curl">Ondulação de página</string>
+    <string name="config_manga_pagination_page_stack">Pilhas de página</string>
+    <string name="config_manga_pagination_page_zoom">Zoom de página</string>
+    <string name="config_manga_pagination_page_fade">Desbotamento de página</string>
+    <string name="config_manga_pagination_page_depth">Profundidade de página</string>
 
     <string name="menu_manga_reading_chapters_menu">Lista de capítulos</string>
     <string name="menu_manga_reading_save_share_image">Salvar/Compartilhar</string>
     <string name="menu_manga_reading_favorite">Favorito</string>
+    <string name="menu_manga_reading_book_mark">Marcador</string>
     <string name="menu_manga_reading_order">Ordem da lista</string>
-    <string name="menu_manga_reading_order_change">Ordernado:</string>
+    <string name="menu_manga_reading_order_change">Ordernado: %s</string>
     <string name="menu_manga_vocabulary_import">Importar vocabulário</string>
 
     <string name="menu_manga_reading_floating">Popup flutuante</string>
@@ -425,6 +485,7 @@
     <string name="menu_manga_reading_use_magnifier_type">Zoom em lupa</string>
     <string name="menu_manga_reading_keep_zoom_between_pages">Manter zoom</string>
     <string name="menu_manga_reading_view_touch">Funções touch</string>
+    <string name="menu_manga_reading_config_touch">Configura funções touch</string>
     <string name="menu_manga_reading_color">Cor da página</string>
 
     <string name="menu_manga_reading_ocr_file_linked">Ocr e arquivo vinculado</string>
@@ -440,20 +501,20 @@
     <string name="reading_manga_button_popup_floating">Popup flutuante</string>
     <string name="reading_manga_button_next_file">Próximo arquivo</string>
     <string name="reading_manga_button_previous_file">Arquivo anterior</string>
+    <string name="reading_manga_button_menu_chapters">Capítulos</string>
+    <string name="reading_manga_button_menu_annotations">Marcações</string>
     <string name="reading_manga_button_menu_ocr">Menu OCR</string>
     <string name="reading_manga_button_floating_buttons">Botões flutuante</string>
 
     <string name="reading_manga_page_index">Índice</string>
     <string name="reading_manga_page_empty">O arquivo não possui pastas</string>
+    <string name="reading_manga_open_exception">Não foi possível abrir o Manga/Comic selecionado</string>
 
-    <string name="reading_manga_touch_demonstration_aspect_fit">Aspecto ajustar</string>
-    <string name="reading_manga_touch_demonstration_fit_width">Ajustar à largura</string>
-    <string name="reading_manga_touch_demonstration_chapters">Abrir lista de capítulos</string>
-    <string name="reading_manga_touch_demonstration_next_file">Próximo arquivo</string>
-    <string name="reading_manga_touch_demonstration_previous_file">Arquivo anterior</string>
-    <string name="reading_manga_touch_demonstration_next_page">Próxima página</string>
-    <string name="reading_manga_touch_demonstration_previous_page">Página anterior</string>
-    <string name="reading_manga_touch_demonstration_share_image">Compartilhar imagem</string>
+    <string name="reading_manga_popup_orientation_portrait">Retrato</string>
+    <string name="reading_manga_popup_orientation_portrait_locked">Retrato bloqueado</string>
+    <string name="reading_manga_popup_orientation_landscape">Paisagem</string>
+    <string name="reading_manga_popup_orientation_landscape_locked">Paisagem bloqueado</string>
+    <string name="reading_manga_popup_orientation_auto">Auto</string>
 
     <string name="open_app_kaku_not_founded">App Kaku não encontrado.</string>
 
@@ -461,6 +522,12 @@
     <string name="reading_manga_choice_save_image">Salvar</string>
     <string name="reading_manga_choice_share_image">Compartilhar</string>
     <string name="reading_manga_choice_share_chose_app">Escolha o aplicativo</string>
+
+    <!-- MANGA ANNOTATION -->
+    <string name="manga_annotation_page_marked">Página %d marcada.</string>
+    <string name="manga_annotation_page_unmarked">Página %d desmarcada.</string>
+
+    <string name="manga_annotation_title_mark">Página %d de %d</string>
 
     <!-- OCR -->
     <string name="ocr_tesseract_copy_data">Copiando arquivos necessários, aguarde…</string>
@@ -474,8 +541,11 @@
     <string name="popup_reading_manga_open">Abrir</string>
     <string name="popup_reading_manga_close">Fechar</string>
     <string name="popup_reading_manga_floating_popup">Popup flutuante</string>
+    <string name="popup_reading_manga_tab_title_configuration">Configuração</string>
+    <string name="popup_reading_manga_tab_item_configuration_brightness">Brilho</string>
+    <string name="popup_reading_manga_tab_item_configuration_bookmarks">Marcadores</string>
+    <string name="popup_reading_manga_tab_title_subtitle">Legendas</string>
     <string name="popup_reading_manga_tab_item_subtitle">Legendas</string>
-    <string name="popup_reading_manga_tab_item_brightness">Brilho</string>
     <string name="popup_reading_manga_tab_item_subtitle_import">Importar</string>
     <string name="popup_reading_manga_tab_item_subtitle_vocabulary">Vocabulário</string>
 
@@ -497,7 +567,7 @@
     <string name="popup_reading_manga_import_subtitle_selected">Legenda selecionada</string>
     <string name="popup_reading_manga_import_subtitle_translate">Linguagem da tradução</string>
     <string name="popup_reading_manga_import_subtitle_is_empty">Nenhuma legenda encontrada</string>
-    <string name="popup_reading_manga_import_subtitle_page_is_empty">As paginas estão vazias na legenda ou ela não foi selecionada.</string>
+    <string name="popup_reading_manga_import_subtitle_page_is_empty">As páginas estão vazias na legenda ou ela não foi selecionada.</string>
     <string name="popup_reading_manga_use_page_linked_in_search">Utilizar as páginas vinculada na busca da tradução</string>
 
     <!-- READER POPUP SUBTITLE -->
@@ -524,6 +594,31 @@
 
     <!-- READER FLOATING -->
     <string name="floating_reading_not_permission">Permissão não concedida!</string>
+
+    <!-- READING TOUCH -->
+    <string name="reading_touch_screen_manga">Manga / Comic</string>
+    <string name="reading_touch_screen_book">Livro</string>
+    <string name="reading_touch_screen_save">Salvar</string>
+    <string name="reading_touch_screen_default">Padrão</string>
+    <string name="reading_touch_screen_change_title">Selecione o botão de ação</string>
+
+    <string name="reading_touch_screen_not_assigned">Não atribuído</string>
+    <string name="reading_touch_screen_aspect_fit">Ajustar aspecto</string>
+    <string name="reading_touch_screen_fit_width">Ajustar à largura</string>
+    <string name="reading_touch_screen_chapters">Abrir lista de capítulos</string>
+    <string name="reading_touch_screen_next_file">Próximo arquivo</string>
+    <string name="reading_touch_screen_previous_file">Arquivo anterior</string>
+    <string name="reading_touch_screen_next_page">Próxima página</string>
+    <string name="reading_touch_screen_previous_page">Página anterior</string>
+    <string name="reading_touch_screen_share_image">Compartilhar imagem</string>
+    <string name="reading_touch_screen_page_mark">Marcar página</string>
+
+    <!-- ANNOTATION -->
+    <string name="menu_annotation_type">Type</string>
+    <string name="annotation_menu_choice_all">Todos</string>
+    <string name="annotation_manga">Manga / Comic</string>
+    <string name="annotation_book">Livro</string>
+    <string name="annotation_filters">Filtros</string>
 
     <!-- ALERT -->
     <string name="alert_title">Aviso</string>
@@ -566,12 +661,17 @@
         <item>Volume</item>
     </string-array>
 
-    <!-- LIBRARY - Manga / Comic -->
+    <string name="manga_library_line_series">Série:</string>
+    <string name="manga_library_line_publisher">Editora:</string>
+    <string name="manga_library_line_authors">Autores:</string>
+
+    <!-- LIBRARY - Book -->
     <string name="menu_book_config_send">Enviar o arquivo</string>
     <string name="menu_book_config_clear_progress">Limpar progresso</string>
     <string name="menu_book_config_delete">Deletar</string>
-    <string name="menu_book_config_detail">Detalhe do arquivo</string>
+    <string name="menu_book_config_detail">Detalhe do Livro</string>
     <string name="menu_book_config_tag">Adicionar tags</string>
+    <string name="menu_book_config_book_mark">Marcador</string>
 
     <string name="book_library_share">Compartilhar livro</string>
 
@@ -583,6 +683,9 @@
     <string name="book_library_menu_copy">Copiar</string>
     <string name="book_library_menu_delete_description">Deseja excluir o arquivo?</string>
 
+    <string name="book_library_separator_favorite">Favoritos</string>
+    <string name="book_library_separator_non_favorite">Outros</string>
+
     <string-array name="book_filters">
         <item>Autor</item>
         <item>Editora</item>
@@ -590,15 +693,26 @@
         <item>Tipo</item>
     </string-array>
 
+    <string name="book_library_line_publisher">Editora:</string>
+    <string name="book_library_line_authors">Autores:</string>
+
     <!-- POPUP LIBRARY - Manga / Comic -->
+    <string name="menu_manga_config_clear_progress">Limpar progresso</string>
+    <string name="menu_manga_config_delete">Deletar</string>
+    <string name="menu_manga_config_detail">Detalhe do Manga / Comic</string>
+    <string name="menu_manga_config_book_mark">Marcador</string>
+
     <string name="popup_library_manga_tab_item_ordering">Ordenação</string>
     <string name="popup_library_manga_tab_item_filter">Filtro</string>
     <string name="popup_library_manga_tab_item_type">Grid</string>
 
     <string name="popup_library_manga_order_name">Por nome</string>
     <string name="popup_library_manga_order_date">Por data</string>
-    <string name="popup_library_manga_order_access">Último acesso</string>
+    <string name="popup_library_manga_order_access">Por último acesso</string>
     <string name="popup_library_manga_order_favorite">Favoritos primeiro</string>
+    <string name="popup_library_manga_order_genre">Por gênero</string>
+    <string name="popup_library_manga_order_author">Por autor</string>
+    <string name="popup_library_manga_order_series">Por séries</string>
 
     <string name="popup_library_manga_filter_favorite">Favoritos</string>
     <string name="popup_library_manga_filter_reading">Lendo</string>
@@ -617,21 +731,27 @@
 
     <string name="popup_library_book_order_name">Por nome</string>
     <string name="popup_library_book_order_date">Por data</string>
-    <string name="popup_library_book_order_access">Último acesso</string>
+    <string name="popup_library_book_order_access">Por último acesso</string>
     <string name="popup_library_book_order_favorite">Favoritos primeiro</string>
     <string name="popup_library_book_order_genre">Por gênero</string>
     <string name="popup_library_book_order_author">Por autor</string>
+    <string name="popup_library_book_order_series">Por séries</string>
 
     <string name="popup_library_book_filter_favorite">Favoritos</string>
     <string name="popup_library_book_filter_reading">Lendo</string>
 
-    <string name="popup_library_book_type_grid">Grid</string>
+    <string name="popup_library_book_type_grid_big">Grid grande</string>
+    <string name="popup_library_book_type_grid_medium">Grid médio</string>
+    <string name="popup_library_book_type_grid_small">Grid pequeno</string>
+    <string name="popup_library_book_type_separator_big">Grid grande com separador</string>
+    <string name="popup_library_book_type_separator_medium">Grid médio com separador</string>
     <string name="popup_library_book_type_line">Linha</string>
 
     <!-- MANGA DETAIL -->
     <string name="manga_detail_favorite">Favorito</string>
     <string name="manga_detail_clear_history">Limpar histórico</string>
     <string name="manga_detail_mark_read">Marcar lido</string>
+    <string name="manga_detail_book_mark">Marcador</string>
     <string name="manga_detail_delete">Deletar</string>
     <string name="manga_detail_chapters_title">Capítulos</string>
     <string name="manga_detail_subtitles_title">Legendas</string>
@@ -647,7 +767,6 @@
     <string name="manga_detail_local_information_volume"><![CDATA[<b>Volume:</b> %s]]></string>
     <string name="manga_detail_local_information_publisher"><![CDATA[<b>Editora:</b> %s]]></string>
     <string name="manga_detail_local_information_release"><![CDATA[<b>Publicação:</b> %s]]></string>
-    <string name="manga_detail_web_information_publish_from_to"><![CDATA[<b>Publicação:</b> %s até %s]]></string>
     <string name="manga_detail_local_information_authors"><![CDATA[<b>Autores:</b> %s]]></string>
 
     <string name="manga_detail_local_information_comic_info_title"><![CDATA[<b>Titulo:</b> %s]]></string>
@@ -658,6 +777,7 @@
     <string name="manga_detail_local_information_comic_info_teams"><![CDATA[<b>Times:</b> %s]]></string>
     <string name="manga_detail_local_information_comic_info_locations"><![CDATA[<b>Localizações:</b> %s]]></string>
     <string name="manga_detail_local_information_comic_info_book_marks_title">Marcadores nas páginas</string>
+    <string name="manga_detail_web_information_publish_from_to"><![CDATA[<b>Publicação:</b> %s até %s]]></string>
 
     <string name="manga_detail_web_information">Informações Web</string>
     <string name="manga_detail_related">Relacionados</string>
@@ -675,29 +795,48 @@
     <string name="book_detail_favorite">Favorito</string>
     <string name="book_detail_clear_history">Limpar histórico</string>
     <string name="book_detail_mark_read">Marcar lido</string>
+    <string name="book_detail_book_mark">Marcador</string>
+    <string name="book_detail_add_tags">Adicionar tag</string>
     <string name="book_detail_delete">Deletar</string>
     <string name="book_detail_chapters_title">Capítulos</string>
     <string name="book_detail_subtitles_title">Legendas</string>
     <string name="book_detail_file_links_title">Arquivos vinculados</string>
-    <string name="book_detail_manga_deleted">Arquivo apagado</string>
+    <string name="book_detail_book_deleted">Arquivo apagado</string>
     <string name="book_detail_vocabulary">Vocabulário</string>
 
     <string name="book_detail_information">Informações</string>
     <string name="book_detail_related">Relacionados</string>
     <string name="book_detail_tags">Tags</string>
 
-    <string name="book_detail_information_language">Linguagem do livro</string>
-    <string name="book_detail_information_file"><b>Arquivo:</b> %s</string>
-    <string name="book_detail_information_isbn"><b>ISBN:</b> %s</string>
-    <string name="book_detail_information_year"><b>Ano:</b> %s</string>
-    <string name="book_detail_information_publisher"><b>Editora:</b> %s</string>
-    <string name="book_detail_information_annotation"><b>Anotações:</b> %s</string>
-    <string name="book_detail_information_genres"><b>Gênero:</b> %s</string>
+    <string name="book_detail_information_book_language">Linguagem do livro</string>
+    <string name="book_detail_information_file"><![CDATA[<b>Arquivo:</b> %s]]></string>
+    <string name="book_detail_information_title"><![CDATA[<b>Título:</b> %s]]></string>
+    <string name="book_detail_information_author"><![CDATA[<b>Autores:</b> %s]]></string>
+    <string name="book_detail_information_isbn"><![CDATA[<b>ISBN:</b> %s]]></string>
+    <string name="book_detail_information_language"><![CDATA[<b>Linguagem:</b> %s]]></string>
+    <string name="book_detail_information_release"><![CDATA[<b>Publicação:</b> %s]]></string>
+    <string name="book_detail_information_publisher"><![CDATA[<b>Editora:</b> %s]]></string>
+    <string name="book_detail_information_annotation"><![CDATA[<b>Anotações:</b> %s]]></string>
+    <string name="book_detail_information_volume"><![CDATA[<b>Volume:</b> %s]]></string>
+    <string name="book_detail_information_genres"><![CDATA[<b>Gênero:</b> %s]]></string>
 
-    <!-- HISTORY -->
+    <string name="book_detail_web_information">Informações Web</string>
+
+    <string name="book_detail_web_information_alternative_titles"><![CDATA[<b>Títulos alternativos:</b> %s]]></string>
+    <string name="book_detail_web_information_status"><![CDATA[<b>Estatus:</b> %s]]></string>
+    <string name="book_detail_web_information_volumes"><![CDATA[<b>Volumes:</b> %s]]></string>
+    <string name="book_detail_web_information_chapters"><![CDATA[<b>Capítulos:</b> %s]]></string>
+    <string name="book_detail_web_information_publish"><![CDATA[<b>Publicação:</b> %s]]></string>
+    <string name="book_detail_web_information_publish_in_publication">in publication</string>
+    <string name="book_detail_web_information_authors"><![CDATA[<b>Autores:</b> %s]]></string>
+    <string name="book_detail_web_information_genre"><![CDATA[<b>Gêneros:</b> %s]]></string>
+    <string name="book_detail_web_information_publish_from_to"><![CDATA[<b>Publicação:</b> %s até %s]]></string>
+
+    <!-- HISTORY - Manga / Comic / Book -->
+    <string name="menu_history_library">Biblioteca</string>
+    <string name="menu_history_type">Tipo</string>
     <string name="history_last_access">Último acesso</string>
     <string name="history_delete_description">Deseja realmente excluir o histórico?</string>
-    <string name="menu_manga_history_library">Biblioteca</string>
     <string name="history_menu_choice_all">Todos</string>
     <string name="history_library_default">Padrão</string>
     <string name="history_manga">Manga / Comic</string>
@@ -766,6 +905,12 @@
     <string name="vocabulary_import">Importando vocabulário de %s.</string>
     <string name="vocabulary_imported">Concluído importação do vocabulário.</string>
     <string name="vocabulary_import_error">Erro ao importar o vocabulário.</string>
+    <string-array name="import_vocabulary">
+        <item>Padrão</item>
+        <item>Todos arquivos</item>
+        <item>Apenas novos arquivos</item>
+        <item>Reimportar arquivos</item>
+    </string-array>
 
     <string name="menu_vocabulary_search">Procurar</string>
     <string name="menu_vocabulary_order">Ordem</string>
@@ -794,12 +939,33 @@
     <string name="kanji_onYomi"><b><i>on:</i></b> %s</string>
     <string name="kanji_kunYomi"><b><i>kun:</i></b> %s</string>
 
+
+    <!-- POPUP - BOOK MARK -->
+    <string name="popup_book_mark_page">Marcador</string>
+    <string name="popup_book_mark_date">Data</string>
+
+    <string name="popup_book_select_date">Selecione uma data</string>
+    <string name="popup_book_select_time">Selecione uma horário</string>
+
+    <string name="popup_book_mark_read">Marcar como lido</string>
+
+    <string name="popup_book_mark_only_number">Apenas números</string>
+    <string name="popup_book_mark_necessary_page">Necessário informar uma página</string>
+    <string name="popup_book_mark_exceed_max">A página não pode exceder o número máximo de páginas, máximo %d</string>
+    <string name="popup_book_mark_necessary_date">Necessário informar uma data</string>
+    <string name="popup_book_mark_necessary_time">Necessário informar uma hora</string>
+
+
     <!-- HELP -->
     <string name="help_content">Conteúdo</string>
     <string name="help_library_content">• Biblioteca</string>
     <string name="help_library_title">Biblioteca</string>
     <string name="help_reader_content">• Leitor</string>
     <string name="help_reader_title">Leitor</string>
+    <string name="help_reader_manga_content">- Mangas/Comics</string>
+    <string name="help_reader_manga_title">Mangas/Comics</string>
+    <string name="help_reader_book_content">- Livros</string>
+    <string name="help_reader_book_title">Livros</string>
     <string name="help_subtitle_content">• Legendas</string>
     <string name="help_subtitle_title">Legendas</string>
     <string name="help_subtitle_import_content">- Importação</string>
@@ -816,14 +982,53 @@
     <string name="help_floating_popup_title">Popup flutuante</string>
     <string name="help_languages_support_content">• Idiomas suportados</string>
     <string name="help_languages_support_title">Idiomas suportados</string>
+    <string name="help_statistics_content">• Estatística</string>
+    <string name="help_statistics_title">Estatística</string>
+    <string name="help_themes_content">• Temas</string>
+    <string name="help_themes_title">Temas</string>
+    <string name="help_share_content">• Compartilhamento</string>
+    <string name="help_share_title">Compartilhamento</string>
 
-    <string name="help_library_description_1">Após realizar a configuração da pasta principal da bibioteca, o aplicativo irá fazer uma analise nos arquivos na pasta informada, identificando os mangas/comics que tenham a extensão como cbr/rar, cbz/zip e tar.</string>
-    <string name="help_library_description_2">Estes arquivos serão então exibidos em formato de lista e poderá ser excluido ou adicionado aos favoritos.</string>
-    <string name="help_library_description_3">Para melhor desempenho, será mantido uma cópia da primeira página, no qual será exibida como capa, será necessário devido a limitação de arquivos rar/cbr em utilizar muito do recurso computacional disponível apenas para a exibição de uma única página.</string>
+    <string name="help_library_description_01">O aplicativo está preparado para ter diversas bibliotecas, sendo considerada ao menos uma biblioteca padrão e outras customizada, onde também é separada entre livros e mangas/comics.</string>
+    <string name="help_library_description_02">Para a configuração é simples, basta selecionar uma biblioteca padrão nas configurações do setor desejado.</string>
+    <string name="help_library_description_03">E caso necessário, pode-se adicionar outras bibliotecas que serão analisado quando entrar na biblioteca. Inclusive é possível estar ativando ou desativando as bibliotecas.</string>
+    <string name="help_library_description_04">Após realizar a configuração da pasta principal da bibioteca, o aplicativo irá fazer uma analise nos arquivos na pasta informada, identificando os mangas/comics que tenham a extensão como cbr/rar, cbz/zip e tar.</string>
+    <string name="help_library_description_05">Estes arquivos serão então exibidos em formato de lista e poderá ser excluido ou adicionado aos favoritos.</string>
+    <string name="help_library_description_06">Para melhor desempenho, será mantido uma cópia da primeira página, no qual será exibida como capa, será necessário devido a limitação de arquivos rar/cbr em utilizar muito do recurso computacional disponível apenas para a exibição de uma única página.</string>
+    <string name="help_library_description_07">As bibliotecas podem ser exibidas de várias formas, como uma lista simples, uma gride simples ou com separador, separador este que terá o agrupamento conforme a ordenação da lista, ou seja, agrupado por autor, série, gênero, data ou último acesso.</string>
+    <string name="help_library_description_08">É possível estar filtrando os conteudos da biblioteca, realizando uma consulta simples pelo nome do arquivo ou titulo, ou então por alguns atributos que são importada do livro ou mangas/comics (ComicInfo).</string>
+    <string name="help_library_description_09">A pesquisa composta sempre iniciará com a letra @ e seguirá com o atributo como autor, série, tipo e volume por exemplo, e seu conteúdo irá mostrar uma sugestão conforme os atributos conforme arquivos da biblioteca que estão disponíveis na bilblioteca.</string>
+    <string name="help_library_description_10">É possível concatenar diversos atributos, sendo separados por espaço e a adição de um novo atributo.</string>
+    <string name="help_library_description_11">Ao final de todos os atributos selecionado, ainda é possível adicionar a pesquisa simples, que será buscado pelo nome ou titulo do arquivo.</string>
+    <string name="help_library_description_12">Com o toque longo poderá ser exibido detalhes do arquivo, no qual terá as informações referente ao mangas/comics ou livro, bem como série, autor, volume, entre outros. Também é exibido os capítulos e pastas do arquivo ou legendas que possam ter o arquivo. Também possui a funcionalidade integrada ao MyAnimelist para obtenção de informação sobre o volume e outros que também possam interessar.</string>
 
-    <string name="help_reader_description_1">O leitor possui recursos de rolagem entre as páginas e movimentação para uma página específica. Será armazenado em memória uma marcação da página aberta na última leitura, que por sua vez será carregado na abertura.</string>
-    <string name="help_reader_description_2">Também possui recursos para realizar a leitura de arquivos json embutidos no arquivo ou externo, no qual contém textos extraidos das páginas.</string>
+    <string name="help_reader_description_1">Existe dois tipos de leitores, sendo um para mangas/comics e outro para livros. Em ambos os casos possuem as mesmas funcionalidades, porém com situações específicas para os livros, onde terá marcações em texto e páginas, bem como analise de textos em japonês para auxilio a um dicionário de kanjis.</string>
+    <string name="help_reader_description_2">Quanto ao mangas/comics possui integração com OCR e impessão de textos extraidos e traduzidos em json, bem como a abertura simultânea de dois livros distintos que serão descritos mais abaixo. Ambos possuem marcação da última página aberta na leitura para que possa continuar de onde parou.</string>
     <string name="help_reader_description_3">Para facilitar a utilização será exibido abaixo do nome do arquivo estará o nome da página que está sendo exibida no momento, será muito útil para identificar qual legenda selecionar quando a seleção automática não funcionar.</string>
+
+    <string name="help_reader_manga_01">O leitor de mangas/comics, possui algumas funcionalides, como a marcação de favoritos, página atual e a quantidade de página, bem como marcadores de capítulos que podem ser importados do ComicInfo ou na identificação de capítulos separado por pastas.</string>
+    <string name="help_reader_manga_02">Os botões de atalho rapido permite que possa estar trocando para o arquivo anterior ou posterior, OCR da página, melhoria de cores ou modo noturno que aplica um tom avermelhado as páginas para evitar cansar a vista.</string>
+    <string name="help_reader_manga_03">Também possui um popup flutuante com os principais botões de ação ou a troca entre as imagens em dois arquivos que estão aberto em simultâneo para facilitar na leitura e compreensão em idiomas distintos.</string>
+    <string name="help_reader_manga_04">Com um toque longo é possível exibir um zoom da página que irá sempre estar em um dos cantos da tela para que não atrapalhe a leitura. Um toque duplo estará alternando o zoom da página, mas que também pode ser ajustado com o comando em pinça com dois dedos na tela.</string>
+    <string name="help_reader_manga_05">Ao realizar um toque no centro inferior será exibidos uma lista de páginas, para que possa facilmente ser localizado a página desejada.</string>
+    <string name="help_reader_manga_06">Ao clicar no titulo será exibida uma lista simples de todos os capítulos disponíveis com sua descrição podendo ser do arquivo do ComicInfo ou então o nome da pasta.</string>
+    <string name="help_reader_manga_07">Caso desejar uma informação maior com separação entre os capítulos, no menu superior existe um botão chamado "Lista de capítulos", onde irá abrir um tela com uma lista com seções dividas entre os capítulos e as imagens em miniatura das páginas.</string>
+    <string name="help_reader_manga_08">Outra funcionalidade do leitor é a abertura simultânea de dois arquivos, onde com apenas um clique é possível alternar entre as mesmas págnas em dois idiomas diferentes, apenas sendo necessário vincular as páginas uma vez.</string>
+    <string name="help_reader_manga_09">Como dois arquivos podem ter quantidades diferentes de imagens, e também ocorrer páginas duplas, o aplicativo está preparado para trabalhar com essas diferênças, onde o arquivo vinculado poderá ter uma lista de imagens que não foram vinculadas e acabaram sobrando, ou então juntar duas páginas para que se forme uma.</string>
+    <string name="help_reader_manga_10">Para o vinculo das páginas basta arrastar e soltar, onde as páginas na sequencia irão se organizar automáticamente. Caso a página não exista no arquivo original, pode estar adicionando a lista de páginas não vinculádas.</string>
+    <string name="help_reader_manga_11">Existem controles que irão auxiliar a reordenar as imagens, organizar em páginas duplas ou uma organização automática que irá tentar encontrar os capítulos do arquivo original e deixar as imagens do arquivo de destino começando com as mesmas imagens do capítulo, onde o excedente irá ser adicionado na lista de não vinculados.</string>
+    <string name="help_reader_manga_12">Com esta funcionalidade, enquanto está realizando a leitura de cada página, basta clicar no botão de vinculo para alternar entre as páginas, no qual o aplicativo inclusive irá manter a proporção do zoom e rolagem da página para que mantenha corretamente na posição que está e o impaco seja menor no ritmo da leitura. Para que não seja necessário abrir o menu, o popup flutuante de ações também possúi um botão com tal finalidade.</string>
+
+    <string name="help_reader_book_01">O leitor de livros, possui algumas funcionalides, como a marcação de página, destaque no texto dentro da página, busca por palavra em todo o livro e exibição dos capítulos presente no livro, bem como marcações dos capítulos na barra de progresso.</string>
+    <string name="help_reader_book_02">É possível também mudança de espaçamento, fonte e tamanho das letras em cada arquivo, mas caso não o tenha será obtida da configuração padrão.</string>
+    <string name="help_reader_book_03">Ao selecionar um texto da página, é possível fazer um destaque para o texto, no qual será guardado e compartilhado junto as informações de leitura do livro.</string>
+    <string name="help_reader_book_04">Inclusive pode estar adicionando anotações ao texto selecionado, ou realizar mudanças nas cores das marcações.</string>
+    <string name="help_reader_book_05">As anotações são facilmente encontrada no menu do livro, no qual pode-se identificar todas as anotações que foram feitas ou páginas marcadas.</string>
+    <string name="help_reader_book_06">Para uma maior comodidade, existe um menu principal, onde poderá ser observada todas as anotações feitas separado por livros, que permite facilmente a abertura dele já na página da marcação.</string>
+    <string name="help_reader_book_07">Assim como o leitor de mangas/comics, o livro possui um menu que irá exibir as páginas em miniatura separada por capítulos.</string>
+    <string name="help_reader_book_08">Outra funcionalidade é o reconhecimento de kanjis para livros em japonês, que mostra em destaque o kanji com cores que diferênciam pelo nível do jlpt e a importação do vocabulário se desejar.</string>
+    <string name="help_reader_book_09">Junto da importação do vocabulário é possível ativar um processamento do texto que irá exibir o furigana do kanji, para que auxilie a leitura em japonês.</string>
+    <string name="help_reader_book_10">Ao clicar em qualquer kanji, será exibido um popup com a definição e significado do kanji e outras informações relevantes.</string>
 
     <string name="help_subtitle_description_1">O aplicativo é capaz de carregar arquivos de json devidamente formatado com textos que foram previamente extraidos das páginas, junto com os textos o arquivo pode também conter uma lista de vocabulários no qual poderá ser reconhecido e localizado na exibição.</string>
     <string name="help_subtitle_description_2">A tela principal das legendas será a aba de importação, onde irá mostrar os capítulos que contem o arquivo e também poderá ser importado um arquivo de json com as legendas.</string>
@@ -831,7 +1036,7 @@
     <string name="help_subtitle_description_chapters">O segundo campo irá conter uma listagem dos capítulos encontrado tanto no arquivo como no json externo que foi escolhido, ao selecionar um determinado capítulo o aplicativo irá preencher os dados na aba de legenda.</string>
     <string name="help_subtitle_description_translate">O terceiro campo será responsável pela linguagem que irá ser alternado, ela irá sobrepor a linguagem definida na tela de configurações, será utilizada para que possa estar fácilmente alternando entre outra linguagem que possa estar listada.</string>
     <string name="help_subtitle_data">Após selecionar a legenda, será direcionado automáticamente para a aba de legenda, está aba irá gerenciar o conteúdo da legenda selecionada e realizará a exibição do texto.</string>
-    <string name="help_subtitle_data_page">O primeiro campo da aba conterá a página selecionada dentro da legenda e pode ser trocada a qualquer momento. Para facilitar o uso, o campo contém além do número sequencial das paginas do capítulo, o nome da página original de onde a legenda foi processada.</string>
+    <string name="help_subtitle_data_page">O primeiro campo da aba conterá a página selecionada dentro da legenda e pode ser trocada a qualquer momento. Para facilitar o uso, o campo contém além do número sequencial das páginas do capítulo, o nome da página original de onde a legenda foi processada.</string>
     <string name="help_subtitle_data_button">Cada botão nessa tela irá realizar a mesma função do menu de popup, ao ficar pressionado por um tempo o botão irá apresentar uma breve descrição do que faz.</string>
     <string name="help_subtitle_data_button_translate">Realiza a troca entre as legendas de diferentes linguegens no qual foram informadas na tela de configuração. Em um exemplo pode-se trocar entre a legenda em japonês e inglês com apenas um clique e o aplicativo irá automáticamente encontrar o capítulo e página correspondente na linguagem de destino.</string>
     <string name="help_subtitle_data_button_draw">Realiza o desenho das coordenadas de onde foram extraidos os textos que estão no arquivo de legenda, também irá adicionar o número sequencial do texto para melhor identificar qual ordem está. Maiores informações na seção abaixo sobre o popup flutuante.</string>
@@ -851,6 +1056,11 @@
 
     <string name="help_languages_support_description">O aplicativo suporta arquivos json de linguagens inglês, português e japonês.</string>
 
+    <string name="help_statistics_01">O aplicativo mantém algumas estatísticas, como a quantidade de mangas/comics ou livros separados por seções, bem como o tempo da leitura e quanto tempo foi gasto em cadas página.</string>
+    <string name="help_statistics_02">Também é possível verificar em um gráfico a quantidade de leitura feita anualmente separado por mês. Também pode-se exibir o gráfico conforme as bibliotecas.</string>
+
+    <string name="help_themes_description">O aplicativo também possui a funcionalidade de temas, que pode ser escolhida entre diversas disponíveis, também é possível manter tema noturno conforme o sistema ou forçado conforme sua escolha.</string>
+    <string name="help_share_description">O aplicativo pode estar compartilhando algumas informações entre dois aparelhos, no qual apenas é necessário que esteja realizando o login com uma conta do Google. É compartilhado a marcação de página e anotações feitas nos livros, bem como algumas estatísticas de leitura.</string>
 
     <!-- ABOUT -->
     <string name="about_app_name">Bilingual Reader</string>
@@ -876,6 +1086,7 @@
 
     <string name="tts_title">Texto para fala</string>
     <string name="tts_voice_not_found">Voz não encontrada</string>
+    <string name="tts_error">Erro ao executar o TTS</string>
 
     <string name="button_tts_previous">Anterior</string>
     <string name="button_tts_pause">Pause</string>

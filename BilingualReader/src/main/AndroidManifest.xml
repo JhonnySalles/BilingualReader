@@ -14,6 +14,8 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <queries>
         <package android:name="ca.fuwafuwa.kaku" />
@@ -21,11 +23,11 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ico_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ico_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MangaReader"
         android:enableOnBackInvokedCallback="true"
@@ -52,7 +54,7 @@
             android:name=".view.ui.pages_link.PagesLinkActivity"
             android:exported="true"
             android:theme="@style/Theme.MangaReader"
-            android:parentActivityName="br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity"/>
+            android:parentActivityName="br.com.fenix.bilingualreader.MainActivity"/>
         <activity
             android:name=".view.ui.reader.book.BookReaderActivity"
             android:exported="true"
@@ -88,6 +90,16 @@
             </intent-filter>
         </receiver>
         <service android:name=".service.services.OnClearFromRecentService"/>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_paths" />
+        </provider>
     </application>
 
 </manifest>

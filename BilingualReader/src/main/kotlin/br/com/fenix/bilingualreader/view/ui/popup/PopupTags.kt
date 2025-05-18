@@ -83,6 +83,9 @@ class PopupTags(var context: Context) : TagsListener {
     private fun validate(): Boolean {
         val validated: Boolean
 
+        mNewTag.isErrorEnabled = false
+        mNewTag.error = ""
+
         if (mNewTag.editText?.text == null || mNewTag.editText?.text?.toString()?.isEmpty() == true) {
             validated = false
             mNewTag.isErrorEnabled = true

@@ -1,16 +1,19 @@
 package org.ebookdroid.droids.mupdf.codec;
 
 import org.ebookdroid.core.codec.OutlineLink;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.ebook.foobnix.android.utils.LOG;
 import br.com.ebook.foobnix.ext.Fb2Extractor;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.sys.TempHolder;
 
 public class MuPdfOutline {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MuPdfOutline.class);
 
     private static final float[] temp = new float[4];
 
@@ -54,13 +57,12 @@ public class MuPdfOutline {
                         outlineLink.setLevel(level2);
                         outlineLink.setTitle(split[1]);
                     } catch (Exception e) {
-                        LOG.e(e);
+                        LOGGER.error("Error ttoutline: {}", e.getMessage(), e);
                     }
                 }
 
-                if (toAdd) {
+                if (toAdd)
                     ls.add(outlineLink);
-                }
             }
 
             final long child = getChild(outline);

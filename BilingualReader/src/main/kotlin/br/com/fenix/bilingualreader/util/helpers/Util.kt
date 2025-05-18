@@ -18,6 +18,7 @@ import android.content.res.ColorStateList
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.drawable.Animatable2
@@ -29,6 +30,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.TypedValue
+import android.view.GestureDetector
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
@@ -45,9 +47,12 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.widget.NestedScrollView
 import androidx.palette.graphics.Palette
@@ -60,12 +65,18 @@ import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Filter
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.model.enums.LibraryBookType
+import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
+import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.Themes
+import br.com.fenix.bilingualreader.model.enums.TouchScreen
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.service.ocr.ImageProcess
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import java.io.ByteArrayInputStream
@@ -87,6 +98,7 @@ import kotlin.experimental.and
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlin.random.Random
 
 
 class Util {
@@ -247,7 +259,7 @@ class Util {
                 path
 
             name = if (name.contains('.'))
-                name.substringBefore(".")
+                name.substringBeforeLast(".")
             else
                 name
 
@@ -467,6 +479,36 @@ class Util {
             return filter
         }
 
+        private var mapHistoryFilter: HashMap<String, Filter>? = null
+        fun getHistoryFilters(context: Context): HashMap<String, Filter> {
+            return if (mapHistoryFilter != null)
+                mapHistoryFilter!!
+            else {
+                mapHistoryFilter = hashMapOf<String, Filter>()
+
+                for (item in getMangaFilters(context))
+                    if (!mapHistoryFilter!!.containsValue(item.value))
+                        mapHistoryFilter!!.put(item.key, item.value)
+
+                for (item in getBookFilters(context))
+                    if (!mapHistoryFilter!!.containsValue(item.value))
+                        mapHistoryFilter!!.put(item.key, item.value)
+
+                mapHistoryFilter!!
+            }
+        }
+
+        fun historyStringToFilter(context: Context, text : String, contains: Boolean = false): Filter {
+            var filter = Filter.None
+            val mapFilters = getHistoryFilters(context)
+            for (item in mapFilters)
+                if ((contains && item.key.contains(text, true)) || (!contains && item.key.equals(text, true))) {
+                    filter = item.value
+                    break
+                }
+            return filter
+        }
+
         fun filterToString(context: Context, type: Type, filter: Filter): String {
             val mapFilters = when (type) {
                 Type.MANGA -> getMangaFilters(context)
@@ -532,6 +574,20 @@ class Util {
             return "%,.2f".format(percent)
         }
 
+        fun intArrayToString(array: IntArray): String {
+            if (array.isEmpty())
+                return ""
+
+            return array.joinToString(",")
+        }
+
+        fun stringToIntArray(array: String): IntArray {
+            if (array.isEmpty())
+                return intArrayOf()
+
+            return array.split(",").map { it.toInt() }.toIntArray()
+        }
+
     }
 }
 
@@ -552,6 +608,11 @@ class FileUtil(val context: Context) {
         fun isImage(filename: String): Boolean {
             return filename.lowercase(Locale.getDefault())
                 .matches(Regex(".*\\.(jpg|jpeg|bmp|gif|png|webp)$"))
+        }
+
+        fun isHtml(filename: String): Boolean {
+            return filename.lowercase(Locale.getDefault())
+                .matches(Regex(".*\\.(html|xhtml)$"))
         }
 
         fun getFileType(filename: String): FileType {
@@ -664,11 +725,8 @@ class MsgUtil {
         }
 
         inline fun alert(
-            context: Context,
-            title: String,
-            message: String,
-            theme: Int = R.style.AppCompatMaterialAlertDialog,
-            crossinline action: (dialog: DialogInterface, which: Int) -> Unit
+            context: Context, title: String, message: String, theme: Int = R.style.AppCompatMaterialAlertDialog,
+            crossinline action: (dialog: DialogInterface, which: Int) -> Unit,
         ) {
             MaterialAlertDialogBuilder(context, theme)
                 .setTitle(title).setMessage(message)
@@ -681,12 +739,9 @@ class MsgUtil {
         }
 
         inline fun alert(
-            context: Context,
-            title: String,
-            message: String,
-            theme: Int = R.style.AppCompatMaterialAlertDialog,
+            context: Context, title: String, message: String, theme: Int = R.style.AppCompatMaterialAlertDialog,
             crossinline positiveAction: (dialog: DialogInterface, which: Int) -> Unit,
-            crossinline negativeAction: (dialog: DialogInterface, which: Int) -> Unit
+            crossinline negativeAction: (dialog: DialogInterface, which: Int) -> Unit,
         ) {
             MaterialAlertDialogBuilder(context, theme)
                 .setTitle(title).setMessage(message)
@@ -704,11 +759,8 @@ class MsgUtil {
         }
 
         inline fun error(
-            context: Context,
-            title: String,
-            message: String,
-            theme: Int = R.style.AppCompatMaterialErrorDialogStyle,
-            crossinline action: (dialog: DialogInterface, which: Int) -> Unit
+            context: Context, title: String, message: String, theme: Int = R.style.AppCompatMaterialErrorDialogStyle,
+            crossinline action: (dialog: DialogInterface, which: Int) -> Unit,
         ) {
             MaterialAlertDialogBuilder(context, theme)
                 .setTitle(title).setMessage(message)
@@ -754,11 +806,19 @@ class ImageUtil {
         @SuppressLint("ClickableViewAccessibility")
         fun setZoomPinch(context: Context, image: ImageView, oneClick: () -> Unit) {
             val mScaleListener = object : SimpleOnScaleGestureListener() {
+                var mPrevScale = 0f
                 override fun onScale(detector: ScaleGestureDetector): Boolean {
-                    mScaleFactor *= detector.scaleFactor
-                    mScaleFactor = max(1.0f, min(mScaleFactor, 5.0f))
-                    image.scaleX = mScaleFactor
-                    image.scaleY = mScaleFactor
+                    var scale = mScaleFactor * detector.scaleFactor
+                    scale = max(1.0f, min(scale, 5.0f))
+
+                    if ((mPrevScale > detector.scaleFactor && mScaleFactor < scale) || (mPrevScale < detector.scaleFactor && mScaleFactor > scale)) {
+                        mScaleFactor = scale
+                        image.scaleX = mScaleFactor
+                        image.scaleY = mScaleFactor
+                    }
+
+
+                    mPrevScale = detector.scaleFactor
                     return true
                 }
             }
@@ -802,11 +862,7 @@ class ImageUtil {
             image.setOnClickListener { oneClick() }
         }
 
-        fun calculateInSampleSize(
-            options: BitmapFactory.Options,
-            reqWidth: Int,
-            reqHeight: Int
-        ): Int {
+        fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
             val height = options.outHeight
             val width = options.outWidth
             var inSampleSize = 1
@@ -838,7 +894,7 @@ class ImageUtil {
             )
         }
 
-        fun decodeImageBase64(image: String): Bitmap {
+        fun decodeImageBase64(image: String): Bitmap? {
             val imageBytes = android.util.Base64.decode(image, android.util.Base64.DEFAULT)
             return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
         }
@@ -851,6 +907,21 @@ class ImageUtil {
             }
         }
 
+        fun applyCoverEffect(context: Context, cover: Bitmap?, type: Type) : Bitmap? {
+            val image = cover ?: (AppCompatResources.getDrawable(context, R.mipmap.reader_cover_not_found)?.toBitmap() ?: return null)
+            val cover = ImageProcess.toGrayscale(image.copy(Bitmap.Config.ARGB_8888, true))
+            val canvas = Canvas(cover)
+
+            val effect = when(type) {
+                Type.MANGA -> AppCompatResources.getDrawable(context, R.mipmap.book_not_found_effect)
+                Type.BOOK -> AppCompatResources.getDrawable(context, R.mipmap.book_not_found_effect)
+            }
+
+            effect?.setBounds(0, 0, cover.width, cover.height)
+            effect?.draw(canvas)
+            return cover
+        }
+
     }
 }
 
@@ -858,7 +929,7 @@ class MenuUtil {
     companion object MenuUtils {
 
         fun tintBackground(context: Context, background: View) {
-            background.setBackgroundColor(context.getColorFromAttr(R.attr.colorSurface))
+            background.setBackgroundColor(context.getColorFromAttr(R.attr.background))
         }
 
         fun tintToolbar(toolbar: Toolbar, theme: Themes) {
@@ -868,30 +939,28 @@ class MenuUtil {
 
         fun getToolbarTheme(theme: Themes): Int {
             return when (theme) {
-                Themes.BLOOD_RED -> R.style.MainToolbarTheme_BloodRed
                 Themes.BLUE -> R.style.MainToolbarTheme_Blue
-                Themes.FOREST_GREEN -> R.style.MainToolbarTheme_ForestGreen
-                Themes.GREEN -> R.style.MainToolbarTheme_Green
-                Themes.NEON_BLUE -> R.style.MainToolbarTheme_NeonBlue
-                Themes.NEON_GREEN -> R.style.MainToolbarTheme_NeonGreen
                 Themes.OCEAN_BLUE -> R.style.MainToolbarTheme_OceanBlue
+                Themes.GREEN -> R.style.MainToolbarTheme_Green
+                Themes.FOREST_GREEN -> R.style.MainToolbarTheme_ForestGreen
                 Themes.PINK -> R.style.MainToolbarTheme_Pink
                 Themes.RED -> R.style.MainToolbarTheme_Red
+                Themes.BLOOD_RED -> R.style.MainToolbarTheme_BloodRed
                 else -> R.style.MainToolbarTheme
             }
         }
 
         fun tintColor(context: Context, textView: TextView) {
-            textView.setTextColor(context.getColorFromAttr(R.attr.colorOnSurfaceVariant))
+            textView.setTextColor(context.getColorFromAttr(R.attr.colorSurfaceContainer))
         }
 
         fun tintColor(context: Context, textInput: TextInputLayout) {
-            textInput.hintTextColor = ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorSecondary))
+            textInput.hintTextColor = ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorOnBackground))
             textInput.boxBackgroundColor = context.getColorFromAttr(R.attr.colorOnSurface)
-            textInput.boxStrokeColor = context.getColorFromAttr(R.attr.colorSurface)
-            textInput.placeholderTextColor = ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorPrimary))
-            tintIcons(context, textInput.startIconDrawable, R.attr.colorSecondary)
-            tintIcons(context, textInput.endIconDrawable, R.attr.colorSecondary)
+            textInput.boxStrokeColor = context.getColorFromAttr(R.attr.background)
+            textInput.placeholderTextColor = ColorStateList.valueOf(context.getColorFromAttr(R.attr.colorOnBackground))
+            tintIcons(context, textInput.startIconDrawable, R.attr.colorOnBackground)
+            tintIcons(context, textInput.endIconDrawable, R.attr.colorOnBackground)
         }
 
         fun tintIcons(context: Context, icon: Drawable?, color: Int) {
@@ -899,16 +968,16 @@ class MenuUtil {
         }
 
         fun tintIcons(context: Context, icon: Drawable) {
-            icon.setTint(context.getColorFromAttr(R.attr.colorOnSurfaceVariant))
+            icon.setTint(context.getColorFromAttr(R.attr.colorSurfaceContainer))
         }
 
         fun tintIcons(context: Context, icon: ImageView) {
-            icon.setColorFilter(context.getColorFromAttr(R.attr.colorOnSurfaceVariant))
+            icon.setColorFilter(context.getColorFromAttr(R.attr.colorSurfaceContainer))
         }
 
         fun tintAllIcons(context: Context, menu: Menu) {
             for (i in 0 until menu.size())
-                menu.getItem(i).icon?.setTint(context.getColorFromAttr(R.attr.colorOnSurfaceVariant))
+                menu.getItem(i).icon?.setTint(context.getColorFromAttr(R.attr.colorSurfaceContainer))
         }
 
         fun tintIcons(context: Context, searchView: SearchView) {
@@ -955,7 +1024,7 @@ class MenuUtil {
         }
 
         fun tintIcons(context: Context, drawer: DrawerArrowDrawable) {
-            drawer.color = context.getColorFromAttr(R.attr.colorOnSurfaceVariant)
+            drawer.color = context.getColorFromAttr(R.attr.colorSurfaceContainer)
         }
 
         fun longClick(activity: Activity, menuItem: Int, longCLick: () -> (Unit)) {
@@ -1002,11 +1071,9 @@ class ThemeUtil {
                     themes[2] to Themes.BLUE,
                     themes[3] to Themes.FOREST_GREEN,
                     themes[4] to Themes.GREEN,
-                    themes[5] to Themes.NEON_BLUE,
-                    themes[6] to Themes.NEON_GREEN,
-                    themes[7] to Themes.OCEAN_BLUE,
-                    themes[8] to Themes.PINK,
-                    themes[9] to Themes.RED,
+                    themes[5] to Themes.OCEAN_BLUE,
+                    themes[6] to Themes.PINK,
+                    themes[7] to Themes.RED,
                 )
                 mapThemes!!
             }
@@ -1106,12 +1173,8 @@ class TextUtil {
             return arrayOf(firstPart, secondPart)
         }
 
-        fun clearHtml(html: String): String {
-            return html.replace(Regex("<[^>]*>"), "")
-        }
-
-        fun formatHtml(html: String, endLine: String = "<br>"): String {
-            return html.replace("<p>", "").replace("</p>", "").replace("<end-line>", endLine)
+        fun formatHtml(html: String, endLine: String = "<br/>"): String {
+            return replaceEndLine(html.replace("<p>", "").replace("</p>", ""), endLine)
         }
 
         fun replaceEndLine(html: String, character: String = ""): String {
@@ -1122,9 +1185,15 @@ class TextUtil {
             return page
         }
 
+        fun replaceImages(html: String): String {
+            var page = html
+            page = page.replace("<image-begin>[\\w\\W]*<image-end>".toRegex(), "")
+            page = page.replace("< ?(img)[^>]*>".toRegex(), "")
+            return page
+        }
+
         fun replaceHtmlTTS(html: String?, endLineSeparator: String = " "): String {
             var page = html ?: return ""
-            page = page.replace("<image-begin>\\w*<image-end>".toRegex(), "")
             page = page.replace("</?[b|i]>|</?tt>|<p>".toRegex(), "")
             page = page.replace("</p>", " ")
             page = page.replace("<br/>".toRegex(), endLineSeparator)
@@ -1134,7 +1203,7 @@ class TextUtil {
             page = page.replace("  ", " ").replace("  ", " ")
             page = page.replace(".", ". ").replace(" .", ".")
             page = page.replace("(?u)(\\w+)(-\\s)".toRegex(), "$1")
-            return replaceHtmlTags(page)
+            return replaceHtmlTags(page).trim()
         }
 
         fun replaceHtmlTags(html: String): String = html.replace("<[^>]*>".toRegex(), "")
@@ -1144,22 +1213,27 @@ class TextUtil {
             return highlightWordInText(html, contain, color)
         }
 
-        fun highlightWordInText(html: String, contain: String, color: String): String = clearHtml(html).replace(contain, "<font color=$color>$contain</font>")
+        fun highlightWordInText(html: String, contain: String, color: String): String = replaceHtmlTags(html).replace(contain, "<font color=$color>$contain</font>")
 
         fun clearHighlightWordInText(html: String): String = replaceHtmlTags(html)
 
-        fun getImageFromTag(html: String) = html.substringAfter("<img").substringBefore("/>")
+        fun getImageFromTag(html: String) = html.substringAfter("<img src=\"").substringBefore("\" />")
+
+        fun isOnlyImageOnHtml(html: String): Boolean = html.contains("< ?(img)[^>]*>".toRegex()) && replaceHtmlTags(html).trim().isEmpty()
     }
 }
 
 class AnimationUtil {
     companion object AnimationUtils {
         const val duration = 200L
-        fun animatePopupOpen(activity: Activity, frame: FrameLayout, isVertical: Boolean = true, navigationColor: Boolean = true) {
+        fun animatePopupOpen(activity: Activity, frame: FrameLayout, isVertical: Boolean = true, navigationColor: Boolean = true, ending: () -> (Unit) = {}) {
             frame.visibility = View.VISIBLE
             if (isVertical) {
                 if (navigationColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-                    activity.window.navigationBarColor = activity.getColorFromAttr(R.attr.colorSurface)
+                    activity.window?.run {
+                        navigationBarColor = activity.getColorFromAttr(R.attr.colorSurfaceVariant)
+                        WindowCompat.getInsetsController(this, this.decorView).isAppearanceLightNavigationBars = true
+                    }
 
                 val positionInitial = frame.translationY
                 frame.translationY = positionInitial + 200F
@@ -1290,6 +1364,14 @@ class ColorUtil {
 
         fun getColor(exadecimal: String) : Int = android.graphics.Color.parseColor(exadecimal)
         fun getColor(@ColorInt color: Int) : String = String.format("#%06X", (0xFFFFFF and color))
+
+        fun randomColor(): Int {
+            val red = Random.nextInt(100, 256)
+            val green = Random.nextInt(100, 256)
+            val blue = Random.nextInt(100, 256)
+
+            return (0xFF shl 24) or (red shl 16) or (green shl 8) or blue
+        }
     }
 }
 
@@ -1328,12 +1410,345 @@ class PopupUtil {
             }
         }
 
+        fun onPopupTouch(activity: Activity, popup: FrameLayout, sheet: BottomSheetBehavior<FrameLayout>, centerButton: View, navigationColor: Boolean = true) {
+            val gesture = GestureDetector(activity, object : GestureDetector.SimpleOnGestureListener() {
+                override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+                    if (sheet.state == BottomSheetBehavior.STATE_COLLAPSED)
+                        sheet.state = BottomSheetBehavior.STATE_EXPANDED
+                    else
+                        sheet.state = BottomSheetBehavior.STATE_COLLAPSED
+                    return super.onSingleTapConfirmed(e)
+                }
+
+                override fun onDoubleTap(e: MotionEvent): Boolean {
+                    return super.onDoubleTap(e)
+                }
+                override fun onLongPress(e: MotionEvent) {
+                    super.onLongPress(e)
+                    AnimationUtil.animatePopupClose(activity, popup, navigationColor = navigationColor)
+                }
+
+                override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+                    if (e1 != null)
+                        if (abs(e1.y - e2.y) > 150) {
+                            if (e2.y > e1.y)
+                                AnimationUtil.animatePopupClose(activity, popup)
+                            else if (e2.y < e1.y)
+                                sheet.state = BottomSheetBehavior.STATE_EXPANDED
+                            return true
+                        }
+                    return super.onFling(e1, e2, velocityX, velocityY)
+                }
+            })
+
+            centerButton.setOnTouchListener { view, event ->
+                view.performClick()
+                gesture.onTouchEvent(event)
+                popup.parent.requestDisallowInterceptTouchEvent(true)
+                true
+            }
+        }
+
     }
 }
 
 class ListUtil {
     companion object ListUtils {
         inline fun <T, R> Iterable<T>.mapToSet(transform: (T) -> R): Set<R> = mapTo(HashSet(), transform)
+
+        private val delimiters = listOf(';',',')
+        fun listFromString(value : String, delimiter: Char = ';') : List<String> = if (value.isEmpty()) listOf() else value.split(delimiter).filter { it.isNotEmpty() }
+
+        fun listFromString(value : String) : List<String> {
+            var list = listOf<String>()
+            for (delimiter in delimiters)
+                if (value.contains(delimiter)){
+                    list = listFromString(value, delimiter)
+                    break
+                }
+            return list
+        }
+
+    }
+}
+
+class AdapterUtil {
+    companion object AdapterUtils {
+        private var mIsLandscape: Boolean = false
+        private val mMangaCardSize = mutableMapOf<LibraryMangaType, Pair<Int, Int>>()
+        private val mBookCardSize = mutableMapOf<LibraryBookType, Pair<Int, Int>>()
+
+        private fun validLandscape(isLandscape: Boolean) {
+            if (mIsLandscape != isLandscape) {
+                mIsLandscape = isLandscape
+                mMangaCardSize.clear()
+                mBookCardSize.clear()
+            }
+        }
+
+        private fun setMangaCardSize(context: Context, type: LibraryMangaType) : Pair<Int, Int> {
+            val width = when (type) {
+                LibraryMangaType.GRID_SMALL -> context.resources.getDimension(R.dimen.manga_grid_card_layout_width_small).toInt()
+                LibraryMangaType.GRID_BIG -> context.resources.getDimension(R.dimen.manga_grid_card_layout_width_big).toInt()
+                LibraryMangaType.SEPARATOR_BIG -> context.resources.getDimension(R.dimen.manga_separator_grid_card_layout_width_big).toInt()
+                LibraryMangaType.GRID_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.manga_grid_card_layout_width_landscape_medium else R.dimen.manga_grid_card_layout_width_medium).toInt()
+                LibraryMangaType.SEPARATOR_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.manga_separator_grid_card_layout_width_landscape_medium else R.dimen.manga_separator_grid_card_layout_width_medium).toInt()
+                LibraryMangaType.LINE -> -1
+            }
+
+            val height = when (type) {
+                LibraryMangaType.GRID_SMALL -> context.resources.getDimension(R.dimen.manga_grid_card_layout_height_small).toInt()
+                LibraryMangaType.GRID_BIG -> context.resources.getDimension(R.dimen.manga_grid_card_layout_height_big).toInt()
+                LibraryMangaType.SEPARATOR_BIG -> context.resources.getDimension(R.dimen.manga_separator_grid_card_layout_height_big).toInt()
+                LibraryMangaType.GRID_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.manga_grid_card_layout_height_landscape_medium else R.dimen.manga_grid_card_layout_height_medium).toInt()
+                LibraryMangaType.SEPARATOR_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.manga_separator_grid_card_layout_height_landscape_medium else R.dimen.manga_separator_grid_card_layout_height_medium).toInt()
+                LibraryMangaType.LINE -> context.resources.getDimension(R.dimen.manga_line_card_layout_height).toInt()
+            }
+
+            val size = Pair(width, height)
+            mMangaCardSize[type] = size
+            return size
+        }
+
+        private fun setBookCardSize(context: Context, type: LibraryBookType) : Pair<Int, Int> {
+            val width = when (type) {
+                LibraryBookType.GRID_BIG -> context.resources.getDimension(R.dimen.book_grid_card_layout_width_big).toInt()
+                LibraryBookType.SEPARATOR_BIG -> context.resources.getDimension(R.dimen.book_separator_grid_card_layout_width_big).toInt()
+                LibraryBookType.GRID_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.book_grid_card_layout_width_landscape_medium else R.dimen.book_grid_card_layout_width_medium).toInt()
+                LibraryBookType.SEPARATOR_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.book_separator_grid_card_layout_width_landscape_medium else R.dimen.book_separator_grid_card_layout_width_medium).toInt()
+                LibraryBookType.LINE -> -1
+            }
+
+            val height = when (type) {
+                LibraryBookType.GRID_BIG -> context.resources.getDimension(R.dimen.book_grid_card_layout_height_big).toInt()
+                LibraryBookType.SEPARATOR_BIG -> context.resources.getDimension(R.dimen.book_separator_grid_card_layout_height_big).toInt()
+                LibraryBookType.GRID_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.book_grid_card_layout_height_landscape_medium else R.dimen.book_grid_card_layout_height_medium).toInt()
+                LibraryBookType.SEPARATOR_MEDIUM -> context.resources.getDimension(if (mIsLandscape) R.dimen.book_separator_grid_card_layout_height_landscape_medium else R.dimen.book_separator_grid_card_layout_height_medium).toInt()
+                LibraryBookType.LINE -> context.resources.getDimension(R.dimen.book_line_card_layout_height).toInt()
+            }
+
+            val size = Pair(width, height)
+            mBookCardSize[type] = size
+            return size
+        }
+
+        fun getMangaCardSize(context: Context, type: LibraryMangaType, isLandscape: Boolean) : Pair<Int, Int> {
+            validLandscape(isLandscape)
+            return if (mMangaCardSize.contains(type)) mMangaCardSize[type]!! else setMangaCardSize(context, type)
+        }
+        fun getBookCardSize(context: Context, type: LibraryBookType, isLandscape: Boolean) : Pair<Int, Int> {
+            validLandscape(isLandscape)
+            return if (mBookCardSize.contains(type)) mBookCardSize[type]!! else setBookCardSize(context, type)
+        }
+
+    }
+}
+
+
+class TouchUtil {
+    companion object TouchUtils {
+
+        fun setDefault(context: Context, type: Type) {
+            val sharedPreferences = GeneralConsts.getSharedPreferences(context)
+            with(sharedPreferences.edit()) {
+                when (type) {
+                    Type.MANGA -> {
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_TOP,
+                            TouchScreen.TOUCH_SHARE_IMAGE.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_TOP_RIGHT,
+                            TouchScreen.TOUCH_ASPECT_FIT.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_TOP_LEFT,
+                            TouchScreen.TOUCH_FIT_WIDTH.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_LEFT,
+                            TouchScreen.TOUCH_PREVIOUS_PAGE.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_RIGHT,
+                            TouchScreen.TOUCH_NEXT_PAGE.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_BOTTOM,
+                            TouchScreen.TOUCH_CHAPTER_LIST.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_BOTTOM_LEFT,
+                            TouchScreen.TOUCH_PREVIOUS_FILE.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_BOTTOM_RIGHT,
+                            TouchScreen.TOUCH_NEXT_FILE.toString()
+                        )
+                    }
+                    Type.BOOK -> {
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_TOP,
+                            TouchScreen.TOUCH_PAGE_MARK.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_TOP_RIGHT,
+                            TouchScreen.TOUCH_NEXT_PAGE.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_TOP_LEFT,
+                            TouchScreen.TOUCH_PREVIOUS_PAGE.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_LEFT,
+                            TouchScreen.TOUCH_PREVIOUS_PAGE.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_RIGHT,
+                            TouchScreen.TOUCH_NEXT_PAGE.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_BOTTOM,
+                            TouchScreen.TOUCH_CHAPTER_LIST.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_BOTTOM_LEFT,
+                            TouchScreen.TOUCH_PREVIOUS_FILE.toString()
+                        )
+
+                        this.putString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_BOTTOM_RIGHT,
+                            TouchScreen.TOUCH_NEXT_FILE.toString()
+                        )
+                    }
+                }
+
+                this.commit()
+            }
+        }
+
+        fun getTouch(context: Context, type: Type) : Map<Position, TouchScreen> {
+            val touch = mutableMapOf<Position, TouchScreen>()
+            val sharedPreferences = GeneralConsts.getSharedPreferences(context)
+            when (type) {
+                Type.MANGA -> {
+                    touch[Position.TOP] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_TOP,
+                            TouchScreen.TOUCH_SHARE_IMAGE.toString()
+                        )!!
+                    )
+                    touch[Position.CORNER_TOP_RIGHT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_TOP_RIGHT,
+                            TouchScreen.TOUCH_ASPECT_FIT.toString()
+                        )!!
+                    )
+                    touch[Position.CORNER_TOP_LEFT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_TOP_LEFT,
+                            TouchScreen.TOUCH_FIT_WIDTH.toString()
+                        )!!
+                    )
+                    touch[Position.LEFT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_LEFT,
+                            TouchScreen.TOUCH_PREVIOUS_PAGE.toString()
+                        )!!
+                    )
+                    touch[Position.RIGHT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_RIGHT,
+                            TouchScreen.TOUCH_NEXT_PAGE.toString()
+                        )!!
+                    )
+                    touch[Position.BOTTOM] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_BOTTOM,
+                            TouchScreen.TOUCH_CHAPTER_LIST.toString()
+                        )!!
+                    )
+                    touch[Position.CORNER_BOTTOM_LEFT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_BOTTOM_LEFT,
+                            TouchScreen.TOUCH_PREVIOUS_FILE.toString()
+                        )!!
+                    )
+                    touch[Position.CORNER_BOTTOM_RIGHT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.MANGA_BOTTOM_RIGHT,
+                            TouchScreen.TOUCH_NEXT_FILE.toString()
+                        )!!
+                    )
+                }
+                Type.BOOK -> {
+                    touch[Position.TOP] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_TOP,
+                            TouchScreen.TOUCH_PAGE_MARK.toString()
+                        )!!
+                    )
+                    touch[Position.CORNER_TOP_RIGHT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_TOP_RIGHT,
+                            TouchScreen.TOUCH_NOT_ASSIGNED.toString()
+                        )!!
+                    )
+                    touch[Position.CORNER_TOP_LEFT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_TOP_LEFT,
+                            TouchScreen.TOUCH_NOT_ASSIGNED.toString()
+                        )!!
+                    )
+                    touch[Position.LEFT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_LEFT,
+                            TouchScreen.TOUCH_PREVIOUS_PAGE.toString()
+                        )!!
+                    )
+                    touch[Position.RIGHT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_RIGHT,
+                            TouchScreen.TOUCH_NEXT_PAGE.toString()
+                        )!!
+                    )
+                    touch[Position.BOTTOM] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_BOTTOM,
+                            TouchScreen.TOUCH_CHAPTER_LIST.toString()
+                        )!!
+                    )
+                    touch[Position.CORNER_BOTTOM_LEFT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_BOTTOM_LEFT,
+                            TouchScreen.TOUCH_PREVIOUS_FILE.toString()
+                        )!!
+                    )
+                    touch[Position.CORNER_BOTTOM_RIGHT] = TouchScreen.valueOf(
+                        sharedPreferences.getString(
+                            GeneralConsts.KEYS.TOUCH.BOOK_BOTTOM_RIGHT,
+                            TouchScreen.TOUCH_NEXT_FILE.toString()
+                        )!!
+                    )
+                }
+            }
+
+            touch[Position.CENTER] = TouchScreen.TOUCH_NOT_IMPLEMENTED
+            return touch.toMap()
+        }
 
     }
 }

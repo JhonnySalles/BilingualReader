@@ -121,7 +121,7 @@
                         android:layout_margin="5dp"
                         android:text="@string/about_app_rate_us"
                         android:textSize="@dimen/about_button_text_size_tablet"
-                        app:icon="@drawable/ic_rate_us" />
+                        app:icon="@drawable/ico_rate_us" />
 
                     <Button
                         android:id="@+id/about_btn_shared"
@@ -131,7 +131,7 @@
                         android:layout_margin="5dp"
                         android:text="@string/about_app_shared"
                         android:textSize="@dimen/about_button_text_size_tablet"
-                        app:icon="@drawable/ic_shared"/>
+                        app:icon="@drawable/ico_shared"/>
                 </GridLayout>
 
                 <com.google.android.material.divider.MaterialDivider
@@ -174,7 +174,7 @@
                         android:layout_margin="5dp"
                         android:text="@string/about_app_suggestion"
                         android:textSize="@dimen/about_button_text_size_tablet"
-                        app:icon="@drawable/ic_suggestion" />
+                        app:icon="@drawable/ico_suggestion" />
 
                     <Button
                         android:id="@+id/about_btn_email"
@@ -184,7 +184,7 @@
                         android:layout_margin="5dp"
                         android:text="@string/about_app_mail"
                         android:textSize="@dimen/about_button_text_size_tablet"
-                        app:icon="@drawable/ic_mail"/>
+                        app:icon="@drawable/ico_mail"/>
 
                     <Button
                         android:id="@+id/about_btn_github"
@@ -194,7 +194,7 @@
                         android:layout_margin="5dp"
                         android:text="@string/about_app_github"
                         android:textSize="@dimen/about_button_text_size_tablet"
-                        app:icon="@drawable/ic_web_page" />
+                        app:icon="@drawable/ico_web_page" />
                 </GridLayout>
 
                 <com.google.android.material.divider.MaterialDivider

@@ -24,6 +24,7 @@ import android.view.View
 import android.webkit.WebView
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -39,9 +40,11 @@ import br.com.fenix.bilingualreader.model.enums.FontType
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.MarginLayoutType
 import br.com.fenix.bilingualreader.model.enums.MarkType
+import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
 import br.com.fenix.bilingualreader.model.enums.TextSpeech
+import br.com.fenix.bilingualreader.model.enums.ThemeMode
 import br.com.fenix.bilingualreader.service.controller.WebInterface
 import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
@@ -56,10 +59,12 @@ import br.com.fenix.bilingualreader.util.helpers.ColorUtil
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import br.com.fenix.bilingualreader.view.components.ImageGetter
+import br.com.fenix.bilingualreader.view.components.book.TextViewAdapter
 import br.com.fenix.bilingualreader.view.components.book.TextViewClickMovement
-import br.com.fenix.bilingualreader.view.components.book.TextViewPager
 import br.com.fenix.bilingualreader.view.components.book.TextViewSelectCallback
 import br.com.fenix.bilingualreader.view.ui.popup.PopupAnnotations
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -87,8 +92,11 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private var mLanguage: MutableLiveData<Languages> = MutableLiveData(Languages.ENGLISH)
     val language: LiveData<Languages> = mLanguage
 
-    private var mTTSVoice: MutableLiveData<TextSpeech> = MutableLiveData(TextSpeech.getDefault())
+    private var mTTSVoice: MutableLiveData<TextSpeech> = MutableLiveData(TextSpeech.getDefault(false))
     val ttsVoice: LiveData<TextSpeech> = mTTSVoice
+
+    private var mTTSSpeed: MutableLiveData<Float> = MutableLiveData(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED_DEFAULT)
+    val ttsSpeed: LiveData<Float> = mTTSSpeed
 
     // --------------------------------------------------------- Fonts / Layout ---------------------------------------------------------
     private var mListFonts: MutableLiveData<MutableList<Pair<FontType, Boolean>>> = MutableLiveData(arrayListOf())
@@ -103,8 +111,11 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     private var mSpacingType: MutableLiveData<SpacingLayoutType> = MutableLiveData(SpacingLayoutType.Small)
     val spacingType: LiveData<SpacingLayoutType> = mSpacingType
 
-    private var mScrollingType: MutableLiveData<ScrollingType> = MutableLiveData(ScrollingType.Pagination)
-    val scrollingType: LiveData<ScrollingType> = mScrollingType
+    private var mScrollingMode: MutableLiveData<ScrollingType> = MutableLiveData(ScrollingType.Pagination)
+    val scrollingMode: LiveData<ScrollingType> = mScrollingMode
+
+    private var mPaginationType: MutableLiveData<PaginationType> = MutableLiveData(PaginationType.Default)
+    val paginationType: LiveData<PaginationType> = mPaginationType
 
     private var mFontType: MutableLiveData<FontType> = MutableLiveData(FontType.TimesNewRoman)
     val fontType: LiveData<FontType> = mFontType
@@ -122,10 +133,12 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
     private var mFontsLocation: String = FontType.getCssFont()
     private var mDefaultCss: String = ""
-    var isJapanese = false
+    private var isJapanese = false
+    private var isJapaneseStyle = mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_FONT_JAPANESE_STYLE, false)
     private var isProcessJapaneseText = mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_PROCESS_JAPANESE_TEXT, true)
     private var isFurigana = mPreferences.getBoolean(GeneralConsts.KEYS.READER.BOOK_GENERATE_FURIGANA_ON_TEXT, true)
     private val mAnnotation = mutableListOf<BookAnnotation>()
+    private var isDark : Boolean = false
 
     init {
         loadPreferences(false)
@@ -137,11 +150,13 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         return mDefaultCss
     }
 
-    fun getFontColor(): String = if (app.resources.getBoolean(R.bool.isNight)) "#ffffff" else "#000000"
-    fun getFontType(): String = fontType.value?.name ?: FontType.TimesNewRoman.name
+    private fun getFontColor(): String = if (isDark) "#ffffff" else "#000000"
+    private fun getFontType(): String = fontType.value?.name ?: FontType.TimesNewRoman.name
 
-    private fun getDiffer(): Float = if (isJapanese) DocumentParse.BOOK_FONT_JAPANESE_SIZE_DIFFER else DocumentParse.BOOK_FONT_SIZE_DIFFER
+    private fun getDiffer(): Float = if (isJapanese) (DocumentParse.BOOK_FONT_JAPANESE_SIZE_DIFFER * if (isFurigana) 1.5f else 1f ) else DocumentParse.BOOK_FONT_SIZE_DIFFER
     fun getFontSize(isBook: Boolean = false): Float = (if (isBook) fontSize.value!! + getDiffer() else fontSize.value!!)
+
+    fun isJapaneseStyle() = isJapanese && isJapaneseStyle
 
     private fun generateCSS(): String {
         val fontColor = getFontColor()
@@ -176,8 +191,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 "  max-height: 100%;" +
                 "}"
 
-        val meta =
-            "<meta name=\"viewport\" content=\"height=device-height, width=device-width, initial-scale=1, maximum-scale=2, user-scalable=yes\" >"
+        val meta = "<meta name=\"viewport\" content=\"height=device-height, width=device-width, initial-scale=1, maximum-scale=2, user-scalable=yes\" >"
         val style = "<style type=\"text/css\"> " +
                 mFontsLocation +
                 "body { " +
@@ -232,18 +246,20 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     fun changeTextStyle(textView: TextView) {
         textView.setTextColor(ColorUtil.getColor(getFontColor()))
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getFontSize())
-        textView.typeface = ResourcesCompat.getFont(app.applicationContext, fontType.value!!.getFont())
+        val font = if (isJapaneseStyle()) fontType.value!!.getFontRotate() else fontType.value!!.getFont()
+        textView.typeface = ResourcesCompat.getFont(app.applicationContext, font)
+        textView.rotation = if (isJapaneseStyle()) 90f else 0f
 
         val margin = when (marginType.value) {
             MarginLayoutType.Small -> 10
-            MarginLayoutType.Medium -> 20
-            MarginLayoutType.Big -> 30
+            MarginLayoutType.Medium -> 30
+            MarginLayoutType.Big -> 50
             else -> 10
         }
 
         val params: FrameLayout.LayoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
-        params.setMargins(margin, margin, margin, margin)
-        params.gravity = if (isJapanese && isFurigana) Gravity.CENTER_HORIZONTAL else Gravity.CENTER
+        params.setMargins(margin, margin, margin, margin + 10)
+        params.gravity = Gravity.CENTER_HORIZONTAL
         textView.layoutParams = params
 
         val spacing = when (spacingType.value) {
@@ -254,28 +270,44 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         }
         textView.setLineSpacing(spacing, 1f)
 
-        textView.textAlignment = when (alignmentType.value) {
-            AlignmentLayoutType.Justify -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                    textView.justificationMode = JUSTIFICATION_MODE_INTER_WORD
+        textView.textAlignment =  if (isJapaneseStyle())
+                View.TEXT_ALIGNMENT_TEXT_START
+            else {
+                    when (alignmentType.value) {
+                    AlignmentLayoutType.Justify -> {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                            textView.justificationMode = JUSTIFICATION_MODE_INTER_WORD
 
-                View.TEXT_ALIGNMENT_INHERIT
+                        View.TEXT_ALIGNMENT_INHERIT
+                    }
+
+                    AlignmentLayoutType.Right -> View.TEXT_ALIGNMENT_TEXT_END
+                    AlignmentLayoutType.Left -> View.TEXT_ALIGNMENT_TEXT_START
+                    AlignmentLayoutType.Center -> View.TEXT_ALIGNMENT_CENTER
+                    else -> View.TEXT_ALIGNMENT_TEXT_START
+                }
             }
 
-            AlignmentLayoutType.Right -> View.TEXT_ALIGNMENT_TEXT_END
-            AlignmentLayoutType.Left -> View.TEXT_ALIGNMENT_TEXT_START
-            AlignmentLayoutType.Center -> View.TEXT_ALIGNMENT_CENTER
-            else -> View.TEXT_ALIGNMENT_TEXT_START
-        }
+        textView.requestLayout()
     }
 
     fun changeScrolling(scrolling: ScrollingType) {
-        mScrollingType.value = scrolling
+        mScrollingMode.value = scrolling
         mConfiguration.value?.let { saveBookConfiguration(it) }
     }
 
-    fun changeLanguage(language: Languages) {
+    fun changePagination(pagination: PaginationType) {
+        mPaginationType.value = pagination
+        mConfiguration.value?.let { saveBookConfiguration(it) }
+    }
+
+    fun changeLanguage(language: Languages, isLoad: Boolean = false) {
         mLanguage.value = language
+
+        if (!isLoad) {
+            mBook.value!!.language = language
+            mRepository.update(mBook.value!!)
+        }
 
         val isJapanese = language == Languages.JAPANESE
         if (isJapanese != this.isJapanese) {
@@ -285,17 +317,21 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             val typeDefault = if (isJapanese) FontType.BabelStoneErjian1.toString() else FontType.TimesNewRoman.toString()
             loadFonts(isJapanese)
             setSelectFont(FontType.valueOf(mPreferences.getString(typeKey, typeDefault)!!))
+
+            val voice = if (isJapanese) GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_JAPANESE else GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_NORMAL
+            mTTSVoice.value = TextSpeech.valueOf(mPreferences.getString(voice, TextSpeech.getDefault(isJapanese).toString())!!)
+            mTTSSpeed.value = mPreferences.getFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED_DEFAULT)
         }
     }
 
-    fun changeTTSVoice(textSpeech: TextSpeech) {
-        mTTSVoice.value = textSpeech
+    fun changeTTSVoice(voice: TextSpeech, speed: Float) {
+        mTTSVoice.value = voice
+        mTTSSpeed.value = speed
 
         with(GeneralConsts.getSharedPreferences(app.applicationContext).edit()) {
-            this.putString(
-                GeneralConsts.KEYS.READER.BOOK_READER_TTS,
-                textSpeech.toString()
-            )
+            val key = if (isJapanese) GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_JAPANESE else GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_NORMAL
+            this.putString(key, voice.toString())
+            this.putFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, speed)
             this.commit()
         }
     }
@@ -312,7 +348,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     fun loadConfiguration(book: Book?) {
         mBook.value = book
 
-        changeLanguage(book?.language ?: Languages.ENGLISH)
+        changeLanguage(book?.language ?: Languages.ENGLISH, true)
 
         mConfiguration.value = if (book?.id != null) mRepository.findConfiguration(book.id!!) else null
         loadConfiguration(mConfiguration.value)
@@ -326,7 +362,22 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     }
 
     private fun loadPreferences(isJapanese: Boolean) {
-        mTTSVoice.value = TextSpeech.valueOf(mPreferences.getString(GeneralConsts.KEYS.READER.BOOK_READER_TTS, TextSpeech.getDefault().toString())!!)
+        isDark = when (ThemeMode.valueOf(mPreferences.getString(GeneralConsts.KEYS.THEME.THEME_MODE, ThemeMode.SYSTEM.toString())!!)) {
+            ThemeMode.DARK -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                true
+            }
+
+            ThemeMode.LIGHT -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                false
+            }
+            else -> app.resources.getBoolean(R.bool.isNight)
+        }
+
+        val voice = if (isJapanese) GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_JAPANESE else GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_NORMAL
+        mTTSVoice.value = TextSpeech.valueOf(mPreferences.getString(voice, TextSpeech.getDefault(isJapanese).toString())!!)
+        mTTSSpeed.value = mPreferences.getFloat(GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED, GeneralConsts.KEYS.READER.BOOK_READER_TTS_SPEED_DEFAULT)
 
         mAlignmentType.value = AlignmentLayoutType.valueOf(
             mPreferences.getString(
@@ -373,10 +424,17 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT
         )
 
-        mScrollingType.value = ScrollingType.valueOf(
+        mScrollingMode.value = ScrollingType.valueOf(
             mPreferences.getString(
                 GeneralConsts.KEYS.READER.BOOK_PAGE_SCROLLING_MODE,
                 ScrollingType.Pagination.toString()
+            )!!
+        )
+
+        mPaginationType.value = PaginationType.valueOf(
+            mPreferences.getString(
+                GeneralConsts.KEYS.READER.BOOK_PAGE_PAGINATION_TYPE,
+                PaginationType.Default.toString()
             )!!
         )
 
@@ -392,7 +450,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         else {
             mAlignmentType.value = configuration.alignment
             mMarginType.value = configuration.margin
-            mScrollingType.value = configuration.scrolling
+            mScrollingMode.value = configuration.scrolling
+            mPaginationType.value = configuration.pagination
             mSpacingType.value = configuration.spacing
             mFontType.value = configuration.fontType
             mFontSize.value = configuration.fontSize
@@ -413,7 +472,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             SpacingLayoutType.Small,
             FontType.TimesNewRoman,
             GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT,
-            ScrollingType.Pagination
+            ScrollingType.Pagination,
+            PaginationType.Default
         )
         saveBookConfiguration(mConfiguration.value!!)
     }
@@ -421,7 +481,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     fun saveBookConfiguration(configuration: BookConfiguration) {
         configuration.alignment = alignmentType.value!!
         configuration.margin = marginType.value!!
-        configuration.scrolling = scrollingType.value!!
+        configuration.scrolling = scrollingMode.value!!
+        configuration.pagination = paginationType.value!!
         configuration.spacing = spacingType.value!!
         configuration.fontType = fontType.value!!
         configuration.fontSize = fontSize.value!!
@@ -435,7 +496,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     fun loadFonts() = loadFonts(isJapanese)
 
     private fun loadFonts(isJapanese: Boolean) {
-        val fonts = FontType.values().sortedWith(compareBy({ if (isJapanese) it.isJapanese() else !it.isJapanese() }, { it == FontType.TimesNewRoman }, { it.name }))
+        val fonts = FontType.values().sortedWith(compareBy({ if (isJapanese) !it.isJapanese() else it.isJapanese() }, { it == FontType.TimesNewRoman }, { it.name }))
         mListFonts.value = fonts.map { Pair(it, it == mFontType.value) }.toMutableList()
     }
 
@@ -529,24 +590,36 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             web.addJavascriptInterface(javascript, "bilingualapp")
     }
 
-    fun prepareHtml(context: Context, parse: DocumentParse?, page: Int, holder: TextViewPager.TextViewPagerHolder, listener: TextSelectCallbackListener?) {
-        holder.pageMark.visibility = if (mAnnotation.any { it.page == page && it.type == MarkType.PageMark }) View.VISIBLE else View.GONE
+    fun prepareHtml(context: Context, parse: DocumentParse?, page: Int, holder: TextViewAdapter.TextViewPagerHolder, listener: TextSelectCallbackListener?) {
+        holder.pageMark.visibility = if (mAnnotation.any { it.page == page && it.markType == MarkType.PageMark }) View.VISIBLE else View.GONE
 
         var text = parse?.getPage(page)?.pageHTMLWithImages.orEmpty()
 
         if (text.contains("<image-begin>image"))
             text = text.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
 
-        holder.isOnlyImage = text.startsWith("<img ") && (text.endsWith(" /><br/>") || text.endsWith(" />"))
+        val content = TextUtil.formatHtml(text).trim()
+        holder.isOnlyImage = TextUtil.isOnlyImageOnHtml(content)
 
         if (holder.isOnlyImage) {
-            val bmp = ImageUtil.decodeImageBase64(TextUtil.getImageFromTag(text).substringAfter(",").trim())
-            holder.imageView.setImageBitmap(bmp)
+            try {
+                val base64 = TextUtil.getImageFromTag(text)
+                val img = base64.substringAfter(",").trim()
+                val bmp = ImageUtil.decodeImageBase64(img)
+                holder.imageView.setImageBitmap(bmp)
+            } catch (e: Exception) {
+                mLOGGER.error("Error to generate image: " + e.message, e)
+                holder.imageView.setImageBitmap(null)
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error to generate image: " + e.message)
+                    recordException(e)
+                }
+            }
             holder.textView.linksClickable = false
             holder.textView.movementMethod = null
             holder.textView.customSelectionActionModeCallback = null
         } else {
-            val html = "<body>${TextUtil.formatHtml(text)}</body>"
+            val html = "<body>${content}</body>"
             holder.imageView.setImageBitmap(null)
             var processed: Spanned = SpannableString("")
             try {
@@ -574,7 +647,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 processed = prepareSpan(context, processed, page, listener)
                 holder.textView.isClickable = true
                 holder.textView.linksClickable = true
-                holder.textView.setCustomMovement(TextViewClickMovement.getInstance())
+                holder.textView.setCustomMovement(TextViewClickMovement.getInstance(holder))
             } finally {
                 holder.textView.text = processed
             }
@@ -663,6 +736,8 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
 
     // --------------------------------------------------------- Book - Chapters ---------------------------------------------------------
+    var isLoadChapters = false
+    var stopLoadChapters = false
     private fun loadImage(context: Context, parse: DocumentParse, page: Int, textView : TextView) : Bitmap? {
         try {
             var text = parse.getPage(page).pageHTMLWithImages.orEmpty()
@@ -705,7 +780,11 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             }
             return bitmap
         } catch (e: Exception) {
-            mLOGGER.error("Error to load image page", e)
+            mLOGGER.error("Error to load image page: " + e.message, e)
+            Firebase.crashlytics.apply {
+                setCustomKey("message", "Error to load image page: " + e.message)
+                recordException(e)
+            }
         }
         return null
     }
@@ -717,16 +796,26 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
         }
 
         if (SharedData.isProcessed(parse)) {
+            isLoadChapters = true
+            SharedData.clearChapters()
+            stopLoadChapters = false
             val list = arrayListOf<Chapters>()
-            val chapters = parse.getChapters()
+            val chapters = parse.getChapters().map { Pair(it.value, it.key) }.sortedBy { it.first }
             val pages = parse.pageCount
-            var title: Chapters
             var c = 0
-            var p = chapters[c].first
-            title = Chapters(chapters[c].second, 0, chapters[c].first, c.toFloat(), true)
+            var p = parse.pageCount
+            var title: Chapters = if (chapters.isNotEmpty()) {
+                p = chapters[c].first
+                Chapters(chapters[c].second, 0, chapters[c].first, c.toFloat(), true)
+            } else
+                Chapters(parse.bookTitle, 0, 0, 0f, true)
+
             list.add(title)
 
             for (i in 0 until pages) {
+                if (stopLoadChapters)
+                    break
+
                 if (i >= p && c < chapters.size - 1) {
                     c++
                     p = chapters[c].first
@@ -734,7 +823,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                     list.add(title)
                 }
 
-                list.add(Chapters(chapters[c].second, i, i+1, 0f, false, isSelected = number == i+1))
+                list.add(Chapters(title.title, i, i + 1, 0f, false, isSelected = number == i + 1))
             }
 
             val textView = TextView(context)
@@ -746,22 +835,59 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             CoroutineScope(Dispatchers.IO).launch {
                 val deferred = async {
                     for (chapter in list) {
+                        if (stopLoadChapters)
+                            break
+
                         if (chapter.isTitle)
                             continue
 
                         chapter.image = loadImage(context, parse, chapter.number, textView)
-                        withContext(Dispatchers.Main) { SharedData.callListeners(chapter.number) }
+                        withContext(Dispatchers.Main) {
+                            if (!stopLoadChapters)
+                                SharedData.callListeners(chapter.number)
+                        }
                     }
                 }
 
                 deferred.await()
                 withContext(Dispatchers.Main) {
-                    SharedData.setChapters(parse, list.toList())
+                    if (!stopLoadChapters)
+                        SharedData.setChapters(parse, list.toList())
                 }
+                isLoadChapters = false
             }
-        }
+        } else if (SharedData.isImageNull())
+            refreshImageChapter(context, parse)
 
         return true
+    }
+
+    private fun refreshImageChapter(context: Context, parse: DocumentParse) {
+        val textView = TextView(context)
+        changeTextStyle(textView)
+        textView.layoutParams.width = Resources.getSystem().displayMetrics.widthPixels
+        textView.layoutParams.height = Resources.getSystem().displayMetrics.heightPixels
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val deferred = async {
+                for (chapter in SharedData.chapters.value!!) {
+                    if (stopLoadChapters)
+                        break
+
+                    if (chapter.isTitle || chapter.image != null)
+                        continue
+
+                    chapter.image = loadImage(context, parse, chapter.number, textView)
+                    withContext(Dispatchers.Main) {
+                        if (!stopLoadChapters)
+                            SharedData.callListeners(chapter.number)
+                    }
+                }
+            }
+
+            deferred.await()
+            isLoadChapters = false
+        }
     }
 
 }

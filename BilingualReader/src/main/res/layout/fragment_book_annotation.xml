@@ -110,24 +110,12 @@
             <ImageView
                 android:id="@+id/book_annotation_popup_filter_touch"
                 style="@style/TextTitle.Popup"
-                android:layout_width="70dp"
+                android:layout_width="@dimen/popup_button_center"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|top"
-                android:contentDescription="@string/book_annotation_popup_filter_open"
+                android:contentDescription="@string/annotation_popup_filter_open"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_line_popup"/>
-
-            <ImageView
-                android:id="@+id/book_annotation_popup_filter_close"
-                style="@style/TextTitle.Popup"
-                android:layout_width="70dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|top"
-                android:layout_marginTop="1dp"
-                android:layout_marginEnd="@dimen/margin_small"
-                android:contentDescription="@string/book_annotation_popup_filter_close"
-                android:scaleType="center"
-                android:src="@drawable/ic_close"/>
+                android:src="@drawable/ico_line_popup"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -151,13 +139,13 @@
                         android:id="@+id/book_annotation_tab_item_filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/book_annotation_tab_item_filter" />
+                        android:text="@string/annotation_tab_item_filter" />
 
                     <com.google.android.material.tabs.TabItem
                         android:id="@+id/book_annotation_tab_item_chapters"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/book_annotation_tab_item_chapters" />
+                        android:text="@string/annotation_tab_item_chapters" />
 
                 </com.google.android.material.tabs.TabLayout>
 
