@@ -1,7 +1,6 @@
 package br.com.fenix.bilingualreader.view.components.manga
 
 import android.content.Context
-import android.graphics.Color
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
