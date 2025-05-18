@@ -1,10 +1,12 @@
 package br.com.fenix.bilingualreader.view.components.manga
 
 import android.content.Context
+import android.graphics.Color
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import androidx.viewpager.widget.ViewPager
+import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.interfaces.PageCurl
@@ -20,6 +22,7 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
     private var mSwipeOutListener: OnSwipeOutListener? = null
     private var mScrolling = ScrollingType.Pagination
     private var mPaginationType = PaginationType.Default
+    private var mElevation = context.resources.getDimension(R.dimen.reader_elevation)
 
     interface OnSwipeOutListener {
         fun onSwipeOutAtStart()
@@ -76,7 +79,7 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
                     setPageTransformer(false, VerticalPageTransformer())
                 else
                     setPageTransformer(false, HorizontalPageTransformer())}
-            PaginationType.Stack -> setPageTransformer(mScrolling != ScrollingType.HorizontalRightToLeft, StackPageTransform(mScrolling))
+            PaginationType.Stack -> setPageTransformer(mScrolling != ScrollingType.HorizontalRightToLeft, StackPageTransform(mScrolling, mElevation))
             PaginationType.CurlPage -> setPageTransformer(false, CurlPageTransformer())
             PaginationType.Zooming -> setPageTransformer(false, ZoomPageTransform(mScrolling == ScrollingType.Vertical))
             PaginationType.Depth -> setPageTransformer(mScrolling != ScrollingType.HorizontalRightToLeft, DepthPageTransformer(mScrolling))
@@ -101,6 +104,9 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
             if (position < -1)
                 page.alpha = 0f
             else if (position <= 1) {
+                page.background = null
+                page.translationZ = 0f
+                page.elevation = 0f
                 page.alpha = 1f
                 page.scaleX = 1f
                 page.scaleY = 1f
@@ -116,6 +122,9 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
             if (position < -1)
                 page.alpha = 0f
             else if (position <= 1) {
+                page.background = null
+                page.translationZ = 0f
+                page.elevation = 0f
                 page.scaleX = 1f
                 page.scaleY = 1f
                 page.alpha = 1f
@@ -126,11 +135,14 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
         }
     }
 
-    private class StackPageTransform(var scrolling: ScrollingType) : PageTransformer {
+    private class StackPageTransform(val scrolling: ScrollingType, val elevation : Float) : PageTransformer {
         override fun transformPage(page: View, position: Float) {
             if (position < -1)
                 page.alpha = 0f
             else if (position <= 1) {
+                page.setBackgroundResource(R.drawable.app_background)
+                page.translationZ = 0f
+                page.elevation = 0f
                 page.scaleX = 1f
                 page.scaleY = 1f
                 page.alpha = 1f
@@ -138,14 +150,29 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
                     ScrollingType.Vertical -> {
                         page.translationX = page.width * -position
                         page.translationY = if (position < 0) position * page.height else 0f
+
+                        if (position < 0) {
+                            page.translationZ = 20f
+                            page.elevation = elevation
+                        }
                     }
                     ScrollingType.HorizontalRightToLeft -> {
                         page.translationX = if (position == 0f) 0f else if (position > 0) position else position * -page.width
                         page.translationY = 0f
+
+                        if (position >= 0) {
+                            page.translationZ = 20f
+                            page.elevation = elevation
+                        }
                     }
                     else -> {
                         page.translationX = if (position < 0) 0f else position * -page.width
                         page.translationY = 0f
+
+                        if (position < 0) {
+                            page.translationZ = 20f
+                            page.elevation = elevation
+                        }
                     }
                 }
             } else
@@ -157,6 +184,9 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
         private val MIN_SCALE: Float = 0.90f
 
         override fun transformPage(page: View, position: Float) {
+            page.background = null
+            page.translationZ = 0f
+            page.elevation = 0f
             page.scaleX = 1f
             page.scaleY = 1f
             page.translationY = 0f
@@ -185,6 +215,9 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
             if (position < -1)
                 page.alpha = 0f
             else if (position <= 1) {
+                page.background = null
+                page.translationZ = 0f
+                page.elevation = 0f
                 page.scaleX = 1f
                 page.scaleY = 1f
                 page.alpha = 1f
@@ -210,6 +243,9 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
             if (position < -1)
                 page.alpha = 0f
             else if (position <= 1) {
+                page.background = null
+                page.translationZ = 0f
+                page.elevation = 0f
                 page.scaleX = 1f
                 page.scaleY = 1f
                 page.translationY = 0f
@@ -225,6 +261,10 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
             if (position < -1)
                 page.alpha = 0f
             else if (position <= 1) {
+                page.background = null
+                page.translationZ = 0f
+                page.elevation = 0f
+
                 when (scrolling) {
                     ScrollingType.Vertical -> {
                         if (position <= 0) {

@@ -316,6 +316,7 @@
     <dimen name="clock_and_battery">10sp</dimen>
     <dimen name="clock_and_battery_tablet">12sp</dimen>
 
+    <dimen name="reader_elevation">12dp</dimen>
     <dimen name="reader_zoom_magnifier_size">120dp</dimen>
     <dimen name="reader_zoom_magnifier_tablet_size">200dp</dimen>
     <dimen name="reader_zoom_size">250dp</dimen>
