@@ -161,6 +161,13 @@ O aplicativo é também compatível com legendas extraidas e pré processadas co
 - [X] Popup para apresentação da capa no detalhes
 - [X] Apresentação de erros na abertura dos arquivos
 - [X] Animação de transição de páginas
+- [X] Implementação de movimentação para inicio e fim da lista com o toque longo no botão de movimentação para cima e baixo
+- [X] Implementação da api de crashlytics do firebase
+- [X] Implentação de animação em transição de páginas do Livro e Mangas/Comics
+- [X] Implenetação de efeito de ondulação na troca de páginas
+- [X] Implenetação para fechamento de popups com o movimento de arrastar para baixo
+- [X] Implenetação no indicativo de capítulos de pagina na barra de progresso
+- [X] Implenetação de ultimas páginas na barra de progresso e visualização em miniatura no canto inferior
 - [ ] Exportar vocabularios ao Anki
 
 ## Contribuindo
