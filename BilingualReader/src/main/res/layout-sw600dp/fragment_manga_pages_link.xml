@@ -178,7 +178,6 @@
                 android:textColor="?attr/colorPrimaryInverse"
                 android:textSize="@dimen/page_link_card_page_number_size"
                 android:layout_marginTop="@dimen/page_link_card_page_name_margin"
-                android:background="?attr/colorSurface"
                 android:paddingStart="2dp"
                 android:paddingEnd="2dp"
                 app:layout_constraintEnd_toEndOf="parent"

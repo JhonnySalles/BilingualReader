@@ -32,6 +32,8 @@
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
                 android:background="@color/manga_detail_title_background"
+                android:layout_marginStart="@dimen/reader_title_margin_negative"
+                android:layout_marginEnd="@dimen/reader_title_margin_negative"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -46,6 +48,8 @@
                 android:paddingLeft="5dp"
                 android:paddingTop="100dp"
                 android:paddingRight="5dp"
+                android:layout_marginStart="@dimen/reader_title_margin_negative"
+                android:layout_marginEnd="@dimen/reader_title_margin_negative"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -54,7 +58,9 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_marginStart="@dimen/reader_title_margin_positive"
+                    android:layout_marginEnd="@dimen/reader_title_margin_positive">
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/manga_detail_card"
@@ -138,7 +144,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="5dp"
                     android:layout_margin="@dimen/margin_small"
-                    android:transitionName="transition_progress_bar"/>
+                    android:transitionName="transition_progress_bar"
+                    android:paddingStart="@dimen/reader_title_margin_positive"
+                    android:paddingEnd="@dimen/reader_title_margin_positive"/>
 
             </LinearLayout>
 
@@ -148,6 +156,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
+                android:clipToPadding="false"
+                android:layout_marginStart="@dimen/reader_title_margin_negative"
+                android:layout_marginEnd="@dimen/reader_title_margin_negative"
+                android:paddingStart="@dimen/reader_title_margin_positive"
+                android:paddingEnd="@dimen/reader_title_margin_positive"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
@@ -158,7 +171,11 @@
                     style="@style/AppBackground.Accent"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:clipToPadding="false">
+                    android:clipToPadding="false"
+                    android:layout_marginStart="@dimen/reader_title_margin_negative"
+                    android:layout_marginEnd="@dimen/reader_title_margin_negative"
+                    android:paddingStart="@dimen/reader_title_margin_positive"
+                    android:paddingEnd="@dimen/reader_title_margin_positive">
 
                     <LinearLayout
                         android:id="@+id/manga_detail_buttons"

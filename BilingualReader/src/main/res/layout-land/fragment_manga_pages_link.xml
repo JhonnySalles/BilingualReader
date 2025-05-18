@@ -44,6 +44,8 @@
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:translationY="-99dp"
+            android:layout_marginStart="@dimen/reader_title_margin_negative"
+            android:layout_marginEnd="@dimen/reader_title_margin_negative"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
@@ -110,8 +112,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingStart="@dimen/margin_small"
-            android:paddingEnd="@dimen/margin_small"
+            android:layout_marginStart="@dimen/reader_title_margin_negative"
+            android:layout_marginEnd="@dimen/reader_title_margin_negative"
+            android:paddingStart="@dimen/reader_title_margin_positive"
+            android:paddingEnd="@dimen/reader_title_margin_positive"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -122,6 +126,8 @@
                 android:layout_height="wrap_content"
                 android:gravity="top"
                 android:background="@color/transparent"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginEnd="@dimen/margin_small"
                 app:popupTheme="@style/MainToolbarStyle"
                 style="@style/MainToolbarTheme">
 
@@ -190,7 +196,8 @@
                 android:textColor="?attr/colorPrimaryInverse"
                 android:textSize="@dimen/page_link_card_page_number_size"
                 android:layout_marginTop="@dimen/page_link_card_page_name_margin"
-                android:background="?attr/colorSurface"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginEnd="@dimen/margin_small"
                 android:paddingStart="2dp"
                 android:paddingEnd="2dp"
                 app:layout_constraintEnd_toEndOf="parent"

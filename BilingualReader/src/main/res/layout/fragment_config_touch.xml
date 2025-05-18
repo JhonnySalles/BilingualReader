@@ -135,15 +135,6 @@
             app:layout_constraintBottom_toTopOf="@+id/touch_screen_config_save"
             app:layout_constraintLeft_toLeftOf="parent" />
 
-        <View
-            android:background="?attr/statusBarColor"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_gravity="top"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="parent"/>
-
         <com.google.android.material.button.MaterialButton
             android:id="@+id/touch_screen_config_save"
             style="@style/Button"
@@ -174,6 +165,17 @@
             app:layout_constraintStart_toEndOf="@+id/touch_screen_config_save"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
+        <View
+            android:background="?attr/statusBarColor"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_gravity="top"
+            android:layout_marginStart="@dimen/reader_title_margin_negative"
+            android:layout_marginEnd="@dimen/reader_title_margin_negative"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="parent"/>
+
         <com.google.android.material.appbar.AppBarLayout
             style="@style/AppBarLayout"
             android:id="@+id/content_toolbar_touch_screen_config"
@@ -181,6 +183,10 @@
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
             android:theme="@style/MainToolbarContentTheme"
+            android:layout_marginStart="@dimen/reader_title_margin_negative"
+            android:layout_marginEnd="@dimen/reader_title_margin_negative"
+            android:paddingStart="@dimen/reader_title_margin_positive"
+            android:paddingEnd="@dimen/reader_title_margin_positive"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">

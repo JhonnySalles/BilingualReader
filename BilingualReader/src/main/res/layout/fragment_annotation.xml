@@ -8,7 +8,7 @@
     android:paddingTop="@dimen/default_navigator_header_margin_top"
     android:clipToPadding="false"
     android:clipChildren="false"
-    tools:context=".view.ui.AnnotationFragment">
+    tools:context=".view.ui.annotation.AnnotationFragment">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/annotation_root"

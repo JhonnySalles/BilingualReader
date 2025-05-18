@@ -43,6 +43,8 @@
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:layout_gravity="top"
+            android:layout_marginStart="@dimen/reader_title_margin_negative"
+            android:layout_marginEnd="@dimen/reader_title_margin_negative"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toTopOf="parent"/>
@@ -54,6 +56,10 @@
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
             android:theme="@style/MainToolbarContentTheme"
+            android:layout_marginStart="@dimen/reader_title_margin_negative"
+            android:layout_marginEnd="@dimen/reader_title_margin_negative"
+            android:paddingStart="@dimen/reader_title_margin_positive"
+            android:paddingEnd="@dimen/reader_title_margin_positive"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
