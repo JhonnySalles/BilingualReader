@@ -87,7 +87,6 @@ public class FileMetaCore {
             LOGGER.error("Error get ebook meta: {}", e.getMessage(), e);
         }
         return ebookMeta;
-
     }
 
     public static boolean isNeedToExtractPDFMeta(String path) {

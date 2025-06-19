@@ -170,7 +170,7 @@ public class EpubExtractor extends BaseExtractor {
                                 title = xpp.nextText();
 
                             if ("dc:creator".equals(xpp.getName()) || "dcns:creator".equals(xpp.getName()))
-                                author = xpp.nextText();
+                                author = (author != null ? author + ", " : "") + xpp.nextText();
 
                             if ("dc:subject".equals(xpp.getName()) || "dcns:subject".equals(xpp.getName()))
                                 subject = xpp.nextText() + "," + subject;

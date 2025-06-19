@@ -74,14 +74,13 @@ public class CalirbeExtractor {
 
                     if ("dc:creator".equals(xpp.getName())) {
                         String author = xpp.nextText();
-                        if (AppState.get().isFirstSurname) {
+                        if (AppState.get().isFirstSurname)
                             author = TxtUtils.replaceLastFirstName(author);
-                        }
-                        if (TxtUtils.isNotEmpty(meta.getAuthor())) {
+
+                        if (TxtUtils.isNotEmpty(meta.getAuthor()))
                             meta.setAuthor(meta.getAuthor() + ", " + author);
-                        } else {
+                        else
                             meta.setAuthor(author);
-                        }
                     }
 
                     if ("dc:description".equals(xpp.getName()))
