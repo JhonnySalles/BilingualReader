@@ -634,12 +634,12 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             resources.getString(R.string.popup_library_manga_tab_item_type)
         )
         viewFilterOrderPagerAdapter.addFragment(
-            mPopupFilterFragment,
-            resources.getString(R.string.popup_library_manga_tab_item_filter)
-        )
-        viewFilterOrderPagerAdapter.addFragment(
             mPopupOrderFragment,
             resources.getString(R.string.popup_library_manga_tab_item_ordering)
+        )
+        viewFilterOrderPagerAdapter.addFragment(
+            mPopupFilterFragment,
+            resources.getString(R.string.popup_library_manga_tab_item_filter)
         )
 
         mPopupLibraryView.adapter = viewFilterOrderPagerAdapter
