@@ -342,13 +342,27 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
                     val publishers = mutableSetOf<String>()
                     val series = mutableSetOf<String>()
                     val volumes = mutableSetOf<String>()
-                    val tags = mutableSetOf<String>()
 
                     process.forEach {
-                        if (it.type == Type.MANGA) {
-                            authors.add((it as Manga).author)
-                            publishers.add(it.publisher)
-                            series.add(it.series)
+                        when (it.type) {
+                            Type.BOOK -> {
+                                if ((it as Book).author.contains(","))
+                                    authors.addAll(it.author.split(",").map { it.trim() })
+                                else
+                                    authors.add(it.author)
+
+                                publishers.add(it.publisher)
+                                series.add(it.series)
+                            }
+                            Type.MANGA -> {
+                                if ((it as Manga).author.endsWith("."))
+                                    authors.add(it.author.substringBeforeLast("."))
+                                else
+                                    authors.add(it.author)
+
+                                publishers.add(it.publisher)
+                                series.add(it.series)
+                            }
                         }
                         volumes.add(it.volume)
                     }
