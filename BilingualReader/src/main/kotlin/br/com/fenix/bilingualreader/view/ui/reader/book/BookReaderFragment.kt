@@ -884,9 +884,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     private val mRefreshSizeDelay = Runnable {
-        if (!ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
+        if (!ReaderConsts.READER.BOOK_WEB_VIEW_MODE) {
             (mPagerAdapter as TextViewAdapter).refreshSize()
-        mPagerAdapter.notifyDataSetChanged()
+            (mPagerAdapter as TextViewAdapter).refreshFont()
+        } else
+            mPagerAdapter.notifyDataSetChanged()
     }
 
     private fun removeRefreshSizeDelay() {

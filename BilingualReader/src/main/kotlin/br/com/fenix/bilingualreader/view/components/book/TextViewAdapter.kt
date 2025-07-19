@@ -65,6 +65,16 @@ class TextViewAdapter(var context: Context, model: BookReaderViewModel, parse: D
             configureLayout(holder.value, scrolling, holder.key)
     }
 
+    fun refreshFont() {
+        val font = mViewModel.fontUpdate.value + mViewModel.fontSize.value
+        for (holder in mHolders.entries) {
+            if (font != holder.value.style) {
+                holder.value.style = font
+                mViewModel.changeTextStyle(holder.value.textView)
+            }
+        }
+    }
+
     fun changeCurl(isCurl: Boolean) {
         for(holder in mHolders.entries)
             holder.value.root.isCurlPage = isCurl
