@@ -312,7 +312,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             mCoverWarning.visibility = View.GONE
 
             BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, true)
-            mHandler.postDelayed({ BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, false) }, 300)
+            mHandler.postDelayed({
+                    if (mCoverWarning.visibility != View.VISIBLE)
+                        BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, false)
+            }, 300)
             generateHistory(mBook!!)
         } else {
             mCoverMessage.visibility = View.VISIBLE

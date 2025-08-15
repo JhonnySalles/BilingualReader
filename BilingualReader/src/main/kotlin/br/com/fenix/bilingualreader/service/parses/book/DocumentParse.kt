@@ -89,10 +89,6 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
                     sleep(2000 - diff)
             } catch (e: Exception) {
                 mLOGGER.error("Could not open document file: $path -- " + e.message, e)
-                mMainHandler.post {
-                    listener?.onLoading(true, false)
-                    onEnding(false)
-                }
             } finally {
                 isLoading = false
                 try {
