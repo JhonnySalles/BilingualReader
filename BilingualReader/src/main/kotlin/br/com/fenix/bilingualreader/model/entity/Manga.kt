@@ -232,8 +232,8 @@ class Manga(
                 this.author != manga.author || this.series != manga.series || this.publisher != manga.publisher ||
                 this.volume != manga.volume || this.release != manga.release
 
-        this.bookMark = manga.bookMark
         this.completed = manga.completed
+        this.bookMark = manga.bookMark
         this.favorite = manga.favorite
         this.lastAccess = manga.lastAccess
         this.hasSubtitle = manga.hasSubtitle

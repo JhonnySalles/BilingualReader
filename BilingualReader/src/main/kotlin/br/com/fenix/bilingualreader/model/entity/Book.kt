@@ -260,8 +260,8 @@ class Book(
                 this.pages != book.pages || this.language != book.language ||
                 this.tags != book.tags || this.lastAccess != book.lastAccess
 
-        this.bookMark = book.bookMark
         this.completed = book.completed
+        this.bookMark = book.bookMark
         this.pages = book.pages
         this.tags = book.tags
         this.language = book.language
