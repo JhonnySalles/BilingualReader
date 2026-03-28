@@ -6,6 +6,15 @@ plugins {
     id 'com.google.gms.google-services'
     id 'com.google.firebase.appdistribution'
     id 'com.google.firebase.crashlytics'
+    id 'io.sentry.android.gradle'
+}
+
+def secrets = file("src/main/assets/secrets.properties")
+def props = new Properties()
+if (secrets.exists()) {
+    props.load(new FileInputStream(secrets))
+} else {
+    println("⚠️ ATENÇÃO: Arquivo secrets.properties não encontrado no caminho: ${secrets.absolutePath}")
 }
 
 android {
@@ -23,6 +32,10 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         applicationIdSuffix 'bilingualreader'
+
+        manifestPlaceholders = [
+                sentryDsnKey: props['SENTRY_DSN'] ?: ""
+        ]
     }
 
     buildTypes {
@@ -167,6 +180,9 @@ dependencies {
 
     //Loading Skeleton
     implementation 'io.supercharge:shimmerlayout:2.1.0'
+
+    // SENTRY
+    implementation 'io.sentry:sentry-android:7.14.0'
 
     / ** BOOK **/
     implementation project(':ebook')
