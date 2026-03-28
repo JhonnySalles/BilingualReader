@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 
 
@@ -14,14 +15,14 @@ import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 data class KanjiJLPT(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = DataBaseConsts.JLPT.COLUMNS.ID)
-    var id: Long? = null,
+    override var id: Long? = null,
 
     @ColumnInfo(name = DataBaseConsts.JLPT.COLUMNS.KANJI)
     var kanji: String,
 
     @ColumnInfo(name = DataBaseConsts.JLPT.COLUMNS.LEVEL)
     var level: Int
-) {
+) : EntityBase<Long, KanjiJLPT> {
     override fun toString(): String {
         return "KanjiJLPT(id=$id, kanji='$kanji', leve='$level')"
     }

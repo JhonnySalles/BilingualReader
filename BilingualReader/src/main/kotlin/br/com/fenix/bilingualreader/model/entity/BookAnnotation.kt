@@ -9,6 +9,7 @@ import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.Annotation
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.Serializable
 import java.time.LocalDateTime
@@ -21,7 +22,7 @@ import java.time.LocalDateTime
 data class BookAnnotation(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.ID)
-    var id: Long?,
+    override var id: Long?,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.FK_ID_BOOK)
     override val id_parent: Long,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.PAGE)
@@ -50,7 +51,7 @@ data class BookAnnotation(
     var alteration: LocalDateTime,
     @ColumnInfo(name = DataBaseConsts.BOOK_ANNOTATION.COLUMNS.CREATED)
     var created: LocalDateTime
-) : Serializable, Annotation {
+) : Serializable, Annotation, EntityBase<Long, BookAnnotation> {
 
     //For a annotation title
     @Ignore

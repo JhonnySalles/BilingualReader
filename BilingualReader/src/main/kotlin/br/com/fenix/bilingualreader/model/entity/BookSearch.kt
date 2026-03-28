@@ -6,6 +6,7 @@ import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.model.enums.MarkType
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import java.io.Serializable
@@ -19,7 +20,7 @@ import java.time.LocalDateTime
 data class BookSearch(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = DataBaseConsts.BOOK_SEARCH_HISTORY.COLUMNS.ID)
-    var id: Long?,
+    override var id: Long?,
     @ColumnInfo(name = DataBaseConsts.BOOK_SEARCH_HISTORY.COLUMNS.FK_ID_BOOK)
     val id_book: Long,
     @ColumnInfo(name = DataBaseConsts.BOOK_SEARCH_HISTORY.COLUMNS.SEARCH)
@@ -34,7 +35,7 @@ data class BookSearch(
     val isTitle: Boolean,
     @Ignore
     val parent: BookSearch? = null,
-) : Serializable {
+) : Serializable, EntityBase<Long, BookSearch> {
 
     @Ignore
     constructor( // History search

@@ -6,6 +6,7 @@ import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.File
 import java.time.LocalDateTime
@@ -18,7 +19,7 @@ import java.time.LocalDateTime
 data class SubTitle(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = DataBaseConsts.SUBTITLES.COLUMNS.ID)
-    var id: Long? = null,
+    override var id: Long? = null,
 
     @ColumnInfo(name = DataBaseConsts.SUBTITLES.COLUMNS.FK_ID_MANGA)
     var id_manga: Long = 0,
@@ -52,7 +53,7 @@ data class SubTitle(
 
     @Ignore
     var update: Boolean = false
-) {
+) : EntityBase<Long, SubTitle> {
 
     constructor(
         id: Long? = 0,

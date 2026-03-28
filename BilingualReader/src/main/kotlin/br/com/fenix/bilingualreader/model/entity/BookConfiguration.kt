@@ -10,6 +10,7 @@ import br.com.fenix.bilingualreader.model.enums.MarginLayoutType
 import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.Serializable
 
@@ -21,7 +22,7 @@ import java.io.Serializable
 data class BookConfiguration (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.ID)
-    var id: Long?,
+    override var id: Long?,
     @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.FK_ID_BOOK)
     val idBook: Long,
     @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.ALIGNMENT)
@@ -38,4 +39,4 @@ data class BookConfiguration (
     var scrolling: ScrollingType,
     @ColumnInfo(name = DataBaseConsts.BOOK_CONFIGURATION.COLUMNS.PAGINATION)
     var pagination: PaginationType
-) : Serializable
+) : Serializable, EntityBase<Long, BookConfiguration>

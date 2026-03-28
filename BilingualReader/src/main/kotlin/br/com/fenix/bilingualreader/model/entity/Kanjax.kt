@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 
 
@@ -14,7 +15,7 @@ import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 data class Kanjax(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = DataBaseConsts.KANJAX.COLUMNS.ID)
-    var id: Long? = null,
+    override var id: Long? = null,
 
     @ColumnInfo(name = DataBaseConsts.KANJAX.COLUMNS.KANJI)
     var kanji: String,
@@ -76,7 +77,7 @@ data class Kanjax(
     @ColumnInfo(name = DataBaseConsts.KANJAX.COLUMNS.MEANING_PT)
     var meaningPt: String,
 
-    ) {
+    ) : EntityBase<Long, Kanjax> {
 
     override fun toString(): String {
         return "Kanjax(id=$id, kanji='$kanji', keyword='$keyword', meaning='$meaning', onYomi='$onYomi', kunYomi='$kunYomi', jlpt=$jlpt, utf8='$utf8', sjis='$sjis', keywordPt='$keywordPt', meaningPt='$meaningPt')"
