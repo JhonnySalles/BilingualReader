@@ -864,7 +864,7 @@ class PagesLinkFragment : Fragment() {
         bundle.putString(GeneralConsts.KEYS.MANGA.NAME, mViewModel.getMangaName())
         intent.putExtras(bundle)
         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
-        startActivityForResult(intent, GeneralConsts.REQUEST.SELECT_MANGA, null)
+        startActivityForResult(intent, GeneralConsts.REQUEST.SELECT_MANGA)
     }
 
     private fun openIntentSelectManga() {

@@ -51,7 +51,7 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
     @Throws(ShareMarkNotConnectCloudException::class)
     abstract fun initialize(ending: (access: ShareMarkType) -> (Unit))
 
-    protected fun isOnline(): Boolean {
+    internal open fun isOnline(): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
         if (connectivityManager != null) {
             val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
@@ -63,7 +63,7 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
         return false
     }
 
-    protected fun getDeviceName(): String {
+    internal open fun getDeviceName(): String {
         val manufacturer: String = Build.MANUFACTURER
         val model: String = Build.MODEL
         return if (model.startsWith(manufacturer))
@@ -106,7 +106,7 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
      * @param ending  Function call when process finish, parameter make a process results
      *
      */
-    override fun mangaShareMark(update: (manga: Manga) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
+    public override fun mangaShareMark(update: (manga: Manga) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
         if (IN_SYNC) {
             ending(ShareMarkType.SYNC_IN_PROGRESS)
             return
@@ -193,7 +193,7 @@ abstract class ShareMarkBase(open var context: Context) : ShareMark {
      * @param ending  Function call when process finish, parameter is true if can processed list
      *
      */
-    override fun bookShareMark(update: (book: Book) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
+    public override fun bookShareMark(update: (book: Book) -> (Unit), ending: (processed: ShareMarkType) -> (Unit)) {
         if (IN_SYNC) {
             ending(ShareMarkType.SYNC_IN_PROGRESS)
             return

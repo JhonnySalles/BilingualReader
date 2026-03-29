@@ -3,8 +3,8 @@ setlocal
 
 echo.
 echo ===================================================
-echo 		       Iniciando os testes!
+echo              Iniciando os testes!
 echo ===================================================
 echo.
 
-call gradlew testDebugUnitTest
+call gradlew clean testDebugUnitTest -PshowTests

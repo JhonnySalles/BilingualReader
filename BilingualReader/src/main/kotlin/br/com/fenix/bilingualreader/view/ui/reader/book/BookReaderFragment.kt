@@ -1246,7 +1246,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, mBook!!)
         intent.putExtras(bundle)
         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
-        startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_ANNOTATION, null)
+        startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_ANNOTATION)
     }
 
     fun configTouchFunctions() {
@@ -1260,7 +1260,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, mBook!!)
         intent.putExtras(bundle)
         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
-        startActivityForResult(intent, GeneralConsts.REQUEST.TOUCH_CONFIGURATION, null)
+        startActivityForResult(intent, GeneralConsts.REQUEST.TOUCH_CONFIGURATION)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -1334,7 +1334,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         intent.putExtras(bundle)
         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
-        startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_SEARCH, null)
+        startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_SEARCH)
     }
 
     private var mWakeLock : PowerManager.WakeLock? = null

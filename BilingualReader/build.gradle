@@ -71,6 +71,30 @@ android {
     }
     buildToolsVersion '33.0.0'
     namespace 'br.com.fenix.bilingualreader'
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            all {
+                if (project.hasProperty('showTests')) {
+                    outputs.upToDateWhen { false }
+                    testLogging {
+                        events "passed", "skipped", "failed"
+                        showStandardStreams = true
+                        exceptionFormat = "full"
+                    }
+
+                    afterTest { descriptor, result ->
+                        def color = "\033[33m"
+                        def reset = "\033[0m"
+                        if (result.resultType.name() == 'SUCCESS') color = "\033[32m"
+                        else if (result.resultType.name() == 'FAILURE') color = "\033[31m"
+                        println "${color}${result.resultType}: ${descriptor.className} > ${descriptor.name}${reset}"
+                    }
+                }
+            }
+        }
+    }
 }
 
 ksp {
