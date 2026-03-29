@@ -25,9 +25,9 @@ class MangaDAOTest : DataBaseBaseTest() {
     @Test
     fun listByLibrary() {
         val dao = db.getMangaDao()
-        val manga1 = MangaMock.mockEntity(1L).apply { idLibrary = 10L }
-        val manga2 = MangaMock.mockEntity(2L).apply { idLibrary = 10L }
-        val manga3 = MangaMock.mockEntity(3L).apply { idLibrary = 20L }
+        val manga1 = MangaMock.mockEntity(1L).apply { fkLibrary = 10L }
+        val manga2 = MangaMock.mockEntity(2L).apply { fkLibrary = 10L }
+        val manga3 = MangaMock.mockEntity(3L).apply { fkLibrary = 20L }
 
         dao.save(manga1)
         dao.save(manga2)
@@ -36,7 +36,7 @@ class MangaDAOTest : DataBaseBaseTest() {
         val list10 = dao.list(10L)
         assertEquals(2, list10.size)
         // Verify both returned manga have idLibrary = 10L
-        assertTrue(list10.all { it.idLibrary == 10L })
+        assertTrue(list10.all { it.fkLibrary == 10L })
     }
 
     @Test
@@ -77,7 +77,7 @@ class MangaDAOTest : DataBaseBaseTest() {
     @Test
     fun getByPath() {
         val dao = db.getMangaDao()
-        val manga = MangaMock.mockEntity(1L).apply { filePath = "/manga/file.cbz" }
+        val manga = MangaMock.mockEntity(1L).apply { path = "/manga/file.cbz" }
         dao.save(manga)
 
         val result = dao.getByPath("/manga/file.cbz")

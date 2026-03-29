@@ -16,7 +16,6 @@ class PageLinkDAOTest : DataBaseBaseTest() {
         val pageLink = LinkedPageMock.mockEntity(1L).apply {
             idFile = 100L
             isNotLinked = false
-            mangaPage = 1
         }
 
         val id = dao.save(pageLink)

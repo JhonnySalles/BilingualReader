@@ -35,14 +35,17 @@ class StatisticsDAOTest : DataBaseBaseTest() {
         bookDao.save(book)
 
         // Add history for Manga
-        val historyManga = HistoryMock.mockEntity(1L).apply {
-            type = Type.MANGA
-            idReference = 1L
+        val historyManga = HistoryMock.mockEntity(1L).copy(
+            type = Type.MANGA,
+            fkReference = 1L,
             pageStart = 0
-            pageEnd = 50
-            secondsRead = 3600
+        ).apply {
+            setPageEnd(50)
             completed = false
         }
+        // secondsRead is private and calculated from start/end in History.kt, 
+        // but if we need a specific value we'd need to set end time.
+        // For tests, setPageEnd usually handles completion.
         historyDao.save(historyManga)
 
         val stats = statsDao.statistics()
@@ -73,13 +76,14 @@ class StatisticsDAOTest : DataBaseBaseTest() {
         bookDao.save(book)
 
         val now = LocalDateTime.now()
-        val history = HistoryMock.mockEntity(1L).apply {
-            type = Type.BOOK
-            idReference = 1L
+        val history = HistoryMock.mockEntity(1L).copy(
+            type = Type.BOOK,
+            fkReference = 1L,
+            pageStart = 0,
+            start = now
+        ).apply {
+            setPageEnd(100)
             completed = true
-            pageStart = 0
-            pageEnd = 100
-            dateTimeStart = now
         }
         historyDao.save(history)
 

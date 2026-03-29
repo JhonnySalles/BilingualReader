@@ -13,12 +13,12 @@ class MangaAnnotationDAOTest : DataBaseBaseTest() {
     @Test
     fun saveAndGetAnnotation() {
         val dao = db.getMangaAnnotation()
-        val annotation = MangaAnnotationMock.mockEntity(1L).apply {
-            idManga = 606L
-            page = 5
-            annotation = "Epic fight scene"
+        val annotation = MangaAnnotationMock.mockEntity(1L).copy(
+            id_parent = 606L,
+            page = 5,
+            annotation = "Epic fight scene",
             alteration = LocalDateTime.now()
-        }
+        )
 
         val id = dao.save(annotation)
         assertEquals(1L, id)
@@ -31,7 +31,7 @@ class MangaAnnotationDAOTest : DataBaseBaseTest() {
     @Test
     fun findByPage() {
         val dao = db.getMangaAnnotation()
-        val annotation = MangaAnnotationMock.mockEntity(1L).apply { idManga = 606L; page = 5 }
+        val annotation = MangaAnnotationMock.mockEntity(1L).copy(id_parent = 606L, page = 5)
         dao.save(annotation)
 
         val result = dao.findByPage(606L, 5)
@@ -47,7 +47,7 @@ class MangaAnnotationDAOTest : DataBaseBaseTest() {
 
         dao.delete(annotation)
 
-        val list = dao.findAllByManga(annotation.idManga)
+        val list = dao.findAllByManga(annotation.id_parent)
         assertTrue(list.isEmpty())
     }
 }

@@ -13,14 +13,12 @@ class BookSearchDAOTest : DataBaseBaseTest() {
     @Test
     fun saveAndListSearchHistory() {
         val dao = db.getBookSearch()
-        val search1 = BookSearchMock.mockEntity(1L).apply {
-            idBook = 202L
-            text = "Magical Beasts"
+        val search1 = BookSearchMock.mockEntity(1L).copy(id_book = 202L).apply {
+            search = "Magical Beasts"
             date = LocalDateTime.now().minusHours(1)
         }
-        val search2 = BookSearchMock.mockEntity(2L).apply {
-            idBook = 202L
-            text = "Dragon Tales"
+        val search2 = BookSearchMock.mockEntity(2L).copy(id_book = 202L).apply {
+            search = "Dragon Tales"
             date = LocalDateTime.now()
         }
 
@@ -29,7 +27,7 @@ class BookSearchDAOTest : DataBaseBaseTest() {
 
         val list = dao.findAllByBook(202L)
         assertEquals(2, list.size)
-        assertEquals("Dragon Tales", list[0].text)
-        assertEquals("Magical Beasts", list[1].text)
+        assertEquals("Dragon Tales", list[0].search)
+        assertEquals("Magical Beasts", list[1].search)
     }
 }

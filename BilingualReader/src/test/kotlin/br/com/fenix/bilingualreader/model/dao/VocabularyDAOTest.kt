@@ -12,10 +12,10 @@ class VocabularyDAOTest : DataBaseBaseTest() {
     @Test
     fun saveAndGetVocabulary() {
         val dao = db.getVocabularyDao()
-        val vocabulary = VocabularyMock.mockEntity(1L).apply {
-            word = "食べる"
+        val vocabulary = VocabularyMock.mockEntity(1L).copy(
+            word = "食べる",
             basicForm = "食べる"
-        }
+        )
 
         val id = dao.save(vocabulary)
         assertEquals(1L, id)
@@ -28,7 +28,7 @@ class VocabularyDAOTest : DataBaseBaseTest() {
     @Test
     fun findVocabulary() {
         val dao = db.getVocabularyDao()
-        val vocabulary = VocabularyMock.mockEntity(1L).apply { word = "私" }
+        val vocabulary = VocabularyMock.mockEntity(1L).copy(word = "私")
         dao.save(vocabulary)
 
         val result = dao.find("私")
@@ -39,7 +39,7 @@ class VocabularyDAOTest : DataBaseBaseTest() {
     @Test
     fun existsVocabulary() {
         val dao = db.getVocabularyDao()
-        val vocabulary = VocabularyMock.mockEntity(1L).apply { word = "猫"; basicForm = "猫" }
+        val vocabulary = VocabularyMock.mockEntity(1L).copy(word = "猫", basicForm = "猫")
         dao.save(vocabulary)
 
         val result = dao.exists("猫", "猫")
@@ -50,7 +50,7 @@ class VocabularyDAOTest : DataBaseBaseTest() {
     fun listWithPagination() {
         val dao = db.getVocabularyDao()
         for (i in 1..10) {
-            dao.save(VocabularyMock.mockEntity(i.toLong()).apply { word = "Word$i" })
+            dao.save(VocabularyMock.mockEntity(i.toLong()).copy(word = "Word$i"))
         }
 
         val list = dao.list(false, "word", false, 0, 5)

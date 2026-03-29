@@ -12,10 +12,8 @@ class BookConfigurationDAOTest : DataBaseBaseTest() {
     @Test
     fun saveAndGetConfiguration() {
         val dao = db.getBookConfigurationDao()
-        val config = BookConfigurationMock.mockEntity(1L).apply {
-            idBook = 101L
+        val config = BookConfigurationMock.mockEntity(1L).copy(idBook = 101L).apply {
             fontSize = 18.0f
-            lineSpacing = 1.5f
         }
 
         val id = dao.save(config)
@@ -30,7 +28,7 @@ class BookConfigurationDAOTest : DataBaseBaseTest() {
     @Test
     fun updateConfiguration() {
         val dao = db.getBookConfigurationDao()
-        val config = BookConfigurationMock.mockEntity(1L).apply { idBook = 101L; fontSize = 16.0f }
+        val config = BookConfigurationMock.mockEntity(1L).copy(idBook = 101L).apply { fontSize = 16.0f }
         dao.save(config)
 
         config.fontSize = 20.0f

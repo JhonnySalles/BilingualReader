@@ -13,12 +13,12 @@ class BookAnnotationDAOTest : DataBaseBaseTest() {
     @Test
     fun saveAndGetAnnotation() {
         val dao = db.getBookAnnotation()
-        val annotation = BookAnnotationMock.mockEntity(1L).apply {
-            idBook = 505L
-            page = 10
-            annotation = "Important note about chapter 1"
+        val annotation = BookAnnotationMock.mockEntity(1L).copy(
+            id_parent = 505L,
+            page = 10,
+            annotation = "Important note about chapter 1",
             alteration = LocalDateTime.now()
-        }
+        )
 
         val id = dao.save(annotation)
         assertEquals(1L, id)
@@ -31,8 +31,8 @@ class BookAnnotationDAOTest : DataBaseBaseTest() {
     @Test
     fun findByPage() {
         val dao = db.getBookAnnotation()
-        val annotation1 = BookAnnotationMock.mockEntity(1L).apply { idBook = 505L; page = 10 }
-        val annotation2 = BookAnnotationMock.mockEntity(2L).apply { idBook = 505L; page = 20 }
+        val annotation1 = BookAnnotationMock.mockEntity(1L).copy(id_parent = 505L, page = 10)
+        val annotation2 = BookAnnotationMock.mockEntity(2L).copy(id_parent = 505L, page = 20)
         
         dao.save(annotation1)
         dao.save(annotation2)
@@ -50,7 +50,7 @@ class BookAnnotationDAOTest : DataBaseBaseTest() {
 
         dao.delete(annotation)
 
-        val list = dao.findAllByBook(annotation.idBook)
+        val list = dao.findAllByBook(annotation.id_parent)
         assertTrue(list.isEmpty())
     }
 }

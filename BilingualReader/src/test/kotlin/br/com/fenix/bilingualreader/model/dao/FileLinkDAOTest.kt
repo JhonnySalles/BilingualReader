@@ -52,7 +52,7 @@ class FileLinkDAOTest : DataBaseBaseTest() {
         dao.delete(808L, "Chapter 1")
 
         val list = dao.get(808L)
-        assertTrue(list.isEmpty())
+        assertTrue(list?.isEmpty() == true)
     }
 
     @Test
@@ -64,6 +64,6 @@ class FileLinkDAOTest : DataBaseBaseTest() {
         dao.deleteAllByManga(808L)
 
         val list = dao.get(808L)
-        assertTrue(list.isEmpty())
+        assertTrue(list?.isEmpty() == true)
     }
 }
