@@ -25,8 +25,8 @@ object SubTitleChapterMock {
         assertNotNull("Actual SubTitleChapter should not be null", actual)
         expected?.let {
             assertEquals("Manga title mismatch", it.manga, actual?.manga)
-            assertEquals("Volume mismatch", it.volume, actual?.volume, 0.01f)
-            assertEquals("Chapter mismatch", it.chapter, actual?.chapter, 0.01f)
+            assertEquals("Volume mismatch", it.volume, actual!!.volume, 0.01f)
+            assertEquals("Chapter mismatch", it.chapter, actual!!.chapter, 0.01f)
             assertEquals("Language mismatch", it.language, actual?.language)
         }
     }

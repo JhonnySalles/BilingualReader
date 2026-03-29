@@ -24,7 +24,7 @@ object ChaptersMock {
         expected?.let {
             assertEquals("Title mismatch", it.title, actual?.title)
             assertEquals("Number mismatch", it.number, actual?.number)
-            assertEquals("Chapter float mismatch", it.chapter, actual?.chapter, 0.01f)
+            assertEquals("Chapter float mismatch", it.chapter, actual!!.chapter, 0.01f)
         }
     }
 }

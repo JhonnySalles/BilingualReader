@@ -17,13 +17,13 @@ object BookConfigurationMock : Mock<Long, BookConfiguration> {
     override fun mockEntity(id: Long): BookConfiguration = BookConfiguration(
         id = id,
         idBook = 1L,
-        alignment = AlignmentLayoutType.LEFT,
-        margin = MarginLayoutType.NORMAL,
-        spacing = SpacingLayoutType.NORMAL,
-        fontType = FontType.ROBOTO,
+        alignment = AlignmentLayoutType.Left,
+        margin = MarginLayoutType.Medium,
+        spacing = SpacingLayoutType.Medium,
+        fontType = FontType.Arial,
         fontSize = 18f,
-        scrolling = ScrollingType.VERTICAL,
-        pagination = PaginationType.NONE
+        scrolling = ScrollingType.Vertical,
+        pagination = PaginationType.Default
     )
 
     override fun asserts(expected: BookConfiguration?, actual: BookConfiguration?) {
@@ -31,7 +31,7 @@ object BookConfigurationMock : Mock<Long, BookConfiguration> {
         expected?.let {
             assertEquals("ID mismatch", it.id, actual?.id)
             assertEquals("ID Book mismatch", it.idBook, actual?.idBook)
-            assertEquals("Font size mismatch", it.fontSize, actual?.fontSize, 0.1f)
+            assertEquals("Font size mismatch", it.fontSize, actual!!.fontSize, 0.1f)
         }
     }
 }

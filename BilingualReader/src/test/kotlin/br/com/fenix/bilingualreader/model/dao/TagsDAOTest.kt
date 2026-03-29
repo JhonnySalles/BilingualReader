@@ -40,9 +40,9 @@ class TagsDAOTest : DataBaseBaseTest() {
     @Test
     fun listTags() {
         val dao = db.getTagsDao()
-        val tag1 = TagsMock.mockEntity(1L).apply { name = "Action", excluded = false }
-        val tag2 = TagsMock.mockEntity(2L).apply { name = "Drama", excluded = false }
-        val tag3 = TagsMock.mockEntity(3L).apply { name = "Deleted", excluded = true }
+        val tag1 = TagsMock.mockEntity(1L).apply { name = "Action"; excluded = false }
+        val tag2 = TagsMock.mockEntity(2L).apply { name = "Drama"; excluded = false }
+        val tag3 = TagsMock.mockEntity(3L).apply { name = "Deleted"; excluded = true }
 
         dao.save(tag1)
         dao.save(tag2)

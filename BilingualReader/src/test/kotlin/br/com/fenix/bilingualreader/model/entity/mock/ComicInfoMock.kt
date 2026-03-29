@@ -17,7 +17,7 @@ object ComicInfoMock {
         publisher = "Mock Publisher"
         genre = "Fantasy"
         languageISO = "en"
-        manga = ComicInfoManga.YesAndRightToLeft
+        manga = ComicInfoManga.Yes
         blackAndWhite = ComicInfoYesNo.Yes
         pages = ComicInfoPageMock.mockEntityList()
         pageCount = 1
