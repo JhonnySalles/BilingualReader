@@ -16,3 +16,4 @@ local.properties
 /app-distribution.json
 BilingualReader/src/main/assets/app-distribution.json
 sentry.properties
+BilingualReader/google-services.json
