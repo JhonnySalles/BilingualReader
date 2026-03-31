@@ -21,7 +21,10 @@ import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import java.io.File
 
-class Tesseract(private val context: Context) {
+class Tesseract(
+    private val context: Context,
+    private val tessBaseApiFactory: () -> TessBaseAPI = { TessBaseAPI() }
+) {
 
     private val mLOGGER = LoggerFactory.getLogger(GoogleVision::class.java)
 
@@ -81,7 +84,7 @@ class Tesseract(private val context: Context) {
             return null
         }
 
-        tesseract = TessBaseAPI()
+        tesseract = tessBaseApiFactory()
         val isInit = when (language) {
             Languages.PORTUGUESE -> tesseract!!.init(TESSERACT_DATA_PATH, "por")
             Languages.ENGLISH -> tesseract!!.init(TESSERACT_DATA_PATH, "eng")
@@ -119,7 +122,7 @@ class Tesseract(private val context: Context) {
         private var tesseract: TessBaseAPI? = null
         override fun run() {
             try {
-                tesseract = TessBaseAPI()
+                tesseract = tessBaseApiFactory()
                 val isInit = when (language) {
                     Languages.PORTUGUESE -> tesseract!!.init(TESSERACT_DATA_PATH, "por")
                     Languages.ENGLISH -> tesseract!!.init(TESSERACT_DATA_PATH, "eng")

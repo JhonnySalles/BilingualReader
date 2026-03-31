@@ -5,7 +5,10 @@ import android.content.Context
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 
 @TargetApi(26)
-class SudachiTokenizer(context: Context) {
+class SudachiTokenizer(
+    context: Context,
+    dictionary: com.worksap.nlp.sudachi.Dictionary? = null
+) {
 
     private val SUDACHI_DATA_PATH = context.filesDir.absolutePath + "/sudachi"
     private val settings = """
@@ -39,12 +42,16 @@ class SudachiTokenizer(context: Context) {
     var tokenizer: com.worksap.nlp.sudachi.Tokenizer? = null
 
     init {
-        val mFileUtil = FileUtil(context)
-        // Load language files from asset packs
-        mFileUtil.copyAssetToFilesIfNotExist("sudachi/", "system_small.dic")
-        //mFileUtil.copyAssetToFilesIfNotExist("sudachi/", "char.def")
-        val dict = com.worksap.nlp.sudachi.DictionaryFactory().create(settings)
-        tokenizer = dict.create()
+        if (dictionary != null) {
+            tokenizer = dictionary.create()
+        } else {
+            val mFileUtil = FileUtil(context)
+            // Load language files from asset packs
+            mFileUtil.copyAssetToFilesIfNotExist("sudachi/", "system_small.dic")
+            //mFileUtil.copyAssetToFilesIfNotExist("sudachi/", "char.def")
+            val dict = com.worksap.nlp.sudachi.DictionaryFactory().create(settings)
+            tokenizer = dict.create()
+        }
     }
 
     fun tokenizeString(str: String): Iterable<List<com.worksap.nlp.sudachi.Morpheme>> {

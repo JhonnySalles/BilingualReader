@@ -69,8 +69,8 @@ object JapaneseText {
             }
             previousMatchEnd = matcher.end()
         }
-        if (previousMatchEnd < aString.length - 1) {
-            spannify(aSpannableStringBuilder, aString.substring(previousMatchEnd, aString.length - 1))
+        if (previousMatchEnd < aString.length) {
+            spannify(aSpannableStringBuilder, aString.substring(previousMatchEnd, aString.length))
         }
     }
 }

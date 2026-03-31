@@ -76,6 +76,7 @@ android {
         unitTests {
             includeAndroidResources = true
             all {
+                maxHeapSize = "2g"
                 if (project.hasProperty('showTests')) {
                     outputs.upToDateWhen { false }
                     testLogging {
@@ -106,7 +107,7 @@ configurations {
 }
 
 dependencies {
-    / ** MANGA - COMIC **/
+    // ** MANGA - COMIC **
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
     implementation 'androidx.activity:activity-ktx:1.7.1'
@@ -208,7 +209,7 @@ dependencies {
     // SENTRY
     implementation 'io.sentry:sentry-android:7.14.0'
 
-    / ** BOOK **/
+    // ** BOOK **
     implementation project(':ebook')
 
     //Edge TTS
@@ -217,12 +218,13 @@ dependencies {
     implementation "androidx.media3:media3-exoplayer-dash:1.3.1"
     implementation "androidx.media3:media3-ui:1.3.1"
 
-    / ** TEST **/
+    // ** TEST **
     testImplementation 'junit:junit:4.13.2'
     testImplementation "io.mockk:mockk:1.13.10"
     testImplementation "org.robolectric:robolectric:4.10.3"
     testImplementation "androidx.room:room-testing:2.5.0"
     testImplementation "androidx.test:core-ktx:1.5.0"
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
     androidTestImplementation "androidx.arch.core:core-testing:2.2.0"
     androidTestImplementation "androidx.room:room-testing:2.5.0"
     androidTestImplementation "androidx.fragment:fragment-testing:1.8.0"
