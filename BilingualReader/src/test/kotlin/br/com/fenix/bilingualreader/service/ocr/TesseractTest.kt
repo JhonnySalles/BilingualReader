@@ -2,9 +2,14 @@ package br.com.fenix.bilingualreader.service.ocr
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.widget.Toast
 import br.com.fenix.bilingualreader.model.enums.Languages
-import com.googlecode.tesseract.android.TessBaseAPI
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import io.mockk.*
+import java.io.File
 import org.junit.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -18,21 +23,37 @@ import org.robolectric.annotation.Config
 class TesseractTest {
 
     private lateinit var context: Context
-    private val tessApi: TessBaseAPI = mockk(relaxed = true)
+    private lateinit var tessApi: TesseractApi
 
     @Before
     fun setUp() {
         context = mockk(relaxed = true)
-        
+
         // Mock Tesseract static to avoid real asset copying in init
         mockkObject(Tesseract.Companion)
         every { Tesseract.copyTessData(any()) } just Runs
-        
+
         // Mock ImageProcess static
         mockkObject(ImageProcess.Companion)
         every { ImageProcess.processGrayscale(any()) } returns mockk(relaxed = true)
 
-        // Mock behaviors on the mock instance
+        // Mock GeneralConsts
+        mockkObject(GeneralConsts.Companion)
+        every { GeneralConsts.getCacheDir(any()) } returns File("C:\\temp")
+
+        // Mock Toast
+        mockkStatic(Toast::class)
+        every { Toast.makeText(any(), any<CharSequence>(), any()) } returns mockk(relaxed = true)
+        every { Toast.makeText(any(), any<Int>(), any()) } returns mockk(relaxed = true)
+
+        // Mock Firebase
+        mockkStatic(Firebase::class)
+        mockkStatic("com.google.firebase.crashlytics.ktx.FirebaseCrashlyticsKt")
+        val crashlytics = mockk<FirebaseCrashlytics>(relaxed = true)
+        every { Firebase.crashlytics } returns crashlytics
+
+        // Mock behaviors as a class-level mock before any instance is created
+        tessApi = mockk(relaxed = true)
         every { tessApi.init(any(), any()) } returns true
         every { tessApi.utF8Text } returns "Detected Text"
         every { tessApi.recycle() } just Runs
@@ -47,11 +68,11 @@ class TesseractTest {
     fun process_initializesWithCorrectLanguage() {
         val tesseract = Tesseract(context) { tessApi }
         val bitmap = mockk<Bitmap>(relaxed = true)
-        
+
         // Test Japanese
         tesseract.process(Languages.JAPANESE, bitmap)
         verify { tessApi.init(any(), "jpn") }
-        
+
         // Test English
         tesseract.process(Languages.ENGLISH, bitmap)
         verify { tessApi.init(any(), "eng") }
@@ -61,9 +82,9 @@ class TesseractTest {
     fun process_returnsRecognizedText() {
         val tesseract = Tesseract(context) { tessApi }
         val bitmap = mockk<Bitmap>(relaxed = true)
-        
+
         val result = tesseract.process(Languages.ENGLISH, bitmap)
-        
+
         assertNotNull("Result should not be null", result)
         assertEquals("Detected Text", result)
         verify { tessApi.setImage(any<Bitmap>()) }
@@ -73,12 +94,12 @@ class TesseractTest {
     @Test
     fun process_returnsNullIfInitFails() {
         every { tessApi.init(any(), any()) } returns false
-        
+
         val tesseract = Tesseract(context) { tessApi }
         val bitmap = mockk<Bitmap>(relaxed = true)
-        
+
         val result = tesseract.process(Languages.ENGLISH, bitmap)
-        
+
         assertNull("Result should be null when init fails", result)
     }
 }

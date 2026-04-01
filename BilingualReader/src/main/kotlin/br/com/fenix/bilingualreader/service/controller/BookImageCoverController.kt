@@ -12,6 +12,7 @@ import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -28,7 +29,7 @@ class BookImageCoverController private constructor() {
 
     companion object {
         val instance: BookImageCoverController by lazy { HOLDER.INSTANCE }
-        val thread = newSingleThreadContext("BookCovers")
+        val thread: CoroutineDispatcher = newSingleThreadContext("BookCovers")
     }
 
     private val mLOGGER = LoggerFactory.getLogger(BookImageCoverController::class.java)
@@ -151,11 +152,9 @@ class BookImageCoverController private constructor() {
     fun setImageCoverAsync(context: Context, book: Book, isCoverSize: Boolean = true, function: (Bitmap?) -> (Unit)) {
         CoroutineScope(thread).launch {
             try {
-                async {
-                    val image: Bitmap? = getBookCover(context, book, isCoverSize)
-                    withContext(Dispatchers.Main) {
-                        function(image)
-                    }
+                val image: Bitmap? = getBookCover(context, book, isCoverSize)
+                withContext(Dispatchers.Main) {
+                    function(image)
                 }
             } catch (m: OutOfMemoryError) {
                 System.gc()

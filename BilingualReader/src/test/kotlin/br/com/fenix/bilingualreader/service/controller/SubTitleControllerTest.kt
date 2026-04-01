@@ -6,6 +6,9 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.SubTitleChapter
 import br.com.fenix.bilingualreader.model.entity.SubTitlePage
 import br.com.fenix.bilingualreader.model.enums.Languages
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import io.mockk.*
 import org.junit.After
 import org.junit.Assert.*
@@ -29,6 +32,12 @@ class SubTitleControllerTest {
         every { context.resources } returns resources
         every { resources.getString(R.string.popup_reading_manga_subtitle_chapter) } returns "Capitulo"
         every { resources.getString(R.string.popup_reading_manga_subtitle_extra) } returns "Extra"
+
+        // Mock Firebase
+        mockkStatic(Firebase::class)
+        mockkStatic("com.google.firebase.crashlytics.ktx.FirebaseCrashlyticsKt")
+        val crashlytics = mockk<FirebaseCrashlytics>(relaxed = true)
+        every { Firebase.crashlytics } returns crashlytics
     }
 
     @After

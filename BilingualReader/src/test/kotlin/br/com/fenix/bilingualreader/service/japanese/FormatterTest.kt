@@ -6,7 +6,11 @@ import br.com.fenix.bilingualreader.service.repository.KanjaxRepository
 import br.com.fenix.bilingualreader.service.repository.KanjiRepository
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.service.tokenizers.SudachiTokenizer
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import io.mockk.*
+import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -34,8 +38,19 @@ class FormatterTest {
         // Mock getColor to avoid real resource issues
         every { context.getColor(any()) } returns Color.BLACK
         
+        // Mock Firebase
+        mockkStatic(Firebase::class)
+        mockkStatic("com.google.firebase.crashlytics.ktx.FirebaseCrashlyticsKt")
+        val crashlytics = mockk<FirebaseCrashlytics>(relaxed = true)
+        every { Firebase.crashlytics } returns crashlytics
+        
         // Initialize Formatter (companion object JAPANESE)
         Formatter.initializeAsync(context)
+    }
+
+    @After
+    fun tearDown() {
+        unmockkAll()
     }
 
     @Test

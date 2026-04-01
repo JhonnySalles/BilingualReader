@@ -66,7 +66,7 @@ class MangaDAOTest : DataBaseBaseTest() {
     @Test
     fun getByFileName() {
         val dao = db.getMangaDao()
-        val manga = MangaMock.mockEntity(1L).apply { fileName = "MangaFile.cbz" }
+        val manga = MangaMock.mockEntity(1L).apply { name = "MangaFile.cbz" }
         dao.save(manga)
 
         val result = dao.getByFileName("MangaFile.cbz")

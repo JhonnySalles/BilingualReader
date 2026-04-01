@@ -42,10 +42,14 @@ class MangaImageCoverControllerTest {
         val manga = mockk<Manga>(relaxed = true)
         val mockBitmap = mockk<Bitmap>(relaxed = true)
 
-        val spy = spyk(MangaImageCoverController.instance)
+        val instance = MangaImageCoverController.instance
+        val spy = spyk(instance)
         every { spy.getMangaCover(any(), any(), any()) } returns mockBitmap
 
         spy.setImageCoverAsync(context, manga, imageView, null, true)
+        
+        // Advance time if necessary (though Unconfined should be immediate)
+        advanceUntilIdle()
         
         verify { imageView.setImageBitmap(mockBitmap) }
     }

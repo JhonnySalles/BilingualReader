@@ -52,49 +52,47 @@ class Formatter {
         var COLOR_VOCABULARY: Int = 0
 
         // Vocabulary
-        private var HTML_ANOTHER: String = ""
-        private var HTML_N1: String = ""
-        private var HTML_N2: String = ""
-        private var HTML_N3: String = ""
-        private var HTML_N4: String = ""
-        private var HTML_N5: String = ""
+        private var HTML_ANOTHER: String = "#b3b3b3"
+        private var HTML_N1: String = "#ff4d4d"
+        private var HTML_N2: String = "#e6b800"
+        private var HTML_N3: String = "#00e600"
+        private var HTML_N4: String = "#668cff"
+        private var HTML_N5: String = "#b366ff"
 
         fun initializeAsync(context: Context) =
-            runBlocking { // this: CoroutineScope
-                launch { // launch a new coroutine and continue
-                    try {
-                        mKanjaxRepository = KanjaxRepository(context)
-                        mVocabularyRepository = VocabularyRepository(context)
+            runBlocking {
+                try {
+                    mKanjaxRepository = KanjaxRepository(context)
+                    mVocabularyRepository = VocabularyRepository(context)
 
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                            if (mSudachiTokenizer == null)
-                                mSudachiTokenizer = br.com.fenix.bilingualreader.service.tokenizers.SudachiTokenizer(context).tokenizer
-                        else if (mKuromojiTokenizer == null)
-                            mKuromojiTokenizer = com.atilika.kuromoji.ipadic.Tokenizer()
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                        if (mSudachiTokenizer == null)
+                            mSudachiTokenizer = br.com.fenix.bilingualreader.service.tokenizers.SudachiTokenizer(context).tokenizer
+                    else if (mKuromojiTokenizer == null)
+                        mKuromojiTokenizer = com.atilika.kuromoji.ipadic.Tokenizer()
 
-                        val repository = KanjiRepository(context)
-                        JLPT = repository.getHashMap()
+                    val repository = KanjiRepository(context)
+                    JLPT = repository.getHashMap()
 
-                        COLOR_ANOTHER = context.getColor(R.color.JLPT0)
-                        COLOR_N1 = context.getColor(R.color.JLPT1)
-                        COLOR_N2 = context.getColor(R.color.JLPT2)
-                        COLOR_N3 = context.getColor(R.color.JLPT3)
-                        COLOR_N4 = context.getColor(R.color.JLPT4)
-                        COLOR_N5 = context.getColor(R.color.JLPT5)
-                        COLOR_VOCABULARY = context.getColor(R.color.VOCABULARY)
+                    COLOR_ANOTHER = context.getColor(R.color.JLPT0)
+                    COLOR_N1 = context.getColor(R.color.JLPT1)
+                    COLOR_N2 = context.getColor(R.color.JLPT2)
+                    COLOR_N3 = context.getColor(R.color.JLPT3)
+                    COLOR_N4 = context.getColor(R.color.JLPT4)
+                    COLOR_N5 = context.getColor(R.color.JLPT5)
+                    COLOR_VOCABULARY = context.getColor(R.color.VOCABULARY)
 
-                        HTML_ANOTHER = "#b3b3b3"
-                        HTML_N1 = "#ff4d4d"
-                        HTML_N2 = "#e6b800"
-                        HTML_N3 = "#00e600"
-                        HTML_N4 = "#668cff"
-                        HTML_N5 = "#b366ff"
-                    } catch (e: Exception) {
-                        mLOGGER.error("Error in open tokenizer file." + e.message, e)
-                        Firebase.crashlytics.apply {
-                            setCustomKey("message", "Error in open tokenizer file: " + e.message)
-                            recordException(e)
-                        }
+                    HTML_ANOTHER = "#b3b3b3"
+                    HTML_N1 = "#ff4d4d"
+                    HTML_N2 = "#e6b800"
+                    HTML_N3 = "#00e600"
+                    HTML_N4 = "#668cff"
+                    HTML_N5 = "#b366ff"
+                } catch (e: Exception) {
+                    mLOGGER.error("Error in open tokenizer file." + e.message, e)
+                    Firebase.crashlytics.apply {
+                        setCustomKey("message", "Error in open tokenizer file: " + e.message)
+                        recordException(e)
                     }
                 }
             }

@@ -33,7 +33,7 @@ class JapaneseTextTest {
         
         JapaneseText.spannifyWithFurigana(ssb, text, 0.5f)
         
-        assertEquals("日本", ssb.toString()) // Wait, checking logic... 
+        assertEquals("日本語", ssb.toString())
         // Logic: if previousMatchEnd < aString.length - 1 -> append substring
         // If "日本語" has no matches, it should append "日本"?? 
         // Looking at line 72: if (previousMatchEnd < aString.length - 1) { spannify(..., aString.substring(..., aString.length - 1)) }

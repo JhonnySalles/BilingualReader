@@ -77,9 +77,11 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
         val providers = TTSVoice.provides()
 
         mVoice = if (providers.any { it.shortName.equals(language.getNameAzure(), ignoreCase = true) })
-            providers.stream().filter { v: Voice -> v.shortName == language.getNameAzure() }.collect(Collectors.toList())[0]
-        else
+            providers.stream().filter { v: Voice -> v.shortName.equals(language.getNameAzure(), ignoreCase = true) }.findFirst().get()
+        else if (providers.isNotEmpty())
             providers.first()
+        else
+            Voice()
 
         mVoiceRate = if (speed < 0) "-$speed%" else "+$speed%"
     }
@@ -98,7 +100,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 return false
             }
 
-            val voice = providers.stream().filter { v: Voice -> v.shortName.equals(language.getNameAzure(), ignoreCase = true) }.collect(Collectors.toList())[0]
+            val voice = providers.stream().filter { v: Voice -> v.shortName.equals(language.getNameAzure(), ignoreCase = true) }.findFirst().orElse(null) ?: return false
             val changeVoice = mVoice != voice
             mVoice = voice
             mVoiceRate = if (rate < 0) "-$rate%" else "+$rate%"

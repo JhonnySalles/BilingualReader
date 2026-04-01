@@ -42,11 +42,14 @@ class BookImageCoverControllerTest {
         val book = mockk<Book>(relaxed = true)
         val mockBitmap = mockk<Bitmap>(relaxed = true)
 
-        val spy = spyk(BookImageCoverController.instance)
+        val instance = BookImageCoverController.instance
+        val spy = spyk(instance)
         // Method is public, so no string needed
         every { spy.getBookCover(any(), any(), any()) } returns mockBitmap
 
         spy.setImageCoverAsync(context, book, imageView, null, true)
+        
+        advanceUntilIdle()
         
         verify { imageView.setImageBitmap(mockBitmap) }
     }
