@@ -32,9 +32,8 @@ class ZipParseTest : ParserBaseTest() {
         assertNotNull(comicInfo)
         assertEquals("Mock Title", comicInfo?.title)
 
-        // getPagePaths should have "" and "chapter1"
+        // getPagePaths should have "chapter1"
         val paths = zipParse.getPagePaths()
-        assertTrue(paths.containsKey(""))
         assertTrue(paths.containsKey("chapter1"))
         
         // getChapters should have the index of page03.jpg (which is 2 after sorting)

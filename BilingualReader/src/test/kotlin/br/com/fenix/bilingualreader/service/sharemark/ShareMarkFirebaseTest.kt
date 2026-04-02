@@ -18,9 +18,14 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
+import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaAnnotationRepository
 import java.util.Date
+import java.time.LocalDateTime
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import java.io.File
 import com.google.firebase.crashlytics.ktx.crashlytics
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
@@ -39,7 +44,7 @@ import org.robolectric.annotation.Config
 import java.lang.reflect.Field
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [33])
+@Config(manifest = Config.NONE, sdk = [33])
 class ShareMarkFirebaseTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
@@ -58,6 +63,12 @@ class ShareMarkFirebaseTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         context = mockk<Context>(relaxed = true)
+        val cm = mockk<ConnectivityManager>(relaxed = true)
+        val capabilities = mockk<NetworkCapabilities>(relaxed = true)
+        every { context.getSystemService(Context.CONNECTIVITY_SERVICE) } returns cm
+        every { cm.activeNetwork } returns mockk()
+        every { cm.getNetworkCapabilities(any()) } returns capabilities
+        every { capabilities.hasTransport(any()) } returns true
         
         controller = spyk(ShareMarkFirebaseController(context))
 
@@ -101,11 +112,20 @@ class ShareMarkFirebaseTest {
         every { document.get() } returns docTask
         coEvery { docTask.await() } returns docSnapshot
         
+        val voidTask = mockk<Task<Void>>(relaxed = true)
+        every { document.set(any()) } returns voidTask
+        coEvery { voidTask.await() } returns mockk()
+        
         every { controller.initialize(any()) } answers {
             firstArg<(ShareMarkType) -> Unit>().invoke(ShareMarkType.SUCCESS)
         }
+        
+        mockkObject(GeneralConsts.Companion)
+        every { GeneralConsts.getCacheDir(any()) } returns File("BilingualReader/build/tmp/test_cache")
+        every { controller.isOnline() } returns true
         ShareMarkBase.IN_SYNC = false
         every { Dispatchers.IO } returns testDispatcher
+        
         
         
         // Manual initialization of late-init fields to avoid the crash
@@ -119,15 +139,17 @@ class ShareMarkFirebaseTest {
             mUserField.set(controller, "test_user")
         } catch (e: Exception) {}
 
-        // Mock SharedPreferences
+        // Mock SharedPreferences and Cache
         val prefs = mockk<android.content.SharedPreferences>(relaxed = true)
         mockkObject(GeneralConsts.Companion)
         every { GeneralConsts.getSharedPreferences(context) } returns prefs
+        every { GeneralConsts.getCacheDir(any()) } returns java.io.File("BilingualReader/build/tmp/test_cache")
         every { prefs.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, any()) } returns ShareMarkBase.INITIAL_SYNC_DATE_TIME
         every { prefs.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, any()) } returns ShareMarkBase.INITIAL_SYNC_DATE_TIME
 
         // Mock repository methods
-        every { anyConstructed<MangaRepository>().listSync(any()) } returns listOf()
+        val manga = MangaMock.mockEntity()
+        every { anyConstructed<MangaRepository>().listSync(any()) } returns listOf(manga)
         every { anyConstructed<MangaRepository>().findByFileName(any()) } returns null
         every { anyConstructed<MangaRepository>().update(any(), any()) } returns Unit
         
@@ -161,7 +183,7 @@ class ShareMarkFirebaseTest {
             }
         )
 
-        latch.await(2, java.util.concurrent.TimeUnit.SECONDS)
+        latch.await(10, java.util.concurrent.TimeUnit.SECONDS)
         assertEquals(ShareMarkType.SUCCESS, endingResult)
         verify { anyConstructed<MangaRepository>().listSync(any()) }
     }

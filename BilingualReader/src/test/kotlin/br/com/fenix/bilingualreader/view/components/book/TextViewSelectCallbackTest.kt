@@ -19,6 +19,11 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import br.com.fenix.bilingualreader.view.ui.popup.PopupTextSelect
 import android.text.Selection
+import android.view.ContextThemeWrapper
+import org.robolectric.shadows.ShadowToast
+import org.robolectric.shadows.ShadowClipboardManager
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])
@@ -35,7 +40,9 @@ class TextViewSelectCallbackTest {
 
     @Before
     fun setup() {
-        context = spyk(RuntimeEnvironment.getApplication())
+        val app = RuntimeEnvironment.getApplication()
+        app.setTheme(R.style.Theme_MangaReader)
+        context = app
         holder = mockk(relaxed = true)
         
         popupWindow = mockk(relaxed = true)
@@ -65,8 +72,10 @@ class TextViewSelectCallbackTest {
         callback.onActionItemClicked(actionMode, menuItem)
         
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        // In Robolectric, we can check the primary clip
-        // assertEquals("Hello", clipboard.primaryClip?.getItemAt(0)?.text.toString())
+        assertEquals("Hello", clipboard.primaryClip?.getItemAt(0)?.text.toString())
+        
+        val latestToast = ShadowToast.getLatestToast()
+        assertNotNull(latestToast)
         
         verify { actionMode.finish() }
     }

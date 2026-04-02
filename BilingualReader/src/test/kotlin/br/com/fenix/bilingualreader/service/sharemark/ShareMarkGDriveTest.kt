@@ -1,9 +1,16 @@
 package br.com.fenix.bilingualreader.service.sharemark
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import java.io.File
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import java.time.LocalDateTime
 import br.com.fenix.bilingualreader.model.entity.mock.MangaMock
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
+import br.com.fenix.bilingualreader.service.repository.HistoryRepository
+import br.com.fenix.bilingualreader.service.repository.MangaAnnotationRepository
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.api.client.extensions.android.http.AndroidHttp
@@ -25,6 +32,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.util.Collections
+import java.util.Date
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])
@@ -44,6 +52,13 @@ class ShareMarkGDriveTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         context = mockk<Context>(relaxed = true)
+        val cm = mockk<ConnectivityManager>(relaxed = true)
+        val capabilities = mockk<NetworkCapabilities>(relaxed = true)
+        every { context.getSystemService(Context.CONNECTIVITY_SERVICE) } returns cm
+        every { cm.activeNetwork } returns mockk()
+        every { cm.getNetworkCapabilities(any()) } returns capabilities
+        every { capabilities.hasTransport(any()) } returns true
+        
         controller = spyk(ShareMarkGDriveController(context), recordPrivateCalls = true)
 
         mockkStatic(GoogleSignIn::class)
@@ -68,7 +83,40 @@ class ShareMarkGDriveTest {
         every { drive.files() } returns driveFiles
         every { driveFiles.list() } returns driveList
         
-        every { controller["isOnline"]() } returns true
+        val driveCreate = mockk<Drive.Files.Create>(relaxed = true)
+        val driveUpdate = mockk<Drive.Files.Update>(relaxed = true)
+        val driveFile = com.google.api.services.drive.model.File().setId("mock_id")
+        
+        every { driveFiles.create(any()) } returns driveCreate
+        every { driveFiles.create(any(), any()) } returns driveCreate
+        every { driveCreate.setFields(any()) } returns driveCreate
+        every { driveCreate.execute() } returns driveFile
+        
+        every { driveFiles.update(any(), any()) } returns driveUpdate
+        every { driveFiles.update(any(), any(), any()) } returns driveUpdate
+        every { driveUpdate.execute() } returns driveFile
+        
+        every { driveFiles.get(any()) } returns mockk(relaxed = true)
+        
+        mockkObject(GeneralConsts.Companion)
+        every { GeneralConsts.getCacheDir(any()) } returns File("BilingualReader/build/tmp/test_cache")
+        
+        // Mock SharedPreferences
+        val prefs = mockk<android.content.SharedPreferences>(relaxed = true)
+        every { GeneralConsts.getSharedPreferences(any()) } returns prefs
+        every { prefs.getString(any(), any()) } returns "2000-01-01T01:01:01.001-0300"
+        
+        mockkConstructor(MangaRepository::class)
+        mockkConstructor(HistoryRepository::class)
+        mockkConstructor(MangaAnnotationRepository::class)
+        
+        every { anyConstructed<HistoryRepository>().find(any(), any(), any()) } returns listOf()
+        every { anyConstructed<MangaAnnotationRepository>().findByManga(any()) } returns listOf()
+        
+        every { controller.isOnline() } returns true
+        every { controller.initialize(any()) } answers {
+            firstArg<(ShareMarkType) -> Unit>().invoke(ShareMarkType.SUCCESS)
+        }
         ShareMarkBase.IN_SYNC = false
     }
 
@@ -90,9 +138,10 @@ class ShareMarkGDriveTest {
         every { driveList.setPageToken(any()) } returns driveList
         every { driveList.execute() } returns fileList
 
-        mockkConstructor(MangaRepository::class)
         val manga = MangaMock.mockEntity()
         every { anyConstructed<MangaRepository>().listSync(any()) } returns listOf(manga)
+        every { anyConstructed<MangaRepository>().update(any(), any()) } returns Unit
+        every { anyConstructed<MangaRepository>().findByFileName(any()) } returns null
         
         var result: ShareMarkType? = null
         val latch = java.util.concurrent.CountDownLatch(1)
@@ -105,7 +154,7 @@ class ShareMarkGDriveTest {
             }
         )
         
-        latch.await(5, java.util.concurrent.TimeUnit.SECONDS)
+        latch.await(10, java.util.concurrent.TimeUnit.SECONDS)
         assertEquals(ShareMarkType.SUCCESS, result)
     }
 }

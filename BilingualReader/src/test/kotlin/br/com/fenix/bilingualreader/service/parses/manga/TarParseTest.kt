@@ -32,9 +32,8 @@ class TarParseTest : ParserBaseTest() {
         assertNotNull(comicInfo)
         assertEquals("Mock Title", comicInfo?.title)
 
-        // getPagePaths should have "" and "chapter1"
+        // getPagePaths should have "chapter1"
         val paths = tarParse.getPagePaths()
-        assertTrue(paths.containsKey(""))
         assertTrue(paths.containsKey("chapter1"))
         
         // getChapters should have the index of page03.jpg

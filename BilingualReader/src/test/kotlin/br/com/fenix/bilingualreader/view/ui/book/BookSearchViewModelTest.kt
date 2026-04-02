@@ -47,7 +47,7 @@ class BookSearchViewModelTest {
         application = ApplicationProvider.getApplicationContext()
         
         mockkObject(ThemeUtil.ThemeUtils)
-        every { any<Context>().getColorFromAttr(any()) } returns 0xFF0000
+        every { any<Context>().getColorFromAttr(any(), any(), any()) } returns 0xFF0000
 
         every { book.id } returns 1L
         every { book.fileName } returns "dummy"
@@ -61,6 +61,11 @@ class BookSearchViewModelTest {
         every { anyConstructed<BookSearchRepository>().delete(any<Long>()) } answers { repository.delete(firstArg<Long>()) }
         every { anyConstructed<BookSearchRepository>().delete(any<BookSearch>()) } answers { repository.delete(firstArg<BookSearch>()) }
         every { anyConstructed<BookSearchRepository>().findAll(any()) } answers { repository.findAll(firstArg()) }
+        
+        // Ensure Dispatchers are globally mocked if needed, but runTest usually handles it.
+        // However, the SearchViewModel uses CoroutineScope(Dispatchers.IO).launch
+        mockkStatic(Dispatchers::class)
+        every { Dispatchers.IO } returns testDispatcher
 
         mockkObject(TextUtil.TextUtils)
         every { TextUtil.TextUtils.formatHtml(any(), any()) } answers { firstArg() }
@@ -102,7 +107,6 @@ class BookSearchViewModelTest {
         val history = mutableListOf(BookSearch(1L, 1L, "find", LocalDateTime.now()))
         every { repository.findAll(1L) } returns history
         viewModel.initialize(application, book, documentParse)
-        
         viewModel.deleteAll()
         
         assertEquals(0, viewModel.history.value!!.size)

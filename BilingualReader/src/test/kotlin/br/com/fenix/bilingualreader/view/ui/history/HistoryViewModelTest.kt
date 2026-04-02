@@ -52,13 +52,13 @@ class HistoryViewModelTest {
 
         mockkConstructor(MangaRepository::class)
         every { anyConstructed<MangaRepository>().listHistory() } answers { mangaRepository.listHistory() }
-        every { anyConstructed<MangaRepository>().save(any()) } answers { mangaRepository.save(firstArg()) }
-        every { anyConstructed<MangaRepository>().update(any()) } answers { mangaRepository.update(firstArg()) }
+        every { anyConstructed<MangaRepository>().save(any<Manga>(), any()) } answers { mangaRepository.save(firstArg<Manga>(), secondArg()) }
+        every { anyConstructed<MangaRepository>().update(any<Manga>(), any()) } answers { mangaRepository.update(firstArg<Manga>(), secondArg()) }
         
         mockkConstructor(BookRepository::class)
         every { anyConstructed<BookRepository>().listHistory() } answers { bookRepository.listHistory() }
-        every { anyConstructed<BookRepository>().save(any()) } answers { bookRepository.save(firstArg()) }
-        every { anyConstructed<BookRepository>().update(any()) } answers { bookRepository.update(firstArg()) }
+        every { anyConstructed<BookRepository>().save(any<Book>(), any()) } answers { bookRepository.save(firstArg<Book>(), secondArg()) }
+        every { anyConstructed<BookRepository>().update(any<Book>(), any()) } answers { bookRepository.update(firstArg<Book>(), secondArg()) }
 
         mockkConstructor(LibraryRepository::class)
         mockkConstructor(TagsRepository::class)
@@ -76,8 +76,8 @@ class HistoryViewModelTest {
     @Test
     fun `list should fetch from both repositories and sort by last access`() = runTest {
         val now = LocalDateTime.now()
-        val book = Book(null, null, File("Book1")).apply { lastAccess = now.minusHours(1) }
-        val manga = Manga(null, null, File("Manga1")).apply { lastAccess = now }
+        val book = Book(null, null, File("/path/Book1")).apply { lastAccess = now.minusHours(1) }
+        val manga = Manga(null, null, File("/path/Manga1")).apply { lastAccess = now }
         
         every { bookRepository.listHistory() } returns mutableListOf(book)
         every { mangaRepository.listHistory() } returns mutableListOf(manga)
@@ -97,10 +97,10 @@ class HistoryViewModelTest {
 
     @Test
     fun `filterType should filter history by manga or book`() {
-        val book = Book(null, null, File("Book1")).apply { lastAccess = LocalDateTime.now() }
-        val manga = Manga(null, null, File("Manga1")).apply { lastAccess = LocalDateTime.now() }
+        val book = Book(1L, 1L, File("/path/Book1")).apply { lastAccess = LocalDateTime.now() }
+        val manga = Manga(1L, 1L, File("/path/Manga1")).apply { lastAccess = LocalDateTime.now() }
         
-        viewModel.update(listOf(book, manga))
+        viewModel.update(mutableListOf(book, manga))
         
         viewModel.filterType(Type.MANGA)
         assertEquals(1, viewModel.history.value!!.size)
@@ -113,13 +113,13 @@ class HistoryViewModelTest {
 
     @Test
     fun `save should call appropriate repository based on entity type`() {
-        val book = Book(null, null, File("Book"))
-        val manga = Manga(null, null, File("Manga"))
+        val book = Book(null, null, File("/path/Book"))
+        val manga = Manga(null, null, File("/path/Manga"))
         
         viewModel.save(book)
-        verify { bookRepository.save(book) }
+        verify { bookRepository.save(book, any()) }
         
         viewModel.save(manga)
-        verify { mangaRepository.save(manga) }
+        verify { mangaRepository.save(manga, any()) }
     }
 }
