@@ -32,23 +32,9 @@ class GoogleVisionTest {
 
     @Before
     fun setUp() {
-        MockKAnnotations.init(this)
+        MockKAnnotations.init(this, relaxUnitFun = true)
         context = mockk(relaxed = true)
         recognizer = mockk(relaxed = true)
-
-        // Mock Firebase correctly
-        mockkStatic(FirebaseCrashlytics::class)
-        val crashlytics = mockk<FirebaseCrashlytics>(relaxed = true)
-        every { FirebaseCrashlytics.getInstance() } returns crashlytics
-        mockkObject(Firebase)
-        every { Firebase.crashlytics } returns crashlytics
-        
-        // Mock InputImage and TextRecognition
-        mockkStatic(InputImage::class)
-        every { InputImage.fromBitmap(any<Bitmap>(), any()) } returns mockk(relaxed = true)
-        
-        mockkStatic(TextRecognition::class)
-        every { TextRecognition.getClient(any<TextRecognizerOptions>()) } returns recognizer
     }
 
     @After
@@ -58,6 +44,19 @@ class GoogleVisionTest {
 
     @Test
     fun process_callsSetTextOnSuccess() {
+        // Mock InputImage and TextRecognition inside the test
+        mockkStatic(InputImage::class)
+        every { InputImage.fromBitmap(any<Bitmap>(), any()) } returns mockk(relaxed = true)
+        
+        mockkStatic(TextRecognition::class)
+        every { TextRecognition.getClient(any<TextRecognizerOptions>()) } returns recognizer
+
+        // Mock Firebase correctly
+        mockkStatic(FirebaseCrashlytics::class)
+        val crashlytics = mockk<FirebaseCrashlytics>(relaxed = true)
+        every { FirebaseCrashlytics.getInstance() } returns crashlytics
+        mockkObject(Firebase)
+        every { Firebase.crashlytics } returns crashlytics
         val googleVision = GoogleVision(context)
         val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
 

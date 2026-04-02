@@ -19,7 +19,6 @@ class RarParseTest : ParserBaseTest() {
     @Before
     override fun setUp() {
         super.setUp()
-        mockkConstructor(Archive::class)
     }
 
     @After
@@ -31,32 +30,25 @@ class RarParseTest : ParserBaseTest() {
     @Test
     fun testRarParse() {
         val rarFile = File(testDir, "test_manga.rar")
-        rarFile.writeText("dummy rar content")
+        // Use a valid RAR signature to avoid constructor crash in some versions
+        rarFile.writeBytes(byteArrayOf(0x52, 0x61, 0x72, 0x21, 0x1A, 0x07, 0x00))
 
-        val header1 = mockk<FileHeader>()
-        val header2 = mockk<FileHeader>()
-        val headerSub = mockk<FileHeader>()
-        val headerInfo = mockk<FileHeader>()
+        val header1 = mockk<FileHeader>(relaxed = true)
+        val header2 = mockk<FileHeader>(relaxed = true)
+        val headerSub = mockk<FileHeader>(relaxed = true)
+        val headerInfo = mockk<FileHeader>(relaxed = true)
 
         every { header1.isDirectory } returns false
         every { header1.fileName } returns "page01.jpg"
-
         every { header2.isDirectory } returns false
         every { header2.fileName } returns "page02.png"
-
         every { headerSub.isDirectory } returns false
         every { headerSub.fileName } returns "vocabulary.json"
-
         every { headerInfo.isDirectory } returns false
         every { headerInfo.fileName } returns "ComicInfo.xml"
 
         val headers = mutableListOf(header1, header2, headerSub, headerInfo)
         var index = 0
-        
-        // Use anyConstructed<Archive>() to mock the instance created inside parse()
-        every { anyConstructed<Archive>().nextFileHeader() } answers {
-            if (index < headers.size) headers[index++] else null
-        }
         
         val subContent = "{\"word\": \"test\"}"
         val infoContent = """
@@ -65,9 +57,14 @@ class RarParseTest : ParserBaseTest() {
               <Title>Mock Title</Title>
             </ComicInfo>
         """.trimIndent()
-        
+
+        mockkConstructor(Archive::class)
+        every { anyConstructed<Archive>().nextFileHeader() } answers {
+            if (index < headers.size) headers[index++] else null
+        }
         every { anyConstructed<Archive>().getInputStream(headerSub) } returns ByteArrayInputStream(subContent.toByteArray())
         every { anyConstructed<Archive>().getInputStream(headerInfo) } returns ByteArrayInputStream(infoContent.toByteArray())
+        every { anyConstructed<Archive>().mainHeader } returns mockk(relaxed = true)
         every { anyConstructed<Archive>().close() } returns Unit
 
         val rarParse = RarParse()

@@ -104,8 +104,9 @@ class ShareMarkFirebaseTest {
         every { controller.initialize(any()) } answers {
             firstArg<(ShareMarkType) -> Unit>().invoke(ShareMarkType.SUCCESS)
         }
-        every { controller.isOnline() } returns true
         ShareMarkBase.IN_SYNC = false
+        every { Dispatchers.IO } returns testDispatcher
+        
         
         // Manual initialization of late-init fields to avoid the crash
         try {
@@ -160,7 +161,7 @@ class ShareMarkFirebaseTest {
             }
         )
 
-        latch.await(10, java.util.concurrent.TimeUnit.SECONDS)
+        latch.await(2, java.util.concurrent.TimeUnit.SECONDS)
         assertEquals(ShareMarkType.SUCCESS, endingResult)
         verify { anyConstructed<MangaRepository>().listSync(any()) }
     }

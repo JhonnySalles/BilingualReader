@@ -31,6 +31,7 @@ class BookSearchHistoryAdapterTest {
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
+        context.setTheme(R.style.Theme_MangaReader)
         mockListener = mockk(relaxed = true)
         dataSet.clear()
         adapter = BookSearchHistoryAdapter(context, R.layout.line_card_book_search_history, dataSet, mockListener)

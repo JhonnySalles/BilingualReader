@@ -86,7 +86,7 @@ class TarParse : Parse {
 
         for ((index, entry) in mEntries.withIndex()) {
             val path = Util.getFolderFromPath(getName(entry))
-            if (!paths.containsKey(path))
+            if (path.isNotEmpty() && !paths.containsKey(path))
                 paths[path] = index
         }
 
@@ -108,7 +108,7 @@ class TarParse : Parse {
 
         for ((index, entry) in mEntries.withIndex()) {
             val path = Util.getFolderFromPath(getName(entry))
-            if (!paths.containsKey(path))
+            if (path.isNotEmpty() && !paths.containsKey(path))
                 paths[path] = index
         }
 

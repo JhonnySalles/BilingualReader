@@ -90,7 +90,7 @@ class SevenZipParse : Parse {
 
         for ((index, item) in mSubtitles.withIndex()) {
             val path = Util.getNameFromPath(getName(item.entry))
-            if (!paths.containsKey(path))
+            if (path.isNotEmpty() && !paths.containsKey(path))
                 paths[path] = index
         }
 
@@ -112,7 +112,7 @@ class SevenZipParse : Parse {
 
         for ((index, item) in mEntries.withIndex()) {
             val path = Util.getFolderFromPath(getName(item.entry))
-            if (path.isNotEmpty() && !paths.containsKey(path))
+            if (!paths.containsKey(path))
                 paths[path] = index
         }
 

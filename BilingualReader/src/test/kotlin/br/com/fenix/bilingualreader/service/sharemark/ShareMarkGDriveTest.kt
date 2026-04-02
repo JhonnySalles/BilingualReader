@@ -69,6 +69,7 @@ class ShareMarkGDriveTest {
         every { driveFiles.list() } returns driveList
         
         every { controller["isOnline"]() } returns true
+        ShareMarkBase.IN_SYNC = false
     }
 
     @After
