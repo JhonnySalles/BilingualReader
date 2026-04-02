@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.adapter.detail.manga
+﻿package br.com.fenix.bilingualreader.view.adapter.detail.manga
 
 import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.service.listener.InformationCardListener
@@ -13,7 +13,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
+@Config(sdk = [33], manifest = Config.NONE)
 class InformationRelatedCardAdapterTest {
 
     private lateinit var adapter: InformationRelatedCardAdapter
@@ -61,3 +61,4 @@ class InformationRelatedCardAdapterTest {
         assertEquals(0, adapter.itemCount)
     }
 }
+

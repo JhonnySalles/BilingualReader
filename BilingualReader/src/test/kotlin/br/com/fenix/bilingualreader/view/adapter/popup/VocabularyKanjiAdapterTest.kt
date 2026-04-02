@@ -8,11 +8,13 @@ import io.mockk.spyk
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import androidx.test.core.app.ApplicationProvider
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import androidx.test.core.app.ApplicationProvider
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [33])
 class VocabularyKanjiAdapterTest {
 
     private lateinit var context: Context

@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.view.adapter.reader
 
 import android.view.View
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
 import br.com.fenix.bilingualreader.service.listener.MangaAnnotationListener
@@ -17,7 +18,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
+@Config(sdk = [33], manifest = Config.NONE)
 class MangaAnnotationsCardAdapterTest {
 
     private lateinit var adapter: MangaAnnotationsCardAdapter
@@ -61,13 +62,14 @@ class MangaAnnotationsCardAdapterTest {
 
     @Test
     fun `onViewAttachedToWindow should set isFullSpan true for HEADER`() {
-        val holder = mockk<MangaAnnotationHeaderViewHolder>(relaxed = true)
         val itemView = mockk<View>(relaxed = true)
         val lp = spyk(StaggeredGridLayoutManager.LayoutParams(100, 100))
-        
-        every { holder.itemView } returns itemView
         every { itemView.layoutParams } returns lp
-        every { holder.itemViewType } returns 1 // HEADER
+        
+        val holder = object : RecyclerView.ViewHolder(itemView) {}
+        val field = RecyclerView.ViewHolder::class.java.getDeclaredField("mItemViewType")
+        field.isAccessible = true
+        field.set(holder, 1) // HEADER
         
         adapter.onViewAttachedToWindow(holder)
         

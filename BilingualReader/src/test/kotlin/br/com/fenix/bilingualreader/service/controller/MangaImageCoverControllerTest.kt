@@ -23,10 +23,13 @@ class MangaImageCoverControllerTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
+        
+        // Take the existing singleton instance and wrap it in a spy
+        val spy = spyk(MangaImageCoverController.instance)
+        
         mockkObject(MangaImageCoverController.Companion)
-        try {
-            every { MangaImageCoverController.thread } returns testDispatcher
-        } catch (e: Exception) {}
+        every { MangaImageCoverController.instance } returns spy
+        every { MangaImageCoverController.thread } returns testDispatcher
     }
 
     @After
@@ -42,15 +45,14 @@ class MangaImageCoverControllerTest {
         val manga = mockk<Manga>(relaxed = true)
         val mockBitmap = mockk<Bitmap>(relaxed = true)
 
-        val instance = MangaImageCoverController.instance
-        val spy = spyk(instance)
+        val spy = MangaImageCoverController.instance
         every { spy.getMangaCover(any(), any(), any()) } returns mockBitmap
 
         spy.setImageCoverAsync(context, manga, imageView, null, true)
         
-        // Advance time if necessary (though Unconfined should be immediate)
+        // Wait for coroutine to complete
         advanceUntilIdle()
         
-        verify { imageView.setImageBitmap(mockBitmap) }
+        verify(timeout = 2000) { imageView.setImageBitmap(mockBitmap) }
     }
 }

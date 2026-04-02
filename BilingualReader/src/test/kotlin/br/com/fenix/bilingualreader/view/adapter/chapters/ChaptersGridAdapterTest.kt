@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.view.adapter.chapters
 
 import android.view.View
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import br.com.fenix.bilingualreader.model.entity.Chapters
 import br.com.fenix.bilingualreader.service.listener.ChapterCardListener
@@ -17,7 +18,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
+@Config(sdk = [33], manifest = Config.NONE)
 class ChaptersGridAdapterTest {
 
     private lateinit var adapter: ChaptersGridAdapter
@@ -68,13 +69,14 @@ class ChaptersGridAdapterTest {
 
     @Test
     fun `onViewAttachedToWindow should set isFullSpan true for HEADER`() {
-        val holder = mockk<ChaptersViewHolder>(relaxed = true)
         val itemView = mockk<View>(relaxed = true)
         val lp = spyk(StaggeredGridLayoutManager.LayoutParams(100, 100))
-        
-        every { holder.itemView } returns itemView
         every { itemView.layoutParams } returns lp
-        every { holder.itemViewType } returns 1 // HEADER
+        
+        val holder = object : RecyclerView.ViewHolder(itemView) {}
+        val field = RecyclerView.ViewHolder::class.java.getDeclaredField("mItemViewType")
+        field.isAccessible = true
+        field.set(holder, 1) // HEADER
         
         adapter.onViewAttachedToWindow(holder)
         
@@ -83,17 +85,19 @@ class ChaptersGridAdapterTest {
 
     @Test
     fun `onViewAttachedToWindow should set isFullSpan false for CONTENT`() {
-        val holder = mockk<ChaptersViewHolder>(relaxed = true)
         val itemView = mockk<View>(relaxed = true)
         val lp = spyk(StaggeredGridLayoutManager.LayoutParams(100, 100))
         lp.isFullSpan = true // Start as true to verify change
-        
-        every { holder.itemView } returns itemView
         every { itemView.layoutParams } returns lp
-        every { holder.itemViewType } returns 0 // CONTENT
+        
+        val holder = object : RecyclerView.ViewHolder(itemView) {}
+        val field = RecyclerView.ViewHolder::class.java.getDeclaredField("mItemViewType")
+        field.isAccessible = true
+        field.set(holder, 0) // CONTENT
         
         adapter.onViewAttachedToWindow(holder)
         
         assertFalse(lp.isFullSpan)
     }
 }
+

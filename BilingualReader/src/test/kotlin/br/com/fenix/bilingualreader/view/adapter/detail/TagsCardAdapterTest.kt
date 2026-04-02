@@ -9,9 +9,10 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import br.com.fenix.bilingualreader.R
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [33])
 class TagsCardAdapterTest {
 
     private lateinit var context: Context
@@ -61,3 +62,4 @@ class TagsCardAdapterTest {
         assertEquals(0, adapter.count)
     }
 }
+

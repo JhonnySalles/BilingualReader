@@ -89,7 +89,7 @@ class RarParse : Parse {
 
         for ((index, header) in mSubtitles.withIndex()) {
             val path = Util.getNameFromPath(getName(header))
-            if (path.isNotEmpty() && !paths.containsKey(path))
+            if (!paths.containsKey(path))
                 paths[path] = index
         }
 
@@ -107,7 +107,7 @@ class RarParse : Parse {
 
         for ((index, header) in mHeaders.withIndex()) {
             val path = Util.getFolderFromPath(getName(header))
-            if (path.isNotEmpty() && !paths.containsKey(path))
+            if (!paths.containsKey(path))
                 paths[path] = index
         }
 

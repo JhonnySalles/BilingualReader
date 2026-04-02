@@ -1,18 +1,18 @@
 package br.com.fenix.bilingualreader.util.helpers
 
 import android.graphics.Bitmap
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.unmockkAll
-import org.junit.After
+import io.mockk.*
+import org.junit.*
 import org.junit.Assert.*
-import org.junit.Before
-import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Date
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [33])
 class ConvertersTest {
 
     private lateinit var converters: Converters

@@ -8,6 +8,8 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.helpers.Notifications
+import com.google.firebase.FirebaseApp
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.mockk.*
 import org.junit.*
 import org.junit.rules.TemporaryFolder
@@ -29,7 +31,7 @@ class ScannerBookTest {
 
     @Before
     fun setUp() {
-        context = mockk(relaxed = true)
+        context = androidx.test.core.app.ApplicationProvider.getApplicationContext<Context>()
         
         // Mock static Notification helpers
         mockkObject(Notifications.NotificationUtils)
@@ -42,6 +44,12 @@ class ScannerBookTest {
         every { FileMetaCore.get() } returns fileMetaCore
         every { fileMetaCore.getEbookMeta(any(), any(), any()) } returns EbookMeta.Empty()
         
+        // Mock Firebase
+        mockkStatic(FirebaseApp::class)
+        every { FirebaseApp.initializeApp(any()) } returns mockk()
+        mockkStatic(FirebaseCrashlytics::class)
+        every { FirebaseCrashlytics.getInstance() } returns mockk(relaxed = true)
+
         // Mock Storage constructor
         mockkConstructor(Storage::class)
         every { anyConstructed<Storage>().listBook(any()) } returns emptyList()
@@ -50,6 +58,8 @@ class ScannerBookTest {
         every { anyConstructed<Storage>().save(book = any<Book>(), lastAlteration = any()) } returns 1L
 
         library = Library(id = 2L, title = "Book Library", path = tempFolder.root.absolutePath)
+        // Ensure the directory is not empty so 'walked' flag is set to true in ScannerBook
+        tempFolder.newFile("placeholder.txt")
     }
 
     @After
@@ -68,13 +78,15 @@ class ScannerBookTest {
         val runnableClass = ScannerBook::class.java.declaredClasses.find { it.name.contains("LibraryUpdateRunnable") }
         val constructor = runnableClass?.getDeclaredConstructor(ScannerBook::class.java, UUID::class.java, Library::class.java, Boolean::class.java)
         constructor?.isAccessible = true
-        val runnable = constructor?.newInstance(scanner, UUID.randomUUID(), library, true) as Runnable
+        val runnableObj = constructor?.newInstance(scanner, UUID.randomUUID(), library, true)
         
-        runnable.run()
+        // Use reflection to call run() to avoid ClassCastException
+        val runMethod = runnableClass?.getMethod("run")
+        runMethod?.invoke(runnableObj)
         
         // Verify that storage.save was called for the new book
         verify(atLeast = 1) { 
-            anyConstructed<Storage>().save(book = match { it.path == bookFile.absolutePath }, lastAlteration = any()) 
+            anyConstructed<Storage>().save(book = match<Book> { it.path == bookFile.absolutePath }, lastAlteration = any()) 
         }
     }
 
@@ -89,10 +101,11 @@ class ScannerBookTest {
         val runnableClass = ScannerBook::class.java.declaredClasses.find { it.name.contains("LibraryUpdateRunnable") }
         val constructor = runnableClass?.getDeclaredConstructor(ScannerBook::class.java, UUID::class.java, Library::class.java, Boolean::class.java)
         constructor?.isAccessible = true
-        val runnable = constructor?.newInstance(scanner, UUID.randomUUID(), library, true) as Runnable
+        val runnableObj = constructor?.newInstance(scanner, UUID.randomUUID(), library, true)
         
-        runnable.run()
+        val runMethod = runnableClass?.getMethod("run")
+        runMethod?.invoke(runnableObj)
         
-        verify { anyConstructed<Storage>().delete(missingBook) }
+        verify { anyConstructed<Storage>().delete(book = missingBook) }
     }
 }

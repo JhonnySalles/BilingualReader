@@ -10,7 +10,12 @@ import org.junit.Before
 import org.junit.Test
 import androidx.recyclerview.widget.DiffUtil
 import java.lang.reflect.Field
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [33])
 class VocabularyBookCardAdapterTest {
 
     private lateinit var adapter: VocabularyBookCardAdapter
@@ -22,17 +27,9 @@ class VocabularyBookCardAdapterTest {
         adapter = spyk(VocabularyBookCardAdapter(mockListener))
     }
 
-    @Suppress("UNCHECKED_CAST")
-    private fun getDiffCallback(): DiffUtil.ItemCallback<Vocabulary> {
-        val companion = VocabularyBookCardAdapter.Companion
-        val field: Field = VocabularyBookCardAdapter.Companion::class.java.getDeclaredField("DIFF_CALLBACK")
-        field.isAccessible = true
-        return field.get(companion) as DiffUtil.ItemCallback<Vocabulary>
-    }
-
     @Test
     fun `areItemsTheSame should return true for same id`() {
-        val diffCallback = getDiffCallback()
+        val diffCallback = VocabularyBookCardAdapter.DIFF_CALLBACK
         val oldItem = Vocabulary(1L, "Word", null, null, null, null, 0, false, false, 0)
         val newItem = Vocabulary(1L, "Word", null, null, null, null, 0, false, false, 0)
         
@@ -41,7 +38,7 @@ class VocabularyBookCardAdapterTest {
 
     @Test
     fun `areContentsTheSame should return true for identical objects`() {
-        val diffCallback = getDiffCallback()
+        val diffCallback = VocabularyBookCardAdapter.DIFF_CALLBACK
         val item = Vocabulary(1L, "Word", null, null, null, null, 0, false, false, 0)
         
         assertTrue(diffCallback.areContentsTheSame(item, item))

@@ -15,7 +15,7 @@ import org.robolectric.annotation.Config
 import br.com.fenix.bilingualreader.R
 
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
+@Config(sdk = [33], manifest = Config.NONE)
 class ThemesCardAdapterTest {
 
     private lateinit var context: Context

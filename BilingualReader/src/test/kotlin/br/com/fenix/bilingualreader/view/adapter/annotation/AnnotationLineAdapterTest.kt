@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.adapter.annotation
+﻿package br.com.fenix.bilingualreader.view.adapter.annotation
 
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.Annotation
@@ -12,7 +12,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
+@Config(sdk = [33], manifest = Config.NONE)
 class AnnotationLineAdapterTest {
 
     private lateinit var adapter: AnnotationLineAdapter
@@ -118,3 +118,4 @@ class AnnotationLineAdapterTest {
         verify(exactly = 0) { adapter.notifyItemChanged(any<Int>()) }
     }
 }
+

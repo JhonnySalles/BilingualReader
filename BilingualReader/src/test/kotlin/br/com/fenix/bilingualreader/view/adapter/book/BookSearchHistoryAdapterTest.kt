@@ -14,11 +14,13 @@ import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import java.time.LocalDateTime
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.time.LocalDateTime
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [33])
 class BookSearchHistoryAdapterTest {
 
     private lateinit var context: Context
@@ -76,3 +78,4 @@ class BookSearchHistoryAdapterTest {
         verify { mockListener.onDelete(search, any(), 0) }
     }
 }
+

@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.adapter.book
+﻿package br.com.fenix.bilingualreader.view.adapter.book
 
 import br.com.fenix.bilingualreader.model.entity.BookSearch
 import br.com.fenix.bilingualreader.service.listener.BookSearchListener
@@ -13,7 +13,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
+@Config(sdk = [33], manifest = Config.NONE)
 class BookSearchLineAdapterTest {
 
     private lateinit var adapter: BookSearchLineAdapter
@@ -75,3 +75,4 @@ class BookSearchLineAdapterTest {
         verify { adapter.notifyItemChanged(1) }
     }
 }
+

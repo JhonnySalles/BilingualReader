@@ -14,6 +14,9 @@ import com.google.api.services.drive.model.FileList
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -27,6 +30,7 @@ import java.util.Collections
 @Config(sdk = [33])
 class ShareMarkGDriveTest {
 
+    private val testDispatcher = UnconfinedTestDispatcher()
     private lateinit var context: Context
     private lateinit var controller: ShareMarkGDriveController
 
@@ -38,6 +42,7 @@ class ShareMarkGDriveTest {
     
     @Before
     fun setup() {
+        Dispatchers.setMain(testDispatcher)
         context = mockk<Context>(relaxed = true)
         controller = spyk(ShareMarkGDriveController(context), recordPrivateCalls = true)
 
@@ -51,7 +56,7 @@ class ShareMarkGDriveTest {
         every { AndroidHttp.newCompatibleTransport() } returns mockk()
         every { JacksonFactory.getDefaultInstance() } returns mockk()
         every { GoogleAccountCredential.usingOAuth2(any(), any()) } returns mockk(relaxed = true)
-        every { Dispatchers.IO } returns Dispatchers.Unconfined
+        every { Dispatchers.IO } returns testDispatcher
 
         mockkConstructor(Drive.Builder::class)
         val builderMock = mockk<Drive.Builder>(relaxed = true)
@@ -69,6 +74,7 @@ class ShareMarkGDriveTest {
     @After
     fun tearDown() {
         unmockkAll()
+        Dispatchers.resetMain()
     }
 
     @Test
@@ -88,11 +94,17 @@ class ShareMarkGDriveTest {
         every { anyConstructed<MangaRepository>().listSync(any()) } returns listOf(manga)
         
         var result: ShareMarkType? = null
+        val latch = java.util.concurrent.CountDownLatch(1)
+        
         (controller as ShareMark).mangaShareMark(
             update = { },
-            ending = { result = it }
+            ending = { 
+                result = it 
+                latch.countDown()
+            }
         )
         
+        latch.await(5, java.util.concurrent.TimeUnit.SECONDS)
         assertEquals(ShareMarkType.SUCCESS, result)
     }
 }

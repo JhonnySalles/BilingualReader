@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.view.adapter.configuration
+﻿package br.com.fenix.bilingualreader.view.adapter.configuration
 
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.service.listener.LibrariesCardListener
@@ -12,7 +12,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
+@Config(sdk = [33], manifest = Config.NONE)
 class LibrariesLineCardAdapterTest {
 
     private lateinit var adapter: LibrariesLineCardAdapter
@@ -54,3 +54,4 @@ class LibrariesLineCardAdapterTest {
         // Note: removeList in implementation doesn't call notifyItemRemoved
     }
 }
+
