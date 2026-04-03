@@ -8,6 +8,7 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import br.com.fenix.bilingualreader.R
@@ -24,6 +25,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 
 @RunWith(AndroidJUnit4::class)
 class MangaLibraryFragmentTest {
@@ -36,6 +39,19 @@ class MangaLibraryFragmentTest {
         override fun clearLibraryTitle() {}
     }
 
+    private fun createMockLibrary(context: Context, id: Long = GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA): Library {
+        val mockPath = File(context.cacheDir, "mock_mangas")
+        if (!mockPath.exists()) mockPath.mkdirs()
+        
+        return Library(
+            id = id,
+            title = "Manga Test Library",
+            path = mockPath.absolutePath,
+            language = Libraries.JAPANESE,
+            type = Type.MANGA
+        )
+    }
+
     @Before
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -43,38 +59,42 @@ class MangaLibraryFragmentTest {
             .allowMainThreadQueries()
             .build()
         
-        // Injeta o banco de dados em memória no Singleton
         DataBase.setTestingInstance(db)
 
-        // Insere dados iniciais
-        // O ViewModel usa GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA (-1L) como padrão
         val libraryId = GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
-        val library = Library(
-            id = libraryId,
-            title = "Manga Test Library",
-            path = "/mock/path",
-            language = Libraries.JAPANESE,
-            type = Type.MANGA
-        )
+        val library = createMockLibrary(context, libraryId)
         db.getLibrariesDao().save(library)
 
-        val manga1 = Manga(libraryId, 1L, File("/mock/path/manga1.cbz")).apply {
-            title = "Manga Alpha"
-            author = "Author A"
-            excluded = false
-        }
-        val manga2 = Manga(libraryId, 2L, File("/mock/path/manga2.cbz")).apply {
-            title = "Manga Beta"
-            author = "Author B"
-            excluded = false
-        }
+        val mockPath = File(library.path)
         
-        db.getMangaDao().save(manga1)
-        db.getMangaDao().save(manga2)
+        // Popula com 10 mangás físicos reais (copiados do manga.zip nos assets)
+        for (i in 1..10) {
+            val name = "manga %02d".format(i)
+            val file = File(mockPath, "$name.cbz")
+            
+            // Copia o arquivo manga.zip dos assets do teste para o arquivo mockado
+            InstrumentationRegistry.getInstrumentation().context.assets.open("manga.zip").use { input ->
+                FileOutputStream(file).use { output ->
+                    input.copyTo(output)
+                }
+            }
+            
+            val manga = Manga(libraryId, i.toLong(), file).apply {
+                title = name
+                author = "Author $i"
+                favorite = (i == 5)
+                dateCreate = java.time.LocalDateTime.now().minusDays((10 - i).toLong())
+                excluded = false
+            }
+            db.getMangaDao().save(manga)
+        }
     }
 
     @After
     fun closeDb() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val mockPath = File(context.cacheDir, "mock_mangas")
+        if (mockPath.exists()) mockPath.deleteRecursively()
         db.close()
     }
 
@@ -84,31 +104,22 @@ class MangaLibraryFragmentTest {
         scenario.onActivity { activity ->
             val viewModel = ViewModelProvider(activity)[MangaLibraryViewModel::class.java]
             
-            // Configura a biblioteca e carrega os dados mockados do DB em memória
-            val library = Library(
-                id = GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA,
-                title = "Manga Test Library",
-                path = "/mock/path",
-                language = Libraries.JAPANESE,
-                type = Type.MANGA
-            )
-            viewModel.setLibrary(library)
-            viewModel.list { /* Carregamento concluído */ }
+            viewModel.setLibrary(createMockLibrary(activity))
+            viewModel.list { }
 
             val fragment = MangaLibraryFragment()
             MangaLibraryFragment.setMainListener(fragment, activity)
             activity.setFragment(fragment)
         }
         
-        // Aguarda a sincronização da UI e processamento do ViewModel
         Thread.sleep(2000)
         
-        // Verifica se o RecyclerView está visível
         onView(withId(R.id.manga_library_recycler_view)).check(matches(isDisplayed()))
         
-        // Verifica se os itens inseridos estão na lista (pelo menos um deles)
-        onView(withText("Manga Alpha")).check(matches(isDisplayed()))
-        onView(withText("Manga Beta")).check(matches(isDisplayed()))
+        // Verifica se alguns dos itens sequenciais estão na lista
+        onView(withText("manga 01")).check(matches(isDisplayed()))
+        onView(withText("manga 05")).check(matches(isDisplayed()))
+        onView(withText("manga 10")).check(matches(isDisplayed()))
     }
 
     @Test
@@ -117,14 +128,7 @@ class MangaLibraryFragmentTest {
         scenario.onActivity { activity ->
             val viewModel = ViewModelProvider(activity)[MangaLibraryViewModel::class.java]
             
-            val library = Library(
-                id = GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA,
-                title = "Manga Test Library",
-                path = "/mock/path",
-                language = Libraries.JAPANESE,
-                type = Type.MANGA
-            )
-            viewModel.setLibrary(library)
+            viewModel.setLibrary(createMockLibrary(activity))
             viewModel.list { }
 
             val fragment = MangaLibraryFragment()
@@ -152,14 +156,7 @@ class MangaLibraryFragmentTest {
         scenario.onActivity { activity ->
             val viewModel = ViewModelProvider(activity)[MangaLibraryViewModel::class.java]
             
-            val library = Library(
-                id = GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA,
-                title = "Manga Test Library",
-                path = "/mock/path",
-                language = Libraries.JAPANESE,
-                type = Type.MANGA
-            )
-            viewModel.setLibrary(library)
+            viewModel.setLibrary(createMockLibrary(activity))
             viewModel.list { }
 
             val fragment = MangaLibraryFragment()
@@ -175,5 +172,43 @@ class MangaLibraryFragmentTest {
         onView(withText(R.string.popup_library_manga_tab_item_ordering)).perform(click())
         
         onView(withText(R.string.popup_library_manga_tab_item_ordering)).check(matches(isSelected()))
+    }
+
+    @Test
+    fun testSortingFunctionality() {
+        val scenario = ActivityScenario.launch(TestActivity::class.java)
+        lateinit var viewModel: MangaLibraryViewModel
+        scenario.onActivity { activity ->
+            viewModel = ViewModelProvider(activity)[MangaLibraryViewModel::class.java]
+            
+            viewModel.setLibrary(createMockLibrary(activity))
+            viewModel.list { }
+
+            val fragment = MangaLibraryFragment()
+            MangaLibraryFragment.setMainListener(fragment, activity)
+            activity.setFragment(fragment)
+        }
+        
+        Thread.sleep(2000)
+
+        // Verificação Inicial: Ordem alfabética (Padrão) -> manga 01 no topo
+        onView(withText("manga 01")).check(matches(isDisplayed()))
+
+        // 1. Clicar no botão de ordenação para mudar para 'Data' (Nome -> Data)
+        onView(withId(R.id.menu_manga_library_list_order)).perform(click())
+        Thread.sleep(1000)
+        
+        // Verifica se a lista refletiu no ViewModel (manga 01 é o mais antigo na nossa população)
+        // O ViewModel faz sortBy { it.dateCreate } (Ascendente)
+        assert(viewModel.listMangas.value!![0].title == "manga 01")
+
+        // 2. Clicar novamente para mudar para 'Favorito' (Data -> Favorito)
+        onView(withId(R.id.menu_manga_library_list_order)).perform(click())
+        Thread.sleep(1000)
+
+        // No ViewModel: sortWith(compareByDescending<Manga> { it.favorite }.thenBy { it.name })
+        // manga 05 é o único favorito, deve estar no topo
+        onView(withText("manga 05")).check(matches(isDisplayed()))
+        assert(viewModel.listMangas.value!![0].title == "manga 05")
     }
 }
