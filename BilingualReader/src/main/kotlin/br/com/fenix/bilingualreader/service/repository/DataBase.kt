@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.res.AssetManager
 import android.net.Uri
 import android.widget.Toast
+import androidx.annotation.VisibleForTesting
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -75,6 +76,11 @@ abstract class DataBase : RoomDatabase() {
 
         lateinit var mAssets: AssetManager
         private lateinit var INSTANCE: DataBase
+
+        @VisibleForTesting
+        fun setTestingInstance(database: DataBase) {
+            INSTANCE = database
+        }
 
         fun getDataBase(context: Context): DataBase {
             if (!::INSTANCE.isInitialized)
