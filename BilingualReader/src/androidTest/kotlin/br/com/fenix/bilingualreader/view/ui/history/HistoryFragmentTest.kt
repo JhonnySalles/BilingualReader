@@ -1,0 +1,145 @@
+package br.com.fenix.bilingualreader.view.ui.history
+
+import android.content.Context
+import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.room.Room
+import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.TestActivity
+import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.Library
+import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.Libraries
+import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.service.repository.DataBase
+import org.hamcrest.Matchers.containsString
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import java.io.File
+import java.time.LocalDateTime
+
+@RunWith(AndroidJUnit4::class)
+class HistoryFragmentTest {
+
+    private lateinit var db: DataBase
+
+    @Before
+    fun createDb() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        db = Room.inMemoryDatabaseBuilder(context, DataBase::class.java)
+            .allowMainThreadQueries()
+            .build()
+        
+        // Injeta o banco de dados em memória no Singleton conforme o modelo existente
+        DataBase.setTestingInstance(db)
+
+        val mangaLibId = 100L
+        val bookLibId = 200L
+
+        // Configura bibliotecas de teste
+        db.getLibrariesDao().save(Library(mangaLibId, "Manga Test Lib", "/mock/manga", Libraries.JAPANESE, Type.MANGA))
+        db.getLibrariesDao().save(Library(bookLibId, "Book Test Lib", "/mock/book", Libraries.ENGLISH, Type.BOOK))
+
+        // Popula com 5 Mangás e 5 Livros (Total 10 itens como solicitado)
+        // Definimos datas de acesso decrescentes para que a ordenação seja previsível (os mais recentes primeiro)
+        for (i in 1..5) {
+            val manga = Manga(mangaLibId, i.toLong(), File("/mock/manga/manga$i.cbz")).apply {
+                title = "Manga Alpha $i"
+                author = "Author Manga $i"
+                lastAccess = LocalDateTime.now().minusDays(i.toLong())
+                excluded = false
+            }
+            db.getMangaDao().save(manga)
+
+            val book = Book(bookLibId, (i + 10).toLong(), File("/mock/book/book$i.epub")).apply {
+                title = "Book Beta $i"
+                author = "Author Book $i"
+                lastAccess = LocalDateTime.now().minusHours(i.toLong())
+                excluded = false
+            }
+            db.getBookDao().save(book)
+        }
+    }
+
+    @After
+    fun closeDb() {
+        db.close()
+    }
+
+    @Test
+    fun testHistoryListIsDisplayed() {
+        // Lança a TestActivity que hospeda o fragmento
+        val scenario = ActivityScenario.launch(TestActivity::class.java)
+        scenario.onActivity { activity ->
+            activity.setFragment(HistoryFragment())
+        }
+        
+        // Aguarda o processamento assíncrono do ViewModel (list() é carregado em Coroutine Scope)
+        Thread.sleep(2000)
+        
+        // Verifica se o RecyclerView do histórico está visível
+        onView(withId(R.id.history_list)).check(matches(isDisplayed()))
+        
+        // Verifica se os itens populados (pelo menos os primeiros da ordenação) estão visíveis
+        onView(withText("Book Beta 1")).check(matches(isDisplayed()))
+        onView(withText("Manga Alpha 1")).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun testFilterByType() {
+        val scenario = ActivityScenario.launch(TestActivity::class.java)
+        scenario.onActivity { activity ->
+            activity.setFragment(HistoryFragment())
+        }
+        
+        Thread.sleep(2000)
+
+        // Abre o menu de filtro por tipo na Action Bar
+        onView(withId(R.id.menu_history_type)).perform(click())
+        
+        // Seleciona filtrar por "Mangá"
+        onView(withText(R.string.history_manga)).perform(click())
+        
+        // Aguarda a aplicação do filtro no ViewModel
+        Thread.sleep(1000)
+
+        // Valida que itens de Mangá permanecem e Livros desaparecem
+        onView(withText("Manga Alpha 1")).check(matches(isDisplayed()))
+        onView(withText("Book Beta 1")).check(doesNotExist())
+    }
+
+    @Test
+    fun testSwipeToDeletePrompt() {
+        val scenario = ActivityScenario.launch(TestActivity::class.java)
+        scenario.onActivity { activity ->
+            activity.setFragment(HistoryFragment())
+        }
+        
+        Thread.sleep(2000)
+
+        // Realiza o gesto de swipe para a esquerda no primeiro item da lista (Book Beta 1 p/ data)
+        onView(withId(R.id.history_list))
+            .perform(RecyclerViewActions.actionOnItemAtPosition<androidx.recyclerview.widget.RecyclerView.ViewHolder>(0, swipeLeft()))
+
+        Thread.sleep(1000)
+
+        // Verifica se o diálogo de exclusão apareceu (MaterialAlertDialogBuilder)
+        onView(withText(R.string.manga_library_menu_delete)).check(matches(isDisplayed()))
+        onView(withText(containsString("Book Beta 1"))).check(matches(isDisplayed()))
+        
+        // Clicar em Cancelar (Negative Button)
+        onView(withText(R.string.action_negative)).perform(click())
+        
+        // Verifica se o item voltou a aparecer na lista após o dismiss (comportamento do setOnDismissListener)
+        onView(withText("Book Beta 1")).check(matches(isDisplayed()))
+    }
+}

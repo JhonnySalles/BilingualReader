@@ -1,22 +1,24 @@
 package br.com.fenix.bilingualreader.view.ui.library.manga
 
 import android.content.Context
-import androidx.fragment.app.testing.launchFragmentInContainer
-import androidx.lifecycle.Lifecycle
-import androidx.room.Room
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.lifecycle.ViewModelProvider
+import androidx.room.Room
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.TestActivity
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.repository.DataBase
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -46,8 +48,9 @@ class MangaLibraryFragmentTest {
 
         // Insere dados iniciais
         // O ViewModel usa GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA (-1L) como padrão
+        val libraryId = GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
         val library = Library(
-            id = -1L,
+            id = libraryId,
             title = "Manga Test Library",
             path = "/mock/path",
             language = Libraries.JAPANESE,
@@ -55,12 +58,12 @@ class MangaLibraryFragmentTest {
         )
         db.getLibrariesDao().save(library)
 
-        val manga1 = Manga(-1L, 1L, File("/mock/path/manga1.cbz")).apply {
+        val manga1 = Manga(libraryId, 1L, File("/mock/path/manga1.cbz")).apply {
             title = "Manga Alpha"
             author = "Author A"
             excluded = false
         }
-        val manga2 = Manga(-1L, 2L, File("/mock/path/manga2.cbz")).apply {
+        val manga2 = Manga(libraryId, 2L, File("/mock/path/manga2.cbz")).apply {
             title = "Manga Beta"
             author = "Author B"
             excluded = false
@@ -77,12 +80,28 @@ class MangaLibraryFragmentTest {
 
     @Test
     fun testMangaListIsDisplayed() {
-        val scenario = launchFragmentInContainer<MangaLibraryFragment>(
-            themeResId = R.style.Theme_MangaReader,
-            initialState = Lifecycle.State.CREATED
-        )
-        scenario.onFragment { MangaLibraryFragment.setMainListener(it, mainListener) }
-        scenario.moveToState(Lifecycle.State.RESUMED)
+        val scenario = ActivityScenario.launch(TestActivity::class.java)
+        scenario.onActivity { activity ->
+            val viewModel = ViewModelProvider(activity)[MangaLibraryViewModel::class.java]
+            
+            // Configura a biblioteca e carrega os dados mockados do DB em memória
+            val library = Library(
+                id = GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA,
+                title = "Manga Test Library",
+                path = "/mock/path",
+                language = Libraries.JAPANESE,
+                type = Type.MANGA
+            )
+            viewModel.setLibrary(library)
+            viewModel.list { /* Carregamento concluído */ }
+
+            val fragment = MangaLibraryFragment()
+            MangaLibraryFragment.setMainListener(fragment, activity)
+            activity.setFragment(fragment)
+        }
+        
+        // Aguarda a sincronização da UI e processamento do ViewModel
+        Thread.sleep(2000)
         
         // Verifica se o RecyclerView está visível
         onView(withId(R.id.manga_library_recycler_view)).check(matches(isDisplayed()))
@@ -94,12 +113,27 @@ class MangaLibraryFragmentTest {
 
     @Test
     fun testOpenTypePopup() {
-        val scenario = launchFragmentInContainer<MangaLibraryFragment>(
-            themeResId = R.style.Theme_MangaReader,
-            initialState = Lifecycle.State.CREATED
-        )
-        scenario.onFragment { MangaLibraryFragment.setMainListener(it, mainListener) }
-        scenario.moveToState(Lifecycle.State.RESUMED)
+        val scenario = ActivityScenario.launch(TestActivity::class.java)
+        scenario.onActivity { activity ->
+            val viewModel = ViewModelProvider(activity)[MangaLibraryViewModel::class.java]
+            
+            val library = Library(
+                id = GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA,
+                title = "Manga Test Library",
+                path = "/mock/path",
+                language = Libraries.JAPANESE,
+                type = Type.MANGA
+            )
+            viewModel.setLibrary(library)
+            viewModel.list { }
+
+            val fragment = MangaLibraryFragment()
+            MangaLibraryFragment.setMainListener(fragment, activity)
+            activity.setFragment(fragment)
+        }
+        
+        // Aguarda carregamento
+        Thread.sleep(2000)
 
         // Clica no botão de tipo de grid no menu
         onView(withId(R.id.menu_manga_library_type)).perform(click())
@@ -114,12 +148,27 @@ class MangaLibraryFragmentTest {
 
     @Test
     fun testOpenOrderPopup() {
-        val scenario = launchFragmentInContainer<MangaLibraryFragment>(
-            themeResId = R.style.Theme_MangaReader,
-            initialState = Lifecycle.State.CREATED
-        )
-        scenario.onFragment { MangaLibraryFragment.setMainListener(it, mainListener) }
-        scenario.moveToState(Lifecycle.State.RESUMED)
+        val scenario = ActivityScenario.launch(TestActivity::class.java)
+        scenario.onActivity { activity ->
+            val viewModel = ViewModelProvider(activity)[MangaLibraryViewModel::class.java]
+            
+            val library = Library(
+                id = GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA,
+                title = "Manga Test Library",
+                path = "/mock/path",
+                language = Libraries.JAPANESE,
+                type = Type.MANGA
+            )
+            viewModel.setLibrary(library)
+            viewModel.list { }
+
+            val fragment = MangaLibraryFragment()
+            MangaLibraryFragment.setMainListener(fragment, activity)
+            activity.setFragment(fragment)
+        }
+        
+        // Aguarda carregamento
+        Thread.sleep(2000)
 
         // Clica no botão de ordenação no menu
         onView(withId(R.id.menu_manga_library_type)).perform(click())

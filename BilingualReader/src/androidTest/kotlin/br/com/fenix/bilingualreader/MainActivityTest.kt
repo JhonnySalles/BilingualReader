@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit
 class MainActivityTest {
 
     @get:Rule
-    var activityScenarioRule: ActivityScenario<MainActivity> = ActivityScenario.launch(MainActivity::class.java)
+    var activityScenarioRule = androidx.test.ext.junit.rules.ActivityScenarioRule(MainActivity::class.java)
 
     private val animationTimer = 600L
 
@@ -56,7 +56,7 @@ class MainActivityTest {
 
         waiter.await(animationTimer, TimeUnit.MILLISECONDS)
 
-        activityScenarioRule.onActivity {
+        activityScenarioRule.scenario.onActivity {
             val fragment = it.supportFragmentManager.findFragmentById(R.id.main_content_root)
             assertTrue(fragment is HistoryFragment)
         }
@@ -71,7 +71,7 @@ class MainActivityTest {
 
         waiter.await(animationTimer, TimeUnit.MILLISECONDS)
 
-        activityScenarioRule.onActivity {
+        activityScenarioRule.scenario.onActivity {
             val fragment = it.supportFragmentManager.findFragmentById(R.id.main_content_root)
             assertTrue(fragment is ConfigFragment)
         }
@@ -86,7 +86,7 @@ class MainActivityTest {
 
         waiter.await(animationTimer, TimeUnit.MILLISECONDS)
 
-        activityScenarioRule.onActivity {
+        activityScenarioRule.scenario.onActivity {
             val fragment = it.supportFragmentManager.findFragmentById(R.id.main_content_root)
             assertTrue(fragment is HelpFragment)
         }
@@ -101,7 +101,7 @@ class MainActivityTest {
 
         waiter.await(animationTimer, TimeUnit.MILLISECONDS)
 
-        activityScenarioRule.onActivity {
+        activityScenarioRule.scenario.onActivity {
             val fragment = it.supportFragmentManager.findFragmentById(R.id.main_content_root)
             assertTrue(fragment is AboutFragment)
         }
@@ -116,7 +116,7 @@ class MainActivityTest {
 
         waiter.await(animationTimer, TimeUnit.MILLISECONDS)
 
-        activityScenarioRule.onActivity {
+        activityScenarioRule.scenario.onActivity {
             val fragment = it.supportFragmentManager.findFragmentById(R.id.main_content_root)
             assertTrue(fragment is MangaLibraryFragment)
         }
@@ -125,7 +125,7 @@ class MainActivityTest {
 
         waiter.await(animationTimer, TimeUnit.MILLISECONDS)
 
-        activityScenarioRule.onActivity {
+        activityScenarioRule.scenario.onActivity {
             val fragment = it.supportFragmentManager.findFragmentById(R.id.main_content_root)
             assertTrue(fragment is AboutFragment)
         }
@@ -134,7 +134,7 @@ class MainActivityTest {
 
         waiter.await(animationTimer, TimeUnit.MILLISECONDS)
 
-        activityScenarioRule.onActivity {
+        activityScenarioRule.scenario.onActivity {
             val fragment = it.supportFragmentManager.findFragmentById(R.id.main_content_root)
             assertTrue(fragment is HelpFragment)
         }
@@ -143,7 +143,7 @@ class MainActivityTest {
 
         waiter.await(animationTimer, TimeUnit.MILLISECONDS)
 
-        activityScenarioRule.onActivity {
+        activityScenarioRule.scenario.onActivity {
             val fragment = it.supportFragmentManager.findFragmentById(R.id.main_content_root)
             assertTrue(fragment is ConfigFragment)
         }
@@ -152,7 +152,7 @@ class MainActivityTest {
 
         waiter.await(animationTimer, TimeUnit.MILLISECONDS)
 
-        activityScenarioRule.onActivity {
+        activityScenarioRule.scenario.onActivity {
             val fragment = it.supportFragmentManager.findFragmentById(R.id.main_content_root)
             assertTrue(fragment is HistoryFragment)
         }
@@ -161,7 +161,7 @@ class MainActivityTest {
 
         waiter.await(animationTimer, TimeUnit.MILLISECONDS)
 
-        activityScenarioRule.onActivity {
+        activityScenarioRule.scenario.onActivity {
             val fragment = it.supportFragmentManager.findFragmentById(R.id.main_content_root)
             assertTrue(fragment is MangaLibraryFragment)
         }
@@ -171,7 +171,7 @@ class MainActivityTest {
     @Test
     fun `2_test_in_library`() {
         val waiter = CountDownLatch(1)
-        activityScenarioRule.recreate() // Re load app
+        activityScenarioRule.scenario.recreate() // Re load app
 
         waiter.await(animationTimer, TimeUnit.MILLISECONDS)
 
@@ -199,7 +199,7 @@ class MainActivityTest {
 
         waiter.await(animationTimer, TimeUnit.MILLISECONDS)
 
-        activityScenarioRule.onActivity {
+        activityScenarioRule.scenario.onActivity {
             val recyclerView = it.findViewById<RecyclerView>(R.id.manga_library_recycler_view)
             val itemCount = recyclerView.adapter?.itemCount ?: 0
 

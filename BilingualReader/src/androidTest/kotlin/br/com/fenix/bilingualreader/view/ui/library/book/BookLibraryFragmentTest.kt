@@ -1,22 +1,24 @@
 package br.com.fenix.bilingualreader.view.ui.library.book
 
 import android.content.Context
-import androidx.fragment.app.testing.launchFragmentInContainer
-import androidx.lifecycle.Lifecycle
-import androidx.room.Room
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.lifecycle.ViewModelProvider
+import androidx.room.Room
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.TestActivity
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.repository.DataBase
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -46,8 +48,9 @@ class BookLibraryFragmentTest {
 
         // Insere dados iniciais
         // O ViewModel usa GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK (-2L) como padrão
+        val libraryId = GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK
         val library = Library(
-            id = -2L,
+            id = libraryId,
             title = "Book Test Library",
             path = "/mock/path/books",
             language = Libraries.ENGLISH,
@@ -55,12 +58,12 @@ class BookLibraryFragmentTest {
         )
         db.getLibrariesDao().save(library)
 
-        val book1 = Book(-2L, 1L, File("/mock/path/books/book1.epub")).apply {
+        val book1 = Book(libraryId, 1L, File("/mock/path/books/book1.epub")).apply {
             title = "Book Alpha"
             author = "Author A"
             excluded = false
         }
-        val book2 = Book(-2L, 2L, File("/mock/path/books/book2.pdf")).apply {
+        val book2 = Book(libraryId, 2L, File("/mock/path/books/book2.pdf")).apply {
             title = "Book Beta"
             author = "Author B"
             excluded = false
@@ -77,12 +80,27 @@ class BookLibraryFragmentTest {
 
     @Test
     fun testBookListIsDisplayed() {
-        val scenario = launchFragmentInContainer<BookLibraryFragment>(
-            themeResId = R.style.Theme_MangaReader,
-            initialState = Lifecycle.State.CREATED
-        )
-        scenario.onFragment { BookLibraryFragment.setMainListener(it, mainListener) }
-        scenario.moveToState(Lifecycle.State.RESUMED)
+        val scenario = ActivityScenario.launch(TestActivity::class.java)
+        scenario.onActivity { activity ->
+            val viewModel = ViewModelProvider(activity)[BookLibraryViewModel::class.java]
+            
+            val library = Library(
+                id = GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK,
+                title = "Book Test Library",
+                path = "/mock/path/books",
+                language = Libraries.ENGLISH,
+                type = Type.BOOK
+            )
+            viewModel.setLibrary(library)
+            viewModel.list { }
+
+            val fragment = BookLibraryFragment()
+            BookLibraryFragment.setMainListener(fragment, activity)
+            activity.setFragment(fragment)
+        }
+        
+        // Aguarda carregamento assíncrono
+        Thread.sleep(2000)
         
         // Verifica se o RecyclerView está visível
         onView(withId(R.id.book_library_recycler_view)).check(matches(isDisplayed()))
@@ -94,12 +112,27 @@ class BookLibraryFragmentTest {
 
     @Test
     fun testOpenTypePopup() {
-        val scenario = launchFragmentInContainer<BookLibraryFragment>(
-            themeResId = R.style.Theme_MangaReader,
-            initialState = Lifecycle.State.CREATED
-        )
-        scenario.onFragment { BookLibraryFragment.setMainListener(it, mainListener) }
-        scenario.moveToState(Lifecycle.State.RESUMED)
+        val scenario = ActivityScenario.launch(TestActivity::class.java)
+        scenario.onActivity { activity ->
+            val viewModel = ViewModelProvider(activity)[BookLibraryViewModel::class.java]
+            
+            val library = Library(
+                id = GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK,
+                title = "Book Test Library",
+                path = "/mock/path/books",
+                language = Libraries.ENGLISH,
+                type = Type.BOOK
+            )
+            viewModel.setLibrary(library)
+            viewModel.list { }
+
+            val fragment = BookLibraryFragment()
+            BookLibraryFragment.setMainListener(fragment, activity)
+            activity.setFragment(fragment)
+        }
+        
+        // Aguarda carregamento e inflagem do menu
+        Thread.sleep(2000)
 
         // Clica no botão de tipo de grid no menu
         onView(withId(R.id.menu_book_library_type)).perform(click())
@@ -113,12 +146,27 @@ class BookLibraryFragmentTest {
 
     @Test
     fun testOpenOrderPopup() {
-        val scenario = launchFragmentInContainer<BookLibraryFragment>(
-            themeResId = R.style.Theme_MangaReader,
-            initialState = Lifecycle.State.CREATED
-        )
-        scenario.onFragment { BookLibraryFragment.setMainListener(it, mainListener) }
-        scenario.moveToState(Lifecycle.State.RESUMED)
+        val scenario = ActivityScenario.launch(TestActivity::class.java)
+        scenario.onActivity { activity ->
+            val viewModel = ViewModelProvider(activity)[BookLibraryViewModel::class.java]
+            
+            val library = Library(
+                id = GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK,
+                title = "Book Test Library",
+                path = "/mock/path/books",
+                language = Libraries.ENGLISH,
+                type = Type.BOOK
+            )
+            viewModel.setLibrary(library)
+            viewModel.list { }
+
+            val fragment = BookLibraryFragment()
+            BookLibraryFragment.setMainListener(fragment, activity)
+            activity.setFragment(fragment)
+        }
+        
+        // Aguarda carregamento
+        Thread.sleep(2000)
 
         // Abre o menu para testar navegação de abas
         onView(withId(R.id.menu_book_library_type)).perform(click())
