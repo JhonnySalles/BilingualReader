@@ -20,12 +20,10 @@ import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
-import br.com.fenix.bilingualreader.utils.MangaTestUtil.MangaTestUtils.generateCovers
 import java.io.File
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Date
-
 
 class TestUtil {
     companion object TestUtils {
@@ -89,6 +87,7 @@ class MangaTestUtil {
                 FileType.CBR,
                 10,
                 intArrayOf(2, 4),
+                mapOf(2 to "Chapter 2", 4 to "Chapter 4"),
                 5,
                 false,
                 (1..2).random() > 1,
@@ -140,6 +139,7 @@ class MangaTestUtil {
                 FileType.CB7,
                 10,
                 intArrayOf(2, 4),
+                mapOf(2 to "Chapter 2", 4 to "Chapter 4"),
                 5,
                 false,
                 (1..2).random() > 1,
@@ -182,6 +182,7 @@ class MangaTestUtil {
                         FileType.CBZ,
                         125,
                         intArrayOf(5, 15, 50, 75, 91, 115),
+                        mapOf(5 to "Chapter 5", 15 to "Chapter 15", 50 to "Chapter 50", 75 to "Chapter 75", 91 to "Chapter 91", 115 to "Chapter 115"),
                         (0..100).random(),
                         false,
                         i in 2..5,

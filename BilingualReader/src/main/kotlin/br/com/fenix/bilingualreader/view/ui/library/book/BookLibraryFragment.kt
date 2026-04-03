@@ -1025,7 +1025,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
                         ShareMarkType.NOT_ALTERATION -> getString(R.string.book_share_mark_without_alteration)
                         ShareMarkType.NEED_PERMISSION_DRIVE -> {
-                            startActivityForResult(shareMark.intent, GeneralConsts.REQUEST.DRIVE_AUTHORIZATION)
+                            startActivityForResult(shareMark.intent!!, GeneralConsts.REQUEST.DRIVE_AUTHORIZATION)
                             getString(R.string.book_share_mark_drive_need_permission)
                         }
 

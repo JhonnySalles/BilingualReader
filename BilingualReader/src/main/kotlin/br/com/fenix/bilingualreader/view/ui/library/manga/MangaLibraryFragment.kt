@@ -1029,7 +1029,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                         }
                         ShareMarkType.NOT_ALTERATION -> getString(R.string.manga_share_mark_without_alteration)
                         ShareMarkType.NEED_PERMISSION_DRIVE -> {
-                            startActivityForResult(shareMark.intent, GeneralConsts.REQUEST.DRIVE_AUTHORIZATION)
+                            startActivityForResult(shareMark.intent!!, GeneralConsts.REQUEST.DRIVE_AUTHORIZATION)
                             getString(R.string.manga_share_mark_drive_need_permission)
                         }
                         ShareMarkType.NOT_CONNECT_FIREBASE -> getString(R.string.manga_share_mark_firebase_not_connected)
