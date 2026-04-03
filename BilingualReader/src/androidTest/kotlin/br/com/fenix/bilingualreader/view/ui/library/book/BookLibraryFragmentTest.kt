@@ -15,6 +15,7 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import org.junit.After
 import org.junit.Before
@@ -26,6 +27,12 @@ import java.io.File
 class BookLibraryFragmentTest {
 
     private lateinit var db: DataBase
+    private val mainListener = object : MainListener {
+        override fun showUpButton() {}
+        override fun hideUpButton() {}
+        override fun changeLibraryTitle(library: String) {}
+        override fun clearLibraryTitle() {}
+    }
 
     @Before
     fun createDb() {
@@ -70,7 +77,11 @@ class BookLibraryFragmentTest {
 
     @Test
     fun testBookListIsDisplayed() {
-        val scenario = launchFragmentInContainer<BookLibraryFragment>(themeResId = R.style.Theme_MangaReader)
+        val scenario = launchFragmentInContainer<BookLibraryFragment>(
+            themeResId = R.style.Theme_MangaReader,
+            initialState = Lifecycle.State.CREATED
+        )
+        scenario.onFragment { BookLibraryFragment.setMainListener(it, mainListener) }
         scenario.moveToState(Lifecycle.State.RESUMED)
         
         // Verifica se o RecyclerView está visível
@@ -83,7 +94,11 @@ class BookLibraryFragmentTest {
 
     @Test
     fun testOpenTypePopup() {
-        val scenario = launchFragmentInContainer<BookLibraryFragment>(themeResId = R.style.Theme_MangaReader)
+        val scenario = launchFragmentInContainer<BookLibraryFragment>(
+            themeResId = R.style.Theme_MangaReader,
+            initialState = Lifecycle.State.CREATED
+        )
+        scenario.onFragment { BookLibraryFragment.setMainListener(it, mainListener) }
         scenario.moveToState(Lifecycle.State.RESUMED)
 
         // Clica no botão de tipo de grid no menu
@@ -98,7 +113,11 @@ class BookLibraryFragmentTest {
 
     @Test
     fun testOpenOrderPopup() {
-        val scenario = launchFragmentInContainer<BookLibraryFragment>(themeResId = R.style.Theme_MangaReader)
+        val scenario = launchFragmentInContainer<BookLibraryFragment>(
+            themeResId = R.style.Theme_MangaReader,
+            initialState = Lifecycle.State.CREATED
+        )
+        scenario.onFragment { BookLibraryFragment.setMainListener(it, mainListener) }
         scenario.moveToState(Lifecycle.State.RESUMED)
 
         // Abre o menu para testar navegação de abas

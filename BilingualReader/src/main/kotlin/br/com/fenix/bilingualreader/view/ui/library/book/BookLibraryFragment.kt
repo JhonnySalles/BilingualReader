@@ -26,6 +26,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import androidx.annotation.VisibleForTesting
 import android.view.inputmethod.EditorInfo
 import android.widget.AbsListView
 import android.widget.AutoCompleteTextView
@@ -141,6 +142,11 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         var mSortType: Order = Order.Name
         var mSortDesc: Boolean = false
         var mGridType: LibraryBookType = LibraryBookType.LINE
+
+        @VisibleForTesting
+        fun setMainListener(fragment: BookLibraryFragment, listener: MainListener) {
+            fragment.mainFunctions = listener
+        }
     }
 
     private val mUpdateHandler: Handler = UpdateHandler()

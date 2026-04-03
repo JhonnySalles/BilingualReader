@@ -15,6 +15,7 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import org.junit.After
 import org.junit.Before
@@ -26,6 +27,12 @@ import java.io.File
 class MangaLibraryFragmentTest {
 
     private lateinit var db: DataBase
+    private val mainListener = object : MainListener {
+        override fun showUpButton() {}
+        override fun hideUpButton() {}
+        override fun changeLibraryTitle(library: String) {}
+        override fun clearLibraryTitle() {}
+    }
 
     @Before
     fun createDb() {
@@ -70,7 +77,11 @@ class MangaLibraryFragmentTest {
 
     @Test
     fun testMangaListIsDisplayed() {
-        val scenario = launchFragmentInContainer<MangaLibraryFragment>(themeResId = R.style.Theme_MangaReader)
+        val scenario = launchFragmentInContainer<MangaLibraryFragment>(
+            themeResId = R.style.Theme_MangaReader,
+            initialState = Lifecycle.State.CREATED
+        )
+        scenario.onFragment { MangaLibraryFragment.setMainListener(it, mainListener) }
         scenario.moveToState(Lifecycle.State.RESUMED)
         
         // Verifica se o RecyclerView está visível
@@ -83,7 +94,11 @@ class MangaLibraryFragmentTest {
 
     @Test
     fun testOpenTypePopup() {
-        val scenario = launchFragmentInContainer<MangaLibraryFragment>(themeResId = R.style.Theme_MangaReader)
+        val scenario = launchFragmentInContainer<MangaLibraryFragment>(
+            themeResId = R.style.Theme_MangaReader,
+            initialState = Lifecycle.State.CREATED
+        )
+        scenario.onFragment { MangaLibraryFragment.setMainListener(it, mainListener) }
         scenario.moveToState(Lifecycle.State.RESUMED)
 
         // Clica no botão de tipo de grid no menu
@@ -99,7 +114,11 @@ class MangaLibraryFragmentTest {
 
     @Test
     fun testOpenOrderPopup() {
-        val scenario = launchFragmentInContainer<MangaLibraryFragment>(themeResId = R.style.Theme_MangaReader)
+        val scenario = launchFragmentInContainer<MangaLibraryFragment>(
+            themeResId = R.style.Theme_MangaReader,
+            initialState = Lifecycle.State.CREATED
+        )
+        scenario.onFragment { MangaLibraryFragment.setMainListener(it, mainListener) }
         scenario.moveToState(Lifecycle.State.RESUMED)
 
         // Clica no botão de ordenação no menu
