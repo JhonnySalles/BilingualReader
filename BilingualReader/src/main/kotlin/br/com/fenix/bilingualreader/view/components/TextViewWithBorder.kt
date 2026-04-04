@@ -4,7 +4,8 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.text.TextPaint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatTextView
 
@@ -15,30 +16,24 @@ class TextViewWithBorder : AppCompatTextView {
 
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
-    private val borderPaint = TextPaint()
-
-    init {
-        borderPaint.isAntiAlias = true
-        borderPaint.style = Paint.Style.STROKE
-        borderPaint.strokeWidth = 1f
-        borderPaint.color = Color.BLACK
-        borderPaint.strokeJoin = Paint.Join.ROUND
-        borderPaint.strokeMiter = 10f
-    }
-
     public override fun onDraw(canvas: Canvas) {
-        val text = text
-        if (text == null || text.isEmpty()) {
-            super.onDraw(canvas)
-            return
-        }
+        val originalStyle = paint.style
+        val originalStrokeWidth = paint.strokeWidth
+        val originalColorFilter = paint.colorFilter
 
-        borderPaint.typeface = paint.typeface
-        borderPaint.textSize = paint.textSize
-        borderPaint.letterSpacing = paint.letterSpacing
-        val x = compoundPaddingLeft.toFloat()
-        val y = (height / 2f + borderPaint.textSize / 3f) + (totalPaddingTop - totalPaddingBottom) / 2f
-        canvas.drawText(text.toString(), x, y, borderPaint)
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 2f
+        paint.strokeJoin = Paint.Join.ROUND
+        paint.strokeMiter = 10f
+        paint.colorFilter = PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN)
         super.onDraw(canvas)
+
+        paint.style = Paint.Style.FILL
+        paint.strokeWidth = 0f
+        paint.colorFilter = originalColorFilter
+        super.onDraw(canvas)
+
+        paint.style = originalStyle
+        paint.strokeWidth = originalStrokeWidth
     }
 }

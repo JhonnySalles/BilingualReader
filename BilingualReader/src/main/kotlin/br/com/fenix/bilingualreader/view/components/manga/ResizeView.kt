@@ -8,11 +8,10 @@ import android.widget.LinearLayout
 import androidx.core.view.GestureDetectorCompat
 import br.com.fenix.bilingualreader.service.listener.WindowListener
 
-
 class ResizeView @JvmOverloads constructor(context: Context, attributeSet: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attributeSet, defStyleAttr), GestureDetector.OnGestureListener {
 
-    var mWindowListener: WindowListener? = null
-    var mDetector: GestureDetectorCompat? = null
+    private var mWindowListener: WindowListener? = null
+    private var mDetector: GestureDetectorCompat? = null
 
     init {
         init(context)
@@ -26,9 +25,14 @@ class ResizeView @JvmOverloads constructor(context: Context, attributeSet: Attri
         this.mWindowListener = windowListener
     }
 
+    fun setDetector(detector: GestureDetectorCompat?) {
+        this.mDetector = detector
+    }
+
     override fun onTouchEvent(e: MotionEvent): Boolean {
-        performClick()
         mDetector?.onTouchEvent(e)
+        if (e.action == MotionEvent.ACTION_UP)
+            performClick()
         return mWindowListener?.onResize(e) ?: false
     }
 

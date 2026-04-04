@@ -39,7 +39,6 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-
 class TextViewAdapter(var context: Context, model: BookReaderViewModel, parse: DocumentParse?, listener: View.OnTouchListener? = null, textSelectCallback: TextSelectCallbackListener? = null) : RecyclerView.Adapter<TextViewAdapter.TextViewPagerHolder>(), TTSListener {
 
     private val mLOGGER = LoggerFactory.getLogger(TextViewAdapter::class.java)
@@ -106,9 +105,8 @@ class TextViewAdapter(var context: Context, model: BookReaderViewModel, parse: D
 
     override fun onBindViewHolder(holder: TextViewPagerHolder, position: Int) {
         if (!ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT) {
-            //Prevent poupup not dimiss in change page
-            for (holder in mHolders.values)
-                holder.popupTextSelect.dismiss()
+            // Prevent popup not dismiss in change page
+            mHolders.values.forEach { if (it.popupTextSelect.isShowing) it.popupTextSelect.dismiss() }
         }
 
         mViewModel.prepareHtml(context, mParse, position, holder, mTextSelectCallback)
@@ -158,6 +156,17 @@ class TextViewAdapter(var context: Context, model: BookReaderViewModel, parse: D
         mHolders[position] = holder
         if (mSpeech != null && mSpeech!!.page == position)
             drawLineSpeech(holder.textView, mSpeech!!)
+    }
+
+    override fun onViewRecycled(holder: TextViewPagerHolder) {
+        super.onViewRecycled(holder)
+        val position = holder.bindingAdapterPosition
+        if (position != RecyclerView.NO_POSITION) {
+            mHolders.remove(position)
+        }
+        if (holder.popupTextSelect.isShowing) {
+            holder.popupTextSelect.dismiss()
+        }
     }
 
     private fun configureLayout(holder: TextViewPagerHolder, type: ScrollingType, position: Int) {

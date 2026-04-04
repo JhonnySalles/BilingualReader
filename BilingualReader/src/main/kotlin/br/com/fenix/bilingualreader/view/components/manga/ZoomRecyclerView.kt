@@ -460,8 +460,7 @@ class ZoomRecyclerView : RecyclerView {
 
         override fun onScale(detector: ScaleGestureDetector): Boolean {
             val mLastScale = mScaleFactor
-            mScaleFactor *= detector.scaleFactor
-            mScaleFactor = Math.max(mMinScaleFactor, Math.min(mScaleFactor, mMaxScaleFactor))
+            mScaleFactor = (mScaleFactor * detector.scaleFactor).coerceIn(mMinScaleFactor, mMaxScaleFactor)
             mMaxTranX = mViewWidth - mViewWidth * mScaleFactor
             mMaxTranY = mViewHeight - mViewHeight * mScaleFactor
             mScaleCenterX = detector.focusX

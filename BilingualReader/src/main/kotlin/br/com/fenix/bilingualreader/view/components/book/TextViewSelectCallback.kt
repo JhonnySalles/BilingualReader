@@ -19,10 +19,10 @@ import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil
 import br.com.fenix.bilingualreader.view.ui.popup.PopupTextSelect
+import br.com.fenix.bilingualreader.BuildConfig
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import org.slf4j.LoggerFactory
-
 
 class TextViewSelectCallback(val context: Context, val holder: TextViewAdapter.TextViewPagerHolder, val page: Int, val createSpan: (annotation: BookAnnotation, start: Int, end: Int) -> (Unit), val listener: TextSelectCallbackListener?) : ActionMode.Callback {
 
@@ -150,11 +150,13 @@ class TextViewSelectCallback(val context: Context, val holder: TextViewAdapter.T
         try {
             if (!ReaderConsts.READER.BOOK_NATIVE_POPUP_MENU_SELECT)
                 holder.popupTextSelect.dismiss()
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             mLOGGER.error("Error to destroy action mode: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error to destroy action mode: " + e.message)
-                recordException(e)
+            if (!BuildConfig.DEBUG) {
+                Firebase.crashlytics.apply {
+                    setCustomKey("message", "Error to destroy action mode: " + e.message)
+                    recordException(e)
+                }
             }
         }
     }

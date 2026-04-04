@@ -5,7 +5,6 @@ import br.com.fenix.bilingualreader.R
 import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.formatter.ValueFormatter
 
-
 class MonthAxisValueFormatter(context: Context) : ValueFormatter() {
 
     private val mMonths = context.resources.getStringArray(R.array.mouth_descriptions)

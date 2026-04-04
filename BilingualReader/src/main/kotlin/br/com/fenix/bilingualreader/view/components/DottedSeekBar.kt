@@ -32,6 +32,10 @@ class DottedSeekBar : AppCompatSeekBar {
     private var mDotPrimaryMark: Drawable? = null
     private var mDotSecondaryMark: Drawable? = null
 
+    /** Cached bitmaps — rebuilt only when the drawable changes */
+    private var mDotPrimaryBitmap: android.graphics.Bitmap? = null
+    private var mDotSecondaryBitmap: android.graphics.Bitmap? = null
+
     constructor(context: Context) : super(context) {
         init(null)
     }
@@ -146,6 +150,7 @@ class DottedSeekBar : AppCompatSeekBar {
      */
     fun setDotsPrimaryDrawable(dotsResource: Int) {
         mDotPrimaryMark = resources.getDrawable(dotsResource, context.theme)
+        mDotPrimaryBitmap = mDotPrimaryMark?.toBitmap()
         invalidate()
     }
 
@@ -154,12 +159,15 @@ class DottedSeekBar : AppCompatSeekBar {
      */
     fun setDotsSecondaryDrawable(dotsResource: Int) {
         mDotSecondaryMark = resources.getDrawable(dotsResource, context.theme)
+        mDotSecondaryBitmap = mDotSecondaryMark?.toBitmap()
         invalidate()
     }
 
-    private fun drawDots(canvas: Canvas, positions: IntArray, mark: Drawable?) {
+    private fun drawDots(canvas: Canvas, positions: IntArray, mark: Drawable?, cachedBitmap: android.graphics.Bitmap?) {
         if (positions.isEmpty() || mark == null)
             return
+
+        val image = cachedBitmap ?: mark.toBitmap()
 
         val trackWidth = (measuredWidth - paddingLeft - paddingRight - thumb.intrinsicWidth).toFloat()
         val startX = (paddingLeft + thumb.intrinsicWidth / 2f)
@@ -169,8 +177,6 @@ class DottedSeekBar : AppCompatSeekBar {
             (max - min).toFloat()
         else
             (max - MIN).toFloat()
-
-        val image = mark.toBitmap()
 
         for (position in positions) {
             val scale: Float = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
@@ -187,8 +193,8 @@ class DottedSeekBar : AppCompatSeekBar {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        drawDots(canvas, mDotsPrimaryPositions, mDotPrimaryMark)
-        drawDots(canvas, mDotsSecondaryPositions, mDotSecondaryMark)
+        drawDots(canvas, mDotsPrimaryPositions, mDotPrimaryMark, mDotPrimaryBitmap)
+        drawDots(canvas, mDotsSecondaryPositions, mDotSecondaryMark, mDotSecondaryBitmap)
 
         canvas.withTranslation((paddingLeft - thumbOffset).toFloat(), paddingTop.toFloat()) {
             thumb.draw(canvas)

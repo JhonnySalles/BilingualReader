@@ -41,7 +41,6 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sign
 
-
 open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCompatImageView(context, attributeSet), AutoScroll, BaseImageView {
 
     companion object {
@@ -88,14 +87,28 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
     private var mTouchSlop = 0
     private var mInitialX = 0f
     private var mInitialY = 0f
+    private var mCachedParentViewPager: ViewPager2? = null
     private val mParentViewPager: ViewPager2?
         get() {
-            var v: View? = parent as? View
-            while (v != null && v !is ViewPager2) {
-                v = v.parent as? View
+            if (mCachedParentViewPager == null) {
+                var v: View? = parent as? View
+                while (v != null && v !is ViewPager2) {
+                    v = v.parent as? View
+                }
+                mCachedParentViewPager = v as? ViewPager2
             }
-            return v as? ViewPager2
+            return mCachedParentViewPager
         }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        mCachedParentViewPager = null // Force re-find
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        mCachedParentViewPager = null
+    }
 
     fun setViewMode(viewMode: ReaderMode) {
         mViewMode = viewMode
@@ -429,27 +442,34 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
 
     open fun computeCurrentImageSize(): Point {
         val size = Point()
-        val d: Drawable = drawable ?: return size
+        computeCurrentImageSize(size)
+        return size
+    }
+
+    open fun computeCurrentImageSize(outSize: Point) {
+        val d: Drawable = drawable ?: return
         mMatrix.getValues(mValues)
         val scale = mValues[Matrix.MSCALE_X]
         val width = d.intrinsicWidth * scale
         val height = d.intrinsicHeight * scale
-        size[width.toInt()] = height.toInt()
-        return size
+        outSize.set(width.toInt(), height.toInt())
     }
 
     open fun computeCurrentOffset(): Point {
         val offset = Point()
+        computeCurrentOffset(offset)
+        return offset
+    }
+
+    open fun computeCurrentOffset(outOffset: Point) {
         mMatrix.getValues(mValues)
         val transX = mValues[Matrix.MTRANS_X]
         val transY = mValues[Matrix.MTRANS_Y]
-        offset[transX.toInt()] = transY.toInt()
-        return offset
+        outOffset.set(transX.toInt(), transY.toInt())
     }
 
     override fun setImageMatrix(matrix: Matrix) {
         super.setImageMatrix(fixMatrix(matrix))
-        postInvalidate()
     }
 
     open fun fixMatrix(matrix: Matrix): Matrix {
