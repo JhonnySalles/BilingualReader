@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory
 import java.io.BufferedReader
 import java.io.File
 
-
 @Database(
     version = 3, exportSchema = true,
     entities = [Manga::class, MangaAnnotation::class, Library::class, SubTitle::class, KanjiJLPT::class, Kanjax::class,
@@ -75,7 +74,8 @@ abstract class DataBase : RoomDatabase() {
         private const val DATABASE_NAME = "BilingualReader.db"
 
         lateinit var mAssets: AssetManager
-        private lateinit var INSTANCE: DataBase
+        @Volatile
+        private var INSTANCE: DataBase? = null
 
         @VisibleForTesting
         fun setTestingInstance(database: DataBase) {
@@ -83,40 +83,52 @@ abstract class DataBase : RoomDatabase() {
         }
 
         fun getDataBase(context: Context): DataBase {
-            if (!::INSTANCE.isInitialized)
-                mAssets = context.assets
+            val instance = INSTANCE
+            if (instance != null)
+                return instance
+
             synchronized(DataBase::class.java) { // Used for a two or many cores
-                INSTANCE = Room.databaseBuilder(context, DataBase::class.java, DATABASE_NAME)
-                    .addCallback(rdc)
-                    .addMigrations(
-                        Migrations.MIGRATION_1_2,
-                        Migrations.MIGRATION_2_3,
-                        Migrations.MIGRATION_3_4,
-                        Migrations.MIGRATION_4_5,
-                        Migrations.MIGRATION_5_6,
-                        Migrations.MIGRATION_6_7,
-                        Migrations.MIGRATION_7_8,
-                        Migrations.MIGRATION_8_9,
-                        Migrations.MIGRATION_9_10,
-                        Migrations.MIGRATION_10_11,
-                        Migrations.MIGRATION_11_12,
-                        Migrations.MIGRATION_12_13,
-                        Migrations.MIGRATION_13_14
-                    )
-                    .allowMainThreadQueries()
-                    /*.setQueryCallback(object : QueryCallback { // Shows query
-                        override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
-                            println("SQL Query: $sqlQuery SQL Args: $bindArgs")
-                        }
-                    }, Executors.newSingleThreadExecutor())*/
-                    .build() // MainThread uses another thread in db conection
+                var instance = INSTANCE
+                if (instance == null) {
+                    mAssets = context.applicationContext.assets
+
+                    instance = Room.databaseBuilder(context, DataBase::class.java, DATABASE_NAME)
+                        .addCallback(rdc)
+                        .addMigrations(
+                            Migrations.MIGRATION_1_2,
+                            Migrations.MIGRATION_2_3,
+                            Migrations.MIGRATION_3_4,
+                            Migrations.MIGRATION_4_5,
+                            Migrations.MIGRATION_5_6,
+                            Migrations.MIGRATION_6_7,
+                            Migrations.MIGRATION_7_8,
+                            Migrations.MIGRATION_8_9,
+                            Migrations.MIGRATION_9_10,
+                            Migrations.MIGRATION_10_11,
+                            Migrations.MIGRATION_11_12,
+                            Migrations.MIGRATION_12_13,
+                            Migrations.MIGRATION_13_14
+                        )
+                        .allowMainThreadQueries()
+                        /*.setQueryCallback(object : QueryCallback { // Shows query
+                            override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                                println("SQL Query: $sqlQuery SQL Args: $bindArgs")
+                            }
+                        }, Executors.newSingleThreadExecutor())*/
+                            .build() // MainThread uses another thread in db conection
+
+                    INSTANCE = instance
+                }
+                return instance
             }
-            return INSTANCE
         }
 
         fun close() {
-            if (::INSTANCE.isInitialized)
-                INSTANCE.close()
+            INSTANCE?.let {
+                if (it.isOpen)
+                    it.close()
+            }
+            INSTANCE = null
         }
 
         private var rdc: Callback = object : Callback() {
@@ -145,7 +157,7 @@ abstract class DataBase : RoomDatabase() {
 
         // Backup and restore
         fun backupDatabase(context: Context, file: File) {
-            BACKUP.database(INSTANCE)
+            BACKUP.database(INSTANCE!!)
                 .enableLogDebug(true)
                 .backupLocation(RoomBackup.BACKUP_FILE_LOCATION_CUSTOM_FILE)
                 .backupLocationCustomFile(File(file.path))
@@ -170,7 +182,7 @@ abstract class DataBase : RoomDatabase() {
 
         fun autoBackupDatabase(context: Context, isRestart: Boolean = false) {
             mLOGGER.warn("Generate auto backup...")
-            BACKUP.database(INSTANCE)
+            BACKUP.database(INSTANCE!!)
                 .enableLogDebug(true)
                 .backupLocation(RoomBackup.BACKUP_FILE_LOCATION_INTERNAL)
                 .maxFileCount(5)
@@ -195,7 +207,7 @@ abstract class DataBase : RoomDatabase() {
         }
 
         fun restoreDatabase(context: Context, file: File) {
-            BACKUP.database(INSTANCE)
+            BACKUP.database(INSTANCE!!)
                 .enableLogDebug(true)
                 .backupLocation(RoomBackup.BACKUP_FILE_LOCATION_CUSTOM_FILE)
                 .backupLocationCustomFile(File(file.path))
