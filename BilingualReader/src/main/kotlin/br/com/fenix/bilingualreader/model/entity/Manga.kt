@@ -228,10 +228,17 @@ class Manga(
     }
 
     fun update(manga: Manga, isFull: Boolean = false) : Boolean {
-        val updated = this.bookMark != manga.bookMark || this.favorite != manga.favorite ||
-                this.hasSubtitle != manga.hasSubtitle || this.lastAccess != manga.lastAccess ||
-                this.author != manga.author || this.series != manga.series || this.publisher != manga.publisher ||
-                this.volume != manga.volume || this.release != manga.release
+        var updated = this.bookMark != manga.bookMark || this.favorite != manga.favorite ||
+                this.hasSubtitle != manga.hasSubtitle ||
+                this.excluded != manga.excluded || this.lastAccess != manga.lastAccess
+
+        if (isFull) {
+            updated = updated || this.title != manga.title || this.pages != manga.pages ||
+                    this.chapters != manga.chapters || this.chaptersPages != manga.chaptersPages ||
+                    this.author != manga.author || this.series != manga.series ||
+                    this.genre != manga.genre || this.publisher != manga.publisher ||
+                    this.volume != manga.volume || this.release != manga.release
+        }
 
         this.completed = manga.completed
         this.bookMark = manga.bookMark
@@ -240,18 +247,16 @@ class Manga(
         this.hasSubtitle = manga.hasSubtitle
         this.lastAlteration = manga.lastAlteration
         this.lastVocabImport = manga.lastVocabImport
-        this.author = manga.author
-        this.series = manga.series
-        this.genre = manga.genre
-        this.publisher = manga.publisher
-        this.volume = manga.volume
-        this.release = manga.release
-
         if (isFull) {
             this.title = manga.title
+            this.author = manga.author
+            this.series = manga.series
+            this.genre = manga.genre
+            this.publisher = manga.publisher
+            this.volume = manga.volume
+            this.release = manga.release
             this.chapters = manga.chapters
             this.chaptersPages = manga.chaptersPages
-            this.pages = manga.pages
             this.pages = manga.pages
         }
 

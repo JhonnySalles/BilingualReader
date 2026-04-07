@@ -218,7 +218,7 @@ class ScannerManga(private val context: Context) {
                     .filterNot { it.isDirectory }.forEach {
                         walked = true
                         if (mIsStopped)
-                            return
+                            return@forEach
                         if (FileType.isManga(it.name)) {
                             if (storageFiles.containsKey(it.path))
                                 storageFiles.remove(it.path)

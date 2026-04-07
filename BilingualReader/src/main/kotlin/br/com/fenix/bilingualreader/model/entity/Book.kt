@@ -257,9 +257,20 @@ class Book(
     }
 
     fun update(book: Book, isFull: Boolean = false) : Boolean {
-        val updated = this.bookMark != book.bookMark || this.favorite != book.favorite ||
+        var updated = this.bookMark != book.bookMark || this.favorite != book.favorite ||
                 this.pages != book.pages || this.language != book.language ||
                 this.tags != book.tags || this.lastAccess != book.lastAccess
+
+        if (isFull) {
+            updated = updated || this.title != book.title || this.author != book.author ||
+                    this.password != book.password || this.annotation != book.annotation ||
+                    this.release != book.release || this.genre != book.genre ||
+                    this.volume != book.volume || this.chapter != book.chapter ||
+                    this.chapterDescription != book.chapterDescription ||
+                    this.extension != book.extension ||
+                    this.publisher != book.publisher || this.series != book.series ||
+                    this.isbn != book.isbn
+        }
 
         this.completed = book.completed
         this.bookMark = book.bookMark

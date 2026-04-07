@@ -236,7 +236,7 @@ class ScannerBook(private val context: Context) {
                                         notifyMediaUpdatedChange(deleted)
                                         deleted
                                     } else if (storage.findBookByPath(it.path) != null)
-                                        return
+                                        return@forEach
                                     else
                                         Book(mLibrary.id, null, it)
 

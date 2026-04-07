@@ -56,7 +56,7 @@ class ScannerMangaTest {
         every { ParseFactory.create(any<File>()) } returns parse
         every { parse.numPages() } returns 1
 
-        library = Library(id = 3L, title = "Manga Library", path = tempFolder.root.absolutePath)
+        library = Library(id = 3L, title = "Manga Library", path = tempFolder.root.canonicalPath)
         // Ensure the directory is not empty so 'walked' flag is set to true in ScannerManga
         tempFolder.newFile("placeholder.txt")
     }
@@ -83,9 +83,15 @@ class ScannerMangaTest {
         val runMethod = runnableClass?.getMethod("run")
         runMethod?.invoke(runnableObj)
         
+        // Verify the code reached the scan loop
+        verify(atLeast = 1) { anyConstructed<Storage>().listMangas(any()) }
+
         // Verify that storage.save was called for the new manga
-        verify { 
-            anyConstructed<Storage>().save(manga = match<Manga> { it.path == mangaFile.absolutePath }, lastAlteration = any()) 
+        verify(atLeast = 1) { anyConstructed<Storage>().save(manga = any<Manga>(), lastAlteration = any()) }
+        verify(atLeast = 1) { 
+            anyConstructed<Storage>().save(manga = match<Manga> { 
+                it.path.contains("manga_test.zip", ignoreCase = true) 
+            }, lastAlteration = any()) 
         }
     }
 

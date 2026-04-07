@@ -15,4 +15,4 @@ echo.
 :: 2>&1 : Redireciona a saída de erro para a saída padrão
 
 call gradlew --stop
-call gradlew clean testDebugUnitTest -PshowTests > test_unit.txt 2>&1
+call gradlew clean testDebugUnitTest -PshowTests --no-daemon > test_unit.txt 2>&1

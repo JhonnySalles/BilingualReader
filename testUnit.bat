@@ -13,5 +13,5 @@ echo.
 :: -PshowTests : Mostra os testes
 
 call gradlew --stop
-call gradlew clean testDebugUnitTest -PshowTests
+call gradlew clean testDebugUnitTest -PshowTests --no-daemon
 pause
