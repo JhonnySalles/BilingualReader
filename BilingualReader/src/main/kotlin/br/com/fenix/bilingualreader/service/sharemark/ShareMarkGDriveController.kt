@@ -177,7 +177,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
             parents.add(idFolder)
 
             gfile.parents = parents
-            val file = drive.Files().create(gfile, fileContent).setFields("id").execute()
+            val file = drive.files().create(gfile, fileContent).setFields("id").execute()
             file.id
         } catch (e: GoogleJsonResponseException) {
             mLOGGER.warn("Error create share file from drive.", e)
@@ -193,7 +193,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
             val gfile = com.google.api.services.drive.model.File()
             gfile.name = nameWithoutExtension + "_" + LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern(GeneralConsts.SHARE_MARKS.DATE_TIME)) + GeneralConsts.SHARE_MARKS.FILE_EXTENSION
-            drive.Files().update(idFile, gfile).execute()
+            drive.files().update(idFile, gfile).execute()
 
             uploadShareFile(
                 drive,
@@ -224,7 +224,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                 val gFolder = com.google.api.services.drive.model.File()
                 gFolder.name = GeneralConsts.SHARE_MARKS.FOLDER
                 gFolder.mimeType = "application/vnd.google-apps.folder"
-                mIdFolder = drive.Files().create(gFolder).setFields("id").execute().id
+                mIdFolder = drive.files().create(gFolder).setFields("id").execute().id
             }
 
             if (mIdManga.isEmpty())

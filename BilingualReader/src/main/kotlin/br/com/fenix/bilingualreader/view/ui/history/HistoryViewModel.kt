@@ -181,13 +181,13 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
 
         when (history) {
             is Manga -> {
-                if (history.id == 0L)
+                if (history.id == null || history.id == 0L)
                     history.id = mMangaRepository.save(history)
                 else
                     mMangaRepository.update(history)
             }
             is Book -> {
-                if (history.id == 0L)
+                if (history.id == null || history.id == 0L)
                     history.id = mBookRepository.save(history)
                 else
                     mBookRepository.update(history)

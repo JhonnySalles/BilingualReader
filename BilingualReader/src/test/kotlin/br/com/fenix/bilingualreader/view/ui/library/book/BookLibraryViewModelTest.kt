@@ -12,7 +12,9 @@ import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.TagsRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.model.enums.Type
 import java.io.File
+import java.time.LocalDateTime
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -35,28 +37,39 @@ class BookLibraryViewModelTest {
     private val testDispatcher = UnconfinedTestDispatcher()
 
     private lateinit var viewModel: BookLibraryViewModel
-    private val application: Application = mockk(relaxed = true)
-    private lateinit var context: Context
+    private lateinit var application: Application
     private val sharedPreferences: SharedPreferences = mockk(relaxed = true)
     private val bookRepository: BookRepository = mockk(relaxed = true)
     private val tagsRepository: TagsRepository = mockk(relaxed = true)
+    private val context: Context by lazy { application.applicationContext }
 
     @Before
     fun setUp() {
-        context = ApplicationProvider.getApplicationContext()
-        every { application.applicationContext } returns context
+        application = ApplicationProvider.getApplicationContext()
         
         mockkObject(GeneralConsts.Companion)
-        every { GeneralConsts.getSharedPreferences(any()) } returns sharedPreferences
+        every { GeneralConsts.getSharedPreferences(any<Context>()) } returns sharedPreferences
 
         mockkConstructor(BookRepository::class)
-        every { anyConstructed<BookRepository>().list(any()) } answers { bookRepository.list(firstArg()) }
-        every { anyConstructed<BookRepository>().save(any(), any()) } answers { bookRepository.save(firstArg(), secondArg()) }
-        every { anyConstructed<BookRepository>().update(any(), any()) } answers { bookRepository.update(firstArg(), secondArg()) }
-        every { anyConstructed<BookRepository>().delete(any()) } answers { bookRepository.delete(firstArg()) }
+        every { anyConstructed<BookRepository>().list(any<Library>()) } answers { bookRepository.list(firstArg()) }
+        every { anyConstructed<BookRepository>().save(any<Book>(), any<LocalDateTime>()) } answers { bookRepository.save(firstArg(), secondArg()) }
+        every { anyConstructed<BookRepository>().update(any<Book>(), any<LocalDateTime>()) } answers { bookRepository.update(firstArg(), secondArg()) }
+        every { anyConstructed<BookRepository>().delete(any<Book>()) } answers { bookRepository.delete(firstArg()) }
 
         mockkConstructor(TagsRepository::class)
         every { anyConstructed<TagsRepository>().list() } answers { tagsRepository.list() }
+
+        mockkObject(Util.Utils)
+        every { Util.Utils.stringToFilter(any<Context>(), any<Type>(), any<String>(), any<Boolean>()) } answers {
+            val type = secondArg<Type>()
+            val text = thirdArg<String>()
+            if (type == Type.BOOK && text.contains("Author", ignoreCase = true)) FilterType.Author else FilterType.None
+        }
+
+        mockkStatic(Dispatchers::class)
+        every { Dispatchers.IO } returns testDispatcher
+        every { Dispatchers.Default } returns testDispatcher
+        Dispatchers.setMain(testDispatcher)
 
         viewModel = BookLibraryViewModel(application)
     }
@@ -71,20 +84,19 @@ class BookLibraryViewModelTest {
     fun `list should fetch books from repository and update LiveData`() = runTest {
         val library = Library(null, "MyLibrary").apply { id = 1L }
         val books = mutableListOf(Book(library.id!!, 1L, File("/path/Path 1")), Book(library.id!!, 2L, File("/path/Path 2")))
-        every { bookRepository.list(any()) } returns books
+        every { bookRepository.list(any<Library>()) } returns books
 
         viewModel.setLibrary(library)
         
-        // Mock Dispatchers.IO
-        mockkStatic(Dispatchers::class)
-        every { Dispatchers.IO } returns testDispatcher
-        
+        val latch = java.util.concurrent.CountDownLatch(1)
         var callbackCalled = false
         viewModel.list { success ->
             callbackCalled = true
             assertTrue(success)
+            latch.countDown()
         }
 
+        latch.await(5, java.util.concurrent.TimeUnit.SECONDS)
         assertTrue(callbackCalled)
         assertEquals(2, viewModel.listBook.value!!.size)
         // Book(idLibrary, id, File("/path/Path 1")) -> name will be "Path 1"
@@ -139,12 +151,8 @@ class BookLibraryViewModelTest {
         val book2 = Book(1L, 2L, File("/path/P2")).apply { name = "B2"; author = "Tolkien" }
         viewModel.setList(arrayListOf(book1, book2))
 
-        // We need to mock Util.stringToFilter because it used inside the filter implementation
-        mockkStatic(Util::class)
-        every { Util.stringToFilter(any(), any(), any()) } answers {
-            val prefix = thirdArg<String>()
-            if (prefix.equals("Author", ignoreCase = true)) FilterType.Author else FilterType.None
-        }
+        // The global mock in setup handles this now.
+        // We just need to make sure the filter behaves as expected.
 
         viewModel.getFilter().filter("@Author:Rowling")
         

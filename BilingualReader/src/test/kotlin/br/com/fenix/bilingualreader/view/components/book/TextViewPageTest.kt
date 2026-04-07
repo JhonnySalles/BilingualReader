@@ -48,9 +48,13 @@ class TextViewPageTest {
         val originalSize = textView.textSize
         
         // Use reflection to force mIsZoom = true, or trigger it via zoom
-        val field = TextViewPage::class.java.getDeclaredField("mIsZoom")
-        field.isAccessible = true
-        field.set(textView, true)
+        val isZoomField = TextViewPage::class.java.getDeclaredField("mIsZoom")
+        isZoomField.isAccessible = true
+        isZoomField.set(textView, true)
+        
+        val isChangeSizeField = TextViewPage::class.java.getDeclaredField("mIsChangeSize")
+        isChangeSizeField.isAccessible = true
+        isChangeSizeField.set(textView, false)
         
         textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, originalSize + 20f)
         assertNotEquals(originalSize, textView.textSize, 0.1f)

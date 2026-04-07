@@ -104,6 +104,8 @@ ksp {
 
 configurations {
     all*.exclude group: 'xpp3', module: 'xpp3'
+    testImplementation.exclude group: 'com.github.tony19', module: 'logback-android'
+    testRuntimeOnly.exclude group: 'com.github.tony19', module: 'logback-android'
 }
 
 dependencies {

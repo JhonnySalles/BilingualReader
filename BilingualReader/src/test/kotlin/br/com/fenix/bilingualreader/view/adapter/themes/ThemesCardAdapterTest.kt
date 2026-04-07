@@ -26,6 +26,7 @@ class ThemesCardAdapterTest {
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
+        context.setTheme(R.style.Theme_MangaReader)
         mockListener = mockk(relaxed = true)
         dataList.clear()
         adapter = spyk(ThemesCardAdapter(context, dataList, mockListener))

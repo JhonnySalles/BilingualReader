@@ -102,16 +102,11 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
 
     fun restoreLastStackLibrary(id: String) {
         if (mStackLibrary.contains(id)) {
-            mStackLibrary.remove(id)
-            for (item in mStackLibrary) {
-                if (item.value.first == mStackLibrary.size) {
-                    mLibrary = item.value.second
-                    mListBookFull.value = item.value.third.toMutableList()
-                    mListBook.value = item.value.third.toMutableList()
-                    setSuggestions(mListBookFull.value)
-                    break
-                }
-            }
+            val item = mStackLibrary.remove(id)!!
+            mLibrary = item.second
+            mListBookFull.value = item.third.toMutableList()
+            mListBook.value = item.third.toMutableList()
+            setSuggestions(mListBookFull.value)
         }
     }
 

@@ -119,16 +119,11 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
 
     fun restoreLastStackLibrary(id: String) {
         if (mStackLibrary.contains(id)) {
-            mStackLibrary.remove(id)
-            for (item in mStackLibrary) {
-                if (item.value.first == mStackLibrary.size) {
-                    mLibrary = item.value.second
-                    mListMangasFull.value = item.value.third.toMutableList()
-                    mListMangas.value = item.value.third.toMutableList()
-                    setSuggestions(mListMangasFull.value)
-                    break
-                }
-            }
+            val item = mStackLibrary.remove(id)!!
+            mLibrary = item.second
+            mListMangasFull.value = item.third.toMutableList()
+            mListMangas.value = item.third.toMutableList()
+            setSuggestions(mListMangasFull.value)
         }
     }
 

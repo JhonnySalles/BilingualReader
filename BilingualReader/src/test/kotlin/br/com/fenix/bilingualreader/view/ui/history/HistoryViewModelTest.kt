@@ -12,6 +12,7 @@ import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.LibraryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.service.repository.TagsRepository
+import androidx.test.core.app.ApplicationProvider
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -21,8 +22,8 @@ import org.junit.Assert.*
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.time.LocalDateTime
 import java.io.File
+import java.time.LocalDateTime
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
@@ -35,8 +36,8 @@ class HistoryViewModelTest {
     private val testDispatcher = UnconfinedTestDispatcher()
 
     private lateinit var viewModel: HistoryViewModel
-    private val application: Application = mockk(relaxed = true)
-    private val context: Context = mockk(relaxed = true)
+    private lateinit var application: Application
+    private val context: Context by lazy { application.applicationContext }
     
     private val mangaRepository: MangaRepository = mockk(relaxed = true)
     private val bookRepository: BookRepository = mockk(relaxed = true)
@@ -47,18 +48,19 @@ class HistoryViewModelTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         
-        every { application.applicationContext } returns context
-        every { context.getString(any()) } returns "Default"
+        application = ApplicationProvider.getApplicationContext()
 
         mockkConstructor(MangaRepository::class)
         every { anyConstructed<MangaRepository>().listHistory() } answers { mangaRepository.listHistory() }
         every { anyConstructed<MangaRepository>().save(any<Manga>(), any()) } answers { mangaRepository.save(firstArg<Manga>(), secondArg()) }
         every { anyConstructed<MangaRepository>().update(any<Manga>(), any()) } answers { mangaRepository.update(firstArg<Manga>(), secondArg()) }
+        every { anyConstructed<MangaRepository>().delete(any<Manga>()) } answers { mangaRepository.delete(firstArg<Manga>()) }
         
         mockkConstructor(BookRepository::class)
         every { anyConstructed<BookRepository>().listHistory() } answers { bookRepository.listHistory() }
         every { anyConstructed<BookRepository>().save(any<Book>(), any()) } answers { bookRepository.save(firstArg<Book>(), secondArg()) }
         every { anyConstructed<BookRepository>().update(any<Book>(), any()) } answers { bookRepository.update(firstArg<Book>(), secondArg()) }
+        every { anyConstructed<BookRepository>().delete(any<Book>()) } answers { bookRepository.delete(firstArg<Book>()) }
 
         mockkConstructor(LibraryRepository::class)
         mockkConstructor(TagsRepository::class)

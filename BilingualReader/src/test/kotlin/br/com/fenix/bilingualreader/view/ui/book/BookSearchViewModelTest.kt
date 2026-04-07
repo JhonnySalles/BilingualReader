@@ -46,6 +46,13 @@ class BookSearchViewModelTest {
         
         application = ApplicationProvider.getApplicationContext()
         
+        mockkConstructor(BookSearchRepository::class)
+        every { anyConstructed<BookSearchRepository>().findAll(any()) } answers { repository.findAll(firstArg()) }
+        every { anyConstructed<BookSearchRepository>().save(any()) } answers { repository.save(firstArg()) }
+        every { anyConstructed<BookSearchRepository>().update(any()) } answers { repository.update(firstArg()) }
+        every { anyConstructed<BookSearchRepository>().delete(any<BookSearch>()) } answers { repository.delete(firstArg<BookSearch>()) }
+        every { anyConstructed<BookSearchRepository>().delete(any<Long>()) } answers { repository.delete(firstArg<Long>()) }
+
         mockkObject(ThemeUtil.ThemeUtils)
         every { any<Context>().getColorFromAttr(any(), any(), any()) } returns 0xFF0000
 
@@ -55,17 +62,9 @@ class BookSearchViewModelTest {
         every { book.file } returns File("dummy.epub")
         every { book.folder } returns ""
         
-        mockkConstructor(BookSearchRepository::class)
-        every { anyConstructed<BookSearchRepository>().save(any()) } answers { repository.save(firstArg()) }
-        every { anyConstructed<BookSearchRepository>().update(any()) } answers { repository.update(firstArg()) }
-        every { anyConstructed<BookSearchRepository>().delete(any<Long>()) } answers { repository.delete(firstArg<Long>()) }
-        every { anyConstructed<BookSearchRepository>().delete(any<BookSearch>()) } answers { repository.delete(firstArg<BookSearch>()) }
-        every { anyConstructed<BookSearchRepository>().findAll(any()) } answers { repository.findAll(firstArg()) }
-        
-        // Ensure Dispatchers are globally mocked if needed, but runTest usually handles it.
-        // However, the SearchViewModel uses CoroutineScope(Dispatchers.IO).launch
         mockkStatic(Dispatchers::class)
         every { Dispatchers.IO } returns testDispatcher
+        every { Dispatchers.Default } returns testDispatcher
 
         mockkObject(TextUtil.TextUtils)
         every { TextUtil.TextUtils.formatHtml(any(), any()) } answers { firstArg() }
@@ -117,19 +116,26 @@ class BookSearchViewModelTest {
     @Test
     fun `search should find text in document pages`() = runTest {
         viewModel.initialize(application, book, documentParse)
-        
         val page: CodecPage = mockk(relaxed = true)
         every { documentParse.getPage(any()) } returns page
         every { page.pageHTML } returns "This is a text to find something."
         every { documentParse.pageCount } returns 1
         every { documentParse.getChapters() } returns linkedMapOf("Chapter 1" to 0)
 
-        // Mock Dispatchers.IO to use testDispatcher
-        mockkStatic(Dispatchers::class)
-        every { Dispatchers.IO } returns testDispatcher
+        val latch = java.util.concurrent.CountDownLatch(1)
+        val observer: (List<BookSearch>) -> Unit = { results ->
+            if (results.isNotEmpty()) {
+                latch.countDown()
+            }
+        }
+        viewModel.search.observeForever(observer)
         
-        viewModel.search("find")
-        
+        try {
+            viewModel.search("find")
+            latch.await(5, java.util.concurrent.TimeUnit.SECONDS)
+        } finally {
+            viewModel.search.removeObserver(observer)
+        }
         val results = viewModel.search.value
         assertNotNull(results)
         // results may contain both HEADER and CONTENT
