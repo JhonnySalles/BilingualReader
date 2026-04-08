@@ -72,6 +72,10 @@ android {
     buildToolsVersion '33.0.0'
     namespace 'br.com.fenix.bilingualreader'
 
+    sourceSets {
+        test.assets.srcDirs += files("$projectDir/schemas")
+    }
+
     testOptions {
         unitTests {
             includeAndroidResources = true
