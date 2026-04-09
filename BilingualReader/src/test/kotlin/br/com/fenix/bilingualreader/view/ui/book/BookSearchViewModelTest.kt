@@ -54,7 +54,9 @@ class BookSearchViewModelTest {
         every { anyConstructed<BookSearchRepository>().delete(any<Long>()) } answers { repository.delete(firstArg<Long>()) }
 
         mockkObject(ThemeUtil.ThemeUtils)
-        every { any<Context>().getColorFromAttr(any(), any(), any()) } returns 0xFF0000
+        with(ThemeUtil.ThemeUtils) {
+            every { any<Context>().getColorFromAttr(any(), any(), any()) } returns 0xFF0000
+        }
 
         every { book.id } returns 1L
         every { book.fileName } returns "dummy"

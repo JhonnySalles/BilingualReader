@@ -51,8 +51,8 @@ class MovementTest {
         every { textView.left } returns 0
         every { textView.right } returns 1000
 
-        every { layout.getLineForVertical(any()) } returns 0
-        every { layout.getOffsetForHorizontal(any(), any()) } returns 5
+        every { layout.getLineForVertical(any<Int>()) } returns 0
+        every { layout.getOffsetForHorizontal(any<Int>(), any<Float>()) } returns 5
 
         // Use reflection-based array to avoid ClassCastException
         every { buffer.getSpans(any(), any(), any<Class<*>>()) } answers {
@@ -61,7 +61,7 @@ class MovementTest {
         }
 
         val mockSpan = mockk<ClickableSpan>(relaxed = true)
-        every { buffer.getSpans(any(), any(), ClickableSpan::class.java) } returns arrayOf(mockSpan)
+        every { buffer.getSpans(any<Int>(), any<Int>(), ClickableSpan::class.java) } returns arrayOf(mockSpan)
 
         val downEvent = mockk<MotionEvent>(relaxed = true)
         every { downEvent.action } returns MotionEvent.ACTION_DOWN
@@ -104,8 +104,8 @@ class MovementTest {
         every { textView.left } returns 0
         every { textView.right } returns 1000
 
-        every { layout.getLineForVertical(any()) } returns 0
-        every { layout.getOffsetForHorizontal(any(), any()) } returns 5
+        every { layout.getLineForVertical(any<Int>()) } returns 0
+        every { layout.getOffsetForHorizontal(any<Int>(), any<Float>()) } returns 5
 
         // Use reflection-based array to avoid ClassCastException
         every { buffer.getSpans(any(), any(), any<Class<*>>()) } answers {

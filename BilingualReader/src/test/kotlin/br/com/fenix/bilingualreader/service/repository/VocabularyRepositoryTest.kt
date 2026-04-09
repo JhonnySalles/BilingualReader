@@ -76,8 +76,9 @@ class VocabularyRepositoryTest {
         vocabularyRepository.save(createVocabulary("v1"))
         vocabularyRepository.save(createVocabulary("v2"))
         
-        val list = vocabularyRepository.findAll("")
-        assertEquals(2, list.size)
+        val list = vocabularyRepository.findAll("v1")
+        assertEquals(1, list.size)
+        assertEquals("v1", list[0].word)
     }
 
     @Test

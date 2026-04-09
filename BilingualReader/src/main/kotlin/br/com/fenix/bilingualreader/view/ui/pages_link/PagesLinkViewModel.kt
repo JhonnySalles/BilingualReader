@@ -211,7 +211,7 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun save(obj: LinkedFile): LinkedFile {
         obj.lastAccess = LocalDateTime.now()
-        if (obj.id == 0L)
+        if (obj.id == null || obj.id == 0L)
             obj.id = mFileLinkRepository.save(obj)
         else
             mFileLinkRepository.update(obj)

@@ -71,7 +71,7 @@ class Manga(
 
     @Ignore
     constructor(fkLibrary: Long?, id: Long?, file: File) : this(
-        id, file.nameWithoutExtension, file.path, file.parent, file.name, file.length(), FileType.UNKNOWN,
+        id, file.nameWithoutExtension, file.path, file.parent ?: "", file.name, file.length(), FileType.UNKNOWN,
         1, intArrayOf(), mapOf(), 0, false, false, false, "", "", "", "",
         "", null, fkLibrary, false, LocalDateTime.now(), null, null, Date(file.lastModified()),
         null, null

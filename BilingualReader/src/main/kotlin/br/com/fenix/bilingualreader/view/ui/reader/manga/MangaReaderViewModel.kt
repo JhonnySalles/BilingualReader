@@ -462,7 +462,7 @@ class MangaReaderViewModel(var app: Application) : AndroidViewModel(app) {
             mAnnotationRepository.delete(annotation)
 
         val list = mAnnotation.value ?: mutableListOf()
-        if (!list.any { it.page == annotation.page })
+        if (list.any { it.page == annotation.page })
             list.removeIf { it.page == annotation.page }
 
         mAnnotation.value = generateTitle(list.filter { !it.isTitle }.sortedBy { it.page })

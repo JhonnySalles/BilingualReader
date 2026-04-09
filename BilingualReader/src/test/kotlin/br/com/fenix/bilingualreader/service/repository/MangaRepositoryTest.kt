@@ -50,7 +50,7 @@ class MangaRepositoryTest {
     fun `save should update lastAlteration and call DAO save`() {
         val manga = mockk<Manga>(relaxed = true)
         every { manga.id } returns 1L
-        every { mangaDao.save(any<Manga>()) } returns 1L
+        every { (mangaDao as DataBaseDAO<Manga>).save(any<Manga>()) } returns 1L
         
         val now = LocalDateTime.now()
         mangaRepository.save(manga, now)

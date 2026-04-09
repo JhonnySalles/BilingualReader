@@ -53,7 +53,7 @@ class BookRepositoryTest {
     fun `save should update lastAlteration and call DAO save`() {
         val book = mockk<Book>(relaxed = true)
         every { book.id } returns 1L
-        every { bookDao.save(any<Book>()) } returns 1L
+        every { (bookDao as DataBaseDAO<Book>).save(any<Book>()) } returns 1L
         
         val now = LocalDateTime.now()
         bookRepository.save(book, now)

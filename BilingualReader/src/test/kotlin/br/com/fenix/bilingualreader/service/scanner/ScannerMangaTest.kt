@@ -52,8 +52,8 @@ class ScannerMangaTest {
 
         mockkObject(ParseFactory.Factory)
         val parse = mockk<Parse>(relaxed = true)
-        every { ParseFactory.create(any<String>()) } returns parse
-        every { ParseFactory.create(any<File>()) } returns parse
+        every { ParseFactory.Factory.create(any<String>()) } returns parse
+        every { ParseFactory.Factory.create(any<File>()) } returns parse
         every { parse.numPages() } returns 1
 
         library = Library(id = 3L, title = "Manga Library", path = tempFolder.root.canonicalPath)

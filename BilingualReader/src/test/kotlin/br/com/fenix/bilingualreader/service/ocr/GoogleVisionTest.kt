@@ -47,11 +47,11 @@ class GoogleVisionTest {
         every { TextRecognition.getClient(any()) } returns recognizer
         
         mockkStatic(InputImage::class)
-        every { InputImage.fromBitmap(any(), any()) } returns mockk(relaxed = true)
+        every { InputImage.fromBitmap(any<Bitmap>(), any<Int>()) } returns mockk(relaxed = true)
 
         mockkStatic(FirebaseCrashlytics::class)
         mockkStatic("com.google.firebase.crashlytics.ktx.FirebaseCrashlyticsKt")
-        every { Firebase.crashlytics } returns mockk(relaxed = true)
+        every { Firebase.crashlytics } returns mockk<FirebaseCrashlytics>(relaxed = true)
     }
 
     @After
