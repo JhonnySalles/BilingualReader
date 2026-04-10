@@ -66,8 +66,8 @@ class PagesLinkViewModelTest {
 
     @After
     fun tearDown() {
-        Dispatchers.resetMain()
         unmockkAll()
+        Dispatchers.resetMain()
     }
 
     @Test
@@ -85,7 +85,7 @@ class PagesLinkViewModelTest {
         viewModel.loadManga(manga, refresh)
 
         assertEquals(2, viewModel.pagesLink.value!!.size)
-        assertEquals("page1.jpg", viewModel.pagesLink.value!![0].mangaPagePath)
+        assertEquals("page1.jpg", viewModel.pagesLink.value!![0].mangaPageName)
         verify { refresh(null, PageLinkType.MANGA) }
     }
 

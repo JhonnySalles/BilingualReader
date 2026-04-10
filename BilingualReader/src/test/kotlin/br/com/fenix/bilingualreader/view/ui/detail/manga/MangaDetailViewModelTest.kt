@@ -61,8 +61,8 @@ class MangaDetailViewModelTest {
     @After
     fun tearDown() {
         @OptIn(ExperimentalCoroutinesApi::class)
-        Dispatchers.resetMain()
         unmockkAll()
+        Dispatchers.resetMain()
     }
 
     @Test

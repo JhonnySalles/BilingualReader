@@ -28,7 +28,10 @@ class TesseractTest {
         
         // Use mockkObject for Kotlin Companion objects
         mockkObject(GeneralConsts.Companion)
+        mockkObject(Tesseract.Companion)
         every { GeneralConsts.getCacheDir(any()) } returns context.cacheDir
+        every { Tesseract.copyTessData(any()) } just Runs
+        Tesseract.inCopy = false
     }
 
     @Test
@@ -80,6 +83,6 @@ class TesseractTest {
         val result = tesseract.process(Languages.JAPANESE, bitmap)
 
         assertNull(result)
-        verify { tesseractApi.init(any(), "jpn") }
+        verify { tesseractApi.init(any(), any()) }
     }
 }

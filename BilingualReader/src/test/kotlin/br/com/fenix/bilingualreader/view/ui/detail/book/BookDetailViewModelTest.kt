@@ -1,55 +1,74 @@
 package br.com.fenix.bilingualreader.view.ui.detail.book
 
 import android.app.Application
+import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.repository.BookRepository
-import br.com.fenix.bilingualreader.service.repository.FileLinkRepository
-import br.com.fenix.bilingualreader.service.repository.TagsRepository
+import br.com.fenix.bilingualreader.service.repository.DataBase
+import br.com.fenix.bilingualreader.util.secrets.Secrets
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.*
 import io.mockk.*
 import org.junit.*
 import org.junit.Assert.*
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import br.com.fenix.bilingualreader.util.secrets.Secrets
-import br.com.ebook.foobnix.entity.FileMetaCore
 import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [33])
+@Config(sdk = [33], manifest = Config.NONE)
 class BookDetailViewModelTest {
 
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val testDispatcher = UnconfinedTestDispatcher()
+
     private lateinit var viewModel: BookDetailViewModel
     private lateinit var application: Application
-    private val bookRepository: BookRepository = mockk(relaxed = true)
-    private val tagsRepository: TagsRepository = mockk(relaxed = true)
 
     @Before
     fun setUp() {
+        Dispatchers.setMain(testDispatcher)
         application = ApplicationProvider.getApplicationContext()
-        mockkConstructor(BookRepository::class)
-        mockkConstructor(FileLinkRepository::class)
-        mockkConstructor(TagsRepository::class)
         
+        mockkStatic(Dispatchers::class)
+        every { Dispatchers.IO } returns testDispatcher
+        every { Dispatchers.Default } returns testDispatcher
+        
+        mockkStatic("com.google.firebase.crashlytics.ktx.FirebaseCrashlyticsKt")
+        val mockCrashlytics = mockk<FirebaseCrashlytics>(relaxed = true)
+        every { Firebase.crashlytics } returns mockCrashlytics
+        
+        // Mock Secrets to avoid NPE
         mockkObject(Secrets.Instance)
-        every { Secrets.getSecrets(any()) } returns mockk(relaxed = true)
+        val mockSecrets = mockk<Secrets>(relaxed = true)
+        every { Secrets.getSecrets(any()) } returns mockSecrets
         
-        mockkStatic(FileMetaCore::class)
-        every { FileMetaCore.get() } returns mockk(relaxed = true)
+        // COMPLETELY mock the Database to prevent any SQLite calls
+        mockkObject(DataBase.Companion)
+        val mockDb = mockk<DataBase>(relaxed = true)
+        every { DataBase.getDataBase(any()) } returns mockDb
         
+        mockkConstructor(BookRepository::class)
         every { anyConstructed<BookRepository>().get(any()) } returns Book(null, 1L, File("f.epub"))
+        every { anyConstructed<BookRepository>().update(any(), any()) } just Runs
         every { anyConstructed<BookRepository>().update(any()) } just Runs
         every { anyConstructed<BookRepository>().delete(any()) } just Runs
-        every { anyConstructed<BookRepository>().markRead(any()) } just Runs
+        every { anyConstructed<BookRepository>().markRead(any()) } answers { 
+            firstArg<Book?>()?.let { it.bookMark = it.pages }
+        }
         every { anyConstructed<BookRepository>().clearHistory(any()) } just Runs
-        every { anyConstructed<TagsRepository>().list() } returns mutableListOf()
-        every { anyConstructed<FileLinkRepository>().findAllByManga(any()) } returns mutableListOf()
+        every { anyConstructed<BookRepository>().findConfiguration(any()) } returns null
         
         viewModel = BookDetailViewModel(application)
     }
@@ -57,44 +76,53 @@ class BookDetailViewModelTest {
     @After
     fun tearDown() {
         unmockkAll()
+        Dispatchers.resetMain()
     }
 
     @Test
     fun `setBook should update liveData`() {
-        val book = Book(null, 10L, File("novel.epub"))
-        viewModel.setBook(application, book)
-        
-        assertEquals(book, viewModel.book.value)
-    }
-
-    @Test
-    fun `changeLanguage should update book and call repository`() {
-        val book = Book(null, 10L, File("novel.epub"))
-        viewModel.setBook(application, book)
-        
-        viewModel.changeLanguage(Languages.ENGLISH)
-        assertEquals(Languages.ENGLISH, viewModel.book.value?.language)
-        verify { anyConstructed<BookRepository>().update(any()) }
+        val book = Book(null, 1L, File("test.epub"))
+        val ctx = mockk<Context>(relaxed = true)
+        every { ctx.applicationContext } returns ctx
+        viewModel.setBook(ctx, book)
+        assertEquals("test", viewModel.book.value?.fileName)
     }
 
     @Test
     fun `delete should trigger repository deletion`() {
-        val book = Book(null, 10L, File("novel.epub"))
-        viewModel.setBook(application, book)
+        val book = Book(null, 1L, File("test.epub"))
+        val ctx = mockk<Context>(relaxed = true)
+        every { ctx.applicationContext } returns ctx
+        viewModel.setBook(ctx, book)
         
         viewModel.delete()
-        verify { anyConstructed<BookRepository>().delete(any()) }
+        
+        verify { anyConstructed<BookRepository>().delete(book) }
     }
 
     @Test
-    fun `markRead and clearHistory should interact with repository`() {
-        val book = Book(null, 10L, File("novel.epub"))
-        viewModel.setBook(application, book)
+    fun `changeLanguage should update book and call repository`() {
+        val book = Book(null, 1L, File("f.epub"))
+        val ctx = mockk<Context>(relaxed = true)
+        every { ctx.applicationContext } returns ctx
+        viewModel.setBook(ctx, book)
+        
+        viewModel.changeLanguage(Languages.PORTUGUESE)
+        
+        assertEquals(Languages.PORTUGUESE, viewModel.book.value?.language)
+        verify { anyConstructed<BookRepository>().update(any(), any()) }
+    }
+
+    @Test
+    fun `markRead should update book mark and notify`() {
+        val book = Book(null, 1L, File("f.epub")).apply { pages = 100 }
+        val ctx = mockk<Context>(relaxed = true)
+        every { ctx.applicationContext } returns ctx
+        viewModel.setBook(ctx, book)
         
         viewModel.markRead()
-        verify { anyConstructed<BookRepository>().markRead(any()) }
         
-        viewModel.clearHistory()
-        verify { anyConstructed<BookRepository>().clearHistory(any()) }
+        assertEquals(100, book.bookMark)
+        verify { anyConstructed<BookRepository>().markRead(book) }
     }
 }

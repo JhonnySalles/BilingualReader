@@ -81,6 +81,8 @@ android {
             includeAndroidResources = true
             all {
                 maxHeapSize = "2g"
+                forkEvery = 1
+                maxParallelForks = 1
                 if (project.hasProperty('showTests')) {
                     outputs.upToDateWhen { false }
                     testLogging {

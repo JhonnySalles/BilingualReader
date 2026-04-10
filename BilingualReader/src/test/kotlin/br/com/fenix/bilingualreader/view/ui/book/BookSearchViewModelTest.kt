@@ -78,8 +78,8 @@ class BookSearchViewModelTest {
 
     @After
     fun tearDown() {
-        Dispatchers.resetMain()
         unmockkAll()
+        Dispatchers.resetMain()
     }
 
     @Test

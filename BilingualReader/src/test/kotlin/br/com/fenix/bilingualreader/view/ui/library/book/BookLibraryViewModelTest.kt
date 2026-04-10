@@ -76,8 +76,8 @@ class BookLibraryViewModelTest {
 
     @After
     fun tearDown() {
-        Dispatchers.resetMain()
         unmockkAll()
+        Dispatchers.resetMain()
     }
 
     @Test

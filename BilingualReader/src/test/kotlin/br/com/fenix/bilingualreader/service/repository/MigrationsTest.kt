@@ -27,11 +27,13 @@ class MigrationsTest {
     @Test
     @Throws(IOException::class)
     fun migrate1To2() {
+        println("Working Dir: " + System.getProperty("user.dir"))
         var db = helper.createDatabase(TEST_DB, 1)
 
         // Database has schema version 1. Insert some data using SQL queries.
-        db.execSQL("INSERT INTO " + DataBaseConsts.MANGA.TABLE_NAME + 
-            " (" + DataBaseConsts.MANGA.COLUMNS.TITLE + ", " + DataBaseConsts.MANGA.COLUMNS.FILE_PATH + ") VALUES ('Test', 'path')")
+        // You cannot use DAO classes because they expect the latest schema.
+        db.execSQL("INSERT INTO Manga (title, pages, chapters, book_mark, completed, path, size, name, type, folder, favorite, has_subtitle, author, series, genre, publisher, volume, excluded, file_alteration) " +
+                   "VALUES ('Test', 100, 'Chapter 1', 0, 0, 'path', 1024, 'Test Name', 'epub', 'root', 0, 0, 'Author', 'Series', 'Genre', 'Publisher', '1', 0, 0)")
 
         // Prepare for the next version.
         db.close()

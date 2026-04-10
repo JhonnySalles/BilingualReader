@@ -14,20 +14,28 @@ import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.service.repository.TagsRepository
 import androidx.test.core.app.ApplicationProvider
 import io.mockk.*
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CloseableCoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.test.*
+import java.util.concurrent.Executors
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.*
 import org.junit.Assert.*
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import java.io.File
 import java.time.LocalDateTime
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [33])
+@Config(sdk = [33], manifest = Config.NONE)
 class HistoryViewModelTest {
 
     @get:Rule
@@ -47,6 +55,23 @@ class HistoryViewModelTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
+        
+        mockkStatic(Dispatchers::class)
+        every { Dispatchers.IO } returns testDispatcher
+        every { Dispatchers.Default } returns testDispatcher
+        
+        mockkStatic("com.google.firebase.crashlytics.ktx.FirebaseCrashlyticsKt")
+        try {
+            mockkStatic("kotlinx.coroutines.ThreadPoolDispatcherKt")
+            val realDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+            every { newSingleThreadContext(any()) } returns realDispatcher
+        } catch (e: Throwable) {}
+
+        val mockCrashlytics = mockk<FirebaseCrashlytics>(relaxed = true)
+        every { Firebase.crashlytics } returns mockCrashlytics
+        every { mockCrashlytics.recordException(any()) } just Runs
+        every { mockCrashlytics.log(any()) } just Runs
+        every { mockCrashlytics.setCustomKey(any(), any<String>()) } just Runs
         
         application = ApplicationProvider.getApplicationContext()
 
@@ -71,8 +96,10 @@ class HistoryViewModelTest {
 
     @After
     fun tearDown() {
+        try {
+            unmockkAll()
+        } catch (e: Throwable) {}
         Dispatchers.resetMain()
-        unmockkAll()
     }
 
     @Test

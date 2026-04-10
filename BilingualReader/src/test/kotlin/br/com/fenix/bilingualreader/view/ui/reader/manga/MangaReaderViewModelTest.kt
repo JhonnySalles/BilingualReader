@@ -10,19 +10,29 @@ import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
+import br.com.fenix.bilingualreader.model.entity.Manga
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import io.mockk.*
 import org.junit.*
 import org.junit.Assert.*
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.*
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [33])
+@Config(sdk = [33], manifest = Config.NONE)
 class MangaReaderViewModelTest {
 
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val testDispatcher = UnconfinedTestDispatcher()
 
     private lateinit var viewModel: MangaReaderViewModel
     private lateinit var application: Application
@@ -30,25 +40,41 @@ class MangaReaderViewModelTest {
     private val historyRepository: HistoryRepository = mockk(relaxed = true)
     private val annotationRepository: MangaAnnotationRepository = mockk(relaxed = true)
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setUp() {
+        Dispatchers.setMain(testDispatcher)
         application = ApplicationProvider.getApplicationContext()
         
         mockkConstructor(MangaRepository::class)
         mockkConstructor(HistoryRepository::class)
         mockkConstructor(MangaAnnotationRepository::class)
         
+        mockkStatic(Dispatchers::class)
+        every { Dispatchers.IO } returns testDispatcher
+        every { Dispatchers.Default } returns testDispatcher
+        
+        mockkStatic("com.google.firebase.crashlytics.ktx.FirebaseCrashlyticsKt")
+        val mockCrashlytics = mockk<FirebaseCrashlytics>(relaxed = true)
+        every { Firebase.crashlytics } returns mockCrashlytics
+        every { mockCrashlytics.recordException(any()) } just Runs
+        every { mockCrashlytics.log(any()) } just Runs
+        every { mockCrashlytics.setCustomKey(any(), any<String>()) } just Runs
+        
         every { anyConstructed<MangaRepository>().update(any()) } just Runs
         every { anyConstructed<MangaAnnotationRepository>().save(any()) } returns 1L
         every { anyConstructed<MangaAnnotationRepository>().update(any()) } just Runs
+        every { anyConstructed<MangaAnnotationRepository>().delete(any()) } just Runs
         every { anyConstructed<MangaAnnotationRepository>().findByManga(any()) } returns mutableListOf()
 
         viewModel = MangaReaderViewModel(application)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @After
     fun tearDown() {
         unmockkAll()
+        Dispatchers.resetMain()
     }
 
     @Test
