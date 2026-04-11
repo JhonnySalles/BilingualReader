@@ -57,7 +57,8 @@ class MangaReaderActivityTest {
         val mangaFile = File(mockPath, "manga_reader_test.zip")
         if (!mangaFile.exists()) mangaFile.createNewFile()
 
-        mockManga = Manga(600L, mockLib.id!!, "Reader UI Test Manga", mangaFile).apply {
+        mockManga = Manga(mockLib.id, 600L, mangaFile).apply {
+            title = "Reader UI Test Manga"
             pages = 100
             bookMark = 10
         }

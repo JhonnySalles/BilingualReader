@@ -97,4 +97,60 @@ class AnnotationViewModelTest {
         viewModel.clearFilterType()
         assertTrue(viewModel.typeFilter.value!!.isEmpty())
     }
+
+    @Test
+    fun `findAll should group annotations by book and chapter`() {
+        val bookId = 10L
+        val book = br.com.fenix.bilingualreader.model.entity.Book(bookId, 1L, "Test Book", java.io.File("")).apply { id = bookId }
+        val annotation1 = BookAnnotation(bookId, 1, 10, 1.0f, MarkType.Annotation, 0f, "Chapter 1", "f", intArrayOf(), "Text 1").apply { 
+            id = 1L
+            id_parent = bookId
+            chapter = "Chapter 1"
+            chapterNumber = 1.0f
+        }
+        
+        every { anyConstructed<BookRepository>().get(bookId) } returns book
+        every { anyConstructed<BookAnnotationRepository>().findAllOrderByBook() } returns mutableListOf(annotation1)
+        
+        viewModel.findAll()
+        
+        val list = viewModel.annotation.value!!
+        // Should have: Root (Book), Title (Chapter), and Annotation
+        assertEquals(3, list.size)
+        assertTrue(list[0].isRoot)
+        assertTrue(list[1].isTitle)
+        assertFalse(list[2].isTitle || list[2].isRoot)
+        assertEquals("Test Book", list[0].chapter)
+        assertEquals("Chapter 1", list[1].chapter)
+    }
+
+    @Test
+    fun `search with pattern should return matching annotations only`() {
+        val bookId = 10L
+        val book = br.com.fenix.bilingualreader.model.entity.Book(bookId, 1L, "Book", java.io.File("")).apply { id = bookId }
+        val annotationMatch = BookAnnotation(bookId, 1, 10, 1.0f, MarkType.Annotation, 0f, "Chapter 1", "f", intArrayOf(), "Matching Text").apply { 
+            id = 1L
+            id_parent = bookId
+            text = "Matching Text"
+            chapter = "Chapter 1"
+        }
+        val annotationNoMatch = BookAnnotation(bookId, 1, 11, 1.0f, MarkType.Annotation, 0f, "Chapter 1", "f", intArrayOf(), "Other").apply { 
+            id = 2L
+            id_parent = bookId
+            text = "Other"
+            chapter = "Chapter 1"
+        }
+
+        every { anyConstructed<BookRepository>().get(bookId) } returns book
+        every { anyConstructed<BookAnnotationRepository>().findAllOrderByBook() } returns mutableListOf(annotationMatch, annotationNoMatch)
+        
+        viewModel.findAll()
+        viewModel.search("matching")
+        
+        val filtered = viewModel.annotation.value!!
+        // Root + Title + Match
+        assertEquals(3, filtered.size)
+        assertTrue(filtered.any { it is BookAnnotation && it.text == "Matching Text" })
+        assertFalse(filtered.any { it is BookAnnotation && it.text == "Other" })
+    }
 }

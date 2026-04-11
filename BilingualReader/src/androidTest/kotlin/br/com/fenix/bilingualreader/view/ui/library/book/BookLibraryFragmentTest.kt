@@ -14,8 +14,10 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.TestActivity
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Book
-import br.com.fenix.bilingualreader.model.enums.Libraries
-import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.model.enums.*
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.Date
 import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -58,16 +60,74 @@ class BookLibraryFragmentTest {
         )
         db.getLibrariesDao().save(library)
 
-        val book1 = Book(libraryId, 1L, File("/mock/path/books/book1.epub")).apply {
-            title = "Book Alpha"
-            author = "Author A"
-            excluded = false
-        }
-        val book2 = Book(libraryId, 2L, File("/mock/path/books/book2.pdf")).apply {
-            title = "Book Beta"
-            author = "Author B"
-            excluded = false
-        }
+        val book1 = Book(
+            id = 1L,
+            title = "Book Alpha",
+            author = "Author A",
+            password = "",
+            annotation = "",
+            release = null,
+            genre = "",
+            publisher = "",
+            series = "",
+            isbn = "",
+            pages = 1,
+            volume = "",
+            chapter = 0,
+            chapterDescription = "",
+            bookMark = 0,
+            completed = false,
+            language = Languages.ENGLISH,
+            path = "/mock/path/books/book1.epub",
+            folder = "/mock/path/books",
+            name = "book1.epub",
+            fileType = FileType.UNKNOWN,
+            fileSize = 0L,
+            favorite = false,
+            fkLibrary = libraryId,
+            tags = mutableListOf(),
+            excluded = false,
+            dateCreate = LocalDateTime.now(),
+            lastAccess = null,
+            lastAlteration = null,
+            fileAlteration = Date(),
+            lastVocabImport = null,
+            lastVerify = null
+        )
+        val book2 = Book(
+            id = 2L,
+            title = "Book Beta",
+            author = "Author B",
+            password = "",
+            annotation = "",
+            release = null,
+            genre = "",
+            publisher = "",
+            series = "",
+            isbn = "",
+            pages = 1,
+            volume = "",
+            chapter = 0,
+            chapterDescription = "",
+            bookMark = 0,
+            completed = false,
+            language = Languages.ENGLISH,
+            path = "/mock/path/books/book2.pdf",
+            folder = "/mock/path/books",
+            name = "book2.pdf",
+            fileType = FileType.UNKNOWN,
+            fileSize = 0L,
+            favorite = false,
+            fkLibrary = libraryId,
+            tags = mutableListOf(),
+            excluded = false,
+            dateCreate = LocalDateTime.now(),
+            lastAccess = null,
+            lastAlteration = null,
+            fileAlteration = Date(),
+            lastVocabImport = null,
+            lastVerify = null
+        )
         
         db.getBookDao().save(book1)
         db.getBookDao().save(book2)

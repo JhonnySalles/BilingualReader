@@ -50,14 +50,12 @@ class VocabularyBookFragmentTest {
 
         val bookFile = File(mockPath, "vocab_book.epub")
         if (!bookFile.exists()) bookFile.createNewFile()
-        mockBook = Book(600L, mockLib.id!!, "Targeted Book", bookFile)
+        mockBook = Book(mockLib.id, 600L, bookFile)
         db.getBookDao().save(mockBook)
 
         // Injeta dados de vocabulário associados ao livro
         val mockData = listOf(
-            Vocabulary(20L, "BookWord", "ReadingB", "MeaningB").apply { 
-                book = mockBook.name
-            }
+            Vocabulary(id = 20L, word = "BookWord", reading = "ReadingB", english = "MeaningB", portuguese = null, basicForm = null, jlpt = 0, revised = false, favorite = false, appears = 0)
         )
         mockData.forEach { db.getVocabularyDao().save(it) }
     }

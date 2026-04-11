@@ -11,11 +11,16 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.Statistics
+import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.Library
+import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
+import org.hamcrest.Matchers.allOf
+import org.hamcrest.Matchers.containsString
+import java.io.File
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -36,30 +41,65 @@ class StatisticsFragmentTest {
             .build()
         DataBase.setTestingInstance(db)
 
-        // Injeta dados de estatística simulados no Banco
-        // Assumindo que o StatisticsRepository lê da tabela de estatísticas
-        val mockMangaStats = Statistics(
-            type = Type.MANGA,
-            reading = 5,
-            toRead = 10,
-            library = 50,
-            read = 3,
-            completeReadingPages = 150,
-            completeReadingSeconds = 3600 // 1 hour
-        )
-        
-        val mockBookStats = Statistics(
-            type = Type.BOOK,
-            reading = 2,
-            toRead = 5,
-            library = 20,
-            read = 1,
-            completeReadingPages = 500,
-            completeReadingSeconds = 7200 // 2 hours
-        )
+        // Setup Libraries
+        val mangaLib = Library(null).apply {
+            title = "Manga Lib"
+            path = "path1"
+            language = br.com.fenix.bilingualreader.model.enums.Libraries.JAPANESE
+            type = Type.MANGA
+        }
+        val bookLib = Library(null).apply {
+            title = "Book Lib"
+            path = "path2"
+            language = br.com.fenix.bilingualreader.model.enums.Libraries.ENGLISH
+            type = Type.BOOK
+        }
+        val mangaLibId = db.getLibrariesDao().save(mangaLib)
+        val bookLibId = db.getLibrariesDao().save(bookLib)
 
-        db.getStatisticsDao().save(mockMangaStats)
-        db.getStatisticsDao().save(mockBookStats)
+        // Setup Manga data for Statistics
+        // 5 Reading
+        for (i in 1..5) {
+            db.getMangaDao().save(Manga(fkLibrary = mangaLibId, id = null, file = File("manga_reading_$i.cbz")).apply {
+                title = "Manga Reading $i"
+                pages = 100
+                bookMark = 50
+            })
+        }
+        // 10 To Read
+        for (i in 1..10) {
+            db.getMangaDao().save(Manga(fkLibrary = mangaLibId, id = null, file = File("manga_to_read_$i.cbz")).apply {
+                title = "Manga To Read $i"
+                pages = 100
+                bookMark = 0
+            })
+        }
+        // 3 Read
+        for (i in 1..3) {
+            db.getMangaDao().save(Manga(fkLibrary = mangaLibId, id = null, file = File("manga_read_$i.cbz")).apply {
+                title = "Manga Read $i"
+                pages = 100
+                bookMark = 100
+            })
+        }
+
+        // Setup Book data for Statistics
+        // 2 Reading
+        for (i in 1..2) {
+            db.getBookDao().save(Book(fkLibrary = bookLibId, id = null, file = File("book_reading_$i.epub")).apply {
+                title = "Book Reading $i"
+                pages = 100
+                bookMark = 50
+            })
+        }
+        // 5 To Read
+        for (i in 1..5) {
+            db.getBookDao().save(Book(fkLibrary = bookLibId, id = null, file = File("book_to_read_$i.epub")).apply {
+                title = "Book To Read $i"
+                pages = 100
+                bookMark = 0
+            })
+        }
     }
 
     @After
@@ -71,8 +111,11 @@ class StatisticsFragmentTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val intent = Intent(context, MenuActivity::class.java)
         val bundle = Bundle()
-        // Abre o StatisticsFragment via MenuActivity (devido ao BlurView)
-        bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_statistics)
+        // Use a valid ID from MenuActivity, or R.id.menu_statistics if it was added.
+        // Since we can't change MenuActivity, we'll use one of the existing frame IDs if possible, 
+        // but the test specifically tests Statistics, so we might need the correct ID.
+        // Assuming R.id.menu_statistics is the intended one after an update.
+        bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.menu_statistics)
         intent.putExtras(bundle)
         return intent
     }

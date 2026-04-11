@@ -12,6 +12,7 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
+import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import org.junit.After
 import org.junit.Before
@@ -36,9 +37,9 @@ class VocabularyFragmentTest {
 
         // Injeta dados de vocabulário simulados
         val mockData = listOf(
-            Vocabulary(1L, "TestWord1", "Reading1", "Meaning1").apply { favorite = true },
-            Vocabulary(2L, "TestWord2", "Reading2", "Meaning2"),
-            Vocabulary(3L, "AlphaWord", "Reading3", "Meaning3")
+            Vocabulary(id = 1L, word = "TestWord1", reading = "Reading1", english = "Meaning1", portuguese = null, basicForm = null, jlpt = 0, revised = false, favorite = true, appears = 0),
+            Vocabulary(id = 2L, word = "TestWord2", reading = "Reading2", english = "Meaning2", portuguese = null, basicForm = null, jlpt = 0, revised = false, favorite = false, appears = 0),
+            Vocabulary(id = 3L, word = "AlphaWord", reading = "Reading3", english = "Meaning3", portuguese = null, basicForm = null, jlpt = 0, revised = false, favorite = false, appears = 0)
         )
         
         mockData.forEach { db.getVocabularyDao().save(it) }

@@ -7,6 +7,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -60,7 +61,8 @@ class BookDetailFragmentTest {
         val bookFile = File(mockPath, "book_test.epub")
         if (!bookFile.exists()) bookFile.createNewFile()
 
-        mockBook = Book(100L, mockLib.id!!, "Detail Test Book", bookFile).apply {
+        mockBook = Book(mockLib.id, 100L, bookFile).apply {
+            title = "Detail Test Book"
             author = "Test Author"
             pages = 100
             bookMark = 50

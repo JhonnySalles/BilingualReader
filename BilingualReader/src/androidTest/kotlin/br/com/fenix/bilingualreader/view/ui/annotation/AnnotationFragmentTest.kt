@@ -8,6 +8,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
@@ -70,35 +71,50 @@ class AnnotationFragmentTest {
         db.getLibrariesDao().save(bookLib)
 
         // Setup Manga
-        val manga = Manga(mangaLib.id!!, 10L, File(mangaLib.path, "manga1.cbz")).apply {
+        val manga = Manga(fkLibrary = mangaLib.id!!, id = 10L, file = File(mangaLib.path, "manga1.cbz")).apply {
             title = "Sample Manga"
         }
         db.getMangaDao().save(manga)
 
         // Setup Book
-        val book = Book(20L, bookLib.id!!, "Sample Book", File(bookLib.path, "book1.epub")).apply {
+        val book = Book(fkLibrary = bookLib.id!!, id = 20L, file = File(bookLib.path, "book1.epub")).apply {
             title = "Sample Book"
             pages = 100
         }
         db.getBookDao().save(book)
 
         // Setup Annotations
-        val mangaAnnotation = MangaAnnotation(manga.id!!, "Chapter 1", "Note for Manga", "Page text").apply {
-            page = 5
-            id_parent = manga.id!!
-            type = Type.MANGA
-            markType = MarkType.Annotation
-            alteration = LocalDateTime.now()
-        }
+        val mangaAnnotation = MangaAnnotation(
+            id = null,
+            id_parent = manga.id!!,
+            page = 5,
+            pages = 10,
+            markType = MarkType.Annotation,
+            chapter = "Chapter 1",
+            folder = "Note for Manga",
+            annotation = "Page text",
+            alteration = LocalDateTime.now(),
+            created = LocalDateTime.now()
+        )
         db.getMangaAnnotation().save(mangaAnnotation)
 
-        val bookAnnotation = BookAnnotation(book.id!!, 1f, "Chapter 1", "Note for Book", "Sentence from book").apply {
-            page = 10
-            id_parent = book.id!!
-            type = Type.BOOK
-            markType = MarkType.Annotation
-            alteration = LocalDateTime.now()
-        }
+        val bookAnnotation = BookAnnotation(
+            id = null,
+            id_parent = book.id!!,
+            page = 10,
+            pages = 100,
+            fontSize = 12f,
+            markType = MarkType.Annotation,
+            chapterNumber = 1f,
+            chapter = "Chapter 1",
+            text = "Sentence from book",
+            range = intArrayOf(0, 10),
+            annotation = "Note for Book",
+            favorite = false,
+            color = br.com.fenix.bilingualreader.model.enums.Color.None,
+            alteration = LocalDateTime.now(),
+            created = LocalDateTime.now()
+        )
         db.getBookAnnotation().save(bookAnnotation)
     }
 
@@ -213,6 +229,8 @@ class AnnotationFragmentTest {
             hasComponent(BookReaderActivity::class.java.name),
             hasExtra(GeneralConsts.KEYS.BOOK.NAME, "Sample Book")
         ))
+    }
+
     @Test
     fun testSwipeToDelete() {
         val scenario = ActivityScenario.launch(TestActivity::class.java)
@@ -226,7 +244,6 @@ class AnnotationFragmentTest {
         onView(withText("Note for Manga")).perform(swipeLeft())
         
         // Verifica se o diálogo de confirmação apareceu
-        // O título definido no código é R.string.book_annotation_delete
         onView(withText(R.string.book_annotation_delete)).check(matches(isDisplayed()))
         
         // Clica no botão de deletar (R.string.action_delete)
@@ -237,5 +254,67 @@ class AnnotationFragmentTest {
         
         // Verifica se a anotação sumiu
         onView(withText("Note for Manga")).check(doesNotExist())
+    }
+
+    @Test
+    fun testHeaderNotSwipeable() {
+        val scenario = ActivityScenario.launch(TestActivity::class.java)
+        scenario.onActivity { activity ->
+            activity.setFragment(AnnotationFragment())
+        }
+
+        Thread.sleep(2000)
+
+        // Tenta fazer swipe em um cabeçalho (Sample Manga)
+        onView(withText("Sample Manga")).perform(swipeLeft())
+
+        // Verifica que o diálogo de confirmação NÃO apareceu (cabeçalhos não são deletáveis por swipe)
+        onView(withText(R.string.book_annotation_delete)).check(doesNotExist())
+    }
+
+    @Test
+    fun testCancelDelete() {
+        val scenario = ActivityScenario.launch(TestActivity::class.java)
+        scenario.onActivity { activity ->
+            activity.setFragment(AnnotationFragment())
+        }
+
+        Thread.sleep(2000)
+
+        // Inicia o swipe para deletar
+        onView(withText("Note for Manga")).perform(swipeLeft())
+
+        // Verifica se o diálogo apareceu
+        onView(withText(R.string.book_annotation_delete)).check(matches(isDisplayed()))
+
+        // Clica em um botão fora (ou usa Voltar) para cancelar o diálogo
+        // Ou simulamos o dismiss via clique fora se possível, mas aqui usaremos o "Voltar" ou se houver botão cancelar
+        // Como o AlertDialog padrão tem botão negativo se definido (não parece ter no código original, mas o dismiss cancela)
+        
+        // Simula o clique fora ou cancelamento via sistema
+        androidx.test.espresso.Espresso.pressBack()
+
+        // Aguarda animação de retorno
+        Thread.sleep(1000)
+
+        // Verifica se a anotação AINDA EXISTE (foi restaurada pelo setOnDismissListener)
+        onView(withText("Note for Manga")).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun testScrollButtons() {
+        val scenario = ActivityScenario.launch(TestActivity::class.java)
+        scenario.onActivity { activity ->
+            activity.setFragment(AnnotationFragment())
+        }
+
+        Thread.sleep(2000)
+
+        // Inicialmente os botões devem estar invisíveis
+        onView(withId(R.id.annotation_scroll_up)).check(matches(withEffectiveVisibility(Visibility.GONE)))
+        onView(withId(R.id.annotation_scroll_down)).check(matches(withEffectiveVisibility(Visibility.GONE)))
+
+        // Para testar a visibilidade, precisaríamos de uma lista longa que permitisse scroll.
+        // No setup atual temos poucas anotações.
     }
 }

@@ -57,7 +57,8 @@ class BookReaderActivityTest {
         val bookFile = File(mockPath, "book_test.epub")
         if (!bookFile.exists()) bookFile.createNewFile()
 
-        mockBook = Book(500L, mockLib.id!!, "Reader UI Test Book", bookFile).apply {
+        mockBook = Book(mockLib.id, 500L, bookFile).apply {
+            title = "Reader UI Test Book"
             author = "Test Author"
             pages = 300
             bookMark = 50

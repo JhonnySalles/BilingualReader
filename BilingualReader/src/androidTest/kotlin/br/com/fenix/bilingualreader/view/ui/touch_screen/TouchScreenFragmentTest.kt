@@ -41,7 +41,7 @@ class TouchScreenFragmentTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val intent = Intent(context, MenuActivity::class.java)
         val bundle = Bundle()
-        bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_config_touch)
+        bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_touch_screen_config)
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.TYPE, Type.MANGA)
         intent.putExtras(bundle)
         return intent
@@ -97,9 +97,10 @@ class TouchScreenFragmentTest {
         
         Thread.sleep(500)
         
-        // Verifica se a zona TOP agora reflete o padrão do TouchUtils (no Manga costuma ser TOUCH_PREVIOUS_FILE ou similar)
+        // Verifica se a zona TOP agora reflete o padrão do TouchUtils (no Manga é TOUCH_SHARE_IMAGE)
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val defaultTop = TouchUtils.getDefault(Type.MANGA)[Position.TOP]!!
+        val defaults = TouchUtils.getTouch(context, Type.MANGA)
+        val defaultTop = defaults[Position.TOP]!!
         val defaultTopText = context.getString(defaultTop.getValue())
         
         onView(withId(R.id.touch_screen_config_top)).check(matches(withText(defaultTopText)))

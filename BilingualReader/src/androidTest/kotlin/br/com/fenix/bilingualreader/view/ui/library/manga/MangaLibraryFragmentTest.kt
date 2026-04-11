@@ -4,7 +4,9 @@ import android.content.Context
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.longClick
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -15,8 +17,14 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.TestActivity
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.model.enums.Libraries
-import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.model.enums.*
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.Date
+import org.hamcrest.Description
+import androidx.test.espresso.matcher.BoundedMatcher
+import androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility
+import androidx.test.espresso.matcher.ViewMatchers.Visibility
 import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -27,6 +35,16 @@ import org.junit.runner.RunWith
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.util.concurrent.TimeUnit
+import androidx.recyclerview.widget.RecyclerView
+import org.hamcrest.Matcher
+import org.hamcrest.Matchers.allOf
+import androidx.test.espresso.util.TreeIterables
+import android.view.View
+import androidx.test.espresso.UiController
+import androidx.test.espresso.ViewAction
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
+import org.hamcrest.Matchers.anyOf
 
 @RunWith(AndroidJUnit4::class)
 class MangaLibraryFragmentTest {
@@ -52,9 +70,57 @@ class MangaLibraryFragmentTest {
         )
     }
 
+    private fun waitForView(matcher: Matcher<View>, timeout: Long = 5000): ViewInteraction {
+        val startTime = System.currentTimeMillis()
+        val endTime = startTime + timeout
+
+        while (System.currentTimeMillis() < endTime) {
+            try {
+                val interaction = onView(matcher)
+                interaction.check(matches(isDisplayed()))
+                return interaction
+            } catch (e: Throwable) {
+                Thread.sleep(100)
+            }
+        }
+        return onView(matcher).check(matches(isDisplayed()))
+    }
+
+    private fun waitForSkeleton() {
+        val startTime = System.currentTimeMillis()
+        val timeout = 5000L
+        while (System.currentTimeMillis() < startTime + timeout) {
+            try {
+                onView(withId(R.id.skeleton_layout)).check(matches(anyOf(withEffectiveVisibility(Visibility.GONE), withEffectiveVisibility(Visibility.INVISIBLE))))
+                return
+            } catch (e: Throwable) {
+                Thread.sleep(100)
+            }
+        }
+    }
+
+    private fun atPosition(position: Int, itemMatcher: Matcher<View>): Matcher<View> {
+        return object : BoundedMatcher<View, RecyclerView>(RecyclerView::class.java) {
+            override fun describeTo(description: Description) {
+                description.appendText("has item at position $position: ")
+                itemMatcher.describeTo(description)
+            }
+            override fun matchesSafely(view: RecyclerView): Boolean {
+                val viewHolder = view.findViewHolderForAdapterPosition(position)
+                    ?: return false
+                return itemMatcher.matches(viewHolder.itemView)
+            }
+        }
+    }
+
     @Before
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
+        
+        // Limpa SharedPreferences para garantir estado inicial limpo (ordem alfabética)
+        val sharedPreferences = context.getSharedPreferences(GeneralConsts.KEYS.PREFERENCE_NAME, Context.MODE_PRIVATE)
+        sharedPreferences.edit().clear().commit()
+
         db = Room.inMemoryDatabaseBuilder(context, DataBase::class.java)
             .allowMainThreadQueries()
             .build()
@@ -79,13 +145,36 @@ class MangaLibraryFragmentTest {
                 }
             }
             
-            val manga = Manga(libraryId, i.toLong(), file).apply {
-                title = name
-                author = "Author $i"
-                favorite = (i == 5)
-                dateCreate = java.time.LocalDateTime.now().minusDays((10 - i).toLong())
-                excluded = false
-            }
+            val manga = Manga(
+                id = i.toLong(),
+                title = name,
+                path = file.path,
+                folder = file.parent ?: "",
+                name = file.name,
+                fileSize = file.length(),
+                fileType = FileType.UNKNOWN,
+                pages = 1,
+                chapters = intArrayOf(),
+                chaptersPages = mapOf(),
+                bookMark = 0,
+                completed = false,
+                favorite = (i == 5),
+                hasSubtitle = false,
+                author = "Author $i",
+                series = "",
+                genre = "",
+                publisher = "",
+                volume = "",
+                release = null,
+                fkLibrary = libraryId,
+                excluded = false,
+                dateCreate = LocalDateTime.now().minusDays((10 - i).toLong()),
+                lastAccess = null,
+                lastAlteration = null,
+                fileAlteration = Date(file.lastModified()),
+                lastVocabImport = null,
+                lastVerify = null
+            )
             db.getMangaDao().save(manga)
         }
     }
@@ -112,12 +201,18 @@ class MangaLibraryFragmentTest {
             activity.setFragment(fragment)
         }
         
-        Thread.sleep(2000)
+        waitForView(withId(R.id.manga_library_recycler_view))
         
-        onView(withId(R.id.manga_library_recycler_view)).check(matches(isDisplayed()))
+        scenario.onActivity { activity ->
+            val recyclerView = activity.findViewById<RecyclerView>(R.id.manga_library_recycler_view)
+            recyclerView.itemAnimator = null // Desativa animações para evitar AppNotIdle
+        }
+        
+        // Aguarda o Skeleton sumir para garantir visibilidade da lista
+        waitForSkeleton()
         
         // Verifica se alguns dos itens sequenciais estão na lista
-        onView(withText("manga 01")).check(matches(isDisplayed()))
+        waitForView(withText("manga 01"))
         onView(withText("manga 05")).check(matches(isDisplayed()))
         onView(withText("manga 10")).check(matches(isDisplayed()))
     }
@@ -136,14 +231,16 @@ class MangaLibraryFragmentTest {
             activity.setFragment(fragment)
         }
         
-        // Aguarda carregamento
-        Thread.sleep(2000)
+        waitForView(withId(R.id.manga_library_recycler_view))
+        
+        scenario.onActivity { activity ->
+            activity.findViewById<RecyclerView>(R.id.manga_library_recycler_view).itemAnimator = null
+        }
 
-        // Clica no botão de tipo de grid no menu
-        onView(withId(R.id.menu_manga_library_type)).perform(click())
+        // Clica longo no botão de tipo para abrir o popup
+        onView(withId(R.id.menu_manga_library_type)).perform(longClick())
 
-        // Verifica se o bottom sheet ou o conteúdo do popup de tipo está visível
-        // O fragment utiliza um BottomSheetBehavior no R.id.manga_library_popup_menu_library
+        // Verifica se o popup de tipo está visível
         onView(withId(R.id.manga_library_popup_menu_library)).check(matches(isDisplayed()))
         
         // Verifica se as abas do TabLayout estão presentes
@@ -164,11 +261,16 @@ class MangaLibraryFragmentTest {
             activity.setFragment(fragment)
         }
         
-        // Aguarda carregamento
-        Thread.sleep(2000)
+        waitForView(withId(R.id.manga_library_recycler_view))
+        
+        scenario.onActivity { activity ->
+            activity.findViewById<RecyclerView>(R.id.manga_library_recycler_view).itemAnimator = null
+        }
 
-        // Clica no botão de ordenação no menu
-        onView(withId(R.id.menu_manga_library_type)).perform(click())
+        // Clica longo no botão de ordenação para abrir o popup
+        onView(withId(R.id.menu_manga_library_list_order)).perform(longClick())
+        
+        // Clica na aba de ordenação
         onView(withText(R.string.popup_library_manga_tab_item_ordering)).perform(click())
         
         onView(withText(R.string.popup_library_manga_tab_item_ordering)).check(matches(isSelected()))
@@ -177,9 +279,8 @@ class MangaLibraryFragmentTest {
     @Test
     fun testSortingFunctionality() {
         val scenario = ActivityScenario.launch(TestActivity::class.java)
-        lateinit var viewModel: MangaLibraryViewModel
         scenario.onActivity { activity ->
-            viewModel = ViewModelProvider(activity)[MangaLibraryViewModel::class.java]
+            val viewModel = ViewModelProvider(activity)[MangaLibraryViewModel::class.java]
             
             viewModel.setLibrary(createMockLibrary(activity))
             viewModel.list { }
@@ -189,26 +290,30 @@ class MangaLibraryFragmentTest {
             activity.setFragment(fragment)
         }
         
-        Thread.sleep(2000)
+        waitForView(withId(R.id.manga_library_recycler_view))
+        
+        scenario.onActivity { activity ->
+            activity.findViewById<RecyclerView>(R.id.manga_library_recycler_view).itemAnimator = null
+        }
 
-        // Verificação Inicial: Ordem alfabética (Padrão) -> manga 01 no topo
-        onView(withText("manga 01")).check(matches(isDisplayed()))
+        waitForSkeleton()
+
+        // Verificação Inicial: Ordem alfabética (Padrão após clear prefs) -> manga 01 no topo
+        onView(withId(R.id.manga_library_recycler_view))
+            .check(matches(atPosition(0, hasDescendant(withText("manga 01")))))
 
         // 1. Clicar no botão de ordenação para mudar para 'Data' (Nome -> Data)
+        // O click muda o ciclo de ordenação no fragmento e salva no SharedPreferences
         onView(withId(R.id.menu_manga_library_list_order)).perform(click())
-        Thread.sleep(1000)
         
-        // Verifica se a lista refletiu no ViewModel (manga 01 é o mais antigo na nossa população)
-        // O ViewModel faz sortBy { it.dateCreate } (Ascendente)
-        assert(viewModel.listMangas.value!![0].title == "manga 01")
+        // Aguarda a atualização da lista. Manga 01 é o mais antigo (minusDays(9)), então continua em 0
+        waitForView(atPosition(0, hasDescendant(withText("manga 01"))))
 
         // 2. Clicar novamente para mudar para 'Favorito' (Data -> Favorito)
         onView(withId(R.id.menu_manga_library_list_order)).perform(click())
-        Thread.sleep(1000)
 
-        // No ViewModel: sortWith(compareByDescending<Manga> { it.favorite }.thenBy { it.name })
-        // manga 05 é o único favorito, deve estar no topo
-        onView(withText("manga 05")).check(matches(isDisplayed()))
-        assert(viewModel.listMangas.value!![0].title == "manga 05")
+        // No ViewModel: Favoritos DESC (true primeiro), depois Nome ASC
+        // Manga 05 é o único favorito na nossa população mockada
+        waitForView(atPosition(0, hasDescendant(withText("manga 05"))))
     }
 }

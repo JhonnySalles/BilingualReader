@@ -50,14 +50,12 @@ class VocabularyMangaFragmentTest {
 
         val mangaFile = File(mockPath, "vocab_manga.zip")
         if (!mangaFile.exists()) mangaFile.createNewFile()
-        mockManga = Manga(500L, mockLib.id!!, "Targeted Manga", mangaFile)
+        mockManga = Manga(mockLib.id, 500L, mangaFile)
         db.getMangaDao().save(mockManga)
 
         // Injeta dados de vocabulário associados ao mangá
         val mockData = listOf(
-            Vocabulary(10L, "MangaWord", "ReadingM", "MeaningM").apply { 
-                manga = mockManga.name
-            }
+            Vocabulary(id = 10L, word = "MangaWord", reading = "ReadingM", english = "MeaningM", portuguese = null, basicForm = null, jlpt = 0, revised = false, favorite = false, appears = 0)
         )
         mockData.forEach { db.getVocabularyDao().save(it) }
     }

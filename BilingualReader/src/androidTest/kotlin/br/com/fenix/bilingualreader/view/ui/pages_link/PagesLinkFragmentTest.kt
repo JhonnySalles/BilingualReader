@@ -7,6 +7,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -57,7 +58,8 @@ class PagesLinkFragmentTest {
         val mangaFile = File(mockPath, "manga_link_test.zip")
         if (!mangaFile.exists()) mangaFile.createNewFile()
 
-        mockManga = Manga(200L, mockLib.id!!, "Link Test Manga", mangaFile).apply {
+        mockManga = Manga(mockLib.id, 200L, mangaFile).apply {
+            title = "Link Test Manga"
             pages = 10
             bookMark = 1
         }
