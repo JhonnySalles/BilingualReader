@@ -1,24 +1,37 @@
 package br.com.fenix.bilingualreader.view.ui.annotation
 
+import android.app.Activity
+import android.app.Instrumentation
 import android.content.Context
-import android.content.Intent
-import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.swipeLeft
+import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
+import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.Visibility
+import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
+import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.TestActivity
-import br.com.fenix.bilingualreader.model.entity.*
+import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.BookAnnotation
+import br.com.fenix.bilingualreader.model.entity.Library
+import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.model.enums.Type
@@ -27,7 +40,6 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import org.hamcrest.Matchers.allOf
-import org.hamcrest.Matchers.containsString
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -71,13 +83,17 @@ class AnnotationFragmentTest {
         db.getLibrariesDao().save(bookLib)
 
         // Setup Manga
-        val manga = Manga(fkLibrary = mangaLib.id!!, id = 10L, file = File(mangaLib.path, "manga1.cbz")).apply {
+        val mangaFile = File(mangaLib.path, "manga1.cbz")
+        if (!mangaFile.exists()) mangaFile.createNewFile()
+        val manga = Manga(fkLibrary = mangaLib.id!!, id = 10L, file = mangaFile).apply {
             title = "Sample Manga"
         }
         db.getMangaDao().save(manga)
 
         // Setup Book
-        val book = Book(fkLibrary = bookLib.id!!, id = 20L, file = File(bookLib.path, "book1.epub")).apply {
+        val bookFile = File(bookLib.path, "book1.epub")
+        if (!bookFile.exists()) bookFile.createNewFile()
+        val book = Book(fkLibrary = bookLib.id!!, id = 20L, file = bookFile).apply {
             title = "Sample Book"
             pages = 100
         }
@@ -90,7 +106,7 @@ class AnnotationFragmentTest {
             page = 5,
             pages = 10,
             markType = MarkType.Annotation,
-            chapter = "Chapter 1",
+            chapter = "Manga Chapter",
             folder = "Note for Manga",
             annotation = "Page text",
             alteration = LocalDateTime.now(),
@@ -106,7 +122,7 @@ class AnnotationFragmentTest {
             fontSize = 12f,
             markType = MarkType.Annotation,
             chapterNumber = 1f,
-            chapter = "Chapter 1",
+            chapter = "Book Chapter",
             text = "Sentence from book",
             range = intArrayOf(0, 10),
             annotation = "Note for Book",
@@ -160,7 +176,7 @@ class AnnotationFragmentTest {
         onView(withId(R.id.menu_annotation_search)).perform(click())
         
         // Digita algo que filtre apenas uma das anotações
-        onView(withClassName(containsString("SearchView"))).perform(typeText("Manga"))
+        onView(isAssignableFrom(android.widget.AutoCompleteTextView::class.java)).perform(typeText("Manga"))
         
         // Aguarda debounce da busca
         Thread.sleep(1000)
@@ -202,6 +218,10 @@ class AnnotationFragmentTest {
         
         Thread.sleep(2000)
 
+        // Stub da intent para evitar que a activity real inicie e acesse o DB fechado
+        intending(hasComponent(MangaReaderActivity::class.java.name))
+            .respondWith(Instrumentation.ActivityResult(Activity.RESULT_OK, null))
+
         // Clica na anotação de mangá
         onView(withText("Note for Manga")).perform(click())
         
@@ -221,8 +241,12 @@ class AnnotationFragmentTest {
         
         Thread.sleep(2000)
 
-        // Clica na anotação de livro
-        onView(withText("Note for Book")).perform(click())
+        // Stub da intent para evitar que a activity real inicie e acesse o DB fechado
+        intending(hasComponent(BookReaderActivity::class.java.name))
+            .respondWith(Instrumentation.ActivityResult(Activity.RESULT_OK, null))
+
+        // Clica na anotação de livro (no root para evitar o clique na nota que abre o popup)
+        onView(allOf(withId(R.id.book_annotation_root), hasDescendant(withText("Note for Book")))).perform(click())
         
         // Verifica se abriu a BookReaderActivity
         intended(allOf(
@@ -244,10 +268,10 @@ class AnnotationFragmentTest {
         onView(withText("Note for Manga")).perform(swipeLeft())
         
         // Verifica se o diálogo de confirmação apareceu
-        onView(withText(R.string.book_annotation_delete)).check(matches(isDisplayed()))
+        onView(withId(androidx.appcompat.R.id.alertTitle)).check(matches(withText(R.string.book_annotation_delete)))
         
         // Clica no botão de deletar (R.string.action_delete)
-        onView(withText(R.string.action_delete)).perform(click())
+        onView(withId(android.R.id.button1)).perform(click())
         
         // Aguarda animação e atualização
         Thread.sleep(1000)
@@ -269,7 +293,7 @@ class AnnotationFragmentTest {
         onView(withText("Sample Manga")).perform(swipeLeft())
 
         // Verifica que o diálogo de confirmação NÃO apareceu (cabeçalhos não são deletáveis por swipe)
-        onView(withText(R.string.book_annotation_delete)).check(doesNotExist())
+        onView(withId(androidx.appcompat.R.id.alertTitle)).check(doesNotExist())
     }
 
     @Test
@@ -285,7 +309,7 @@ class AnnotationFragmentTest {
         onView(withText("Note for Manga")).perform(swipeLeft())
 
         // Verifica se o diálogo apareceu
-        onView(withText(R.string.book_annotation_delete)).check(matches(isDisplayed()))
+        onView(withId(androidx.appcompat.R.id.alertTitle)).check(matches(withText(R.string.book_annotation_delete)))
 
         // Clica em um botão fora (ou usa Voltar) para cancelar o diálogo
         // Ou simulamos o dismiss via clique fora se possível, mas aqui usaremos o "Voltar" ou se houver botão cancelar

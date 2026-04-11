@@ -181,8 +181,14 @@ abstract class DataBase : RoomDatabase() {
         }
 
         fun autoBackupDatabase(context: Context, isRestart: Boolean = false) {
+            val db = INSTANCE
+            if (db == null) {
+                mLOGGER.error("DataBase instance is null, skipping auto backup.")
+                return
+            }
+
             mLOGGER.warn("Generate auto backup...")
-            BACKUP.database(INSTANCE!!)
+            BACKUP.database(db)
                 .enableLogDebug(true)
                 .backupLocation(RoomBackup.BACKUP_FILE_LOCATION_INTERNAL)
                 .maxFileCount(5)

@@ -387,7 +387,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onDestroy() {
         NotificationManagerCompat.from(this).cancelAll()
         clearCache()
-        DataBase.close()
 
         val preferences = GeneralConsts.getSharedPreferences(this)
         if (LocalDate.now().isAfter(LocalDate.parse(preferences.getString(GeneralConsts.KEYS.DATABASE.LAST_AUTO_BACKUP, "2025-01-01")))) {
@@ -395,6 +394,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             DataBase.autoBackupDatabase(this)
         }
 
+        DataBase.close()
         super.onDestroy()
     }
 }

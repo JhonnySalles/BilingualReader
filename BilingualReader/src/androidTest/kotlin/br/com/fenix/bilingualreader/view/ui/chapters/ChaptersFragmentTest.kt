@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.os.Bundle
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -12,8 +12,11 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.longClick
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Chapters
 import br.com.fenix.bilingualreader.service.repository.SharedData
@@ -22,6 +25,7 @@ import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -32,22 +36,27 @@ class ChaptersFragmentTest {
     private val mockPageTitle = "Page 1 - Chapter 1"
     private val mockPageNumber = 1
     
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
+    
     @Before
     fun setup() {
-        SharedData.clearChapters()
-        
-        val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
-        val list = mutableListOf<Chapters>()
-        
-        // Adiciona um Header
-        list.add(Chapters(mockHeader, 0, 0, 1.0f, true))
-        
-        // Adiciona uma Página
-        list.add(Chapters(mockPageTitle, mockPageNumber, 0, 1.0f, false).apply {
-            image = bitmap
-        })
-        
-        SharedData.setChapters(null, list)
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            SharedData.clearChapters()
+            
+            val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
+            val list = mutableListOf<Chapters>()
+            
+            // Adiciona um Header
+            list.add(Chapters(mockHeader, 0, 0, 1.0f, true))
+            
+            // Adiciona uma Página
+            list.add(Chapters(mockPageTitle, mockPageNumber, mockPageNumber, 1.0f, false).apply {
+                image = bitmap
+            })
+            
+            SharedData.setChapters(null, list)
+        }
     }
 
     private fun getStartIntent(): Intent {
@@ -78,7 +87,7 @@ class ChaptersFragmentTest {
 
     @Test
     fun testCardClickReturnsResult() {
-        val scenario = ActivityScenario.launch<MenuActivity>(getStartIntent())
+        val scenario = ActivityScenario.launchActivityForResult<MenuActivity>(getStartIntent())
         
         Thread.sleep(1000)
 
