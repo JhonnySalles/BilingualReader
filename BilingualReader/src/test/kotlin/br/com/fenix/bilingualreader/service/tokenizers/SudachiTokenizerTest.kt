@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.service.tokenizers
 
 import android.content.Context
 import com.worksap.nlp.sudachi.Dictionary
-import com.worksap.nlp.sudachi.Morpheme
 import com.worksap.nlp.sudachi.MorphemeList
 import com.worksap.nlp.sudachi.Tokenizer
 import io.mockk.every

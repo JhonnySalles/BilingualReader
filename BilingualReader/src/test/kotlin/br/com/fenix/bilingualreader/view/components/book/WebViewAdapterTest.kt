@@ -2,15 +2,16 @@ package br.com.fenix.bilingualreader.view.components.book
 
 import android.app.Activity
 import android.content.Context
-import android.view.LayoutInflater
-import android.view.View
-import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
-import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderViewModel
 import br.com.fenix.bilingualreader.service.controller.WebInterface
 import br.com.fenix.bilingualreader.service.japanese.Formatter
+import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.view.ui.popup.PopupKanji
-import io.mockk.*
+import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderViewModel
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkConstructor
+import io.mockk.mockkObject
+import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

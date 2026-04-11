@@ -7,7 +7,9 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.TextView
 import br.com.fenix.bilingualreader.service.listener.SelectionChangeListener
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test

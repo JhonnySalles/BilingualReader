@@ -1,7 +1,8 @@
 package br.com.fenix.bilingualreader.model.dao
 
 import br.com.fenix.bilingualreader.model.entity.mock.TagsMock
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

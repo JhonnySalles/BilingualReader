@@ -1,7 +1,5 @@
 package br.com.fenix.bilingualreader.service.parses
  
-import androidx.test.core.app.ApplicationProvider
-import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import io.mockk.unmockkAll
 import org.junit.After
 import org.junit.Before
@@ -11,7 +9,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
- 
+
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])
 abstract class ParserBaseTest {

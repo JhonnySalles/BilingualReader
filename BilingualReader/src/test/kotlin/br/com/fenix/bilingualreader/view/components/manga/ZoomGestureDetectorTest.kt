@@ -1,9 +1,9 @@
 package br.com.fenix.bilingualreader.view.components.manga
 
 import android.view.MotionEvent
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import io.mockk.every
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

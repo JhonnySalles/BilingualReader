@@ -2,28 +2,27 @@ package br.com.fenix.bilingualreader.view.components.book
 
 import android.content.ClipboardManager
 import android.content.Context
+import android.text.Selection
 import android.text.SpannableString
 import android.view.ActionMode
 import android.view.MenuItem
 import android.widget.TextView
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.enums.Color
-import io.mockk.*
+import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
-import br.com.fenix.bilingualreader.view.ui.popup.PopupTextSelect
-import android.text.Selection
-import android.view.ContextThemeWrapper
 import org.robolectric.shadows.ShadowToast
-import org.robolectric.shadows.ShadowClipboardManager
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])

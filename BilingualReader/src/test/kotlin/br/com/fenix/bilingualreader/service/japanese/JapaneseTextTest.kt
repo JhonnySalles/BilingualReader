@@ -1,8 +1,8 @@
 package br.com.fenix.bilingualreader.service.japanese
 
 import android.text.SpannableStringBuilder
-import android.text.style.RelativeSizeSpan
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

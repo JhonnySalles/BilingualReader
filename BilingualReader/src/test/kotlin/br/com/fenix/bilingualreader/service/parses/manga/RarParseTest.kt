@@ -3,8 +3,12 @@ package br.com.fenix.bilingualreader.service.parses.manga
 import br.com.fenix.bilingualreader.service.parses.ParserBaseTest
 import com.github.junrar.Archive
 import com.github.junrar.rarfile.FileHeader
-import io.mockk.*
-import org.junit.Assert.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkConstructor
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.ByteArrayInputStream
 import java.io.File

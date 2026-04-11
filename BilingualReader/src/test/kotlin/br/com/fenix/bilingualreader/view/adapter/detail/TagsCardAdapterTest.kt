@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.view.adapter.detail
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import io.mockk.mockk
 import io.mockk.spyk
 import org.junit.Assert.assertEquals
 import org.junit.Before

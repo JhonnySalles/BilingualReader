@@ -3,7 +3,7 @@ package br.com.fenix.bilingualreader.model.entity.mock
 import br.com.fenix.bilingualreader.model.entity.ShareAnnotation
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
-import java.util.*
+import java.util.Date
 
 object ShareAnnotationMock {
 

@@ -1,6 +1,5 @@
 package br.com.fenix.bilingualreader.view.components
 
-import android.content.Context
 import android.provider.Settings
 import io.mockk.every
 import io.mockk.mockkStatic

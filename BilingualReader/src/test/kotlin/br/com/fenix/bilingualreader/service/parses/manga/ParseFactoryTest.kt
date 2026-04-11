@@ -2,7 +2,8 @@ package br.com.fenix.bilingualreader.service.parses.manga
 
 import br.com.fenix.bilingualreader.service.parses.ParserBaseTest
 import br.com.fenix.bilingualreader.service.parses.mock.ParseMock
-import org.junit.Assert.*
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 

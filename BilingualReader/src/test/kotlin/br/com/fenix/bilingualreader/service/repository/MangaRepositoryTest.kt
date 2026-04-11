@@ -1,14 +1,17 @@
 package br.com.fenix.bilingualreader.service.repository
 
 import android.content.Context
-import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.Library
-import br.com.fenix.bilingualreader.service.repository.MangaDAO
-import br.com.fenix.bilingualreader.service.repository.LibrariesDAO
-import br.com.fenix.bilingualreader.service.repository.DataBase
+import br.com.fenix.bilingualreader.model.entity.Manga
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.mockk.*
-import org.junit.Assert.*
+import io.mockk.MockKAnnotations
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.mockkStatic
+import io.mockk.unmockkAll
+import io.mockk.verify
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

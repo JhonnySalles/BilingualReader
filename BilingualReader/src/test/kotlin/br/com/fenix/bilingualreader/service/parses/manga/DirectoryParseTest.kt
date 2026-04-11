@@ -1,7 +1,8 @@
 package br.com.fenix.bilingualreader.service.parses.manga
 
 import br.com.fenix.bilingualreader.service.parses.ParserBaseTest
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 import java.io.IOException

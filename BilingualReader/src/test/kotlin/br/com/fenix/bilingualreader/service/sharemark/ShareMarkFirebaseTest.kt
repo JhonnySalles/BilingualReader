@@ -1,39 +1,42 @@
 package br.com.fenix.bilingualreader.service.sharemark
 
-import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import br.com.fenix.bilingualreader.model.entity.mock.MangaMock
 import br.com.fenix.bilingualreader.model.enums.ShareMarkType
+import br.com.fenix.bilingualreader.service.repository.HistoryRepository
+import br.com.fenix.bilingualreader.service.repository.MangaAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseApp
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
-import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.service.repository.HistoryRepository
-import br.com.fenix.bilingualreader.service.repository.MangaAnnotationRepository
-import java.util.Date
-import java.time.LocalDateTime
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import java.io.File
-import com.google.firebase.crashlytics.ktx.crashlytics
-import io.mockk.*
+import com.google.firebase.ktx.Firebase
+import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkConstructor
+import io.mockk.mockkObject
+import io.mockk.mockkStatic
+import io.mockk.spyk
+import io.mockk.unmockkAll
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.setMain
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -41,6 +44,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.io.File
 import java.lang.reflect.Field
 
 @RunWith(RobolectricTestRunner::class)

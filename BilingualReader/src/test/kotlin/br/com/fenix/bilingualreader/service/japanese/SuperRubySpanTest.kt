@@ -2,8 +2,8 @@ package br.com.fenix.bilingualreader.service.japanese
 
 import android.graphics.Paint
 import android.text.TextPaint
-import io.mockk.*
-import org.junit.Assert.*
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

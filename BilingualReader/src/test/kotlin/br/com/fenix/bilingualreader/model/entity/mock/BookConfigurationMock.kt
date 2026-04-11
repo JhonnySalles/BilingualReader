@@ -1,7 +1,12 @@
 package br.com.fenix.bilingualreader.model.entity.mock
 
 import br.com.fenix.bilingualreader.model.entity.BookConfiguration
-import br.com.fenix.bilingualreader.model.enums.*
+import br.com.fenix.bilingualreader.model.enums.AlignmentLayoutType
+import br.com.fenix.bilingualreader.model.enums.FontType
+import br.com.fenix.bilingualreader.model.enums.MarginLayoutType
+import br.com.fenix.bilingualreader.model.enums.PaginationType
+import br.com.fenix.bilingualreader.model.enums.ScrollingType
+import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 

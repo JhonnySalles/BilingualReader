@@ -1,7 +1,11 @@
 package br.com.fenix.bilingualreader.model.entity
 
 import br.com.fenix.bilingualreader.model.enums.FileType
-import org.junit.Assert.*
+import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

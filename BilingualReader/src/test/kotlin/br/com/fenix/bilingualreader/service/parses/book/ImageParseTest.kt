@@ -4,12 +4,12 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import br.com.ebook.foobnix.sys.ImageExtractor
 import br.com.fenix.bilingualreader.service.parses.ParserBaseTest
-import io.mockk.*
-import org.junit.Assert.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.Implementation
-import org.robolectric.annotation.Implements
 
 @Config(sdk = [33], shadows = [ShadowImageExtractor::class])
 class ImageParseTest : ParserBaseTest() {

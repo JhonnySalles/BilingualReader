@@ -1,8 +1,10 @@
 package br.com.fenix.bilingualreader.model.dao
 
 import br.com.fenix.bilingualreader.model.entity.mock.BookMock
-import br.com.fenix.bilingualreader.model.entity.mock.LibraryMock
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

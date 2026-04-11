@@ -1,16 +1,19 @@
 package br.com.fenix.bilingualreader.view.components.book
 
+import android.util.TypedValue
 import android.view.MotionEvent
 import br.com.fenix.bilingualreader.service.listener.SelectionChangeListener
-import io.mockk.*
-import org.junit.Assert.*
+import io.mockk.mockk
+import io.mockk.verify
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
-import android.util.TypedValue
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])

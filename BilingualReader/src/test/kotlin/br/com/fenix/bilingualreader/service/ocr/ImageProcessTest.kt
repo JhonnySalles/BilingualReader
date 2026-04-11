@@ -2,8 +2,8 @@ package br.com.fenix.bilingualreader.service.ocr
 
 import android.graphics.Bitmap
 import android.graphics.Color
-import br.com.fenix.bilingualreader.service.parses.ParserBaseTest
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

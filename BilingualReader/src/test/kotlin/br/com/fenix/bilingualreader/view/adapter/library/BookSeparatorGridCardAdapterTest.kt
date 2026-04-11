@@ -3,7 +3,6 @@ package br.com.fenix.bilingualreader.view.adapter.library
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import br.com.fenix.bilingualreader.model.entity.Book
-import br.com.fenix.bilingualreader.model.entity.Separator
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.BookCardListener

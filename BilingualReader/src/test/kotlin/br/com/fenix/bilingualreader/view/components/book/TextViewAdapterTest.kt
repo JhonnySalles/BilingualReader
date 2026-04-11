@@ -1,11 +1,12 @@
 package br.com.fenix.bilingualreader.view.components.book
 
 import android.content.Context
+import androidx.lifecycle.MutableLiveData
 import br.com.fenix.bilingualreader.model.entity.Speech
-import br.com.fenix.bilingualreader.model.enums.AudioStatus
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderViewModel
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -13,7 +14,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
-import androidx.lifecycle.MutableLiveData
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])

@@ -1,16 +1,15 @@
 package br.com.fenix.bilingualreader.service.parses.book
 
 import android.content.Context
-import androidx.test.core.app.ApplicationProvider
 import br.com.ebook.foobnix.android.utils.Dips
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState
 import br.com.ebook.foobnix.sys.ImageExtractor
 import br.com.fenix.bilingualreader.service.listener.BookParseListener
 import br.com.fenix.bilingualreader.service.parses.ParserBaseTest
-import io.`mockk`.*
+import io.mockk.every
+import io.mockk.mockk
 import org.ebookdroid.core.codec.CodecDocument
 import org.ebookdroid.core.codec.OutlineLink
-import org.junit.Assert.*
 import org.junit.Test
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.Implementation

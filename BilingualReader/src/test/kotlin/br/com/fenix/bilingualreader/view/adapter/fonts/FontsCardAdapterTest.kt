@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.view.adapter.fonts
 
 import android.content.Context
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.test.core.app.ApplicationProvider
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.FontType

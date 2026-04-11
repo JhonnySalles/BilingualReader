@@ -1,7 +1,6 @@
 package br.com.fenix.bilingualreader.service.scanner
 
 import android.content.Context
-import br.com.ebook.foobnix.entity.FileMeta
 import br.com.ebook.foobnix.entity.FileMetaCore
 import br.com.ebook.foobnix.ext.EbookMeta
 import br.com.fenix.bilingualreader.model.entity.Book
@@ -10,14 +9,22 @@ import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import com.google.firebase.FirebaseApp
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.mockk.*
-import org.junit.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkConstructor
+import io.mockk.mockkObject
+import io.mockk.mockkStatic
+import io.mockk.unmockkAll
+import io.mockk.verify
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.io.File
-import java.util.*
+import java.util.UUID
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])

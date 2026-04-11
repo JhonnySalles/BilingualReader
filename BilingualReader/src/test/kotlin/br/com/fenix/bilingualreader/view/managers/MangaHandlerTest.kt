@@ -4,15 +4,19 @@ import android.net.Uri
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Request
-import io.mockk.*
-import org.junit.Assert.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.ByteArrayInputStream
-import java.io.InputStream
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])

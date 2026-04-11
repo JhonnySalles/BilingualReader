@@ -4,7 +4,6 @@ import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.service.listener.InformationCardListener
 import io.mockk.mockk
 import io.mockk.spyk
-import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

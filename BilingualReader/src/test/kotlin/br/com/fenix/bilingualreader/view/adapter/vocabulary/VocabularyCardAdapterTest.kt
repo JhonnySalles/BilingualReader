@@ -4,12 +4,10 @@ import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.service.listener.VocabularyCardListener
 import io.mockk.mockk
 import io.mockk.spyk
-import org.junit.Assert.assertTrue
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import androidx.recyclerview.widget.DiffUtil
-import java.lang.reflect.Field
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config

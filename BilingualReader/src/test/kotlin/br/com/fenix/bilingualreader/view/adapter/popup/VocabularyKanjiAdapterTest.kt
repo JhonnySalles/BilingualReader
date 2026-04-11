@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.view.adapter.popup
 
 import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Kanjax
 import io.mockk.mockk
@@ -8,7 +9,6 @@ import io.mockk.spyk
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import androidx.test.core.app.ApplicationProvider
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
