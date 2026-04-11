@@ -77,19 +77,14 @@ class HistoryFragmentTest {
 
     @Test
     fun testHistoryListIsDisplayed() {
-        // Lança a TestActivity que hospeda o fragmento
         val scenario = ActivityScenario.launch(TestActivity::class.java)
         scenario.onActivity { activity ->
             activity.setFragment(HistoryFragment())
         }
         
-        // Aguarda o processamento assíncrono do ViewModel (list() é carregado em Coroutine Scope)
         Thread.sleep(2000)
         
-        // Verifica se o RecyclerView do histórico está visível
         onView(withId(R.id.history_list)).check(matches(isDisplayed()))
-        
-        // Verifica se os itens populados (pelo menos os primeiros da ordenação) estão visíveis
         onView(withText("Book Beta 1")).check(matches(isDisplayed()))
         onView(withText("Manga Alpha 1")).check(matches(isDisplayed()))
     }
@@ -103,16 +98,11 @@ class HistoryFragmentTest {
         
         Thread.sleep(2000)
 
-        // Abre o menu de filtro por tipo na Action Bar
         onView(withId(R.id.menu_history_type)).perform(click())
-        
-        // Seleciona filtrar por "Mangá"
         onView(withText(R.string.history_manga)).perform(click())
         
-        // Aguarda a aplicação do filtro no ViewModel
         Thread.sleep(1000)
 
-        // Valida que itens de Mangá permanecem e Livros desaparecem
         onView(withText("Manga Alpha 1")).check(matches(isDisplayed()))
         onView(withText("Book Beta 1")).check(doesNotExist())
     }
@@ -126,20 +116,92 @@ class HistoryFragmentTest {
         
         Thread.sleep(2000)
 
-        // Realiza o gesto de swipe para a esquerda no primeiro item da lista (Book Beta 1 p/ data)
         onView(withId(R.id.history_list))
             .perform(RecyclerViewActions.actionOnItemAtPosition<androidx.recyclerview.widget.RecyclerView.ViewHolder>(0, swipeLeft()))
 
         Thread.sleep(1000)
 
-        // Verifica se o diálogo de exclusão apareceu (MaterialAlertDialogBuilder)
         onView(withText(R.string.manga_library_menu_delete)).check(matches(isDisplayed()))
         onView(withText(containsString("Book Beta 1"))).check(matches(isDisplayed()))
         
-        // Clicar em Cancelar (Negative Button)
         onView(withText(R.string.action_negative)).perform(click())
+        onView(withText("Book Beta 1")).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun testSearchFiltering() {
+        val scenario = ActivityScenario.launch(TestActivity::class.java)
+        scenario.onActivity { activity ->
+            activity.setFragment(HistoryFragment())
+        }
         
-        // Verifica se o item voltou a aparecer na lista após o dismiss (comportamento do setOnDismissListener)
+        Thread.sleep(2000)
+
+        onView(withId(R.id.menu_history_search)).perform(click())
+        onView(isAssignableFrom(android.widget.EditText::class.java))
+            .perform(typeText("Book Beta 1"), pressImeActionButton())
+
+        Thread.sleep(2000)
+
+        onView(withText("Book Beta 1")).check(matches(isDisplayed()))
+        onView(withText("Manga Alpha 1")).check(doesNotExist())
+    }
+
+    @Test
+    fun testLibraryFilter() {
+        val scenario = ActivityScenario.launch(TestActivity::class.java)
+        scenario.onActivity { activity ->
+            activity.setFragment(HistoryFragment())
+        }
+        
+        Thread.sleep(2000)
+
+        onView(withId(R.id.menu_history_library)).perform(click())
+        onView(withText(R.string.history_manga)).perform(click())
+        onView(withText("Manga Test Lib")).perform(click())
+
+        Thread.sleep(2000)
+
+        onView(withText("Manga Alpha 1")).check(matches(isDisplayed()))
+        onView(withText("Book Beta 1")).check(doesNotExist())
+    }
+
+    @Test
+    fun testLongClickContextMenu() {
+        val scenario = ActivityScenario.launch(TestActivity::class.java)
+        scenario.onActivity { activity ->
+            activity.setFragment(HistoryFragment())
+        }
+        
+        Thread.sleep(2000)
+
+        onView(withId(R.id.history_list))
+            .perform(RecyclerViewActions.actionOnItemAtPosition<androidx.recyclerview.widget.RecyclerView.ViewHolder>(0, longClick()))
+
+        onView(withText(R.string.book_library_menu_favorite_add)).check(matches(isDisplayed()))
+        onView(withText(R.string.manga_library_menu_clear)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun testFabVisibilityOnScroll() {
+        val scenario = ActivityScenario.launch(TestActivity::class.java)
+        scenario.onActivity { activity ->
+            activity.setFragment(HistoryFragment())
+        }
+        
+        Thread.sleep(2000)
+
+        onView(withId(R.id.history_scroll_up)).check(matches(withEffectiveVisibility(Visibility.GONE)))
+        onView(withId(R.id.history_list)).perform(RecyclerViewActions.scrollToPosition<androidx.recyclerview.widget.RecyclerView.ViewHolder>(9))
+
+        Thread.sleep(1000)
+
+        onView(withId(R.id.history_scroll_up)).check(matches(isDisplayed()))
+        onView(withId(R.id.history_scroll_up)).perform(click())
+        
+        Thread.sleep(1000)
+        
         onView(withText("Book Beta 1")).check(matches(isDisplayed()))
     }
 }
+

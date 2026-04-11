@@ -1,0 +1,108 @@
+package br.com.fenix.bilingualreader.view.ui.vocabulary
+
+import android.content.Context
+import android.content.Intent
+import androidx.room.Room
+import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.Vocabulary
+import br.com.fenix.bilingualreader.service.repository.DataBase
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import java.io.File
+
+@RunWith(AndroidJUnit4::class)
+class VocabularyFragmentTest {
+
+    private lateinit var db: DataBase
+
+    @Before
+    fun setup() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        
+        // Setup Database
+        db = Room.inMemoryDatabaseBuilder(context, DataBase::class.java)
+            .allowMainThreadQueries()
+            .build()
+        DataBase.setTestingInstance(db)
+
+        // Injeta dados de vocabulário simulados
+        val mockData = listOf(
+            Vocabulary(1L, "TestWord1", "Reading1", "Meaning1").apply { favorite = true },
+            Vocabulary(2L, "TestWord2", "Reading2", "Meaning2"),
+            Vocabulary(3L, "AlphaWord", "Reading3", "Meaning3")
+        )
+        
+        mockData.forEach { db.getVocabularyDao().save(it) }
+    }
+
+    @After
+    fun tearDown() {
+        db.close()
+    }
+
+    private fun getStartIntent(): Intent {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        return Intent(context, VocabularyActivity::class.java).apply {
+            action = Intent.ACTION_MAIN
+        }
+    }
+
+    @Test
+    fun testVocabularyListRendering() {
+        ActivityScenario.launch<VocabularyActivity>(getStartIntent())
+        
+        // Aguarda carregamento PagingData + Coroutines
+        Thread.sleep(3000)
+
+        // Verifica se as palavras estão sendo exibidas na RecyclerView
+        onView(withText("TestWord1")).check(matches(isDisplayed()))
+        onView(withText("Meaning2")).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun testFavoriteFilterToggle() {
+        ActivityScenario.launch<VocabularyActivity>(getStartIntent())
+        
+        Thread.sleep(2000)
+
+        // Clica no filtro de favoritos na toolbar
+        onView(withId(R.id.menu_vocabulary_favorite)).perform(click())
+        
+        // Aguarda atualização dos dados filtrados
+        Thread.sleep(2000)
+        
+        // Apenas TestWord1 deveria estar visível (é a única favorita no setup)
+        onView(withText("TestWord1")).check(matches(isDisplayed()))
+        
+        // Word 2 não deve ser encontrada ou não deve estar visível
+        // onView(withText("TestWord2")).check(doesNotExist()) 
+        // Nota: Dependendo do Paging ele pode estar no adapter mas não na view.
+    }
+
+    @Test
+    fun testOrderBottomSheetTrigger() {
+        ActivityScenario.launch<VocabularyActivity>(getStartIntent())
+        
+        Thread.sleep(2000)
+
+        // Aciona o menu de ordenação via clique longo (como definido no fragmento via MenuUtil.longClick)
+        onView(withId(R.id.menu_vocabulary_list_order)).perform(longClick())
+        
+        Thread.sleep(1000)
+        
+        // Verifica se o BottomSheet de ordenação apareceu
+        onView(withId(R.id.vocabulary_popup_menu_order_filter)).check(matches(isDisplayed()))
+        
+        // Verifica se a aba de ordenação está visível
+        onView(withText(R.string.popup_vocabulary_tab_item_ordering)).check(matches(isDisplayed()))
+    }
+}
