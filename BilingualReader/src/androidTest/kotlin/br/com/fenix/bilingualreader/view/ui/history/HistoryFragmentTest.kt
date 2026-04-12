@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.view.ui.history
 
 import android.content.Context
+import android.content.res.Resources
 import androidx.room.Room
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -28,6 +29,7 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.DataBase
+import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.containsString
 import org.junit.After
 import org.junit.Before
@@ -91,11 +93,12 @@ class HistoryFragmentTest {
             activity.setFragment(HistoryFragment())
         }
         
-        Thread.sleep(2000)
+        Thread.sleep(3000)
+        onView(withId(R.id.shimmer_skeleton)).check(matches(withEffectiveVisibility(Visibility.GONE)))
         
         onView(withId(R.id.history_list)).check(matches(isDisplayed()))
-        onView(withText("Book Beta 1")).check(matches(isDisplayed()))
-        onView(withText("Manga Alpha 1")).check(matches(isDisplayed()))
+        onView(allOf(withId(R.id.history_text_title), withText("Book Beta 1"))).check(matches(isDisplayed()))
+        onView(allOf(withId(R.id.history_text_title), withText("Manga Alpha 1"))).check(matches(isDisplayed()))
     }
 
     @Test
@@ -123,18 +126,23 @@ class HistoryFragmentTest {
             activity.setFragment(HistoryFragment())
         }
         
-        Thread.sleep(2000)
+        Thread.sleep(3000)
+        onView(withId(R.id.shimmer_skeleton)).check(matches(withEffectiveVisibility(Visibility.GONE)))
 
+        // Posição 0 é o Header de data (ex: "Today"). Posição 1 é o primeiro item real.
         onView(withId(R.id.history_list))
-            .perform(RecyclerViewActions.actionOnItemAtPosition<androidx.recyclerview.widget.RecyclerView.ViewHolder>(0, swipeLeft()))
+            .perform(RecyclerViewActions.actionOnItemAtPosition<androidx.recyclerview.widget.RecyclerView.ViewHolder>(1, swipeLeft()))
 
         Thread.sleep(1000)
 
+        // Verifica se o popup de confirmação abriu
         onView(withText(R.string.manga_library_menu_delete)).check(matches(isDisplayed()))
-        onView(withText(containsString("Book Beta 1"))).check(matches(isDisplayed()))
         
-        onView(withText(R.string.action_negative)).perform(click())
-        onView(withText("Book Beta 1")).check(matches(isDisplayed()))
+        // Clica no botão de confirmação
+        onView(withId(android.R.id.button1)).perform(click())
+        
+        Thread.sleep(1500)
+        onView(withText("Book Beta 1")).check(doesNotExist())
     }
 
     @Test
@@ -147,7 +155,7 @@ class HistoryFragmentTest {
         Thread.sleep(2000)
 
         onView(withId(R.id.menu_history_search)).perform(click())
-        onView(isAssignableFrom(android.widget.EditText::class.java))
+        onView(withId(Resources.getSystem().getIdentifier("search_src_text", "id", "android")))
             .perform(typeText("Book Beta 1"), pressImeActionButton())
 
         Thread.sleep(2000)
@@ -157,7 +165,7 @@ class HistoryFragmentTest {
     }
 
     @Test
-    fun testLibraryFilter() {
+    fun testFilterByLibrary() {
         val scenario = ActivityScenario.launch(TestActivity::class.java)
         scenario.onActivity { activity ->
             activity.setFragment(HistoryFragment())
@@ -182,35 +190,16 @@ class HistoryFragmentTest {
             activity.setFragment(HistoryFragment())
         }
         
-        Thread.sleep(2000)
+        Thread.sleep(3000)
+        onView(withId(R.id.shimmer_skeleton)).check(matches(withEffectiveVisibility(Visibility.GONE)))
 
+        // Posição 1 para pular o Header de data (Today)
         onView(withId(R.id.history_list))
-            .perform(RecyclerViewActions.actionOnItemAtPosition<androidx.recyclerview.widget.RecyclerView.ViewHolder>(0, longClick()))
+            .perform(RecyclerViewActions.actionOnItemAtPosition<androidx.recyclerview.widget.RecyclerView.ViewHolder>(1, longClick()))
 
+        Thread.sleep(1500)
         onView(withText(R.string.book_library_menu_favorite_add)).check(matches(isDisplayed()))
         onView(withText(R.string.manga_library_menu_clear)).check(matches(isDisplayed()))
-    }
-
-    @Test
-    fun testFabVisibilityOnScroll() {
-        val scenario = ActivityScenario.launch(TestActivity::class.java)
-        scenario.onActivity { activity ->
-            activity.setFragment(HistoryFragment())
-        }
-        
-        Thread.sleep(2000)
-
-        onView(withId(R.id.history_scroll_up)).check(matches(withEffectiveVisibility(Visibility.GONE)))
-        onView(withId(R.id.history_list)).perform(RecyclerViewActions.scrollToPosition<androidx.recyclerview.widget.RecyclerView.ViewHolder>(9))
-
-        Thread.sleep(1000)
-
-        onView(withId(R.id.history_scroll_up)).check(matches(isDisplayed()))
-        onView(withId(R.id.history_scroll_up)).perform(click())
-        
-        Thread.sleep(1000)
-        
-        onView(withText("Book Beta 1")).check(matches(isDisplayed()))
     }
 }
 

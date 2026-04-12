@@ -250,10 +250,10 @@ abstract class BookDAO : BaseDAO<Book, Long>(DataBaseConsts.BOOK.TABLE_NAME, Dat
                 "        0 AS ${DataBaseConsts.BOOK.COLUMNS.COMPLETED}, ${DataBaseConsts.BOOK.COLUMNS.LANGUAGE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_PATH}, " +
                 "        '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_NAME}, ${DataBaseConsts.BOOK.COLUMNS.FILE_TYPE}, '' AS ${DataBaseConsts.BOOK.COLUMNS.FILE_FOLDER}, " +
                 "        0 AS ${DataBaseConsts.BOOK.COLUMNS.FILE_SIZE}, 0 AS ${DataBaseConsts.BOOK.COLUMNS.FAVORITE}, null AS ${DataBaseConsts.BOOK.COLUMNS.DATE_CREATE}, " +
-                "        -1 AS ${DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY}, '' AS ${DataBaseConsts.BOOK.COLUMNS.TAGS}, 0 AS ${DataBaseConsts.BOOK.COLUMNS.EXCLUDED}, " +
+                "        -2 AS ${DataBaseConsts.BOOK.COLUMNS.FK_ID_LIBRARY}, '' AS ${DataBaseConsts.BOOK.COLUMNS.TAGS}, 0 AS ${DataBaseConsts.BOOK.COLUMNS.EXCLUDED}, " +
                 "        null AS ${DataBaseConsts.BOOK.COLUMNS.LAST_ALTERATION}, 0 AS ${DataBaseConsts.BOOK.COLUMNS.FILE_ALTERATION}, null AS ${DataBaseConsts.BOOK.COLUMNS.LAST_VOCABULARY_IMPORT}, " +
-                "        null AS ${DataBaseConsts.BOOK.COLUMNS.LAST_VERIFY}, Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '23:59:59.999' AS ${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, " +
-                "        Substr(${DataBaseConsts.MANGA.COLUMNS.LAST_ACCESS}, 0, 12) || '25:60:60.000' AS ${DataBaseConsts.MANGA.COLUMNS.SORT} " +
+                "        null AS ${DataBaseConsts.BOOK.COLUMNS.LAST_VERIFY}, Substr(${DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS}, 0, 12) || '23:59:59.999' AS ${DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS}, " +
+                "        Substr(${DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS}, 0, 12) || '25:60:60.000' AS ${DataBaseConsts.BOOK.COLUMNS.SORT} " +
                 " FROM  " + DataBaseConsts.BOOK.TABLE_NAME +
                 " WHERE " + DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS + " is not null " +
                 " GROUP BY Substr(${DataBaseConsts.BOOK.COLUMNS.LAST_ACCESS}, 0, 11)) " +
