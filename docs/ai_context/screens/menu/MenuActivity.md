@@ -1,4 +1,4 @@
-﻿# MenuActivity
+# MenuActivity
 
 ## 🎯 Objetivo / Contexto
 
@@ -6,9 +6,9 @@
 
 ## 🧩 Componentes de UI e Arquivos
 
-- **Classe Principal:** MenuActivity.kt
-- **Layout XML:** activity_menu.xml
-- **ViewModel / Presenter:** [MenuViewModel.kt]
+- **Classe Principal:** [MenuActivity.kt](BilingualReader/src/main/kotlin/br/com/fenix/bilingualreader/view/ui/menu/MenuActivity.kt)
+- **Layout XML:** [activity_menu.xml](BilingualReader/src/main/res/layout/activity_menu.xml)
+- **ViewModel / Presenter:** [MenuViewModel.kt](BilingualReader/src/main/kotlin/br/com/fenix/bilingualreader/view/viewmodel/MenuViewModel.kt)
 - **Principais Views (IDs):**
   - [id_da_view]: [Descrição da view]
 

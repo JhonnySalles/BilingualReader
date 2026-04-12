@@ -1,4 +1,4 @@
-﻿# ConfigLibrariesFragment
+# ConfigLibrariesFragment
 
 ## 🎯 Objetivo / Contexto
 
@@ -6,9 +6,9 @@
 
 ## 🧩 Componentes de UI e Arquivos
 
-- **Classe Principal:** ConfigLibrariesFragment.kt
-- **Layout XML:** fragment_config_libraries.xml
-- **ViewModel / Presenter:** [ConfigLibrariesViewModel.kt]
+- **Classe Principal:** [ConfigLibrariesFragment.kt](src/main/kotlin/br/com/fenix/bilingualreader/view/ui/menu/ConfigLibrariesFragment.kt)
+- **Layout XML:** [fragment_config_libraries.xml](src/main/res/layout/fragment_config_libraries.xml)
+- **ViewModel / Presenter:** [ConfigLibrariesViewModel.kt](src/main/kotlin/br/com/fenix/bilingualreader/view/viewmodel/ConfigLibrariesViewModel.kt)
 - **Principais Views (IDs):**
   - [id_da_view]: [Descrição da view]
 

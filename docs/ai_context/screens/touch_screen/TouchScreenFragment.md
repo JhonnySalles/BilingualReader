@@ -1,4 +1,4 @@
-﻿# TouchScreenFragment
+# TouchScreenFragment
 
 ## 🎯 Objetivo / Contexto
 
@@ -6,9 +6,9 @@
 
 ## 🧩 Componentes de UI e Arquivos
 
-- **Classe Principal:** TouchScreenFragment.kt
-- **Layout XML:** fragment_touch_screen.xml
-- **ViewModel / Presenter:** [TouchScreenViewModel.kt]
+- **Classe Principal:** [TouchScreenFragment.kt](src/main/kotlin/br/com/fenix/bilingualreader/view/ui/touch_screen/TouchScreenFragment.kt)
+- **Layout XML:** [fragment_touch_screen.xml](src/main/res/layout/fragment_touch_screen.xml)
+- **ViewModel / Presenter:** [TouchScreenViewModel.kt](src/main/kotlin/br/com/fenix/bilingualreader/view/viewmodel/TouchScreenViewModel.kt)
 - **Principais Views (IDs):**
   - [id_da_view]: [Descrição da view]
 

@@ -1,4 +1,4 @@
-﻿# PagesLinkActivity
+# PagesLinkActivity
 
 ## 🎯 Objetivo / Contexto
 
@@ -6,9 +6,9 @@
 
 ## 🧩 Componentes de UI e Arquivos
 
-- **Classe Principal:** PagesLinkActivity.kt
-- **Layout XML:** activity_pages_link.xml
-- **ViewModel / Presenter:** [PagesLinkViewModel.kt]
+- **Classe Principal:** [PagesLinkActivity.kt](src/main/kotlin/br/com/fenix/bilingualreader/view/ui/pages_link/PagesLinkActivity.kt)
+- **Layout XML:** [activity_pages_link.xml](src/main/res/layout/activity_pages_link.xml)
+- **ViewModel / Presenter:** [PagesLinkViewModel.kt](src/main/kotlin/br/com/fenix/bilingualreader/view/ui/pages_link/PagesLinkViewModel.kt)
 - **Principais Views (IDs):**
   - [id_da_view]: [Descrição da view]
 

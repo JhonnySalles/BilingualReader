@@ -1,4 +1,4 @@
-﻿# PagesLinkFragment
+# PagesLinkFragment
 
 ## 🎯 Objetivo / Contexto
 
@@ -6,9 +6,9 @@
 
 ## 🧩 Componentes de UI e Arquivos
 
-- **Classe Principal:** PagesLinkFragment.kt
-- **Layout XML:** fragment_pages_link.xml
-- **ViewModel / Presenter:** [PagesLinkViewModel.kt]
+- **Classe Principal:** [PagesLinkFragment.kt](src/main/kotlin/br/com/fenix/bilingualreader/view/ui/pages_link/PagesLinkFragment.kt)
+- **Layout XML:** [fragment_pages_link.xml](src/main/res/layout/fragment_pages_link.xml)
+- **ViewModel / Presenter:** [PagesLinkViewModel.kt](src/main/kotlin/br/com/fenix/bilingualreader/view/ui/pages_link/PagesLinkViewModel.kt)
 - **Principais Views (IDs):**
   - [id_da_view]: [Descrição da view]
 
