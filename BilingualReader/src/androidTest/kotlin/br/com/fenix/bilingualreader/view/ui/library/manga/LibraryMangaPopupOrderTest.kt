@@ -32,7 +32,7 @@ class LibraryMangaPopupOrderTest {
 
     @Test
     fun testClickChangesState() {
-        val scenario = launchFragmentInContainer<LibraryMangaPopupOrder>(themeResId = R.style.AppTheme)
+        val scenario = launchFragmentInContainer<LibraryMangaPopupOrder>(themeResId = R.style.AppBackground)
         
         val liveData = MutableLiveData<Pair<Order, Boolean>>()
         val listener = object : PopupOrderListener {
@@ -51,7 +51,7 @@ class LibraryMangaPopupOrderTest {
 
     @Test
     fun testDoubleClickChangesStateToIndeterminate() {
-        val scenario = launchFragmentInContainer<LibraryMangaPopupOrder>(themeResId = R.style.AppTheme)
+        val scenario = launchFragmentInContainer<LibraryMangaPopupOrder>(themeResId = R.style.AppBackground)
         
         val liveData = MutableLiveData<Pair<Order, Boolean>>()
         val listener = object : PopupOrderListener {

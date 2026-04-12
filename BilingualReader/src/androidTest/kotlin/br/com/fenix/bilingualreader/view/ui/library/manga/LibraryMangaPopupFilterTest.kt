@@ -15,7 +15,7 @@ class LibraryMangaPopupFilterTest {
 
     @Test
     fun testSelectFavoriteFilter() {
-        launchFragmentInContainer<LibraryMangaPopupFilter>(themeResId = R.style.AppTheme)
+        launchFragmentInContainer<LibraryMangaPopupFilter>(themeResId = R.style.AppBackground)
         
         onView(withId(R.id.popup_library_filter_favorite)).perform(click())
         onView(withId(R.id.popup_library_filter_favorite)).check(matches(isChecked()))
@@ -23,7 +23,7 @@ class LibraryMangaPopupFilterTest {
 
     @Test
     fun testSelectReadingFilter() {
-        launchFragmentInContainer<LibraryMangaPopupFilter>(themeResId = R.style.AppTheme)
+        launchFragmentInContainer<LibraryMangaPopupFilter>(themeResId = R.style.AppBackground)
         
         onView(withId(R.id.popup_library_filter_reading)).perform(click())
         onView(withId(R.id.popup_library_filter_reading)).check(matches(isChecked()))

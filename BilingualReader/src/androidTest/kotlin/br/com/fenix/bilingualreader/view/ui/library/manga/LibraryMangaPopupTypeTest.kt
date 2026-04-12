@@ -15,7 +15,7 @@ class LibraryMangaPopupTypeTest {
 
     @Test
     fun testSelectGridBig() {
-        launchFragmentInContainer<LibraryMangaPopupType>(themeResId = R.style.AppTheme)
+        launchFragmentInContainer<LibraryMangaPopupType>(themeResId = R.style.AppBackground)
         
         onView(withId(R.id.popup_library_manga_type_grid_big)).perform(click())
         onView(withId(R.id.popup_library_manga_type_grid_big)).check(matches(isChecked()))
@@ -24,7 +24,7 @@ class LibraryMangaPopupTypeTest {
 
     @Test
     fun testSelectGridMedium() {
-        launchFragmentInContainer<LibraryMangaPopupType>(themeResId = R.style.AppTheme)
+        launchFragmentInContainer<LibraryMangaPopupType>(themeResId = R.style.AppBackground)
         
         onView(withId(R.id.popup_library_manga_type_grid_medium)).perform(click())
         onView(withId(R.id.popup_library_manga_type_grid_medium)).check(matches(isChecked()))
@@ -32,7 +32,7 @@ class LibraryMangaPopupTypeTest {
 
     @Test
     fun testSelectLine() {
-        launchFragmentInContainer<LibraryMangaPopupType>(themeResId = R.style.AppTheme)
+        launchFragmentInContainer<LibraryMangaPopupType>(themeResId = R.style.AppBackground)
         
         onView(withId(R.id.popup_library_manga_type_line)).perform(click())
         onView(withId(R.id.popup_library_manga_type_line)).check(matches(isChecked()))

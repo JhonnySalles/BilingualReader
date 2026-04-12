@@ -15,7 +15,7 @@ class LibraryBookPopupFilterTest {
 
     @Test
     fun testSelectFavoriteFilter() {
-        launchFragmentInContainer<LibraryBookPopupFilter>(themeResId = R.style.AppTheme)
+        launchFragmentInContainer<LibraryBookPopupFilter>(themeResId = R.style.AppBackground)
         
         onView(withId(R.id.popup_library_filter_favorite)).perform(click())
         onView(withId(R.id.popup_library_filter_favorite)).check(matches(isChecked()))
@@ -24,7 +24,7 @@ class LibraryBookPopupFilterTest {
 
     @Test
     fun testSelectReadingFilter() {
-        launchFragmentInContainer<LibraryBookPopupFilter>(themeResId = R.style.AppTheme)
+        launchFragmentInContainer<LibraryBookPopupFilter>(themeResId = R.style.AppBackground)
         
         onView(withId(R.id.popup_library_filter_reading)).perform(click())
         onView(withId(R.id.popup_library_filter_reading)).check(matches(isChecked()))
@@ -32,7 +32,7 @@ class LibraryBookPopupFilterTest {
 
     @Test
     fun testUnselectClearsFilter() {
-        launchFragmentInContainer<LibraryBookPopupFilter>(themeResId = R.style.AppTheme)
+        launchFragmentInContainer<LibraryBookPopupFilter>(themeResId = R.style.AppBackground)
         
         onView(withId(R.id.popup_library_filter_favorite)).perform(click()) // Check
         onView(withId(R.id.popup_library_filter_favorite)).perform(click()) // Uncheck

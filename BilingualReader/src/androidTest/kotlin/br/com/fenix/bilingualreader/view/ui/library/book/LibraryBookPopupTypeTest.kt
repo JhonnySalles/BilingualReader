@@ -17,7 +17,7 @@ class LibraryBookPopupTypeTest {
 
     @Test
     fun testSelectGridBig() {
-        launchFragmentInContainer<LibraryBookPopupType>(themeResId = R.style.AppTheme)
+        launchFragmentInContainer<LibraryBookPopupType>(themeResId = R.style.AppBackground)
         
         onView(withId(R.id.popup_library_book_type_grid_big)).perform(click())
         onView(withId(R.id.popup_library_book_type_grid_big)).check(matches(isChecked()))
@@ -26,7 +26,7 @@ class LibraryBookPopupTypeTest {
 
     @Test
     fun testSelectGridMedium() {
-        launchFragmentInContainer<LibraryBookPopupType>(themeResId = R.style.AppTheme)
+        launchFragmentInContainer<LibraryBookPopupType>(themeResId = R.style.AppBackground)
         
         onView(withId(R.id.popup_library_book_type_grid_medium)).perform(click())
         onView(withId(R.id.popup_library_book_type_grid_medium)).check(matches(isChecked()))
@@ -34,7 +34,7 @@ class LibraryBookPopupTypeTest {
 
     @Test
     fun testSelectSeparatorBig() {
-        launchFragmentInContainer<LibraryBookPopupType>(themeResId = R.style.AppTheme)
+        launchFragmentInContainer<LibraryBookPopupType>(themeResId = R.style.AppBackground)
         
         onView(withId(R.id.popup_library_book_type_separator_big)).perform(click())
         onView(withId(R.id.popup_library_book_type_separator_big)).check(matches(isChecked()))
@@ -42,7 +42,7 @@ class LibraryBookPopupTypeTest {
 
     @Test
     fun testSelectLine() {
-        launchFragmentInContainer<LibraryBookPopupType>(themeResId = R.style.AppTheme)
+        launchFragmentInContainer<LibraryBookPopupType>(themeResId = R.style.AppBackground)
         
         onView(withId(R.id.popup_library_book_type_line)).perform(click())
         onView(withId(R.id.popup_library_book_type_line)).check(matches(isChecked()))
