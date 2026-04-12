@@ -420,6 +420,11 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         }
     }
 
+    fun filterType(filter: FilterType) {
+        mTypeFilter.value = filter
+        getFilter().filter(mWordFilter)
+    }
+
     fun clearFilter() {
         val newList: MutableList<Book> = mutableListOf()
         newList.addAll(mListBookFull.value!!.filter(Objects::nonNull))
