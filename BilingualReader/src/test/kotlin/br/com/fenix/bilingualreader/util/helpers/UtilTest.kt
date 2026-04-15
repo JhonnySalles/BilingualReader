@@ -153,4 +153,26 @@ class UtilTest {
         val encoded = ImageUtil.encodeImageBase64(mockBitmap)
         assertNotNull(encoded)
     }
+
+    @Test
+    fun testGetNameWithoutVolumeAndChapter() {
+        assertEquals("Manga Title", Util.getNameWithoutVolumeAndChapter("Manga Title - Volume 01"))
+        assertEquals("Manga Title", Util.getNameWithoutVolumeAndChapter("Manga Title volume 01"))
+        assertEquals("Manga Title", Util.getNameWithoutVolumeAndChapter("Manga Title capítulo 01"))
+        assertEquals("Plain Name", Util.getNameWithoutVolumeAndChapter("Plain Name"))
+    }
+
+    @Test
+    fun testGetChapterFromPath() {
+        assertEquals(1f, Util.getChapterFromPath("/path/to/Capitulo 1/"))
+        assertEquals(2.5f, Util.getChapterFromPath("/path/to/capítulo 2.5\\"))
+        assertEquals(-1f, Util.getChapterFromPath("/path/to/invalid/"))
+    }
+
+    @Test
+    fun testFileUtilFormatSize() {
+        assertEquals("500 B", FileUtil.formatSize(500))
+        assertEquals("1.0 KB", FileUtil.formatSize(1024))
+        assertEquals("1.0 MB", FileUtil.formatSize(1024 * 1024))
+    }
 }

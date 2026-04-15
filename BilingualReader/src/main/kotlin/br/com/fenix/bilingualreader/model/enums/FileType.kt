@@ -87,7 +87,7 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
         return false
     }
 
-    fun getMimeType(): String = mimeTypes.joinToString { "|" }
+    fun getMimeType(): String = mimeTypes.joinToString("|")
 
     fun getMime(): Array<String> = mimeTypes
 
@@ -126,9 +126,8 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
             return array
         }
 
-        fun getMimeTypeManga() = getMimeManga().joinToString { "|" }
-
-        fun getMimeTypeBook() = getMimeBook().joinToString { "|" }
+        fun getMimeTypeManga(): String = values().filter { it.type == TYPE_MANGA || it.type == TYPE_MANGA_AND_BOOK }.joinToString("|") { it.getMime().joinToString("|") }
+        fun getMimeTypeBook(): String = values().filter { it.type == TYPE_BOOK || it.type == TYPE_MANGA_AND_BOOK }.joinToString("|") { it.getMime().joinToString("|") }
 
         fun getType(file: File): FileType {
             for (item in values())

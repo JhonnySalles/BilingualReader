@@ -97,20 +97,23 @@ class GeneralConsts private constructor() {
 
         @TargetApi(26)
         fun formatCountDays(context: Context, dateTime: LocalDateTime?): String {
-            val today = LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0, 0))
+            val today = LocalDate.now().atStartOfDay()
             return if (dateTime == null)
                 ""
-            else if (dateTime.isAfter(today))
-                context.getString(R.string.date_format_today)
-            else if (dateTime.isAfter(today.minusDays(1)))
-                context.getString(R.string.date_format_yesterday)
-            else if (dateTime.isAfter(today.minusDays(7)))
-                context.getString(
-                    R.string.date_format_day_ago,
-                    ChronoUnit.DAYS.between(dateTime, today).toString()
-                )
-            else
-                formatterDate(context, dateTime)
+            else {
+                val compareDate = dateTime.toLocalDate().atStartOfDay()
+                if (compareDate.isEqual(today))
+                    context.getString(R.string.date_format_today)
+                else if (compareDate.isEqual(today.minusDays(1)))
+                    context.getString(R.string.date_format_yesterday)
+                else if (compareDate.isAfter(today.minusDays(7)))
+                    context.getString(
+                        R.string.date_format_day_ago,
+                        ChronoUnit.DAYS.between(compareDate, today).toString()
+                    )
+                else
+                    formatterDate(context, dateTime)
+            }
         }
 
         fun formatCountDays(context: Context, dateTime: Date?): String {

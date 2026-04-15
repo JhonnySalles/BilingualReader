@@ -136,17 +136,33 @@ abstract class DataBase : RoomDatabase() {
                 mLOGGER.info("Create initial database data....")
 
                 val kanji = mAssets.open("kanji.sql").bufferedReader().use(BufferedReader::readText)
-                database.execSQL(Migrations.SQLINITIAL.KANJI + kanji)
+                execSqlBatch(database, Migrations.SQLINITIAL.KANJI, kanji)
 
                 val kanjax = mAssets.open("kanjax.sql").bufferedReader().use(BufferedReader::readText)
-                database.execSQL(Migrations.SQLINITIAL.KANJAX + kanjax)
+                execSqlBatch(database, Migrations.SQLINITIAL.KANJAX, kanjax)
 
                 val vocabulary = mAssets.open("vocabulary.sql").bufferedReader().use(BufferedReader::readText)
-                database.execSQL(Migrations.SQLINITIAL.VOCABULARY + vocabulary)
+                execSqlBatch(database, Migrations.SQLINITIAL.VOCABULARY, vocabulary)
 
                 mLOGGER.info("Completed initial database data.")
             }
         }
+
+        private fun execSqlBatch(database: SupportSQLiteDatabase, prefix: String, data: String) {
+            val batchSize = 450
+            val values = data.split("),(")
+            
+            for (i in values.indices step batchSize) {
+                val end = if (i + batchSize > values.size) values.size else i + batchSize
+                val chunk = values.subList(i, end).joinToString("),(")
+                
+                var sql = prefix + (if (i > 0) "(" else "") + chunk + (if (end < values.size) ")" else "")
+                if (!sql.endsWith(";")) sql += ";"
+                
+                database.execSQL(sql)
+            }
+        }
+
 
 
         private lateinit var BACKUP : RoomBackup

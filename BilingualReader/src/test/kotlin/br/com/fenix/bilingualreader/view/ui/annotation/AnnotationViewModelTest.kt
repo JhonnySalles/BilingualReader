@@ -19,8 +19,11 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
+import com.google.firebase.FirebaseApp
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [33])
+@Config()
 class AnnotationViewModelTest {
 
     @get:Rule
@@ -34,6 +37,12 @@ class AnnotationViewModelTest {
     @Before
     fun setUp() {
         application = ApplicationProvider.getApplicationContext()
+        
+        mockkStatic(FirebaseApp::class)
+        every { FirebaseApp.getInstance() } returns mockk(relaxed = true)
+        mockkStatic(FirebaseCrashlytics::class)
+        every { FirebaseCrashlytics.getInstance() } returns mockk(relaxed = true)
+
         mockkConstructor(BookAnnotationRepository::class)
         mockkConstructor(BookRepository::class)
         mockkConstructor(MangaAnnotationRepository::class)
@@ -45,8 +54,6 @@ class AnnotationViewModelTest {
         every { anyConstructed<BookAnnotationRepository>().update(any<BookAnnotation>()) } just Runs
         every { anyConstructed<MangaAnnotationRepository>().save(any<MangaAnnotation>()) } returns 1L
         every { anyConstructed<MangaAnnotationRepository>().update(any<MangaAnnotation>()) } just Runs
-        
-        viewModel = AnnotationViewModel(application)
     }
 
     @After
@@ -56,6 +63,7 @@ class AnnotationViewModelTest {
 
     @Test
     fun `filterType should update liveData and trigger list refresh`() {
+        viewModel = AnnotationViewModel(application)
         viewModel.filterType(Type.BOOK)
         assertEquals(Type.BOOK, viewModel.type.value)
         
@@ -65,6 +73,7 @@ class AnnotationViewModelTest {
 
     @Test
     fun `save BookAnnotation should call repository`() {
+        viewModel = AnnotationViewModel(application)
         val annotation = BookAnnotation(1L, 1, 10, 12f, MarkType.Annotation, 1.0f, "Chapter 1", "f", intArrayOf(), "text")
         viewModel.save(annotation as Annotation)
         verify { anyConstructed<BookAnnotationRepository>().save(any<BookAnnotation>()) }
@@ -76,6 +85,7 @@ class AnnotationViewModelTest {
 
     @Test
     fun `save MangaAnnotation should call repository`() {
+        viewModel = AnnotationViewModel(application)
         val annotation = MangaAnnotation(1L, 5, 10, MarkType.PageMark, "Chapter 1", "f", "text")
         viewModel.save(annotation as Annotation)
         verify { anyConstructed<MangaAnnotationRepository>().save(any<MangaAnnotation>()) }
@@ -87,6 +97,7 @@ class AnnotationViewModelTest {
 
     @Test
     fun `search should filter results`() {
+        viewModel = AnnotationViewModel(application)
         viewModel.search("query")
         // Word filter updated internally
         assertNotNull(viewModel.annotation.value)
@@ -94,24 +105,23 @@ class AnnotationViewModelTest {
 
     @Test
     fun `clearFilterType should reset the set of filters`() {
+        viewModel = AnnotationViewModel(application)
         viewModel.clearFilterType()
         assertTrue(viewModel.typeFilter.value!!.isEmpty())
     }
 
     @Test
     fun `findAll should group annotations by book and chapter`() {
-        val bookId = 10L
-        val book = br.com.fenix.bilingualreader.model.entity.Book(bookId, 1L, "Test Book", java.io.File("")).apply { id = bookId }
-        val annotation1 = BookAnnotation(bookId, 1, 10, 1.0f, MarkType.Annotation, 0f, "Chapter 1", "f", intArrayOf(), "Text 1").apply { 
+        val bookId = 1L
+        val book = br.com.fenix.bilingualreader.model.entity.Book(bookId, 10L, java.io.File("")).apply { title = "Test Book" }
+        val annotation1 = BookAnnotation(bookId, 1, 10, 1.0f, MarkType.Annotation, 1.0f, "Chapter 1", "f", intArrayOf(), "Text 1").apply { 
             id = 1L
-            id_parent = bookId
-            chapter = "Chapter 1"
-            chapterNumber = 1.0f
         }
         
         every { anyConstructed<BookRepository>().get(bookId) } returns book
         every { anyConstructed<BookAnnotationRepository>().findAllOrderByBook() } returns mutableListOf(annotation1)
         
+        viewModel = AnnotationViewModel(application)
         viewModel.findAll()
         
         val list = viewModel.annotation.value!!
@@ -126,24 +136,19 @@ class AnnotationViewModelTest {
 
     @Test
     fun `search with pattern should return matching annotations only`() {
-        val bookId = 10L
-        val book = br.com.fenix.bilingualreader.model.entity.Book(bookId, 1L, "Book", java.io.File("")).apply { id = bookId }
-        val annotationMatch = BookAnnotation(bookId, 1, 10, 1.0f, MarkType.Annotation, 0f, "Chapter 1", "f", intArrayOf(), "Matching Text").apply { 
+        val bookId = 1L
+        val book = br.com.fenix.bilingualreader.model.entity.Book(bookId, 10L, java.io.File("")).apply { title = "Book" }
+        val annotationMatch = BookAnnotation(bookId, 1, 10, 1.0f, MarkType.Annotation, 1.0f, "Chapter 1", "Matching Text", intArrayOf(), "f").apply { 
             id = 1L
-            id_parent = bookId
-            text = "Matching Text"
-            chapter = "Chapter 1"
         }
-        val annotationNoMatch = BookAnnotation(bookId, 1, 11, 1.0f, MarkType.Annotation, 0f, "Chapter 1", "f", intArrayOf(), "Other").apply { 
+        val annotationNoMatch = BookAnnotation(bookId, 1, 11, 1.0f, MarkType.Annotation, 1.0f, "Chapter 1", "Other", intArrayOf(), "f").apply { 
             id = 2L
-            id_parent = bookId
-            text = "Other"
-            chapter = "Chapter 1"
         }
 
         every { anyConstructed<BookRepository>().get(bookId) } returns book
         every { anyConstructed<BookAnnotationRepository>().findAllOrderByBook() } returns mutableListOf(annotationMatch, annotationNoMatch)
         
+        viewModel = AnnotationViewModel(application)
         viewModel.findAll()
         viewModel.search("matching")
         

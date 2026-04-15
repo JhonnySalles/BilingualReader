@@ -36,8 +36,11 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
 
+import br.com.fenix.bilingualreader.service.parses.book.ImageParse
+import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
+
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [33], manifest = Config.NONE)
+@Config(manifest = Config.NONE)
 class BookDetailViewModelTest {
 
     @get:Rule
@@ -53,6 +56,9 @@ class BookDetailViewModelTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         application = ApplicationProvider.getApplicationContext()
+        
+        mockkConstructor(ImageParse::class)
+        mockkConstructor(DocumentParse::class)
         
         mockkStatic(Dispatchers::class)
         every { Dispatchers.IO } returns testDispatcher

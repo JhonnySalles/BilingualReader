@@ -282,7 +282,7 @@ class Util {
                 name.substringBeforeLast("capítulo").replace("capítulo", "", true)
             else name
 
-            return name
+            return name.trim()
         }
 
         fun getExtensionFromPath(path: String): String {
@@ -321,10 +321,13 @@ class Util {
         fun getChapterFromPath(path: String): Float {
             if (path.isEmpty()) return -1f
 
-            var folder = if (path.contains('/', true))
-                path.replaceAfterLast('/', "").replace("/", "", false).lowercase()
+            val normalizedPath = path.trimEnd('/', '\\')
+            var folder = if (normalizedPath.contains('/', true))
+                normalizedPath.substringAfterLast('/')
+            else if (normalizedPath.contains('\\', true))
+                normalizedPath.substringAfterLast('\\')
             else
-                path.replaceAfterLast('\\', "").replace("\\", "", false).lowercase()
+                normalizedPath
 
             folder = if (folder.contains("capitulo", true))
                 folder.substringAfterLast("capitulo").replace("capitulo", "", true)
@@ -332,7 +335,7 @@ class Util {
                 folder.substringAfterLast("capítulo").replace("capítulo", "", true)
             else folder
 
-            return folder.toFloatOrNull() ?: -1f
+            return folder.trim().toFloatOrNull() ?: -1f
         }
 
         fun getFolderFromPath(path: String): String {

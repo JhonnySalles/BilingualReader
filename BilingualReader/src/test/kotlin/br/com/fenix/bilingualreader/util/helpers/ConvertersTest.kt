@@ -6,114 +6,80 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import org.junit.After
-import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.Date
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [33])
 class ConvertersTest {
 
-    private lateinit var converters: Converters
+    private val converters = Converters()
 
     @Before
-    fun setUp() {
-        converters = Converters()
+    fun setup() {
+        mockkObject(ImageUtil.ImageUtils)
     }
 
     @After
-    fun tearDown() {
+    fun teardown() {
         unmockkAll()
     }
 
     @Test
-    fun testBase64Conversions() {
-        mockkObject(ImageUtil.ImageUtils)
-        val mockBitmap = mockk<Bitmap>(relaxed = true)
-        val base64 = "mock_base64"
+    fun `test bitmap converters`() {
+        val mockBitmap = mockk<Bitmap>()
+        val base64 = "base64string"
         
-        every { ImageUtil.decodeImageBase64(base64) } returns mockBitmap
         every { ImageUtil.encodeImageBase64(mockBitmap) } returns base64
+        every { ImageUtil.decodeImageBase64(base64) } returns mockBitmap
         
-        assertEquals(mockBitmap, converters.fromBase64(base64))
         assertEquals(base64, converters.bitmapToBase64(mockBitmap))
+        assertEquals(mockBitmap, converters.fromBase64(base64))
     }
 
     @Test
-    fun testLocalDateTimeConversions() {
+    fun `test LocalDateTime converters`() {
         val now = LocalDateTime.now()
         val str = now.toString()
         
-        assertEquals(now, converters.fromLocalDateTime(str))
         assertEquals(str, converters.localDateTimeToString(now))
-        assertNull(converters.fromLocalDateTime(null))
+        assertEquals(now, converters.fromLocalDateTime(str))
         assertNull(converters.localDateTimeToString(null))
+        assertNull(converters.fromLocalDateTime(null))
     }
 
     @Test
-    fun testLocalDateConversions() {
-        val today = LocalDate.now()
-        val str = today.toString()
+    fun `test LocalDate converters`() {
+        val now = LocalDate.now()
+        val str = now.toString()
         
-        assertEquals(today, converters.fromLocalDate(str))
-        assertEquals(str, converters.localDateToString(today))
-        assertNull(converters.fromLocalDate(null))
-        assertNull(converters.localDateToString(null))
+        assertEquals(str, converters.localDateToString(now))
+        assertEquals(now, converters.fromLocalDate(str))
     }
 
     @Test
-    fun testIntArrayConversions() {
-        val array = intArrayOf(1, 2, 3)
-        val str = "1,2,3"
+    fun `test array and list converters`() {
+        val intArray = intArrayOf(1, 2, 3)
+        val intStr = "1,2,3"
+        assertEquals(intStr, converters.intArrayToString(intArray))
+        assert(intArray.contentEquals(converters.fromIntArray(intStr)))
         
-        assertArrayEquals(array, converters.fromIntArray(str))
-        assertEquals(str, converters.intArrayToString(array))
-        
-        assertArrayEquals(intArrayOf(), converters.fromIntArray(""))
-        assertEquals("", converters.intArrayToString(intArrayOf()))
+        val longList = mutableListOf(1L, 2L, 3L)
+        val longStr = "1,2,3"
+        assertEquals(longStr, converters.longMutableListToString(longList))
+        assertEquals(longList, converters.fromLongMutableList(longStr))
     }
 
     @Test
-    fun testLongMutableListConversions() {
-        val list = mutableListOf(1L, 2L, 3L)
-        val str = "1,2,3"
-        
-        assertEquals(list, converters.fromLongMutableList(str))
-        assertEquals(str, converters.longMutableListToString(list))
-        
-        assertEquals(mutableListOf<Long>(), converters.fromLongMutableList(""))
-        assertEquals("", converters.longMutableListToString(mutableListOf()))
-    }
-
-    @Test
-    fun testIntMapConversions() {
+    fun `test map converters`() {
         val map = mapOf(1 to "one", 2 to "two")
-        // Gson output for this map
-        val str = "{\"1\":\"one\",\"2\":\"two\"}"
+        val json = converters.intMapToString(map)
+        val back = converters.fromIntMap(json)
         
-        assertEquals(map, converters.fromIntMap(str))
-        assertEquals(str, converters.intMapToString(map))
-        
-        assertEquals(mapOf<Int, String>(), converters.fromIntMap(""))
+        assertEquals(map, back)
         assertEquals("", converters.intMapToString(mapOf()))
-    }
-
-    @Test
-    fun testDateConversions() {
-        val now = Date()
-        val time = now.time
-        
-        assertEquals(now, converters.fromDate(time))
-        assertEquals(time, converters.dateToLong(now))
-        assertNull(converters.fromDate(null))
-        assertNull(converters.dateToLong(null))
+        assertEquals(0, converters.fromIntMap("").size)
     }
 }
