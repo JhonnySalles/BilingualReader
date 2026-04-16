@@ -78,7 +78,7 @@ abstract class DataBase : RoomDatabase() {
         private var INSTANCE: DataBase? = null
 
         @VisibleForTesting
-        fun setTestingInstance(database: DataBase) {
+        fun setTestingInstance(database: DataBase?) {
             INSTANCE = database
         }
 

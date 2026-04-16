@@ -10,6 +10,7 @@ import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -34,12 +35,13 @@ class ImageController private constructor() {
 
     private fun saveBitmapToCache(context: Context, key: String, bitmap: Bitmap) {
         try {
-            val cacheDir = File(GeneralConsts.getCacheDir(context), GeneralConsts.CACHE_FOLDER.IMAGE)
+            val cacheDirBase = GeneralConsts.getCacheDir(context)
+            val cacheDir = File(cacheDirBase, GeneralConsts.CACHE_FOLDER.IMAGE)
             if (!cacheDir.exists())
-                cacheDir.mkdir()
+                cacheDir.mkdirs()
 
             val byte = ImageUtil.imageToByteArray(bitmap) ?: return
-            val image = File(cacheDir.path + '/' + key)
+            val image = File(cacheDir, key)
             image.writeBytes(byte)
         } catch (e: Exception) {
             mLOGGER.error("Error save bitmap to cache: " + e.message, e)
@@ -48,7 +50,8 @@ class ImageController private constructor() {
 
     private fun getBitmapFromCache(context: Context, key: String): Bitmap? {
         try {
-            val file = File(GeneralConsts.getCacheDir(context), GeneralConsts.CACHE_FOLDER.IMAGE + '/' + key)
+            val cacheDirBase = GeneralConsts.getCacheDir(context)
+            val file = File(cacheDirBase, GeneralConsts.CACHE_FOLDER.IMAGE + '/' + key)
 
             if (file.exists())
                 return BitmapFactory.decodeFile(file.absolutePath)
@@ -79,19 +82,23 @@ class ImageController private constructor() {
         return image
     }
 
+    // Internal dispatcher provider for testing
+    internal var ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    internal var mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+
+    internal var imageScope: CoroutineScope? = null
+
     fun setImageAsync(context: Context, link: String, imageView: ImageView) {
-        CoroutineScope(Dispatchers.IO).launch {
+        val scope = imageScope ?: CoroutineScope(mainDispatcher)
+        scope.launch {
             try {
-                var image: Bitmap? = null
-                val deferred = async {
-                    image = getImage(context, link)
+                val image = withContext(ioDispatcher) {
+                    getImage(context, link)
                 }
-                deferred.await()
-                withContext(Dispatchers.Main) {
-                    if (image != null) {
-                        imageView.setImageBitmap(image)
-                        imageView.visibility = View.VISIBLE
-                    }
+                
+                if (image != null) {
+                    imageView.setImageBitmap(image)
+                    imageView.visibility = View.VISIBLE
                 }
             } catch (m: OutOfMemoryError) {
                 System.gc()

@@ -10,7 +10,9 @@ import io.mockk.mockkStatic
 import io.mockk.spyk
 import io.mockk.unmockkAll
 import io.mockk.verify
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -27,16 +29,21 @@ import org.robolectric.annotation.Config
 class ImageControllerTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
+    private val testScope = TestScope(testDispatcher)
 
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        mockkStatic(Dispatchers::class)
-        every { Dispatchers.IO } returns testDispatcher
+        ImageController.instance.ioDispatcher = testDispatcher
+        ImageController.instance.mainDispatcher = testDispatcher
+        ImageController.instance.imageScope = testScope
     }
 
     @After
     fun tearDown() {
+        ImageController.instance.ioDispatcher = Dispatchers.IO
+        ImageController.instance.mainDispatcher = Dispatchers.Main
+        ImageController.instance.imageScope = null
         unmockkAll()
         Dispatchers.resetMain()
     }
@@ -52,6 +59,9 @@ class ImageControllerTest {
         every { spy["getImage"](any<Context>(), any<String>()) } returns mockBitmap
 
         spy.setImageAsync(context, link, imageView)
+        
+        // Advance time to ensure the coroutine in the separate scope (using mocked Dispatchers) completes
+        testScheduler.advanceUntilIdle()
         
         verify { imageView.setImageBitmap(mockBitmap) }
         verify { imageView.visibility = View.VISIBLE }

@@ -140,7 +140,8 @@ class BookImageCoverController private constructor() {
             image = retrieveBitmapFromCache(context, hash)
 
         if (image == null) {
-            if (!book.file.exists())
+            val file = book.file
+            if (file == null || !file.exists())
                 return image
 
             image = getCoverFromFile(context, hash, book.file, isCoverSize)

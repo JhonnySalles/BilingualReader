@@ -13,6 +13,7 @@ import br.com.ebook.foobnix.pdf.info.IMG
 import br.com.ebook.foobnix.pdf.info.TintUtil
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState
 import br.com.ebook.foobnix.sys.ImageExtractor
+import br.com.ebook.foobnix.sys.NativeLibLoader
 import br.com.ebook.foobnix.sys.TempHolder
 import br.com.fenix.bilingualreader.service.listener.BookParseListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -37,8 +38,8 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
     private var mHeight: Int = (if (isVertical) Resources.getSystem().displayMetrics.widthPixels else Resources.getSystem().displayMetrics.heightPixels) - Dips.dpToPx(5)
 
     init {
-        System.loadLibrary("mypdf")
-        System.loadLibrary("mobi")
+        NativeLibLoader.loadLibrary("mypdf")
+        NativeLibLoader.loadLibrary("mobi")
 
         openBook(path, password, fontSize) { }
     }

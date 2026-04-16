@@ -56,7 +56,7 @@ import br.com.ebook.universalimageloader.core.download.ImageDownloader;
 public class ImageExtractor implements ImageDownloader {
 
     static {
-        System.loadLibrary("mypdf");
+        NativeLibLoader.loadLibrary("mypdf");
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageExtractor.class);

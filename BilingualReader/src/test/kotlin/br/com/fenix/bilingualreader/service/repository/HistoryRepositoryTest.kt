@@ -35,7 +35,10 @@ class HistoryRepositoryTest {
 
     @After
     fun tearDown() {
-        db.close()
+        if (::db.isInitialized) {
+            db.close()
+        }
+        DataBase.setTestingInstance(null)
         unmockkAll()
     }
 
@@ -59,7 +62,24 @@ class HistoryRepositoryTest {
 
         val found = historyRepository.find(Type.MANGA, 1L, 1L)
         assertNotNull(found)
+        
+        if (found.isEmpty()) {
+            val all = historyRepository.findAll()
+            println("DB Debug - Total records: ${all.size}")
+            for (h in all) {
+                println("DB Debug - Record: type=${h.type}, library=${h.fkLibrary}, reference=${h.fkReference}, volume=${h.volume}")
+            }
+        }
+        
         assertEquals(1, found.size)
+    }
+
+    private fun HistoryRepository.findAll(): List<History> {
+        return historyRepository.javaClass.getDeclaredField("mDataBase").let { field ->
+            field.isAccessible = true
+            val dao = field.get(historyRepository) as HistoryDAO
+            dao.findAll()
+        }
     }
 
     @Test

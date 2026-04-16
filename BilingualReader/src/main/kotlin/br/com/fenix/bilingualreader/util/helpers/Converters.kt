@@ -8,6 +8,9 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Date
 
+import br.com.fenix.bilingualreader.model.enums.Libraries
+import br.com.fenix.bilingualreader.model.enums.Type
+
 class Converters {
 
     @TypeConverter
@@ -110,6 +113,26 @@ class Converters {
         if (date == null)
             return null
         return Date(date)
+    }
+
+    @TypeConverter
+    fun fromType(value: String?): Type? {
+        return value?.let { Type.valueOf(it) }
+    }
+
+    @TypeConverter
+    fun typeToString(type: Type?): String? {
+        return type?.name
+    }
+
+    @TypeConverter
+    fun fromLibraries(value: String?): Libraries? {
+        return value?.let { Libraries.valueOf(it) }
+    }
+
+    @TypeConverter
+    fun librariesToString(libraries: Libraries?): String? {
+        return libraries?.name
     }
 
 }
