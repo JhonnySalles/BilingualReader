@@ -40,7 +40,9 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -50,6 +52,9 @@ import java.lang.reflect.Field
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [33])
 class ShareMarkFirebaseTest {
+
+    @Rule @JvmField
+    val tempFolder = TemporaryFolder()
 
     private val testDispatcher = UnconfinedTestDispatcher()
     private lateinit var context: Context
@@ -125,29 +130,26 @@ class ShareMarkFirebaseTest {
         }
         
         mockkObject(GeneralConsts.Companion)
-        every { GeneralConsts.getCacheDir(any()) } returns File("BilingualReader/build/tmp/test_cache")
+        val testCacheDir = tempFolder.newFolder("test_cache")
+        every { GeneralConsts.getCacheDir(any()) } returns testCacheDir
         every { controller.isOnline() } returns true
         ShareMarkBase.IN_SYNC = false
         every { Dispatchers.IO } returns testDispatcher
         
-        
-        
         // Manual initialization of late-init fields to avoid the crash
         try {
-            val mDBField: Field = ShareMarkFirebaseController::class.java.getDeclaredField("mDB")
+            val mDBField = ShareMarkFirebaseController::class.java.getDeclaredField("mDB")
             mDBField.isAccessible = true
             mDBField.set(controller, firestore)
             
-            val mUserField: Field = ShareMarkFirebaseController::class.java.getDeclaredField("mUser")
+            val mUserField = ShareMarkFirebaseController::class.java.getDeclaredField("mUser")
             mUserField.isAccessible = true
             mUserField.set(controller, "test_user")
         } catch (e: Exception) {}
 
         // Mock SharedPreferences and Cache
         val prefs = mockk<android.content.SharedPreferences>(relaxed = true)
-        mockkObject(GeneralConsts.Companion)
-        every { GeneralConsts.getSharedPreferences(context) } returns prefs
-        every { GeneralConsts.getCacheDir(any()) } returns java.io.File("BilingualReader/build/tmp/test_cache")
+        every { GeneralConsts.getSharedPreferences(any()) } returns prefs
         every { prefs.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_MANGA, any()) } returns ShareMarkBase.INITIAL_SYNC_DATE_TIME
         every { prefs.getString(GeneralConsts.KEYS.SHARE_MARKS.LAST_SYNC_BOOK, any()) } returns ShareMarkBase.INITIAL_SYNC_DATE_TIME
 

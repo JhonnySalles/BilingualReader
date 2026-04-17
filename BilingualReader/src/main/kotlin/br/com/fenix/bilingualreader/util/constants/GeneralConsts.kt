@@ -30,7 +30,16 @@ class GeneralConsts private constructor() {
         }
 
         fun getCacheDir(context: Context): File {
-            return context.externalCacheDir ?: context.cacheDir
+            val external = context.externalCacheDir
+            if (external != null && !external.absolutePath.isNullOrEmpty()) return external
+
+            val internal = context.cacheDir
+            if (internal != null && !internal.absolutePath.isNullOrEmpty()) return internal
+
+            val files = context.filesDir
+            if (files != null && !files.absolutePath.isNullOrEmpty()) return files
+
+            return File(System.getProperty("java.io.tmpdir"), "BilingualReaderCache").also { if (!it.exists()) it.mkdirs() }
         }
 
         fun getSharedPreferences(context: Context): SharedPreferences {

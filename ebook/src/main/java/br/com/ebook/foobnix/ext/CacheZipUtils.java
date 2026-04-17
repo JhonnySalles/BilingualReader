@@ -81,6 +81,8 @@ public class CacheZipUtils {
         ATTACHMENTS_CACHE_DIR = new File(dir, "Attachments");
         CACHE_WEB = new File(dir, "Web");
 
+        CacheDir.parent = dir;
+
         CacheZipUtils.createAllCacheDirs();
         CacheDir.createCacheDirs();
     }

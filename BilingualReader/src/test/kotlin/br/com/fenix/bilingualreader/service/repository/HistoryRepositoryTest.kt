@@ -24,6 +24,18 @@ class HistoryRepositoryTest {
 
     @Before
     fun setup() {
+        // Suppress sqlite4java standard error noise
+        java.util.logging.Logger.getLogger("com.almworks.sqlite4java").level = java.util.logging.Level.OFF
+
+        // Clear any stale testing instances or global mocks from previous tests
+        unmockkAll()
+        try {
+            io.mockk.unmockkObject(DataBase.Companion)
+        } catch (e: Exception) {
+            // Ignore if not mocked
+        }
+        DataBase.setTestingInstance(null)
+
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(context, DataBase::class.java)
             .allowMainThreadQueries()
@@ -62,24 +74,7 @@ class HistoryRepositoryTest {
 
         val found = historyRepository.find(Type.MANGA, 1L, 1L)
         assertNotNull(found)
-        
-        if (found.isEmpty()) {
-            val all = historyRepository.findAll()
-            println("DB Debug - Total records: ${all.size}")
-            for (h in all) {
-                println("DB Debug - Record: type=${h.type}, library=${h.fkLibrary}, reference=${h.fkReference}, volume=${h.volume}")
-            }
-        }
-        
         assertEquals(1, found.size)
-    }
-
-    private fun HistoryRepository.findAll(): List<History> {
-        return historyRepository.javaClass.getDeclaredField("mDataBase").let { field ->
-            field.isAccessible = true
-            val dao = field.get(historyRepository) as HistoryDAO
-            dao.findAll()
-        }
     }
 
     @Test

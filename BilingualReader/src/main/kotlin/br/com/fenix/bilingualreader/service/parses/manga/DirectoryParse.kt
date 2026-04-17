@@ -114,17 +114,18 @@ class DirectoryParse : Parse {
 
     override fun getComicInfo(): ComicInfo? {
         return if (isComicInfo()) {
-            val page = FileInputStream(mComicInfo!!)
-            val serializer: Serializer = Persister()
-            try {
-                serializer.read(ComicInfo::class.java, page)
-            } catch (e: Exception) {
-                mLOGGER.error("Error to get comic info: " + e.message, e)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error to get comic info: " + e.message)
-                    recordException(e)
+            FileInputStream(mComicInfo!!).use { page ->
+                val serializer: Serializer = Persister()
+                try {
+                    serializer.read(ComicInfo::class.java, page)
+                } catch (e: Exception) {
+                    mLOGGER.error("Error to get comic info: " + e.message, e)
+                    Firebase.crashlytics.apply {
+                        setCustomKey("message", "Error to get comic info: " + e.message)
+                        recordException(e)
+                    }
+                    null
                 }
-                null
             }
         } else
             null

@@ -24,13 +24,14 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.io.File
 import java.util.UUID
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])
 class ScannerBookTest {
 
-    @get:Rule
+    @Rule @JvmField
     val tempFolder = TemporaryFolder()
 
     private lateinit var context: Context
@@ -40,6 +41,9 @@ class ScannerBookTest {
     fun setUp() {
         context = androidx.test.core.app.ApplicationProvider.getApplicationContext<Context>()
         
+        // Initialize CacheZipUtils with a temporary directory
+        br.com.ebook.foobnix.ext.CacheZipUtils.init(context, tempFolder.newFolder("scanner_tests"))
+
         // Mock static Notification helpers
         mockkObject(Notifications.NotificationUtils)
         every { Notifications.getNotification(any(), any(), any()) } returns mockk(relaxed = true)
@@ -64,9 +68,10 @@ class ScannerBookTest {
         every { anyConstructed<Storage>().findBookByPath(any()) } returns null
         every { anyConstructed<Storage>().save(book = any<Book>(), lastAlteration = any()) } returns 1L
 
-        library = Library(id = 2L, title = "Book Library", path = tempFolder.root.canonicalPath)
+        val tempDirFile = tempFolder.root
+        library = Library(id = 2L, title = "Book Library", path = tempDirFile.absolutePath)
         // Ensure the directory is not empty so 'walked' flag is set to true in ScannerBook
-        tempFolder.newFile("placeholder.txt")
+        File(tempDirFile, "placeholder.txt").createNewFile()
     }
 
     @After

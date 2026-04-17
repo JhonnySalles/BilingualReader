@@ -31,7 +31,7 @@ import java.util.UUID
 @Config(sdk = [33])
 class ScannerMangaTest {
 
-    @get:Rule
+    @Rule @JvmField
     val tempFolder = TemporaryFolder()
 
     private lateinit var context: Context
@@ -41,6 +41,9 @@ class ScannerMangaTest {
     fun setUp() {
         context = androidx.test.core.app.ApplicationProvider.getApplicationContext<Context>()
         
+        // Initialize CacheZipUtils with a temporary directory
+        br.com.ebook.foobnix.ext.CacheZipUtils.init(context, tempFolder.newFolder("scanner_tests"))
+
         // Mock static Notification helpers
         mockkObject(Notifications.NotificationUtils)
         every { Notifications.getNotification(any(), any(), any()) } returns mockk(relaxed = true)
@@ -65,9 +68,10 @@ class ScannerMangaTest {
         every { ParseFactory.Factory.create(any<File>()) } returns parse
         every { parse.numPages() } returns 1
 
-        library = Library(id = 3L, title = "Manga Library", path = tempFolder.root.canonicalPath)
+        val tempDirFile = tempFolder.root
+        library = Library(id = 3L, title = "Manga Library", path = tempDirFile.absolutePath)
         // Ensure the directory is not empty so 'walked' flag is set to true in ScannerManga
-        tempFolder.newFile("placeholder.txt")
+        File(tempDirFile, "placeholder.txt").createNewFile()
     }
 
     @After
@@ -78,7 +82,8 @@ class ScannerMangaTest {
     @Test
     fun libraryUpdateRunnable_detectsAndSavesNewManga() {
         // Create a fake manga file
-        val mangaFile = tempFolder.newFile("manga_test.zip")
+        val mangaFile = File(tempFolder.root, "manga_test.zip")
+        mangaFile.createNewFile()
         
         val scanner = ScannerManga(context)
         

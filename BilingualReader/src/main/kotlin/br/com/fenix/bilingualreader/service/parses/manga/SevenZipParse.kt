@@ -27,29 +27,30 @@ class SevenZipParse : Parse {
 
     override fun parse(file: File?) {
         mEntries.clear()
-        val sevenZFile = SevenZFile(file)
-        var entry = sevenZFile.nextEntry
-        while (entry != null) {
-            if (entry.isDirectory) {
+        SevenZFile(file).use { sevenZFile ->
+            var entry = sevenZFile.nextEntry
+            while (entry != null) {
+                if (entry.isDirectory) {
+                    entry = sevenZFile.nextEntry
+                    continue
+                }
+
+                if (FileUtil.isImage(entry.name)) {
+                    val content = ByteArray(entry.size.toInt())
+                    sevenZFile.read(content)
+                    mEntries.add(SevenZEntry(entry, content))
+                } else if (FileUtil.isJson(entry.name)) {
+                    val content = ByteArray(entry.size.toInt())
+                    sevenZFile.read(content)
+                    mSubtitles.add(SevenZEntry(entry, content))
+                } else if (FileUtil.isXml(entry.name) && entry.name.contains("comicinfo", true)) {
+                    val content = ByteArray(entry.size.toInt())
+                    sevenZFile.read(content)
+                    mComicInfo = SevenZEntry(entry, content)
+                }
+
                 entry = sevenZFile.nextEntry
-                continue
             }
-
-            if (FileUtil.isImage(entry.name)) {
-                val content = ByteArray(entry.size.toInt())
-                sevenZFile.read(content)
-                mEntries.add(SevenZEntry(entry, content))
-            } else if (FileUtil.isJson(entry.name)) {
-                val content = ByteArray(entry.size.toInt())
-                sevenZFile.read(content)
-                mSubtitles.add(SevenZEntry(entry, content))
-            } else if (FileUtil.isXml(entry.name) && entry.name.contains("comicinfo", true)) {
-                val content = ByteArray(entry.size.toInt())
-                sevenZFile.read(content)
-                mComicInfo = SevenZEntry(entry, content)
-            }
-
-            entry = sevenZFile.nextEntry
         }
 
         mEntries.sortWith(compareBy<SevenZEntry> { Util.getFolderFromPath(it.entry.name) }.thenComparing { a, b ->

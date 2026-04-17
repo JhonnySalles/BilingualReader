@@ -19,3 +19,4 @@ sentry.properties
 BilingualReader/google-services.json
 test_unit.txt
 .agent/*
+/BilingualReader/BilingualReader/build

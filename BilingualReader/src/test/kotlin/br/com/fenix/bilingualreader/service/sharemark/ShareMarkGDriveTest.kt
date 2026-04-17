@@ -34,7 +34,9 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -47,6 +49,9 @@ import com.google.api.services.drive.model.File as DriveFile
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])
 class ShareMarkGDriveTest {
+
+    @Rule @JvmField
+    val tempFolder = TemporaryFolder()
 
     private val testDispatcher = UnconfinedTestDispatcher()
     private lateinit var context: Context
@@ -114,8 +119,7 @@ class ShareMarkGDriveTest {
         every { driveFiles.get(any<String>()) } returns mockk(relaxed = true)
         
         mockkObject(GeneralConsts.Companion)
-        val testCacheDir = File("BilingualReader/build/tmp/test_cache")
-        testCacheDir.mkdirs()
+        val testCacheDir = tempFolder.newFolder("test_cache")
         every { GeneralConsts.getCacheDir(any<Context>()) } returns testCacheDir
         
         // Mock SharedPreferences

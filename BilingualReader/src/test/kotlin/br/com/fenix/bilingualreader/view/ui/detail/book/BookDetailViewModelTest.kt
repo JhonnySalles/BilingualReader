@@ -101,18 +101,14 @@ class BookDetailViewModelTest {
     @Test
     fun `setBook should update liveData`() {
         val book = Book(null, 1L, File("test.epub"))
-        val ctx = mockk<Context>(relaxed = true)
-        every { ctx.applicationContext } returns ctx
-        viewModel.setBook(ctx, book)
+        viewModel.setBook(application, book)
         assertEquals("test", viewModel.book.value?.fileName)
     }
 
     @Test
     fun `delete should trigger repository deletion`() {
         val book = Book(null, 1L, File("test.epub"))
-        val ctx = mockk<Context>(relaxed = true)
-        every { ctx.applicationContext } returns ctx
-        viewModel.setBook(ctx, book)
+        viewModel.setBook(application, book)
         
         viewModel.delete()
         
@@ -122,9 +118,7 @@ class BookDetailViewModelTest {
     @Test
     fun `changeLanguage should update book and call repository`() {
         val book = Book(null, 1L, File("f.epub"))
-        val ctx = mockk<Context>(relaxed = true)
-        every { ctx.applicationContext } returns ctx
-        viewModel.setBook(ctx, book)
+        viewModel.setBook(application, book)
         
         viewModel.changeLanguage(Languages.PORTUGUESE)
         
@@ -135,9 +129,7 @@ class BookDetailViewModelTest {
     @Test
     fun `markRead should update book mark and notify`() {
         val book = Book(null, 1L, File("f.epub")).apply { pages = 100 }
-        val ctx = mockk<Context>(relaxed = true)
-        every { ctx.applicationContext } returns ctx
-        viewModel.setBook(ctx, book)
+        viewModel.setBook(application, book)
         
         viewModel.markRead()
         

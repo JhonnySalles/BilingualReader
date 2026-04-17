@@ -1,33 +1,31 @@
 package br.com.fenix.bilingualreader.service.parses
  
 import io.mockk.unmockkAll
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.io.TempDir
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
+import java.nio.file.Path
 
-@RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])
 abstract class ParserBaseTest {
  
-    @get:Rule
-    val tempFolder = TemporaryFolder()
+    @TempDir
+    lateinit var tempDir: Path
  
     protected lateinit var testDir: File
  
-    @Before
+    @BeforeEach
     open fun setUp() {
-        testDir = tempFolder.newFolder("parser_tests")
+        testDir = tempDir.resolve("parser_tests").toFile()
+        testDir.mkdirs()
     }
  
-    @After
+    @AfterEach
     open fun tearDown() {
         unmockkAll()
-        // TemporaryFolder Rule automatically deletes the folder
     }
  
     protected fun createSampleFile(fileName: String, content: String = "dummy content"): File {

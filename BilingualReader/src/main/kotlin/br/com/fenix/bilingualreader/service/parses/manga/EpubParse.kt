@@ -30,7 +30,11 @@ class EpubParse : Parse {
     private val mChapters = mutableMapOf<String, Int>()
 
     override fun parse(file: File?) {
-        mZipFile = ZipFile(file?.absolutePath, StandardCharsets.UTF_8)
+        try {
+            mZipFile = ZipFile(file?.absolutePath, StandardCharsets.UTF_8)
+        } catch (e: Exception) {
+            throw Exception("Invalid epub file.", e)
+        }
 
         mEntries = ArrayList()
         val opf = mZipFile!!.entries()
@@ -44,8 +48,10 @@ class EpubParse : Parse {
                 mOpf = ze
         }
 
-        if (mOpf == null)
+        if (mOpf == null) {
+            mZipFile?.close()
             throw Exception("Invalid epub file.")
+        }
 
         val input = mZipFile!!.getInputStream(mOpf)
 

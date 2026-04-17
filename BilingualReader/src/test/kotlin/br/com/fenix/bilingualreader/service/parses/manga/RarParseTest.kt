@@ -6,10 +6,10 @@ import com.github.junrar.rarfile.FileHeader
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkConstructor
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.File
 
@@ -60,7 +60,7 @@ class RarParseTest : ParserBaseTest() {
     fun testRarWithCache() {
         val rarFile = File(testDir, "test_cache.rar")
         rarFile.createNewFile()
-        val cacheDir = File(tempFolder.root, "cache") // Use tempFolder directly for isolation
+        val cacheDir = File(testDir, "cache") // Use testDir for isolation
 
         val header = mockk<FileHeader>()
         every { header.isDirectory } returns false
@@ -85,11 +85,11 @@ class RarParseTest : ParserBaseTest() {
         assertEquals("cached content", content)
 
         // Verify file was created in cache
-        assertTrue("Cache dir should exist", cacheDir.exists())
+        assertTrue(cacheDir.exists(), "Cache dir should exist")
         assertEquals(1, cacheDir.listFiles()?.size ?: 0)
 
         rarParse.destroy(true)
         // Verify cache was cleared
-        assertFalse("Cache directory should have been deleted", cacheDir.exists())
+        assertFalse(cacheDir.exists(), "Cache directory should have been deleted")
     }
 }

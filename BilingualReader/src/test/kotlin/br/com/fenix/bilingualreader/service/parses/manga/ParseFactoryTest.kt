@@ -2,9 +2,9 @@ package br.com.fenix.bilingualreader.service.parses.manga
 
 import br.com.fenix.bilingualreader.service.parses.ParserBaseTest
 import br.com.fenix.bilingualreader.service.parses.mock.ParseMock
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 import java.io.File
 
 class ParseFactoryTest : ParserBaseTest() {
@@ -15,6 +15,7 @@ class ParseFactoryTest : ParserBaseTest() {
         ParseMock.createZip(zipFile, mapOf("1.jpg" to "", "2.jpg" to "", "3.jpg" to "", "4.jpg" to ""))
         val parser = ParseFactory.create(zipFile)
         assertTrue(parser is ZipParse)
+        parser?.destroy(false)
     }
 
     @Test
@@ -23,6 +24,7 @@ class ParseFactoryTest : ParserBaseTest() {
         ParseMock.createZip(cbzFile, mapOf("1.jpg" to "", "2.jpg" to "", "3.jpg" to "", "4.jpg" to ""))
         val parser = ParseFactory.create(cbzFile)
         assertTrue(parser is ZipParse)
+        parser?.destroy(false)
     }
 
     @Test
@@ -31,6 +33,7 @@ class ParseFactoryTest : ParserBaseTest() {
         ParseMock.createTar(tarFile, mapOf("1.jpg" to "", "2.jpg" to "", "3.jpg" to "", "4.jpg" to ""))
         val parser = ParseFactory.create(tarFile)
         assertTrue(parser is TarParse)
+        parser?.destroy(false)
     }
 
     @Test
@@ -39,6 +42,7 @@ class ParseFactoryTest : ParserBaseTest() {
         ParseMock.create7z(sevenZFile, mapOf("1.jpg" to "", "2.jpg" to "", "3.jpg" to "", "4.jpg" to ""))
         val parser = ParseFactory.create(sevenZFile)
         assertTrue(parser is SevenZipParse)
+        parser?.destroy(false)
     }
 
     @Test
@@ -47,20 +51,24 @@ class ParseFactoryTest : ParserBaseTest() {
         ParseMock.createZip(epubFile, ParseMock.createMockEpubEntries())
         val parser = ParseFactory.create(epubFile)
         assertTrue(parser is EpubParse)
+        parser?.destroy(false)
     }
 
     @Test
     fun testCreateDirectory() {
-        val mangaDir = tempFolder.newFolder("manga_factory")
+        val mangaDir = File(testDir, "manga_factory")
+        mangaDir.mkdirs()
         for (i in 1..5) File(mangaDir, "page$i.jpg").writeText("")
         
         val parser = ParseFactory.create(mangaDir)
         assertTrue(parser is DirectoryParse)
+        parser?.destroy(false)
     }
 
     @Test
     fun testCreateDirectorySmall() {
-        val mangaDir = tempFolder.newFolder("manga_small")
+        val mangaDir = File(testDir, "manga_small")
+        mangaDir.mkdirs()
         for (i in 1..2) File(mangaDir, "page$i.jpg").writeText("")
         
         // factory returns null if DirectoryParse has < 4 pages

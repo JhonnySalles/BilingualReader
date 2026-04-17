@@ -1,16 +1,23 @@
 package br.com.fenix.bilingualreader.service.parses.book
 
 import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 import br.com.ebook.foobnix.android.utils.Dips
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState
 import br.com.ebook.foobnix.sys.ImageExtractor
 import br.com.fenix.bilingualreader.service.listener.BookParseListener
-import br.com.fenix.bilingualreader.service.parses.ParserBaseTest
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.unmockkAll
 import org.ebookdroid.core.codec.CodecDocument
 import org.ebookdroid.core.codec.OutlineLink
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.Implementation
 import org.robolectric.annotation.Implements
@@ -53,8 +60,28 @@ class ShadowAppState {
     }
 }
 
+@RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33], shadows = [ShadowImageExtractor::class, ShadowDips::class, ShadowAppState::class])
-class DocumentParseTest : ParserBaseTest() {
+class DocumentParseTest {
+
+    @Rule @JvmField
+    val tempFolder = TemporaryFolder()
+
+    lateinit var testDir: File
+
+    @Before
+    fun setUp() {
+        testDir = tempFolder.newFolder("parser_tests")
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        
+        ShadowAppState.mock = mockk(relaxed = true)
+        DocumentParse.init(context)
+    }
+
+    @After
+    fun tearDown() {
+        unmockkAll()
+    }
 
     @Test
     fun testDocumentParse() {

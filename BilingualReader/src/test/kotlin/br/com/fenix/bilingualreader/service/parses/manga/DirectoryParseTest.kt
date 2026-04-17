@@ -1,9 +1,10 @@
 package br.com.fenix.bilingualreader.service.parses.manga
 
 import br.com.fenix.bilingualreader.service.parses.ParserBaseTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Test
 import java.io.File
 import java.io.IOException
 
@@ -11,7 +12,8 @@ class DirectoryParseTest : ParserBaseTest() {
 
     @Test
     fun testDirectoryParse() {
-        val mangaDir = tempFolder.newFolder("manga_dir")
+        val mangaDir = File(testDir, "manga_dir")
+        mangaDir.mkdirs()
         File(mangaDir, "page01.jpg").writeText("image 1")
         File(mangaDir, "page02.png").writeText("image 2")
         File(mangaDir, "vocabulary.json").writeText("{\"word\": \"test\"}")
@@ -34,19 +36,23 @@ class DirectoryParseTest : ParserBaseTest() {
         directoryParse.destroy(false)
     }
 
-    @Test(expected = IOException::class)
+    @Test
     fun testParseNotDirectory() {
         val file = createSampleFile("not_a_dir.txt")
         val directoryParse = DirectoryParse()
-        directoryParse.parse(file)
+        assertThrows(IOException::class.java) {
+            directoryParse.parse(file)
+        }
     }
 
-    @Test(expected = IOException::class)
+    @Test
     fun testParseWithSubDirectory() {
-        val mangaDir = tempFolder.newFolder("manga_with_sub")
-        tempFolder.newFolder("manga_with_sub", "sub_dir")
-        
+        val mangaDir = File(testDir, "manga_with_sub")
+        File(mangaDir, "sub_dir").mkdirs()
+
         val directoryParse = DirectoryParse()
-        directoryParse.parse(mangaDir)
+        assertThrows(IOException::class.java) {
+            directoryParse.parse(mangaDir)
+        }
     }
 }

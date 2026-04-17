@@ -2,10 +2,11 @@ package br.com.fenix.bilingualreader.service.parses.manga
 
 import br.com.fenix.bilingualreader.service.parses.ParserBaseTest
 import br.com.fenix.bilingualreader.service.parses.mock.ParseMock
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Test
 import java.io.File
 
 class EpubParseTest : ParserBaseTest() {
@@ -41,13 +42,15 @@ class EpubParseTest : ParserBaseTest() {
         epubParse.destroy(false)
     }
 
-    @Test(expected = Exception::class)
+    @Test
     fun testInvalidEpub() {
         val epubFile = File(testDir, "invalid.epub")
         val entries = mapOf("mimetype" to "text/plain")
         ParseMock.createZip(epubFile, entries)
 
         val epubParse = EpubParse()
-        epubParse.parse(epubFile)
+        assertThrows(Exception::class.java) {
+            epubParse.parse(epubFile)
+        }
     }
 }
