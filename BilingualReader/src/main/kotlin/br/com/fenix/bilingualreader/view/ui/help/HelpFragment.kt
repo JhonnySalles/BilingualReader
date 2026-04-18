@@ -72,7 +72,7 @@ class HelpFragment : Fragment() {
         }
         mScrollUp.visibility = View.GONE
         mScrollView.setOnScrollChangeListener { _, _, yNew, _, yOld ->
-            if ((yNew - yOld) < -150) {
+            if ((yNew - yOld) < -20) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     if (mHandler.hasCallbacks(mDismissUpButton))
                         mHandler.removeCallbacks(mDismissUpButton)

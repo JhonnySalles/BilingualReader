@@ -268,11 +268,9 @@ class MangaLibraryFragmentTest {
     @Test
     fun testMangaListIsDisplayed() {
         launchFragment()
-
-        // Verifica se alguns dos itens sequenciais estão na lista
-        waitForView(withText("manga 01"))
-        onView(withText("manga 05")).check(matches(isDisplayed()))
-        onView(withText("manga 10")).check(matches(isDisplayed()))
+        waitForView(allOf(withId(R.id.manga_line_text_title), withText("manga 01")))
+        onView(allOf(withId(R.id.manga_line_text_title), withText("manga 05"))).check(matches(isDisplayed()))
+        onView(allOf(withId(R.id.manga_line_text_title), withText("manga 10"))).check(matches(isDisplayed()))
     }
 
     @Test
@@ -345,7 +343,7 @@ class MangaLibraryFragmentTest {
         // Filtra por Favorito (manga 05)
         onView(withId(R.id.popup_library_filter_favorite)).perform(click())
         Thread.sleep(500)
-        onView(withId(R.id.manga_library_recycler_view)).check(matches(atPosition(0, hasDescendant(withText("manga 05")))))
+        onView(withId(R.id.manga_library_recycler_view)).check(matches(atPosition(0, hasDescendant(allOf(withId(R.id.manga_line_text_title), withText("manga 05"))))))
     }
 
     @Test
@@ -354,17 +352,17 @@ class MangaLibraryFragmentTest {
 
         // Verificação Inicial: Ordem alfabética (Padrão após clear prefs) -> manga 01 no topo
         onView(withId(R.id.manga_library_recycler_view))
-            .check(matches(atPosition(0, hasDescendant(withText("manga 01")))))
+            .check(matches(atPosition(0, hasDescendant(allOf(withId(R.id.manga_line_text_title), withText("manga 01"))))))
 
         // 1. Clicar no botão de ordenação para mudar para 'Data' (Nome -> Data)
         onView(withId(R.id.menu_manga_library_list_order)).perform(click())
-        waitForView(atPosition(0, hasDescendant(withText("manga 01"))))
+        waitForView(atPosition(0, hasDescendant(allOf(withId(R.id.manga_line_text_title), withText("manga 01")))))
 
         // 2. Clicar novamente para mudar para 'Favorito' (Data -> Favorito)
         onView(withId(R.id.menu_manga_library_list_order)).perform(click())
 
         // No ViewModel: Favoritos DESC (true primeiro), depois Nome ASC
-        waitForView(atPosition(0, hasDescendant(withText("manga 05"))))
+        waitForView(atPosition(0, hasDescendant(allOf(withId(R.id.manga_line_text_title), withText("manga 05")))))
     }
 
     @Test
@@ -375,7 +373,19 @@ class MangaLibraryFragmentTest {
 
         Thread.sleep(1000) // Debounce
 
-        onView(withId(R.id.manga_library_recycler_view)).check(matches(atPosition(0, hasDescendant(withText("manga 08")))))
+        onView(withId(R.id.manga_library_recycler_view)).check(matches(atPosition(0, hasDescendant(allOf(withId(R.id.manga_line_text_title), withText("manga 08"))))))
+    }
+
+    @Test
+    fun testSearchWithTags() {
+        launchFragment()
+
+        onView(withId(R.id.menu_manga_library_search)).perform(click())
+        // Filtro por autor: @Author:Author 3
+        onView(isAssignableFrom(AutoCompleteTextView::class.java)).perform(typeText("@Author:\"Author 3\""))
+
+        waitForView(allOf(withId(R.id.manga_line_text_title), withText("manga 03")))
+        onView(allOf(withId(R.id.manga_line_text_title), withText("manga 03"))).check(matches(isDisplayed()))
     }
 
     @Test
@@ -437,7 +447,9 @@ class MangaLibraryFragmentTest {
                 )
             )
 
-        onView(withText(R.string.menu_manga_config_clear_progress)).inRoot(isPlatformPopup()).perform(click())
+        onView(withText(R.string.menu_manga_config_clear_progress)).perform(click())
+
+        Thread.sleep(500) // Wait for update
 
         val updatedManga = db.getMangaDao().get(1L)
         assert(updatedManga?.bookMark == 0)
@@ -455,10 +467,14 @@ class MangaLibraryFragmentTest {
                 )
             )
 
-        onView(withText(R.string.menu_manga_config_book_mark)).inRoot(isPlatformPopup()).perform(click())
+        waitForView(withText(R.string.menu_manga_config_book_mark)).perform(click())
 
         // Verifica se o fragmento de bookmark apareceu pelo ID de um dos campos
-        onView(withId(R.id.popup_book_mark_page_edit)).check(matches(isDisplayed()))
+        waitForView(withId(R.id.popup_book_mark_page_edit)).check(matches(isDisplayed()))
+
+        Thread.sleep(300)
+        androidx.test.espresso.Espresso.pressBack()
+        Thread.sleep(500)
     }
 
     @Test
@@ -474,9 +490,12 @@ class MangaLibraryFragmentTest {
                 )
             )
 
-        // Verifica se persistiu (manga 01 é o primeiro no default ASC name)
-        val updatedManga = db.getMangaDao().get(1L)
-        assert(updatedManga?.favorite == true)
+        // Verifica se o estado mudou mudando a ordenação para favorito
+        onView(withId(R.id.menu_manga_library_list_order)).perform(click()) // Muda para Data
+        onView(withId(R.id.menu_manga_library_list_order)).perform(click()) // Muda para Favorito
+
+        // Agora manga 01 e manga 05 devem estar no topo (ordem alfabética entre favoritos)
+        waitForView(atPosition(0, hasDescendant(allOf(withId(R.id.manga_line_text_title), withText("manga 01")))))
     }
 
     @Test
@@ -545,7 +564,7 @@ class MangaLibraryFragmentTest {
             )
 
         // Verifica se o diálogo apareceu
-        onView(withText(R.string.manga_library_menu_delete)).check(matches(isDisplayed()))
+        waitForView(allOf(withText(R.string.manga_library_menu_delete), withId(androidx.appcompat.R.id.alertTitle))).check(matches(isDisplayed()))
     }
 
     @Test
@@ -581,10 +600,10 @@ class MangaLibraryFragmentTest {
             )
 
         // Clica em Excluir
-        onView(withText(R.string.menu_manga_config_delete)).inRoot(isPlatformPopup()).perform(click())
+        waitForView(withText(R.string.menu_manga_config_delete)).perform(click())
 
         // Verifica se o diálogo de confirmação apareceu
-        onView(withText(R.string.manga_library_menu_delete)).check(matches(isDisplayed()))
+        waitForView(allOf(withText(R.string.manga_library_menu_delete), withId(androidx.appcompat.R.id.alertTitle))).check(matches(isDisplayed()))
     }
 
     @Test
@@ -626,10 +645,10 @@ class MangaLibraryFragmentTest {
 
         launchFragment()
 
-        onView(withText("Missing Manga")).perform(click())
+        onView(allOf(withId(R.id.manga_line_text_title), withText("Missing Manga"))).perform(click())
 
         // Verifica o diálogo de erro
-        onView(withText(R.string.manga_excluded)).check(matches(isDisplayed()))
+        waitForView(withText(R.string.manga_excluded)).check(matches(isDisplayed()))
         onView(withText(R.string.file_not_found)).check(matches(isDisplayed()))
     }
 
@@ -642,7 +661,7 @@ class MangaLibraryFragmentTest {
         randomTypesList.shuffle()
 
         val libraryId = GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
-        for (i in 100..120) {
+        for (i in 100..130) {
             val isCompleted = Random.nextInt(9) != 0
             val isFavorite = Random.nextInt(5) != 0
             val hasSub = Random.nextInt(3) != 0
@@ -664,9 +683,13 @@ class MangaLibraryFragmentTest {
         launchFragment()
 
         onView(withId(R.id.manga_library_recycler_view))
-            .perform(androidx.test.espresso.action.ViewActions.swipeUp())
+            .perform(androidx.test.espresso.contrib.RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(25))
 
-        onView(withId(R.id.manga_library_scroll_up)).check(matches(isDisplayed()))
+        onView(withId(R.id.manga_library_recycler_view)).perform(androidx.test.espresso.action.ViewActions.swipeUp())
+
+        Thread.sleep(700)
+
+        waitForView(withId(R.id.manga_library_scroll_up)).check(matches(isDisplayed()))
     }
 
     @Test

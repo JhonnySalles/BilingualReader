@@ -5,11 +5,17 @@ import android.content.Intent
 import androidx.room.Room
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.scrollTo
+import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.Intents.intended
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
@@ -22,7 +28,12 @@ import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
+import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
+import org.hamcrest.Matchers.allOf
+import org.hamcrest.Matchers.containsString
+import java.time.LocalDate
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -66,15 +77,18 @@ class MangaDetailFragmentTest {
 
         mockManga = Manga(mockLib.id, 100L, mangaFile).apply {
             title = "Detail Test Manga"
-            pages = 50
-            bookMark = 25
+            pages = 200
+            bookMark = 20
             favorite = false
         }
         db.getMangaDao().save(mockManga)
+
+        Intents.init()
     }
 
     @After
     fun tearDown() {
+        Intents.release()
         db.close()
     }
 
@@ -100,6 +114,45 @@ class MangaDetailFragmentTest {
         // Verifica o progresso (texto)
         // O formato no código é: "${it.bookMark} / ${it.pages}"
         onView(withId(R.id.manga_detail_book_mark)).check(matches(withText("${mockManga.bookMark} / ${mockManga.pages}")))
+    }
+
+    @Test
+    fun testMangaFullInformationDisplay() {
+        // Popula o mock com dados detalhados para validar a aba de informações locais
+        mockManga.apply {
+            author = "Mangaka de Teste"
+            series = "Série Épica de Teste"
+            volume = "22"
+            publisher = "Editora Planeta Manga"
+            genre = "Seinen, Psicológico"
+            release = LocalDate.of(2025, 1, 1)
+        }
+        db.getMangaDao().save(mockManga)
+
+        ActivityScenario.launch<DetailActivity>(getStartIntent())
+        
+        Thread.sleep(2500)
+
+        // Valida campos de Informação Local
+        onView(withId(R.id.manga_detail_local_information_authors))
+            .perform(scrollTo())
+            .check(matches(withText(containsString("Mangaka de Teste"))))
+
+        onView(withId(R.id.manga_detail_local_information_series))
+            .perform(scrollTo())
+            .check(matches(withText(containsString("Série Épica de Teste"))))
+
+        onView(withId(R.id.manga_detail_local_information_volume))
+            .perform(scrollTo())
+            .check(matches(withText(containsString("22"))))
+
+        onView(withId(R.id.manga_detail_local_information_publisher))
+            .perform(scrollTo())
+            .check(matches(withText(containsString("Editora Planeta Manga"))))
+
+        onView(withId(R.id.manga_detail_local_information_release))
+            .perform(scrollTo())
+            .check(matches(withText(containsString("2025"))))
     }
 
     @Test
@@ -150,7 +203,6 @@ class MangaDetailFragmentTest {
     @Test
     fun testMarkReadButton() {
         ActivityScenario.launch<DetailActivity>(getStartIntent())
-        
         Thread.sleep(2000)
 
         // Clica no botão de marcar como lido
@@ -162,10 +214,51 @@ class MangaDetailFragmentTest {
         val updatedManga = db.getMangaDao().get(mockManga.id!!)!!
         assertEquals(updatedManga.pages, updatedManga.bookMark)
     }
-    
-    private fun assertEquals(expected: Any?, actual: Any?) {
-        if (expected != actual) {
-            throw AssertionError("Expected: $expected but was: $actual")
-        }
+
+    @Test
+    fun testVocabularyNavigation() {
+        ActivityScenario.launch<DetailActivity>(getStartIntent())
+        Thread.sleep(2000)
+
+        // Clica no botão de Vocabulário
+        onView(withId(R.id.manga_detail_button_vocabulary)).perform(scrollTo(), click())
+
+        // Verifica se a intent para VocabularyActivity foi disparada
+        intended(allOf(
+            hasComponent(VocabularyActivity::class.java.name),
+            hasExtra(GeneralConsts.KEYS.VOCABULARY.TYPE, Type.MANGA)
+        ))
     }
+
+    @Test
+    fun testComicInfoTagsDisplay() {
+        // Popula o manga mock com um layout de gênero que servirá para criação de Tags na view
+        mockManga.genre = "Isekai, Comedy"
+        db.getMangaDao().save(mockManga)
+        
+        ActivityScenario.launch<DetailActivity>(getStartIntent())
+        Thread.sleep(2000)
+
+        // O fragment popula os cards em manga_detail_local_information_comic_info_tags convertendo genre via ListUtil
+        onView(withId(R.id.manga_detail_local_information_comic_info_tags))
+            .perform(scrollTo())
+            .check(matches(isDisplayed()))
+            
+        onView(withText("Isekai")).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun testCoverPopup() {
+        ActivityScenario.launch<DetailActivity>(getStartIntent())
+        Thread.sleep(2000)
+
+        // Clica na imagem de capa
+        onView(withId(R.id.manga_detail_manga_image)).perform(click())
+
+        // Verifica se o ImageView do popup subiu
+        onView(withId(R.id.popup_detail_image))
+            .inRoot(isDialog())
+            .check(matches(isDisplayed()))
+    }
+    
 }

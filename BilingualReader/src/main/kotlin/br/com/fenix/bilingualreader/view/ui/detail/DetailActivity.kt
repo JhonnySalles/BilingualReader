@@ -45,10 +45,13 @@ class DetailActivity : AppCompatActivity() {
         }
 
         fragment.arguments = bundle
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.root_frame_detail, fragment)
-            .commit()
+
+        if (savedInstanceState == null) {
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.root_frame_detail, fragment)
+                .commit()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -62,9 +65,9 @@ class DetailActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
         val intent = Intent()
         setResult(RESULT_OK, intent)
+        super.onBackPressed()
         supportFinishAfterTransition()
     }
 

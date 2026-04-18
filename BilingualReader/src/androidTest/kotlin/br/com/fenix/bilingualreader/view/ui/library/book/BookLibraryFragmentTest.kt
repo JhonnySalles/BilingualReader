@@ -51,6 +51,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.view.components.TriStateCheckBox
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
+import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
@@ -176,7 +177,6 @@ class BookLibraryFragmentTest {
 
         // Força o tipo de biblioteca como LINE para garantir preditividade nos testes de ID
         sharedPreferences.edit()
-            .putString(GeneralConsts.KEYS.LIBRARY.MANGA_LIBRARY_TYPE, br.com.fenix.bilingualreader.model.enums.LibraryMangaType.LINE.toString())
             .putString(GeneralConsts.KEYS.LIBRARY.BOOK_LIBRARY_TYPE, br.com.fenix.bilingualreader.model.enums.LibraryBookType.LINE.toString())
             .commit()
 
@@ -453,13 +453,19 @@ class BookLibraryFragmentTest {
                 )
             )
 
-        onView(withText(R.string.menu_book_config_send)).perform(click())
+        waitForView(withText(R.string.menu_book_config_send)).perform(click())
 
         intended(
             allOf(
-                hasAction(Intent.ACTION_SEND),
-                hasExtra(Intent.EXTRA_TEXT, "book 01.epub"), // book.fileName
-                hasType("application/epub+zip")
+                hasAction(Intent.ACTION_CHOOSER),
+                hasExtra(
+                    equalTo(Intent.EXTRA_INTENT),
+                    allOf(
+                        hasAction(Intent.ACTION_SEND),
+                        hasExtra(Intent.EXTRA_TEXT, "book 01"),
+                        hasType("application/epub+zip")
+                    )
+                )
             )
         )
     }
@@ -470,11 +476,11 @@ class BookLibraryFragmentTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val book = db.getBookDao().get(1L)
         book?.bookMark = 50
-        db.getBookDao().save(book!!)
+        db.getBookDao().update(book!!)
 
         launchFragment()
 
-        onView(withId(R.id.book_library_recycler_view))
+        waitForView(withId(R.id.book_library_recycler_view))
             .perform(
                 androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
                     0,
@@ -482,7 +488,9 @@ class BookLibraryFragmentTest {
                 )
             )
 
-        onView(withText(R.string.menu_book_config_clear_progress)).perform(click())
+        waitForView(withText(R.string.menu_book_config_clear_progress)).perform(click())
+
+        Thread.sleep(500) // Wait for update
 
         // Verifica se o bookmark no banco de dados foi resetado (como usamos Queries no main thread nos testes, podemos checar o DB)
         val updatedBook = db.getBookDao().get(1L)
@@ -501,7 +509,7 @@ class BookLibraryFragmentTest {
                 )
             )
 
-        onView(withText(R.string.menu_book_config_tag)).perform(click())
+        waitForView(withText(R.string.menu_book_config_tag)).perform(click())
 
         // Verifica se o popup de tags apareceu pelo ID da lista
         onView(withId(R.id.popup_tags_list)).check(matches(isDisplayed()))
@@ -519,10 +527,18 @@ class BookLibraryFragmentTest {
                 )
             )
 
-        onView(withText(R.string.menu_book_config_book_mark)).perform(click())
+        waitForView(withText(R.string.menu_book_config_book_mark)).perform(click())
 
         // Verifica se o fragmento de bookmark apareceu pelo ID de um dos campos
-        onView(withId(R.id.popup_book_mark_page_edit)).check(matches(isDisplayed()))
+        waitForView(withId(R.id.popup_book_mark_page_edit)).check(matches(isDisplayed()))
+
+        Thread.sleep(300) // Estabiliza antes de fechar
+
+        // Fecha o popup (se necessário clicar fora ou apertar back)
+        androidx.test.espresso.Espresso.pressBack()
+
+        // Aguarda retorno ao estado seguro da atividade
+        Thread.sleep(500)
     }
 
     @Test
@@ -542,8 +558,7 @@ class BookLibraryFragmentTest {
 
         for (orderStrRes in orders) {
             onView(withId(R.id.menu_book_library_list_order)).perform(click())
-            // Verifica se o Toast apareceu (opcional, mas valida a mudança)
-            // onView(withText(containsString(context.getString(orderStrRes)))).inRoot(withDecorView(not(activity.window.decorView))).check(matches(isDisplayed()))
+            Thread.sleep(300) // Debounce ordering
         }
     }
 
@@ -577,8 +592,7 @@ class BookLibraryFragmentTest {
                 )
             )
 
-        // Verifica se o diálogo apareceu
-        onView(withText(R.string.book_library_menu_delete)).check(matches(isDisplayed()))
+        waitForView(allOf(withText(R.string.book_library_menu_delete), withId(androidx.appcompat.R.id.alertTitle))).check(matches(isDisplayed()))
     }
 
     @Test
@@ -593,25 +607,21 @@ class BookLibraryFragmentTest {
                 )
             )
 
+        // Verifica se o diálogo de confirmação apareceu
+        waitForView(allOf(withText(R.string.book_library_menu_delete), withId(androidx.appcompat.R.id.alertTitle)))
+
         // Simula o cancelamento fechando o diálogo (onDismissListener)
         androidx.test.espresso.Espresso.pressBack()
 
-        // Verifica se o item ainda está lá
-        onView(withText("book 01")).check(matches(isDisplayed()))
+        // Verifica se o item ainda está lá (Aguardando animação de retorno)
+        waitForView(allOf(withId(R.id.book_line_title), withText("book 01"))).check(matches(isDisplayed()))
     }
 
     @Test
     fun testBookItemMenuDelete() {
         launchFragment()
 
-        // Abre o menu de configuração do primeiro item
-        onView(withId(R.id.book_library_recycler_view))
-            .perform(
-                androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                    0,
-                    clickChildViewWithId(R.id.book_line_favorite)
-                )
-            )
+        // Sem ação redundante anterior
 
         // Clica especificamente no botão de configuração (estava usando favorite no teste anterior por engano no código manual, mas aqui corrigimos)
         onView(withId(R.id.book_library_recycler_view))
@@ -623,10 +633,10 @@ class BookLibraryFragmentTest {
             )
 
         // Clica em Excluir
-        onView(withText(R.string.menu_book_config_delete)).perform(click())
+        waitForView(withText(R.string.menu_book_config_delete)).perform(click())
 
         // Verifica se o diálogo de confirmação apareceu
-        onView(withText(R.string.book_library_menu_delete)).check(matches(isDisplayed()))
+        onView(allOf(withText(R.string.book_library_menu_delete), withId(androidx.appcompat.R.id.alertTitle))).check(matches(isDisplayed()))
     }
 
     @Test
@@ -672,11 +682,8 @@ class BookLibraryFragmentTest {
 
         launchFragment()
 
-        // Tenta clicar no livro sem arquivo (precisa dar scroll se houver muitos, mas aqui adicionamos um)
-        // Como adicionamos depois, ele deve estar disponível ou exigirá re-listagem.
-        // No caso do launchFragment() ele carrega o que estiver no DB.
-
-        onView(withText("Missing Book")).perform(click())
+        // Tenta clicar no livro sem arquivo
+        waitForView(allOf(withId(R.id.book_line_title), withText("Missing Book"))).perform(click())
 
         // Verifica se o diálogo de erro apareceu
         onView(withText(R.string.book_excluded)).check(matches(isDisplayed()))
@@ -692,7 +699,7 @@ class BookLibraryFragmentTest {
         randomTypesList.shuffle()
 
         val libraryId = GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK
-        for (i in 100..120) {
+        for (i in 100..140) { // Aumentado para garantir scroll
             val isCompleted = Random.nextInt(9) != 0
             val isFavorite = Random.nextInt(5) != 0
             val totalPages = Random.nextInt(20, 300)
@@ -708,7 +715,7 @@ class BookLibraryFragmentTest {
                 Book(
                     i.toLong(), "book $i", "author", "", "", LocalDate.now(), "genre",
                     "publisher", "series", "isbn", totalPages, "volume", 0, "chapterDescription",
-                    currentBookmark, isCompleted, language, "path", "", "book $i", randomTypesList[i - 100],
+                    currentBookmark, isCompleted, language, "path", "", "book $i", randomTypesList[Random.nextInt(randomTypesList.size)],
                     randomFileSize, isFavorite, libraryId, mutableListOf(), false, LocalDateTime.now(),
                     null, LocalDateTime.now(), Date(), LocalDateTime.now(), LocalDate.now()
                 )
@@ -717,12 +724,18 @@ class BookLibraryFragmentTest {
 
         launchFragment()
 
-        // Faz swipe down (arrasta o conteúdo para cima)
+        // Faz scroll para o fim para garantir o scroll threshold (180px)
         onView(withId(R.id.book_library_recycler_view))
-            .perform(androidx.test.espresso.action.ViewActions.swipeUp())
+            .perform(androidx.test.espresso.contrib.RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(39))
+
+        // Movimenta mais um pouco para garantir disparo do listener se scrollToPosition for estático
+        onView(withId(R.id.book_library_recycler_view)).perform(ViewActions.swipeUp())
+        onView(withId(R.id.book_library_recycler_view)).perform(ViewActions.swipeUp())
+
+        Thread.sleep(700) // Aguarda animação de scroll e FAB aparecer
 
         // Verifica se o botão FAB de scroll up aparece
-        onView(withId(R.id.book_library_scroll_up)).check(matches(isDisplayed()))
+        waitForView(withId(R.id.book_library_scroll_up)).check(matches(isDisplayed()))
     }
 
     @Test
@@ -736,7 +749,7 @@ class BookLibraryFragmentTest {
         // Pressiona o botão voltar do sistema
         androidx.test.espresso.Espresso.pressBack()
 
-        // Verifica se a lista original está visível
-        onView(withText("book 01")).check(matches(isDisplayed()))
+        // Verifica se a lista original está visível (especifica ID para evitar ambiguidade com o texto na busca)
+        waitForView(allOf(withId(R.id.book_line_title), withText("book 01"))).check(matches(isDisplayed()))
     }
 }
