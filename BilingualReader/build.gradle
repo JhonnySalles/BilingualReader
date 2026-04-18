@@ -5,8 +5,14 @@ plugins {
     id 'kotlin-parcelize'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.appdistribution'
-    id 'com.google.firebase.crashlytics'
-    id 'io.sentry.android.gradle'
+}
+
+def shouldSkipPlugins = project.hasProperty('skipPlugins') || 
+                        gradle.startParameter.taskNames.any { it.contains("Test") || it.contains("androidTest") }
+
+if (!shouldSkipPlugins) {
+    apply plugin: 'com.google.firebase.crashlytics'
+    apply plugin: 'io.sentry.android.gradle'
 }
 
 def secrets = file("src/main/assets/secrets.properties")
