@@ -226,7 +226,26 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
 
         val isTitleId = null
         var title: History? = null
-        if (mListFull.value != null && mListFull.value!!.isNotEmpty())
+
+        if (mListFull.value != null && mListFull.value!!.isNotEmpty()) {
+            val filter = mWordFilter
+            val tags = mutableMapOf<FilterType, String>()
+            var searchText = filter
+
+            if (filter.contains("@")) {
+                val matches = Regex("@(\\w+):(?:\"([^\"]*)\"|(\\S+))").findAll(filter)
+                matches.forEach { match ->
+                    val keyStr = match.groups[1]?.value ?: ""
+                    val value = match.groups[2]?.value ?: match.groups[3]?.value ?: ""
+                    val key = Util.historyStringToFilter(app, keyStr, true)
+                    if (key != FilterType.None) {
+                        tags[key] = value.lowercase(Locale.getDefault())
+                        searchText = searchText.replace(match.value, "")
+                    }
+                }
+                searchText = searchText.trim()
+            }
+
             for (history in mListFull.value!!) {
                 if (history == null)
                     continue
@@ -253,15 +272,30 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
                         continue
                 }
 
-                if (mWordFilter.isNotEmpty()) {
-                    if (history.name.lowercase(Locale.getDefault()).contains(mWordFilter) || history.fileType.compareExtension(mWordFilter)) {
-                        if (title != null) {
-                            list.add(title)
-                            title = null
+                var matches = true
+                if (searchText.isNotEmpty()) {
+                    matches = history.name.lowercase(Locale.getDefault()).contains(searchText) ||
+                            history.fileType.compareExtension(searchText)
+                }
+
+                if (matches && tags.isNotEmpty()) {
+                    for ((key, value) in tags) {
+                        val historyValue = when (key) {
+                            FilterType.Author -> if (history is Manga) history.author else if (history is Book) history.author else ""
+                            FilterType.Publisher -> if (history is Manga) history.publisher else if (history is Book) history.publisher else ""
+                            FilterType.Series -> if (history is Manga) history.series else if (history is Book) history.series else ""
+                            FilterType.Volume -> history.volume
+                            FilterType.Type -> history.fileType.toString()
+                            else -> ""
                         }
-                        list.add(history)
+                        if (!historyValue.lowercase(Locale.getDefault()).contains(value)) {
+                            matches = false
+                            break
+                        }
                     }
-                } else {
+                }
+
+                if (matches) {
                     if (title != null) {
                         list.add(title)
                         title = null
@@ -269,6 +303,7 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
                     list.add(history)
                 }
             }
+        }
 
         return list
     }
@@ -380,9 +415,13 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
                     }
                 } catch (e: Exception) {
                     mLOGGER.error("Error generate suggestion: " + e.message, e)
-                    Firebase.crashlytics.apply {
-                        setCustomKey("message", "Error generate suggestion: " + e.message)
-                        recordException(e)
+                    try {
+                        Firebase.crashlytics.apply {
+                            setCustomKey("message", "Error generate suggestion: " + e.message)
+                            recordException(e)
+                        }
+                    } catch (ex: Exception) {
+                        // Firebase/Crashlytics not initialized or disabled
                     }
                 }
             }

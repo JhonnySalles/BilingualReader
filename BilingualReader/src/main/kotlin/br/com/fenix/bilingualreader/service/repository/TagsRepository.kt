@@ -3,8 +3,7 @@ package br.com.fenix.bilingualreader.service.repository
 import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Tags
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import org.slf4j.LoggerFactory
 
 class TagsRepository(context: Context) {
@@ -33,10 +32,7 @@ class TagsRepository(context: Context) {
             mDataBase.get(id)
         } catch (e: Exception) {
             mLOGGER.error("Error when get Tag: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when get Tag: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when get Tag: " + e.message)
             null
         }
     }
@@ -46,10 +42,7 @@ class TagsRepository(context: Context) {
             mDataBase.get(nome)
         } catch (e: Exception) {
             mLOGGER.error("Error when get Tag: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when get Tag: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when get Tag: " + e.message)
             null
         }
     }
@@ -59,10 +52,7 @@ class TagsRepository(context: Context) {
             mDataBase.valid(nome) == null
         } catch (e: Exception) {
             mLOGGER.error("Error when valid Tag: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when valid Tag: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when valid Tag: " + e.message)
             true
         }
     }
@@ -72,10 +62,7 @@ class TagsRepository(context: Context) {
             mDataBase.list() ?: mutableListOf()
         } catch (e: Exception) {
             mLOGGER.error("Error when list Tag: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when list Tag: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when list Tag: " + e.message)
             mutableListOf()
         }
     }

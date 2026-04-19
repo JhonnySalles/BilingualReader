@@ -7,14 +7,6 @@ plugins {
     id 'com.google.firebase.appdistribution'
 }
 
-def shouldSkipPlugins = project.hasProperty('skipPlugins') || 
-                        gradle.startParameter.taskNames.any { it.contains("Test") || it.contains("androidTest") }
-
-if (!shouldSkipPlugins) {
-    apply plugin: 'com.google.firebase.crashlytics'
-    apply plugin: 'io.sentry.android.gradle'
-}
-
 def secrets = file("src/main/assets/secrets.properties")
 def props = new Properties()
 if (secrets.exists()) {
@@ -29,14 +21,12 @@ android {
     defaultConfig {
         applicationId 'br.com.fenix'
         minSdk 26
-        minSdkVersion 26
         targetSdk 34
         versionCode 7
         versionName '1.0.'
         versionNameSuffix '7'
-        archivesBaseName = "BilingualReader_" + versionName + versionNameSuffix
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "br.com.fenix.bilingualreader.CustomTestRunner"
         applicationIdSuffix 'bilingualreader'
 
         manifestPlaceholders = [
@@ -48,10 +38,16 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            manifestPlaceholders["crashlyticsEnabled"] = "true"
+            manifestPlaceholders["sentryAutoInit"] = "true"
         }
         debug {
             minifyEnabled false
             testCoverageEnabled true
+            manifestPlaceholders["crashlyticsEnabled"] = "false"
+            manifestPlaceholders["sentryAutoInit"] = "false"
+            // Stub for mapping file id to prevent IllegalStateException in CrashlyticsCore
+            manifestPlaceholders["com.google.firebase.crashlytics.mapping_file_id"] = "none"
             firebaseAppDistribution {
                 serviceCredentialsFile="./app-distribution.json"
                 releaseNotes="BilingualReader App"
@@ -117,15 +113,17 @@ android {
         }
     }
 }
-
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
 
 configurations {
     all*.exclude group: 'xpp3', module: 'xpp3'
-    testImplementation.exclude group: 'com.github.tony19', module: 'logback-android'
-    testRuntimeOnly.exclude group: 'com.github.tony19', module: 'logback-android'
+    configurations.all {
+        if (name.contains("Test") || name.contains("androidTest")) {
+            exclude group: 'com.github.tony19', module: 'logback-android'
+        }
+    }
 }
 
 dependencies {
@@ -248,6 +246,7 @@ dependencies {
     testImplementation "io.mockk:mockk:1.13.10"
     testImplementation 'org.robolectric:robolectric:4.12'
     testImplementation 'org.slf4j:slf4j-nop:1.7.36'
+    androidTestImplementation 'org.slf4j:slf4j-nop:1.7.36'
     testImplementation "androidx.room:room-testing:2.5.0"
     testImplementation "androidx.test:core:1.5.0"
     testImplementation "androidx.test:core-ktx:1.5.0"

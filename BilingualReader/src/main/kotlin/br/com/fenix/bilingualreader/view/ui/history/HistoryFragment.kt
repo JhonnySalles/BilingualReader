@@ -331,47 +331,36 @@ class HistoryFragment : Fragment() {
                 if (newState != AbsListView.OnScrollListener.SCROLL_STATE_FLING)
                     setAnimationRecycler(true)
             }
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val offset = recyclerView.computeVerticalScrollOffset()
+                val extent = recyclerView.computeVerticalScrollExtent()
+                val range = recyclerView.computeVerticalScrollRange()
+
+                if (offset > 180) {
+                    if (mScrollUp.visibility != View.VISIBLE) {
+                        mHandler.removeCallbacks(mDismissUpButton)
+                        mHandler.postDelayed(mDismissUpButton, 3000)
+                        mScrollUp.show()
+                    }
+                } else if (mScrollUp.visibility == View.VISIBLE) {
+                    mHandler.removeCallbacks(mDismissUpButton)
+                    mScrollUp.hide()
+                }
+
+                if (range - extent - offset > 180) {
+                    if (mScrollDown.visibility != View.VISIBLE) {
+                        mHandler.removeCallbacks(mDismissDownButton)
+                        mHandler.postDelayed(mDismissDownButton, 3000)
+                        mScrollDown.show()
+                    }
+                } else if (mScrollDown.visibility == View.VISIBLE) {
+                    mHandler.removeCallbacks(mDismissDownButton)
+                    mScrollDown.hide()
+                }
+            }
         })
-
-        mRecyclerView.setOnScrollChangeListener { _, _, _, _, yOld ->
-            if (yOld > 20 && mScrollDown.visibility == View.VISIBLE) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    if (mHandler.hasCallbacks(mDismissDownButton))
-                        mHandler.removeCallbacks(mDismissDownButton)
-                } else
-                    mHandler.removeCallbacks(mDismissDownButton)
-
-                mScrollDown.hide()
-            } else if (yOld < -20 && mScrollUp.visibility == View.VISIBLE) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    if (mHandler.hasCallbacks(mDismissUpButton))
-                        mHandler.removeCallbacks(mDismissUpButton)
-                } else
-                    mHandler.removeCallbacks(mDismissUpButton)
-
-                mScrollUp.hide()
-            }
-
-            if (yOld > 180) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    if (mHandler.hasCallbacks(mDismissUpButton))
-                        mHandler.removeCallbacks(mDismissUpButton)
-                } else
-                    mHandler.removeCallbacks(mDismissUpButton)
-
-                mHandler.postDelayed(mDismissUpButton, 3000)
-                mScrollUp.show()
-            } else if (yOld < -180) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    if (mHandler.hasCallbacks(mDismissDownButton))
-                        mHandler.removeCallbacks(mDismissDownButton)
-                } else
-                    mHandler.removeCallbacks(mDismissDownButton)
-
-                mHandler.postDelayed(mDismissDownButton, 3000)
-                mScrollDown.show()
-            }
-        }
 
         mScrollUp.visibility = View.GONE
         mScrollDown.visibility = View.GONE

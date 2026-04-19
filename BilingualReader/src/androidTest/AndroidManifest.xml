@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="br.com.fenix.bilingualreader">
+
+    <application>
+        <!-- 
+          Removendo explicitamente o FirebaseInitProvider para evitar crash no startup de instrumentação 
+          O erro "IllegalStateException: The Crashlytics build ID is missing" ocorre porque o Build ID 
+          não é injetado corretamente no APK de teste.
+        -->
+        <provider
+            android:name="com.google.firebase.provider.FirebaseInitProvider"
+            tools:node="remove" />
+
+        <!-- Removendo auto-init do Sentry para evitar conflitos no ambiente de teste -->
+        <provider
+            android:name="io.sentry.android.core.SentryInitProvider"
+            tools:node="remove" />
+            
+    </application>
+
+</manifest>

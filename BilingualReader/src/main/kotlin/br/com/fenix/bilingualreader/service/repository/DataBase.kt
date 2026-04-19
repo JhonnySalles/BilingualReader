@@ -78,8 +78,12 @@ abstract class DataBase : RoomDatabase() {
         private var INSTANCE: DataBase? = null
 
         @VisibleForTesting
+        var isTesting = false
+
+        @VisibleForTesting
         fun setTestingInstance(database: DataBase?) {
             INSTANCE = database
+            isTesting = true
         }
 
         fun getDataBase(context: Context): DataBase {
@@ -198,8 +202,8 @@ abstract class DataBase : RoomDatabase() {
 
         fun autoBackupDatabase(context: Context, isRestart: Boolean = false) {
             val db = INSTANCE
-            if (db == null) {
-                mLOGGER.error("DataBase instance is null, skipping auto backup.")
+            if (db == null || isTesting) {
+                mLOGGER.warn("DataBase instance is null or in testing mode, skipping auto backup.")
                 return
             }
 
