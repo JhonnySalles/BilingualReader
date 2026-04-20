@@ -105,8 +105,7 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Picasso.LoadedFrom
@@ -401,10 +400,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                             if (times < 3)
                                 handler.postDelayed(setDot, 1000)
                             else
-                                Firebase.crashlytics.apply {
-                                    setCustomKey("message", "Error to set dots: " + e.message)
-                                    recordException(e)
-                                }
+                                Telemetry.recordException(e, "Error to set dots: " + e.message)
                         }
                     }
                     handler.postDelayed(setDot, 1000)
@@ -573,10 +569,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     openLastPage()
                 } catch (e: Exception) {
                     mLOGGER.error("Error to insert last page: " + e.message, e)
-                    Firebase.crashlytics.apply {
-                        setCustomKey("message", "Error to insert last page: " + e.message)
-                        recordException(e)
-                    }
+                    Telemetry.recordException(e, "Error to insert last page: " + e.message)
                 }
             }
 
@@ -1239,10 +1232,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             request.transform(mViewModel.filters.value!!).into(t)
         } catch (e: Exception) {
             mLOGGER.error("Error in open image: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error in open image: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error in open image: " + e.message)
         }
     }
 
@@ -1260,10 +1250,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             request.transform(mViewModel.filters.value!!).into(t)
         } catch (e: Exception) {
             mLOGGER.error("Error in open image: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error in open image: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error in open image: " + e.message)
         }
     }
 
@@ -1284,10 +1271,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 .into(t)
         } catch (e: Exception) {
             mLOGGER.error("Error in open image: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error in open image: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error in open image: " + e.message)
         }
     }
 
@@ -1311,10 +1295,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
             mLOGGER.error("Bitmap load fail: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Bitmap load fail: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Bitmap load fail: " + e.message)
             val layout = mLayout.get() ?: return
             setVisibility(View.GONE, View.GONE, View.VISIBLE)
             val ib = layout.findViewById<View>(R.id.reload_button) as ImageButton
@@ -1748,10 +1729,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 Util.closeOutputStream(os)
             } catch (e: Exception) {
                 mLOGGER.error("Error generate image to share: " + e.message, e)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error generate image to share: " + e.message)
-                    recordException(e)
-                }
+                Telemetry.recordException(e, "Error generate image to share: " + e.message)
             } finally {
                 Util.closeInputStream(it)
             }

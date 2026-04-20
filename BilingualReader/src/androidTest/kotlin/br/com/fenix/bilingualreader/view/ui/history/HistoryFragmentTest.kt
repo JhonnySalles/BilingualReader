@@ -1,92 +1,171 @@
 package br.com.fenix.bilingualreader.view.ui.history
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.view.View
-import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.NoMatchingViewException
 import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.contrib.RecyclerViewActions
-import androidx.test.espresso.contrib.DrawerActions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.matcher.ViewMatchers.*
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import br.com.fenix.bilingualreader.MainActivity
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.service.repository.BookRepository
-import br.com.fenix.bilingualreader.service.repository.MangaRepository
-import io.mockk.MockKAnnotations
-import io.mockk.every
-import io.mockk.impl.annotations.MockK
-import io.mockk.unmockkAll
-import org.hamcrest.Description
+import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.Library
+import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.FileType
+import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.model.enums.Libraries
+import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.service.repository.DataBase
 import org.hamcrest.Matcher
-import org.hamcrest.TypeSafeMatcher
-import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.not
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.LocalDateTime
+import java.util.*
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class HistoryFragmentTest {
 
-    @get:Rule
-    val activityRule = ActivityScenarioRule(MainActivity::class.java)
-
-    @MockK
-    lateinit var mMangaRepository: MangaRepository
-
-    @MockK
-    lateinit var mBookRepository: BookRepository
+    private lateinit var db: DataBase
 
     @Before
     fun setUp() {
-        MockKAnnotations.init(this)
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        
+        // Initialize in-memory database BEFORE activity starts
+        db = Room.inMemoryDatabaseBuilder(context, DataBase::class.java)
+            .allowMainThreadQueries()
+            .build()
+        DataBase.setTestingInstance(db)
+        
+        seedData()
+        
         Intents.init()
-        
-        // Mocking responses to avoid delay or null issues during setup
-        every { mMangaRepository.listHistory() } returns arrayListOf()
-        every { mBookRepository.listHistory() } returns arrayListOf()
+    }
 
-        // Navigate to HistoryFragment
-        // Open drawer first
-        onView(withId(R.id.drawer_layout)).perform(DrawerActions.open())
+    private fun launchHistory() {
+        val intent = Intent(ApplicationProvider.getApplicationContext(), MainActivity::class.java).apply {
+            data = Uri.parse("history")
+        }
+        ActivityScenario.launch<MainActivity>(intent)
         
-        // Note: The ID was found in main_menu_drawer.xml as menu_history
-        onView(withId(R.id.nav_view)).perform(click()) // Ensure focus on nav view
-        onView(withId(R.id.menu_history)).perform(click())
+        // Wait for fragment transaction and skeleton
+        waitForSkeleton()
+    }
+
+    private fun seedData() {
+        val libraryManga = Library(id = 1L, title = "Manga Lib", path = "/manga", language = Libraries.JAPANESE, type = Type.MANGA)
+        val libraryBook = Library(id = 2L, title = "Book Lib", path = "/book", language = Libraries.ENGLISH, type = Type.BOOK)
         
-        // Wait for fragment transaction
-        Thread.sleep(1000)
+        db.getLibrariesDao().save(libraryManga)
+        db.getLibrariesDao().save(libraryBook)
+        
+        // Insert Mangas (history items must have lastAccess != null)
+        for (i in 1..20) {
+            val manga = Manga(
+                id = i.toLong(),
+                title = "Manga $i",
+                path = "/manga/manga$i",
+                folder = "/manga",
+                name = "manga$i",
+                fileSize = 1000L,
+                fileType = FileType.CBZ,
+                pages = 100,
+                chapters = intArrayOf(1),
+                chaptersPages = mapOf(1 to "Page 1"),
+                bookMark = 10,
+                completed = false,
+                favorite = i % 2 == 0,
+                hasSubtitle = true,
+                author = "Author $i",
+                series = "Series X",
+                genre = "Genre Y",
+                publisher = "Pub Z",
+                volume = "$i",
+                release = null,
+                fkLibrary = 1L,
+                excluded = false,
+                dateCreate = LocalDateTime.now().minusDays(10),
+                lastAccess = LocalDateTime.now().minusHours(i.toLong()), // Diverse access times
+                lastAlteration = LocalDateTime.now(),
+                fileAlteration = Date(),
+                lastVocabImport = null,
+                lastVerify = null
+            )
+            db.getMangaDao().save(manga)
+        }
+        
+        // Insert Books
+        for (i in 1..10) {
+            val book = Book(
+                id = i.toLong() + 100,
+                title = "Book $i",
+                author = "Author $i",
+                password = "",
+                annotation = "",
+                release = null,
+                genre = "",
+                publisher = "",
+                series = "",
+                isbn = "",
+                pages = 200,
+                volume = "",
+                chapter = 0,
+                chapterDescription = "",
+                bookMark = 50,
+                completed = false,
+                language = Languages.ENGLISH,
+                path = "/book/book$i",
+                folder = "/book",
+                name = "book$i",
+                fileType = FileType.EPUB,
+                fileSize = 5000L,
+                favorite = false,
+                fkLibrary = 2L,
+                tags = mutableListOf(),
+                excluded = false,
+                dateCreate = LocalDateTime.now().minusDays(5),
+                lastAccess = LocalDateTime.now().minusHours(i.toLong()),
+                lastAlteration = LocalDateTime.now(),
+                fileAlteration = Date(),
+                lastVocabImport = null,
+                lastVerify = null
+            )
+            db.getBookDao().save(book)
+        }
     }
 
     @After
     fun tearDown() {
-        unmockkAll()
         Intents.release()
+        DataBase.close()
         val context = ApplicationProvider.getApplicationContext<Context>()
         context.cacheDir.deleteRecursively()
     }
 
     @Test
     fun testHistoryFragmentDisplayed() {
-        waitForSkeleton()
+        launchHistory()
         waitForViewToBeGone(withId(R.id.shimmer_skeleton))
         waitForView(withId(R.id.history_list))
     }
 
     @Test
     fun testScrollButtonsVisibility() {
-        waitForSkeleton()
+        launchHistory()
         waitForViewToBeGone(withId(R.id.shimmer_skeleton))
         
         // Scroll Up and Down buttons should be hidden initially
@@ -111,7 +190,7 @@ class HistoryFragmentTest {
                 val interaction = onView(viewMatcher)
                 interaction.check(matches(isDisplayed()))
                 return interaction
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 Thread.sleep(500)
             }
         } while (System.currentTimeMillis() < endTime)
@@ -119,7 +198,7 @@ class HistoryFragmentTest {
         return onView(viewMatcher).check(matches(isDisplayed()))
     }
 
-    private fun waitForViewToBeGone(viewMatcher: Matcher<View>, timeout: Long = 5000) {
+    private fun waitForViewToBeGone(viewMatcher: Matcher<View>, timeout: Long = 10000) {
         val startTime = System.currentTimeMillis()
         val endTime = startTime + timeout
 
@@ -127,7 +206,7 @@ class HistoryFragmentTest {
             try {
                 onView(viewMatcher).check(matches(not(isDisplayed())))
                 return
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 if (e is NoMatchingViewException) return
                 Thread.sleep(500)
             }

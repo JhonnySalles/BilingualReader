@@ -44,8 +44,7 @@ import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderFragment
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import com.google.gson.Gson
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
@@ -137,10 +136,7 @@ class SubTitleController private constructor(private val context: Context) {
             mUseFileLink = sharedPreferences.getBoolean(GeneralConsts.KEYS.PAGE_LINK.USE_IN_SEARCH_TRANSLATE, false)
         } catch (e: Exception) {
             mLOGGER.error("Preferences languages not loaded: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Preferences languages not loaded: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Preferences languages not loaded: " + e.message)
         }
     }
 
@@ -796,10 +792,7 @@ class SubTitleController private constructor(private val context: Context) {
                         .addOnFailureListener { e ->
                             mLOGGER.error("Error process ocr image: " + e.message, e)
                             Toast.makeText(context, (context.resources.getString(R.string.ocr_google_vision_error) + " " + e.message).trim(), Toast.LENGTH_SHORT).show()
-                            Firebase.crashlytics.apply {
-                                setCustomKey("message", "Error process ocr image: " + e.message)
-                                recordException(e)
-                            }
+                            Telemetry.recordException(e, "Error process ocr image: " + e.message)
                         }
                 }
                 else -> {
@@ -817,10 +810,7 @@ class SubTitleController private constructor(private val context: Context) {
 
         override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
             mLOGGER.error("Bitmap load fail: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Bitmap load fail: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Bitmap load fail: " + e.message)
         }
 
         override fun onPrepareLoad(placeHolderDrawable: Drawable?) {

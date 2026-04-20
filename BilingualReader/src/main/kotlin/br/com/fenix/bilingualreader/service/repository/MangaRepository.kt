@@ -9,11 +9,11 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Date
 
-class MangaRepository(context: Context) {
+class MangaRepository(private val context: Context) {
 
     private val mLOGGER = LoggerFactory.getLogger(MangaRepository::class.java)
-    private var mDataBase = DataBase.getDataBase(context).getMangaDao()
-    private var mLibrary = DataBase.getDataBase(context).getLibrariesDao()
+    private val mDataBase get() = DataBase.getDataBase(context).getMangaDao()
+    private val mLibrary get() = DataBase.getDataBase(context).getLibrariesDao()
 
     fun save(obj: Manga, lastAlteration: LocalDateTime? = LocalDateTime.now()): Long {
         if (lastAlteration != null)

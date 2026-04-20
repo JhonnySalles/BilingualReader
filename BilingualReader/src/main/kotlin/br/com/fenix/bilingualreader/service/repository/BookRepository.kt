@@ -10,12 +10,12 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Date
 
-class BookRepository(context: Context) {
+class BookRepository(private val context: Context) {
 
     private val mLOGGER = LoggerFactory.getLogger(BookRepository::class.java)
-    private var mDataBase = DataBase.getDataBase(context).getBookDao()
-    private var mConfiguration = DataBase.getDataBase(context).getBookConfigurationDao()
-    private var mLibrary = DataBase.getDataBase(context).getLibrariesDao()
+    private val mDataBase get() = DataBase.getDataBase(context).getBookDao()
+    private val mConfiguration get() = DataBase.getDataBase(context).getBookConfigurationDao()
+    private val mLibrary get() = DataBase.getDataBase(context).getLibrariesDao()
 
     // --------------------------------------------------------- BOOK ---------------------------------------------------------
     fun save(obj: Book, lastAlteration: LocalDateTime? = LocalDateTime.now()): Long {

@@ -102,8 +102,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.sidesheet.SideSheetBehavior
 import com.google.android.material.tabs.TabLayout
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import org.slf4j.LoggerFactory
 import java.io.File
 
@@ -674,10 +673,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             shortcut.dynamicShortcuts = list
         } catch (e: Exception) {
             mLOGGER.error("Error generate shortcut: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error generate shortcut: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error generate shortcut: " + e.message)
         }
     }
 

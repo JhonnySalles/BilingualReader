@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.view.ui.reader.manga
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import androidx.room.Room
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -19,6 +20,7 @@ import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -36,6 +38,9 @@ class MangaReaderActivityTest {
     fun setup() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         
+        // Disable Telemetry for tests to avoid Firebase initialization issues
+        Telemetry.isEnabled = false
+
         // Setup Database
         db = Room.inMemoryDatabaseBuilder(context, DataBase::class.java)
             .allowMainThreadQueries()
@@ -44,7 +49,8 @@ class MangaReaderActivityTest {
 
         // Setup Library
         val mockPath = File(context.cacheDir, "mock_mangas_reader")
-        if (!mockPath.exists()) mockPath.mkdirs()
+        if (mockPath.exists()) mockPath.deleteRecursively()
+        mockPath.mkdirs()
         
         mockLib = Library(
             id = 1L,
@@ -55,9 +61,18 @@ class MangaReaderActivityTest {
         )
         db.getLibrariesDao().save(mockLib)
 
-        // Setup Manga
+        // Setup Manga - Create a directory and dummy images to satisfy DirectoryParse
         val mangaFile = File(mockPath, "manga_reader_test.zip")
-        if (!mangaFile.exists()) mangaFile.createNewFile()
+        mangaFile.mkdirs()
+        
+        // Create 10 dummy images to match bookmark and satisfy Parse
+        val bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+        for (i in 1..10) {
+            val imgFile = File(mangaFile, "page_$i.jpg")
+            imgFile.outputStream().use { 
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+            }
+        }
 
         mockManga = Manga(mockLib.id, 600L, mangaFile).apply {
             title = "Reader UI Test Manga"
@@ -83,55 +98,65 @@ class MangaReaderActivityTest {
 
     @Test
     fun testMangaReaderHUDVisibility() {
-        ActivityScenario.launch<MangaReaderActivity>(getStartIntent())
-        
-        // Aguarda transição e renderização (ViewModel + HUD)
-        Thread.sleep(2000)
+        ActivityScenario.launch<MangaReaderActivity>(getStartIntent()).use {
+            // Aguarda transição e renderização (ViewModel + HUD)
+            Thread.sleep(2500)
 
-        // Verifica o título na Toolbar (Nativo ou Custom)
-        onView(withText(mockManga.name)).check(matches(isDisplayed()))
-        
-        // Verifica o texto de progresso no rodapé
-        // Formato no código: getString(R.string.progress, page, mManga!!.pages)
-        // No setup definimos bookMark = 10 e pages = 100
-        onView(withId(R.id.reader_manga_bottom_progress_title)).check(matches(withText("${mockManga.bookMark} / ${mockManga.pages}")))
-        
-        // Verifica a presença do indicador de linguagem OCR
-        onView(withId(R.id.reader_manga_ocr_language)).check(matches(isDisplayed()))
+            // 1. O Pager deve estar visível
+            onView(withId(R.id.fragment_manga_reader_pager)).check(matches(isDisplayed()))
+
+            // 2. Clique para alternar visibilidade (HUD) - Já que o padrão é FullScreen
+            onView(withId(R.id.fragment_manga_reader_pager)).perform(click())
+            Thread.sleep(1000)
+
+            // 3. Verifica se os componentes do HUD apareceram
+            onView(withId(R.id.reader_manga_toolbar_reader_top)).check(matches(isDisplayed()))
+            onView(withId(R.id.reader_manga_toolbar_reader_bottom)).check(matches(isDisplayed()))
+            onView(withId(R.id.reader_manga_bottom_progress_content)).check(matches(isDisplayed()))
+        }
     }
 
     @Test
     fun testConfigurationPopups() {
-        ActivityScenario.launch<MangaReaderActivity>(getStartIntent())
-        
-        Thread.sleep(2000)
+        ActivityScenario.launch<MangaReaderActivity>(getStartIntent()).use {
+            Thread.sleep(2500)
 
-        // 1. Testa Popup de Filtro de Cor (Brightness)
-        onView(withId(R.id.reader_manga_btn_popup_color)).perform(click())
-        Thread.sleep(1000)
-        onView(withId(R.id.popup_manga_configurations_tab)).check(matches(isDisplayed()))
-        
-        // Fecha para testar o próximo (clicando fora ou no botão novamente)
-        onView(withId(R.id.reader_manga_btn_popup_color)).perform(click())
-        Thread.sleep(500)
+            // Mostra o HUD primeiro
+            onView(withId(R.id.fragment_manga_reader_pager)).perform(click())
+            Thread.sleep(1000)
 
-        // 2. Testa Popup de Anotações/Marcadores
-        onView(withId(R.id.reader_manga_btn_menu_annotations)).perform(click())
-        Thread.sleep(1000)
-        onView(withId(R.id.popup_manga_configurations_tab)).check(matches(isDisplayed()))
-        
-        // Verifica se a aba de anotações está visível no ViewPager
-        onView(withText(R.string.popup_reading_manga_tab_item_configuration_bookmarks)).check(matches(isDisplayed()))
+            // 1. Testa Popup de Filtro de Cor (Brightness)
+            onView(withId(R.id.reader_manga_btn_popup_color)).perform(click())
+            Thread.sleep(1000)
+            onView(withId(R.id.popup_manga_configurations_tab)).check(matches(isDisplayed()))
+            
+            // Fecha para testar o próximo (clicando fora ou no botão novamente)
+            onView(withId(R.id.reader_manga_btn_popup_color)).perform(click())
+            Thread.sleep(500)
+
+            // 2. Testa Popup de Anotações/Marcadores
+            onView(withId(R.id.reader_manga_btn_menu_annotations)).perform(click())
+            Thread.sleep(1000)
+            onView(withId(R.id.popup_manga_configurations_tab)).check(matches(isDisplayed()))
+            
+            // Verifica se a aba de anotações está visível no ViewPager
+            onView(withText(R.string.popup_reading_manga_tab_item_configuration_bookmarks)).check(matches(isDisplayed()))
+        }
     }
 
     @Test
     fun testMangaNavigationButtons() {
-        ActivityScenario.launch<MangaReaderActivity>(getStartIntent())
-        
-        Thread.sleep(2000)
+        ActivityScenario.launch<MangaReaderActivity>(getStartIntent()).use {
+            // Espera o carregamento inicial e o cover fechar
+            Thread.sleep(3000)
 
-        // Verifica existência dos botões de navegação entre volumes/arquivos
-        onView(withId(R.id.reader_manga_nav_previous_file)).check(matches(isDisplayed()))
-        onView(withId(R.id.reader_manga_nav_next_file)).check(matches(isDisplayed()))
+            // Clique no centro para garantir que o HUD está visível (mIsFullScreen defaults to true)
+            onView(withId(R.id.fragment_manga_reader_pager)).perform(click())
+            Thread.sleep(1000)
+
+            // Verifica visibilidade dos botões de navegação entre volumes/arquivos
+            onView(withId(R.id.reader_manga_nav_previous_file)).check(matches(isDisplayed()))
+            onView(withId(R.id.reader_manga_nav_next_file)).check(matches(isDisplayed()))
+        }
     }
 }

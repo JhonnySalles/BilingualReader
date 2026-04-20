@@ -2,15 +2,14 @@ package br.com.fenix.bilingualreader.service.repository
 
 import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.SubTitle
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
-class SubTitleRepository(context: Context) {
+class SubTitleRepository(private val context: Context) {
 
     private val mLOGGER = LoggerFactory.getLogger(SubTitleRepository::class.java)
-    private var mDataBase = DataBase.getDataBase(context).getSubTitleDao()
+    private val mDataBase get() = DataBase.getDataBase(context).getSubTitleDao()
 
     fun save(obj: SubTitle): Long {
         deleteAll(obj.id_manga)
@@ -27,10 +26,7 @@ class SubTitleRepository(context: Context) {
             mDataBase.get(idManga, id)
         } catch (e: Exception) {
             mLOGGER.error("Error when get SubTitle: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when get SubTitle: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when get SubTitle: " + e.message)
             null
         }
     }
@@ -40,10 +36,7 @@ class SubTitleRepository(context: Context) {
             mDataBase.findByIdManga(idManga)
         } catch (e: Exception) {
             mLOGGER.error("Error when find SubTitle by id manga: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when find SubTitle by id manga: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when find SubTitle by id manga: " + e.message)
             null
         }
     }
@@ -53,10 +46,7 @@ class SubTitleRepository(context: Context) {
             mDataBase.updateHasSubtitle(idManga, hasSubtitle)
         } catch (e: Exception) {
             mLOGGER.error("Error when update HasSubTitle by id manga: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when update HasSubTitle by id manga: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when update HasSubTitle by id manga: " + e.message)
         }
     }
 
