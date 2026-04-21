@@ -801,6 +801,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         if (::mPicasso.isInitialized)
             mPicasso.shutdown()
 
+        mHandler.removeCallbacksAndMessages(null)
         super.onDestroy()
     }
 
