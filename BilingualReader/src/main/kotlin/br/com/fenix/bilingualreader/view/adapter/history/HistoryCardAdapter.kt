@@ -59,6 +59,14 @@ class HistoryCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         mListener = listener
     }
 
+    fun remove(history: History) {
+        if (mHistoryList.contains(history)) {
+            val index = mHistoryList.indexOf(history)
+            mHistoryList.remove(history)
+            notifyItemRemoved(index)
+        }
+    }
+
     fun notifyItemChanged(history: History) {
         if (mHistoryList.contains(history))
             notifyItemChanged(mHistoryList.indexOf(history))

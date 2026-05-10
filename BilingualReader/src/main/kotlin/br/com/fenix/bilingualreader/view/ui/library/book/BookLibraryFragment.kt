@@ -1129,7 +1129,6 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                 .setMessage(getString(R.string.book_library_menu_delete_description) + "\n" + book.file.name)
                 .setPositiveButton(R.string.action_delete) { _, _ ->
                     deleteFile(book)
-                    notifyDataSet(position, removed = true)
                     excluded = true
                 }.setOnDismissListener {
                     if (!excluded) {

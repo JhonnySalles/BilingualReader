@@ -26,7 +26,7 @@ class MenuActivityTest {
         ActivityScenario.launch<MenuActivity>(intent).use {
             // Verifica se o fragmento de bibliotecas foi carregado (pode verificar um ID de view do fragmento)
             onView(withId(R.id.root_frame_menu)).check(matches(isDisplayed()))
-            onView(withId(R.id.config_libraries_recycler_view)).check(matches(isDisplayed()))
+            onView(withId(R.id.rv_config_library_list)).check(matches(isDisplayed()))
         }
     }
 

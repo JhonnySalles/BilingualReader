@@ -551,7 +551,7 @@ class HistoryFragment : Fragment() {
                                 R.string.action_positive
                             ) { _, _ ->
                                 mViewModel.deletePermanent(manga)
-                                mRecyclerView.adapter?.notifyItemRemoved(position)
+                                (mRecyclerView.adapter as HistoryCardAdapter).remove(manga)
                             }
                             .setNegativeButton(
                                 R.string.action_negative
@@ -602,7 +602,7 @@ class HistoryFragment : Fragment() {
                                 R.string.action_positive
                             ) { _, _ ->
                                 mViewModel.deletePermanent(book)
-                                mRecyclerView.adapter?.notifyItemRemoved(position)
+                                (mRecyclerView.adapter as HistoryCardAdapter).remove(book)
                             }
                             .setNegativeButton(
                                 R.string.action_negative

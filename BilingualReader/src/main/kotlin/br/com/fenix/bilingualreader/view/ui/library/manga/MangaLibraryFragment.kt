@@ -1109,7 +1109,6 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                 .setMessage(getString(R.string.manga_library_menu_delete_description) + "\n" + manga.file.name)
                 .setPositiveButton(R.string.action_delete) { _, _ ->
                     deleteFile(manga)
-                    notifyDataSet(position, removed = true)
                     excluded = true
                 }.setOnDismissListener {
                     if (!excluded) {
