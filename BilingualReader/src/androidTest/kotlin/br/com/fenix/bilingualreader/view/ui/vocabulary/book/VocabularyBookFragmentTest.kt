@@ -6,11 +6,9 @@ import androidx.room.Room
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.longClick
+import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
@@ -20,6 +18,7 @@ import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import org.junit.After
 import org.junit.Before
@@ -53,13 +52,13 @@ class VocabularyBookFragmentTest {
         val bookFile = File(mockPath, "vocab_book.epub")
         if (!bookFile.exists()) bookFile.createNewFile()
         mockBook = Book(mockLib.id, 600L, bookFile)
-        db.getBookDao().save(mockBook)
 
         // Injeta dados de vocabulário associados ao livro
-        val mockData = listOf(
-            Vocabulary(id = 20L, word = "BookWord", reading = "ReadingB", english = "MeaningB", portuguese = null, basicForm = null, jlpt = 0, revised = false, favorite = false, appears = 0)
-        )
-        mockData.forEach { db.getVocabularyDao().save(it) }
+        val bookId = db.getBookDao().save(mockBook)
+        val vocabId = db.getVocabularyDao().save(Vocabulary(id = 20L, word = "BookWord", reading = "ReadingB", english = "MeaningB", portuguese = null, basicForm = null, jlpt = 0, revised = false, favorite = false, appears = 1))
+        db.getVocabularyDao().insert(db.openHelper, bookId, vocabId, 1, false)
+
+
     }
 
     @After
@@ -80,13 +79,14 @@ class VocabularyBookFragmentTest {
     fun testVocabularyBookRendering() {
         ActivityScenario.launch<VocabularyActivity>(getStartIntent())
         
-        Thread.sleep(3000)
+        Thread.sleep(3500)
 
         // Verifica se o título do livro foi injetado no EditText
-        onView(withId(R.id.vocabulary_book_edittext)).check(matches(withText(mockBook.name)))
+        // O fragmento exibe o .title (sem extensão) e não o .name
+        onView(withId(R.id.vocabulary_book_edittext)).check(matches(withText(mockBook.title)))
         
-        // Verifica se a palavra associada a este livro aparece na lista
-        onView(withText("BookWord")).check(matches(isDisplayed()))
+        // Verifica se a palavra associada a este livro aparece na lista (verticalizada)
+        onView(withText(Util.setVerticalText("BookWord"))).check(matches(isDisplayed()))
     }
 
     @Test
@@ -102,5 +102,33 @@ class VocabularyBookFragmentTest {
         
         // Verifica se o BottomSheet respectivo ao Book apareceu
         onView(withId(R.id.vocabulary_book_popup_menu_order_filter)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun testBookTitleSearchChange() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val mockPath = File(context.cacheDir, "mock_book_vocab")
+        
+        // Setup segundo livro
+        val bookFile2 = File(mockPath, "second_book.epub")
+        if (!bookFile2.exists()) bookFile2.createNewFile()
+        val mockBook2 = Book(mockLib.id, 601L, bookFile2)
+        val bookId2 = db.getBookDao().save(mockBook2)
+        
+        val vocabId2 = db.getVocabularyDao().save(Vocabulary(id = 21L, word = "SecondBookWord", reading = "ReadingSB", english = "MeaningSB", portuguese = null, basicForm = null, jlpt = 0, revised = false, favorite = false, appears = 1))
+        db.getVocabularyDao().insert(db.openHelper, bookId2, vocabId2, 1, false)
+
+        ActivityScenario.launch<VocabularyActivity>(getStartIntent())
+        
+        Thread.sleep(3500)
+
+        // Limpa e digita o novo título no EditText contextual
+        onView(withId(R.id.vocabulary_book_edittext)).perform(replaceText(mockBook2.title))
+        
+        // Aguarda o TextWatcher (1000ms) + carregamento
+        Thread.sleep(2500)
+        
+        // Verifica se a palavra associada ao NOVO livro aparece
+        onView(withText(Util.setVerticalText("SecondBookWord"))).check(matches(isDisplayed()))
     }
 }

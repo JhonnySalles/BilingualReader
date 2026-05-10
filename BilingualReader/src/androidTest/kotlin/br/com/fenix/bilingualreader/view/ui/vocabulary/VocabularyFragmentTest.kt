@@ -6,16 +6,16 @@ import androidx.room.Room
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.longClick
+import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.service.repository.DataBase
+import br.com.fenix.bilingualreader.util.helpers.Util
+import org.hamcrest.Matchers.allOf
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -63,10 +63,12 @@ class VocabularyFragmentTest {
         ActivityScenario.launch<VocabularyActivity>(getStartIntent())
         
         // Aguarda carregamento PagingData + Coroutines
-        Thread.sleep(3000)
+        Thread.sleep(3500)
 
         // Verifica se as palavras estão sendo exibidas na RecyclerView
-        onView(withText("TestWord1")).check(matches(isDisplayed()))
+        // O Vocabulário é exibido verticalmente no card
+        onView(withText(Util.setVerticalText("TestWord1"))).check(matches(isDisplayed()))
+        onView(withText("Meaning1")).check(matches(isDisplayed()))
         onView(withText("Meaning2")).check(matches(isDisplayed()))
     }
 
@@ -74,20 +76,19 @@ class VocabularyFragmentTest {
     fun testFavoriteFilterToggle() {
         ActivityScenario.launch<VocabularyActivity>(getStartIntent())
         
-        Thread.sleep(2000)
+        Thread.sleep(2500)
 
         // Clica no filtro de favoritos na toolbar
         onView(withId(R.id.menu_vocabulary_favorite)).perform(click())
         
         // Aguarda atualização dos dados filtrados
-        Thread.sleep(2000)
+        Thread.sleep(2500)
         
         // Apenas TestWord1 deveria estar visível (é a única favorita no setup)
-        onView(withText("TestWord1")).check(matches(isDisplayed()))
+        onView(withText(Util.setVerticalText("TestWord1"))).check(matches(isDisplayed()))
         
         // Word 2 não deve ser encontrada ou não deve estar visível
-        // onView(withText("TestWord2")).check(doesNotExist()) 
-        // Nota: Dependendo do Paging ele pode estar no adapter mas não na view.
+        // onView(withText(Util.setVerticalText("TestWord2"))).check(doesNotExist())
     }
 
     @Test
@@ -106,5 +107,56 @@ class VocabularyFragmentTest {
         
         // Verifica se a aba de ordenação está visível
         onView(withText(R.string.popup_vocabulary_tab_item_ordering)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun testSearchFiltering() {
+        ActivityScenario.launch<VocabularyActivity>(getStartIntent())
+        
+        Thread.sleep(3500)
+
+        // Abre a busca
+        onView(withId(R.id.menu_vocabulary_search)).perform(click())
+        
+        // Digita "Alpha" para filtrar
+        onView(isAssignableFrom(android.widget.EditText::class.java)).perform(typeText("Alpha"), pressImeActionButton())
+        
+        Thread.sleep(2500)
+        
+        // AlphaWord deve estar visível
+        onView(withText(Util.setVerticalText("AlphaWord"))).check(matches(isDisplayed()))
+        
+        // TestWord1 não deve estar visível
+        onView(withText(Util.setVerticalText("TestWord1"))).check(doesNotExist())
+    }
+
+    @Test
+    fun testToggleFavoriteItem() {
+        ActivityScenario.launch<VocabularyActivity>(getStartIntent())
+        
+        Thread.sleep(3500)
+        
+        // TestWord2 NÃO é favorita no setup (id = 2L)
+        // Clica no ícone de favorito do card da TestWord2
+        // Como o ícone é o mesmo para todos os cards, precisamos dar match no pai (card) que contém o texto
+        onView(
+            allOf(
+                withId(R.id.vocabulary_favorite),
+                isDescendantOfA(
+                    allOf(
+                        withId(R.id.vocabulary_content),
+                        hasDescendant(withText(Util.setVerticalText("TestWord2")))
+                    )
+                )
+            )
+        ).perform(click())
+
+
+        
+        Thread.sleep(1000)
+        
+        // Verifica no banco se o estado mudou
+        val word = db.getVocabularyDao().get(2L)
+        assert(word.favorite)
     }
 }
