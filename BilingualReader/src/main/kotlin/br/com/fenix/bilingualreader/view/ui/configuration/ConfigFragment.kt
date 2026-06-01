@@ -71,6 +71,8 @@ import com.google.android.material.textfield.TextInputLayout
 import com.google.api.services.drive.DriveScopes
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import org.lucasr.twowayview.TwoWayView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
@@ -894,7 +896,14 @@ class ConfigFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_config, container, false)
+        val root = inflater.inflate(R.layout.fragment_config, container, false)
+        ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            val scrollView = (root as? ViewGroup)?.getChildAt(0)
+            scrollView?.setPadding(scrollView.paddingLeft, scrollView.paddingTop, scrollView.paddingRight, navBarHeight)
+            insets
+        }
+        return root
     }
 
     private fun saveConfig() {

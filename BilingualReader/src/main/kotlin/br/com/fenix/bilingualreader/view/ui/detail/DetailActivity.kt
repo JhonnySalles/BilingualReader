@@ -30,6 +30,9 @@ class DetailActivity : AppCompatActivity() {
         MenuUtil.tintToolbar(toolbar, theme)
         setSupportActionBar(toolbar)
 
+        toolbar.setTitleTextAppearance(this, R.style.DetailTitleShadow)
+        toolbar.setSubtitleTextAppearance(this, R.style.DetailSubTitleShadow)
+
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowTitleEnabled(true)
 

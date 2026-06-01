@@ -37,6 +37,8 @@ import com.google.android.material.textfield.TextInputLayout
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import org.slf4j.LoggerFactory
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -178,6 +180,13 @@ class StatisticsFragment : Fragment() {
             .setFrameClearDrawable(background)
             .setBlurRadius(10F)
         mLoading.value = true
+
+        ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            val scrollView = mContent.getChildAt(0)
+            scrollView?.setPadding(scrollView.paddingLeft, scrollView.paddingTop, scrollView.paddingRight, navBarHeight)
+            insets
+        }
 
         mLoading.observe(viewLifecycleOwner) {
             mProgress.visibility = if (it) View.VISIBLE else View.GONE

@@ -17,6 +17,9 @@ import br.com.fenix.bilingualreader.view.ui.chapters.ChaptersFragment
 import br.com.fenix.bilingualreader.view.ui.touch_screen.TouchScreenFragment
 
 
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+
 class MenuActivity : AppCompatActivity() {
 
     private lateinit var mTheme : Themes
@@ -30,6 +33,17 @@ class MenuActivity : AppCompatActivity() {
 
         ThemeUtil.statusBarTransparentTheme(window, resources.getBoolean(R.bool.isNight), isLightStatus = !resources.getBoolean(R.bool.isNight))
         MenuUtil.tintBackground(this, findViewById(R.id.menu_background))
+
+        val rootFrameMenu = findViewById<android.view.View>(R.id.root_frame_menu)
+        if (rootFrameMenu != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootFrameMenu) { view, insets ->
+                val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+                val id = intent.extras?.getInt(GeneralConsts.KEYS.FRAGMENT.ID) ?: 0
+                val isBottomSheetFragment = id == R.id.frame_book_annotation
+                view.setPadding(view.paddingLeft, 0, view.paddingRight, if (isBottomSheetFragment) 0 else navBarHeight)
+                insets
+            }
+        }
 
         val id = intent.extras!!.getInt(GeneralConsts.KEYS.FRAGMENT.ID)
 

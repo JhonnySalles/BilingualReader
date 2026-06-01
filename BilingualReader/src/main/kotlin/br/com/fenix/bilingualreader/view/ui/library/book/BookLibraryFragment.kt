@@ -98,6 +98,8 @@ import org.slf4j.LoggerFactory
 import java.util.UUID
 import kotlin.math.ceil
 import kotlin.math.max
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 
 
 class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener {
@@ -559,6 +561,15 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_book_library, container, false)
+
+        ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            val contentLayout = root.findViewById<View>(R.id.book_library_content)
+            contentLayout?.setPadding(contentLayout.paddingLeft, contentLayout.paddingTop, contentLayout.paddingRight, navBarHeight)
+            val popupLayout = root.findViewById<View>(R.id.book_library_popup_menu_library)
+            popupLayout?.setPadding(popupLayout.paddingLeft, popupLayout.paddingTop, popupLayout.paddingRight, navBarHeight)
+            insets
+        }
 
         mRoot = root.findViewById(R.id.frame_book_library_root)
         mRecyclerView = root.findViewById(R.id.book_library_recycler_view)
@@ -1272,6 +1283,16 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             mSkeletonLayout.visibility = View.GONE
             mRecyclerView.visibility = View.VISIBLE
             setAnimationRecycler(true)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (::mBottomSheet.isInitialized && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+            mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            activity?.window?.navigationBarColor = android.graphics.Color.TRANSPARENT
         }
     }
 

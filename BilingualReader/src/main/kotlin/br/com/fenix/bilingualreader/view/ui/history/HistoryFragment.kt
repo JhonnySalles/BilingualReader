@@ -28,6 +28,8 @@ import android.widget.PopupMenu
 import android.widget.SearchView
 import android.widget.SimpleCursorAdapter
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -261,6 +263,13 @@ class HistoryFragment : Fragment() {
 
         val root = inflater.inflate(R.layout.fragment_history, container, false)
         mRecyclerView = root.findViewById(R.id.history_list)
+
+        ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            mRecyclerView.setPadding(mRecyclerView.paddingLeft, mRecyclerView.paddingTop, mRecyclerView.paddingRight, navBarHeight)
+            insets
+        }
+
         mScrollUp = root.findViewById(R.id.history_scroll_up)
         mScrollDown = root.findViewById(R.id.history_scroll_down)
 

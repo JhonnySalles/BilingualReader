@@ -114,6 +114,7 @@
                 android:layout_width="@dimen/popup_button_center"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|top"
+                android:layout_marginTop="8dp"
                 android:contentDescription="@string/popup_reading_book_open"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ico_line_popup"/>

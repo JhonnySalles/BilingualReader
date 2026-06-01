@@ -37,6 +37,7 @@ import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.MsgUtil
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.view.ui.about.AboutFragment
 import br.com.fenix.bilingualreader.view.ui.annotation.AnnotationFragment
 import br.com.fenix.bilingualreader.view.ui.configuration.ConfigFragment
@@ -59,6 +60,12 @@ import java.io.File
 import java.time.LocalDate
 
 
+import android.graphics.drawable.GradientDrawable
+import android.util.TypedValue
+import android.view.View
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainListener {
 
     private val mLOGGER = LoggerFactory.getLogger(MainActivity::class.java)
@@ -71,6 +78,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mMenu: Menu
     private lateinit var mToggle: ActionBarDrawerToggle
     private lateinit var mDrawer: DrawerLayout
+    private var mBlurTop: eightbitlab.com.blurview.BlurView? = null
 
     private lateinit var binding: ActivityMainBinding
 
@@ -107,7 +115,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         super.onCreate(savedInstanceState)
 
-        ThemeUtil.statusBarTransparentTheme(window, isDark, AppCompatResources.getDrawable(this, R.drawable.app_main_statusbar_background), isLightStatus = !isDark)
+        ThemeUtil.statusBarTransparentTheme(window, isDark, isLightStatus = !isDark)
 
         initializeBook()
         createNotificationChannel()
@@ -194,6 +202,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // content_fragment use for receive fragments layout
         mFragmentManager.beginTransaction().replace(R.id.main_content_root, fragment).commit()
+
+        mBlurTop = findViewById(R.id.main_blur_top)
+        setupBlurViews()
+        setupWindowInsets()
+        applyGlassmorphism()
     }
 
     private fun clearCache() {
@@ -389,5 +402,96 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         DataBase.close()
         super.onDestroy()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        applyGlassmorphism()
+    }
+
+    private fun setupWindowInsets() {
+        val mainBlurTop = mBlurTop ?: return
+        val mainContentRoot = findViewById<View>(R.id.main_content_root) ?: return
+
+        ViewCompat.setOnApplyWindowInsetsListener(mainBlurTop) { view, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, view.paddingBottom)
+            insets
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(mainContentRoot) { view, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, 0)
+            insets
+        }
+    }
+
+    private fun setupBlurViews() {
+        val mainBlurTop = mBlurTop ?: return
+        val decorView = window.decorView
+        val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) eightbitlab.com.blurview.RenderEffectBlur() else eightbitlab.com.blurview.RenderScriptBlur(this)
+
+        mainBlurTop.setupWith(binding.drawerLayout, blurAlgorithm)
+            .setFrameClearDrawable(background)
+            .setBlurRadius(15f)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics).toInt()
+            val outlineProvider = object : android.view.ViewOutlineProvider() {
+                override fun getOutline(view: View, outline: android.graphics.Outline) {
+                    outline.setRoundRect(0, -radius, view.width, view.height, radius.toFloat())
+                }
+            }
+            mainBlurTop.outlineProvider = outlineProvider
+            mainBlurTop.clipToOutline = true
+
+            val mainBarLayout = findViewById<View>(R.id.main_bar_layout)
+            mainBarLayout?.outlineProvider = outlineProvider
+            mainBarLayout?.clipToOutline = true
+        }
+    }
+
+    private fun applyGlassmorphism() {
+        val mainBarLayout = findViewById<View>(R.id.main_bar_layout)
+        mainBarLayout?.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+        mToolBar.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+
+        val sharedPreferences = GeneralConsts.getSharedPreferences(this)
+        val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.READER.READER_GLASSMORPHISM, false)
+        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        mBlurTop?.setBlurEnabled(useBlur)
+
+        val themeColor = getColorFromAttr(R.attr.colorSurface)
+        val isNight = resources.getBoolean(R.bool.isNight)
+        val alpha = if (isNight) 0xD9 else 0x73 // 85% opacity for dark theme, 45% for light theme
+        val translucentColor = ((themeColor and 0x00FFFFFF) or (alpha shl 24)).toInt()
+        val solidColor = ((themeColor and 0x00FFFFFF) or (0xFF shl 24)).toInt()
+        val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics)
+
+        val topBg = if (useBlur) {
+            GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(translucentColor)
+                cornerRadii = floatArrayOf(
+                    0f, 0f,
+                    0f, 0f,
+                    cornerRadius, cornerRadius,
+                    cornerRadius, cornerRadius
+                )
+            }
+        } else {
+            val almostTransparentColor = ((themeColor and 0x00FFFFFF) or (0x1A shl 24)).toInt() // 10% opacity
+            GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(solidColor, solidColor, translucentColor, almostTransparentColor)).apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadii = floatArrayOf(
+                    0f, 0f,
+                    0f, 0f,
+                    cornerRadius, cornerRadius,
+                    cornerRadius, cornerRadius
+                )
+            }
+        }
+        mBlurTop?.background = topBg
     }
 }

@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:clipToPadding="false"
     android:clipChildren="false"
-    android:fitsSystemWindows="true"
+    android:fitsSystemWindows="false"
     tools:context=".view.ui.book.BookAnnotationFragment">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -44,19 +44,27 @@
                 android:id="@+id/content_toolbar_book_annotation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fitsSystemWindows="true"
-                android:background="@color/transparent"
+                android:fitsSystemWindows="false"
+                android:background="@android:color/transparent"
+                app:elevation="0dp"
                 android:theme="@style/MainToolbarContentTheme.NoElevation"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
-                <com.google.android.material.appbar.MaterialToolbar
-                    android:id="@+id/toolbar_book_annotation"
+
+                <eightbitlab.com.blurview.BlurView
+                    android:id="@+id/book_annotation_blur_top"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/default_navigator_header_size"
-                    android:background="@android:color/transparent"
-                    app:popupTheme="@style/MainToolbarStyle"
-                    style="@style/MainToolbarThemeWithShadow"/>
+                    android:layout_height="wrap_content">
+
+                    <com.google.android.material.appbar.MaterialToolbar
+                        android:id="@+id/toolbar_book_annotation"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/default_navigator_header_size"
+                        android:background="@android:color/transparent"
+                        app:popupTheme="@style/MainToolbarStyle"
+                        style="@style/MainToolbarThemeWithShadow"/>
+                </eightbitlab.com.blurview.BlurView>
             </com.google.android.material.appbar.AppBarLayout>
 
 
@@ -113,6 +121,7 @@
                 android:layout_width="@dimen/popup_button_center"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|top"
+                android:layout_marginTop="8dp"
                 android:contentDescription="@string/annotation_popup_filter_open"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ico_line_popup"/>

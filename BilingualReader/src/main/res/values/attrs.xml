@@ -67,4 +67,5 @@
     <attr format="reference" name="toolbarTitleAccents"/>
 
     <attr format="reference" name="detailTextInverse"/>
+    <attr format="color|reference" name="titleShadowColor"/>
 </resources>

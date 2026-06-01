@@ -24,6 +24,8 @@ import android.widget.PopupMenu
 import android.widget.SearchView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -168,6 +170,15 @@ class AnnotationFragment : Fragment(), AnnotationListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_annotation, container, false)
+
+        ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            val contentLayout = root.findViewById<View>(R.id.annotation_content)
+            contentLayout?.setPadding(contentLayout.paddingLeft, contentLayout.paddingTop, contentLayout.paddingRight, navBarHeight)
+            val popupLayout = root.findViewById<View>(R.id.annotation_popup_filter)
+            popupLayout?.setPadding(popupLayout.paddingLeft, popupLayout.paddingTop, popupLayout.paddingRight, navBarHeight)
+            insets
+        }
 
         mRecyclerView = root.findViewById(R.id.annotation_recycler_view)
 
@@ -522,6 +533,16 @@ class AnnotationFragment : Fragment(), AnnotationListener {
         }
 
         super.onDestroy()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (::mBottomSheet.isInitialized && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+            mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            activity?.window?.navigationBarColor = android.graphics.Color.TRANSPARENT
+        }
     }
 
 

@@ -100,7 +100,7 @@
     </style>
 
     <style name="TitleShadow" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
-        <item name="android:shadowColor">@color/shadow</item>
+        <item name="android:shadowColor">?attr/titleShadowColor</item>
         <item name="android:shadowDx">5</item>
         <item name="android:shadowDy">5</item>
         <item name="android:shadowRadius">5</item>
@@ -108,7 +108,7 @@
 
     <style name="SubTitleShadow" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
         <item name="android:textSize">11sp</item>
-        <item name="android:shadowColor">@color/shadow</item>
+        <item name="android:shadowColor">?attr/titleShadowColor</item>
         <item name="android:shadowDx">3</item>
         <item name="android:shadowDy">3</item>
         <item name="android:shadowRadius">3</item>
@@ -116,7 +116,24 @@
 
     <style name="SearchShadow" parent="Widget.AppCompat.SearchView">
         <item name="android:textColor">?attr/toolbarTitleColor</item>
-        <item name="android:shadowColor">@color/shadow</item>
+        <item name="android:shadowColor">?attr/titleShadowColor</item>
+        <item name="android:shadowDx">3</item>
+        <item name="android:shadowDy">3</item>
+        <item name="android:shadowRadius">3</item>
+    </style>
+
+    <style name="DetailTitleShadow" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:shadowColor">#000000</item>
+        <item name="android:shadowDx">5</item>
+        <item name="android:shadowDy">5</item>
+        <item name="android:shadowRadius">5</item>
+    </style>
+
+    <style name="DetailSubTitleShadow" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:shadowColor">#000000</item>
         <item name="android:shadowDx">3</item>
         <item name="android:shadowDy">3</item>
         <item name="android:shadowRadius">3</item>

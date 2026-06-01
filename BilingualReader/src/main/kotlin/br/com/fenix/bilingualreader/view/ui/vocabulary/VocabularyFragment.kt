@@ -51,6 +51,10 @@ import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 
 
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+
+
 class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener,
     InitializeVocabulary<Vocabulary> {
 
@@ -164,6 +168,15 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_vocabulary, container, false)
+
+        ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            val contentLayout = root.findViewById<View>(R.id.vocabulary_refresh)
+            contentLayout?.setPadding(contentLayout.paddingLeft, contentLayout.paddingTop, contentLayout.paddingRight, navBarHeight)
+            val popupLayout = root.findViewById<View>(R.id.vocabulary_popup_menu_order_filter)
+            popupLayout?.setPadding(popupLayout.paddingLeft, popupLayout.paddingTop, popupLayout.paddingRight, navBarHeight)
+            insets
+        }
 
         mMapOrder = hashMapOf(
             Order.Description to getString(R.string.config_option_vocabulary_order_description),
@@ -443,6 +456,16 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
 
     override fun popupGetObserver(): LiveData<Pair<Order, Boolean>> {
         return mViewModel.order
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (::mBottomSheet.isInitialized && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+            mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            activity?.window?.navigationBarColor = android.graphics.Color.TRANSPARENT
+        }
     }
 
     inner class ViewPagerAdapter(fm: FragmentManager, behavior: Int) :

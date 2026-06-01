@@ -61,6 +61,14 @@ import com.google.android.material.tabs.TabLayout
 import org.slf4j.LoggerFactory
 
 
+import android.content.SharedPreferences
+import android.graphics.drawable.GradientDrawable
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.RenderEffectBlur
+import eightbitlab.com.blurview.RenderScriptBlur
+
 class BookAnnotationFragment : Fragment(), AnnotationListener {
 
     private val mLOGGER = LoggerFactory.getLogger(BookAnnotationFragment::class.java)
@@ -68,6 +76,8 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
     private val mViewModel: BookAnnotationViewModel by activityViewModels()
 
     private lateinit var mToolbar: Toolbar
+    private lateinit var mPreferences: SharedPreferences
+    private var mBlurTop: BlurView? = null
 
     private lateinit var mScrollUp: FloatingActionButton
     private lateinit var mScrollDown: FloatingActionButton
@@ -95,6 +105,7 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        mPreferences = GeneralConsts.getSharedPreferences(requireContext())
 
         arguments?.let {
             mBook = it.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK) as Book
@@ -152,6 +163,11 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         mScrollDown.visibility = View.GONE
 
         (requireActivity() as MenuActivity).setActionBar(mToolbar)
+
+        mBlurTop = root.findViewById(R.id.book_annotation_blur_top)
+        setupBlurViews(root)
+        setupWindowInsets(root)
+        applyGlassmorphism()
 
         mScrollUp.setOnClickListener {
             (mScrollUp.drawable as AnimatedVectorDrawable).start()
@@ -489,6 +505,110 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
 
     override fun filterChapter(chapter: String, isRemove: Boolean) {
         mViewModel.filterChapter(chapter, isRemove)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        applyGlassmorphism()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (::mBottomSheet.isInitialized && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+            mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            activity?.window?.navigationBarColor = android.graphics.Color.TRANSPARENT
+        }
+    }
+
+    private fun setupWindowInsets(root: View) {
+        ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+
+            mBlurTop?.let { view ->
+                view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, view.paddingBottom)
+            }
+
+            val contentLayout = root.findViewById<View>(R.id.book_annotation_content)
+            contentLayout?.setPadding(contentLayout.paddingLeft, contentLayout.paddingTop, contentLayout.paddingRight, navBarHeight)
+
+            val popupLayout = root.findViewById<View>(R.id.book_annotation_popup_filter)
+            popupLayout?.setPadding(popupLayout.paddingLeft, popupLayout.paddingTop, popupLayout.paddingRight, navBarHeight)
+
+            insets
+        }
+    }
+
+    private fun setupBlurViews(root: View) {
+        val mainBlurTop = mBlurTop ?: return
+        val context = requireContext()
+        val decorView = requireActivity().window.decorView
+        val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
+
+        mainBlurTop.setupWith(root as android.view.ViewGroup, blurAlgorithm)
+            .setFrameClearDrawable(background)
+            .setBlurRadius(15f)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics).toInt()
+            val outlineProvider = object : android.view.ViewOutlineProvider() {
+                override fun getOutline(view: View, outline: android.graphics.Outline) {
+                    outline.setRoundRect(0, -radius, view.width, view.height, radius.toFloat())
+                }
+            }
+            mainBlurTop.outlineProvider = outlineProvider
+            mainBlurTop.clipToOutline = true
+
+            val barLayout = root.findViewById<View>(R.id.content_toolbar_book_annotation)
+            barLayout?.outlineProvider = outlineProvider
+            barLayout?.clipToOutline = true
+        }
+    }
+
+    private fun applyGlassmorphism() {
+        val barLayout = view?.findViewById<View>(R.id.content_toolbar_book_annotation)
+        barLayout?.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.READER.READER_GLASSMORPHISM, false)
+        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        mBlurTop?.setBlurEnabled(useBlur)
+
+        val context = requireContext()
+        val themeColor = context.getColorFromAttr(R.attr.colorSurface)
+        val isNight = resources.getBoolean(R.bool.isNight)
+        val alpha = if (isNight) 0xD9 else 0x73 // 85% opacity for dark theme, 45% for light theme
+        val translucentColor = ((themeColor and 0x00FFFFFF) or (alpha shl 24)).toInt()
+        val solidColor = ((themeColor and 0x00FFFFFF) or (0xFF shl 24)).toInt()
+        val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics)
+
+        val topBg = if (useBlur) {
+            GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(translucentColor)
+                cornerRadii = floatArrayOf(
+                    0f, 0f,
+                    0f, 0f,
+                    cornerRadius, cornerRadius,
+                    cornerRadius, cornerRadius
+                )
+            }
+        } else {
+            val almostTransparentColor = ((themeColor and 0x00FFFFFF) or (0x1A shl 24)).toInt() // 10% opacity
+            GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(solidColor, solidColor, translucentColor, almostTransparentColor)).apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadii = floatArrayOf(
+                    0f, 0f,
+                    0f, 0f,
+                    cornerRadius, cornerRadius,
+                    cornerRadius, cornerRadius
+                )
+            }
+        }
+        mBlurTop?.background = topBg
+        mToolbar.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
     }
 
 }
