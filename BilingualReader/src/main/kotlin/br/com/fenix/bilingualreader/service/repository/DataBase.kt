@@ -35,8 +35,7 @@ import br.com.fenix.bilingualreader.model.entity.VocabularyManga
 import br.com.fenix.bilingualreader.util.helpers.BackupError
 import br.com.fenix.bilingualreader.util.helpers.Converters
 import br.com.fenix.bilingualreader.util.helpers.ErrorRestoreDatabase
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import de.raphaelebner.roomdatabasebackup.core.RoomBackup
 import org.slf4j.LoggerFactory
 import java.io.BufferedReader
@@ -190,10 +189,7 @@ abstract class DataBase : RoomDatabase() {
                             BACKUP.restartApp(Intent(context, MainActivity::class.java))
                         else {
                             mLOGGER.error("Error when backup database: $message.")
-                            Firebase.crashlytics.apply {
-                                setCustomKey("message", "Error when backup database: " + message)
-                                recordException(BackupError(message))
-                            }
+                            Telemetry.recordException(BackupError(message), "Error when backup database: " + message)
                             throw BackupError("Error when backup database")
                         }
                     }
@@ -223,10 +219,7 @@ abstract class DataBase : RoomDatabase() {
                             }
                         } else {
                             mLOGGER.error("Error when auto backup database: $message.")
-                            Firebase.crashlytics.apply {
-                                setCustomKey("message", "Error when auto backup database: " + message)
-                                recordException(BackupError(message))
-                            }
+                            Telemetry.recordException(BackupError(message), "Error when auto backup database: " + message)
                         }
                     }
                 }.backup()
@@ -246,10 +239,7 @@ abstract class DataBase : RoomDatabase() {
                             BACKUP.restartApp(Intent(context, MainActivity::class.java))
                         } else {
                             mLOGGER.error("Error when restore backup database: $message.")
-                            Firebase.crashlytics.apply {
-                                setCustomKey("message", "Error when restore backup database: " + message)
-                                recordException(ErrorRestoreDatabase(message))
-                            }
+                            Telemetry.recordException(ErrorRestoreDatabase(message), "Error when restore backup database: " + message)
                             throw ErrorRestoreDatabase("Error when restore backup database file.")
                         }
                     }

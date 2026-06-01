@@ -24,8 +24,7 @@ import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.book.VocabularyBookViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.manga.VocabularyMangaViewModel
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -78,10 +77,7 @@ class VocabularyRepository(var context: Context) {
             mDataBaseDAO.get(id)
         } catch (e: Exception) {
             mLOGGER.error("Error when get Vocabulary: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when get Vocabularye: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when get Vocabularye: " + e.message)
             null
         }
     }
@@ -91,10 +87,7 @@ class VocabularyRepository(var context: Context) {
             mDataBaseDAO.find(vocabulary)
         } catch (e: Exception) {
             mLOGGER.error("Error when get Library: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when get Library: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when get Library: " + e.message)
             null
         }
     }
@@ -104,10 +97,7 @@ class VocabularyRepository(var context: Context) {
             mDataBaseDAO.findAll(vocabulary)
         } catch (e: Exception) {
             mLOGGER.error("Error when find Library: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when find Library: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when find Library: " + e.message)
             listOf()
         }
     }
@@ -331,10 +321,7 @@ class VocabularyRepository(var context: Context) {
                     }
                 } catch (e: Exception) {
                     mLOGGER.error("Error process manga vocabulary: " + e.message, e)
-                    Firebase.crashlytics.apply {
-                        setCustomKey("message", "Error process manga vocabulary: " + e.message)
-                        recordException(e)
-                    }
+                    Telemetry.recordException(e, "Error process manga vocabulary: " + e.message)
                     withContext(Dispatchers.Main) {
                         val msg = context.getString(R.string.vocabulary_import_error)
                         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()

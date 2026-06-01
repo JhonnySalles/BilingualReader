@@ -27,8 +27,7 @@ import br.com.fenix.bilingualreader.service.ocr.OcrProcess
 import br.com.fenix.bilingualreader.service.ocr.Tesseract
 import br.com.fenix.bilingualreader.view.components.WindowView
 import br.com.fenix.bilingualreader.view.components.manga.ResizeView
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import org.slf4j.LoggerFactory
 import kotlin.math.abs
 
@@ -302,10 +301,7 @@ class FloatingOcr constructor(
             }
         } catch (e: Exception) {
             mLOGGER.error("Error when start async process tesseract: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when start async process tesseract: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when start async process tesseract: " + e.message)
         }
     }
 
@@ -318,10 +314,7 @@ class FloatingOcr constructor(
             tess.process(languages, image)
         } catch (e: Exception) {
             mLOGGER.error("Error when process tesseract: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when process tesseract: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when process tesseract: " + e.message)
             null
         }
     }

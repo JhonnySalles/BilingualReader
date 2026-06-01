@@ -63,8 +63,7 @@ import br.com.fenix.bilingualreader.view.components.book.TextViewAdapter
 import br.com.fenix.bilingualreader.view.components.book.TextViewClickMovement
 import br.com.fenix.bilingualreader.view.components.book.TextViewSelectCallback
 import br.com.fenix.bilingualreader.view.ui.popup.PopupAnnotations
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -610,10 +609,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             } catch (e: Exception) {
                 mLOGGER.error("Error to generate image: " + e.message, e)
                 holder.imageView.setImageBitmap(null)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error to generate image: " + e.message)
-                    recordException(e)
-                }
+                Telemetry.recordException(e, "Error to generate image: " + e.message)
             }
             holder.textView.linksClickable = false
             holder.textView.movementMethod = null
@@ -781,10 +777,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             return bitmap
         } catch (e: Exception) {
             mLOGGER.error("Error to load image page: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error to load image page: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error to load image page: " + e.message)
         }
         return null
     }

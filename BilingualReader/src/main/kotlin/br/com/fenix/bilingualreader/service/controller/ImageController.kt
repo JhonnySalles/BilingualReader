@@ -8,8 +8,7 @@ import android.widget.ImageView
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -105,10 +104,7 @@ class ImageController private constructor() {
                 mLOGGER.error("Memory full, cleaning", m)
             } catch (e: Exception) {
                 mLOGGER.error("Error to get image async", e)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error to get image async: " + e.message)
-                    recordException(e)
-                }
+                Telemetry.recordException(e, "Error to get image async: " + e.message)
             }
         }
     }

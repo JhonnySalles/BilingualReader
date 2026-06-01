@@ -3,8 +3,7 @@ package br.com.fenix.bilingualreader.util.secrets
 import android.content.Context
 import android.content.res.AssetManager
 import br.com.fenix.bilingualreader.view.ui.detail.manga.MangaDetailFragment
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.io.InputStream
@@ -42,10 +41,7 @@ class Secrets {
             GOOGLE_ID_TOKEN = properties.getProperty("GOOGLE_ID_TOKEN")
         } catch (e: IOException) {
             mLOGGER.error("Error to read secrets: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error to read secrets: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error to read secrets: " + e.message)
         }
     }
 

@@ -7,8 +7,7 @@ import com.github.junrar.Archive
 import com.github.junrar.exception.CrcErrorException
 import com.github.junrar.exception.RarException
 import com.github.junrar.rarfile.FileHeader
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.core.Persister
 import org.slf4j.LoggerFactory
@@ -128,10 +127,7 @@ class RarParse : Parse {
                 serializer.read(ComicInfo::class.java, page)
             } catch (e: Exception) {
                 mLOGGER.error("Error to get comic info: " + e.message, e)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error to get comic info: " + e.message)
-                    recordException(e)
-                }
+                Telemetry.recordException(e, "Error to get comic info: " + e.message)
                 null
             }
         } else

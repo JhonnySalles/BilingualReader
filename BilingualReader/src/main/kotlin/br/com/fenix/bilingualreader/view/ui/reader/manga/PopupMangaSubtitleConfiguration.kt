@@ -23,8 +23,7 @@ import br.com.fenix.bilingualreader.util.helpers.Util
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.InputStream
@@ -200,10 +199,7 @@ class PopupMangaSubtitleConfiguration : Fragment() {
                         mSubTitleController.getChapterFromJson(listOf(inputString), true)
                     } catch (e: Exception) {
                         mLOGGER.error("Error when open file: " + e.message, e)
-                        Firebase.crashlytics.apply {
-                            setCustomKey("message", "Error when open file: " + e.message)
-                            recordException(e)
-                        }
+                        Telemetry.recordException(e, "Error when open file: " + e.message)
                     }
                 }
             } else

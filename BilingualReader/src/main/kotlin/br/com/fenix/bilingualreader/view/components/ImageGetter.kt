@@ -7,11 +7,9 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.text.Html
 import android.widget.TextView
-import br.com.fenix.bilingualreader.BuildConfig
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import org.slf4j.LoggerFactory
 
 class ImageGetter(val context: Context, val textView: TextView) : Html.ImageGetter {
@@ -38,12 +36,7 @@ class ImageGetter(val context: Context, val textView: TextView) : Html.ImageGett
             }
         } catch (e: Exception) {
             mLOGGER.error("Error to load image: " + e.message, e)
-            if (!BuildConfig.DEBUG) {
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error to load image: " + e.message)
-                    recordException(e)
-                }
-            }
+            Telemetry.recordException(e, "Error to load image: " + e.message)
         }
         return drawable
     }

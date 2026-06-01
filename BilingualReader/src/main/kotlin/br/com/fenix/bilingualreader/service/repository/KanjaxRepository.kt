@@ -2,8 +2,7 @@ package br.com.fenix.bilingualreader.service.repository
 
 import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.Kanjax
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import org.slf4j.LoggerFactory
 
 class KanjaxRepository(context: Context) {
@@ -16,10 +15,7 @@ class KanjaxRepository(context: Context) {
             mDataBase.get(id)
         } catch (e: Exception) {
             mLOGGER.error("Error when get Kanjax: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when get SubTitle: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when get SubTitle: " + e.message)
             null
         }
     }
@@ -29,10 +25,7 @@ class KanjaxRepository(context: Context) {
             mDataBase.get(kanji)
         } catch (e: Exception) {
             mLOGGER.error("Error when get Kanjax: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when get SubTitle: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when get SubTitle: " + e.message)
             null
         }
     }
@@ -42,10 +35,7 @@ class KanjaxRepository(context: Context) {
             mDataBase.list()
         } catch (e: Exception) {
             mLOGGER.error("Error when list Kanjax: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when get SubTitle: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when get SubTitle: " + e.message)
             null
         }
     }

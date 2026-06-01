@@ -3,8 +3,7 @@ package br.com.fenix.bilingualreader.service.parses.manga
 import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
 import org.simpleframework.xml.Serializer
@@ -134,10 +133,7 @@ class SevenZipParse : Parse {
                 serializer.read(ComicInfo::class.java, page)
             } catch (e: Exception) {
                 mLOGGER.error("Error to get comic info: " + e.message, e)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error to get comic info: " + e.message)
-                    recordException(e)
-                }
+                Telemetry.recordException(e, "Error to get comic info: " + e.message)
                 null
             }
         } else

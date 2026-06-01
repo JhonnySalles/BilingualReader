@@ -33,8 +33,7 @@ import br.com.fenix.bilingualreader.service.sharemark.ShareMarkBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -425,10 +424,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                     }
                 } catch (e: Exception) {
                     mLOGGER.error("Error generate suggestion: " + e.message, e)
-                    Firebase.crashlytics.apply {
-                        setCustomKey("message", "Error generate suggestion: " + e.message)
-                        recordException(e)
-                    }
+                    Telemetry.recordException(e, "Error generate suggestion: " + e.message)
                 }
             }
         }
@@ -683,10 +679,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                     }
                 } catch (e: Exception) {
                     mLOGGER.error("Error to import vocabulary: " + e.message, e)
-                    Firebase.crashlytics.apply {
-                        setCustomKey("message", "Error to import vocabulary: " + e.message)
-                        recordException(e)
-                    }
+                    Telemetry.recordException(e, "Error to import vocabulary: " + e.message)
                 } finally {
                     withContext(Dispatchers.Main) {
                         mImportingVocab = false

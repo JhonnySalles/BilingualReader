@@ -2,8 +2,7 @@ package br.com.fenix.bilingualreader.service.repository
 
 import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
@@ -37,10 +36,7 @@ class BookAnnotationRepository(context: Context) {
             mDataBase.findAllOrderByBook()
         } catch (e: Exception) {
             mLOGGER.error("Error when list annotation of Book: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when list annotation of Book: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when list annotation of Book: " + e.message)
             arrayListOf()
         }
     }
@@ -50,10 +46,7 @@ class BookAnnotationRepository(context: Context) {
             mDataBase.findAllByBook(idBook)
         } catch (e: Exception) {
             mLOGGER.error("Error when list annotation of Book: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when list annotation of Book: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when list annotation of Book: " + e.message)
             arrayListOf()
         }
     }
@@ -63,10 +56,7 @@ class BookAnnotationRepository(context: Context) {
             mDataBase.findByBook(idBook)
         } catch (e: Exception) {
             mLOGGER.error("Error when find annotation by book: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when find annotation by book: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when find annotation by book: " + e.message)
             arrayListOf()
         }
     }
@@ -76,10 +66,7 @@ class BookAnnotationRepository(context: Context) {
             mDataBase.findByPage(idBook, page)
         } catch (e: Exception) {
             mLOGGER.error("Error when find annotation by page: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when find annotation by page: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when find annotation by page: " + e.message)
             arrayListOf()
         }
     }
