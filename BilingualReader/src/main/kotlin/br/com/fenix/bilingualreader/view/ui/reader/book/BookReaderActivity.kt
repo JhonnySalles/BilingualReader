@@ -120,6 +120,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_reader)
+        androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
 
         Formatter.initializeAsync(applicationContext)
 

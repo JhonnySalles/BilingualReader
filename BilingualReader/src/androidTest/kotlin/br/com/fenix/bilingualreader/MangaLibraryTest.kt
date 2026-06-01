@@ -17,16 +17,124 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.espresso.matcher.ViewMatchers.Visibility
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.model.entity.Library
+import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.FileType
+import br.com.fenix.bilingualreader.model.enums.Libraries
+import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.service.repository.DataBase
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.anyOf
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.core.app.ApplicationProvider
+import android.content.Context
+import androidx.room.Room
+import java.io.File
+import java.io.FileOutputStream
+import java.time.LocalDateTime
+import java.util.Date
 
 @RunWith(AndroidJUnit4::class)
 class MangaLibraryTest {
 
-    private val waitTime = 1500L
+    private lateinit var db: DataBase
+    private val waitTime = 3000L
+
+    @Before
+    fun setup() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        // 1. Limpar SharedPreferences para garantir estado inicial conhecido
+        val sharedPreferences = context.getSharedPreferences(GeneralConsts.KEYS.PREFERENCE_NAME, Context.MODE_PRIVATE)
+        sharedPreferences.edit().clear().commit()
+
+        // Força o tipo de biblioteca como LINE para garantir preditividade nos testes
+        sharedPreferences.edit()
+            .putString(GeneralConsts.KEYS.LIBRARY.MANGA_LIBRARY_TYPE, br.com.fenix.bilingualreader.model.enums.LibraryMangaType.LINE.toString())
+            .putLong(GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY, GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
+            .commit()
+
+        // 2. Inicializar Banco de Dados em Memória
+        db = Room.inMemoryDatabaseBuilder(context, DataBase::class.java)
+            .allowMainThreadQueries()
+            .build()
+        DataBase.setTestingInstance(db)
+
+        InstrumentationRegistry.getInstrumentation().uiAutomation.executeShellCommand("appops set ${context.packageName} MANAGE_EXTERNAL_STORAGE allow")
+
+        // 3. Criar Biblioteca Mock
+        val libraryId = GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
+        val mockPath = File(context.cacheDir, "mock_mangas")
+        if (!mockPath.exists()) mockPath.mkdirs()
+
+        val library = Library(
+            id = libraryId,
+            title = "Manga Test Library",
+            path = mockPath.absolutePath,
+            language = Libraries.JAPANESE,
+            type = Type.MANGA
+        )
+        db.getLibrariesDao().save(library)
+
+        // 4. Popular com Mangás (Copiando do asset manga.zip)
+        for (i in 1..5) {
+            val name = "manga %02d".format(i)
+            val file = File(mockPath, "$name.cbz")
+
+            InstrumentationRegistry.getInstrumentation().context.assets.open("manga.zip").use { input ->
+                FileOutputStream(file).use { output ->
+                    input.copyTo(output)
+                }
+            }
+
+            val manga = Manga(
+                id = i.toLong(),
+                title = name,
+                path = file.path,
+                folder = file.parent ?: "",
+                name = file.name,
+                fileSize = file.length(),
+                fileType = FileType.UNKNOWN,
+                pages = 10,
+                chapters = intArrayOf(1),
+                chaptersPages = mapOf(0 to "0"),
+                bookMark = 0,
+                completed = false,
+                favorite = (i == 3), // Um favorito para o teste
+                author = if (i == 3) "Fenix" else "Author $i",
+                fkLibrary = libraryId,
+                dateCreate = LocalDateTime.now().minusDays(i.toLong()),
+                fileAlteration = Date(file.lastModified()),
+                hasSubtitle = false,
+                series = "",
+                genre = "",
+                publisher = "",
+                volume = "",
+                release = null,
+                excluded = false,
+                lastAccess = null,
+                lastAlteration = null,
+                lastVocabImport = null,
+                lastVerify = null
+            )
+            db.getMangaDao().save(manga)
+        }
+    }
+
+    @After
+    fun tearDown() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val mockPath = File(context.cacheDir, "mock_mangas")
+        if (mockPath.exists()) mockPath.deleteRecursively()
+        db.close()
+        DataBase.setTestingInstance(null)
+    }
 
     private fun waitForView(matcher: Matcher<View>, timeout: Long = 5000): ViewInteraction {
         val startTime = System.currentTimeMillis()

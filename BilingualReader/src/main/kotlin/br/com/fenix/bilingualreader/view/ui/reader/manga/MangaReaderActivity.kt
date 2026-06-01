@@ -45,10 +45,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
+import android.graphics.drawable.GradientDrawable
+import android.view.ViewGroup
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.ViewModelProvider
@@ -543,6 +548,10 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             }
         } else
             mFragment = supportFragmentManager.findFragmentById(R.id.root_frame_manga_reader) as MangaReaderFragment?
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        setupPopupBackgrounds()
+        setupBottomSheetInsets()
     }
 
     private fun initialize(manga: Manga?) {
@@ -813,6 +822,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     private var mLastFloatingButtons = false
     override fun onResume() {
         super.onResume()
+        setupPopupBackgrounds()
         if (mLastFloatingWindowOcr)
             openFloatingOcr()
 
@@ -1507,6 +1517,63 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
     override fun setCurrentPage(page: Int) {
         mFragment?.setCurrentPage(page)
+    }
+
+    private fun setupPopupBackgrounds() {
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.READER.READER_GLASSMORPHISM, false)
+        val themeColor = getColorFromAttr(R.attr.colorSurfaceVariant)
+        val finalColor = if (isGlass) {
+            (themeColor and 0x00FFFFFF) or (0xD9 shl 24) // 85% opacity
+        } else {
+            themeColor
+        }
+
+        val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics)
+
+        // Portrait Bottom Sheets: round top corners
+        val bottomSheetBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(finalColor)
+            cornerRadii = floatArrayOf(
+                cornerRadius, cornerRadius,
+                cornerRadius, cornerRadius,
+                0f, 0f,
+                0f, 0f
+            )
+        }
+        mMenuPopupTranslateBottom?.background = bottomSheetBg
+        mMenuPopupConfigurationsBottom?.background = bottomSheetBg
+
+        // Landscape Side Sheets: round top-left and bottom-left corners (since they slide from right/end)
+        val sideSheetBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(finalColor)
+            cornerRadii = floatArrayOf(
+                cornerRadius, cornerRadius, // top-left
+                0f, 0f, // top-right
+                0f, 0f, // bottom-right
+                cornerRadius, cornerRadius  // bottom-left
+            )
+        }
+        mMenuPopupTranslateLeft?.background = sideSheetBg
+        mMenuPopupConfigurationsLeft?.background = sideSheetBg
+    }
+
+    private fun setupBottomSheetInsets() {
+        mMenuPopupTranslateBottom?.let { bottomSheet ->
+            ViewCompat.setOnApplyWindowInsetsListener(bottomSheet) { view, insets ->
+                val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+                view.setPadding(view.paddingLeft, view.paddingTop, view.paddingRight, navBarHeight)
+                insets
+            }
+        }
+        mMenuPopupConfigurationsBottom?.let { bottomSheet ->
+            ViewCompat.setOnApplyWindowInsetsListener(bottomSheet) { view, insets ->
+                val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+                view.setPadding(view.paddingLeft, view.paddingTop, view.paddingRight, navBarHeight)
+                insets
+            }
+        }
     }
 
 }

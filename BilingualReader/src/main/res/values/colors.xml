@@ -28,7 +28,7 @@
     <color name="chapter_page_semitransparent">#CE212121</color>
     <color name="main_header_background_top">#000000</color>
 
-    <color name="reader_buttons">#FFFFFFFF</color>
+    <color name="reader_buttons">#1C1B1B</color>
     <color name="reader_semi_transparent">#DD000000</color>
 
     <color name="reader_background_start">#FF000000</color>
@@ -86,7 +86,7 @@
     <color name="overlay_semi_transparent">#333333AA</color>
 
     <color name="manga_reader_detailTextInverse">#ffffff</color>
-    <color name="manga_reader_readerTextTitleColor">#ffffff</color>
+    <color name="manga_reader_readerTextTitleColor">#1C1B1B</color>
 
     <color name="manga_reader_fileLinkedBackground">#212121</color>
 

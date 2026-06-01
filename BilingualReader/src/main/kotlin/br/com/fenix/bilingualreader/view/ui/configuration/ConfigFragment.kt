@@ -92,6 +92,7 @@ class ConfigFragment : Fragment() {
     private lateinit var mConfigSystemThemeMode: TextInputLayout
     private lateinit var mConfigSystemThemeModeAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mConfigSystemThemes: TwoWayView
+    private lateinit var mConfigSystemGlassmorphism: SwitchMaterial
 
     private lateinit var mConfigSystemFormatDate: TextInputLayout
     private lateinit var mConfigSystemFormatDateAutoComplete: MaterialAutoCompleteTextView
@@ -259,6 +260,7 @@ class ConfigFragment : Fragment() {
         mMangaShowClockAndBattery = view.findViewById(R.id.config_manga_switch_show_clock_and_battery)
         mMangaUseMagnifierType = view.findViewById(R.id.config_manga_switch_use_magnifier_type)
         mMangaKeepZoomBetweenPages = view.findViewById(R.id.config_manga_switch_keep_zoom_between_pages)
+        mConfigSystemGlassmorphism = view.findViewById(R.id.config_system_switch_glassmorphism)
 
         mConfigSystemFormatDate = view.findViewById(R.id.config_system_format_date)
         mConfigSystemFormatDateAutoComplete = view.findViewById(R.id.config_system_menu_autocomplete_format_date)
@@ -954,6 +956,11 @@ class ConfigFragment : Fragment() {
             )
 
             this.putBoolean(
+                GeneralConsts.KEYS.READER.READER_GLASSMORPHISM,
+                mConfigSystemGlassmorphism.isChecked
+            )
+
+            this.putBoolean(
                 GeneralConsts.KEYS.PAGE_LINK.USE_DUAL_PAGE_CALCULATE,
                 mMangaUseDualPageCalculate.isChecked
             )
@@ -1144,6 +1151,10 @@ class ConfigFragment : Fragment() {
         )
         mMangaKeepZoomBetweenPages.isChecked = sharedPreferences.getBoolean(
             GeneralConsts.KEYS.READER.MANGA_KEEP_ZOOM_BETWEEN_PAGES,
+            false
+        )
+        mConfigSystemGlassmorphism.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.READER.READER_GLASSMORPHISM,
             false
         )
         mMangaUseDualPageCalculate.isChecked = sharedPreferences.getBoolean(

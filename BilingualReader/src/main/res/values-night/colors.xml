@@ -27,4 +27,7 @@
 
     <color name="manga_reader_fileLinkedBackground">#212121</color>
 
+    <color name="manga_reader_readerTextTitleColor">#FFFFFF</color>
+    <color name="reader_buttons">#FFFFFF</color>
+
 </resources>

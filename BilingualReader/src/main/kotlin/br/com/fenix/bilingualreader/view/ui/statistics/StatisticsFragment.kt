@@ -35,6 +35,7 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
 import java.math.RoundingMode
@@ -168,7 +169,12 @@ class StatisticsFragment : Fragment() {
 
         val background = requireActivity().window.decorView.background
 
-        mProgress.setupWith(mRoot, RenderScriptBlur(requireContext()))
+        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            RenderEffectBlur()
+        } else {
+            RenderScriptBlur(requireContext())
+        }
+        mProgress.setupWith(mRoot, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(10F)
         mLoading.value = true

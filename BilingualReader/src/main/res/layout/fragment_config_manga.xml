@@ -239,6 +239,8 @@
             android:layout_height="wrap_content"
             android:text="@string/config_manga_reading_keep_zoom_between_pages" />
 
+
+
         <com.google.android.material.divider.MaterialDivider
             style="@style/MaterialDivider"
             android:layout_width="match_parent"

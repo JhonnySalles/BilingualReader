@@ -132,6 +132,7 @@
     <string name="config_manga_reading_show_clock_and_battery">Mostrar o relógio e o percentual bateria?</string>
     <string name="config_manga_reading_use_magnifier_type">Utiliza o zoom em modo de lupa?</string>
     <string name="config_manga_reading_keep_zoom_between_pages">Manter o zoom entre as páginas?</string>
+    <string name="config_reader_glassmorphism">Usar glassmorphism (desfoque translúcido) no leitor?</string>
 
     <string name="config_system_language">Linguagem do sistema</string>
     <string name="config_system_format_date">Formato de data</string>

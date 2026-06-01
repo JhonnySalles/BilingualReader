@@ -8,7 +8,7 @@
         style="@style/AppBackground.Reader"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
+        android:fitsSystemWindows="false"
         tools:context=".view.ui.reader.manga.MangaReaderActivity">
 
         <FrameLayout
