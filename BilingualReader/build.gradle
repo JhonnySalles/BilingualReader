@@ -5,6 +5,7 @@ plugins {
     id 'kotlin-parcelize'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.appdistribution'
+    id 'com.google.firebase.crashlytics'
 }
 
 def secrets = file("src/main/assets/secrets.properties")
@@ -42,12 +43,10 @@ android {
             manifestPlaceholders["sentryAutoInit"] = "true"
         }
         debug {
-            minifyEnabled false
+            minifyEnabled true
             testCoverageEnabled true
-            manifestPlaceholders["crashlyticsEnabled"] = "false"
-            manifestPlaceholders["sentryAutoInit"] = "false"
-            // Stub for mapping file id to prevent IllegalStateException in CrashlyticsCore
-            manifestPlaceholders["com.google.firebase.crashlytics.mapping_file_id"] = "none"
+            manifestPlaceholders["crashlyticsEnabled"] = "true"
+            manifestPlaceholders["sentryAutoInit"] = "true"
             firebaseAppDistribution {
                 serviceCredentialsFile="./app-distribution.json"
                 releaseNotes="BilingualReader App"

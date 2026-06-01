@@ -13,9 +13,8 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -84,10 +83,7 @@ class MangaImageCoverController private constructor() {
             image.writeBytes(byte)
         } catch (e: Exception) {
             mLOGGER.error("Error save bitmap to cache: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error save bitmap to cache: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error save bitmap to cache: " + e.message)
         }
     }
 
@@ -105,10 +101,7 @@ class MangaImageCoverController private constructor() {
             }
         } catch (e: Exception) {
             mLOGGER.error("Error retrieve bitmap from cache: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error retrieve bitmap from cache: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error retrieve bitmap from cache: " + e.message)
         }
         return null
     }
@@ -202,18 +195,12 @@ class MangaImageCoverController private constructor() {
                 mLOGGER.error("Memory full, cleaning", m)
             } catch (m: IOException) {
                 mLOGGER.error("Error to load image async: " + manga.name, m)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error to load image async: " + m.message)
-                    recordException(m)
-                }
+                Telemetry.recordException(m, "Error to load image async: " + m.message)
             } catch (e: FileNotFoundException) {
                 mLOGGER.error("File not found. Error to load image async: " + manga.name, e)
             } catch (e: Exception) {
                 mLOGGER.error("Error to load image async: " + manga.name, e)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error to load image async: " + e.message)
-                    recordException(e)
-                }
+                Telemetry.recordException(e, "Error to load image async: " + e.message)
             }
         }
     }
