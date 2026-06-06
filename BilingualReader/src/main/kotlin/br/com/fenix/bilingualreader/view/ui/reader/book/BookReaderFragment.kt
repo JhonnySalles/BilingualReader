@@ -35,6 +35,8 @@ import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.view.animation.AnticipateOvershootInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -1134,30 +1136,38 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         val initialTranslation = if (isFullScreen) 0f else -50f
         val finalTranslation = if (isFullScreen) -50f else 0f
 
+        val targetTop = mBlurTop ?: mToolbarTop
+        val targetBottom = mBlurBottom ?: mToolbarBottom
+
         applyGlassmorphism()
 
         if (!isFullScreen) {
-            mToolbarBottom.visibility = View.VISIBLE
-            mToolbarBottom.translationY = initialTranslation * -1
-            mToolbarBottom.alpha = initialAlpha
-            mToolbarTop.visibility = View.VISIBLE
-            mToolbarTop.translationY = initialTranslation
-            mToolbarTop.alpha = initialAlpha
+            targetTop.visibility = View.VISIBLE
+            targetTop.translationY = initialTranslation
+            targetTop.alpha = initialAlpha
+
+            targetBottom.visibility = View.VISIBLE
+            targetBottom.translationY = initialTranslation * -1
+            targetBottom.alpha = initialAlpha
         }
 
-        mToolbarBottom.animate().alpha(1.0f).translationY(0f)
-            .setDuration(ANIMATION_DURATION).setListener(object : AnimatorListenerAdapter() {
+        val interpolator = if (isFullScreen) AccelerateInterpolator(2.0f) else DecelerateInterpolator(2.0f)
+
+        targetTop.animate().alpha(finalAlpha).translationY(finalTranslation)
+            .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
+            .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
-                    mToolbarBottom.visibility = View.VISIBLE
+                    targetTop.visibility = visibility
                 }
             })
 
-        mToolbarTop.animate().alpha(finalAlpha).translationY(finalTranslation)
-            .setDuration(ANIMATION_DURATION).setListener(object : AnimatorListenerAdapter() {
+        targetBottom.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
+            .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
+            .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
-                    mToolbarTop.visibility = visibility
+                    targetBottom.visibility = visibility
                 }
             })
     }
@@ -1885,8 +1895,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         val themeColor = context.getColorFromAttr(R.attr.colorSurface)
 
         val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-        mBlurTop?.setBlurEnabled(if (mIsFullscreen) false else useBlur)
-        mBlurBottom?.setBlurEnabled(if (mIsFullscreen) false else useBlur)
+        mBlurTop?.setBlurEnabled(useBlur)
+        mBlurBottom?.setBlurEnabled(useBlur)
 
         val isNight = resources.getBoolean(R.bool.isNight)
         val alpha = if (isNight) 0xD9 else 0x73 // 85% opacity for dark theme, 45% opacity for light theme
@@ -1897,7 +1907,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             shape = GradientDrawable.RECTANGLE
             setColor(translucentColor)
         }
-        mBlurTop?.background = if (mIsFullscreen) null else topBg
+        mBlurTop?.background = topBg
         mToolbarTop.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
 
         // Bottom Toolbar: flat straight line, translucent solid color
@@ -1905,16 +1915,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             shape = GradientDrawable.RECTANGLE
             setColor(translucentColor)
         }
-        mBlurBottom?.background = if (mIsFullscreen) null else bottomBg
+        mBlurBottom?.background = bottomBg
         mToolbarBottom.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
 
-        if (mIsFullscreen) {
-            mBlurTop?.visibility = View.GONE
-            mBlurBottom?.visibility = View.GONE
-        } else {
-            mBlurTop?.visibility = View.VISIBLE
-            mBlurBottom?.visibility = View.VISIBLE
-
+        if (!mIsFullscreen) {
             val window = requireActivity().window
             window.statusBarColor = android.graphics.Color.TRANSPARENT
             window.navigationBarColor = android.graphics.Color.TRANSPARENT

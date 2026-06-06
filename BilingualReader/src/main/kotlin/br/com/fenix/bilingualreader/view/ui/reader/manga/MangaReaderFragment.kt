@@ -35,6 +35,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.view.animation.AnticipateOvershootInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageButton
@@ -1600,51 +1602,67 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         val initialTranslation = if (isFullScreen) 0f else -50f
         val finalTranslation = if (isFullScreen) -50f else 0f
 
+        val targetTop = mBlurTop ?: mToolbarTop
+        val targetBottom = mBlurBottom ?: mToolbarBottom
+        val targetProgress = mBlurProgress ?: mPageNavLayout
         val prevTarget = mBlurNavPrevious ?: mPreviousButton
         val nextTarget = mBlurNavNext ?: mNextButton
 
+        applyGlassmorphism()
+
         if (!isFullScreen) {
-            mPageNavLayout.visibility = visibility
-            mToolbarBottom.visibility = visibility
-            mToolbarTop.visibility = visibility
-            nextTarget.visibility = visibility
-            prevTarget.visibility = visibility
+            targetTop.visibility = View.VISIBLE
+            targetTop.translationY = initialTranslation
+            targetTop.alpha = initialAlpha
 
-            mPageNavLayout.alpha = initialAlpha
-            mToolbarTop.alpha = initialAlpha
-            mToolbarBottom.alpha = initialAlpha
+            targetBottom.visibility = View.VISIBLE
+            targetBottom.translationY = (initialTranslation * -1)
+            targetBottom.alpha = initialAlpha
+
+            targetProgress.visibility = View.VISIBLE
+            targetProgress.translationY = (initialTranslation * -1)
+            targetProgress.alpha = initialAlpha
+
+            nextTarget.visibility = View.VISIBLE
+            nextTarget.translationY = (initialTranslation * -1)
             nextTarget.alpha = initialAlpha
-            prevTarget.alpha = initialAlpha
 
-            mToolbarTop.translationY = initialTranslation
-            mToolbarBottom.translationY = (initialTranslation * -1)
+            prevTarget.visibility = View.VISIBLE
+            prevTarget.translationY = (initialTranslation * -1)
+            prevTarget.alpha = initialAlpha
         }
 
-        mPageNavLayout.animate().alpha(finalAlpha).setDuration(ANIMATION_DURATION)
+        val interpolator = if (isFullScreen) AccelerateInterpolator(2.0f) else DecelerateInterpolator(2.0f)
+
+        targetTop.animate().alpha(finalAlpha).translationY(finalTranslation)
+            .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
-                    mPageNavLayout.visibility = visibility
+                    targetTop.visibility = visibility
                 }
             })
 
-        mToolbarBottom.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
-            .setDuration(ANIMATION_DURATION).setListener(object : AnimatorListenerAdapter() {
+        targetBottom.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
+            .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
+            .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
-                    mToolbarBottom.visibility = visibility
+                    targetBottom.visibility = visibility
                 }
             })
 
-        mToolbarTop.animate().alpha(finalAlpha).translationY(finalTranslation)
-            .setDuration(ANIMATION_DURATION).setListener(object : AnimatorListenerAdapter() {
+        targetProgress.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
+            .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
+            .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
-                    mToolbarTop.visibility = visibility
+                    targetProgress.visibility = visibility
                 }
             })
 
-        nextTarget.animate().alpha(finalAlpha).setDuration(ANIMATION_DURATION)
+        nextTarget.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
+            .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
@@ -1652,7 +1670,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 }
             })
 
-        prevTarget.animate().alpha(finalAlpha).setDuration(ANIMATION_DURATION)
+        prevTarget.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
+            .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)

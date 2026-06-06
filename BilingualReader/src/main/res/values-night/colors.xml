@@ -29,5 +29,6 @@
 
     <color name="manga_reader_readerTextTitleColor">#FFFFFF</color>
     <color name="reader_buttons">#FFFFFF</color>
+    <color name="reader_buttons_inverse">#000000</color>
 
 </resources>
