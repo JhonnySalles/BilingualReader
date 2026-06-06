@@ -41,9 +41,15 @@ class BookLineCardAdapter : RecyclerView.Adapter<BookLineViewHolder>(), BaseAdap
     }
 
     override fun removeList(book: Book) {
-        if (mMangaList.contains(book))
-            notifyItemRemoved(mMangaList.indexOf(book))
-        mMangaList.remove(book)
+        val index = mMangaList.indexOf(book)
+        if (index != -1) {
+            mMangaList.removeAt(index)
+            notifyItemRemoved(index)
+        }
+    }
+
+    override fun getItem(position: Int): Book? {
+        return mMangaList.getOrNull(position)
     }
 
     override fun updateList(order: Order, list: MutableList<Book>) {

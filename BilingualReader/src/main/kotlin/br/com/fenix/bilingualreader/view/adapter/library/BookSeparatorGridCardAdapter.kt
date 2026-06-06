@@ -88,9 +88,16 @@ class BookSeparatorGridCardAdapter(var context: Context, var type: LibraryBookTy
     }
 
     override fun removeList(book: Book) {
-        if (mBookList.contains(book))
-            notifyItemRemoved(mBookList.indexOf(book))
-        mBookList.remove(book)
+        val index = mBookList.indexOf(book)
+        if (index != -1) {
+            (mBookList as MutableList<Any>).removeAt(index)
+            notifyItemRemoved(index)
+        }
+    }
+
+    override fun getItem(position: Int): Book? {
+        val item = mBookList.getOrNull(position)
+        return if (item is Book) item else null
     }
 
     private fun getSeparator(order: Order, book: Book) : Separator {

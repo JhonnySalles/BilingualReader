@@ -40,9 +40,15 @@ class MangaGridCardAdapter(var type: LibraryMangaType) : RecyclerView.Adapter<Ma
     }
 
     override fun removeList(manga: Manga) {
-        if (mMangaList.contains(manga))
-            notifyItemRemoved(mMangaList.indexOf(manga))
-        mMangaList.remove(manga)
+        val index = mMangaList.indexOf(manga)
+        if (index != -1) {
+            mMangaList.removeAt(index)
+            notifyItemRemoved(index)
+        }
+    }
+
+    override fun getItem(position: Int): Manga? {
+        return mMangaList.getOrNull(position)
     }
 
     override fun updateList(order: Order, list: MutableList<Manga>) {

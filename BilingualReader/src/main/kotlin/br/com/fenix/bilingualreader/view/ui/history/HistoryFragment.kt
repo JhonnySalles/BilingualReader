@@ -287,28 +287,41 @@ class HistoryFragment : Fragment() {
                 return false
             }
 
+            override fun getSwipeDirs(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
+                if (viewHolder.itemViewType == 1) { // 1 is HEADER in HistoryCardAdapter
+                    return 0
+                }
+                return super.getSwipeDirs(recyclerView, viewHolder)
+            }
+
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val history = mViewModel.getAndRemove(viewHolder.bindingAdapterPosition) ?: return
                 val position = viewHolder.bindingAdapterPosition
-                var excluded = false
-                val dialog: AlertDialog =
-                    MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
-                        .setTitle(getString(R.string.manga_library_menu_delete))
-                        .setMessage(getString(R.string.history_delete_description) + "\n" + history.name)
-                        .setPositiveButton(
-                            R.string.action_delete
-                        ) { _, _ ->
-                            mViewModel.deletePermanent(history)
-                            mRecyclerView.adapter?.notifyItemRemoved(position)
-                            excluded = true
-                        }.setOnDismissListener {
-                            if (!excluded) {
-                                mViewModel.add(history, position)
-                                mRecyclerView.adapter?.notifyItemChanged(position)
+                if (position == RecyclerView.NO_POSITION) return
+                val adapter = mRecyclerView.adapter as? HistoryCardAdapter ?: return
+                val history = adapter.getItem(position) ?: return
+                mRecyclerView.post {
+                    mViewModel.remove(history)
+                    mRecyclerView.adapter?.notifyItemRemoved(position)
+                    
+                    var excluded = false
+                    val dialog: AlertDialog =
+                        MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+                            .setTitle(getString(R.string.manga_library_menu_delete))
+                            .setMessage(getString(R.string.history_delete_description) + "\n" + history.name)
+                            .setPositiveButton(
+                                R.string.action_delete
+                            ) { _, _ ->
+                                mViewModel.deletePermanent(history)
+                                excluded = true
+                            }.setOnDismissListener {
+                                if (!excluded) {
+                                    mViewModel.add(history, position)
+                                    mRecyclerView.adapter?.notifyItemInserted(position)
+                                }
                             }
-                        }
-                        .create()
-                dialog.show()
+                            .create()
+                    dialog.show()
+                }
             }
         }
 

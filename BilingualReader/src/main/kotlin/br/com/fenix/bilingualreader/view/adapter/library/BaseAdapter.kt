@@ -5,7 +5,8 @@ import br.com.fenix.bilingualreader.service.listener.BaseCardListener
 
 interface BaseAdapter<T, L : BaseCardListener> {
     abstract var isAnimation: Boolean
-    fun removeList(item: T);
+    fun removeList(item: T)
     fun updateList(order: Order, list: MutableList<T>)
     fun attachListener(listener: L)
+    fun getItem(position: Int): T?
 }

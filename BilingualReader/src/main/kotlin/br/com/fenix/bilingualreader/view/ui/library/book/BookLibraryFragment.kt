@@ -1114,10 +1114,23 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             return false
         }
 
+        override fun getSwipeDirs(recyclerView: RecyclerView, viewHolder: ViewHolder): Int {
+            if (viewHolder.itemViewType == 1) { // 1 is HEADER in separator adapters
+                return 0
+            }
+            return super.getSwipeDirs(recyclerView, viewHolder)
+        }
+
         override fun onSwiped(viewHolder: ViewHolder, direction: Int) {
-            val book = mViewModel.getAndRemove(viewHolder.bindingAdapterPosition) ?: return
             val position = viewHolder.bindingAdapterPosition
-            deleteBook(book, position)
+            if (position == RecyclerView.NO_POSITION) return
+            val adapter = mRecyclerView.adapter as? BaseAdapter<Book, *> ?: return
+            val book = adapter.getItem(position) ?: return
+            mRecyclerView.post {
+                mViewModel.remove(book)
+                mRecyclerView.adapter?.notifyItemRemoved(position)
+                deleteBook(book, position, swiped = true)
+            }
         }
 
         override fun onSelectedChanged(viewHolder: ViewHolder?, actionState: Int) {
@@ -1129,28 +1142,32 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         }
     }
 
-    private fun deleteBook(book: Book, position: Int) {
+    private fun deleteBook(book: Book, position: Int, swiped: Boolean = false) {
         var excluded = false
         val dialog: AlertDialog = MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(getString(R.string.book_library_menu_delete))
                 .setMessage(getString(R.string.book_library_menu_delete_description) + "\n" + book.file.name)
                 .setPositiveButton(R.string.action_delete) { _, _ ->
-                    deleteFile(book)
+                    deleteFile(book, swiped)
                     excluded = true
                 }.setOnDismissListener {
-                    if (!excluded) {
+                    if (!excluded && swiped) {
                         mViewModel.add(book, position)
-                        notifyDataSet(position)
+                        mRecyclerView.adapter?.notifyItemInserted(position)
                     }
                 }
                 .create()
         dialog.show()
     }
 
-    private fun deleteFile(book: Book?) {
+    private fun deleteFile(book: Book?, swiped: Boolean = false) {
         if (book?.file != null) {
-            removeList(book)
-            mViewModel.delete(book)
+            if (!swiped) {
+                removeList(book)
+                mViewModel.delete(book)
+            } else {
+                mViewModel.delete(book)
+            }
             if (book.file.exists()) {
                 val isDeleted = book.file.delete()
                 mLOGGER.info("File deleted ${book.name}: $isDeleted")
