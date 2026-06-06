@@ -67,6 +67,8 @@ import br.com.fenix.bilingualreader.model.enums.Filter
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
+import br.com.fenix.bilingualreader.model.enums.ThemeMode
+import androidx.appcompat.app.AppCompatDelegate
 import br.com.fenix.bilingualreader.model.enums.Position
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.TouchScreen
@@ -1061,6 +1063,22 @@ class MenuUtil {
 
 class ThemeUtil {
     companion object ThemeUtils {
+
+        fun applyThemeMode(context: Context): Boolean {
+            val preferences = GeneralConsts.getSharedPreferences(context)
+            val themeMode = ThemeMode.valueOf(preferences.getString(GeneralConsts.KEYS.THEME.THEME_MODE, ThemeMode.SYSTEM.toString())!!)
+            val mode = when (themeMode) {
+                ThemeMode.DARK -> AppCompatDelegate.MODE_NIGHT_YES
+                ThemeMode.LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
+                ThemeMode.SYSTEM -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            }
+            AppCompatDelegate.setDefaultNightMode(mode)
+            return when (themeMode) {
+                ThemeMode.DARK -> true
+                ThemeMode.LIGHT -> false
+                ThemeMode.SYSTEM -> context.resources.getBoolean(R.bool.isNight)
+            }
+        }
 
         private var mapThemes: HashMap<String, Themes>? = null
         fun getThemes(context: Context): HashMap<String, Themes> {

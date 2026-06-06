@@ -25,6 +25,7 @@ class MenuActivity : AppCompatActivity() {
     private lateinit var mTheme : Themes
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeUtil.applyThemeMode(this)
         mTheme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(mTheme.getValue())
 

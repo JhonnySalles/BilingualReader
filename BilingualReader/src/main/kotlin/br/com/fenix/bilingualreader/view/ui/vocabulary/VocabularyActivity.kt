@@ -34,6 +34,7 @@ class VocabularyActivity : AppCompatActivity() {
     private lateinit var mBackgroundImage: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeUtil.applyThemeMode(this)
         val theme = Themes.valueOf(
             GeneralConsts.getSharedPreferences(this)
                 .getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!

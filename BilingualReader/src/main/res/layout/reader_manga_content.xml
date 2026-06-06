@@ -217,7 +217,7 @@
                     android:padding="0dp"
                     android:minHeight="@dimen/popup_reader_button_min_height"
                     app:iconSize="30dp"
-                    app:icon="@drawable/ico_animated_chapters" />
+                    app:icon="@drawable/ico_animated_chapters"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/reader_manga_btn_menu_annotations"

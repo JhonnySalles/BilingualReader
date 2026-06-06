@@ -97,18 +97,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mMangaLibraryModel.isLaunch && mBookLibraryModel.isLaunch
         }
 
-        val isDark : Boolean = when (ThemeMode.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_MODE, ThemeMode.SYSTEM.toString())!!)) {
-            ThemeMode.DARK -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                true
-            }
-
-            ThemeMode.LIGHT -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                false
-            }
-            else -> resources.getBoolean(R.bool.isNight)
-        }
+        val isDark = ThemeUtil.applyThemeMode(this)
 
         val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(theme.getValue())
@@ -406,6 +395,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onResume() {
         super.onResume()
+        ThemeUtil.applyThemeMode(this)
+        val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
+        setTheme(theme.getValue())
+        applyGlassmorphism()
+    }
+
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        ThemeUtil.applyThemeMode(this)
+        val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
+        setTheme(theme.getValue())
+        super.onConfigurationChanged(newConfig)
         applyGlassmorphism()
     }
 
@@ -463,7 +463,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mBlurTop?.setBlurEnabled(useBlur)
 
         val themeColor = getColorFromAttr(R.attr.colorSurface)
-        val isNight = resources.getBoolean(R.bool.isNight)
+        val isNight = ThemeUtil.applyThemeMode(this)
         val alpha = if (isNight) 0xD9 else 0x73 // 85% opacity for dark theme, 45% for light theme
         val translucentColor = ((themeColor and 0x00FFFFFF) or (alpha shl 24)).toInt()
         val solidColor = ((themeColor and 0x00FFFFFF) or (0xFF shl 24)).toInt()
