@@ -17,12 +17,12 @@
                 <path
                     android:name="chapters_marker"
                     android:pathData="M 34.639 10.681 L 34.639 12.268 C 34.639 12.415 34.758 12.534 34.901 12.534 L 36.226 12.534 Z"
-                    android:fillColor="?attr/colorSecondary"
+                    android:fillColor="@color/reader_buttons"
                     android:fillType="evenOdd"/>
                 <path
                     android:name="chapters_page"
                     android:pathData="M 34.374 10.681 L 31.731 10.681 C 31.437 10.681 31.199 10.919 31.199 11.213 L 31.199 17.294 C 31.199 17.587 31.435 17.825 31.728 17.825 L 35.698 17.825 C 35.99 17.825 36.226 17.59 36.226 17.297 L 36.226 12.798 L 34.905 12.798 C 34.612 12.798 34.374 12.564 34.374 12.27 Z"
-                    android:fillColor="?attr/colorSecondary"/>
+                    android:fillColor="@color/reader_buttons"/>
                 <group
                     android:name="chapters_point_animation_1"
                     android:pivotX="32.3"
@@ -30,11 +30,11 @@
                     <path
                         android:name="chapters_point_1"
                         android:pathData="M 31.993 13.327 L 31.993 14.121 L 32.787 14.121 L 32.787 13.327 Z"
-                        android:fillColor="?attr/colorPrimary"/>
+                        android:fillColor="?attr/colorSecondary"/>
                     <path
                         android:name="chapters_check_1"
                         android:pathData="M 32.258 13.592 L 32.258 13.856 L 32.522 13.856 L 32.522 13.592 Z"
-                        android:fillColor="?attr/colorSecondary"/>
+                        android:fillColor="@color/reader_buttons"/>
                 </group>
                 <group
                     android:name="chapters_point_animation_2"
@@ -43,11 +43,11 @@
                     <path
                         android:name="chapters_point_2"
                         android:pathData="M 31.993 14.65 L 31.993 15.444 L 32.787 15.444 L 32.787 14.65 Z"
-                        android:fillColor="?attr/colorPrimary"/>
+                        android:fillColor="?attr/colorSecondary"/>
                     <path
                         android:name="chapters_check_2"
                         android:pathData="M 32.258 14.915 L 32.258 15.179 L 32.522 15.179 L 32.522 14.915 Z"
-                        android:fillColor="?attr/colorSecondary"/>
+                        android:fillColor="@color/reader_buttons"/>
                 </group>
                 <group
                     android:name="chapters_point_animation_3"
@@ -56,11 +56,11 @@
                     <path
                         android:name="chapters_point_3"
                         android:pathData="M 31.993 15.973 L 31.993 16.767 L 32.787 16.767 L 32.787 15.973 Z"
-                        android:fillColor="?attr/colorPrimary"/>
+                        android:fillColor="?attr/colorSecondary"/>
                     <path
                         android:name="chapters_check_3"
                         android:pathData="M 32.258 16.238 L 32.258 16.502 L 32.522 16.502 L 32.522 16.238 Z"
-                        android:fillColor="?attr/colorSecondary"/>
+                        android:fillColor="@color/reader_buttons"/>
                 </group>
                 <group
                     android:name="chapters_line_animation_1"
@@ -68,7 +68,7 @@
                     <path
                         android:name="chapters_line_1"
                         android:pathData="M 33.316 13.592 L 33.316 13.856 L 35.433 13.856 L 35.433 13.592 Z"
-                        android:fillColor="?attr/colorPrimary"/>
+                        android:fillColor="?attr/colorSecondary"/>
                 </group>
                 <group
                     android:name="chapters_line_animation_2"
@@ -76,7 +76,8 @@
                     <path
                         android:name="chapters_line_2"
                         android:pathData="M 33.316 14.915 L 33.316 15.179 L 35.433 15.179 L 35.433 14.915 Z"
-                        android:fillColor="?attr/colorPrimary"/>
+                        android:fillColor="?attr/colorSecondary"
+                        />
                 </group>
                 <group
                     android:name="chapters_line_animation_3"
@@ -84,7 +85,7 @@
                     <path
                         android:name="chapters_line_3"
                         android:pathData="M 33.316 16.238 L 33.316 16.502 L 35.433 16.502 L 35.433 16.238 Z"
-                        android:fillColor="?attr/colorPrimary"/>
+                        android:fillColor="?attr/colorSecondary"/>
                 </group>
             </group>
         </vector>

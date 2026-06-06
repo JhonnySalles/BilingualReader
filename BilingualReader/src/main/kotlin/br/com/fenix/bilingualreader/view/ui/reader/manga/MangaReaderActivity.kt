@@ -93,6 +93,7 @@ import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.util.helpers.executeWithAnimation
 import br.com.fenix.bilingualreader.view.adapter.reader.MangaChaptersCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
@@ -221,31 +222,26 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
         val btnMenuFileLink = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_file_link)
         btnMenuFileLink.setOnClickListener {
-            (btnMenuFileLink.icon as AnimatedVectorDrawable).start()
-            openFileLink()
+            btnMenuFileLink.executeWithAnimation {
+                openFileLink()
+            }
         }
 
         val btnFloatingButtons = findViewById<MaterialButton>(R.id.reader_manga_btn_floating_buttons)
         btnFloatingButtons.setOnClickListener {
-            (btnFloatingButtons.icon as AnimatedVectorDrawable).start()
-            openFloatingButtons()
+            btnFloatingButtons.executeWithAnimation {
+                openFloatingButtons()
+            }
         }
 
         val btnRotate = findViewById<MaterialButton>(R.id.reader_manga_btn_screen_rotate)
         btnRotate.setOnClickListener {
-            (btnRotate.icon as AnimatedVectorDrawable).clearAnimationCallbacks()
-            (btnRotate.icon as AnimatedVectorDrawable).registerAnimationCallback(object :
-                Animatable2.AnimationCallback() {
-                override fun onAnimationEnd(drawable: Drawable?) {
-                    super.onAnimationEnd(drawable)
-                    requestedOrientation = if (requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-                            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                        else
-                            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                }
-            })
-            (btnRotate.icon as AnimatedVectorDrawable).reset()
-            (btnRotate.icon as AnimatedVectorDrawable).start()
+            btnRotate.executeWithAnimation {
+                requestedOrientation = if (requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+                        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    else
+                        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            }
         }
 
         btnRotate.setOnLongClickListener {
@@ -255,30 +251,24 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
         val buttonChapters = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_chapters)
         buttonChapters.setOnClickListener {
-            (buttonChapters.icon as AnimatedVectorDrawable).clearAnimationCallbacks()
-            (buttonChapters.icon as AnimatedVectorDrawable).registerAnimationCallback(object :
-                Animatable2.AnimationCallback() {
-                override fun onAnimationEnd(drawable: Drawable?) {
-                    super.onAnimationEnd(drawable)
-                    openChapters()
-                }
-            })
-            (buttonChapters.icon as AnimatedVectorDrawable).reset()
-            (buttonChapters.icon as AnimatedVectorDrawable).start()
+            buttonChapters.executeWithAnimation {
+                openChapters()
+            }
         }
 
         val buttonOcr = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_ocr)
         buttonOcr?.setOnClickListener {
-            (buttonOcr.icon as AnimatedVectorDrawable).reset()
-            (buttonOcr.icon as AnimatedVectorDrawable).start()
-            showMenuFromButton(buttonOcr, it)
+            buttonOcr.executeWithAnimation {
+                showMenuFromButton(buttonOcr, buttonOcr)
+            }
         }
 
         val btnMenuPage = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_page_linked)
         btnMenuPage.setOnClickListener {
             btnMenuPage.setIconResource(if (mSubtitleController.isDrawing()) R.drawable.ico_animated_page_linked_remove else R.drawable.ico_animated_page_linked_insert)
-            (btnMenuPage.icon as AnimatedVectorDrawable).start()
-            mSubtitleController.drawPageLinked()
+            btnMenuPage.executeWithAnimation {
+                mSubtitleController.drawPageLinked()
+            }
         }
 
         mLibrary = LibraryUtil.getDefault(this, Type.MANGA)
@@ -287,12 +277,14 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         val next = findViewById<MaterialButton>(R.id.reader_manga_nav_next_file)
 
         previous.setOnClickListener {
-            (previous.icon as AnimatedVectorDrawable).start()
-            switchManga(false)
+            previous.executeWithAnimation {
+                switchManga(false)
+            }
         }
         next.setOnClickListener {
-            (next.icon as AnimatedVectorDrawable).start()
-            switchManga(true)
+            next.executeWithAnimation {
+                switchManga(true)
+            }
         }
 
         mToolBar.setOnClickListener { dialogPageIndex() }
@@ -457,30 +449,23 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             if (index >= 0)
                 mPopupConfigurationsTab.selectTab(mPopupConfigurationsTab.getTabAt(index), true)
 
-            (buttonAnnotations.icon as AnimatedVectorDrawable).clearAnimationCallbacks()
-            (buttonAnnotations.icon as AnimatedVectorDrawable).registerAnimationCallback(object :
-                Animatable2.AnimationCallback() {
-                override fun onAnimationEnd(drawable: Drawable?) {
-                    super.onAnimationEnd(drawable)
-                    val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationsBottom else mMenuPopupConfigurationsLeft
-                    val isOpened = layout!!.isVisible
+            buttonAnnotations.executeWithAnimation {
+                val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationsBottom else mMenuPopupConfigurationsLeft
+                val isOpened = layout!!.isVisible
 
-                    if (mMenuPopupBottomSheet)
-                        mMenuPopupTranslateBottom!!.visibility = View.GONE
-                    else
-                        mMenuPopupConfigurationsLeft!!.visibility = View.GONE
+                if (mMenuPopupBottomSheet)
+                    mMenuPopupTranslateBottom!!.visibility = View.GONE
+                else
+                    mMenuPopupConfigurationsLeft!!.visibility = View.GONE
 
-                    if (mMenuPopupBottomSheet)
-                        mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_EXPANDED
-                    else
-                        mLeftSheetConfigurations.state = SideSheetBehavior.STATE_EXPANDED
+                if (mMenuPopupBottomSheet)
+                    mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_EXPANDED
+                else
+                    mLeftSheetConfigurations.state = SideSheetBehavior.STATE_EXPANDED
 
-                    if (!isOpened)
-                        AnimationUtil.animatePopupOpen(this@MangaReaderActivity, layout, mMenuPopupBottomSheet, navigationColor = false)
-                }
-            })
-            (buttonAnnotations.icon as AnimatedVectorDrawable).reset()
-            (buttonAnnotations.icon as AnimatedVectorDrawable).start()
+                if (!isOpened)
+                    AnimationUtil.animatePopupOpen(this@MangaReaderActivity, layout, mMenuPopupBottomSheet, navigationColor = false)
+            }
         }
 
         mRepository = MangaRepository(applicationContext)

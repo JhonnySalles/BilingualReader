@@ -1515,7 +1515,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                         it.hide(WindowInsetsCompat.Type.systemBars())
                         it.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                     }
-                    WindowCompat.setDecorFitsSystemWindows(window, true)
+                    WindowCompat.setDecorFitsSystemWindows(window, false)
                 } else {
                     getActionBar()?.hide()
                     @Suppress("DEPRECATION")

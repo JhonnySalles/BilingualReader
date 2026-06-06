@@ -81,6 +81,7 @@ import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFr
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
+import android.widget.Button
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -1317,6 +1318,34 @@ class AnimationUtil {
     }
 }
 
+fun com.google.android.material.button.MaterialButton.executeWithAnimation(action: () -> Unit) {
+    val avd = this.icon as? AnimatedVectorDrawable
+    if (avd != null) {
+        var isActionRun = false
+        val runAction = {
+            if (!isActionRun) {
+                isActionRun = true
+                action()
+            }
+        }
+        val handler = Handler(Looper.getMainLooper())
+        val runnable = Runnable { runAction() }
+        avd.clearAnimationCallbacks()
+        avd.registerAnimationCallback(object : Animatable2.AnimationCallback() {
+            override fun onAnimationEnd(drawable: Drawable?) {
+                super.onAnimationEnd(drawable)
+                handler.removeCallbacks(runnable)
+                runAction()
+            }
+        })
+        avd.reset()
+        avd.start()
+        handler.postDelayed(runnable, 400)
+    } else {
+        action()
+    }
+}
+
 class ColorUtil {
     companion object ColorsUtils {
         fun @receiver:ColorInt Int.isDark(): Boolean = ColorUtils.calculateLuminance(this) < 0.5
@@ -1774,5 +1803,39 @@ class TouchUtil {
             return touch.toMap()
         }
 
+    }
+}
+
+fun Button.executeWithAnimation(action: () -> Unit) {
+    val iconDrawable = try {
+        val method = this.javaClass.getMethod("getIcon")
+        method.invoke(this) as? Drawable
+    } catch (e: Exception) {
+        null
+    }
+    val avd = iconDrawable as? AnimatedVectorDrawable
+    if (avd != null) {
+        var isActionRun = false
+        val runAction = {
+            if (!isActionRun) {
+                isActionRun = true
+                action()
+            }
+        }
+        val handler = Handler(Looper.getMainLooper())
+        val runnable = Runnable { runAction() }
+        avd.clearAnimationCallbacks()
+        avd.registerAnimationCallback(object : Animatable2.AnimationCallback() {
+            override fun onAnimationEnd(drawable: Drawable?) {
+                super.onAnimationEnd(drawable)
+                handler.removeCallbacks(runnable)
+                runAction()
+            }
+        })
+        avd.reset()
+        avd.start()
+        handler.postDelayed(runnable, 400) // Fallback timeout
+    } else {
+        action()
     }
 }
