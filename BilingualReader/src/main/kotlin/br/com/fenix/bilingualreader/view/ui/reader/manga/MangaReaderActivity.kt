@@ -639,7 +639,14 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             mManga!!.pages
         ) else ""
         mToolBar.title = title
-        mToolBar.subtitle = text
+        val boldSubtitle = android.text.SpannableString(text)
+        boldSubtitle.setSpan(
+            android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+            0,
+            text.length,
+            android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        mToolBar.subtitle = boldSubtitle
         SharedData.selectPage(page)
     }
 

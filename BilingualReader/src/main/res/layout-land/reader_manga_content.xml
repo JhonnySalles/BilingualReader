@@ -105,6 +105,7 @@
                     style="@style/TextTitle.PageNumber"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textStyle="bold"
                     android:textSize="@dimen/title_small_size" />
 
                 <!-- Not use style, because progress color from drawable -->
@@ -247,7 +248,6 @@
                         android:padding="0dp"
                         android:minHeight="@dimen/popup_reader_button_min_height"
                         app:iconSize="30dp"
-                        app:iconTint="@null"
                         app:icon="@drawable/ico_animated_chapters" />
 
                     <com.google.android.material.button.MaterialButton
@@ -264,7 +264,6 @@
                         android:padding="0dp"
                         android:minHeight="@dimen/popup_reader_button_min_height"
                         app:iconSize="30dp"
-                        app:iconTint="@null"
                         app:icon="@drawable/ico_animated_manga_annotations" />
                     
                     <com.google.android.material.button.MaterialButton

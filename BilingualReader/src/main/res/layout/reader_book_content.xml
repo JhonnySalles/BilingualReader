@@ -69,7 +69,7 @@
                     android:gravity="center"
                     android:textSize="@dimen/title_medium_size"/>
 
-                <TextView
+                <br.com.fenix.bilingualreader.view.components.TextViewWithBorder
                     android:id="@+id/reader_book_toolbar_chapter"
                     style="@style/ReaderBookToolbarTheme"
                     android:layout_width="wrap_content"
@@ -98,7 +98,7 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <TextView
+                <br.com.fenix.bilingualreader.view.components.TextViewWithBorder
                     android:id="@+id/reader_book_bottom_progress_title"
                     style="@style/ReaderBookToolbarTheme"
                     android:layout_width="wrap_content"

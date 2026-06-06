@@ -75,7 +75,7 @@
 
     <color name="shadow">#000000</color>
     <color name="shadow_inverse">#FFFFFF</color>
-    <color name="title_shadow_day">#B0B0B0</color>
+    <color name="shadow_day">#B0B0B0</color>
     <color name="transparent">#00000000</color>
     <color name="translucent">#55000000</color>
 

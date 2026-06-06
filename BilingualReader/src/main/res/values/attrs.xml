@@ -68,4 +68,5 @@
 
     <attr format="reference" name="detailTextInverse"/>
     <attr format="color|reference" name="titleShadowColor"/>
+    <attr format="color|reference" name="subTitleShadowColor"/>
 </resources>

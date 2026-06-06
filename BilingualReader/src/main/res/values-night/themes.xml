@@ -61,6 +61,7 @@
         <item name="toolbarTitleColor">@color/manga_reader_theme_toolbarTitleColor</item>
         <item name="toolbarTitleAccents">@color/manga_reader_theme_toolbarTitleAccents</item>
         <item name="titleShadowColor">@color/shadow</item>
+        <item name="subTitleShadowColor">@color/shadow</item>
     </style>
 
     <!--== Default Theme ==-->

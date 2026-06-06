@@ -2022,54 +2022,18 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         val solidColor = (themeColor and 0x00FFFFFF) or (0xFF shl 24)
         val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics)
 
-        // Top Toolbar: bottom corners rounded (Android standard sheet)
-        val topBg = if (useBlur) {
-            GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                setColor(translucentColor)
-                cornerRadii = floatArrayOf(
-                    0f, 0f,
-                    0f, 0f,
-                    cornerRadius, cornerRadius,
-                    cornerRadius, cornerRadius
-                )
-            }
-        } else {
-            GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(solidColor, translucentColor)).apply {
-                shape = GradientDrawable.RECTANGLE
-                cornerRadii = floatArrayOf(
-                    0f, 0f,
-                    0f, 0f,
-                    cornerRadius, cornerRadius,
-                    cornerRadius, cornerRadius
-                )
-            }
+        // Top Toolbar: flat straight line, translucent solid color
+        val topBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(translucentColor)
         }
         mBlurTop?.background = topBg
         mToolbarTop.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
 
-        // Bottom Toolbar: top corners rounded (Android standard sheet)
-        val bottomBg = if (useBlur) {
-            GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                setColor(translucentColor)
-                cornerRadii = floatArrayOf(
-                    cornerRadius, cornerRadius,
-                    cornerRadius, cornerRadius,
-                    0f, 0f,
-                    0f, 0f
-                )
-            }
-        } else {
-            GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, intArrayOf(solidColor, translucentColor)).apply {
-                shape = GradientDrawable.RECTANGLE
-                cornerRadii = floatArrayOf(
-                    cornerRadius, cornerRadius,
-                    cornerRadius, cornerRadius,
-                    0f, 0f,
-                    0f, 0f
-                )
-            }
+        // Bottom Toolbar: flat straight line, translucent solid color
+        val bottomBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(translucentColor)
         }
         mBlurBottom?.background = bottomBg
         mToolbarBottom.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
@@ -2179,21 +2143,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             ?.setBlurRadius(15f)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics).toInt()
-
-            mBlurTop?.outlineProvider = object : android.view.ViewOutlineProvider() {
-                override fun getOutline(view: View, outline: android.graphics.Outline) {
-                    outline.setRoundRect(0, -radius, view.width, view.height, radius.toFloat())
-                }
-            }
-            mBlurTop?.clipToOutline = true
-
-            mBlurBottom?.outlineProvider = object : android.view.ViewOutlineProvider() {
-                override fun getOutline(view: View, outline: android.graphics.Outline) {
-                    outline.setRoundRect(0, 0, view.width, view.height + radius, radius.toFloat())
-                }
-            }
-            mBlurBottom?.clipToOutline = true
             mBlurProgress?.clipToOutline = true
             mBlurNavPrevious?.clipToOutline = true
             mBlurNavNext?.clipToOutline = true

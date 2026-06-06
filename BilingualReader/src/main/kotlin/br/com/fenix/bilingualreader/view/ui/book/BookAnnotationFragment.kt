@@ -596,8 +596,9 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
                 )
             }
         } else {
-            val almostTransparentColor = ((themeColor and 0x00FFFFFF) or (0x1A shl 24)).toInt() // 10% opacity
-            GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(solidColor, solidColor, translucentColor, almostTransparentColor)).apply {
+            val middleColor = ((themeColor and 0x00FFFFFF) or (0xB3 shl 24)).toInt() // 70% opacity
+            val transparentColor = (themeColor and 0x00FFFFFF).toInt() // 0% opacity
+            GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(solidColor, solidColor, middleColor, transparentColor)).apply {
                 shape = GradientDrawable.RECTANGLE
                 cornerRadii = floatArrayOf(
                     0f, 0f,

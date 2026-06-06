@@ -169,7 +169,7 @@ class StatisticsFragment : Fragment() {
         mBookSelectLibrary = Library(null, mDefaultAllLibraries)
 
 
-        val background = requireActivity().window.decorView.background
+        val background = android.graphics.drawable.ColorDrawable(requireContext().getColorFromAttr(R.attr.background))
 
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             RenderEffectBlur()
