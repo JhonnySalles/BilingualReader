@@ -86,7 +86,7 @@ class StatisticsFragment : Fragment() {
     private lateinit var mMangaChartLibraryAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mMangaChart: LineChart
 
-    private var mMangaSelectYear = LocalDateTime.now().year
+    private var mMangaSelectYear = 0
     private lateinit var mMangaSelectLibrary:Library
 
     // --------------------------------------------------------- Book ---------------------------------------------------------
@@ -114,7 +114,7 @@ class StatisticsFragment : Fragment() {
 
     private var mLoading = MutableLiveData(false)
 
-    private var mBookSelectYear = LocalDateTime.now().year
+    private var mBookSelectYear = 0
     private lateinit var mBookSelectLibrary: Library
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -167,8 +167,6 @@ class StatisticsFragment : Fragment() {
 
         mRepository = StatisticsRepository(requireContext())
         mDefaultAllLibraries = requireContext().getString(R.string.statistics_chart_library_all)
-        mMangaSelectLibrary = Library(null, mDefaultAllLibraries)
-        mBookSelectLibrary = Library(null, mDefaultAllLibraries)
 
 
         val background = android.graphics.drawable.ColorDrawable(requireContext().getColorFromAttr(R.attr.background))
@@ -251,13 +249,17 @@ class StatisticsFragment : Fragment() {
 
             val libraries = mRepository.getLibraryList()
 
-            var default = LibraryUtil.getDefault(requireContext(), Type.BOOK)
-            val librariesBook = mutableMapOf(Pair(mDefaultAllLibraries, Library(null, mDefaultAllLibraries)), Pair(default.title, default))
+            var defaultBook = LibraryUtil.getDefault(requireContext(), Type.BOOK)
+            val librariesBook = mutableMapOf(Pair(mDefaultAllLibraries, Library(null, mDefaultAllLibraries)), Pair(defaultBook.title, defaultBook))
             librariesBook.putAll(libraries.filter { it.type == Type.BOOK }.associateBy { it.title })
+
+            if (!::mBookSelectLibrary.isInitialized || !librariesBook.contains(mBookSelectLibrary.title)) {
+                mBookSelectLibrary = Library(null, mDefaultAllLibraries)
+            }
 
             val adapterBookLibrary = ArrayAdapter(requireContext(), R.layout.list_item, librariesBook.keys.toTypedArray())
             mBookChartLibraryAutoComplete.setAdapter(adapterBookLibrary)
-            mBookChartLibraryAutoComplete.setText(mDefaultAllLibraries, false)
+            mBookChartLibraryAutoComplete.setText(mBookSelectLibrary.title, false)
             mBookChartLibraryAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
                 val selected = parent.getItemAtPosition(position).toString()
                 if (librariesBook.contains(selected)) {
@@ -272,13 +274,17 @@ class StatisticsFragment : Fragment() {
                 }
             }
 
-            default = LibraryUtil.getDefault(requireContext(), Type.MANGA)
-            val librariesManga = mutableMapOf(Pair(mDefaultAllLibraries, Library(null, mDefaultAllLibraries)), Pair(default.title, default))
+            var defaultManga = LibraryUtil.getDefault(requireContext(), Type.MANGA)
+            val librariesManga = mutableMapOf(Pair(mDefaultAllLibraries, Library(null, mDefaultAllLibraries)), Pair(defaultManga.title, defaultManga))
             librariesManga.putAll(libraries.filter { it.type == Type.MANGA }.associateBy { it.title })
+
+            if (!::mMangaSelectLibrary.isInitialized || !librariesManga.contains(mMangaSelectLibrary.title)) {
+                mMangaSelectLibrary = Library(null, mDefaultAllLibraries)
+            }
 
             val adapterMangaLibrary = ArrayAdapter(requireContext(), R.layout.list_item, librariesManga.keys.toTypedArray())
             mMangaChartLibraryAutoComplete.setAdapter(adapterMangaLibrary)
-            mMangaChartLibraryAutoComplete.setText(mDefaultAllLibraries, false)
+            mMangaChartLibraryAutoComplete.setText(mMangaSelectLibrary.title, false)
             mMangaChartLibraryAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
                 val selected = parent.getItemAtPosition(position).toString()
                 if (librariesManga.contains(selected)) {
@@ -293,14 +299,17 @@ class StatisticsFragment : Fragment() {
                 }
             }
 
-            val years = mutableListOf<Int>()
+            val yearsManga = mutableListOf<Int>()
+            yearsManga.addAll(mRepository.listYears(Type.MANGA))
+            if (yearsManga.isEmpty()) {
+                yearsManga.add(LocalDateTime.now().year)
+            }
+            val defaultMangaYear = yearsManga.last()
+            if (mMangaSelectYear == 0 || !yearsManga.contains(mMangaSelectYear)) {
+                mMangaSelectYear = defaultMangaYear
+            }
 
-            years.clear()
-            years.addAll(mRepository.listYears(Type.MANGA))
-            if (years.isEmpty())
-                years.add(LocalDateTime.now().year)
-
-            mMangaYearAutoComplete.setAdapter(ArrayAdapter(requireContext(), R.layout.list_item, years.sortedDescending().toTypedArray()))
+            mMangaYearAutoComplete.setAdapter(ArrayAdapter(requireContext(), R.layout.list_item, yearsManga.sortedDescending().toTypedArray()))
             mMangaYearAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
                 try {
                     mLoading.value = true
@@ -312,16 +321,19 @@ class StatisticsFragment : Fragment() {
                     mLoading.value = false
                 }
             }
-            val mangaYear = years.last()
-            mMangaSelectYear = mangaYear
-            mMangaYearAutoComplete.setText(mangaYear.toString(), false)
+            mMangaYearAutoComplete.setText(mMangaSelectYear.toString(), false)
 
-            years.clear()
-            years.addAll(mRepository.listYears(Type.BOOK))
-            if (years.isEmpty())
-                years.add(LocalDateTime.now().year)
+            val yearsBook = mutableListOf<Int>()
+            yearsBook.addAll(mRepository.listYears(Type.BOOK))
+            if (yearsBook.isEmpty()) {
+                yearsBook.add(LocalDateTime.now().year)
+            }
+            val defaultBookYear = yearsBook.last()
+            if (mBookSelectYear == 0 || !yearsBook.contains(mBookSelectYear)) {
+                mBookSelectYear = defaultBookYear
+            }
 
-            mBookYearAutoComplete.setAdapter(ArrayAdapter(requireContext(), R.layout.list_item, years.sortedDescending().toTypedArray()))
+            mBookYearAutoComplete.setAdapter(ArrayAdapter(requireContext(), R.layout.list_item, yearsBook.sortedDescending().toTypedArray()))
             mBookYearAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
                 try {
                     mLoading.value = true
@@ -333,12 +345,13 @@ class StatisticsFragment : Fragment() {
                     mLoading.value = false
                 }
             }
-            val bookYear = years.last()
-            mBookSelectYear = bookYear
-            mBookYearAutoComplete.setText(bookYear.toString(), false)
+            mBookYearAutoComplete.setText(mBookSelectYear.toString(), false)
 
-            setChartData(mBookChart, getData(mRepository.statistics(Type.BOOK, bookYear, null), bookYear))
-            setChartData(mMangaChart, getData(mRepository.statistics(Type.MANGA, mangaYear, null), mangaYear))
+            val bookLibraryId = if (mDefaultAllLibraries == mBookSelectLibrary.title) null else mBookSelectLibrary.id
+            setChartData(mBookChart, getData(mRepository.statistics(Type.BOOK, mBookSelectYear, bookLibraryId), mBookSelectYear))
+
+            val mangaLibraryId = if (mDefaultAllLibraries == mMangaSelectLibrary.title) null else mMangaSelectLibrary.id
+            setChartData(mMangaChart, getData(mRepository.statistics(Type.MANGA, mMangaSelectYear, mangaLibraryId), mMangaSelectYear))
         } finally {
             Handler(Looper.getMainLooper()).postDelayed({ mLoading.value = false }, 1000)
         }
