@@ -274,10 +274,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             else -> null
         }
 
-        if (newFragment != null)
-            openFragment(newFragment)
-
         mDrawer.closeDrawer(GravityCompat.START)
+
+        if (newFragment != null) {
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                if (!isFinishing && !isDestroyed) {
+                    openFragment(newFragment)
+                }
+            }, 250)
+        }
+
         return true
     }
 

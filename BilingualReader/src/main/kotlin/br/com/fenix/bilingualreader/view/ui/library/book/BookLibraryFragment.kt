@@ -884,8 +884,12 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == GeneralConsts.REQUEST.BOOK_DETAIL)
-            notifyDataSet(mViewModel.updateList(itemRefresh ?: 0))
+        if (requestCode == GeneralConsts.REQUEST.BOOK_DETAIL) {
+            val index = mViewModel.updateList(itemRefresh ?: 0)
+            if (index >= 0) {
+                notifyDataSet(index)
+            }
+        }
     }
 
     private fun loadConfig() {

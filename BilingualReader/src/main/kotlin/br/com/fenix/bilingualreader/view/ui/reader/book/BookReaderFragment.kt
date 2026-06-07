@@ -332,7 +332,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             mCoverMessage.visibility = View.GONE
             mCoverWarning.visibility = View.GONE
 
-            BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, true)
+            BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, true) {
+                activity?.supportStartPostponedEnterTransition()
+            }
             mHandler.postDelayed({
                     if (mCoverWarning.visibility != View.VISIBLE)
                         BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, false)
@@ -344,6 +346,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
             mCoverImage.setImageBitmap(ImageUtil.applyCoverEffect(requireContext(), null, Type.BOOK))
             mCoverMessage.text = getString(R.string.reading_book_open_exception)
+            activity?.supportStartPostponedEnterTransition()
         }
 
         mPageStartReading = LocalDateTime.now()

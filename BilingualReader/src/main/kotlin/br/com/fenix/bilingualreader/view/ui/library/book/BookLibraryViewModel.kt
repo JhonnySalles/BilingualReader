@@ -209,8 +209,12 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         return index
     }
 
-    fun updateList(index : Int) : Int {
-        val book = mListBook.value!![index]
+    fun updateList(index: Int): Int {
+        val list = mListBook.value
+        if (list.isNullOrEmpty() || index < 0 || index >= list.size) {
+            return -1
+        }
+        val book = list[index]
         mBookRepository.get(book.id!!)?.let {
             book.update(it, true)
         }

@@ -881,7 +881,12 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
-            GeneralConsts.REQUEST.MANGA_DETAIL -> notifyDataSet(mViewModel.updateList(itemRefresh ?: 0))
+            GeneralConsts.REQUEST.MANGA_DETAIL -> {
+                val index = mViewModel.updateList(itemRefresh ?: 0)
+                if (index >= 0) {
+                    notifyDataSet(index)
+                }
+            }
             GeneralConsts.REQUEST.DRIVE_AUTHORIZATION -> shareMarksToCloud()
         }
     }

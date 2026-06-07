@@ -183,6 +183,11 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_manga_reader)
 
+        supportPostponeEnterTransition()
+        mHandler.postDelayed({
+            supportStartPostponedEnterTransition()
+        }, 1000)
+
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         Formatter.initializeAsync(applicationContext)

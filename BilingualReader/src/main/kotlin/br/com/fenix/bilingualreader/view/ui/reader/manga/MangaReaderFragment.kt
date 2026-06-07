@@ -130,6 +130,10 @@ import java.util.LinkedList
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class MangaReaderFragment : Fragment(), View.OnTouchListener {
@@ -137,6 +141,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private val mLOGGER = LoggerFactory.getLogger(MangaReaderFragment::class.java)
 
     private val mViewModel: MangaReaderViewModel by activityViewModels()
+
+    private var mSavedInstanceState: Bundle? = null
+    private var mFileToParse: File? = null
 
     private lateinit var mRoot: CoordinatorLayout
     private lateinit var mToolbarTop: AppBarLayout
@@ -373,6 +380,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             } else
                 bundle.getSerializable(GeneralConsts.KEYS.OBJECT.FILE) as File?
 
+            mFileToParse = file
+
             if (file != null && file.exists()) {
                 if (mManga == null)
                     mManga = mStorage.findMangaByName(file.name)
@@ -381,71 +390,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     mCurrentPage = mManga!!.bookMark - 1
                     mStorage.updateLastAccess(mManga!!)
                 }
-
-                mParse = ParseFactory.create(file)
-                if (mParse != null) {
-                    if (mParse is RarParse) {
-                        val child = mCacheFolder[mCacheFolderIndex]
-                        val cacheDir = File(GeneralConsts.getCacheDir(requireContext()), child)
-                        if (!cacheDir.exists()) {
-                            cacheDir.mkdir()
-                        } else {
-                            if (cacheDir.listFiles() != null)
-                                for (f in cacheDir.listFiles()!!)
-                                    f.delete()
-                        }
-                        (mParse as RarParse?)!!.setCacheDirectory(cacheDir)
-                    }
-
-                    if (savedInstanceState == null)
-                        mSubtitleController.getListChapter(mManga, mParse!!)
-
-                    val dots = mutableListOf<Int>()
-                    val inverse = mutableListOf<Int>()
-
-                    val pages = (mParse?.numPages() ?: 2) - 1
-                    for (chapter in mParse?.getChapters() ?: intArrayOf()) {
-                        inverse.add(pages - chapter)
-                        dots.add(chapter)
-                    }
-
-                    var times = 0
-                    val handler = Handler()
-                    var setDot: () -> Unit = {}
-                    setDot = {
-                        try {
-                            (requireActivity() as MangaReaderActivity).setMangaDots(dots, inverse)
-                        } catch (e: Exception) {
-                            mLOGGER.error("Error to set dots: " + e.message, e)
-                            times++
-                            if (times < 3)
-                                handler.postDelayed(setDot, 1000)
-                            else
-                                Telemetry.recordException(e, "Error to set dots: " + e.message)
-                        }
-                    }
-                    handler.postDelayed(setDot, 1000)
-
-                    mSubtitleController.mReaderFragment = this
-                    mFileName = file.name
-                    mCurrentPage = max(0, min(mCurrentPage, mParse!!.numPages()))
-                    mComicHandler = MangaHandler(mParse!!)
-                    mPicasso = Picasso.Builder(requireContext())
-                        .addRequestHandler((mComicHandler as RequestHandler))
-                        .build()
-                } else
-                    mLOGGER.info("Error in open file.")
-            } else {
-                (requireActivity() as MangaReaderActivity).setMangaDots(mutableListOf(), mutableListOf())
-                mLOGGER.info("File not founded.")
-                MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
-                    .setTitle(getString(R.string.manga_excluded))
-                    .setMessage(getString(R.string.file_not_found))
-                    .setPositiveButton(
-                        R.string.action_neutral
-                    ) { _, _ -> }
-                    .create()
-                    .show()
             }
 
             mGestureDetector = GestureDetector(requireActivity(), MyTouchListener())
@@ -479,6 +423,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        mSavedInstanceState = savedInstanceState
         val view: View = inflater.inflate(R.layout.fragment_manga_reader, container, false)
 
         mRoot = requireActivity().findViewById(R.id.root_activity_manga_reader)
@@ -532,49 +477,115 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
         mPageNavTextView = mPageNavLayout.findViewById<View>(R.id.reader_manga_bottom_progress_title) as TextView
 
-        if (mParse == null) {
-            val cover = if (mManga != null) MangaImageCoverController.instance.getMangaCover(requireContext(), mManga!!, isCoverSize = true) else null
-            mCoverImage.setImageBitmap(ImageUtil.applyCoverEffect(requireContext(), cover, Type.BOOK))
-            mCoverMessage.text = getString(R.string.reading_manga_open_exception)
-            mPageNavTextView.text = ""
+        mCoverMessage.visibility = View.GONE
+        mCoverWarning.visibility = View.GONE
 
+        if (mManga != null) {
+            MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mManga!!, mCoverImage, null, true) {
+                activity?.supportStartPostponedEnterTransition()
+            }
+            mHandler.postDelayed({ MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mManga!!, mCoverImage, null, false) }, 300)
+        } else {
+            mCoverImage.setImageBitmap(ImageUtil.applyCoverEffect(requireContext(), null, Type.BOOK))
+            mCoverMessage.text = getString(R.string.reading_manga_open_exception)
             mCoverMessage.visibility = View.VISIBLE
             mCoverWarning.visibility = View.VISIBLE
-            return view
-        } else {
-            mCoverMessage.visibility = View.GONE
-            mCoverWarning.visibility = View.GONE
-
-            MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mManga!!, mCoverImage, null, true)
-            mHandler.postDelayed({ MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mManga!!, mCoverImage, null, false) }, 300)
+            activity?.supportStartPostponedEnterTransition()
         }
 
-        var run: Runnable? = null
-        run = Runnable {
-            val image = getCurrencyImageView()
-            if (image == null || image.isGone)
-                mHandler.postDelayed(run!!, 800)
-            else {
-                mCoverContent.animate().alpha(0.0f).setDuration(600L).setListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator) {
-                        super.onAnimationEnd(animation)
-                        mCoverContent.visibility = View.GONE
+        mPageSeekBar.isEnabled = false
 
-                        if (mPreferences.getBoolean(GeneralConsts.KEYS.TOUCH.MANGA_TOUCH_DEMONSTRATION, true)) {
-                            with(mPreferences.edit()) {
-                                this.putBoolean(GeneralConsts.KEYS.TOUCH.MANGA_TOUCH_DEMONSTRATION, false)
-                                this.commit()
+        val file = mFileToParse
+        if (file != null && file.exists()) {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val parse = ParseFactory.create(file)
+                    if (parse != null) {
+                        if (parse is RarParse) {
+                            val child = mCacheFolder[mCacheFolderIndex]
+                            val cacheDir = File(GeneralConsts.getCacheDir(requireContext()), child)
+                            if (!cacheDir.exists()) {
+                                cacheDir.mkdir()
+                            } else {
+                                cacheDir.listFiles()?.forEach { it.delete() }
                             }
-                            (requireActivity() as MangaReaderActivity).openViewTouch()
+                            parse.setCacheDirectory(cacheDir)
+                        }
+
+                        withContext(Dispatchers.Main) {
+                            if (isAdded && context != null) {
+                                mParse = parse
+                                mSubtitleController.mReaderFragment = this@MangaReaderFragment
+                                mFileName = file.name
+                                mCurrentPage = max(0, min(mCurrentPage, parse.numPages()))
+                                mComicHandler = MangaHandler(parse)
+                                mPicasso = Picasso.Builder(requireContext())
+                                    .addRequestHandler(mComicHandler)
+                                    .build()
+
+                                if (mSavedInstanceState == null)
+                                    mSubtitleController.getListChapter(mManga, parse)
+
+                                setupMangaChaptersDots(parse)
+                                prepareMangaReader()
+                            }
+                        }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            if (isAdded && context != null) showParseError()
                         }
                     }
-                })
+                } catch (e: Exception) {
+                    mLOGGER.error("Error parsing manga asynchronously", e)
+                    withContext(Dispatchers.Main) {
+                        if (isAdded && context != null) showParseError()
+                    }
+                }
             }
+        } else {
+            showParseError()
         }
 
-        mHandler.postDelayed(run, 2000)
+        mViewModel.filters.observe(viewLifecycleOwner) { onRefresh() }
 
-        mPageSeekBar.max = (mParse?.numPages() ?: 2) - 1
+        setupWindowInsets()
+        applyGlassmorphism()
+
+        return view
+    }
+
+    private fun setupMangaChaptersDots(parse: Parse) {
+        val dots = mutableListOf<Int>()
+        val inverse = mutableListOf<Int>()
+
+        val pages = parse.numPages() - 1
+        for (chapter in parse.getChapters() ?: intArrayOf()) {
+            inverse.add(pages - chapter)
+            dots.add(chapter)
+        }
+
+        try {
+            (requireActivity() as MangaReaderActivity).setMangaDots(dots, inverse)
+        } catch (e: Exception) {
+            mLOGGER.error("Error to set dots: " + e.message, e)
+        }
+    }
+
+    private fun showParseError() {
+        (requireActivity() as MangaReaderActivity).setMangaDots(mutableListOf(), mutableListOf())
+        mCoverMessage.visibility = View.VISIBLE
+        mCoverWarning.visibility = View.VISIBLE
+        val cover = if (mManga != null) MangaImageCoverController.instance.getMangaCover(requireContext(), mManga!!, isCoverSize = true) else null
+        mCoverImage.setImageBitmap(ImageUtil.applyCoverEffect(requireContext(), cover, Type.BOOK))
+        mCoverMessage.text = getString(R.string.reading_manga_open_exception)
+        mPageNavTextView.text = ""
+        activity?.supportStartPostponedEnterTransition()
+    }
+
+    private fun prepareMangaReader() {
+        val parse = mParse ?: return
+        mPageSeekBar.isEnabled = true
+        mPageSeekBar.max = parse.numPages() - 1
         mPageSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
@@ -630,11 +641,12 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         configureScrolling(mScrollingMode, mPaginationType, true)
 
-        if (savedInstanceState != null) {
-            val fullscreen = savedInstanceState.getBoolean(ReaderConsts.STATES.STATE_FULLSCREEN)
+        val savedState = mSavedInstanceState
+        if (savedState != null) {
+            val fullscreen = savedState.getBoolean(ReaderConsts.STATES.STATE_FULLSCREEN)
             setFullscreen(fullscreen)
-            val newComicId = savedInstanceState.getLong(ReaderConsts.STATES.STATE_NEW_COMIC)
-            val titleRes = savedInstanceState.getInt(ReaderConsts.STATES.STATE_NEW_COMIC_TITLE)
+            val newComicId = savedState.getLong(ReaderConsts.STATES.STATE_NEW_COMIC)
+            val titleRes = savedState.getInt(ReaderConsts.STATES.STATE_NEW_COMIC_TITLE)
             confirmSwitch(mStorage.getManga(newComicId), titleRes)
         } else
             setFullscreen(true)
@@ -643,12 +655,30 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         requireActivity().title = mFileName
         updateSeekBar()
 
-        mViewModel.filters.observe(viewLifecycleOwner) { onRefresh() }
+        var run: Runnable? = null
+        run = Runnable {
+            val image = getCurrencyImageView()
+            if (image == null || image.isGone)
+                mHandler.postDelayed(run!!, 800)
+            else {
+                mCoverContent.animate().alpha(0.0f).setDuration(600L).setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        super.onAnimationEnd(animation)
+                        mCoverContent.visibility = View.GONE
 
-        setupWindowInsets()
-        applyGlassmorphism()
+                        if (mPreferences.getBoolean(GeneralConsts.KEYS.TOUCH.MANGA_TOUCH_DEMONSTRATION, true)) {
+                            with(mPreferences.edit()) {
+                                this.putBoolean(GeneralConsts.KEYS.TOUCH.MANGA_TOUCH_DEMONSTRATION, false)
+                                this.commit()
+                            }
+                            (requireActivity() as MangaReaderActivity).openViewTouch()
+                        }
+                    }
+                })
+            }
+        }
 
-        return view
+        mHandler.postDelayed(run, 500)
     }
 
     private fun configureScrolling(scrolling: ScrollingType, pagination: PaginationType, isInitial: Boolean = false) {

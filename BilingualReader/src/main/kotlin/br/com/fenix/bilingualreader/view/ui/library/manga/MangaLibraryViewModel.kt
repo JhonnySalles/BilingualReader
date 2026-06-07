@@ -229,8 +229,12 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
         return index
     }
 
-    fun updateList(index : Int) : Int {
-        val manga = mListMangas.value!![index]
+    fun updateList(index: Int): Int {
+        val list = mListMangas.value
+        if (list.isNullOrEmpty() || index < 0 || index >= list.size) {
+            return -1
+        }
+        val manga = list[index]
         mMangaRepository.get(manga.id!!)?.let {
             manga.update(it, true)
         }
