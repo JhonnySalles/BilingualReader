@@ -217,6 +217,14 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private val mLastPage = LinkedList<Pair<Int, Bitmap>>()
     private val mHandler = Handler(Looper.getMainLooper())
 
+    private var mLocalCurrentPage = 0
+        set(value) {
+            field = value
+            if (isAdded && !isRemoving && !isDetached) {
+                Companion.mCurrentPage = value
+            }
+        }
+
     init {
         mResourceViewMode[R.id.manga_view_mode_aspect_fill] = ReaderMode.ASPECT_FILL
         mResourceViewMode[R.id.manga_view_mode_aspect_fit] = ReaderMode.ASPECT_FIT
@@ -358,7 +366,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mCurrentPage = 0
+        mLocalCurrentPage = 0
         mStorage = Storage(requireContext())
         mLibrary = LibraryUtil.getDefault(requireContext(), Type.MANGA)
         mPreferences = GeneralConsts.getSharedPreferences(requireContext())
@@ -387,7 +395,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     mManga = mStorage.findMangaByName(file.name)
 
                 if (mManga != null) {
-                    mCurrentPage = mManga!!.bookMark - 1
+                    mLocalCurrentPage = mManga!!.bookMark - 1
                     mStorage.updateLastAccess(mManga!!)
                 }
             }
@@ -517,7 +525,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                                 mParse = parse
                                 mSubtitleController.mReaderFragment = this@MangaReaderFragment
                                 mFileName = file.name
-                                mCurrentPage = max(0, min(mCurrentPage, parse.numPages()))
+                                mLocalCurrentPage = max(0, min(mLocalCurrentPage, parse.numPages()))
                                 mComicHandler = MangaHandler(parse)
                                 mPicasso = Picasso.Builder(requireContext())
                                     .addRequestHandler(mComicHandler)
@@ -682,7 +690,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     private fun configureScrolling(scrolling: ScrollingType, pagination: PaginationType, isInitial: Boolean = false) {
-        val page = if (isInitial) mCurrentPage + 1 else getCurrentPage()
+        val page = if (isInitial) mLocalCurrentPage + 1 else getCurrentPage()
         val isChange = isInitial || ((scrolling == ScrollingType.Scrolling || scrolling == ScrollingType.ScrollingDivider) && mViewPager.isVisible) ||
                 ((scrolling == ScrollingType.Horizontal || scrolling == ScrollingType.HorizontalRightToLeft || scrolling == ScrollingType.Vertical) && mViewRecycler.isVisible)
 
@@ -703,6 +711,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     mViewPager.setOnTouchListener(this@MangaReaderFragment)
                     mViewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
                         override fun onPageSelected(position: Int) {
+                            if (!isAdded || isRemoving || isDetached) return
                             if (mScrollingMode == ScrollingType.HorizontalRightToLeft)
                                 setCurrentPage(mViewPager.adapter!!.count - position)
                             else
@@ -1072,7 +1081,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             ScrollingType.Scrolling,
             ScrollingType.ScrollingDivider,
                 -> {
-                val isShort = abs(mCurrentPage - page) < 6
+                val isShort = abs(mLocalCurrentPage - page) < 6
                 if (animated && isShort)
                     mViewRecycler.smoothScrollToPosition(page - 1)
                 else {
@@ -1088,6 +1097,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     private fun setChangeProgress(page: Int, seekbar: Int) {
+        if (!isAdded || isRemoving || isDetached) return
         mPageSeekBar.progress = seekbar
 
         val navPage: String = if (mParse == null) "" else StringBuilder()
@@ -1095,15 +1105,15 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             .toString()
 
         mPageNavTextView.text = navPage
-        mCurrentPage = page - 1
+        mLocalCurrentPage = page - 1
 
-        if (mCurrentPage < 0)
-            mCurrentPage = 0
+        if (mLocalCurrentPage < 0)
+            mLocalCurrentPage = 0
 
         if (mManga != null)
-            mSubtitleController.changeSubtitleInReader(mManga!!, mCurrentPage)
+            mSubtitleController.changeSubtitleInReader(mManga!!, mLocalCurrentPage)
 
-        (requireActivity() as MangaReaderActivity).changePage(mManga?.title ?: "", getChapterSelected(mCurrentPage), page)
+        (requireActivity() as MangaReaderActivity).changePage(mManga?.title ?: "", getChapterSelected(mLocalCurrentPage), page)
     }
 
     private fun getChapterSelected(page: Int): String {
@@ -1113,7 +1123,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             if (mParse!!.isComicInfo()) {
                 mParse!!.getComicInfo()?.let {
                     val chapters = mutableMapOf<Int, String>()
-                    if (it.pages != null && it.pages!!.size > mCurrentPage) {
+                    if (it.pages != null && it.pages!!.size > mLocalCurrentPage) {
                         for ((index, comic) in it.pages!!.withIndex()) {
                             if (comic.bookmark != null)
                                 chapters[index] = comic.bookmark!!
@@ -2009,6 +2019,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     override fun onResume() {
         super.onResume()
+        Companion.mCurrentPage = mLocalCurrentPage
         applyGlassmorphism()
     }
 
