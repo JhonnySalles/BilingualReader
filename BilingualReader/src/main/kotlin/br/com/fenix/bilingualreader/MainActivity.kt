@@ -138,6 +138,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mBookLibraryModel.setDefaultLibrary(LibraryUtil.getDefault(this, Type.BOOK))
 
         mFragmentManager = supportFragmentManager
+        mFragmentManager.registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
+            override fun onFragmentResumed(fm: FragmentManager, f: Fragment) {
+                super.onFragmentResumed(fm, f)
+                when (f) {
+                    is HistoryFragment -> mToolBar.title = getString(R.string.menu_history)
+                    is VocabularyFragment -> mToolBar.title = getString(R.string.menu_vocabulary)
+                    is StatisticsFragment -> mToolBar.title = getString(R.string.menu_statistics)
+                    is ConfigFragment -> mToolBar.title = getString(R.string.menu_config)
+                    is HelpFragment -> mToolBar.title = getString(R.string.menu_help)
+                    is AboutFragment -> mToolBar.title = getString(R.string.menu_about)
+                    is AnnotationFragment -> mToolBar.title = getString(R.string.menu_annotations)
+                }
+            }
+        }, false)
 
         libraries()
 
