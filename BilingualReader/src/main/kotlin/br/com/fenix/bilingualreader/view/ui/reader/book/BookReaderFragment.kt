@@ -534,6 +534,14 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                             super.onAnimationEnd(animation)
                             mCoverContent.visibility = View.GONE
 
+                            mViewPager.post {
+                                mViewPager.requestLayout()
+                                (mViewPager.getChildAt(0) as? RecyclerView)?.requestLayout()
+                            }
+                            mViewRecycler.post {
+                                mViewRecycler.requestLayout()
+                            }
+
                             val preferences = GeneralConsts.getSharedPreferences(requireContext())
                             if (preferences.getBoolean(GeneralConsts.KEYS.TOUCH.BOOK_TOUCH_DEMONSTRATION, true)) {
                                 with(preferences.edit()) {
@@ -663,6 +671,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
                     if (mBook != null && page != -1 && !isMode)
                         setCurrentPage(page, isAnimated = false)
+
+                    mViewPager.post {
+                        mViewPager.requestLayout()
+                        (mViewPager.getChildAt(0) as? RecyclerView)?.requestLayout()
+                    }
                 }
 
                 ScrollingType.Scrolling -> {
@@ -690,6 +703,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
                     mViewPager.visibility = View.GONE
                     mViewRecycler.visibility = View.VISIBLE
+
+                    mViewRecycler.post {
+                        mViewRecycler.requestLayout()
+                    }
                 }
 
                 else -> {}
