@@ -34,12 +34,16 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin">
             <LinearLayout
+                android:id="@+id/statistics_manga_reading_card"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/margin_small"
                 android:layout_marginEnd="@dimen/margin_small"
                 android:background="@drawable/statistics_content_small_rounded_background"
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:orientation="vertical">
                 <TextView
                     style="@style/TextTitle.Statistics.Container.Title"
@@ -474,6 +478,16 @@
                 android:layout_margin="@dimen/margin_small"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/statistics_chart_height" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/statistics_manga_btn_history"
+                style="@style/Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin_small"
+                android:text="@string/menu_history"
+                app:icon="@drawable/ico_history"
+                app:iconSize="24dp" />
         </LinearLayout>
 
     </LinearLayout>

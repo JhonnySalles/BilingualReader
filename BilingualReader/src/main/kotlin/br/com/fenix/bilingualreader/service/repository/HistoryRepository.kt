@@ -17,6 +17,8 @@ class HistoryRepository(private val context: Context) {
             mDataBase.delete(history)
     }
 
+    fun listHistory(): List<History> = mDataBase.findAll()
+
     fun save(obj: History): Long {
         return if (obj.id != null) {
             mDataBase.update(obj)

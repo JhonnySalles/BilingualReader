@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.view.ui.statistics
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
@@ -23,6 +24,7 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Statistics
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.StatisticsRepository
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.view.components.MonthAxisValueFormatter
@@ -192,6 +194,12 @@ class StatisticsFragment : Fragment() {
             mProgress.visibility = if (it) View.VISIBLE else View.GONE
         }
 
+        view.findViewById<View>(R.id.statistics_manga_reading_card).setOnClickListener { openHistory(Type.MANGA, null) }
+        view.findViewById<View>(R.id.statistics_manga_btn_history).setOnClickListener { openHistory(Type.MANGA, mMangaSelectYear) }
+
+        view.findViewById<View>(R.id.statistics_book_reading_card).setOnClickListener { openHistory(Type.BOOK, null) }
+        view.findViewById<View>(R.id.statistics_book_btn_history).setOnClickListener { openHistory(Type.BOOK, mBookSelectYear) }
+
         loadStatistics()
     }
 
@@ -297,6 +305,7 @@ class StatisticsFragment : Fragment() {
                 try {
                     mLoading.value = true
                     val selected = parent.getItemAtPosition(position).toString().toInt()
+                    mMangaSelectYear = selected
                     val id = if (mDefaultAllLibraries == mMangaSelectLibrary.title) null else mMangaSelectLibrary.id
                     setChartData(mMangaChart, getData(mRepository.statistics(Type.MANGA, selected, id), selected))
                 } finally {
@@ -304,6 +313,7 @@ class StatisticsFragment : Fragment() {
                 }
             }
             val mangaYear = years.last()
+            mMangaSelectYear = mangaYear
             mMangaYearAutoComplete.setText(mangaYear.toString(), false)
 
             years.clear()
@@ -316,6 +326,7 @@ class StatisticsFragment : Fragment() {
                 try {
                     mLoading.value = true
                     val selected = parent.getItemAtPosition(position).toString().toInt()
+                    mBookSelectYear = selected
                     val id = if (mDefaultAllLibraries == mBookSelectLibrary.title) null else mBookSelectLibrary.id
                     setChartData(mBookChart, getData(mRepository.statistics(Type.BOOK, selected, id), selected))
                 } finally {
@@ -323,6 +334,7 @@ class StatisticsFragment : Fragment() {
                 }
             }
             val bookYear = years.last()
+            mBookSelectYear = bookYear
             mBookYearAutoComplete.setText(bookYear.toString(), false)
 
             setChartData(mBookChart, getData(mRepository.statistics(Type.BOOK, bookYear, null), bookYear))
@@ -437,6 +449,17 @@ class StatisticsFragment : Fragment() {
         })
 
         return data
+    }
+
+    private fun openHistory(type: Type, year: Int?) {
+        val intent = Intent(requireContext(), HistoryStatisticsActivity::class.java)
+        val bundle = Bundle()
+        bundle.putInt(GeneralConsts.KEYS.OBJECT.TYPE, type.ordinal)
+        if (year != null) {
+            bundle.putInt("YEAR", year)
+        }
+        intent.putExtras(bundle)
+        startActivity(intent)
     }
 
 }
