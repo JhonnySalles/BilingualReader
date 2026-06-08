@@ -74,6 +74,10 @@ import org.lucasr.twowayview.TwoWayView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import org.slf4j.LoggerFactory
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -81,6 +85,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
+
 
 
 class ConfigFragment : Fragment() {
@@ -735,10 +740,24 @@ class ConfigFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        mViewModel.removeLibraryDefault(mMangaLibraryPath.editText?.text.toString(), mBookLibraryPath.editText?.text.toString())
-        ViewModelProvider(this)[MangaLibraryViewModel::class.java].setDefaultLibrary(LibraryUtil.getDefault(requireContext(), Type.MANGA))
-        ViewModelProvider(this)[BookLibraryViewModel::class.java].setDefaultLibrary(LibraryUtil.getDefault(requireContext(), Type.BOOK))
-        (requireActivity() as MainActivity).setLibraries(mViewModel.getListLibrary())
+        val mangaPath = mMangaLibraryPath.editText?.text.toString()
+        val bookPath = mBookLibraryPath.editText?.text.toString()
+        val context = requireContext().applicationContext
+        val mangaViewModel = ViewModelProvider(this)[MangaLibraryViewModel::class.java]
+        val bookViewModel = ViewModelProvider(this)[BookLibraryViewModel::class.java]
+        val mainActivity = requireActivity() as MainActivity
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            mViewModel.removeLibraryDefault(mangaPath, bookPath)
+            val defaultManga = LibraryUtil.getDefault(context, Type.MANGA)
+            val defaultBook = LibraryUtil.getDefault(context, Type.BOOK)
+            val listLibrary = mViewModel.getListLibrary()
+            withContext(Dispatchers.Main) {
+                mangaViewModel.setDefaultLibrary(defaultManga)
+                bookViewModel.setDefaultLibrary(defaultBook)
+                mainActivity.setLibraries(listLibrary)
+            }
+        }
 
         super.onDestroyView()
     }
@@ -907,8 +926,12 @@ class ConfigFragment : Fragment() {
     }
 
     private fun saveConfig() {
-        mViewModel.saveDefault(Type.MANGA, mMangaLibraryPath.editText?.text.toString())
-        mViewModel.saveDefault(Type.BOOK, mBookLibraryPath.editText?.text.toString())
+        val mangaPath = mMangaLibraryPath.editText?.text.toString()
+        val bookPath = mBookLibraryPath.editText?.text.toString()
+        lifecycleScope.launch(Dispatchers.IO) {
+            mViewModel.saveDefault(Type.MANGA, mangaPath)
+            mViewModel.saveDefault(Type.BOOK, bookPath)
+        }
 
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         with(sharedPreferences.edit()) {
@@ -1063,7 +1086,7 @@ class ConfigFragment : Fragment() {
                 mConfigSystemThemeSelect.toString()
             )
 
-            this.commit()
+            this.apply()
         }
 
         mLOGGER.info(
@@ -1482,7 +1505,7 @@ class ConfigFragment : Fragment() {
                     font.toString()
                 )
 
-            this.commit()
+            this.apply()
         }
     }
 

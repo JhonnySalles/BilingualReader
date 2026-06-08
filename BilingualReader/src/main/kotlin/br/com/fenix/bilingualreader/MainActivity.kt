@@ -55,6 +55,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.delay
+import androidx.lifecycle.lifecycleScope
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.time.LocalDate
@@ -239,14 +242,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun libraries() {
-        try {
-            val repository = LibraryRepository(this)
-            val libraries = repository.listEnabled()
-            if (libraries.isNotEmpty())
-                setLibraries(libraries)
-        } catch (e: Exception) {
-            mLOGGER.error("Error clearing cache folders: " + e.message, e)
-            Telemetry.recordException(e, "Error clearing cache folders: " + e.message)
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val repository = LibraryRepository(this@MainActivity)
+                val libraries = repository.listEnabled()
+                withContext(Dispatchers.Main) {
+                    if (libraries.isNotEmpty())
+                        setLibraries(libraries)
+                }
+            } catch (e: Exception) {
+                mLOGGER.error("Error loading libraries: " + e.message, e)
+                Telemetry.recordException(e, "Error loading libraries: " + e.message)
+            }
         }
     }
 
@@ -291,11 +298,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mDrawer.closeDrawer(GravityCompat.START)
 
         if (newFragment != null) {
-            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            lifecycleScope.launch {
+                delay(250)
                 if (!isFinishing && !isDestroyed) {
                     openFragment(newFragment)
                 }
-            }, 250)
+            }
         }
 
         return true

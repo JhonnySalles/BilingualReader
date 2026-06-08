@@ -6,6 +6,7 @@ import android.widget.Filterable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -63,33 +64,47 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
     private var mSuggestionPublisher = setOf<String>()
     private var mSuggestionSeries = setOf<String>()
     private var mSuggestionVolume = setOf<String>()
-    private var mSuggestionTags = mTagsRepository.list()
+    private var mSuggestionTags = listOf<br.com.fenix.bilingualreader.model.entity.Tags>()
+
+    private val mLibraries = MutableLiveData<List<Library>>(emptyList())
+    val libraries: LiveData<List<Library>> = mLibraries
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            val tags = mTagsRepository.list()
+            val libs = mutableListOf<Library>()
+            libs.addAll(mLibraryRepository.list(Type.MANGA))
+            libs.addAll(mLibraryRepository.list(Type.BOOK))
+            withContext(Dispatchers.Main) {
+                mSuggestionTags = tags
+                mLibraries.value = libs
+            }
+        }
+    }
 
     fun list() {
         mLoading.value = true
 
-        CoroutineScope(Dispatchers.IO).launch {
-            async {
-                var list = mutableListOf<History>()
+        viewModelScope.launch(Dispatchers.IO) {
+            var list = mutableListOf<History>()
 
-                val mangas = mMangaRepository.listHistory()
-                if (mangas != null)
-                    list.addAll(mangas)
+            val mangas = mMangaRepository.listHistory()
+            if (mangas != null)
+                list.addAll(mangas)
 
-                val books = mBookRepository.listHistory()
-                if (books != null)
-                    list.addAll(books)
+            val books = mBookRepository.listHistory()
+            if (books != null)
+                list.addAll(books)
 
-                val format = DateTimeFormatter.ofPattern(GeneralConsts.PATTERNS.DATE_TIME_PATTERN)
-                list = list.sortedByDescending { it.lastAccess }.distinctBy { it.lastAccess!!.format(format) }.toMutableList()
+            val format = DateTimeFormatter.ofPattern(GeneralConsts.PATTERNS.DATE_TIME_PATTERN)
+            list = list.sortedByDescending { it.lastAccess }.distinctBy { it.lastAccess!!.format(format) }.toMutableList()
 
-                withContext(Dispatchers.Main) {
-                    mLoading.value = false
+            withContext(Dispatchers.Main) {
+                mLoading.value = false
 
-                    mListFull.value = ArrayList(list)
-                    mList.value = ArrayList(list)
-                    setSuggestions(mListFull.value)
-                }
+                mListFull.value = ArrayList(list)
+                mList.value = ArrayList(list)
+                setSuggestions(mListFull.value)
             }
         }
     }
@@ -97,34 +112,32 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
     fun list(refreshComplete: (Int) -> (Unit)) {
         mLoading.value = true
 
-        CoroutineScope(Dispatchers.IO).launch {
-            async {
-                var list = mutableListOf<History>()
+        viewModelScope.launch(Dispatchers.IO) {
+            var list = mutableListOf<History>()
 
-                val mangas = mMangaRepository.listHistory()
-                if (mangas != null)
-                    list.addAll(mangas)
+            val mangas = mMangaRepository.listHistory()
+            if (mangas != null)
+                list.addAll(mangas)
 
-                val books = mBookRepository.listHistory()
-                if (books != null)
-                    list.addAll(books)
+            val books = mBookRepository.listHistory()
+            if (books != null)
+                list.addAll(books)
 
-                val format = DateTimeFormatter.ofPattern(GeneralConsts.PATTERNS.DATE_TIME_PATTERN)
-                list = list.sortedByDescending { it.lastAccess }.distinctBy { it.lastAccess!!.format(format) }.toMutableList()
+            val format = DateTimeFormatter.ofPattern(GeneralConsts.PATTERNS.DATE_TIME_PATTERN)
+            list = list.sortedByDescending { it.lastAccess }.distinctBy { it.lastAccess!!.format(format) }.toMutableList()
 
-                withContext(Dispatchers.Main) {
-                    mLoading.value = false
+            withContext(Dispatchers.Main) {
+                mLoading.value = false
 
-                    if (mList.value == null || mList.value!!.isEmpty()) {
-                        mList.value = ArrayList(list)
-                        mListFull.value = ArrayList(list)
-                    } else
-                        update(list)
+                if (mList.value == null || mList.value!!.isEmpty()) {
+                    mList.value = ArrayList(list)
+                    mListFull.value = ArrayList(list)
+                } else
+                    update(list)
 
-                    setSuggestions(mListFull.value)
+                setSuggestions(mListFull.value)
 
-                    refreshComplete(mList.value!!.size - 1)
-                }
+                refreshComplete(mList.value!!.size - 1)
             }
         }
     }
@@ -142,16 +155,20 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
     }
 
     fun updateDelete(history: History) {
-        when (history) {
-            is Manga ->  mMangaRepository.delete(history)
-            is Book ->  mBookRepository.delete(history)
+        viewModelScope.launch(Dispatchers.IO) {
+            when (history) {
+                is Manga ->  mMangaRepository.delete(history)
+                is Book ->  mBookRepository.delete(history)
+            }
         }
     }
 
     fun updateLastAccess(history: History) {
-        when (history) {
-            is Manga ->  mMangaRepository.update(history)
-            is Book ->  mBookRepository.update(history)
+        viewModelScope.launch(Dispatchers.IO) {
+            when (history) {
+                is Manga ->  mMangaRepository.update(history)
+                is Book ->  mBookRepository.update(history)
+            }
         }
     }
 
@@ -168,31 +185,32 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
 
     fun deletePermanent(history: History?) {
         history ?: return
-
-        when (history) {
-            is Manga -> mMangaRepository.deletePermanent(history)
-            is Book -> mBookRepository.deletePermanent(history)
+        viewModelScope.launch(Dispatchers.IO) {
+            when (history) {
+                is Manga -> mMangaRepository.deletePermanent(history)
+                is Book -> mBookRepository.deletePermanent(history)
+            }
         }
     }
 
     fun save(history: History?) {
         history ?: return
-
-        when (history) {
-            is Manga -> {
-                if (history.id == null || history.id == 0L)
-                    history.id = mMangaRepository.save(history)
-                else
-                    mMangaRepository.update(history)
-            }
-            is Book -> {
-                if (history.id == null || history.id == 0L)
-                    history.id = mBookRepository.save(history)
-                else
-                    mBookRepository.update(history)
+        viewModelScope.launch(Dispatchers.IO) {
+            when (history) {
+                is Manga -> {
+                    if (history.id == null || history.id == 0L)
+                        history.id = mMangaRepository.save(history)
+                    else
+                        mMangaRepository.update(history)
+                }
+                is Book -> {
+                    if (history.id == null || history.id == 0L)
+                        history.id = mBookRepository.save(history)
+                    else
+                        mBookRepository.update(history)
+                }
             }
         }
-
     }
 
     fun remove(history: History) {
@@ -344,12 +362,7 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
         }
     }
 
-    fun getLibraryList(): List<Library> {
-        val list = mutableListOf<Library>()
-        list.addAll(mLibraryRepository.list(Type.MANGA))
-        list.addAll(mLibraryRepository.list(Type.BOOK))
-        return list
-    }
+
 
     fun clearFilter() {
         mWordFilter = ""
@@ -367,55 +380,53 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
         if (list.isNullOrEmpty())
             return
 
-        val process = list.parallelStream().collect(Collectors.toList())
+        val process = ArrayList(list)
 
-        CoroutineScope(newSingleThreadContext("SuggestionThread")).launch {
-            async {
-                try {
-                    val authors = mutableSetOf<String>()
-                    val publishers = mutableSetOf<String>()
-                    val series = mutableSetOf<String>()
-                    val volumes = mutableSetOf<String>()
+        viewModelScope.launch(Dispatchers.Default) {
+            try {
+                val authors = mutableSetOf<String>()
+                val publishers = mutableSetOf<String>()
+                val series = mutableSetOf<String>()
+                val volumes = mutableSetOf<String>()
 
-                    process.forEach {
-                        when (it.type) {
-                            Type.BOOK -> {
-                                if ((it as Book).author.contains(","))
-                                    authors.addAll(it.author.split(",").map { it.trim() })
-                                else
-                                    authors.add(it.author)
+                process.forEach {
+                    when (it.type) {
+                        Type.BOOK -> {
+                            if ((it as Book).author.contains(","))
+                                authors.addAll(it.author.split(",").map { it.trim() })
+                            else
+                                authors.add(it.author)
 
-                                publishers.add(it.publisher)
-                                series.add(it.series)
-                            }
-                            Type.MANGA -> {
-                                if ((it as Manga).author.endsWith("."))
-                                    authors.add(it.author.substringBeforeLast("."))
-                                else
-                                    authors.add(it.author)
-
-                                publishers.add(it.publisher)
-                                series.add(it.series)
-                            }
+                            publishers.add(it.publisher)
+                            series.add(it.series)
                         }
-                        volumes.add(it.volume)
-                    }
+                        Type.MANGA -> {
+                            if ((it as Manga).author.endsWith("."))
+                                authors.add(it.author.substringBeforeLast("."))
+                            else
+                                authors.add(it.author)
 
-                    authors.removeIf { it.isEmpty() }
-                    publishers.removeIf { it.isEmpty() }
-                    series.removeIf { it.isEmpty() }
-                    volumes.removeIf { it.isEmpty() }
-
-                    withContext(Dispatchers.Main) {
-                        mSuggestionAuthor = authors
-                        mSuggestionPublisher = publishers
-                        mSuggestionSeries = series
-                        mSuggestionVolume = volumes
+                            publishers.add(it.publisher)
+                            series.add(it.series)
+                        }
                     }
-                } catch (e: Exception) {
-                    mLOGGER.error("Error generate suggestion: " + e.message, e)
-                    Telemetry.recordException(e, "Error generate suggestion: " + e.message)
+                    volumes.add(it.volume)
                 }
+
+                authors.removeIf { it.isEmpty() }
+                publishers.removeIf { it.isEmpty() }
+                series.removeIf { it.isEmpty() }
+                volumes.removeIf { it.isEmpty() }
+
+                withContext(Dispatchers.Main) {
+                    mSuggestionAuthor = authors
+                    mSuggestionPublisher = publishers
+                    mSuggestionSeries = series
+                    mSuggestionVolume = volumes
+                }
+            } catch (e: Exception) {
+                mLOGGER.error("Error generate suggestion: " + e.message, e)
+                Telemetry.recordException(e, "Error generate suggestion: " + e.message)
             }
         }
     }

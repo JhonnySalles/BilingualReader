@@ -33,6 +33,11 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -60,16 +65,16 @@ import kotlin.math.ceil
 class HistoryStatisticsFragment : Fragment() {
 
     private lateinit var mViewModel: HistoryStatisticsViewModel
-    private lateinit var mRecyclerView: RecyclerView
-    private lateinit var mScrollUp: FloatingActionButton
-    private lateinit var mScrollDown: FloatingActionButton
+    private var mRecyclerView: RecyclerView by autoCleared()
+    private var mScrollUp: FloatingActionButton by autoCleared()
+    private var mScrollDown: FloatingActionButton by autoCleared()
     private lateinit var miSearch: MenuItem
-    private lateinit var searchView: SearchView
+    private var searchView: SearchView by autoCleared()
     private lateinit var miFilterYear: MenuItem
 
-    private lateinit var mSkeletonLayout: LinearLayout
-    private lateinit var mShimmer: ShimmerLayout
-    private lateinit var mInflater: LayoutInflater
+    private var mSkeletonLayout: LinearLayout by autoCleared()
+    private var mShimmer: ShimmerLayout by autoCleared()
+    private var mInflater: LayoutInflater by autoCleared()
 
     private val mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
@@ -100,7 +105,7 @@ class HistoryStatisticsFragment : Fragment() {
         }
 
         // Limit library submenu items to current active type
-        for (library in mViewModel.getLibraryList()) {
+        for (library in mViewModel.libraries.value ?: emptyList()) {
             if (library.type == mViewModel.mTypeFilter) {
                 miLibrary.subMenu?.add(library.title)?.setOnMenuItemClickListener { _: MenuItem? ->
                     filterLibrary(library)
@@ -117,7 +122,7 @@ class HistoryStatisticsFragment : Fragment() {
             true
         }
 
-        val availableYears = mViewModel.listYears().sortedDescending()
+        val availableYears = (mViewModel.years.value ?: emptyList()).sortedDescending()
         for (year in availableYears) {
             miFilterYear.subMenu?.add(year.toString())?.setOnMenuItemClickListener { _: MenuItem? ->
                 filterYear(year)
@@ -253,6 +258,8 @@ class HistoryStatisticsFragment : Fragment() {
                 mViewModel.mYearFilter = if (year != -1) year else null
             }
         }
+
+        mViewModel.initData()
 
         updateTitleAndSubtitle()
 
@@ -433,6 +440,14 @@ class HistoryStatisticsFragment : Fragment() {
 
         mViewModel.history.observe(viewLifecycleOwner) {
             updateList(it)
+        }
+
+        mViewModel.libraries.observe(viewLifecycleOwner) {
+            activity?.invalidateOptionsMenu()
+        }
+
+        mViewModel.years.observe(viewLifecycleOwner) {
+            activity?.invalidateOptionsMenu()
         }
     }
 
@@ -631,4 +646,43 @@ class HistoryStatisticsFragment : Fragment() {
         mSkeletonLayout.animate().alpha(0f).setDuration(1000).withEndAction { showSkeleton(false) }.start()
     }
 
+    override fun onDestroyView() {
+        mHandler.removeCallbacksAndMessages(null)
+        super.onDestroyView()
+    }
+
 }
+
+private class AutoClearedValueHistoryStats<T : Any>(val fragment: Fragment) : ReadWriteProperty<Fragment, T> {
+    private var _value: T? = null
+
+    init {
+        fragment.lifecycle.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                if (event == Lifecycle.Event.ON_CREATE) {
+                    fragment.viewLifecycleOwnerLiveData.observe(fragment) { viewLifecycleOwner ->
+                        viewLifecycleOwner?.lifecycle?.addObserver(object : LifecycleEventObserver {
+                            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                                if (event == Lifecycle.Event.ON_DESTROY) {
+                                    _value = null
+                                }
+                            }
+                        })
+                    }
+                }
+            }
+        })
+    }
+
+    override fun getValue(thisRef: Fragment, property: KProperty<*>): T {
+        return _value ?: throw IllegalStateException(
+            "should never call to retrieve value after onDestroyView"
+        )
+    }
+
+    override fun setValue(thisRef: Fragment, property: KProperty<*>, value: T) {
+        _value = value
+    }
+}
+
+private fun <T : Any> Fragment.autoCleared() = AutoClearedValueHistoryStats<T>(this)

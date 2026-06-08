@@ -12,6 +12,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
@@ -242,80 +243,83 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     }
 
     fun updateList(refreshComplete: (Boolean, indexes: MutableList<Pair<ListMode, Int>>) -> (Unit)) {
-        var change = false
-        val indexes = mutableListOf<Pair<ListMode, Int>>()
-        if (mListMangasFull.value != null && mListMangasFull.value!!.isNotEmpty()) {
-            val list = mMangaRepository.listRecentChange(mLibrary)
-            if (!list.isNullOrEmpty()) {
-                change = true
-                for (manga in list) {
-                    if (mListMangasFull.value!!.contains(manga)) {
-                        if (mListMangasFull.value!![mListMangasFull.value!!.indexOf(manga)].update(manga, true)) {
-                            val index = mListMangas.value!!.indexOf(manga)
-                            if (index > -1)
-                                indexes.add(Pair(ListMode.MOD, index))
-                        }
-                    } else {
-                        mListMangas.value!!.add(manga)
-                        mListMangasFull.value!!.add(manga)
-                        indexes.add(Pair(ListMode.ADD, mListMangas.value!!.size))
-                    }
-                }
-            }
-            val listDel = mMangaRepository.listRecentDeleted(mLibrary)
-            if (!listDel.isNullOrEmpty()) {
-                change = true
-                for (manga in listDel) {
-                    if (mListMangasFull.value!!.contains(manga)) {
-                        val index = mListMangas.value!!.indexOf(manga)
-                        mListMangas.value!!.remove(manga)
-                        mListMangasFull.value!!.remove(manga)
-                        indexes.add(Pair(ListMode.REM, index))
-                    }
-                }
-            }
-        } else {
-            val list = mMangaRepository.list(mLibrary)
-            if (list != null) {
-                indexes.add(Pair(ListMode.FULL, list.size))
-                mListMangas.value = list.toMutableList()
-                mListMangasFull.value = list.toMutableList()
-            } else {
-                mListMangas.value = mutableListOf()
-                mListMangasFull.value = mutableListOf()
-                indexes.add(Pair(ListMode.FULL, 0))
-            }
-            //Receive value force refresh, not necessary notify
-            change = false
-        }
+        viewModelScope.launch {
+            val currentFullList = mListMangasFull.value ?: mutableListOf()
+            if (currentFullList.isNotEmpty()) {
+                val list = withContext(Dispatchers.IO) { mMangaRepository.listRecentChange(mLibrary) }
+                val listDel = withContext(Dispatchers.IO) { mMangaRepository.listRecentDeleted(mLibrary) }
 
-        setSuggestions(mListMangasFull.value)
-        refreshComplete(change, indexes)
+                var change = false
+                val indexes = mutableListOf<Pair<ListMode, Int>>()
+
+                if (!list.isNullOrEmpty()) {
+                    change = true
+                    for (manga in list) {
+                        if (mListMangasFull.value!!.contains(manga)) {
+                            if (mListMangasFull.value!![mListMangasFull.value!!.indexOf(manga)].update(manga, true)) {
+                                val index = mListMangas.value!!.indexOf(manga)
+                                if (index > -1)
+                                    indexes.add(Pair(ListMode.MOD, index))
+                            }
+                        } else {
+                            mListMangas.value!!.add(manga)
+                            mListMangasFull.value!!.add(manga)
+                            indexes.add(Pair(ListMode.ADD, mListMangas.value!!.size - 1))
+                        }
+                    }
+                }
+                if (!listDel.isNullOrEmpty()) {
+                    change = true
+                    for (manga in listDel) {
+                        if (mListMangasFull.value!!.contains(manga)) {
+                            val index = mListMangas.value!!.indexOf(manga)
+                            mListMangas.value!!.remove(manga)
+                            mListMangasFull.value!!.remove(manga)
+                            indexes.add(Pair(ListMode.REM, index))
+                        }
+                    }
+                }
+                setSuggestions(mListMangasFull.value)
+                refreshComplete(change, indexes)
+            } else {
+                val list = withContext(Dispatchers.IO) { mMangaRepository.list(mLibrary) }
+                val indexes = mutableListOf<Pair<ListMode, Int>>()
+                if (list != null) {
+                    indexes.add(Pair(ListMode.FULL, list.size))
+                    mListMangas.value = list.toMutableList()
+                    mListMangasFull.value = list.toMutableList()
+                } else {
+                    mListMangas.value = mutableListOf()
+                    mListMangasFull.value = mutableListOf()
+                    indexes.add(Pair(ListMode.FULL, 0))
+                }
+                setSuggestions(mListMangasFull.value)
+                refreshComplete(false, indexes)
+            }
+        }
     }
 
     fun list(refreshComplete: (Boolean) -> (Unit)) {
         mLoading.value = true
-        CoroutineScope(Dispatchers.IO).launch {
-            async {
-                val list = mMangaRepository.list(mLibrary)
-                withContext(Dispatchers.Main) {
-                    mLoading.value = false
+        viewModelScope.launch(Dispatchers.IO) {
+            val list = mMangaRepository.list(mLibrary)
+            withContext(Dispatchers.Main) {
+                mLoading.value = false
 
-                    if (list != null) {
-                        if (mListMangasFull.value == null || mListMangasFull.value!!.isEmpty()) {
-                            mListMangas.value = list.toMutableList()
-                            mListMangasFull.value = list.toMutableList()
-                            setSuggestions(mListMangasFull.value)
-                        } else
-                            update(list)
-                    } else {
-                        mListMangasFull.value = mutableListOf()
-                        mListMangas.value = mutableListOf()
+                if (list != null) {
+                    if (mListMangasFull.value == null || mListMangasFull.value!!.isEmpty()) {
+                        mListMangas.value = list.toMutableList()
+                        mListMangasFull.value = list.toMutableList()
                         setSuggestions(mListMangasFull.value)
-                    }
-
-                    refreshComplete(mListMangas.value!!.isNotEmpty())
+                    } else
+                        update(list)
+                } else {
+                    mListMangasFull.value = mutableListOf()
+                    mListMangas.value = mutableListOf()
+                    setSuggestions(mListMangasFull.value)
                 }
+
+                refreshComplete(mListMangas.value!!.isNotEmpty())
             }
         }
     }
@@ -394,42 +398,40 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
         if (list.isNullOrEmpty())
             return
 
-        val process = list.parallelStream().collect(Collectors.toList())
+        val process = ArrayList(list)
 
-        CoroutineScope(newSingleThreadContext("SuggestionThread")).launch {
-            async {
-                try {
-                    val authors = mutableSetOf<String>()
-                    val publishers = mutableSetOf<String>()
-                    val series = mutableSetOf<String>()
-                    val volumes = mutableSetOf<String>()
+        viewModelScope.launch(Dispatchers.Default) {
+            try {
+                val authors = mutableSetOf<String>()
+                val publishers = mutableSetOf<String>()
+                val series = mutableSetOf<String>()
+                val volumes = mutableSetOf<String>()
 
-                    process.forEach {
-                        if (it.author.endsWith("."))
-                            authors.add(it.author.substringBeforeLast("."))
-                        else
-                            authors.add(it.author)
+                process.forEach {
+                    if (it.author.endsWith("."))
+                        authors.add(it.author.substringBeforeLast("."))
+                    else
+                        authors.add(it.author)
 
-                        publishers.add(it.publisher)
-                        series.add(it.series)
-                        volumes.add(it.volume)
-                    }
-
-                    authors.removeIf { it.isEmpty() }
-                    publishers.removeIf { it.isEmpty() }
-                    series.removeIf { it.isEmpty() }
-                    volumes.removeIf { it.isEmpty() }
-
-                    withContext(Dispatchers.Main) {
-                        mSuggestionAuthor = authors
-                        mSuggestionPublisher = publishers
-                        mSuggestionSeries = series
-                        mSuggestionVolume = volumes
-                    }
-                } catch (e: Exception) {
-                    mLOGGER.error("Error generate suggestion: " + e.message, e)
-                    Telemetry.recordException(e, "Error generate suggestion: " + e.message)
+                    publishers.add(it.publisher)
+                    series.add(it.series)
+                    volumes.add(it.volume)
                 }
+
+                authors.removeIf { it.isEmpty() }
+                publishers.removeIf { it.isEmpty() }
+                series.removeIf { it.isEmpty() }
+                volumes.removeIf { it.isEmpty() }
+
+                withContext(Dispatchers.Main) {
+                    mSuggestionAuthor = authors
+                    mSuggestionPublisher = publishers
+                    mSuggestionSeries = series
+                    mSuggestionVolume = volumes
+                }
+            } catch (e: Exception) {
+                mLOGGER.error("Error generate suggestion: " + e.message, e)
+                Telemetry.recordException(e, "Error generate suggestion: " + e.message)
             }
         }
     }
@@ -611,87 +613,82 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
         if (ActivityCompat.checkSelfPermission(app.applicationContext, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
             notificationManager.notify(notifyId, notification.build())
 
-        CoroutineScope(newSingleThreadContext("VocabularyThread")).launch {
-            async {
-                try {
-                    val size = list.size
-                    for ((index, manga) in list.withIndex()) {
-                        when (import) {
-                            Import.DEFAULT ->  {
-                                if (manga.lastVocabImport != null && manga.lastVocabImport!!.isAfter(LocalDateTime.now().minusDays(1)))
-                                    continue
-                            }
-                            Import.RE_IMPORT -> {
-                                if (manga.lastVocabImport == null)
-                                    continue
-                            }
-                            Import.NEW_ITEMS -> {
-                                if (manga.lastVocabImport != null)
-                                    continue
-                            }
-                            Import.FULL_ITEMS -> { }
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val size = list.size
+                for ((index, manga) in list.withIndex()) {
+                    when (import) {
+                        Import.DEFAULT ->  {
+                            if (manga.lastVocabImport != null && manga.lastVocabImport!!.isAfter(LocalDateTime.now().minusDays(1)))
+                                continue
                         }
-
-                        withContext(Dispatchers.Main) {
-                            notification.setContentText(manga.name).setProgress(size, index, false).setOngoing(true)
-
-                            if (ActivityCompat.checkSelfPermission(app.applicationContext, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
-                                notificationManager.notify(notifyId, notification.build())
+                        Import.RE_IMPORT -> {
+                            if (manga.lastVocabImport == null)
+                                continue
                         }
-
-                        val parse = ParseFactory.create(manga.file) ?: continue
-
-                        try {
-                            if (parse is RarParse) {
-                                val folder = GeneralConsts.CACHE_FOLDER.RAR + '/' + Util.normalizeNameCache(manga.name)
-                                val cacheDir = File(cache, folder)
-                                (parse as RarParse?)!!.setCacheDirectory(cacheDir)
-                            }
-
-                            val listJson: List<String> = parse.getSubtitles()
-                            if (listJson.isNotEmpty()) {
-                                val listSubTitleChapter: MutableList<SubTitleChapter> = SubTitleController.getChapterFromJson(listJson)
-                                val chaptersList = Collections.synchronizedCollection(listSubTitleChapter.parallelStream()
-                                    .filter(Objects::nonNull)
-                                    .filter { it.language == Languages.JAPANESE && it.vocabulary.isNotEmpty() }
-                                    .collect(Collectors.toList()))
-                                val processed = repository.processVocabulary(chaptersList)
-                                for (vocab in processed)
-                                    withContext(Dispatchers.Main) {
-                                        vocab.first.id = repository.save(vocab.first)
-                                        vocab.first.id?.let { repository.insert(manga.id!!, it, vocab.second) }
-                                    }
-
-                                manga.lastVocabImport = LocalDateTime.now()
-                                manga.fileAlteration = Date(manga.file.lastModified())
-
-                                withContext(Dispatchers.Main) {
-                                    repository.updateImport(manga)
-                                }
-                            }
-                        } finally {
-                            Util.destroyParse(parse)
+                        Import.NEW_ITEMS -> {
+                            if (manga.lastVocabImport != null)
+                                continue
                         }
+                        Import.FULL_ITEMS -> { }
                     }
+
                     withContext(Dispatchers.Main) {
-                        val mMsgImport = app.getString(R.string.vocabulary_imported)
-                        notification.setContentText(mMsgImport)
-                            .setProgress(list.size, list.size, false)
+                        notification.setContentText(manga.name).setProgress(size, index, false).setOngoing(true)
 
                         if (ActivityCompat.checkSelfPermission(app.applicationContext, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
                             notificationManager.notify(notifyId, notification.build())
                     }
-                } catch (e: Exception) {
-                    mLOGGER.error("Error to import vocabulary: " + e.message, e)
-                    Telemetry.recordException(e, "Error to import vocabulary: " + e.message)
-                } finally {
-                    withContext(Dispatchers.Main) {
-                        mImportingVocab = false
-                        notification.setOngoing(false)
 
-                        if (ActivityCompat.checkSelfPermission(app.applicationContext, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
-                            notificationManager.notify(notifyId, notification.build())
+                    val parse = ParseFactory.create(manga.file) ?: continue
+
+                    try {
+                        if (parse is RarParse) {
+                            val folder = GeneralConsts.CACHE_FOLDER.RAR + '/' + Util.normalizeNameCache(manga.name)
+                            val cacheDir = File(cache, folder)
+                            (parse as RarParse?)!!.setCacheDirectory(cacheDir)
+                        }
+
+                        val listJson: List<String> = parse.getSubtitles()
+                        if (listJson.isNotEmpty()) {
+                            val listSubTitleChapter: MutableList<SubTitleChapter> = SubTitleController.getChapterFromJson(listJson)
+                            val chaptersList = Collections.synchronizedCollection(listSubTitleChapter.parallelStream()
+                                .filter(Objects::nonNull)
+                                .filter { it.language == Languages.JAPANESE && it.vocabulary.isNotEmpty() }
+                                .collect(Collectors.toList()))
+                            val processed = repository.processVocabulary(chaptersList)
+                            for (vocab in processed) {
+                                vocab.first.id = repository.save(vocab.first)
+                                vocab.first.id?.let { repository.insert(manga.id!!, it, vocab.second) }
+                            }
+
+                            manga.lastVocabImport = LocalDateTime.now()
+                            manga.fileAlteration = Date(manga.file.lastModified())
+
+                            repository.updateImport(manga)
+                        }
+                    } finally {
+                        Util.destroyParse(parse)
                     }
+                }
+                withContext(Dispatchers.Main) {
+                    val mMsgImport = app.getString(R.string.vocabulary_imported)
+                    notification.setContentText(mMsgImport)
+                        .setProgress(list.size, list.size, false)
+
+                    if (ActivityCompat.checkSelfPermission(app.applicationContext, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                        notificationManager.notify(notifyId, notification.build())
+                }
+            } catch (e: Exception) {
+                mLOGGER.error("Error to import vocabulary: " + e.message, e)
+                Telemetry.recordException(e, "Error to import vocabulary: " + e.message)
+            } finally {
+                withContext(Dispatchers.Main) {
+                    mImportingVocab = false
+                    notification.setOngoing(false)
+
+                    if (ActivityCompat.checkSelfPermission(app.applicationContext, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                        notificationManager.notify(notifyId, notification.build())
                 }
             }
         }

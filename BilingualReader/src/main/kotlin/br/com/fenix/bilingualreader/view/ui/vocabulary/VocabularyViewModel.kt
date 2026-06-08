@@ -13,6 +13,8 @@ import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.transformLatest
@@ -95,7 +97,9 @@ class VocabularyViewModel(application: Application) : AndroidViewModel(applicati
     fun getOrder(): Pair<Order, Boolean> = currentQuery.value.order
 
     fun update(vocabulary: Vocabulary) {
-        mDataBase.update(vocabulary)
+        viewModelScope.launch(Dispatchers.IO) {
+            mDataBase.update(vocabulary)
+        }
     }
 
     fun sorted(order: Order, isDesc: Boolean = false) {

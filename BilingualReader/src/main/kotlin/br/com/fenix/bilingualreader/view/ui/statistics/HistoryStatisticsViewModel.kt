@@ -6,6 +6,7 @@ import android.widget.Filterable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -69,22 +70,39 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
     private var mSuggestionPublisher = setOf<String>()
     private var mSuggestionSeries = setOf<String>()
     private var mSuggestionVolume = setOf<String>()
-    private var mSuggestionTags = mTagsRepository.list()
+    private var mSuggestionTags = listOf<br.com.fenix.bilingualreader.model.entity.Tags>()
+
+    private val mLibraries = MutableLiveData<List<Library>>(emptyList())
+    val libraries: LiveData<List<Library>> = mLibraries
+
+    private val mYears = MutableLiveData<List<Int>>(emptyList())
+    val years: LiveData<List<Int>> = mYears
+
+    fun initData() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val tags = mTagsRepository.list()
+            val libs = mLibraryRepository.list(mTypeFilter)
+            val activeYears = mStatisticsRepository.listYears(mTypeFilter)
+            withContext(Dispatchers.Main) {
+                mSuggestionTags = tags
+                mLibraries.value = libs
+                mYears.value = activeYears
+            }
+        }
+    }
 
     fun list() {
         mLoading.value = true
 
-        CoroutineScope(Dispatchers.IO).launch {
-            async {
-                val list = loadAggregatedHistory()
+        viewModelScope.launch(Dispatchers.IO) {
+            val list = loadAggregatedHistory()
 
-                withContext(Dispatchers.Main) {
-                    mLoading.value = false
+            withContext(Dispatchers.Main) {
+                mLoading.value = false
 
-                    mListFull.value = ArrayList(list)
-                    mList.value = ArrayList(list)
-                    setSuggestions(mListFull.value)
-                }
+                mListFull.value = ArrayList(list)
+                mList.value = ArrayList(list)
+                setSuggestions(mListFull.value)
             }
         }
     }
@@ -92,23 +110,21 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
     fun list(refreshComplete: (Int) -> (Unit)) {
         mLoading.value = true
 
-        CoroutineScope(Dispatchers.IO).launch {
-            async {
-                val list = loadAggregatedHistory()
+        viewModelScope.launch(Dispatchers.IO) {
+            val list = loadAggregatedHistory()
 
-                withContext(Dispatchers.Main) {
-                    mLoading.value = false
+            withContext(Dispatchers.Main) {
+                mLoading.value = false
 
-                    if (mList.value == null || mList.value!!.isEmpty()) {
-                        mList.value = ArrayList(list)
-                        mListFull.value = ArrayList(list)
-                    } else
-                        update(list)
+                if (mList.value == null || mList.value!!.isEmpty()) {
+                    mList.value = ArrayList(list)
+                    mListFull.value = ArrayList(list)
+                } else
+                    update(list)
 
-                    setSuggestions(mListFull.value)
+                setSuggestions(mListFull.value)
 
-                    refreshComplete(mList.value!!.size - 1)
-                }
+                refreshComplete(mList.value!!.size - 1)
             }
         }
     }
@@ -196,17 +212,21 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
 
     fun updateDelete(history: History) {
         val base = if (history is HistoryStatistics) history.base else history
-        when (base) {
-            is Manga ->  mMangaRepository.delete(base)
-            is Book ->  mBookRepository.delete(base)
+        viewModelScope.launch(Dispatchers.IO) {
+            when (base) {
+                is Manga ->  mMangaRepository.delete(base)
+                is Book ->  mBookRepository.delete(base)
+            }
         }
     }
 
     fun updateLastAccess(history: History) {
         val base = if (history is HistoryStatistics) history.base else history
-        when (base) {
-            is Manga ->  mMangaRepository.update(base)
-            is Book ->  mBookRepository.update(base)
+        viewModelScope.launch(Dispatchers.IO) {
+            when (base) {
+                is Manga ->  mMangaRepository.update(base)
+                is Book ->  mBookRepository.update(base)
+            }
         }
     }
 
@@ -225,27 +245,31 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
     fun deletePermanent(history: History?) {
         history ?: return
         val base = if (history is HistoryStatistics) history.base else history
-        when (base) {
-            is Manga -> mMangaRepository.deletePermanent(base)
-            is Book -> mBookRepository.deletePermanent(base)
+        viewModelScope.launch(Dispatchers.IO) {
+            when (base) {
+                is Manga -> mMangaRepository.deletePermanent(base)
+                is Book -> mBookRepository.deletePermanent(base)
+            }
         }
     }
 
     fun save(history: History?) {
         history ?: return
         val base = if (history is HistoryStatistics) history.base else history
-        when (base) {
-            is Manga -> {
-                if (base.id == null || base.id == 0L)
-                    base.id = mMangaRepository.save(base)
-                else
-                    mMangaRepository.update(base)
-            }
-            is Book -> {
-                if (base.id == null || base.id == 0L)
-                    base.id = mBookRepository.save(base)
-                else
-                    mBookRepository.update(base)
+        viewModelScope.launch(Dispatchers.IO) {
+            when (base) {
+                is Manga -> {
+                    if (base.id == null || base.id == 0L)
+                        base.id = mMangaRepository.save(base)
+                    else
+                        mMangaRepository.update(base)
+                }
+                is Book -> {
+                    if (base.id == null || base.id == 0L)
+                        base.id = mBookRepository.save(base)
+                    else
+                        mBookRepository.update(base)
+                }
             }
         }
     }
@@ -388,13 +412,7 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
         }
     }
 
-    fun getLibraryList(): List<Library> {
-        return mLibraryRepository.list(mTypeFilter)
-    }
 
-    fun listYears(): List<Int> {
-        return mStatisticsRepository.listYears(mTypeFilter)
-    }
 
     fun clearFilter() {
         mWordFilter = ""
@@ -412,55 +430,53 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
         if (list.isNullOrEmpty())
             return
 
-        val process = list.parallelStream().collect(Collectors.toList())
+        val process = ArrayList(list)
 
-        CoroutineScope(newSingleThreadContext("SuggestionThread")).launch {
-            async {
-                try {
-                    val authors = mutableSetOf<String>()
-                    val publishers = mutableSetOf<String>()
-                    val series = mutableSetOf<String>()
-                    val volumes = mutableSetOf<String>()
+        viewModelScope.launch(Dispatchers.Default) {
+            try {
+                val authors = mutableSetOf<String>()
+                val publishers = mutableSetOf<String>()
+                val series = mutableSetOf<String>()
+                val volumes = mutableSetOf<String>()
 
-                    process.forEach {
-                        when (it.type) {
-                            Type.BOOK -> {
-                                if ((it as Book).author.contains(","))
-                                    authors.addAll(it.author.split(",").map { it.trim() })
-                                else
-                                    authors.add(it.author)
+                process.forEach {
+                    when (it.type) {
+                        Type.BOOK -> {
+                            if ((it as Book).author.contains(","))
+                                authors.addAll(it.author.split(",").map { it.trim() })
+                            else
+                                authors.add(it.author)
 
-                                publishers.add(it.publisher)
-                                series.add(it.series)
-                            }
-                            Type.MANGA -> {
-                                if ((it as Manga).author.endsWith("."))
-                                    authors.add(it.author.substringBeforeLast("."))
-                                else
-                                    authors.add(it.author)
-
-                                publishers.add(it.publisher)
-                                series.add(it.series)
-                            }
+                            publishers.add(it.publisher)
+                            series.add(it.series)
                         }
-                        volumes.add(it.volume)
-                    }
+                        Type.MANGA -> {
+                            if ((it as Manga).author.endsWith("."))
+                                authors.add(it.author.substringBeforeLast("."))
+                            else
+                                authors.add(it.author)
 
-                    authors.removeIf { it.isEmpty() }
-                    publishers.removeIf { it.isEmpty() }
-                    series.removeIf { it.isEmpty() }
-                    volumes.removeIf { it.isEmpty() }
-
-                    withContext(Dispatchers.Main) {
-                        mSuggestionAuthor = authors
-                        mSuggestionPublisher = publishers
-                        mSuggestionSeries = series
-                        mSuggestionVolume = volumes
+                            publishers.add(it.publisher)
+                            series.add(it.series)
+                        }
                     }
-                } catch (e: Exception) {
-                    mLOGGER.error("Error generate suggestion: " + e.message, e)
-                    Telemetry.recordException(e, "Error generate suggestion: " + e.message)
+                    volumes.add(it.volume)
                 }
+
+                authors.removeIf { it.isEmpty() }
+                publishers.removeIf { it.isEmpty() }
+                series.removeIf { it.isEmpty() }
+                volumes.removeIf { it.isEmpty() }
+
+                withContext(Dispatchers.Main) {
+                    mSuggestionAuthor = authors
+                    mSuggestionPublisher = publishers
+                    mSuggestionSeries = series
+                    mSuggestionVolume = volumes
+                }
+            } catch (e: Exception) {
+                mLOGGER.error("Error generate suggestion: " + e.message, e)
+                Telemetry.recordException(e, "Error generate suggestion: " + e.message)
             }
         }
     }

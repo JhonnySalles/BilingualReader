@@ -32,6 +32,11 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -59,16 +64,16 @@ import kotlin.math.ceil
 class HistoryFragment : Fragment() {
 
     private lateinit var mViewModel: HistoryViewModel
-    private lateinit var mRecyclerView: RecyclerView
-    private lateinit var mScrollUp: FloatingActionButton
-    private lateinit var mScrollDown: FloatingActionButton
+    private var mRecyclerView: RecyclerView by autoCleared()
+    private var mScrollUp: FloatingActionButton by autoCleared()
+    private var mScrollDown: FloatingActionButton by autoCleared()
     private lateinit var miSearch: MenuItem
-    private lateinit var searchView: SearchView
+    private var searchView: SearchView by autoCleared()
     private lateinit var miFilterType: MenuItem
 
-    private lateinit var mSkeletonLayout: LinearLayout
-    private lateinit var mShimmer: ShimmerLayout
-    private lateinit var mInflater: LayoutInflater
+    private var mSkeletonLayout: LinearLayout by autoCleared()
+    private var mShimmer: ShimmerLayout by autoCleared()
+    private var mInflater: LayoutInflater by autoCleared()
 
     private var mFilterType: Type? = null
 
@@ -102,7 +107,7 @@ class HistoryFragment : Fragment() {
 
         val manga = miLibrary.subMenu?.addSubMenu(Menu.NONE, Menu.NONE, 102,requireContext().getString(R.string.history_manga))
         val book = miLibrary.subMenu?.addSubMenu(Menu.NONE, Menu.NONE, 103,requireContext().getString(R.string.history_book))
-        for (library in mViewModel.getLibraryList())
+        for (library in mViewModel.libraries.value ?: emptyList())
             when (library.type) {
                 Type.BOOK -> book!!.add(library.title)?.setOnMenuItemClickListener { _: MenuItem? ->
                     filterLibrary(library)
@@ -444,6 +449,10 @@ class HistoryFragment : Fragment() {
         mViewModel.type.observe(viewLifecycleOwner) {
             onChangeIconFilterType(it)
         }
+
+        mViewModel.libraries.observe(viewLifecycleOwner) {
+            activity?.invalidateOptionsMenu()
+        }
     }
 
     private fun onChangeIconFilterType(type: Type?) {
@@ -680,4 +689,43 @@ class HistoryFragment : Fragment() {
         mSkeletonLayout.animate().alpha(0f).setDuration(1000).withEndAction { showSkeleton(false) }.start()
     }
 
+    override fun onDestroyView() {
+        mHandler.removeCallbacksAndMessages(null)
+        super.onDestroyView()
+    }
+
 }
+
+private class AutoClearedValueHistory<T : Any>(val fragment: Fragment) : ReadWriteProperty<Fragment, T> {
+    private var _value: T? = null
+
+    init {
+        fragment.lifecycle.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                if (event == Lifecycle.Event.ON_CREATE) {
+                    fragment.viewLifecycleOwnerLiveData.observe(fragment) { viewLifecycleOwner ->
+                        viewLifecycleOwner?.lifecycle?.addObserver(object : LifecycleEventObserver {
+                            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                                if (event == Lifecycle.Event.ON_DESTROY) {
+                                    _value = null
+                                }
+                            }
+                        })
+                    }
+                }
+            }
+        })
+    }
+
+    override fun getValue(thisRef: Fragment, property: KProperty<*>): T {
+        return _value ?: throw IllegalStateException(
+            "should never call to retrieve value after onDestroyView"
+        )
+    }
+
+    override fun setValue(thisRef: Fragment, property: KProperty<*>, value: T) {
+        _value = value
+    }
+}
+
+private fun <T : Any> Fragment.autoCleared() = AutoClearedValueHistory<T>(this)

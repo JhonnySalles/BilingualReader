@@ -45,6 +45,7 @@ android {
         debug {
             minifyEnabled true
             testCoverageEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             manifestPlaceholders["crashlyticsEnabled"] = "true"
             manifestPlaceholders["sentryAutoInit"] = "true"
             firebaseAppDistribution {

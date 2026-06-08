@@ -100,6 +100,11 @@ import kotlin.math.ceil
 import kotlin.math.max
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 
 class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener {
@@ -111,27 +116,30 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     private lateinit var mViewModel: MangaLibraryViewModel
     private lateinit var mainFunctions: MainListener
 
-    private lateinit var mRoot: FrameLayout
-    private lateinit var mRefreshLayout: SwipeRefreshLayout
-    private lateinit var mRecyclerView: RecyclerView
+    private var mRoot: FrameLayout by autoCleared()
+    private var mRefreshLayout: SwipeRefreshLayout by autoCleared()
+    private var _mRecyclerView: RecyclerView? = null
+    private val mRecyclerView: RecyclerView get() = _mRecyclerView!!
     private lateinit var miGridType: MenuItem
     private lateinit var miGridOrder: MenuItem
     private lateinit var miSearch: MenuItem
-    private lateinit var searchView: SearchView
+    private var _searchView: SearchView? = null
+    private val searchView: SearchView get() = _searchView!!
     private lateinit var mListener: MangaCardListener
-    private lateinit var mScrollUp: FloatingActionButton
-    private lateinit var mScrollDown: FloatingActionButton
-    private lateinit var mMenuPopupLibrary: FrameLayout
-    private lateinit var mPopupLibraryView: ViewPager
-    private lateinit var mPopupLibraryTab: TabLayout
-    private lateinit var mPopupFilterFragment: LibraryMangaPopupFilter
-    private lateinit var mPopupOrderFragment: LibraryMangaPopupOrder
-    private lateinit var mPopupTypeFragment: LibraryMangaPopupType
-    private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
+    private var mScrollUp: FloatingActionButton by autoCleared()
+    private var mScrollDown: FloatingActionButton by autoCleared()
+    private var mMenuPopupLibrary: FrameLayout by autoCleared()
+    private var mPopupLibraryView: ViewPager by autoCleared()
+    private var mPopupLibraryTab: TabLayout by autoCleared()
+    private var mPopupFilterFragment: LibraryMangaPopupFilter by autoCleared()
+    private var mPopupOrderFragment: LibraryMangaPopupOrder by autoCleared()
+    private var mPopupTypeFragment: LibraryMangaPopupType by autoCleared()
+    private var _mBottomSheet: BottomSheetBehavior<FrameLayout>? = null
+    private val mBottomSheet: BottomSheetBehavior<FrameLayout> get() = _mBottomSheet!!
 
-    private lateinit var mSkeletonLayout: LinearLayout
-    private lateinit var mShimmer: ShimmerLayout
-    private lateinit var mInflater: LayoutInflater
+    private var mSkeletonLayout: LinearLayout by autoCleared()
+    private var mShimmer: ShimmerLayout by autoCleared()
+    private var mInflater: LayoutInflater by autoCleared()
 
     private val mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
@@ -175,7 +183,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         miSearch = menu.findItem(R.id.menu_manga_library_search)
 
 
-        searchView = miSearch.actionView as SearchView
+        _searchView = miSearch.actionView as SearchView
         searchView.imeOptions = EditorInfo.IME_ACTION_DONE
 
         val searchSrcTextView = miSearch.actionView!!.findViewById<View>(Resources.getSystem().getIdentifier("search_src_text", "id", "android")) as AutoCompleteTextView
@@ -346,6 +354,14 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         super.onDestroy()
     }
 
+    override fun onDestroyView() {
+        mHandler.removeCallbacksAndMessages(null)
+        _searchView = null
+        _mRecyclerView = null
+        _mBottomSheet = null
+        super.onDestroyView()
+    }
+
     private inner class UpdateHandler : Handler() {
         override fun handleMessage(msg: Message) {
             val obj = msg.obj
@@ -354,9 +370,9 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                 GeneralConsts.SCANNER.MESSAGE_MANGA_UPDATED_REMOVE -> refreshLibraryRemoveDelayed(obj as Manga)
                 GeneralConsts.SCANNER.MESSAGE_MANGA_UPDATE_FINISHED -> {
                     setIsRefreshing(false)
-                    if (obj as Boolean && ::mViewModel.isInitialized) { // Bug when rotate is necessary verify is initialized
+                    if (obj as Boolean && ::mViewModel.isInitialized && _mRecyclerView != null) { // Bug when rotate is necessary verify is initialized
                         mViewModel.updateList { change, _ ->
-                            if (change)
+                            if (change && _mRecyclerView != null)
                                 sortList()
                         }
                     }
@@ -366,6 +382,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     private fun notifyDataSet(indexes: MutableList<kotlin.Pair<ListMode, Int>>) {
+        if (_mRecyclerView == null)
+            return
         if (indexes.any { it.first == ListMode.FULL })
             notifyDataSet(0, (mViewModel.listMangas.value?.size ?: 1))
         else {
@@ -380,6 +398,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     private fun notifyDataSet(index: Int, range: Int = 0, insert: Boolean = false, removed: Boolean = false) {
+        if (_mRecyclerView == null)
+            return
         if (insert)
             mRecyclerView.adapter?.notifyItemInserted(index)
         else if (removed)
@@ -392,13 +412,13 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     private fun refreshLibraryAddDelayed(manga: Manga) {
         val index = mViewModel.addList(manga)
-        if (index > -1)
+        if (index > -1 && _mRecyclerView != null)
             mRecyclerView.adapter?.notifyItemInserted(index)
     }
 
     private fun refreshLibraryRemoveDelayed(manga: Manga) {
         val index = mViewModel.remList(manga)
-        if (index > -1)
+        if (index > -1 && _mRecyclerView != null)
             mRecyclerView.adapter?.notifyItemRemoved(index)
     }
 
@@ -585,7 +605,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         }
 
         mRoot = root.findViewById(R.id.frame_manga_library_root)
-        mRecyclerView = root.findViewById(R.id.manga_library_recycler_view)
+        _mRecyclerView = root.findViewById(R.id.manga_library_recycler_view)
         mRefreshLayout = root.findViewById(R.id.manga_library_refresh)
         mScrollUp = root.findViewById(R.id.manga_library_scroll_up)
         mScrollDown = root.findViewById(R.id.manga_library_scroll_down)
@@ -638,7 +658,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         BottomSheetBehavior.from(mMenuPopupLibrary).apply {
             peekHeight = 255
             this.state = BottomSheetBehavior.STATE_COLLAPSED
-            mBottomSheet = this
+            _mBottomSheet = this
         }
         mBottomSheet.isDraggable = true
 
@@ -807,7 +827,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         }
         observer()
         mViewModel.list {
-            if (it)
+            if (it && _mRecyclerView != null)
                 sortList()
         }
 
@@ -991,7 +1011,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         try {
             mRefreshLayout.isRefreshing = enabled
 
-            if (!::searchView.isInitialized || !::mRecyclerView.isInitialized)
+            if (_searchView == null || _mRecyclerView == null)
                 return
 
             if (enabled)
@@ -1320,7 +1340,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     override fun onPause() {
         super.onPause()
-        if (::mBottomSheet.isInitialized && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+        if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
             mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -1337,3 +1357,37 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
 }
+
+private class AutoClearedValueManga<T : Any>(val fragment: Fragment) : ReadWriteProperty<Fragment, T> {
+    private var _value: T? = null
+
+    init {
+        fragment.lifecycle.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                if (event == Lifecycle.Event.ON_CREATE) {
+                    fragment.viewLifecycleOwnerLiveData.observe(fragment) { viewLifecycleOwner ->
+                        viewLifecycleOwner?.lifecycle?.addObserver(object : LifecycleEventObserver {
+                            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                                if (event == Lifecycle.Event.ON_DESTROY) {
+                                    _value = null
+                                }
+                            }
+                        })
+                    }
+                }
+            }
+        })
+    }
+
+    override fun getValue(thisRef: Fragment, property: KProperty<*>): T {
+        return _value ?: throw IllegalStateException(
+            "should never call to retrieve value after onDestroyView"
+        )
+    }
+
+    override fun setValue(thisRef: Fragment, property: KProperty<*>, value: T) {
+        _value = value
+    }
+}
+
+private fun <T : Any> Fragment.autoCleared() = AutoClearedValueManga<T>(this)
