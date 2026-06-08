@@ -417,7 +417,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             DataBase.autoBackupDatabase(this)
         }
 
-        DataBase.close()
         super.onDestroy()
     }
 

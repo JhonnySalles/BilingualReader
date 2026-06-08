@@ -25,3 +25,15 @@
 -keep class org.slf4j.** { *; }
 -dontwarn ch.qos.logback.**
 -dontwarn org.slf4j.**
+
+# Sudachi Tokenizer Rules
+-keep class com.worksap.nlp.sudachi.** { *; }
+-dontwarn com.worksap.nlp.sudachi.**
+
+# SimpleXML Framework Rules
+-keep class org.simpleframework.xml.** { *; }
+-dontwarn org.simpleframework.xml.**
+-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
+-keepclassmembers class * {
+    @org.simpleframework.xml.** *;
+}

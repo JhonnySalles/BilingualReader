@@ -65,6 +65,9 @@ class ImageController private constructor() {
         Util.MD5(link)
 
     private fun getImage(context: Context, link: String): Bitmap? {
+        if (link.isBlank() || link == "null")
+            return null
+
         val hash = generateHash(link)
         var image: Bitmap? = getBitmapFromCache(context, hash)
 
@@ -88,6 +91,9 @@ class ImageController private constructor() {
     internal var imageScope: CoroutineScope? = null
 
     fun setImageAsync(context: Context, link: String, imageView: ImageView) {
+        if (link.isBlank() || link == "null")
+            return
+
         val scope = imageScope ?: CoroutineScope(mainDispatcher)
         scope.launch {
             try {

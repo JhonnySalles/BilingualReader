@@ -60,7 +60,7 @@ class Information() {
 
     private fun setManga(context: Context, manga: MalMangaDetail) {
         this.link = "https://myanimelist.net/manga/${manga.id}"
-        this.imageLink = manga.mainPicture?.medium.toString()
+        this.imageLink = manga.mainPicture?.medium ?: ""
         this.title = manga.title ?: ""
         this.alternativeTitles = ""
 

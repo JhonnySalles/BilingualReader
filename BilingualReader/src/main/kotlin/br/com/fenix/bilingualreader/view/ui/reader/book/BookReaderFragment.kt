@@ -254,6 +254,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         val bundle: Bundle? = arguments
         if (bundle != null && !bundle.isEmpty) {
+            mLastPage.clear()
             mLibrary = bundle.getSerializable(GeneralConsts.KEYS.OBJECT.LIBRARY) as Library
 
             mBook = bundle.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK) as Book?
@@ -379,24 +380,49 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 try {
                     mIsSeekBarChange = true
 
-                    val current = (mPagerAdapter as TextViewAdapter).getHolder(getCurrentPage(isInternal = true)) ?: return
-                    val page = seekBar.progress + 1
+                    val currentPosition = when (mScrollingMode) {
+                        ScrollingType.Pagination,
+                        ScrollingType.PaginationVertical,
+                        ScrollingType.PaginationRightToLeft -> mViewPager.currentItem
+                        ScrollingType.Scrolling -> {
+                            val layoutManager = mViewRecycler.layoutManager as? LinearLayoutManager
+                            val first = layoutManager?.findFirstVisibleItemPosition() ?: -1
+                            val last = layoutManager?.findLastVisibleItemPosition() ?: -1
+                            if (first != -1 && last != -1) first + (last - first) / 2 else -1
+                        }
+                        else -> -1
+                    }
+                    if (currentPosition == -1) return
+
+                    val viewHolder = getViewHolder(currentPosition) ?: return
+                    val page = getCurrentPage()
                     if (mLastPage.any { it.first == page })
                         return
 
                     if (mLastPage.size > 3)
                         mLastPage.removeLast()
 
-                    val bitmap = if (!current.isOnlyImage) {
-                        val text = current.textView
-                        val bitmap = Bitmap.createBitmap(text.width, text.height, Bitmap.Config.ARGB_8888)
+                    val bitmap = if (viewHolder is TextViewAdapter.TextViewPagerHolder) {
+                        if (!viewHolder.isOnlyImage) {
+                            val text = viewHolder.textView
+                            val bitmap = Bitmap.createBitmap(text.width, text.height, Bitmap.Config.ARGB_8888)
+                            val canvas = Canvas(bitmap)
+                            text.draw(canvas)
+                            bitmap
+                        } else {
+                            (viewHolder.imageView.drawable as? BitmapDrawable)?.bitmap
+                        }
+                    } else if (viewHolder is WebViewAdapter.WebViewPagerHolder) {
+                        val webView = viewHolder.webViewPage
+                        val bitmap = Bitmap.createBitmap(webView.width, webView.height, Bitmap.Config.ARGB_8888)
                         val canvas = Canvas(bitmap)
-                        text.draw(canvas)
+                        webView.draw(canvas)
                         bitmap
-                    } else
-                        (current.imageView.drawable as BitmapDrawable).bitmap
+                    } else null
 
-                    mLastPage.addFirst(Pair(page, bitmap))
+                    if (bitmap == null) return
+
+                    mLastPage.addFirst(Pair(page, bitmap.copy(bitmap.config, true)))
                     updateDotsLastPage()
                     openLastPage()
                 } catch (e: Exception) {
@@ -639,6 +665,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         val isMode = ((mScrollingMode == ScrollingType.PaginationRightToLeft || scrolling == ScrollingType.PaginationRightToLeft) && mScrollingMode != scrolling)
         mScrollingMode = scrolling
 
+        if (mViewModel.scrollingMode.value != scrolling) {
+            mViewModel.changeScrolling(scrolling)
+        }
+
         if (isChange) {
             when (mScrollingMode) {
                 ScrollingType.Pagination,
@@ -658,7 +688,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     mViewPager.offscreenPageLimit = ReaderConsts.READER.BOOK_OFF_SCREEN_PAGE_LIMIT
                     mViewPager.orientation = if (mScrollingMode == ScrollingType.PaginationVertical) ViewPager2.ORIENTATION_VERTICAL else ViewPager2.ORIENTATION_HORIZONTAL
 
-                    mViewModel.changeScrolling(mScrollingMode)
                     mViewPager.isSaveEnabled = false
                     mViewPager.isSaveFromParentEnabled = false
                     mViewPager.setOnTouchListener(this@BookReaderFragment)
@@ -1809,6 +1838,21 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         (requireActivity() as BookReaderActivity).updateSeekBar(mScrollingMode)
     }
 
+    private fun getViewHolder(position: Int): RecyclerView.ViewHolder? {
+        return when (mScrollingMode) {
+            ScrollingType.Pagination,
+            ScrollingType.PaginationVertical,
+            ScrollingType.PaginationRightToLeft -> {
+                val viewPagerChild = mViewPager.getChildAt(0) as? RecyclerView
+                viewPagerChild?.findViewHolderForAdapterPosition(position)
+            }
+            ScrollingType.Scrolling -> {
+                mViewRecycler.findViewHolderForAdapterPosition(position)
+            }
+            else -> null
+        }
+    }
+
     private fun updateDotsLastPage() {
         val pages = mPageSeekBar.max + 1
         val dots = mutableListOf<Int>()
@@ -1930,24 +1974,60 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         mBlurBottom?.setBlurEnabled(useBlur)
 
         val isNight = resources.getBoolean(R.bool.isNight)
-        val alpha = if (isNight) 0xD9 else 0x73 // 85% opacity for dark theme, 45% opacity for light theme
-        val translucentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
 
-        // Top Toolbar: flat straight line, translucent solid color
-        val topBg = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            setColor(translucentColor)
-        }
-        mBlurTop?.background = topBg
-        mToolbarTop.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+        if (useBlur) {
+            val alpha = if (isNight) 0xD9 else 0x73 // 85% opacity for dark theme, 45% opacity for light theme
+            val translucentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
 
-        // Bottom Toolbar: flat straight line, translucent solid color
-        val bottomBg = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            setColor(translucentColor)
+            // Top Toolbar: flat straight line, translucent solid color
+            val topBg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(translucentColor)
+            }
+            mBlurTop?.background = topBg
+            mToolbarTop.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+
+            // Bottom Toolbar: flat straight line, translucent solid color
+            val bottomBg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(translucentColor)
+            }
+            mBlurBottom?.background = bottomBg
+            mToolbarBottom.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+        } else {
+            val red = android.graphics.Color.red(themeColor)
+            val green = android.graphics.Color.green(themeColor)
+            val blue = android.graphics.Color.blue(themeColor)
+
+            val gradientColors = intArrayOf(
+                android.graphics.Color.argb(0, red, green, blue),        // 0% (borda interna): transparente
+                android.graphics.Color.argb(95, red, green, blue),       // 12%: 37% de opacidade
+                android.graphics.Color.argb(191, red, green, blue),      // 23%: 75% de opacidade
+                android.graphics.Color.argb(191, red, green, blue),      // 34%: 75% de opacidade
+                android.graphics.Color.argb(191, red, green, blue),      // 45%: 75% de opacidade
+                android.graphics.Color.argb(204, red, green, blue),      // 56%: 80% de opacidade
+                android.graphics.Color.argb(204, red, green, blue),      // 67%: 80% de opacidade
+                android.graphics.Color.argb(255, red, green, blue),      // 78%: 100% de opacidade
+                android.graphics.Color.argb(255, red, green, blue),      // 89%: 100% de opacidade
+                android.graphics.Color.argb(255, red, green, blue)       // 100%: 100% de opacidade
+            )
+
+            val topBg = GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, gradientColors).apply {
+                shape = GradientDrawable.RECTANGLE
+            }
+            val bottomBg = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, gradientColors).apply {
+                shape = GradientDrawable.RECTANGLE
+            }
+
+            // Quando sem blur, deixamos os containers de blur transparentes e aplicamos o gradiente nos toolbars internos
+            mBlurTop?.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+            mBlurBottom?.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+
+            mToolbarTop.background = topBg
+            mToolbarBottom.background = bottomBg
         }
-        mBlurBottom?.background = bottomBg
-        mToolbarBottom.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+
+        (requireActivity() as? BookReaderActivity)?.updateToolbarStyles(useBlur)
 
         if (!mIsFullscreen) {
             val window = requireActivity().window

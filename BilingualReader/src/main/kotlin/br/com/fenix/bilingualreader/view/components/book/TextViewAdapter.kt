@@ -186,6 +186,10 @@ class TextViewAdapter(var context: Context, model: BookReaderViewModel, parse: D
                 holder.scrollView.layoutParams.height = FrameLayout.LayoutParams.MATCH_PARENT
             }
         }
+        holder.root.layoutParams = holder.root.layoutParams
+        holder.scrollView.layoutParams = holder.scrollView.layoutParams
+        holder.root.requestLayout()
+        holder.scrollView.requestLayout()
     }
 
     private fun TextView.fixTextSelection() {

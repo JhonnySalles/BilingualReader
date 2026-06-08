@@ -119,6 +119,8 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
     private fun reload(refresh: (index: Int?, type: PageLinkType) -> (Unit)): Boolean {
         val fileLink = SubTitleController.getInstance(mApplication.applicationContext).getFileLink() ?: return false
         return if (mManga == fileLink.manga) {
+            mLoadVerify = 0
+            mLoadError = 0
             endThread(true)
             verify(fileLink)
             mLinkedFile.value = fileLink
@@ -138,6 +140,8 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun reload(linkedFile: LinkedFile?, refresh: (index: Int?, type: PageLinkType) -> (Unit)): Boolean {
         return if (linkedFile != null) {
+            mLoadVerify = 0
+            mLoadError = 0
             endThread(true)
             verify(linkedFile)
             mLinkedFile.value = linkedFile
@@ -297,13 +301,15 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun getFilesNames(): Pair<String, String> {
-        val manga = mManga?.fileName ?: ""
+        val manga = mManga?.name ?: ""
         val fileLink = mLinkedFile.value?.name ?: ""
         return Pair(manga, fileLink)
     }
 
     fun reloadPageLink(refresh: (index: Int?, type: PageLinkType) -> (Unit)) {
         clearBackup()
+        mLoadVerify = 0
+        mLoadError = 0
         if (mLinkedFile.value != null) {
             val fileLink = mFileLinkRepository.get(mManga!!)
             if (fileLink != null) {
@@ -387,6 +393,8 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
         mManga = manga
         mPagesLink.value?.clear()
         setLanguage(isClear = true)
+        mLoadVerify = 0
+        mLoadError = 0
 
         if (reload(refresh)) return
         if (find(true, refresh)) return
@@ -411,6 +419,8 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun readFileLink(path: String, isReload: Boolean = false, refresh: (index: Int?, type: PageLinkType) -> (Unit)): LoadFile {
         var loaded = LoadFile.ERROR_NOT_LOAD
+        mLoadVerify = 0
+        mLoadError = 0
 
         val file = File(path)
         if (file.name.endsWith(".rar") ||
@@ -1605,6 +1615,10 @@ class PagesLinkViewModel(application: Application) : AndroidViewModel(applicatio
     private var mLoadVerify: Int = 0
     private var mLoadError: Int = 0
     fun reLoadImages(type: PageLinkType = PageLinkType.ALL, isVerifyImages: Boolean = false, isForced: Boolean = false, isCloseThreads: Boolean = false) {
+        if (!isVerifyImages) {
+            mLoadVerify = 0
+            mLoadError = 0
+        }
         mLoadVerify += 1
         if (!isForced && (mLoadError > 3 || (isVerifyImages && mLoadVerify > 3))) {
             if (mLoadError > 3)
