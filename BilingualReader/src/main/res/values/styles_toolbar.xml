@@ -214,9 +214,9 @@
     </style>
 
     <style name="ReaderBookToolbarTheme" parent="Base.Theme.MangaReader">
-        <item name="android:textColor">?attr/colorPrimaryContainer</item>
-        <item name="android:textColorPrimary">?attr/colorPrimaryContainer</item>
-        <item name="android:textColorSecondary">?attr/colorPrimaryContainer</item>
+        <item name="android:textColor">?attr/colorOutline</item>
+        <item name="android:textColorPrimary">?attr/colorOutline</item>
+        <item name="android:textColorSecondary">?attr/colorOutline</item>
         <item name="android:ellipsize">start</item>
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>

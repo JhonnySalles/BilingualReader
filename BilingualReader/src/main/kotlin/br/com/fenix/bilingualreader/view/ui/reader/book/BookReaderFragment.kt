@@ -1967,8 +1967,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     private fun applyGlassmorphism() {
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.READER.READER_GLASSMORPHISM, false)
         val context = requireContext()
-        val themeColor = context.getColorFromAttr(R.attr.colorSurface)
-
+        val themeColor = context.getColorFromAttr(R.attr.colorSurfaceVariant)
         val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
         mBlurTop?.setBlurEnabled(useBlur)
         mBlurBottom?.setBlurEnabled(useBlur)
@@ -2000,15 +1999,9 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             val blue = android.graphics.Color.blue(themeColor)
 
             val gradientColors = intArrayOf(
-                android.graphics.Color.argb(0, red, green, blue),        // 0% (borda interna): transparente
-                android.graphics.Color.argb(95, red, green, blue),       // 12%: 37% de opacidade
-                android.graphics.Color.argb(191, red, green, blue),      // 23%: 75% de opacidade
-                android.graphics.Color.argb(191, red, green, blue),      // 34%: 75% de opacidade
-                android.graphics.Color.argb(191, red, green, blue),      // 45%: 75% de opacidade
-                android.graphics.Color.argb(204, red, green, blue),      // 56%: 80% de opacidade
-                android.graphics.Color.argb(204, red, green, blue),      // 67%: 80% de opacidade
-                android.graphics.Color.argb(255, red, green, blue),      // 78%: 100% de opacidade
-                android.graphics.Color.argb(255, red, green, blue),      // 89%: 100% de opacidade
+                android.graphics.Color.argb(102, red, green, blue),      // 40% (borda interna): transparente
+                android.graphics.Color.argb(229, red, green, blue),      // 25%: 80% de opacidade
+                android.graphics.Color.argb(255, red, green, blue),      // 50%: 100% de opacidade
                 android.graphics.Color.argb(255, red, green, blue)       // 100%: 100% de opacidade
             )
 
@@ -2026,8 +2019,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             mToolbarTop.background = topBg
             mToolbarBottom.background = bottomBg
         }
-
-        (requireActivity() as? BookReaderActivity)?.updateToolbarStyles(useBlur)
 
         if (!mIsFullscreen) {
             val window = requireActivity().window

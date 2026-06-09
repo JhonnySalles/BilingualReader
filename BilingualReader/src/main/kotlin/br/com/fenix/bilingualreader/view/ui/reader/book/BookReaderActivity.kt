@@ -653,35 +653,4 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
         startActivityForResult(intent, GeneralConsts.REQUEST.CHAPTERS, null)
     }
 
-    fun updateToolbarStyles(useBlur: Boolean) {
-        val boldTypeface = if (useBlur) android.graphics.Typeface.NORMAL else android.graphics.Typeface.BOLD
-        
-        mToolBarTitle?.let {
-            it.setTypeface(null, boldTypeface)
-            if (useBlur) {
-                it.setShadowLayer(0f, 0f, 0f, 0)
-            } else {
-                it.setShadowLayer(1.6f, 1.5f, 1.3f, androidx.core.content.ContextCompat.getColor(this, R.color.shadow))
-            }
-        }
-
-        mToolBarBottomAuthor.let {
-            it.setTypeface(null, boldTypeface)
-            if (useBlur) {
-                it.setShadowLayer(0f, 0f, 0f, 0)
-            } else {
-                it.setShadowLayer(1.6f, 1.5f, 1.3f, androidx.core.content.ContextCompat.getColor(this, R.color.shadow))
-            }
-        }
-
-        mToolBarChapter?.let {
-            it.setTypeface(null, boldTypeface)
-            if (useBlur) {
-                it.setShadowLayer(0f, 0f, 0f, 0)
-            } else {
-                it.setShadowLayer(1.6f, 1.5f, 1.3f, androidx.core.content.ContextCompat.getColor(this, R.color.shadow))
-            }
-        }
-    }
-
 }
