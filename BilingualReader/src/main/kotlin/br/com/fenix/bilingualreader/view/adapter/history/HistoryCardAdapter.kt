@@ -27,16 +27,53 @@ class HistoryCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             HEADER -> {
                 (holder as HistoryHeaderViewHolder).bind(mHistoryList[position])
 
-                if (isAnimation)
-                    holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_history_holder)
+                if (isAnimation) {
+                    holder.itemView.alpha = 0f
+                    holder.itemView.translationX = 100f
+                    holder.itemView.animate()
+                        .alpha(1f)
+                        .translationX(0f)
+                        .setDuration(400)
+                        .setInterpolator(android.view.animation.DecelerateInterpolator())
+                        .start()
+                } else {
+                    holder.itemView.animate().cancel()
+                    holder.itemView.alpha = 1f
+                    holder.itemView.translationX = 0f
+                }
             }
             else -> {
                 (holder as HistoryViewHolder).bind(mHistoryList[position])
 
-                if (isAnimation)
-                    holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_history)
+                if (isAnimation) {
+                    holder.itemView.alpha = 0f
+                    holder.itemView.scaleX = 0.5f
+                    holder.itemView.scaleY = 0.5f
+                    holder.itemView.animate()
+                        .alpha(1f)
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .setDuration(200)
+                        .setInterpolator(android.view.animation.DecelerateInterpolator())
+                        .start()
+                } else {
+                    holder.itemView.animate().cancel()
+                    holder.itemView.alpha = 1f
+                    holder.itemView.scaleX = 1f
+                    holder.itemView.scaleY = 1f
+                }
             }
         }
+    }
+
+    override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
+        holder.itemView.animate().cancel()
+        holder.itemView.alpha = 1f
+        holder.itemView.translationX = 0f
+        holder.itemView.scaleX = 1f
+        holder.itemView.scaleY = 1f
+        holder.itemView.clearAnimation()
+        super.onViewDetachedFromWindow(holder)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {

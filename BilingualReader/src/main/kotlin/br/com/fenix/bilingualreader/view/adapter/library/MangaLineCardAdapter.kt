@@ -18,8 +18,26 @@ class MangaLineCardAdapter : RecyclerView.Adapter<MangaLineViewHolder>(), BaseAd
 
     override fun onBindViewHolder(holder: MangaLineViewHolder, position: Int) {
         holder.bind(mMangaList[position])
-        if (isAnimation)
-            holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_library_line)
+        if (isAnimation) {
+            holder.itemView.alpha = 0f
+            holder.itemView.translationY = 100f
+            holder.itemView.scaleX = 0.5f
+            holder.itemView.scaleY = 0.5f
+            holder.itemView.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(200)
+                .setInterpolator(android.view.animation.DecelerateInterpolator())
+                .start()
+        } else {
+            holder.itemView.animate().cancel()
+            holder.itemView.alpha = 1f
+            holder.itemView.translationY = 0f
+            holder.itemView.scaleX = 1f
+            holder.itemView.scaleY = 1f
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MangaLineViewHolder {
@@ -28,6 +46,11 @@ class MangaLineCardAdapter : RecyclerView.Adapter<MangaLineViewHolder>(), BaseAd
     }
 
     override fun onViewDetachedFromWindow(holder: MangaLineViewHolder) {
+        holder.itemView.animate().cancel()
+        holder.itemView.alpha = 1f
+        holder.itemView.translationY = 0f
+        holder.itemView.scaleX = 1f
+        holder.itemView.scaleY = 1f
         holder.itemView.clearAnimation()
         super.onViewDetachedFromWindow(holder)
     }

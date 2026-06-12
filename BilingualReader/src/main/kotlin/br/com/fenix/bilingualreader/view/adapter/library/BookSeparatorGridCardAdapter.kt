@@ -63,8 +63,20 @@ class BookSeparatorGridCardAdapter(var context: Context, var type: LibraryBookTy
             }
             else -> {
                 (holder as BookSeparatorGridViewHolder).bind(mBookList[position] as Book)
-                if (isAnimation)
-                    holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_library_grid)
+                if (isAnimation) {
+                    holder.itemView.alpha = 0f
+                    holder.itemView.translationX = 100f
+                    holder.itemView.animate()
+                        .alpha(1f)
+                        .translationX(0f)
+                        .setDuration(200)
+                        .setInterpolator(android.view.animation.DecelerateInterpolator())
+                        .start()
+                } else {
+                    holder.itemView.animate().cancel()
+                    holder.itemView.alpha = 1f
+                    holder.itemView.translationX = 0f
+                }
             }
         }
     }
@@ -73,6 +85,9 @@ class BookSeparatorGridCardAdapter(var context: Context, var type: LibraryBookTy
         when (holder.itemViewType) {
             HEADER -> { }
             else -> {
+                holder.itemView.animate().cancel()
+                holder.itemView.alpha = 1f
+                holder.itemView.translationX = 0f
                 holder.itemView.clearAnimation()
             }
         }

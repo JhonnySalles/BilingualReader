@@ -22,11 +22,26 @@ class MangaGridCardAdapter(var type: LibraryMangaType) : RecyclerView.Adapter<Ma
 
     override fun onBindViewHolder(holder: MangaGridViewHolder, position: Int) {
         holder.bind(mMangaList[position])
-        if (isAnimation)
-            holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_library_grid)
+        if (isAnimation) {
+            holder.itemView.alpha = 0f
+            holder.itemView.translationX = 100f
+            holder.itemView.animate()
+                .alpha(1f)
+                .translationX(0f)
+                .setDuration(200)
+                .setInterpolator(android.view.animation.DecelerateInterpolator())
+                .start()
+        } else {
+            holder.itemView.animate().cancel()
+            holder.itemView.alpha = 1f
+            holder.itemView.translationX = 0f
+        }
     }
 
     override fun onViewDetachedFromWindow(holder: MangaGridViewHolder) {
+        holder.itemView.animate().cancel()
+        holder.itemView.alpha = 1f
+        holder.itemView.translationX = 0f
         holder.itemView.clearAnimation()
         super.onViewDetachedFromWindow(holder)
     }
