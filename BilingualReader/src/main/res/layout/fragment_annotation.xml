@@ -88,6 +88,12 @@
             android:visibility="gone"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
+            <View
+                android:id="@+id/annotation_popup_header_background"
+                android:layout_width="match_parent"
+                android:layout_height="22dp"
+                android:layout_gravity="top" />
+
             <ImageView
                 android:id="@+id/annotation_popup_filter_touch"
                 style="@style/TextTitle.Popup"
@@ -100,8 +106,9 @@
                 android:src="@drawable/ico_line_popup"/>
 
             <LinearLayout
+                android:id="@+id/annotation_popup_content_container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_marginTop="22dp"
                 android:orientation="vertical">
 

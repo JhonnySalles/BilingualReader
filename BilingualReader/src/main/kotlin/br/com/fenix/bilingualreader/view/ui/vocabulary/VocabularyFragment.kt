@@ -54,6 +54,9 @@ import org.slf4j.LoggerFactory
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import android.graphics.drawable.GradientDrawable
+import android.util.TypedValue
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 
 
 class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener,
@@ -451,6 +454,8 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
 
         val myAdapter = mRecyclerView.adapter
         mRecyclerView.adapter = myAdapter
+
+        applyGlassmorphism()
     }
 
     override fun setObject(obj: Vocabulary) {
@@ -482,6 +487,64 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             activity?.window?.navigationBarColor = android.graphics.Color.TRANSPARENT
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        applyGlassmorphism()
+    }
+
+    private fun applyGlassmorphism() {
+        val context = context ?: return
+        val sharedPreferences = GeneralConsts.getSharedPreferences(context)
+        val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        val themeColor = context.getColorFromAttr(R.attr.colorSurfaceVariant)
+        val isNight = resources.getBoolean(R.bool.isNight)
+        val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics)
+
+        val headerBgView = view?.findViewById<View>(R.id.vocabulary_popup_header_background)
+        val contentContainer = view?.findViewById<View>(R.id.vocabulary_popup_content_container)
+
+        mMenuPopupFilterOrder.background = null
+        headerBgView?.background = null
+        contentContainer?.background = null
+
+        if (isGlass) {
+            val alpha = if (isNight) 0xD9 else 0x73
+            val translucentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
+            val bottomSheetBg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(translucentColor)
+                cornerRadii = floatArrayOf(
+                    cornerRadius, cornerRadius,
+                    cornerRadius, cornerRadius,
+                    0f, 0f,
+                    0f, 0f
+                )
+            }
+            mMenuPopupFilterOrder.background = bottomSheetBg
+        } else {
+            val alpha = if (isNight) 0x80 else 0x59
+            val semiTransparentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
+
+            val headerBg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(semiTransparentColor)
+                cornerRadii = floatArrayOf(
+                    cornerRadius, cornerRadius,
+                    cornerRadius, cornerRadius,
+                    0f, 0f,
+                    0f, 0f
+                )
+            }
+            headerBgView?.background = headerBg
+
+            val contentBg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(themeColor)
+            }
+            contentContainer?.background = contentBg
         }
     }
 

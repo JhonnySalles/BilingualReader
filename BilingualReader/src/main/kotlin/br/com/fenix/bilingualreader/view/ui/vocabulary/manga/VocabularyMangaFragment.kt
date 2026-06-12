@@ -58,6 +58,9 @@ import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
+import android.graphics.drawable.GradientDrawable
+import android.util.TypedValue
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 
 
 class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener, InitializeVocabulary<Manga> {
@@ -455,6 +458,21 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
             mViewModel.setQuery(mMangaNameEditText.text.toString(), "", mFavorite.isChecked)
     }
 
+    override fun onResume() {
+        super.onResume()
+        applyGlassmorphism()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (::mBottomSheet.isInitialized && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+            mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            activity?.window?.navigationBarColor = android.graphics.Color.TRANSPARENT
+        }
+    }
+
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
 
@@ -465,6 +483,64 @@ class VocabularyMangaFragment : Fragment(), PopupOrderListener, SwipeRefreshLayo
 
         val myAdapter = mRecyclerView.adapter
         mRecyclerView.adapter = myAdapter
+        applyGlassmorphism()
+    }
+
+    private fun applyGlassmorphism() {
+        val context = context ?: return
+        val mPreferences = GeneralConsts.getSharedPreferences(context)
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        val themeColor = context.getColorFromAttr(R.attr.colorSurfaceVariant)
+        val isNight = resources.getBoolean(R.bool.isNight)
+        val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics)
+
+        val headerBgView = view?.findViewById<View>(R.id.vocabulary_manga_popup_header_background)
+        val contentContainer = view?.findViewById<View>(R.id.vocabulary_manga_popup_content_container)
+
+        // Reset backgrounds first
+        mMenuPopupFilterOrder.background = null
+        headerBgView?.background = null
+        contentContainer?.background = null
+
+        if (isGlass) {
+            val alpha = if (isNight) 0xD9 else 0x73 // 85% opacity / 45% opacity
+            val translucentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
+            // Translucent bottom sheet background for the whole popup
+            val bottomSheetBg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(translucentColor)
+                cornerRadii = floatArrayOf(
+                    cornerRadius, cornerRadius, // top-left
+                    cornerRadius, cornerRadius, // top-right
+                    0f, 0f,
+                    0f, 0f
+                )
+            }
+            mMenuPopupFilterOrder.background = bottomSheetBg
+        } else {
+            // When glassmorphism is disabled, the header is semi-transparent
+            val alpha = if (isNight) 0x80 else 0x59 // e.g. 50% opacity / 35% opacity
+            val semiTransparentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
+
+            val headerBg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(semiTransparentColor)
+                cornerRadii = floatArrayOf(
+                    cornerRadius, cornerRadius,
+                    cornerRadius, cornerRadius,
+                    0f, 0f,
+                    0f, 0f
+                )
+            }
+            headerBgView?.background = headerBg
+
+            // Solid surface container for the rest
+            val contentBg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(themeColor)
+            }
+            contentContainer?.background = contentBg
+        }
     }
 
     override fun setObject(obj: Manga) {

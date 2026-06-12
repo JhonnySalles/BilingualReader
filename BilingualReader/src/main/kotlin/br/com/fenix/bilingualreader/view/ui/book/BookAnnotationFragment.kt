@@ -617,6 +617,11 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         }
     }
 
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        applyGlassmorphism()
+    }
+
     private fun applyGlassmorphism() {
         val barLayout = view?.findViewById<View>(R.id.content_toolbar_book_annotation)
         barLayout?.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
@@ -659,6 +664,51 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         }
         mBlurTop?.background = topBg
         mToolbar.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+
+        val themeColorVariant = context.getColorFromAttr(R.attr.colorSurfaceVariant)
+        val headerBgView = view?.findViewById<View>(R.id.book_annotation_popup_header_background)
+        val contentContainer = view?.findViewById<View>(R.id.book_annotation_popup_content_container)
+
+        // Reset backgrounds first
+        mMenuPopupFilter.background = null
+        headerBgView?.background = null
+        contentContainer?.background = null
+
+        if (isGlass) {
+            val popupAlpha = if (isNight) 0xD9 else 0x73
+            val translucentPopupColor = (themeColorVariant and 0x00FFFFFF) or (popupAlpha shl 24)
+            val bottomSheetBg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(translucentPopupColor)
+                cornerRadii = floatArrayOf(
+                    cornerRadius, cornerRadius,
+                    cornerRadius, cornerRadius,
+                    0f, 0f,
+                    0f, 0f
+                )
+            }
+            mMenuPopupFilter.background = bottomSheetBg
+        } else {
+            val popupAlpha = if (isNight) 0x80 else 0x59
+            val semiTransparentPopupColor = (themeColorVariant and 0x00FFFFFF) or (popupAlpha shl 24)
+            val headerBg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(semiTransparentPopupColor)
+                cornerRadii = floatArrayOf(
+                    cornerRadius, cornerRadius,
+                    cornerRadius, cornerRadius,
+                    0f, 0f,
+                    0f, 0f
+                )
+            }
+            headerBgView?.background = headerBg
+
+            val contentBg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(themeColorVariant)
+            }
+            contentContainer?.background = contentBg
+        }
     }
 
 }
