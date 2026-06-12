@@ -868,6 +868,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             it.setEnd(LocalDateTime.now())
             it.id = mViewModel.save(it)
         }
+        setBlurAutoUpdate(false)
         super.onPause()
     }
 
@@ -2021,6 +2022,29 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         super.onResume()
         Companion.mCurrentPage = mLocalCurrentPage
         applyGlassmorphism()
+        setBlurAutoUpdate(true)
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        setBlurAutoUpdate(!hidden)
+    }
+
+    private fun setBlurAutoUpdate(enabled: Boolean) {
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val autoUpdate = useBlur && enabled
+        mBlurTop?.setBlurAutoUpdate(autoUpdate)
+        mBlurBottom?.setBlurAutoUpdate(autoUpdate)
+        mBlurProgress?.setBlurAutoUpdate(autoUpdate)
+        mBlurNavPrevious?.setBlurAutoUpdate(autoUpdate)
+        mBlurNavNext?.setBlurAutoUpdate(autoUpdate)
+
+        mBlurTop?.setBlurEnabled(useBlur)
+        mBlurBottom?.setBlurEnabled(useBlur)
+        mBlurProgress?.setBlurEnabled(useBlur)
+        mBlurNavPrevious?.setBlurEnabled(useBlur)
+        mBlurNavNext?.setBlurEnabled(useBlur)
     }
 
     private fun setupWindowInsets() {
@@ -2182,23 +2206,25 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         val blurAlgorithmPrev = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
         val blurAlgorithmNext = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
 
-        mBlurTop?.setupWith(mRoot, blurAlgorithmTop)
+        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+
+        mBlurTop?.setupWith(rootView, blurAlgorithmTop)
             ?.setFrameClearDrawable(background)
             ?.setBlurRadius(15f)
 
-        mBlurBottom?.setupWith(mRoot, blurAlgorithmBottom)
+        mBlurBottom?.setupWith(rootView, blurAlgorithmBottom)
             ?.setFrameClearDrawable(background)
             ?.setBlurRadius(15f)
 
-        mBlurProgress?.setupWith(mRoot, blurAlgorithmProgress)
+        mBlurProgress?.setupWith(rootView, blurAlgorithmProgress)
             ?.setFrameClearDrawable(background)
             ?.setBlurRadius(15f)
 
-        mBlurNavPrevious?.setupWith(mRoot, blurAlgorithmPrev)
+        mBlurNavPrevious?.setupWith(rootView, blurAlgorithmPrev)
             ?.setFrameClearDrawable(background)
             ?.setBlurRadius(15f)
 
-        mBlurNavNext?.setupWith(mRoot, blurAlgorithmNext)
+        mBlurNavNext?.setupWith(rootView, blurAlgorithmNext)
             ?.setFrameClearDrawable(background)
             ?.setBlurRadius(15f)
 

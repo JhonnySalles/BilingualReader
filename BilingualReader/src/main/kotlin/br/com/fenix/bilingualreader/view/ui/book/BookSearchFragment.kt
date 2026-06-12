@@ -249,6 +249,21 @@ class BookSearchFragment : Fragment(), BookParseListener {
             }
         }
 
+        mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                if (useBlur) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        mBlurTop?.setBlurAutoUpdate(false)
+                    } else {
+                        mBlurTop?.setBlurAutoUpdate(true)
+                    }
+                }
+            }
+        })
+
         return root
     }
 
@@ -351,6 +366,29 @@ class BookSearchFragment : Fragment(), BookParseListener {
     override fun onResume() {
         super.onResume()
         applyGlassmorphism()
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        mBlurTop?.setBlurAutoUpdate(useBlur)
+        mBlurTop?.setBlurEnabled(useBlur)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mBlurTop?.setBlurAutoUpdate(false)
+        mBlurTop?.setBlurEnabled(false)
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        if (hidden) {
+            mBlurTop?.setBlurAutoUpdate(false)
+            mBlurTop?.setBlurEnabled(false)
+        } else {
+            mBlurTop?.setBlurAutoUpdate(useBlur)
+            mBlurTop?.setBlurEnabled(useBlur)
+        }
     }
 
     private fun setupWindowInsets() {
@@ -369,7 +407,8 @@ class BookSearchFragment : Fragment(), BookParseListener {
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
 
-        mainBlurTop.setupWith(root as android.view.ViewGroup, blurAlgorithm)
+        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+        mainBlurTop.setupWith(rootView, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 

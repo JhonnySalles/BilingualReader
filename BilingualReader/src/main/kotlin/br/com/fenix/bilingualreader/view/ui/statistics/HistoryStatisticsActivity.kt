@@ -76,6 +76,29 @@ class HistoryStatisticsActivity : AppCompatActivity() {
         val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(theme.getValue())
         applyGlassmorphism()
+
+        val sharedPreferences = GeneralConsts.getSharedPreferences(this)
+        val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        mBlurTop?.setBlurAutoUpdate(useBlur)
+        mBlurTop?.setBlurEnabled(useBlur)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mBlurTop?.setBlurAutoUpdate(false)
+        mBlurTop?.setBlurEnabled(false)
+    }
+
+    fun setBlurAutoUpdate(enabled: Boolean) {
+        val sharedPreferences = GeneralConsts.getSharedPreferences(this)
+        val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        if (useBlur) {
+            mBlurTop?.setBlurAutoUpdate(enabled)
+        } else {
+            mBlurTop?.setBlurAutoUpdate(false)
+        }
     }
 
     override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
@@ -109,7 +132,7 @@ class HistoryStatisticsActivity : AppCompatActivity() {
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(Color.BLACK)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(this)
 
-        val rootLayout = findViewById<ViewGroup>(R.id.history_statistics_root_layout)
+        val rootLayout = decorView.findViewById<ViewGroup>(android.R.id.content)
         mainBlurTop.setupWith(rootLayout, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)

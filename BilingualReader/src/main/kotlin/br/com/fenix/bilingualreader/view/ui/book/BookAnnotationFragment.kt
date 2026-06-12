@@ -228,6 +228,21 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
             }
         }
 
+        mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                if (useBlur) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        mBlurTop?.setBlurAutoUpdate(false)
+                    } else {
+                        mBlurTop?.setBlurAutoUpdate(true)
+                    }
+                }
+            }
+        })
+
         mMenuPopupFilter = root.findViewById(R.id.book_annotation_popup_filter)
         mPopupFilterTab = root.findViewById(R.id.book_annotation_popup_filter_tab)
         mPopupFilterView = root.findViewById(R.id.book_annotation_popup_order_filter_view_pager)
@@ -510,15 +525,34 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
     override fun onResume() {
         super.onResume()
         applyGlassmorphism()
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        mBlurTop?.setBlurAutoUpdate(useBlur)
+        mBlurTop?.setBlurEnabled(useBlur)
     }
 
     override fun onPause() {
         super.onPause()
+        mBlurTop?.setBlurAutoUpdate(false)
+        mBlurTop?.setBlurEnabled(false)
         if (::mBottomSheet.isInitialized && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
             mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             activity?.window?.navigationBarColor = android.graphics.Color.TRANSPARENT
+        }
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        if (hidden) {
+            mBlurTop?.setBlurAutoUpdate(false)
+            mBlurTop?.setBlurEnabled(false)
+        } else {
+            mBlurTop?.setBlurAutoUpdate(useBlur)
+            mBlurTop?.setBlurEnabled(useBlur)
         }
     }
 
@@ -548,7 +582,8 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
 
-        mainBlurTop.setupWith(root as android.view.ViewGroup, blurAlgorithm)
+        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+        mainBlurTop.setupWith(rootView, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 

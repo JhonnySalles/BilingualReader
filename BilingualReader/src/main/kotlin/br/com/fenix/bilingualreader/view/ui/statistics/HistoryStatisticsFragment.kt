@@ -354,6 +354,12 @@ class HistoryStatisticsFragment : Fragment() {
                 super.onScrollStateChanged(recyclerView, newState)
                 if (newState != AbsListView.OnScrollListener.SCROLL_STATE_FLING)
                     setAnimationRecycler(true)
+
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    (activity as? HistoryStatisticsActivity)?.setBlurAutoUpdate(false)
+                } else {
+                    (activity as? HistoryStatisticsActivity)?.setBlurAutoUpdate(true)
+                }
             }
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {

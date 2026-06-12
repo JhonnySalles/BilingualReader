@@ -535,6 +535,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             it.id = mHistoryRepository.save(it)
         }
 
+        setBlurAutoUpdate(false)
         super.onPause()
     }
 
@@ -1962,6 +1963,23 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         super.onResume()
         Companion.mCurrentPage = mLocalCurrentPage
         applyGlassmorphism()
+        setBlurAutoUpdate(true)
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        setBlurAutoUpdate(!hidden)
+    }
+
+    private fun setBlurAutoUpdate(enabled: Boolean) {
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val autoUpdate = useBlur && enabled
+        mBlurTop?.setBlurAutoUpdate(autoUpdate)
+        mBlurBottom?.setBlurAutoUpdate(autoUpdate)
+
+        mBlurTop?.setBlurEnabled(useBlur)
+        mBlurBottom?.setBlurEnabled(useBlur)
     }
 
     private fun applyGlassmorphism() {
@@ -2040,11 +2058,13 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         val blurAlgorithmTop = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
         val blurAlgorithmBottom = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
 
-        mBlurTop?.setupWith(mRoot, blurAlgorithmTop)
+        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+
+        mBlurTop?.setupWith(rootView, blurAlgorithmTop)
             ?.setFrameClearDrawable(background)
             ?.setBlurRadius(15f)
 
-        mBlurBottom?.setupWith(mRoot, blurAlgorithmBottom)
+        mBlurBottom?.setupWith(rootView, blurAlgorithmBottom)
             ?.setFrameClearDrawable(background)
             ?.setBlurRadius(15f)
     }

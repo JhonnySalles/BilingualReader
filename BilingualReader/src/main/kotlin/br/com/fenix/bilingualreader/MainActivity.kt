@@ -66,6 +66,7 @@ import java.time.LocalDate
 import android.graphics.drawable.GradientDrawable
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
@@ -422,6 +423,29 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(theme.getValue())
         applyGlassmorphism()
+
+        val preferences = GeneralConsts.getSharedPreferences(this)
+        val isGlass = preferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        mBlurTop?.setBlurAutoUpdate(useBlur)
+        mBlurTop?.setBlurEnabled(useBlur)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mBlurTop?.setBlurAutoUpdate(false)
+        mBlurTop?.setBlurEnabled(false)
+    }
+
+    fun setBlurAutoUpdate(enabled: Boolean) {
+        val preferences = GeneralConsts.getSharedPreferences(this)
+        val isGlass = preferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        if (useBlur) {
+            mBlurTop?.setBlurAutoUpdate(enabled)
+        } else {
+            mBlurTop?.setBlurAutoUpdate(false)
+        }
     }
 
     override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
@@ -455,7 +479,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) eightbitlab.com.blurview.RenderEffectBlur() else eightbitlab.com.blurview.RenderScriptBlur(this)
 
-        mainBlurTop.setupWith(binding.drawerLayout, blurAlgorithm)
+        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+        mainBlurTop.setupWith(rootView, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
 

@@ -685,6 +685,12 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                 super.onScrollStateChanged(recyclerView, newState)
                 if (newState != AbsListView.OnScrollListener.SCROLL_STATE_FLING)
                     setAnimationRecycler(true)
+
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+                } else {
+                    (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
+                }
             }
         })
 

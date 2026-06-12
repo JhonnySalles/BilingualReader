@@ -185,7 +185,8 @@ class StatisticsFragment : Fragment() {
         } else {
             RenderScriptBlur(requireContext())
         }
-        mProgress.setupWith(mRoot, blurAlgorithm)
+        val decorView = requireActivity().window.decorView
+        mProgress.setupWith(decorView.findViewById<ViewGroup>(android.R.id.content), blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(10F)
         mLoading.value = true
@@ -199,6 +200,7 @@ class StatisticsFragment : Fragment() {
 
         mLoading.observe(viewLifecycleOwner) {
             mProgress.visibility = if (it) View.VISIBLE else View.GONE
+            mProgress.setBlurAutoUpdate(it)
         }
 
         view.findViewById<View>(R.id.statistics_manga_reading_card).setOnClickListener { openHistory(Type.MANGA, null) }
@@ -208,6 +210,16 @@ class StatisticsFragment : Fragment() {
         view.findViewById<View>(R.id.statistics_book_btn_history).setOnClickListener { openHistory(Type.BOOK, mBookSelectYear) }
 
         loadStatistics()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mProgress.setBlurAutoUpdate(mLoading.value == true)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mProgress.setBlurAutoUpdate(false)
     }
 
     private fun loadStatistics() {
