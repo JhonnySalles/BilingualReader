@@ -82,7 +82,6 @@ import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookLineCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookSeparatorGridCardAdapter
-import br.com.fenix.bilingualreader.view.adapter.library.MangaGridViewHolder.Companion.mIsLandscape
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
@@ -1272,7 +1271,8 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     }
 
     private fun getSkeletonItemHeight(type: LibraryBookType) : Int {
-        return AdapterUtils.getBookCardSize(requireContext(), type, mIsLandscape).second
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        return AdapterUtils.getBookCardSize(requireContext(), type, isLandscape).second
     }
 
     private fun getSkeletonItemWidth(type: LibraryBookType) : Int {
@@ -1281,7 +1281,8 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             LibraryBookType.SEPARATOR_BIG -> LibraryBookType.GRID_BIG
             else -> type
         }
-        return AdapterUtils.getBookCardSize(requireContext(), typeWidth, mIsLandscape).first
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        return AdapterUtils.getBookCardSize(requireContext(), typeWidth, isLandscape).first
     }
 
     private fun showSkeleton(show: Boolean) {
@@ -1306,7 +1307,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                     val items = getSkeletonGridItemPerRow(type)
                     val divider = ((Resources.getSystem().displayMetrics.widthPixels.toFloat() - (items * (width + margin))) / items).toInt()
                     container.removeAllViews()
-                    for (i in 0.. items) {
+                    for (i in 0..items) {
                         val item = mInflater.inflate(R.layout.grid_card_book_skeleton_item, null)
                         val params = FrameLayout.LayoutParams(width, height)
                         params.setMargins(margin, margin, divider, 0)
@@ -1335,6 +1336,28 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             mRecyclerView.visibility = View.VISIBLE
             mRecyclerView.alpha = 1f
             setAnimationRecycler(true)
+        }
+
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        MenuUtil.longClick(requireActivity(), R.id.menu_book_library_list_order) {
+            if (!mRefreshLayout.isRefreshing)
+                onOpenMenuLibrary(1)
+        }
+
+        MenuUtil.longClick(requireActivity(), R.id.menu_book_library_type) {
+            if (!mRefreshLayout.isRefreshing)
+                onOpenMenuLibrary(0)
+        }
+
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE || newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            if (mViewModel.libraryType.value != LibraryBookType.LINE) {
+                mRecyclerView.layoutManager = getGridLayout()
+                mRecyclerView.adapter?.notifyItemRangeChanged(0, mRecyclerView.adapter?.itemCount ?: 0)
+            }
         }
     }
 

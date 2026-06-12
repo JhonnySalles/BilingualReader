@@ -247,6 +247,21 @@ class AnnotationFragment : Fragment(), AnnotationListener {
             }
         }
 
+        mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+                val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                if (isGlass) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+                    } else {
+                        (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
+                    }
+                }
+            }
+        })
+
         mMenuPopupFilter = root.findViewById(R.id.annotation_popup_filter)
         mPopupFilterTab = root.findViewById(R.id.annotation_popup_filter_tab)
         mPopupFilterView = root.findViewById(R.id.annotation_popup_order_filter_view_pager)

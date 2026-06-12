@@ -4,11 +4,11 @@
     android:id="@+id/shimmer_skeleton"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:shimmer_angle="10"
+    app:shimmer_angle="20"
     android:visibility="gone"
-    app:shimmer_animation_duration="2500"
+    app:shimmer_animation_duration="1200"
     app:shimmer_color="@color/shimmer"
-    app:shimmer_mask_width="0.2">
+    app:shimmer_mask_width="0.5">
     <LinearLayout
         android:id="@+id/skeleton_layout"
         android:layout_width="match_parent"

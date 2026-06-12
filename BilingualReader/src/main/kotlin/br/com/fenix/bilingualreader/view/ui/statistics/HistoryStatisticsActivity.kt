@@ -75,11 +75,12 @@ class HistoryStatisticsActivity : AppCompatActivity() {
         ThemeUtil.applyThemeMode(this)
         val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(theme.getValue())
+        ThemeUtil.statusBarTransparentTheme(window, !resources.getBoolean(R.bool.isNight))
         applyGlassmorphism()
 
         val sharedPreferences = GeneralConsts.getSharedPreferences(this)
         val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val useBlur = isGlass
         mBlurTop?.setBlurAutoUpdate(useBlur)
         mBlurTop?.setBlurEnabled(useBlur)
     }
@@ -93,7 +94,7 @@ class HistoryStatisticsActivity : AppCompatActivity() {
     fun setBlurAutoUpdate(enabled: Boolean) {
         val sharedPreferences = GeneralConsts.getSharedPreferences(this)
         val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val useBlur = isGlass
         if (useBlur) {
             mBlurTop?.setBlurAutoUpdate(enabled)
         } else {
@@ -106,6 +107,7 @@ class HistoryStatisticsActivity : AppCompatActivity() {
         val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(theme.getValue())
         super.onConfigurationChanged(newConfig)
+        ThemeUtil.statusBarTransparentTheme(window, !resources.getBoolean(R.bool.isNight))
         applyGlassmorphism()
     }
 
@@ -160,7 +162,7 @@ class HistoryStatisticsActivity : AppCompatActivity() {
 
         val sharedPreferences = GeneralConsts.getSharedPreferences(this)
         val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val useBlur = isGlass
         mBlurTop?.setBlurEnabled(useBlur)
 
         val themeColor = getColorFromAttr(R.attr.colorSurface)

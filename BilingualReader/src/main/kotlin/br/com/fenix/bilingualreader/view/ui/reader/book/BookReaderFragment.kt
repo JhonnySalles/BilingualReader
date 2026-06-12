@@ -1166,7 +1166,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             val isNight = resources.getBoolean(R.bool.isNight)
             val themeColor = requireContext().getColorFromAttr(R.attr.colorSurface)
             val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-            val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+            val useBlur = isGlass
             val alpha = if (isNight) 0xD9 else 0x73
             val translucentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
             val solidColor = (themeColor and 0x00FFFFFF) or (0xFF shl 24)
@@ -1973,7 +1973,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
     private fun setBlurAutoUpdate(enabled: Boolean) {
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val useBlur = isGlass
         val autoUpdate = useBlur && enabled
         mBlurTop?.setBlurAutoUpdate(autoUpdate)
         mBlurBottom?.setBlurAutoUpdate(autoUpdate)
@@ -1986,14 +1986,14 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         val context = requireContext()
         val themeColor = context.getColorFromAttr(R.attr.colorSurfaceVariant)
-        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val useBlur = isGlass
         mBlurTop?.setBlurEnabled(useBlur)
         mBlurBottom?.setBlurEnabled(useBlur)
 
         val isNight = resources.getBoolean(R.bool.isNight)
 
         if (useBlur) {
-            val alpha = if (isNight) 0xD9 else 0x73 // 85% opacity for dark theme, 45% opacity for light theme
+            val alpha = if (isNight) 0xD9 else 0xA6 // 85% opacity for dark theme, 65% opacity for light theme
             val translucentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
 
             // Top Toolbar: flat straight line, translucent solid color
@@ -2012,30 +2012,25 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             mBlurBottom?.background = bottomBg
             mToolbarBottom.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
         } else {
-            val red = android.graphics.Color.red(themeColor)
-            val green = android.graphics.Color.green(themeColor)
-            val blue = android.graphics.Color.blue(themeColor)
+            val alpha = if (isNight) 0xD9 else 0xA6 // 85% opacity for dark theme, 65% opacity for light theme
+            val translucentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
 
-            val gradientColors = intArrayOf(
-                android.graphics.Color.argb(102, red, green, blue),      // 40% (borda interna): transparente
-                android.graphics.Color.argb(229, red, green, blue),      // 25%: 80% de opacidade
-                android.graphics.Color.argb(255, red, green, blue),      // 50%: 100% de opacidade
-                android.graphics.Color.argb(255, red, green, blue)       // 100%: 100% de opacidade
-            )
-
-            val topBg = GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, gradientColors).apply {
+            // Top Toolbar: flat straight line, translucent solid color
+            val topBg = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
+                setColor(translucentColor)
             }
-            val bottomBg = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, gradientColors).apply {
-                shape = GradientDrawable.RECTANGLE
-            }
+            mToolbarTop.background = topBg
 
-            // Quando sem blur, deixamos os containers de blur transparentes e aplicamos o gradiente nos toolbars internos
+            // Bottom Toolbar: flat straight line, translucent solid color
+            val bottomBg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(translucentColor)
+            }
+            mToolbarBottom.background = bottomBg
+
             mBlurTop?.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
             mBlurBottom?.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
-
-            mToolbarTop.background = topBg
-            mToolbarBottom.background = bottomBg
         }
 
         if (!mIsFullscreen) {

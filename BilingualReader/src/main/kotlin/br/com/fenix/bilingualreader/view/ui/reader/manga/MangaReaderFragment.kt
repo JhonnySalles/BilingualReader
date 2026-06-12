@@ -1613,7 +1613,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             val isNight = resources.getBoolean(R.bool.isNight)
             val themeColor = requireContext().getColorFromAttr(R.attr.colorSurface)
             val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-            val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+            val useBlur = isGlass
             val alpha = if (isNight) 0xD9 else 0x73
             val translucentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
             val solidColor = (themeColor and 0x00FFFFFF) or (0xFF shl 24)
@@ -2032,7 +2032,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     private fun setBlurAutoUpdate(enabled: Boolean) {
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val useBlur = isGlass
         val autoUpdate = useBlur && enabled
         mBlurTop?.setBlurAutoUpdate(autoUpdate)
         mBlurBottom?.setBlurAutoUpdate(autoUpdate)
@@ -2093,7 +2093,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         val context = requireContext()
         val themeColor = context.getColorFromAttr(R.attr.colorSurface)
 
-        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val useBlur = isGlass
         mBlurTop?.setBlurEnabled(useBlur)
         mBlurBottom?.setBlurEnabled(useBlur)
         mBlurProgress?.setBlurEnabled(useBlur)

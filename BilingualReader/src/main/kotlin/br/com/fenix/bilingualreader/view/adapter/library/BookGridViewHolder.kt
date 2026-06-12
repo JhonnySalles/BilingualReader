@@ -23,9 +23,6 @@ import com.google.android.material.card.MaterialCardView
 class BookGridViewHolder(var type: LibraryBookType, itemView: View, private val listener: BookCardListener) : RecyclerView.ViewHolder(itemView) {
 
     companion object {
-        var mIsLandscape: Boolean = false
-        var mBookCardSize: Pair<Int, Int> = Pair(0, 0)
-
         lateinit var mDefaultImageCover1: Bitmap
         lateinit var mDefaultImageCover2: Bitmap
         lateinit var mDefaultImageCover3: Bitmap
@@ -34,9 +31,6 @@ class BookGridViewHolder(var type: LibraryBookType, itemView: View, private val 
     }
 
     init {
-        mIsLandscape = itemView.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        mBookCardSize = AdapterUtils.getBookCardSize(itemView.context, type, mIsLandscape)
-
         mDefaultImageCover1 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_1)
         mDefaultImageCover2 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_2)
         mDefaultImageCover3 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_3)
@@ -59,8 +53,10 @@ class BookGridViewHolder(var type: LibraryBookType, itemView: View, private val 
         val config = itemView.findViewById<LinearLayout>(R.id.book_grid_config)
         val configIcon = itemView.findViewById<ImageView>(R.id.book_grid_config_icon)
 
-        cardView.layoutParams.width = mBookCardSize.first
-        cardView.layoutParams.height = mBookCardSize.second
+        val isLandscape = itemView.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val cardSize = AdapterUtils.getBookCardSize(itemView.context, type, isLandscape)
+        cardView.layoutParams.width = cardSize.first
+        cardView.layoutParams.height = cardSize.second
         cardView.setOnClickListener { listener.onClick(book, itemView) }
         cardView.setOnLongClickListener {
             listener.onClickLong(book, itemView, layoutPosition)

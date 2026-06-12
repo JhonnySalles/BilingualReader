@@ -53,6 +53,7 @@ import org.slf4j.LoggerFactory
 
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 
 
 class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener,
@@ -192,6 +193,22 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
         mScrollDown = root.findViewById(R.id.vocabulary_scroll_down)
 
         mMenuPopupFilterOrder = root.findViewById(R.id.vocabulary_popup_menu_order_filter)
+
+        mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+                val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                if (isGlass) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+                    } else {
+                        (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
+                    }
+                }
+            }
+        })
+
         mPopupFilterOrderTab = root.findViewById(R.id.vocabulary_popup_order_filter_tab)
         mPopupFilterOrderView = root.findViewById(R.id.vocabulary_popup_order_filter_view_pager)
 

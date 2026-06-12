@@ -81,7 +81,6 @@ import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaGridCardAdapter
-import br.com.fenix.bilingualreader.view.adapter.library.MangaGridViewHolder.Companion.mIsLandscape
 import br.com.fenix.bilingualreader.view.adapter.library.MangaLineCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaSeparatorGridCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
@@ -1251,8 +1250,10 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             if (mViewModel.libraryType.value != LibraryMangaType.LINE) {
                 if (mViewModel.libraryType.value == LibraryMangaType.GRID_SMALL && resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE)
                     mViewModel.changeLibraryType()
-                else
+                else {
                     mRecyclerView.layoutManager = getGridLayout()
+                    mRecyclerView.adapter?.notifyItemRangeChanged(0, mRecyclerView.adapter?.itemCount ?: 0)
+                }
             }
         }
     }
@@ -1283,7 +1284,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     private fun getSkeletonItemHeight(type: LibraryMangaType) : Int {
-        return AdapterUtils.getMangaCardSize(requireContext(), type, mIsLandscape).second
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        return AdapterUtils.getMangaCardSize(requireContext(), type, isLandscape).second
     }
 
     private fun getSkeletonItemWidth(type: LibraryMangaType) : Int {
@@ -1292,7 +1294,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             LibraryMangaType.SEPARATOR_BIG -> LibraryMangaType.GRID_BIG
             else -> type
         }
-        return AdapterUtils.getMangaCardSize(requireContext(), typeWidth, mIsLandscape).first
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        return AdapterUtils.getMangaCardSize(requireContext(), typeWidth, isLandscape).first
     }
 
     private fun showSkeleton(show: Boolean) {

@@ -102,5 +102,22 @@ class AboutFragment : Fragment() {
         val txtLibrary = view.findViewById<TextView>(R.id.about_app_library)
         txtLibrary.movementMethod = LinkMovementMethod.getInstance()
         txtLibrary.text = library.joinToString("\r\n")
+
+        val aboutScrollView = view.findViewById<android.widget.ScrollView>(R.id.about_scroll_view)
+        var scrollRunnable: Runnable? = null
+        val scrollHandler = android.os.Handler(android.os.Looper.getMainLooper())
+        aboutScrollView?.setOnScrollChangeListener { _, _, _, _, _ ->
+            val isGlass = br.com.fenix.bilingualreader.util.constants.GeneralConsts.getSharedPreferences(requireContext())
+                .getBoolean(br.com.fenix.bilingualreader.util.constants.GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
+                scrollRunnable?.let { scrollHandler.removeCallbacks(it) }
+                val runnable = Runnable {
+                    (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+                }
+                scrollRunnable = runnable
+                scrollHandler.postDelayed(runnable, 150)
+            }
+        }
     }
 }

@@ -209,6 +209,23 @@ class StatisticsFragment : Fragment() {
         view.findViewById<View>(R.id.statistics_book_reading_card).setOnClickListener { openHistory(Type.BOOK, null) }
         view.findViewById<View>(R.id.statistics_book_btn_history).setOnClickListener { openHistory(Type.BOOK, mBookSelectYear) }
 
+        val statisticsScrollView = view.findViewById<android.widget.ScrollView>(R.id.statistics_scroll_view)
+        var scrollRunnable: Runnable? = null
+        val scrollHandler = Handler(Looper.getMainLooper())
+        statisticsScrollView?.setOnScrollChangeListener { _, _, _, _, _ ->
+            val isGlass = GeneralConsts.getSharedPreferences(requireContext())
+                .getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
+                scrollRunnable?.let { scrollHandler.removeCallbacks(it) }
+                val runnable = Runnable {
+                    (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+                }
+                scrollRunnable = runnable
+                scrollHandler.postDelayed(runnable, 150)
+            }
+        }
+
         loadStatistics()
     }
 

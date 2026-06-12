@@ -164,6 +164,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     is AboutFragment -> mToolBar.title = getString(R.string.menu_about)
                     is AnnotationFragment -> mToolBar.title = getString(R.string.menu_annotations)
                 }
+
+                val isGlass = GeneralConsts.getSharedPreferences(this@MainActivity)
+                    .getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                if (isGlass) {
+                    mBlurTop?.setBlurAutoUpdate(true)
+                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                        mBlurTop?.setBlurAutoUpdate(false)
+                    }, 100)
+                }
             }
         }, false)
 
@@ -432,14 +441,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onResume() {
         super.onResume()
-        ThemeUtil.applyThemeMode(this)
+        val isDark = ThemeUtil.applyThemeMode(this)
         val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(theme.getValue())
+        ThemeUtil.statusBarTransparentTheme(window, isDark, isLightStatus = !isDark)
         applyGlassmorphism()
 
         val preferences = GeneralConsts.getSharedPreferences(this)
         val isGlass = preferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val useBlur = isGlass
         mBlurTop?.setBlurAutoUpdate(useBlur)
         mBlurTop?.setBlurEnabled(useBlur)
         setNavigatorBlurAutoUpdate(mDrawer.isDrawerOpen(GravityCompat.START))
@@ -455,7 +465,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     fun setBlurAutoUpdate(enabled: Boolean) {
         val preferences = GeneralConsts.getSharedPreferences(this)
         val isGlass = preferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val useBlur = isGlass
         if (useBlur) {
             mBlurTop?.setBlurAutoUpdate(enabled)
         } else {
@@ -469,7 +479,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val navigatorBlur = headerView?.findViewById<eightbitlab.com.blurview.BlurView>(R.id.navigator_blur)
         val preferences = GeneralConsts.getSharedPreferences(this)
         val isGlass = preferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val useBlur = isGlass
 
         navigatorBlur?.setBlurEnabled(useBlur)
         if (useBlur) {
@@ -480,10 +490,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
-        ThemeUtil.applyThemeMode(this)
+        val isDark = ThemeUtil.applyThemeMode(this)
         val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(theme.getValue())
         super.onConfigurationChanged(newConfig)
+        ThemeUtil.statusBarTransparentTheme(window, isDark, isLightStatus = !isDark)
         applyGlassmorphism()
     }
 
@@ -541,14 +552,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    private fun applyGlassmorphism() {
+    fun applyGlassmorphism() {
         val mainBarLayout = findViewById<View>(R.id.main_bar_layout)
         mainBarLayout?.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
         mToolBar.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
 
         val sharedPreferences = GeneralConsts.getSharedPreferences(this)
         val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val useBlur = isGlass
         mBlurTop?.setBlurEnabled(useBlur)
 
         val themeColor = getColorFromAttr(R.attr.colorSurface)

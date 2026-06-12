@@ -357,6 +357,16 @@ class HistoryFragment : Fragment() {
                 super.onScrollStateChanged(recyclerView, newState)
                 if (newState != AbsListView.OnScrollListener.SCROLL_STATE_FLING)
                     setAnimationRecycler(true)
+
+                val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+                val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                if (isGlass) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+                    } else {
+                        (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
+                    }
+                }
             }
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {

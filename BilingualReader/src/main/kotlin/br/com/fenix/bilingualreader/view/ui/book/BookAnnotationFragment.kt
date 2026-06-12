@@ -232,7 +232,7 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
                 val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                val useBlur = isGlass
                 if (useBlur) {
                     if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                         mBlurTop?.setBlurAutoUpdate(false)
@@ -526,9 +526,16 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         super.onResume()
         applyGlassmorphism()
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-        mBlurTop?.setBlurAutoUpdate(useBlur)
+        val useBlur = isGlass
         mBlurTop?.setBlurEnabled(useBlur)
+        if (useBlur) {
+            mBlurTop?.setBlurAutoUpdate(true)
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                mBlurTop?.setBlurAutoUpdate(false)
+            }, 100)
+        } else {
+            mBlurTop?.setBlurAutoUpdate(false)
+        }
     }
 
     override fun onPause() {
@@ -546,13 +553,20 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val useBlur = isGlass
         if (hidden) {
             mBlurTop?.setBlurAutoUpdate(false)
             mBlurTop?.setBlurEnabled(false)
         } else {
-            mBlurTop?.setBlurAutoUpdate(useBlur)
             mBlurTop?.setBlurEnabled(useBlur)
+            if (useBlur) {
+                mBlurTop?.setBlurAutoUpdate(true)
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    mBlurTop?.setBlurAutoUpdate(false)
+                }, 100)
+            } else {
+                mBlurTop?.setBlurAutoUpdate(false)
+            }
         }
     }
 
@@ -608,7 +622,7 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         barLayout?.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
 
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val useBlur = isGlass
         mBlurTop?.setBlurEnabled(useBlur)
 
         val context = requireContext()

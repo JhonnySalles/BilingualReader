@@ -95,8 +95,8 @@
     <color name="subtitle_exists">#FFFFFF</color>
     <color name="touch_demonstration_alter">#212121</color>
 
-    <color name="skeleton">#BCBBBB</color>
-    <color name="shimmer">#DFDEDE</color>
+    <color name="skeleton">#E0E0E0</color>
+    <color name="shimmer">#F5F5F5</color>
 
     <!--
        colorPrimary, colorOnPrimary = Buttons

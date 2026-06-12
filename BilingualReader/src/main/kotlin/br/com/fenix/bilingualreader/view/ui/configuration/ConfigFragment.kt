@@ -71,6 +71,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.google.api.services.drive.DriveScopes
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import org.lucasr.twowayview.TwoWayView
+import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import org.slf4j.LoggerFactory
@@ -289,6 +290,13 @@ class ConfigFragment : Fragment() {
         mConfigStatisticsDelete = view.findViewById(R.id.config_statistics_delete)
 
         mConfigSystemThemeGlassmorphism = view.findViewById(R.id.config_system_theme_glassmorphism)
+        mConfigSystemThemeGlassmorphism.setOnCheckedChangeListener { _, isChecked ->
+            val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+            sharedPreferences.edit(commit = true) {
+                putBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, isChecked)
+            }
+            (requireActivity() as? MainActivity)?.applyGlassmorphism()
+        }
 
         mMangaLibraryPathAutoComplete.setOnClickListener {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
@@ -730,6 +738,22 @@ class ConfigFragment : Fragment() {
         mBookTouchScreenButton.setOnClickListener { openTouchFunction(Type.BOOK) }
 
         googleSigIn(GoogleSignIn.getLastSignedInAccount(requireContext()))
+
+        val configScrollView = view.findViewById<android.widget.ScrollView>(R.id.config_scroll_view)
+        var scrollRunnable: Runnable? = null
+        val scrollHandler = android.os.Handler(android.os.Looper.getMainLooper())
+        configScrollView?.setOnScrollChangeListener { _, _, _, _, _ ->
+            val isGlass = GeneralConsts.getSharedPreferences(requireContext()).getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                (activity as? MainActivity)?.setBlurAutoUpdate(true)
+                scrollRunnable?.let { scrollHandler.removeCallbacks(it) }
+                val runnable = Runnable {
+                    (activity as? MainActivity)?.setBlurAutoUpdate(false)
+                }
+                scrollRunnable = runnable
+                scrollHandler.postDelayed(runnable, 150)
+            }
+        }
 
         mViewModel.loadLibrary(null)
     }
