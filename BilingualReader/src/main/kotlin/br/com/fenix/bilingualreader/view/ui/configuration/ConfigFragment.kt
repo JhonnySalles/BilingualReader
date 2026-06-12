@@ -98,7 +98,7 @@ class ConfigFragment : Fragment() {
     private lateinit var mConfigSystemThemeMode: TextInputLayout
     private lateinit var mConfigSystemThemeModeAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mConfigSystemThemes: TwoWayView
-    private lateinit var mConfigSystemGlassmorphism: SwitchMaterial
+    private lateinit var mConfigSystemThemeGlassmorphism: SwitchMaterial
 
     private lateinit var mConfigSystemFormatDate: TextInputLayout
     private lateinit var mConfigSystemFormatDateAutoComplete: MaterialAutoCompleteTextView
@@ -266,7 +266,6 @@ class ConfigFragment : Fragment() {
         mMangaShowClockAndBattery = view.findViewById(R.id.config_manga_switch_show_clock_and_battery)
         mMangaUseMagnifierType = view.findViewById(R.id.config_manga_switch_use_magnifier_type)
         mMangaKeepZoomBetweenPages = view.findViewById(R.id.config_manga_switch_keep_zoom_between_pages)
-        mConfigSystemGlassmorphism = view.findViewById(R.id.config_system_switch_glassmorphism)
 
         mConfigSystemFormatDate = view.findViewById(R.id.config_system_format_date)
         mConfigSystemFormatDateAutoComplete = view.findViewById(R.id.config_system_menu_autocomplete_format_date)
@@ -289,6 +288,7 @@ class ConfigFragment : Fragment() {
         mConfigCoversDelete = view.findViewById(R.id.config_covers_delete)
         mConfigStatisticsDelete = view.findViewById(R.id.config_statistics_delete)
 
+        mConfigSystemThemeGlassmorphism = view.findViewById(R.id.config_system_theme_glassmorphism)
 
         mMangaLibraryPathAutoComplete.setOnClickListener {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
@@ -940,6 +940,11 @@ class ConfigFragment : Fragment() {
                 mMangaOrderSelect.toString()
             )
 
+            this.putBoolean(
+                GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM,
+                mConfigSystemThemeGlassmorphism.isChecked
+            )
+
             this.putString(
                 GeneralConsts.KEYS.SUBTITLE.LANGUAGE,
                 mMangaDefaultSubtitleLanguageSelect.toString()
@@ -978,11 +983,6 @@ class ConfigFragment : Fragment() {
             this.putBoolean(
                 GeneralConsts.KEYS.READER.MANGA_KEEP_ZOOM_BETWEEN_PAGES,
                 mMangaKeepZoomBetweenPages.isChecked
-            )
-
-            this.putBoolean(
-                GeneralConsts.KEYS.READER.READER_GLASSMORPHISM,
-                mConfigSystemGlassmorphism.isChecked
             )
 
             this.putBoolean(
@@ -1106,6 +1106,11 @@ class ConfigFragment : Fragment() {
 
         mMangaLibraryPath.editText?.setText(mViewModel.getDefault(Type.MANGA))
 
+        mConfigSystemThemeGlassmorphism.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM,
+            false
+        )
+
         mMangaReaderModeSelect = ReaderMode.valueOf(
             sharedPreferences.getString(
                 GeneralConsts.KEYS.READER.MANGA_READER_MODE,
@@ -1176,10 +1181,6 @@ class ConfigFragment : Fragment() {
         )
         mMangaKeepZoomBetweenPages.isChecked = sharedPreferences.getBoolean(
             GeneralConsts.KEYS.READER.MANGA_KEEP_ZOOM_BETWEEN_PAGES,
-            false
-        )
-        mConfigSystemGlassmorphism.isChecked = sharedPreferences.getBoolean(
-            GeneralConsts.KEYS.READER.READER_GLASSMORPHISM,
             false
         )
         mMangaUseDualPageCalculate.isChecked = sharedPreferences.getBoolean(

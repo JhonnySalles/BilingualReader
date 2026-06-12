@@ -3,6 +3,7 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="nav_header_vertical_spacing">8dp</dimen>
     <dimen name="nav_header_height">200dp</dimen>
+    <dimen name="nav_header_text_dimen">40dp</dimen>
     <dimen name="default_navigator_header_margin_top">60dp</dimen>
     <dimen name="default_navigator_header_padding">10dp</dimen>
     <dimen name="default_navigator_header_padding_tablet">20dp</dimen>
@@ -437,6 +438,7 @@
     <dimen name="statistics_chart_height">300dp</dimen>
     <dimen name="statistics_chart_label_font_size">3dp</dimen>
     <dimen name="statistics_chart_point_font_size">3dp</dimen>
+    <dimen name="statistics_button_size">60dp</dimen>
 
     <dimen name="config_theme_height">200dp</dimen>
     <dimen name="config_theme_selected_stroke">3dp</dimen>

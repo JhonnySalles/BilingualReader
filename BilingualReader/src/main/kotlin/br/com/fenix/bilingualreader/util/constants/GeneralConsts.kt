@@ -207,8 +207,6 @@ class GeneralConsts private constructor() {
             const val MANGA_SHOW_CLOCK_AND_BATTERY = "MANGA_SHOW_CLOCK_AND_BATTERY"
             const val MANGA_USE_MAGNIFIER_TYPE = "MANGA_USE_MAGNIFIER_TYPE"
             const val MANGA_KEEP_ZOOM_BETWEEN_PAGES = "MANGA_KEEP_ZOOM_BETWEEN_PAGES"
-            const val READER_GLASSMORPHISM = "READER_GLASSMORPHISM"
-
             const val BOOK_PAGE_ALIGNMENT = "BOOK_PAGE_ALIGNMENT"
             const val BOOK_PAGE_MARGIN = "BOOK_PAGE_MARGIN"
             const val BOOK_PAGE_SPACING = "BOOK_PAGE_SPACING"
@@ -335,6 +333,7 @@ class GeneralConsts private constructor() {
             const val THEME_USED = "THEME_USED"
             const val THEME_MODE = "THEME_MODE"
             const val THEME_CHANGE = "THEME_CHANGE"
+            const val THEME_GLASSMORPHISM = "THEME_GLASSMORPHISM"
         }
 
         object SHARE_MARKS {

@@ -136,7 +136,7 @@ class HistoryStatisticsActivity : AppCompatActivity() {
         mToolBar.background = android.graphics.drawable.ColorDrawable(Color.TRANSPARENT)
 
         val sharedPreferences = GeneralConsts.getSharedPreferences(this)
-        val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.READER.READER_GLASSMORPHISM, false)
+        val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
         mBlurTop?.setBlurEnabled(useBlur)
 

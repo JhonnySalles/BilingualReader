@@ -1611,7 +1611,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
             val isNight = resources.getBoolean(R.bool.isNight)
             val themeColor = requireContext().getColorFromAttr(R.attr.colorSurface)
-            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.READER.READER_GLASSMORPHISM, false)
+            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
             val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
             val alpha = if (isNight) 0xD9 else 0x73
             val translucentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
@@ -2065,7 +2065,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     private fun applyGlassmorphism() {
-        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.READER.READER_GLASSMORPHISM, false)
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         val context = requireContext()
         val themeColor = context.getColorFromAttr(R.attr.colorSurface)
 

@@ -572,7 +572,7 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         val barLayout = view?.findViewById<View>(R.id.content_toolbar_book_annotation)
         barLayout?.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
 
-        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.READER.READER_GLASSMORPHISM, false)
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
         mBlurTop?.setBlurEnabled(useBlur)
 

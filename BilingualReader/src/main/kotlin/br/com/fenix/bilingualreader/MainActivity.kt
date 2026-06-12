@@ -242,18 +242,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun libraries() {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val repository = LibraryRepository(this@MainActivity)
-                val libraries = repository.listEnabled()
-                withContext(Dispatchers.Main) {
-                    if (libraries.isNotEmpty())
-                        setLibraries(libraries)
-                }
-            } catch (e: Exception) {
-                mLOGGER.error("Error loading libraries: " + e.message, e)
-                Telemetry.recordException(e, "Error loading libraries: " + e.message)
-            }
+        try {
+            val repository = LibraryRepository(this@MainActivity)
+            val libraries = repository.listEnabled()
+            if (libraries.isNotEmpty())
+                setLibraries(libraries)
+        } catch (e: Exception) {
+            mLOGGER.error("Error loading libraries: " + e.message, e)
+            Telemetry.recordException(e, "Error loading libraries: " + e.message)
         }
     }
 
@@ -485,7 +481,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mToolBar.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
 
         val sharedPreferences = GeneralConsts.getSharedPreferences(this)
-        val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.READER.READER_GLASSMORPHISM, false)
+        val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
         mBlurTop?.setBlurEnabled(useBlur)
 

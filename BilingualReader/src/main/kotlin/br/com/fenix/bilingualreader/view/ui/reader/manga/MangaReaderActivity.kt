@@ -1519,7 +1519,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     private fun setupPopupBackgrounds() {
-        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.READER.READER_GLASSMORPHISM, false)
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         val themeColor = getColorFromAttr(R.attr.colorSurfaceVariant)
         val finalColor = if (isGlass) {
             (themeColor and 0x00FFFFFF) or (0xD9 shl 24) // 85% opacity

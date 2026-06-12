@@ -131,7 +131,6 @@
     <string name="config_manga_reading_show_clock_and_battery">Show clock and battery percent?</string>
     <string name="config_manga_reading_use_magnifier_type">Use zoom in magnifying mode?</string>
     <string name="config_manga_reading_keep_zoom_between_pages">Keep zooming between pages?</string>
-    <string name="config_reader_glassmorphism">Use glassmorphism (translucent blur) in reader?</string>
 
     <string name="config_system_format_date">Date format</string>
     <string name="config_system_language">System language</string>
@@ -186,6 +185,7 @@
     <string name="config_update_app_error_download">Error downloading the application.</string>
     <string name="config_update_app_error_update">Error updating application, need to manually run the apk in the download folder.</string>
 
+    <string name="config_theme_glassmorphism">Use translucent blur?</string>
     <string name="config_theme_mode">Theme mode</string>
     <string-array name="theme_mode">
         <item>System</item>
