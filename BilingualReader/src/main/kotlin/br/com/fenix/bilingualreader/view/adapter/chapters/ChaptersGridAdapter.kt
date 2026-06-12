@@ -19,6 +19,8 @@ class ChaptersGridAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         private const val CONTENT = 0
     }
 
+    var isAnimation: Boolean = true
+
     override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
         super.onViewAttachedToWindow(holder)
 
@@ -44,8 +46,43 @@ class ChaptersGridAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             }
             else -> {
                 (holder as ChaptersViewHolder).bind(mChaptersList[position])
+                if (isAnimation) {
+                    holder.itemView.alpha = 0f
+                    holder.itemView.translationY = 100f
+                    holder.itemView.scaleX = 0.5f
+                    holder.itemView.scaleY = 0.5f
+                    holder.itemView.animate()
+                        .alpha(1f)
+                        .translationY(0f)
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .setDuration(200)
+                        .setInterpolator(android.view.animation.DecelerateInterpolator())
+                        .start()
+                } else {
+                    holder.itemView.animate().cancel()
+                    holder.itemView.alpha = 1f
+                    holder.itemView.translationY = 0f
+                    holder.itemView.scaleX = 1f
+                    holder.itemView.scaleY = 1f
+                }
             }
         }
+    }
+
+    override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
+        when (holder.itemViewType) {
+            HEADER -> { }
+            else -> {
+                holder.itemView.animate().cancel()
+                holder.itemView.alpha = 1f
+                holder.itemView.translationY = 0f
+                holder.itemView.scaleX = 1f
+                holder.itemView.scaleY = 1f
+                holder.itemView.clearAnimation()
+            }
+        }
+        super.onViewDetachedFromWindow(holder)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {

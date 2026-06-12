@@ -33,10 +33,12 @@ class MangaImageCoverController private constructor() {
 
     companion object {
         val instance: MangaImageCoverController by lazy { HOLDER.INSTANCE }
-        val thread: CoroutineDispatcher = newSingleThreadContext("MangaCovers")
+        val thread: CoroutineDispatcher = Dispatchers.IO
     }
 
     private val mLOGGER = LoggerFactory.getLogger(MangaImageCoverController::class.java)
+
+    private val runningJobs = java.util.Collections.synchronizedMap(java.util.WeakHashMap<ImageView, kotlinx.coroutines.Job>())
 
     private object HOLDER {
         val INSTANCE = MangaImageCoverController()
@@ -174,7 +176,13 @@ class MangaImageCoverController private constructor() {
                     (parse as RarParse?)!!.setCacheDirectory(cacheDir)
                 }
 
-                image = getCoverFromFile(context, hash, parse, isCoverSize)
+                synchronized(hash.intern()) {
+                    if (isCoverSize) {
+                        image = retrieveBitmapFromCache(context, hash)
+                        if (image != null) return image
+                    }
+                    image = getCoverFromFile(context, hash, parse, isCoverSize)
+                }
             } finally {
                 Util.destroyParse(parse)
             }
@@ -206,19 +214,67 @@ class MangaImageCoverController private constructor() {
     }
 
     fun setImageCoverAsync(context: Context, manga: Manga, imageView: ImageView, notLocate: Bitmap?, isCoverSize: Boolean = true) {
-        setImageCoverAsync(context, manga, isCoverSize) {
-            val image = it ?: notLocate
-            imageView.setImageBitmap(image)
+        runningJobs[imageView]?.cancel()
+        val job = CoroutineScope(thread).launch {
+            try {
+                val image: Bitmap? = getMangaCover(context, manga, isCoverSize)
+                withContext(Dispatchers.Main) {
+                    imageView.setImageBitmap(image ?: notLocate)
+                }
+            } catch (m: OutOfMemoryError) {
+                System.gc()
+                mLOGGER.error("Memory full, cleaning", m)
+            } catch (m: IOException) {
+                mLOGGER.error("Error to load image async: " + manga.name, m)
+                Telemetry.recordException(m, "Error to load image async: " + m.message)
+            } catch (e: FileNotFoundException) {
+                mLOGGER.error("File not found. Error to load image async: " + manga.name, e)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                // Ignore cancellation
+            } catch (e: Exception) {
+                mLOGGER.error("Error to load image async: " + manga.name, e)
+                Telemetry.recordException(e, "Error to load image async: " + e.message)
+            } finally {
+                runningJobs.remove(imageView)
+            }
         }
+        runningJobs[imageView] = job
     }
 
     fun setImageCoverAsync(context: Context, manga: Manga, imagesView: ArrayList<ImageView>, notLocate: Bitmap?, isCoverSize: Boolean = true, onFinish: (Bitmap?) -> (Unit)) {
-        setImageCoverAsync(context, manga, isCoverSize) {
-            val image = it ?: notLocate
-            for (imageView in imagesView)
-                imageView.setImageBitmap(image)
-
-            onFinish(image)
+        for (imageView in imagesView) {
+            runningJobs[imageView]?.cancel()
+        }
+        val job = CoroutineScope(thread).launch {
+            try {
+                val image: Bitmap? = getMangaCover(context, manga, isCoverSize)
+                withContext(Dispatchers.Main) {
+                    val finalImage = image ?: notLocate
+                    for (imageView in imagesView)
+                        imageView.setImageBitmap(finalImage)
+                    onFinish(image)
+                }
+            } catch (m: OutOfMemoryError) {
+                System.gc()
+                mLOGGER.error("Memory full, cleaning", m)
+            } catch (m: IOException) {
+                mLOGGER.error("Error to load image async: " + manga.name, m)
+                Telemetry.recordException(m, "Error to load image async: " + m.message)
+            } catch (e: FileNotFoundException) {
+                mLOGGER.error("File not found. Error to load image async: " + manga.name, e)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                // Ignore cancellation
+            } catch (e: Exception) {
+                mLOGGER.error("Error to load image async: " + manga.name, e)
+                Telemetry.recordException(e, "Error to load image async: " + e.message)
+            } finally {
+                for (imageView in imagesView) {
+                    runningJobs.remove(imageView)
+                }
+            }
+        }
+        for (imageView in imagesView) {
+            runningJobs[imageView] = job
         }
     }
 
@@ -230,11 +286,32 @@ class MangaImageCoverController private constructor() {
         isCoverSize: Boolean = true,
         onFinish: (Bitmap?) -> (Unit)
     ) {
-        setImageCoverAsync(context, manga, isCoverSize) {
-            val image = it ?: notLocate
-            imageView.setImageBitmap(image)
-            onFinish(image)
+        runningJobs[imageView]?.cancel()
+        val job = CoroutineScope(thread).launch {
+            try {
+                val image: Bitmap? = getMangaCover(context, manga, isCoverSize)
+                withContext(Dispatchers.Main) {
+                    imageView.setImageBitmap(image ?: notLocate)
+                    onFinish(image)
+                }
+            } catch (m: OutOfMemoryError) {
+                System.gc()
+                mLOGGER.error("Memory full, cleaning", m)
+            } catch (m: IOException) {
+                mLOGGER.error("Error to load image async: " + manga.name, m)
+                Telemetry.recordException(m, "Error to load image async: " + m.message)
+            } catch (e: FileNotFoundException) {
+                mLOGGER.error("File not found. Error to load image async: " + manga.name, e)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                // Ignore cancellation
+            } catch (e: Exception) {
+                mLOGGER.error("Error to load image async: " + manga.name, e)
+                Telemetry.recordException(e, "Error to load image async: " + e.message)
+            } finally {
+                runningJobs.remove(imageView)
+            }
         }
+        runningJobs[imageView] = job
     }
 
 }
