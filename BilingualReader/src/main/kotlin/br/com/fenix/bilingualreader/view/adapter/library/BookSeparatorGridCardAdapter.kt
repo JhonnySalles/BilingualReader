@@ -12,6 +12,7 @@ import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 
 class BookSeparatorGridCardAdapter(var context: Context, var type: LibraryBookType) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), BaseAdapter<Book, BookCardListener> {
 
@@ -53,6 +54,17 @@ class BookSeparatorGridCardAdapter(var context: Context, var type: LibraryBookTy
                 BookSeparatorGridViewHolder(type, item, mListener)
             }
         }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty() && payloads.contains(AnimationUtil.PROPERTY_NO_ANIMATION)) {
+            when (getItemViewType(position)) {
+                HEADER -> (holder as BookSeparatorHeaderViewHolder).bind(mBookList[position] as Separator)
+                else -> (holder as BookSeparatorGridViewHolder).bind(mBookList[position] as Book)
+            }
+            return
+        }
+        super.onBindViewHolder(holder, position, payloads)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

@@ -32,7 +32,7 @@
             android:id="@+id/vocabulary_manga_list_image_cover"
             android:layout_width="@dimen/vocabulary_manga_cover_width"
             android:layout_height="@dimen/vocabulary_manga_cover_height"
-            android:adjustViewBounds="true"
+            android:adjustViewBounds="false"
             android:scaleType="centerCrop"
             app:srcCompat="@mipmap/book_cover_2" />
 

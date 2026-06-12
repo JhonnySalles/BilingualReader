@@ -8,6 +8,7 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
+import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 
 class MangaGridCardAdapter(var type: LibraryMangaType) : RecyclerView.Adapter<MangaGridViewHolder>(), BaseAdapter<Manga, MangaCardListener> {
 
@@ -17,6 +18,14 @@ class MangaGridCardAdapter(var type: LibraryMangaType) : RecyclerView.Adapter<Ma
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MangaGridViewHolder {
         val item = LayoutInflater.from(parent.context).inflate(R.layout.grid_card_manga, parent, false)
         return MangaGridViewHolder(type, item, mListener)
+    }
+
+    override fun onBindViewHolder(holder: MangaGridViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty() && payloads.contains(AnimationUtil.PROPERTY_NO_ANIMATION)) {
+            holder.bind(mMangaList[position])
+            return
+        }
+        super.onBindViewHolder(holder, position, payloads)
     }
 
     override fun onBindViewHolder(holder: MangaGridViewHolder, position: Int) {

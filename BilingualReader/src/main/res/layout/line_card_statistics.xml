@@ -34,7 +34,7 @@
             android:id="@+id/history_image_cover"
             android:layout_width="@dimen/history_card_image"
             android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
+            android:adjustViewBounds="false"
             android:scaleType="centerCrop"
             app:srcCompat="@mipmap/book_cover_2" />
 

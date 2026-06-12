@@ -1250,6 +1250,8 @@ class TextUtil {
 
 class AnimationUtil {
     companion object AnimationUtils {
+        const val PROPERTY_NO_ANIMATION = "NO_ANIMATION"
+
         const val duration = 200L
         fun animatePopupOpen(activity: Activity, frame: FrameLayout, isVertical: Boolean = true, navigationColor: Boolean = true, ending: () -> (Unit) = {}) {
             frame.visibility = View.VISIBLE

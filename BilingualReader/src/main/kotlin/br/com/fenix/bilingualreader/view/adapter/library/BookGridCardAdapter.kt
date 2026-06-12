@@ -8,6 +8,7 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
+import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 
 class BookGridCardAdapter(var type: LibraryBookType) : RecyclerView.Adapter<BookGridViewHolder>(), BaseAdapter<Book, BookCardListener> {
 
@@ -18,6 +19,14 @@ class BookGridCardAdapter(var type: LibraryBookType) : RecyclerView.Adapter<Book
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookGridViewHolder {
         val item = LayoutInflater.from(parent.context).inflate(R.layout.grid_card_book, parent, false)
         return BookGridViewHolder(type, item, mListener)
+    }
+
+    override fun onBindViewHolder(holder: BookGridViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty() && payloads.contains(AnimationUtil.PROPERTY_NO_ANIMATION)) {
+            holder.bind(mMangaList[position])
+            return
+        }
+        super.onBindViewHolder(holder, position, payloads)
     }
 
     override fun onBindViewHolder(holder: BookGridViewHolder, position: Int) {

@@ -409,9 +409,9 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         else if (removed)
             mRecyclerView.adapter?.notifyItemRemoved(index)
         else if (range > 1)
-            mRecyclerView.adapter?.notifyItemRangeChanged(index, range)
+            mRecyclerView.adapter?.notifyItemRangeChanged(index, range, AnimationUtil.PROPERTY_NO_ANIMATION)
         else
-            mRecyclerView.adapter?.notifyItemChanged(index)
+            mRecyclerView.adapter?.notifyItemChanged(index, AnimationUtil.PROPERTY_NO_ANIMATION)
     }
 
     private fun refreshLibraryAddDelayed(manga: Manga) {
