@@ -265,7 +265,7 @@
     <style name="MainNavigationTitle" parent="Base.Theme.MangaReader">
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">?attr/colorPrimaryContainer</item>
-        <item name="android:background">@color/title_background</item>
+        <item name="android:background">@android:color/transparent</item>
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Body1</item>
     </style>
 

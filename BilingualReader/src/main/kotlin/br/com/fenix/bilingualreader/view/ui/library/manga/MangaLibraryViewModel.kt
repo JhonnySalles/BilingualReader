@@ -57,7 +57,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
 
     private val mLOGGER = LoggerFactory.getLogger(MangaLibraryViewModel::class.java)
 
-    var isLaunch : Boolean = true
+    var isLoading : Boolean = true
 
     private var mStackLibrary = mutableMapOf<String, Triple<Int, Library, MutableList<Manga>>>()
     private var mLibrary: Library = Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)

@@ -365,7 +365,7 @@ class HistoryFragment : Fragment() {
                 val extent = recyclerView.computeVerticalScrollExtent()
                 val range = recyclerView.computeVerticalScrollRange()
 
-                if (offset > 180) {
+                if (offset > 500) {
                     if (mScrollUp.visibility != View.VISIBLE) {
                         mHandler.removeCallbacks(mDismissUpButton)
                         mHandler.postDelayed(mDismissUpButton, 3000)
@@ -376,7 +376,7 @@ class HistoryFragment : Fragment() {
                     mScrollUp.hide()
                 }
 
-                if (range - extent - offset > 180) {
+                if (range - extent - offset > 500) {
                     if (mScrollDown.visibility != View.VISIBLE) {
                         mHandler.removeCallbacks(mDismissDownButton)
                         mHandler.postDelayed(mDismissDownButton, 3000)
@@ -658,6 +658,7 @@ class HistoryFragment : Fragment() {
 
     private fun showSkeleton(show: Boolean) {
         if (show) {
+            mSkeletonLayout.alpha = 1f
             mSkeletonLayout.removeAllViews()
 
             mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_history_skeleton_title, null))
@@ -669,6 +670,7 @@ class HistoryFragment : Fragment() {
 
             mShimmer.visibility = View.VISIBLE
             mRecyclerView.visibility = View.GONE
+            mRecyclerView.alpha = 1f
             mSkeletonLayout.visibility = View.VISIBLE
             mShimmer.startShimmerAnimation()
             mSkeletonLayout.bringToFront()
@@ -676,7 +678,9 @@ class HistoryFragment : Fragment() {
             mShimmer.stopShimmerAnimation()
             mShimmer.visibility = View.GONE
             mSkeletonLayout.visibility = View.GONE
+            mSkeletonLayout.alpha = 1f
             mRecyclerView.visibility = View.VISIBLE
+            mRecyclerView.alpha = 1f
             setAnimationRecycler(true)
         }
     }

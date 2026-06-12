@@ -336,15 +336,15 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
         ScannerBook.getInstance(requireContext()).addUpdateHandler(mUpdateHandler)
 
-        if (mViewModel.isEmpty())
-            refresh()
-        else
-            mViewModel.updateList { change, indexes ->
-                if (change && indexes.isNotEmpty())
-                    notifyDataSet(indexes)
-            }
-
-        mViewModel.isLaunch = false
+        if (!mViewModel.isLoading) {
+            if (mViewModel.isEmpty())
+                refresh()
+            else
+                mViewModel.updateList { change, indexes ->
+                    if (change && indexes.isNotEmpty())
+                        notifyDataSet(indexes)
+                }
+        }
         if (ScannerBook.getInstance(requireContext()).isRunning(mViewModel.getLibrary()))
             setIsRefreshing(true)
         else
@@ -834,6 +834,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         mViewModel.list {
             if (it && _mRecyclerView != null)
                 sortList()
+            mViewModel.isLoading = false
         }
 
         if (!Storage.isPermissionGranted(requireContext()))
@@ -1285,6 +1286,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
     private fun showSkeleton(show: Boolean) {
         if (show) {
+            mSkeletonLayout.alpha = 1f
             mSkeletonLayout.removeAllViews()
 
             val type = mViewModel.libraryType.value ?: LibraryBookType.LINE
@@ -1321,6 +1323,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
             mShimmer.visibility = View.VISIBLE
             mRecyclerView.visibility = View.GONE
+            mRecyclerView.alpha = 1f
             mSkeletonLayout.visibility = View.VISIBLE
             mShimmer.startShimmerAnimation()
             mSkeletonLayout.bringToFront()
@@ -1328,7 +1331,9 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             mShimmer.stopShimmerAnimation()
             mShimmer.visibility = View.GONE
             mSkeletonLayout.visibility = View.GONE
+            mSkeletonLayout.alpha = 1f
             mRecyclerView.visibility = View.VISIBLE
+            mRecyclerView.alpha = 1f
             setAnimationRecycler(true)
         }
     }

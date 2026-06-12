@@ -7,14 +7,22 @@
     android:orientation="vertical"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-    <TextView
-        style="@style/MainNavigationTitle"
+    <eightbitlab.com.blurview.BlurView
+        android:id="@+id/navigator_blur"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:paddingBottom="@dimen/margin"
-        android:paddingStart="@dimen/margin"
-        android:text="@string/app_name"
-        android:textSize="@dimen/title_size"/>
+        android:background="#80000000">
+
+        <TextView
+            style="@style/MainNavigationTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/nav_header_vertical_spacing"
+            android:paddingBottom="@dimen/margin"
+            android:paddingStart="@dimen/margin"
+            android:text="@string/app_name"
+            android:textSize="@dimen/title_size"/>
+
+    </eightbitlab.com.blurview.BlurView>
 
 </LinearLayout>

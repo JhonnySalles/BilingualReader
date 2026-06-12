@@ -41,7 +41,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
 
     private val mLOGGER = LoggerFactory.getLogger(BookLibraryViewModel::class.java)
 
-    var isLaunch : Boolean = true
+    var isLoading : Boolean = true
 
     private var mStackLibrary = mutableMapOf<String, Triple<Int, Library, MutableList<Book>>>()
     private var mLibrary: Library = Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK)

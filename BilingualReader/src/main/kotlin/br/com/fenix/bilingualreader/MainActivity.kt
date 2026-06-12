@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mBookLibraryModel = ViewModelProvider(this)[BookLibraryViewModel::class.java]
 
         installSplashScreen().setKeepOnScreenCondition {
-            mMangaLibraryModel.isLaunch && mBookLibraryModel.isLaunch
+            mMangaLibraryModel.isLoading || mBookLibraryModel.isLoading
         }
 
         val isDark = ThemeUtil.applyThemeMode(this)
@@ -132,6 +132,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.string.navigation_drawer_close
         )
         mDrawer.addDrawerListener(mToggle)
+        mDrawer.addDrawerListener(object : androidx.drawerlayout.widget.DrawerLayout.DrawerListener {
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
+            override fun onDrawerOpened(drawerView: View) {
+                setNavigatorBlurAutoUpdate(true)
+            }
+            override fun onDrawerClosed(drawerView: View) {
+                setNavigatorBlurAutoUpdate(false)
+            }
+            override fun onDrawerStateChanged(newState: Int) {}
+        })
         mToggle.syncState()
 
         // nav_view have a menu layout
@@ -166,8 +176,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 this.commit()
             }
 
-            mMangaLibraryModel.isLaunch = false
-            mBookLibraryModel.isLaunch = false
+            mMangaLibraryModel.isLoading = false
+            mBookLibraryModel.isLoading = false
             fragment = ConfigFragment()
         } else {
             val idLibrary = GeneralConsts.getSharedPreferences(this).getLong(
@@ -183,23 +193,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             fragment = when (library.type) {
                 Type.MANGA -> {
                     mMangaLibraryModel.setLibrary(library)
+                    mBookLibraryModel.isLoading = false
                     MangaLibraryFragment()
                 }
 
                 Type.BOOK -> {
                     mBookLibraryModel.setLibrary(library)
+                    mMangaLibraryModel.isLoading = false
                     BookLibraryFragment()
                 }
 
                 else -> {
                     mMangaLibraryModel.setLibrary(LibraryUtil.getDefault(this, Type.MANGA))
+                    mBookLibraryModel.isLoading = false
                     MangaLibraryFragment()
                 }
             }
 
             intent.dataString?.let {
-                mMangaLibraryModel.isLaunch = false
-                mBookLibraryModel.isLaunch = false
+                mMangaLibraryModel.isLoading = false
+                mBookLibraryModel.isLoading = false
                 fragment = when (it) {
                     "history" -> HistoryFragment()
                     else -> fragment
@@ -429,12 +442,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
         mBlurTop?.setBlurAutoUpdate(useBlur)
         mBlurTop?.setBlurEnabled(useBlur)
+        setNavigatorBlurAutoUpdate(mDrawer.isDrawerOpen(GravityCompat.START))
     }
 
     override fun onPause() {
         super.onPause()
         mBlurTop?.setBlurAutoUpdate(false)
         mBlurTop?.setBlurEnabled(false)
+        setNavigatorBlurAutoUpdate(false)
     }
 
     fun setBlurAutoUpdate(enabled: Boolean) {
@@ -445,6 +460,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mBlurTop?.setBlurAutoUpdate(enabled)
         } else {
             mBlurTop?.setBlurAutoUpdate(false)
+        }
+    }
+
+    private fun setNavigatorBlurAutoUpdate(enabled: Boolean) {
+        if (!::mNavigationView.isInitialized) return
+        val headerView = mNavigationView.getHeaderView(0)
+        val navigatorBlur = headerView?.findViewById<eightbitlab.com.blurview.BlurView>(R.id.navigator_blur)
+        val preferences = GeneralConsts.getSharedPreferences(this)
+        val isGlass = preferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        val useBlur = isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+
+        navigatorBlur?.setBlurEnabled(useBlur)
+        if (useBlur) {
+            navigatorBlur?.setBlurAutoUpdate(enabled)
+        } else {
+            navigatorBlur?.setBlurAutoUpdate(false)
         }
     }
 
@@ -474,29 +505,39 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun setupBlurViews() {
-        val mainBlurTop = mBlurTop ?: return
         val decorView = window.decorView
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) eightbitlab.com.blurview.RenderEffectBlur() else eightbitlab.com.blurview.RenderScriptBlur(this)
-
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-        mainBlurTop.setupWith(rootView, blurAlgorithm)
-            .setFrameClearDrawable(background)
-            .setBlurRadius(15f)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics).toInt()
-            val outlineProvider = object : android.view.ViewOutlineProvider() {
-                override fun getOutline(view: View, outline: android.graphics.Outline) {
-                    outline.setRoundRect(0, -radius, view.width, view.height, radius.toFloat())
+        mBlurTop?.let { mainBlurTop ->
+            mainBlurTop.setupWith(rootView, blurAlgorithm)
+                .setFrameClearDrawable(background)
+                .setBlurRadius(15f)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                val radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics).toInt()
+                val outlineProvider = object : android.view.ViewOutlineProvider() {
+                    override fun getOutline(view: View, outline: android.graphics.Outline) {
+                        outline.setRoundRect(0, -radius, view.width, view.height, radius.toFloat())
+                    }
                 }
-            }
-            mainBlurTop.outlineProvider = outlineProvider
-            mainBlurTop.clipToOutline = true
+                mainBlurTop.outlineProvider = outlineProvider
+                mainBlurTop.clipToOutline = true
 
-            val mainBarLayout = findViewById<View>(R.id.main_bar_layout)
-            mainBarLayout?.outlineProvider = outlineProvider
-            mainBarLayout?.clipToOutline = true
+                val mainBarLayout = findViewById<View>(R.id.main_bar_layout)
+                mainBarLayout?.outlineProvider = outlineProvider
+                mainBarLayout?.clipToOutline = true
+            }
+        }
+
+        val headerView = mNavigationView.getHeaderView(0)
+        val navigatorBlur = headerView?.findViewById<eightbitlab.com.blurview.BlurView>(R.id.navigator_blur)
+        if (navigatorBlur != null) {
+            val blurAlgorithmNav = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) eightbitlab.com.blurview.RenderEffectBlur() else eightbitlab.com.blurview.RenderScriptBlur(this)
+            navigatorBlur.setupWith(rootView, blurAlgorithmNav)
+                .setFrameClearDrawable(background)
+                .setBlurRadius(15f)
         }
     }
 
