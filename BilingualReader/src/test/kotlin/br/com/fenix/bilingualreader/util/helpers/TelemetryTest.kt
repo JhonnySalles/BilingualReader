@@ -1,8 +1,8 @@
 package br.com.fenix.bilingualreader.util.helpers
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic

@@ -9,10 +9,10 @@ import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.Annotation
-import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.Serializable
 import java.time.LocalDateTime
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 
 
 @Entity(

@@ -7,12 +7,11 @@ import android.view.View
 import android.widget.ImageView
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
-import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
+import br.com.fenix.bilingualreader.util.helpers.Util
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory

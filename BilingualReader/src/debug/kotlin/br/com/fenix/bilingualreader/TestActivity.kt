@@ -3,11 +3,11 @@ package br.com.fenix.bilingualreader
 import android.os.Bundle
 import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.Fragment
 import br.com.fenix.bilingualreader.databinding.ActivityMainBinding
-import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.model.enums.Themes
+import br.com.fenix.bilingualreader.service.listener.MainListener
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 
 /**

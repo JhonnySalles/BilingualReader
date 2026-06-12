@@ -2,10 +2,15 @@ package br.com.fenix.bilingualreader.service.repository
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import br.com.fenix.bilingualreader.model.entity.*
+import br.com.fenix.bilingualreader.model.entity.BookSearch
+import br.com.fenix.bilingualreader.model.entity.Kanjax
+import br.com.fenix.bilingualreader.model.entity.SubTitle
+import br.com.fenix.bilingualreader.model.entity.Tags
 import br.com.fenix.bilingualreader.model.enums.Languages
-import br.com.fenix.bilingualreader.service.repository.DataBaseDAO.*
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

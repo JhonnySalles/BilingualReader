@@ -4,7 +4,6 @@ import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import com.google.firebase.Timestamp
 import io.mockk.every
-import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
 import org.junit.After

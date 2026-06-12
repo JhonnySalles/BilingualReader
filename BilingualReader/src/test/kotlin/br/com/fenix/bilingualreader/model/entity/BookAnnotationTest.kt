@@ -3,13 +3,11 @@ package br.com.fenix.bilingualreader.model.entity
 import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.model.enums.Type
-import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDateTime
 
 class BookAnnotationTest {
 

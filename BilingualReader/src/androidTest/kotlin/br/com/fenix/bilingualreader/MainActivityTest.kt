@@ -4,7 +4,6 @@ import android.content.res.Resources
 import android.view.Gravity
 import android.view.KeyEvent
 import androidx.recyclerview.widget.RecyclerView
-import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.action.ViewActions.clearText

@@ -1,12 +1,16 @@
 package br.com.fenix.bilingualreader.view.ui.book
 
+
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.drawable.AnimatedVectorDrawable
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.TypedValue
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.Menu
@@ -23,6 +27,8 @@ import android.widget.ProgressBar
 import android.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,24 +42,17 @@ import br.com.fenix.bilingualreader.service.listener.BookSearchListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.view.adapter.book.BookSearchHistoryAdapter
 import br.com.fenix.bilingualreader.view.adapter.book.BookSearchLineAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaListCardAdapter
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import org.slf4j.LoggerFactory
-
-
-import android.content.SharedPreferences
-import android.graphics.drawable.GradientDrawable
-import android.util.TypedValue
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
+import org.slf4j.LoggerFactory
 
 class BookSearchFragment : Fragment(), BookParseListener {
 

@@ -2,8 +2,8 @@ package br.com.fenix.bilingualreader.service.parses.manga
 
 import br.com.fenix.bilingualreader.service.parses.ParserBaseTest
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.io.IOException

@@ -17,17 +17,14 @@ import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlin.properties.ReadWriteProperty
-import kotlin.reflect.KProperty
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Statistics
@@ -48,14 +45,17 @@ import com.google.android.material.textfield.TextInputLayout
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 import kotlin.math.round
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 
 class StatisticsFragment : Fragment() {

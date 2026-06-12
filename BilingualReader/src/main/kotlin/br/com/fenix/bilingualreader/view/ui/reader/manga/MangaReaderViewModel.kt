@@ -23,8 +23,8 @@ import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
-import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
+import br.com.fenix.bilingualreader.util.helpers.Util
 import com.squareup.picasso.Transformation
 import jp.wasabeef.picasso.transformations.ColorFilterTransformation
 import jp.wasabeef.picasso.transformations.GrayscaleTransformation

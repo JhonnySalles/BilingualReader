@@ -2,8 +2,8 @@ package br.com.fenix.bilingualreader.service.parses.manga
 
 import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
-import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
+import br.com.fenix.bilingualreader.util.helpers.Util
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.simpleframework.xml.Serializer

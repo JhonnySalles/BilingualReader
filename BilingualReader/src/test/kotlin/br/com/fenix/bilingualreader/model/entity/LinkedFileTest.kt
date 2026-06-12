@@ -1,7 +1,6 @@
 package br.com.fenix.bilingualreader.model.entity
 
 import br.com.fenix.bilingualreader.model.enums.Languages
-import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull

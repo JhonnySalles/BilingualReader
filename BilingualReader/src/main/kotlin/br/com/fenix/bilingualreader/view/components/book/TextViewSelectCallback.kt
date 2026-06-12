@@ -18,8 +18,8 @@ import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil
-import br.com.fenix.bilingualreader.view.ui.popup.PopupTextSelect
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
+import br.com.fenix.bilingualreader.view.ui.popup.PopupTextSelect
 import org.slf4j.LoggerFactory
 
 class TextViewSelectCallback(val context: Context, val holder: TextViewAdapter.TextViewPagerHolder, val page: Int, val createSpan: (annotation: BookAnnotation, start: Int, end: Int) -> (Unit), val listener: TextSelectCallbackListener?) : ActionMode.Callback {

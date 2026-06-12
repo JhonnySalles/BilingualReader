@@ -1,18 +1,15 @@
 package br.com.fenix.bilingualreader.view.ui.popup
 
-import androidx.room.ColumnInfo
-import androidx.room.PrimaryKey
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.TestActivity
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.service.japanese.Formatter
-import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
-import com.google.gson.annotations.SerializedName
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkObject

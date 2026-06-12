@@ -40,7 +40,6 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.io.File
 import java.time.LocalDateTime
 import java.util.Collections
 import java.util.Date

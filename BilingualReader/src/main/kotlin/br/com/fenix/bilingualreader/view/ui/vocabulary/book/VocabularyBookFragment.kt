@@ -3,12 +3,14 @@ package br.com.fenix.bilingualreader.view.ui.vocabulary.book
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.drawable.AnimatedVectorDrawable
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -44,6 +46,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyBookCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyBookListCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyLoadState
@@ -58,9 +61,6 @@ import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
-import android.graphics.drawable.GradientDrawable
-import android.util.TypedValue
-import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 
 
 class VocabularyBookFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener, InitializeVocabulary<Book> {

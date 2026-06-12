@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.model.enums
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import br.com.fenix.bilingualreader.R
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before

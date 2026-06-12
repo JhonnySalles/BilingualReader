@@ -41,10 +41,10 @@ import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.ColorUtil
 import br.com.fenix.bilingualreader.util.helpers.ColorUtil.ColorsUtils.isDark
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.components.manga.ImageViewPage
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderFragment
-import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import com.google.gson.Gson
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition

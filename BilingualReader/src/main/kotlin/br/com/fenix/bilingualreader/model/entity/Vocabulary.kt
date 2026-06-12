@@ -5,9 +5,9 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import com.google.gson.annotations.SerializedName
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 
 
 @Entity(

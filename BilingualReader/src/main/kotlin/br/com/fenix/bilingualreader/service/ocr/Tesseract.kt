@@ -10,14 +10,14 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
-import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
-import java.io.File
+import br.com.fenix.bilingualreader.util.helpers.Util
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
+import java.io.File
 
 class Tesseract(
         private val context: Context,

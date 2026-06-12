@@ -18,10 +18,9 @@ import br.com.fenix.bilingualreader.service.repository.KanjaxRepository
 import br.com.fenix.bilingualreader.service.repository.KanjiRepository
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.helpers.JapaneseCharacter
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.view.ui.popup.PopupKanji
 import br.com.fenix.bilingualreader.view.ui.popup.PopupVocabulary
-import br.com.fenix.bilingualreader.util.helpers.Telemetry
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 

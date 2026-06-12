@@ -1,21 +1,18 @@
 package br.com.fenix.bilingualreader.view.adapter.reader
 
 import android.content.Context
-import android.view.LayoutInflater
 import android.widget.FrameLayout
 import androidx.test.core.app.ApplicationProvider
+import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Chapters
 import br.com.fenix.bilingualreader.service.listener.ChapterCardListener
 import io.mockk.mockk
-import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-import br.com.fenix.bilingualreader.R
 
 @RunWith(RobolectricTestRunner::class)
 @Config()

@@ -28,8 +28,8 @@ import br.com.fenix.bilingualreader.service.tracker.ParseInformation
 import br.com.fenix.bilingualreader.service.tracker.mal.MalMangaDetail
 import br.com.fenix.bilingualreader.service.tracker.mal.MyAnimeListTracker
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
+import br.com.fenix.bilingualreader.util.helpers.Util
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async

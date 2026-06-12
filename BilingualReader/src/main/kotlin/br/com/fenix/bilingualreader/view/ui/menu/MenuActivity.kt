@@ -1,10 +1,13 @@
 package br.com.fenix.bilingualreader.view.ui.menu
 
+
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Themes
@@ -15,10 +18,6 @@ import br.com.fenix.bilingualreader.view.ui.book.BookAnnotationFragment
 import br.com.fenix.bilingualreader.view.ui.book.BookSearchFragment
 import br.com.fenix.bilingualreader.view.ui.chapters.ChaptersFragment
 import br.com.fenix.bilingualreader.view.ui.touch_screen.TouchScreenFragment
-
-
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 
 class MenuActivity : AppCompatActivity() {
 

@@ -1,11 +1,12 @@
 package br.com.fenix.bilingualreader.view.ui.detail.book
 
 import android.app.Application
-import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
+import br.com.fenix.bilingualreader.service.parses.book.ImageParse
 import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.secrets.Secrets
@@ -35,9 +36,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
-
-import br.com.fenix.bilingualreader.service.parses.book.ImageParse
-import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)

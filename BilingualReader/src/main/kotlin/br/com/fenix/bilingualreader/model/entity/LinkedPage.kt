@@ -6,10 +6,10 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import br.com.fenix.bilingualreader.util.constants.PageLinkConsts
 import java.io.Serializable
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 
 
 @Entity(

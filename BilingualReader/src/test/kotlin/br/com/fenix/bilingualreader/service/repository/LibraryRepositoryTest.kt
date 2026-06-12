@@ -5,9 +5,11 @@ import androidx.test.core.app.ApplicationProvider
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
-import br.com.fenix.bilingualreader.service.repository.LibrariesDAO
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

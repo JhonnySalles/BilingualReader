@@ -1,7 +1,6 @@
 package br.com.fenix.bilingualreader.model.enums
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Test
 
 class ColorTest {

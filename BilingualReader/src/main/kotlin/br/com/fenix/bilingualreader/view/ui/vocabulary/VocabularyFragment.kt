@@ -1,12 +1,15 @@
 package br.com.fenix.bilingualreader.view.ui.vocabulary
 
+
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.drawable.AnimatedVectorDrawable
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -20,6 +23,8 @@ import android.widget.ImageView
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -36,9 +41,11 @@ import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.functions.InitializeVocabulary
 import br.com.fenix.bilingualreader.service.listener.PopupOrderListener
 import br.com.fenix.bilingualreader.service.listener.VocabularyCardListener
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyLoadState
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaListCardAdapter
@@ -49,14 +56,6 @@ import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
-
-
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import android.graphics.drawable.GradientDrawable
-import android.util.TypedValue
-import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 
 
 class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener,

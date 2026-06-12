@@ -10,7 +10,6 @@ import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
-import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -21,6 +20,7 @@ import java.io.Serializable
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Date
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 
 
 @Entity(

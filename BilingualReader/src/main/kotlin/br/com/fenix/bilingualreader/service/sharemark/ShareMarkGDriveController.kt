@@ -23,6 +23,7 @@ import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.api.client.extensions.android.http.AndroidHttp
@@ -34,7 +35,6 @@ import com.google.api.client.http.HttpRequestInitializer
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
-import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import com.google.gson.GsonBuilder
 import com.google.gson.stream.JsonReader
 import kotlinx.coroutines.CoroutineScope

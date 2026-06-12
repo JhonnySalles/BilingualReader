@@ -14,12 +14,13 @@ import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasType
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.TestActivity
 import org.hamcrest.Matchers.allOf
-import org.hamcrest.Matchers.anyOf
 import org.junit.After
 import org.junit.Before
 import org.junit.Test

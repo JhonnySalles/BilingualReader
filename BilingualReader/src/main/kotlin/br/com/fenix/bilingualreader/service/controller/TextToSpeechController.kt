@@ -35,15 +35,14 @@ import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.services.NotificationBroadcastReceiver
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Notifications
-import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
+import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import io.github.whitemagic2014.tts.TTS
 import io.github.whitemagic2014.tts.TTSVoice
 import io.github.whitemagic2014.tts.bean.Voice
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.time.LocalTime
-import java.util.stream.Collectors
 
 
 class TextToSpeechController(val context: Context, book: Book, parse: DocumentParse?, cover: Bitmap?, val fontSize: Int) {

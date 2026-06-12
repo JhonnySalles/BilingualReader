@@ -40,6 +40,7 @@ import android.view.View
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.view.Window
 import android.view.WindowManager
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.SearchView
@@ -47,6 +48,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
@@ -67,9 +69,8 @@ import br.com.fenix.bilingualreader.model.enums.Filter
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
-import br.com.fenix.bilingualreader.model.enums.ThemeMode
-import androidx.appcompat.app.AppCompatDelegate
 import br.com.fenix.bilingualreader.model.enums.Position
+import br.com.fenix.bilingualreader.model.enums.ThemeMode
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.TouchScreen
 import br.com.fenix.bilingualreader.model.enums.Type
@@ -81,7 +82,6 @@ import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFr
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
-import android.widget.Button
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File

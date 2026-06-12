@@ -33,13 +33,10 @@ import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.service.sharemark.ShareMarkBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Notifications
-import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
-import kotlinx.coroutines.CoroutineScope
+import br.com.fenix.bilingualreader.util.helpers.Util
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.io.File

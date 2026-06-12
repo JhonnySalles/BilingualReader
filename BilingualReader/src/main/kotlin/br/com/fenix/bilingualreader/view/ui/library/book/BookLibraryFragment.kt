@@ -11,6 +11,7 @@ import android.content.res.Resources
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.graphics.drawable.AnimatedVectorDrawable
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -18,6 +19,7 @@ import android.os.Looper
 import android.os.Message
 import android.provider.BaseColumns
 import android.util.Pair
+import android.util.TypedValue
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.Menu
@@ -26,7 +28,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
-import androidx.annotation.VisibleForTesting
 import android.view.inputmethod.EditorInfo
 import android.widget.AbsListView
 import android.widget.AutoCompleteTextView
@@ -41,14 +42,20 @@ import android.widget.SimpleCursorAdapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.edit
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -77,6 +84,8 @@ import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookGridCardAdapter
@@ -91,22 +100,13 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
-import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import io.supercharge.shimmerlayout.ShimmerLayout
 import org.slf4j.LoggerFactory
 import java.util.UUID
 import kotlin.math.ceil
 import kotlin.math.max
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
-import android.graphics.drawable.GradientDrawable
-import android.util.TypedValue
-import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 
 
 class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.OnRefreshListener {

@@ -7,7 +7,6 @@ import android.content.res.Resources
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.graphics.drawable.AnimatedVectorDrawable
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -32,26 +31,23 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import kotlin.properties.ReadWriteProperty
-import kotlin.reflect.KProperty
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
+import br.com.fenix.bilingualreader.model.entity.HistoryStatistics
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.model.entity.HistoryStatistics
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
-import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.statistics.HistoryStatisticsAdapter
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
@@ -61,6 +57,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import io.supercharge.shimmerlayout.ShimmerLayout
 import java.time.LocalDateTime
 import kotlin.math.ceil
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 class HistoryStatisticsFragment : Fragment() {
 

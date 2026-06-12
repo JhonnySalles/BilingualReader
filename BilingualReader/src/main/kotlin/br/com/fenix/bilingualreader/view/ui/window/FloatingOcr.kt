@@ -25,9 +25,9 @@ import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.service.listener.WindowListener
 import br.com.fenix.bilingualreader.service.ocr.OcrProcess
 import br.com.fenix.bilingualreader.service.ocr.Tesseract
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.view.components.WindowView
 import br.com.fenix.bilingualreader.view.components.manga.ResizeView
-import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import org.slf4j.LoggerFactory
 import kotlin.math.abs
 

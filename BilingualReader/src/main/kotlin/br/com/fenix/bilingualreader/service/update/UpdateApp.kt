@@ -15,9 +15,9 @@ import androidx.core.content.FileProvider
 import br.com.fenix.bilingualreader.BuildConfig
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.service.listener.ApiListener
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
-import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.slf4j.LoggerFactory

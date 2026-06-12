@@ -21,10 +21,10 @@ import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Notifications
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.book.VocabularyBookViewModel
 import br.com.fenix.bilingualreader.view.ui.vocabulary.manga.VocabularyMangaViewModel
-import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

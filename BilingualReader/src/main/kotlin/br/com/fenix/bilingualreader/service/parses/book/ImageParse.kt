@@ -7,8 +7,8 @@ import br.com.ebook.foobnix.pdf.info.ExtUtils
 import br.com.ebook.foobnix.pdf.info.IMG
 import br.com.ebook.foobnix.pdf.info.PageUrl
 import br.com.ebook.foobnix.pdf.info.model.BookCSS
-import br.com.ebook.foobnix.sys.NativeLibLoader
 import br.com.ebook.foobnix.sys.ImageExtractor
+import br.com.ebook.foobnix.sys.NativeLibLoader
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import org.slf4j.LoggerFactory

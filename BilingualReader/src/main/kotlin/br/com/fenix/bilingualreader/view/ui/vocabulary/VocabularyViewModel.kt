@@ -14,10 +14,10 @@ import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.transformLatest
+import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 
 

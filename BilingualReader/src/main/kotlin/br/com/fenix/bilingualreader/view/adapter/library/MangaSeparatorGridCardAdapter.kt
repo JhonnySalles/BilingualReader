@@ -3,7 +3,6 @@ package br.com.fenix.bilingualreader.view.adapter.library
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import br.com.fenix.bilingualreader.R

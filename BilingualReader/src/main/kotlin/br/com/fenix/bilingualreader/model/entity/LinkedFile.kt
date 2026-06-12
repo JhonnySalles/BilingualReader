@@ -6,12 +6,12 @@ import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.model.enums.Languages
-import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.File
 import java.io.Serializable
 import java.time.LocalDateTime
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 
 
 @Entity(

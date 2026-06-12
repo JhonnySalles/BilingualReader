@@ -1,8 +1,8 @@
 package br.com.fenix.bilingualreader.view.components
 
 import android.content.Context
-import br.com.fenix.bilingualreader.R
 import androidx.test.core.app.ApplicationProvider
+import br.com.fenix.bilingualreader.R
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

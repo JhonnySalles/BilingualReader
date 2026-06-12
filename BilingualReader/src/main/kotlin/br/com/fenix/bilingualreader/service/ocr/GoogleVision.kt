@@ -4,8 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.widget.Toast
 import br.com.fenix.bilingualreader.R
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition

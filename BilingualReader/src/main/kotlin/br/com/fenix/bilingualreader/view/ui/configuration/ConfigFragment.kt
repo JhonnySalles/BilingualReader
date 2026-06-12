@@ -13,9 +13,13 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.edit
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import br.com.fenix.bilingualreader.MainActivity
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.FontType
@@ -45,6 +49,7 @@ import br.com.fenix.bilingualreader.util.helpers.InvalidDatabase
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MsgUtil
 import br.com.fenix.bilingualreader.util.helpers.RestoredNewDatabase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.secrets.Secrets
@@ -69,16 +74,11 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import com.google.api.services.drive.DriveScopes
-import br.com.fenix.bilingualreader.util.helpers.Telemetry
-import org.lucasr.twowayview.TwoWayView
-import androidx.core.content.edit
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import org.slf4j.LoggerFactory
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.lucasr.twowayview.TwoWayView
+import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -86,7 +86,6 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
-
 
 
 class ConfigFragment : Fragment() {

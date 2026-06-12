@@ -2,12 +2,12 @@ package br.com.fenix.bilingualreader.service.parses.manga
 
 import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
 import com.github.junrar.Archive
 import com.github.junrar.exception.CrcErrorException
 import com.github.junrar.exception.RarException
 import com.github.junrar.rarfile.FileHeader
-import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.core.Persister
 import org.slf4j.LoggerFactory

@@ -1,6 +1,5 @@
 package br.com.fenix.bilingualreader.view.ui.reader.book
 
-import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View

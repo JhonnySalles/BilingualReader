@@ -6,8 +6,10 @@ import br.com.fenix.bilingualreader.model.entity.LinkedFile
 import br.com.fenix.bilingualreader.model.entity.LinkedPage
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Languages
-import br.com.fenix.bilingualreader.service.repository.DataBaseDAO.*
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

@@ -1,30 +1,35 @@
 package br.com.fenix.bilingualreader
 
+
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.SubMenu
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.edit
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.GravityCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import br.com.fenix.bilingualreader.databinding.ActivityMainBinding
 import br.com.fenix.bilingualreader.model.entity.Library
-import br.com.fenix.bilingualreader.model.enums.ThemeMode
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.listener.MainListener
@@ -36,6 +41,7 @@ import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.MsgUtil
 import br.com.fenix.bilingualreader.util.helpers.Notifications
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.view.ui.about.AboutFragment
@@ -50,25 +56,14 @@ import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.statistics.StatisticsFragment
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyFragment
 import com.google.android.material.navigation.NavigationView
-import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.delay
-import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.time.LocalDate
-
-
-import android.graphics.drawable.GradientDrawable
-import android.util.TypedValue
-import android.view.View
-import android.view.ViewGroup
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainListener {
 

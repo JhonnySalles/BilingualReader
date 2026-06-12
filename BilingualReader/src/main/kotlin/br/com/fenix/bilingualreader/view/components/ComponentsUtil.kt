@@ -2,7 +2,6 @@ package br.com.fenix.bilingualreader.view.components
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import android.content.ContentResolver
 import android.content.Context
 import android.provider.Settings
 import android.view.View

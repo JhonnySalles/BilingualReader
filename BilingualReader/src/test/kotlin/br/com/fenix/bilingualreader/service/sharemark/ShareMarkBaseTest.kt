@@ -12,7 +12,7 @@ import org.junit.Before
 import org.junit.Test
 import java.io.File
 import java.time.LocalDateTime
-import java.util.*
+import java.util.Date
 
 class ShareMarkBaseTest {
 

@@ -7,7 +7,6 @@ import android.content.res.Resources
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.graphics.drawable.AnimatedVectorDrawable
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -31,12 +30,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import kotlin.properties.ReadWriteProperty
-import kotlin.reflect.KProperty
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -59,6 +56,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import io.supercharge.shimmerlayout.ShimmerLayout
 import java.time.LocalDateTime
 import kotlin.math.ceil
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 
 class HistoryFragment : Fragment() {

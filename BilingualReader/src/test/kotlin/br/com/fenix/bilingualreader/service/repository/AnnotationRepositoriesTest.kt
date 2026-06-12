@@ -5,8 +5,10 @@ import androidx.test.core.app.ApplicationProvider
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.MangaAnnotation
 import br.com.fenix.bilingualreader.model.enums.MarkType
-import br.com.fenix.bilingualreader.service.repository.DataBaseDAO.*
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

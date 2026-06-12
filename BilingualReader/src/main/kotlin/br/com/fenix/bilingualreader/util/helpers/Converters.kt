@@ -2,14 +2,13 @@ package br.com.fenix.bilingualreader.util.helpers
 
 import android.graphics.Bitmap
 import androidx.room.TypeConverter
+import br.com.fenix.bilingualreader.model.enums.Libraries
+import br.com.fenix.bilingualreader.model.enums.Type
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Date
-
-import br.com.fenix.bilingualreader.model.enums.Libraries
-import br.com.fenix.bilingualreader.model.enums.Type
 
 class Converters {
 

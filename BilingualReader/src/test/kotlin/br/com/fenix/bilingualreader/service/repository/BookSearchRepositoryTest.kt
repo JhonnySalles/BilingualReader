@@ -2,7 +2,12 @@ package br.com.fenix.bilingualreader.service.repository
 
 import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.BookSearch
-import io.mockk.*
+import io.mockk.MockKAnnotations
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.unmockkAll
+import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

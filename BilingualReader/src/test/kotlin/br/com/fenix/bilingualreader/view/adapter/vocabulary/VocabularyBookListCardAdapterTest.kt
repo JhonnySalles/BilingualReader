@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader.view.adapter.vocabulary
 import android.content.Context
 import android.widget.FrameLayout
 import androidx.test.core.app.ApplicationProvider
+import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.VocabularyBook
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -10,8 +11,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
-import br.com.fenix.bilingualreader.R
 
 @RunWith(RobolectricTestRunner::class)
 @Config()

@@ -8,8 +8,8 @@ import android.graphics.drawable.Drawable
 import android.text.Html
 import android.widget.TextView
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
-import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
+import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import org.slf4j.LoggerFactory
 
 class ImageGetter(val context: Context, val textView: TextView) : Html.ImageGetter {

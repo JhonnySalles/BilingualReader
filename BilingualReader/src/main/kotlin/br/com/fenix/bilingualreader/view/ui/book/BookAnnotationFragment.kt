@@ -1,7 +1,10 @@
 package br.com.fenix.bilingualreader.view.ui.book
 
+
+import android.content.SharedPreferences
 import android.content.res.Resources
 import android.graphics.drawable.AnimatedVectorDrawable
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -24,6 +27,8 @@ import android.widget.SearchView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -58,16 +63,10 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
-import org.slf4j.LoggerFactory
-
-
-import android.content.SharedPreferences
-import android.graphics.drawable.GradientDrawable
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
+import org.slf4j.LoggerFactory
 
 class BookAnnotationFragment : Fragment(), AnnotationListener {
 

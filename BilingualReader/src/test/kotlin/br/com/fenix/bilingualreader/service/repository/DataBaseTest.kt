@@ -3,7 +3,9 @@ package br.com.fenix.bilingualreader.service.repository
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import io.mockk.mockk
-import org.junit.Assert.*
+import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertSame
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
