@@ -474,7 +474,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         } else
             setFullscreen(true)
 
-        applyGlassmorphism()
+        setupTitleBackgrounds()
         return view
     }
 
@@ -1163,12 +1163,6 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             }
 
             val isNight = resources.getBoolean(R.bool.isNight)
-            val themeColor = requireContext().getColorFromAttr(R.attr.colorSurface)
-            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-            val useBlur = isGlass
-            val alpha = if (isNight) 0xD9 else 0x73
-            val translucentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
-            val solidColor = (themeColor and 0x00FFFFFF) or (0xFF shl 24)
             window.statusBarColor = android.graphics.Color.TRANSPARENT
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
@@ -1197,7 +1191,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         val targetTop = mBlurTop ?: mToolbarTop
         val targetBottom = mBlurBottom ?: mToolbarBottom
 
-        applyGlassmorphism()
+        setupTitleBackgrounds()
 
         if (!isFullScreen) {
             targetTop.visibility = View.VISIBLE
@@ -1961,7 +1955,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     override fun onResume() {
         super.onResume()
         Companion.mCurrentPage = mLocalCurrentPage
-        applyGlassmorphism()
+        setupTitleBackgrounds()
         setBlurAutoUpdate(true)
     }
 
@@ -1972,26 +1966,24 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
     private fun setBlurAutoUpdate(enabled: Boolean) {
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        val useBlur = isGlass
-        val autoUpdate = useBlur && enabled
+        val autoUpdate = isGlass && enabled
         mBlurTop?.setBlurAutoUpdate(autoUpdate)
         mBlurBottom?.setBlurAutoUpdate(autoUpdate)
 
-        mBlurTop?.setBlurEnabled(useBlur)
-        mBlurBottom?.setBlurEnabled(useBlur)
+        mBlurTop?.setBlurEnabled(isGlass)
+        mBlurBottom?.setBlurEnabled(isGlass)
     }
 
-    private fun applyGlassmorphism() {
+    private fun setupTitleBackgrounds() {
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         val context = requireContext()
         val themeColor = context.getColorFromAttr(R.attr.colorSurfaceVariant)
-        val useBlur = isGlass
-        mBlurTop?.setBlurEnabled(useBlur)
-        mBlurBottom?.setBlurEnabled(useBlur)
+        mBlurTop?.setBlurEnabled(isGlass)
+        mBlurBottom?.setBlurEnabled(isGlass)
 
         val isNight = resources.getBoolean(R.bool.isNight)
 
-        if (useBlur) {
+        if (isGlass) {
             val alpha = if (isNight) 0xD9 else 0xA6 // 85% opacity for dark theme, 65% opacity for light theme
             val translucentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
 

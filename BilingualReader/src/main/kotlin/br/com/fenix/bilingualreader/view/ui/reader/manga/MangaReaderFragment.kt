@@ -556,7 +556,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mViewModel.filters.observe(viewLifecycleOwner) { onRefresh() }
 
         setupWindowInsets()
-        applyGlassmorphism()
+        setupTitleBackgrounds()
 
         return view
     }
@@ -1610,12 +1610,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             }
 
             val isNight = resources.getBoolean(R.bool.isNight)
-            val themeColor = requireContext().getColorFromAttr(R.attr.colorSurface)
-            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-            val useBlur = isGlass
-            val alpha = if (isNight) 0xD9 else 0x73
-            val translucentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
-            val solidColor = (themeColor and 0x00FFFFFF) or (0xFF shl 24)
             window.statusBarColor = android.graphics.Color.TRANSPARENT
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
@@ -1648,7 +1642,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         val prevTarget = mBlurNavPrevious ?: mPreviousButton
         val nextTarget = mBlurNavNext ?: mNextButton
 
-        applyGlassmorphism()
+        setupTitleBackgrounds()
 
         if (!isFullScreen) {
             targetTop.visibility = View.VISIBLE
@@ -2020,7 +2014,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     override fun onResume() {
         super.onResume()
         Companion.mCurrentPage = mLocalCurrentPage
-        applyGlassmorphism()
+        setupTitleBackgrounds()
         setBlurAutoUpdate(true)
     }
 
@@ -2031,19 +2025,18 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     private fun setBlurAutoUpdate(enabled: Boolean) {
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        val useBlur = isGlass
-        val autoUpdate = useBlur && enabled
+        val autoUpdate = isGlass && enabled
         mBlurTop?.setBlurAutoUpdate(autoUpdate)
         mBlurBottom?.setBlurAutoUpdate(autoUpdate)
         mBlurProgress?.setBlurAutoUpdate(autoUpdate)
         mBlurNavPrevious?.setBlurAutoUpdate(autoUpdate)
         mBlurNavNext?.setBlurAutoUpdate(autoUpdate)
 
-        mBlurTop?.setBlurEnabled(useBlur)
-        mBlurBottom?.setBlurEnabled(useBlur)
-        mBlurProgress?.setBlurEnabled(useBlur)
-        mBlurNavPrevious?.setBlurEnabled(useBlur)
-        mBlurNavNext?.setBlurEnabled(useBlur)
+        mBlurTop?.setBlurEnabled(isGlass)
+        mBlurBottom?.setBlurEnabled(isGlass)
+        mBlurProgress?.setBlurEnabled(isGlass)
+        mBlurNavPrevious?.setBlurEnabled(isGlass)
+        mBlurNavNext?.setBlurEnabled(isGlass)
     }
 
     private fun setupWindowInsets() {
@@ -2087,23 +2080,20 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
     }
 
-    private fun applyGlassmorphism() {
+    private fun setupTitleBackgrounds() {
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         val context = requireContext()
         val themeColor = context.getColorFromAttr(R.attr.colorSurface)
 
-        val useBlur = isGlass
-        mBlurTop?.setBlurEnabled(useBlur)
-        mBlurBottom?.setBlurEnabled(useBlur)
-        mBlurProgress?.setBlurEnabled(useBlur)
-        mBlurNavPrevious?.setBlurEnabled(useBlur)
-        mBlurNavNext?.setBlurEnabled(useBlur)
+        mBlurTop?.setBlurEnabled(isGlass)
+        mBlurBottom?.setBlurEnabled(isGlass)
+        mBlurProgress?.setBlurEnabled(isGlass)
+        mBlurNavPrevious?.setBlurEnabled(isGlass)
+        mBlurNavNext?.setBlurEnabled(isGlass)
 
         val isNight = resources.getBoolean(R.bool.isNight)
         val alpha = if (isNight) 0xD9 else 0x73 // 85% opacity for dark theme, 45% opacity for light theme
         val translucentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
-        val solidColor = (themeColor and 0x00FFFFFF) or (0xFF shl 24)
-        val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics)
 
         // Top Toolbar: flat straight line, translucent solid color
         val topBg = GradientDrawable().apply {

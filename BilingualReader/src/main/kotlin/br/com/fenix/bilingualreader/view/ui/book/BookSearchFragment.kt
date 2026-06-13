@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.drawable.AnimatedVectorDrawable
-import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -42,7 +41,7 @@ import br.com.fenix.bilingualreader.service.listener.BookSearchListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
+import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.view.adapter.book.BookSearchHistoryAdapter
 import br.com.fenix.bilingualreader.view.adapter.book.BookSearchLineAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaListCardAdapter
@@ -175,7 +174,7 @@ class BookSearchFragment : Fragment(), BookParseListener {
         mBlurTop = root.findViewById(R.id.book_search_blur_top)
         setupBlurViews(root)
         setupWindowInsets()
-        applyGlassmorphism()
+        setupTitleBackgrounds()
 
         mProgressContent.visibility = if (mViewModelBookSearch.parse != null && mViewModelBookSearch.parse!!.isLoading()) View.VISIBLE else View.GONE
         mScrollUp.visibility = View.GONE
@@ -252,8 +251,7 @@ class BookSearchFragment : Fragment(), BookParseListener {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
                 val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                val useBlur = isGlass
-                if (useBlur) {
+                if (isGlass) {
                     if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                         mBlurTop?.setBlurAutoUpdate(false)
                     } else {
@@ -364,11 +362,10 @@ class BookSearchFragment : Fragment(), BookParseListener {
 
     override fun onResume() {
         super.onResume()
-        applyGlassmorphism()
+        setupTitleBackgrounds()
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        val useBlur = isGlass
-        mBlurTop?.setBlurEnabled(useBlur)
-        if (useBlur) {
+        mBlurTop?.setBlurEnabled(isGlass)
+        if (isGlass) {
             mBlurTop?.setBlurAutoUpdate(true)
             android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
                 mBlurTop?.setBlurAutoUpdate(false)
@@ -387,13 +384,12 @@ class BookSearchFragment : Fragment(), BookParseListener {
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        val useBlur = isGlass
         if (hidden) {
             mBlurTop?.setBlurAutoUpdate(false)
             mBlurTop?.setBlurEnabled(false)
         } else {
-            mBlurTop?.setBlurEnabled(useBlur)
-            if (useBlur) {
+            mBlurTop?.setBlurEnabled(isGlass)
+            if (isGlass) {
                 mBlurTop?.setBlurAutoUpdate(true)
                 android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
                     mBlurTop?.setBlurAutoUpdate(false)
@@ -441,48 +437,10 @@ class BookSearchFragment : Fragment(), BookParseListener {
         }
     }
 
-    private fun applyGlassmorphism() {
+    private fun setupTitleBackgrounds() {
         val barLayout = view?.findViewById<View>(R.id.content_toolbar_book_search)
-        barLayout?.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
-
-        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        val useBlur = isGlass
-        mBlurTop?.setBlurEnabled(useBlur)
-
-        val context = requireContext()
-        val themeColor = context.getColorFromAttr(R.attr.colorSurface)
-        val isNight = resources.getBoolean(R.bool.isNight)
-        val alpha = if (isNight) 0xD9 else 0x73 // 85% opacity for dark theme, 45% for light theme
-        val translucentColor = ((themeColor and 0x00FFFFFF) or (alpha shl 24)).toInt()
-        val solidColor = ((themeColor and 0x00FFFFFF) or (0xFF shl 24)).toInt()
-        val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics)
-
-        val topBg = if (useBlur) {
-            GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                setColor(translucentColor)
-                cornerRadii = floatArrayOf(
-                    0f, 0f,
-                    0f, 0f,
-                    cornerRadius, cornerRadius,
-                    cornerRadius, cornerRadius
-                )
-            }
-        } else {
-            val middleColor = ((themeColor and 0x00FFFFFF) or (0xB3 shl 24)).toInt() // 70% opacity
-            val transparentColor = (themeColor and 0x00FFFFFF).toInt() // 0% opacity
-            GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(solidColor, solidColor, middleColor, transparentColor)).apply {
-                shape = GradientDrawable.RECTANGLE
-                cornerRadii = floatArrayOf(
-                    0f, 0f,
-                    0f, 0f,
-                    cornerRadius, cornerRadius,
-                    cornerRadius, cornerRadius
-                )
-            }
-        }
-        mBlurTop?.background = topBg
-        mToolbar.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+        val activity = activity ?: return
+        MenuUtil.setupToolbar(activity, mToolbar, mBlurTop, barLayout)
     }
 
 }

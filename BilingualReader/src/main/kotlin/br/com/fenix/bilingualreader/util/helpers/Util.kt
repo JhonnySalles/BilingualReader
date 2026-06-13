@@ -939,6 +939,47 @@ class ImageUtil {
 class MenuUtil {
     companion object MenuUtils {
 
+        fun setupToolbar(activity: Activity, toolbar: View?, blurTop: BlurView?, barLayout: View?) {
+            val sharedPreferences = GeneralConsts.getSharedPreferences(activity)
+            val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            blurTop?.setBlurEnabled(isGlass)
+
+            val themeColor = activity.getColorFromAttr(R.attr.colorSurface)
+            val isNight = activity.resources.getBoolean(R.bool.isNight)
+            val alpha = if (isNight) 0xD9 else 0x73 // 85% opacity for dark theme, 45% for light theme
+            val translucentColor = ((themeColor and 0x00FFFFFF) or (alpha shl 24)).toInt()
+            val solidColor = ((themeColor and 0x00FFFFFF) or (0xFF shl 24)).toInt()
+            val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, activity.resources.displayMetrics)
+
+            val topBg = if (isGlass) {
+                GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    setColor(translucentColor)
+                    cornerRadii = floatArrayOf(
+                        0f, 0f,
+                        0f, 0f,
+                        cornerRadius, cornerRadius,
+                        cornerRadius, cornerRadius
+                    )
+                }
+            } else {
+                val middleColor = ((themeColor and 0x00FFFFFF) or (0xB3 shl 24)).toInt() // 70% opacity
+                val transparentColor = (themeColor and 0x00FFFFFF).toInt() // 0% opacity
+                GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(solidColor, solidColor, middleColor, transparentColor)).apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadii = floatArrayOf(
+                        0f, 0f,
+                        0f, 0f,
+                        cornerRadius, cornerRadius,
+                        cornerRadius, cornerRadius
+                    )
+                }
+            }
+            blurTop?.background = topBg
+            toolbar?.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+            barLayout?.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+        }
+
         fun tintBackground(context: Context, background: View) {
             background.setBackgroundColor(context.getColorFromAttr(R.attr.background))
         }
