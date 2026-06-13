@@ -102,6 +102,10 @@ import br.com.fenix.bilingualreader.view.ui.pages_link.PagesLinkViewModel
 import br.com.fenix.bilingualreader.view.ui.window.FloatingButtons
 import br.com.fenix.bilingualreader.view.ui.window.FloatingOcr
 import br.com.fenix.bilingualreader.view.ui.window.FloatingSubtitleReader
+import android.view.ViewGroup
+import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.RenderEffectBlur
+import eightbitlab.com.blurview.RenderScriptBlur
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
@@ -126,9 +130,11 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     private lateinit var mLanguageOcrDescription: TextView
     private var mMenuPopupTranslateBottom: FrameLayout? = null
     private var mMenuPopupTranslateLeft: FrameLayout? = null
+    private var mMenuPopupTranslateBackground: BlurView? = null
     private lateinit var mPopupTranslateView: ViewPager
     private var mMenuPopupConfigurationsBottom: FrameLayout? = null
     private var mMenuPopupConfigurationsLeft: FrameLayout? = null
+    private var mMenuPopupConfigurationsBackground: BlurView? = null
     private lateinit var mPopupConfigurationsView: ViewPager
     private lateinit var mPopupConfigurationsTab: TabLayout
     private lateinit var mLeftSheetTranslate: SideSheetBehavior<FrameLayout>
@@ -214,8 +220,10 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         mProgressContent = findViewById(R.id.reader_manga_bottom_progress_content)
         mMenuPopupTranslateBottom = findViewById(R.id.popup_manga_translate_bottom_sheet)
         mMenuPopupTranslateLeft = findViewById(R.id.popup_manga_translate_side_sheet)
+        mMenuPopupTranslateBackground = findViewById(R.id.popup_manga_translate_header_background)
         mMenuPopupConfigurationsBottom = findViewById(R.id.popup_manga_configurations_bottom_sheet)
         mMenuPopupConfigurationsLeft = findViewById(R.id.popup_manga_configurations_side_sheet)
+        mMenuPopupConfigurationsBackground = findViewById(R.id.popup_manga_configurations_header_background)
 
         val btnMenuFloating = findViewById<ImageView>(R.id.popup_manga_translate_floating_button)
         btnMenuFloating.setOnClickListener {
@@ -319,6 +327,27 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 mBottomSheetTranslate = this
             }
             mBottomSheetTranslate.isDraggable = false
+            mBottomSheetTranslate.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                    if (isGlass) {
+                        mMenuPopupTranslateBackground?.let { bg ->
+                            if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
+                                bg.setBlurAutoUpdate(true)
+                            } else {
+                                bg.setBlurAutoUpdate(false)
+                            }
+                        }
+                    }
+                }
+
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                    if (isGlass) {
+                        mMenuPopupTranslateBackground?.setBlurAutoUpdate(true)
+                    }
+                }
+            })
             PopupUtils.onPopupTouch(this, mMenuPopupTranslateBottom!!, mBottomSheetTranslate, findViewById<ImageView>(R.id.popup_manga_translate_center_button), navigationColor = false)
         }
 
@@ -364,6 +393,27 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 mBottomSheetConfigurations = this
             }
             mBottomSheetConfigurations.isDraggable = true
+            mBottomSheetConfigurations.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                    if (isGlass) {
+                        mMenuPopupConfigurationsBackground?.let { bg ->
+                            if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
+                                bg.setBlurAutoUpdate(true)
+                            } else {
+                                bg.setBlurAutoUpdate(false)
+                            }
+                        }
+                    }
+                }
+
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                    if (isGlass) {
+                        mMenuPopupConfigurationsBackground?.setBlurAutoUpdate(true)
+                    }
+                }
+            })
             PopupUtils.onPopupTouch(this, mMenuPopupConfigurationsBottom!!, mBottomSheetConfigurations, findViewById<ImageView>(R.id.popup_manga_configurations_center_button), navigationColor = false)
         } else {
             mLeftSheetConfigurations = SideSheetBehavior.from(mMenuPopupConfigurationsLeft!!)
@@ -1519,8 +1569,10 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     private fun setupPopupBackgrounds() {
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         val themeColor = getColorFromAttr(R.attr.colorSurfaceVariant)
+        val isNight = resources.getBoolean(R.bool.isNight)
         val finalColor = if (isGlass) {
-            (themeColor and 0x00FFFFFF) or (0xD9 shl 24) // 85% opacity
+            val alpha = if (isNight) 0xD9 else 0x73 // Glassmorphism translucent alpha
+            (themeColor and 0x00FFFFFF) or (alpha shl 24)
         } else {
             themeColor
         }
@@ -1554,6 +1606,41 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         }
         mMenuPopupTranslateLeft?.background = sideSheetBg
         mMenuPopupConfigurationsLeft?.background = sideSheetBg
+
+        // Setup header backgrounds
+        val processBlurView = { bg: BlurView? ->
+            bg?.let {
+                val headerBg = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    setColor(if (isGlass) android.graphics.Color.TRANSPARENT else (themeColor and 0x00FFFFFF) or (0x80 shl 24))
+                    cornerRadii = floatArrayOf(
+                        cornerRadius, cornerRadius,
+                        cornerRadius, cornerRadius,
+                        0f, 0f,
+                        0f, 0f
+                    )
+                }
+                it.background = headerBg
+                it.clipToOutline = true
+
+                if (isGlass) {
+                    val context = this
+                    val decorView = window.decorView
+                    val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+                    val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
+                    val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+                    it.setupWith(rootView, blurAlgorithm)
+                        .setFrameClearDrawable(background)
+                        .setBlurRadius(15f)
+                    it.setBlurEnabled(true)
+                    it.setBlurAutoUpdate(false)
+                } else {
+                    it.setBlurEnabled(false)
+                }
+            }
+        }
+        processBlurView(mMenuPopupTranslateBackground)
+        processBlurView(mMenuPopupConfigurationsBackground)
     }
 
     private fun setupBottomSheetInsets() {

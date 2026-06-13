@@ -100,6 +100,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
+import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.RenderEffectBlur
+import eightbitlab.com.blurview.RenderScriptBlur
 import io.supercharge.shimmerlayout.ShimmerLayout
 import org.slf4j.LoggerFactory
 import java.util.UUID
@@ -131,6 +134,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     private var mScrollUp: FloatingActionButton by autoCleared()
     private var mScrollDown: FloatingActionButton by autoCleared()
     private var mMenuPopupLibrary: FrameLayout by autoCleared()
+    private var mMenuPopupLibraryBackground: BlurView by autoCleared()
     private var mPopupLibraryView: ViewPager by autoCleared()
     private var mPopupLibraryTab: TabLayout by autoCleared()
     private var mPopupFilterFragment: LibraryBookPopupFilter by autoCleared()
@@ -601,6 +605,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         mScrollDown = root.findViewById(R.id.book_library_scroll_down)
 
         mMenuPopupLibrary = root.findViewById(R.id.book_library_popup_menu_library)
+        mMenuPopupLibraryBackground = root.findViewById(R.id.book_library_popup_header_background)
         mPopupLibraryTab = root.findViewById(R.id.book_library_popup_library_tab)
         mPopupLibraryView = root.findViewById(R.id.book_library_popup_library_view_pager)
 
@@ -654,6 +659,27 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         }
         mBottomSheet.isDraggable = true
 
+        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+        mBottomSheet.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                if (isGlass) {
+                    if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
+                        mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                    } else {
+                        mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                    }
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                if (isGlass) {
+                    mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                }
+            }
+        })
+
         PopupUtils.onPopupTouch(requireActivity(), mMenuPopupLibrary, mBottomSheet, root.findViewById<ImageView>(R.id.book_library_popup_menu_order_filter_touch))
 
         val viewFilterOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
@@ -678,10 +704,18 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                 if (newState != AbsListView.OnScrollListener.SCROLL_STATE_FLING)
                     setAnimationRecycler(true)
 
+                val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                val isPopupVisible = _mBottomSheet != null && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+                    if (isGlass) {
+                        mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                    }
                 } else {
                     (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
+                    if (isGlass && isPopupVisible) {
+                        mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                    }
                 }
             }
         })
@@ -1383,32 +1417,36 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         val isNight = resources.getBoolean(R.bool.isNight)
         val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics)
 
-        val headerBgView = view?.findViewById<View>(R.id.book_library_popup_header_background)
-        val contentContainer = view?.findViewById<View>(R.id.book_library_popup_content_container)
-
-        // Reset backgrounds first
         mMenuPopupLibrary.background = null
-        headerBgView?.background = null
-        contentContainer?.background = null
+        mMenuPopupLibraryBackground.background = null
 
         if (isGlass) {
-            val alpha = if (isNight) 0xD9 else 0x73 // 85% opacity / 45% opacity
+            val alpha = if (isNight) 0xD9 else 0x73 // Glassmorphism translucent alpha
             val translucentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
-            // Translucent bottom sheet background for the whole popup
             val bottomSheetBg = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
                 setColor(translucentColor)
                 cornerRadii = floatArrayOf(
-                    cornerRadius, cornerRadius, // top-left
-                    cornerRadius, cornerRadius, // top-right
+                    cornerRadius, cornerRadius,
+                    cornerRadius, cornerRadius,
                     0f, 0f,
                     0f, 0f
                 )
             }
             mMenuPopupLibrary.background = bottomSheetBg
+
+            val decorView = requireActivity().window.decorView
+            val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+            val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
+            val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+            mMenuPopupLibraryBackground.setupWith(rootView, blurAlgorithm)
+                .setFrameClearDrawable(background)
+                .setBlurRadius(15f)
+            mMenuPopupLibraryBackground.setBlurEnabled(true)
+            mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
         } else {
-            // When glassmorphism is disabled, the header is semi-transparent
-            val alpha = if (isNight) 0x80 else 0x59 // e.g. 50% opacity / 35% opacity
+            mMenuPopupLibraryBackground.setBlurEnabled(false)
+            val alpha = 0x80 // 50% opacity
             val semiTransparentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
 
             val headerBg = GradientDrawable().apply {
@@ -1421,14 +1459,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                     0f, 0f
                 )
             }
-            headerBgView?.background = headerBg
-
-            // Solid surface container for the rest
-            val contentBg = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                setColor(themeColor)
-            }
-            contentContainer?.background = contentBg
+            mMenuPopupLibraryBackground.background = headerBg
         }
     }
 

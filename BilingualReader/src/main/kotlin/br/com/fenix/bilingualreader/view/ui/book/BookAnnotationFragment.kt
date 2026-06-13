@@ -84,6 +84,7 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
     private lateinit var searchView: SearchView
 
     private lateinit var mMenuPopupFilter: FrameLayout
+    private lateinit var mMenuPopupLibraryBackground: BlurView
     private lateinit var mPopupFilterView: ViewPager
     private lateinit var mPopupFilterTab: TabLayout
     private lateinit var mPopupChaptersTab: TabLayout
@@ -166,7 +167,6 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         mBlurTop = root.findViewById(R.id.book_annotation_blur_top)
         setupBlurViews(root)
         setupWindowInsets(root)
-        applyGlassmorphism()
 
         mScrollUp.setOnClickListener {
             (mScrollUp.drawable as AnimatedVectorDrawable).start()
@@ -232,17 +232,25 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
                 super.onScrollStateChanged(recyclerView, newState)
                 val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
                 val useBlur = isGlass
+                val isPopupVisible = ::mBottomSheet.isInitialized && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
                 if (useBlur) {
                     if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                         mBlurTop?.setBlurAutoUpdate(false)
+                        if (::mMenuPopupLibraryBackground.isInitialized) {
+                            mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                        }
                     } else {
                         mBlurTop?.setBlurAutoUpdate(true)
+                        if (isPopupVisible && ::mMenuPopupLibraryBackground.isInitialized) {
+                            mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                        }
                     }
                 }
             }
         })
 
         mMenuPopupFilter = root.findViewById(R.id.book_annotation_popup_filter)
+        mMenuPopupLibraryBackground = root.findViewById(R.id.book_annotation_popup_header_background)
         mPopupFilterTab = root.findViewById(R.id.book_annotation_popup_filter_tab)
         mPopupFilterView = root.findViewById(R.id.book_annotation_popup_order_filter_view_pager)
 
@@ -254,6 +262,26 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
             mBottomSheet = this
         }
         mBottomSheet.isDraggable = true
+
+        mBottomSheet.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                if (isGlass && ::mMenuPopupLibraryBackground.isInitialized) {
+                    if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
+                        mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                    } else {
+                        mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                    }
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                if (isGlass && ::mMenuPopupLibraryBackground.isInitialized) {
+                    mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                }
+            }
+        })
 
         PopupUtils.onPopupTouch(requireActivity(), mMenuPopupFilter, mBottomSheet, root.findViewById<ImageView>(R.id.book_annotation_popup_filter_touch))
 
@@ -271,6 +299,8 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         viewOrderPagerAdapter.addFragment(mPopupFilterChapterFragment, resources.getString(R.string.annotation_tab_item_chapters))
 
         mPopupFilterView.adapter = viewOrderPagerAdapter
+
+        applyGlassmorphism()
 
         return root
     }
@@ -665,20 +695,16 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         mToolbar.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
 
         val themeColorVariant = context.getColorFromAttr(R.attr.colorSurfaceVariant)
-        val headerBgView = view?.findViewById<View>(R.id.book_annotation_popup_header_background)
-        val contentContainer = view?.findViewById<View>(R.id.book_annotation_popup_content_container)
 
-        // Reset backgrounds first
         mMenuPopupFilter.background = null
-        headerBgView?.background = null
-        contentContainer?.background = null
+        mMenuPopupLibraryBackground.background = null
 
         if (isGlass) {
-            val popupAlpha = if (isNight) 0xD9 else 0x73
-            val translucentPopupColor = (themeColorVariant and 0x00FFFFFF) or (popupAlpha shl 24)
+            val alphaHeader = if (isNight) 0xD9 else 0x73 // Glassmorphism translucent alpha
+            val translucentColorVariant = (themeColorVariant and 0x00FFFFFF) or (alphaHeader shl 24)
             val bottomSheetBg = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
-                setColor(translucentPopupColor)
+                setColor(translucentColorVariant)
                 cornerRadii = floatArrayOf(
                     cornerRadius, cornerRadius,
                     cornerRadius, cornerRadius,
@@ -687,12 +713,24 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
                 )
             }
             mMenuPopupFilter.background = bottomSheetBg
+
+            val decorView = requireActivity().window.decorView
+            val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+            val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
+            val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+            mMenuPopupLibraryBackground.setupWith(rootView, blurAlgorithm)
+                .setFrameClearDrawable(background)
+                .setBlurRadius(15f)
+            mMenuPopupLibraryBackground.setBlurEnabled(true)
+            mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
         } else {
-            val popupAlpha = if (isNight) 0x80 else 0x59
-            val semiTransparentPopupColor = (themeColorVariant and 0x00FFFFFF) or (popupAlpha shl 24)
+            mMenuPopupLibraryBackground.setBlurEnabled(false)
+            val alphaHeader = 0x80 // 50% opacity
+            val semiTransparentColor = (themeColorVariant and 0x00FFFFFF) or (alphaHeader shl 24)
+
             val headerBg = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
-                setColor(semiTransparentPopupColor)
+                setColor(semiTransparentColor)
                 cornerRadii = floatArrayOf(
                     cornerRadius, cornerRadius,
                     cornerRadius, cornerRadius,
@@ -700,13 +738,7 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
                     0f, 0f
                 )
             }
-            headerBgView?.background = headerBg
-
-            val contentBg = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                setColor(themeColorVariant)
-            }
-            contentContainer?.background = contentBg
+            mMenuPopupLibraryBackground.background = headerBg
         }
     }
 

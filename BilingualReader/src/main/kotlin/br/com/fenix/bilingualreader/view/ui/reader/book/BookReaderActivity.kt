@@ -8,6 +8,7 @@ import android.content.ClipboardManager
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -17,6 +18,7 @@ import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -64,6 +66,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.sidesheet.SideSheetBehavior
 import com.google.android.material.tabs.TabLayout
+import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.RenderEffectBlur
+import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
 import java.io.File
 
@@ -90,6 +95,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
 
     private var mMenuPopupConfigurationBottom: FrameLayout? = null
     private var mMenuPopupConfigurationLeft: FrameLayout? = null
+    private var mMenuPopupConfigurationBackground: BlurView? = null
     private lateinit var mPopupConfigurationTab: TabLayout
     private lateinit var mPopupConfigurationView: ViewPager
 
@@ -157,6 +163,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
         mMenuPopupBottomSheet = findViewById<ImageView>(R.id.popup_book_configuration_center_button) != null
         mMenuPopupConfigurationBottom = findViewById(R.id.popup_book_configuration_bottom_sheet)
         mMenuPopupConfigurationLeft = findViewById(R.id.popup_book_configuration_side_sheet)
+        mMenuPopupConfigurationBackground = findViewById(R.id.popup_book_configuration_popup_header_background)
         mPopupConfigurationTab = findViewById(R.id.popup_book_configuration_tab)
         mPopupConfigurationView = findViewById(R.id.popup_book_configuration_view_pager)
 
@@ -193,6 +200,27 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
                 mBottomSheetConfiguration = this
             }
             mBottomSheetConfiguration.isDraggable = false
+            mBottomSheetConfiguration.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                    if (isGlass) {
+                        mMenuPopupConfigurationBackground?.let { bg ->
+                            if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
+                                bg.setBlurAutoUpdate(true)
+                            } else {
+                                bg.setBlurAutoUpdate(false)
+                            }
+                        }
+                    }
+                }
+
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                    if (isGlass) {
+                        mMenuPopupConfigurationBackground?.setBlurAutoUpdate(true)
+                    }
+                }
+            })
             PopupUtils.onPopupTouch(this, mMenuPopupConfigurationBottom!!, mBottomSheetConfiguration, findViewById<ImageView>(R.id.popup_book_configuration_center_button), navigationColor = false)
         }
 
@@ -230,6 +258,8 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             closeViewTouch()
         }
 
+        setupPopupBackgrounds()
+
         if (savedInstanceState == null) {
             SharedData.clearChapters()
             if (Intent.ACTION_VIEW == intent.action) {
@@ -264,6 +294,74 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             }
         } else
             mFragment = supportFragmentManager.findFragmentById(R.id.root_frame_book_reader) as BookReaderFragment?
+    }
+
+    private fun setupPopupBackgrounds() {
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        val themeColor = getColorFromAttr(R.attr.colorSurfaceVariant)
+        val isNight = resources.getBoolean(R.bool.isNight)
+        val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics)
+
+        val finalColor = if (isGlass) {
+            val alpha = if (isNight) 0xD9 else 0x73 // Glassmorphism translucent alpha
+            (themeColor and 0x00FFFFFF) or (alpha shl 24)
+        } else {
+            themeColor
+        }
+
+        val bottomSheetBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(finalColor)
+            cornerRadii = floatArrayOf(
+                cornerRadius, cornerRadius,
+                cornerRadius, cornerRadius,
+                0f, 0f,
+                0f, 0f
+            )
+        }
+        mMenuPopupConfigurationBottom?.background = bottomSheetBg
+
+        val sideSheetBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(finalColor)
+            cornerRadii = floatArrayOf(
+                cornerRadius, cornerRadius, // top-left
+                0f, 0f, // top-right
+                0f, 0f, // bottom-right
+                cornerRadius, cornerRadius  // bottom-left
+            )
+        }
+        mMenuPopupConfigurationLeft?.background = sideSheetBg
+
+        mMenuPopupConfigurationBackground?.let { bg ->
+            val headerBg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(if (isGlass) android.graphics.Color.TRANSPARENT else (themeColor and 0x00FFFFFF) or (0x80 shl 24))
+                cornerRadii = floatArrayOf(
+                    cornerRadius, cornerRadius,
+                    cornerRadius, cornerRadius,
+                    0f, 0f,
+                    0f, 0f
+                )
+            }
+            bg.background = headerBg
+            bg.clipToOutline = true
+
+            if (isGlass) {
+                val context = this
+                val decorView = window.decorView
+                val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+                val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
+                val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+                bg.setupWith(rootView, blurAlgorithm)
+                    .setFrameClearDrawable(background)
+                    .setBlurRadius(15f)
+                bg.setBlurEnabled(true)
+                bg.setBlurAutoUpdate(false)
+            } else {
+                bg.setBlurEnabled(false)
+            }
+        }
     }
 
     private fun initialize(book: Book?) {

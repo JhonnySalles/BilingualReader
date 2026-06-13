@@ -80,7 +80,7 @@
             android:id="@+id/annotation_popup_filter"
             style="@style/AppBackground.PopupBottom"
             android:layout_width="match_parent"
-            android:layout_height="450dp"
+            android:layout_height="470dp"
             android:gravity="center_horizontal"
             android:orientation="vertical"
             android:paddingTop="1dp"
@@ -88,10 +88,10 @@
             android:visibility="gone"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-            <View
+            <eightbitlab.com.blurview.BlurView
                 android:id="@+id/annotation_popup_header_background"
                 android:layout_width="match_parent"
-                android:layout_height="22dp"
+                android:layout_height="@dimen/popup_background_size"
                 android:layout_gravity="top" />
 
             <ImageView
@@ -100,7 +100,7 @@
                 android:layout_width="@dimen/popup_button_center"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|top"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/popup_button_margin"
                 android:contentDescription="@string/annotation_popup_filter_open"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ico_line_popup"/>
@@ -109,7 +109,7 @@
                 android:id="@+id/annotation_popup_content_container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="22dp"
+                android:layout_marginTop="@dimen/popup_background_size"
                 android:orientation="vertical">
 
                 <com.google.android.material.tabs.TabLayout
@@ -142,7 +142,6 @@
                     android:id="@+id/annotation_popup_order_filter_view_pager"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:paddingTop="2dp"
                     app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
             </LinearLayout>
         </FrameLayout>

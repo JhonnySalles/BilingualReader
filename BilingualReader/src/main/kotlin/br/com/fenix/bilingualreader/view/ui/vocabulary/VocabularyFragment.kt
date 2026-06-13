@@ -53,6 +53,9 @@ import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
+import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.RenderEffectBlur
+import eightbitlab.com.blurview.RenderScriptBlur
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
@@ -77,6 +80,7 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
     private lateinit var searchView: SearchView
 
     private lateinit var mMenuPopupFilterOrder: FrameLayout
+    private lateinit var mMenuPopupLibraryBackground: BlurView
     private lateinit var mPopupFilterOrderView: ViewPager
     private lateinit var mPopupFilterOrderTab: TabLayout
     private lateinit var mPopupOrderFragment: VocabularyPopupOrder
@@ -195,17 +199,25 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
         mScrollDown = root.findViewById(R.id.vocabulary_scroll_down)
 
         mMenuPopupFilterOrder = root.findViewById(R.id.vocabulary_popup_menu_order_filter)
+        mMenuPopupLibraryBackground = root.findViewById(R.id.vocabulary_popup_header_background)
 
         mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
                 val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
                 val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                val isPopupVisible = ::mBottomSheet.isInitialized && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
                 if (isGlass) {
                     if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                         (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+                        if (::mMenuPopupLibraryBackground.isInitialized) {
+                            mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                        }
                     } else {
                         (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
+                        if (isPopupVisible && ::mMenuPopupLibraryBackground.isInitialized) {
+                            mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                        }
                     }
                 }
             }
@@ -294,6 +306,27 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
             mBottomSheet = this
         }
         mBottomSheet.isDraggable = true
+
+        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+        mBottomSheet.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                if (isGlass && ::mMenuPopupLibraryBackground.isInitialized) {
+                    if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
+                        mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                    } else {
+                        mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                    }
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                if (isGlass && ::mMenuPopupLibraryBackground.isInitialized) {
+                    mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                }
+            }
+        })
 
         PopupUtils.onPopupTouch(requireActivity(), mMenuPopupFilterOrder, mBottomSheet, root.findViewById<ImageView>(R.id.vocabulary_popup_menu_order_filter_touch))
 
@@ -502,15 +535,11 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
         val isNight = resources.getBoolean(R.bool.isNight)
         val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics)
 
-        val headerBgView = view?.findViewById<View>(R.id.vocabulary_popup_header_background)
-        val contentContainer = view?.findViewById<View>(R.id.vocabulary_popup_content_container)
-
         mMenuPopupFilterOrder.background = null
-        headerBgView?.background = null
-        contentContainer?.background = null
+        mMenuPopupLibraryBackground.background = null
 
         if (isGlass) {
-            val alpha = if (isNight) 0xD9 else 0x73
+            val alpha = if (isNight) 0xD9 else 0x73 // Glassmorphism translucent alpha
             val translucentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
             val bottomSheetBg = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
@@ -523,8 +552,19 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
                 )
             }
             mMenuPopupFilterOrder.background = bottomSheetBg
+
+            val decorView = requireActivity().window.decorView
+            val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+            val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
+            val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+            mMenuPopupLibraryBackground.setupWith(rootView, blurAlgorithm)
+                .setFrameClearDrawable(background)
+                .setBlurRadius(15f)
+            mMenuPopupLibraryBackground.setBlurEnabled(true)
+            mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
         } else {
-            val alpha = if (isNight) 0x80 else 0x59
+            mMenuPopupLibraryBackground.setBlurEnabled(false)
+            val alpha = 0x80 // 50% opacity
             val semiTransparentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
 
             val headerBg = GradientDrawable().apply {
@@ -537,13 +577,7 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
                     0f, 0f
                 )
             }
-            headerBgView?.background = headerBg
-
-            val contentBg = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                setColor(themeColor)
-            }
-            contentContainer?.background = contentBg
+            mMenuPopupLibraryBackground.background = headerBg
         }
     }
 
