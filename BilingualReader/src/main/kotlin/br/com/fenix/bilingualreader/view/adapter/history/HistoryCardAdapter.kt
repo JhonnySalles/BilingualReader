@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.view.adapter.history
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.interfaces.History
@@ -26,53 +27,16 @@ class HistoryCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             HEADER -> {
                 (holder as HistoryHeaderViewHolder).bind(mHistoryList[position])
 
-                if (isAnimation) {
-                    holder.itemView.alpha = 0f
-                    holder.itemView.translationX = 100f
-                    holder.itemView.animate()
-                        .alpha(1f)
-                        .translationX(0f)
-                        .setDuration(400)
-                        .setInterpolator(android.view.animation.DecelerateInterpolator())
-                        .start()
-                } else {
-                    holder.itemView.animate().cancel()
-                    holder.itemView.alpha = 1f
-                    holder.itemView.translationX = 0f
-                }
+                if (isAnimation)
+                    holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_history_holder)
             }
             else -> {
                 (holder as HistoryViewHolder).bind(mHistoryList[position])
 
-                if (isAnimation) {
-                    holder.itemView.alpha = 0f
-                    holder.itemView.scaleX = 0.5f
-                    holder.itemView.scaleY = 0.5f
-                    holder.itemView.animate()
-                        .alpha(1f)
-                        .scaleX(1f)
-                        .scaleY(1f)
-                        .setDuration(200)
-                        .setInterpolator(android.view.animation.DecelerateInterpolator())
-                        .start()
-                } else {
-                    holder.itemView.animate().cancel()
-                    holder.itemView.alpha = 1f
-                    holder.itemView.scaleX = 1f
-                    holder.itemView.scaleY = 1f
-                }
+                if (isAnimation)
+                    holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_history)
             }
         }
-    }
-
-    override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
-        holder.itemView.animate().cancel()
-        holder.itemView.alpha = 1f
-        holder.itemView.translationX = 0f
-        holder.itemView.scaleX = 1f
-        holder.itemView.scaleY = 1f
-        holder.itemView.clearAnimation()
-        super.onViewDetachedFromWindow(holder)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -95,17 +59,17 @@ class HistoryCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         mListener = listener
     }
 
+    fun getItem(position: Int): History? {
+        val item = mHistoryList.getOrNull(position)
+        return if (item is History) item else null
+    }
+
     fun remove(history: History) {
         val index = mHistoryList.indexOf(history)
         if (index != -1) {
             mHistoryList.removeAt(index)
             notifyItemRemoved(index)
         }
-    }
-
-    fun getItem(position: Int): History? {
-        val item = mHistoryList.getOrNull(position)
-        return if (item is History) item else null
     }
 
     fun notifyItemChanged(history: History) {

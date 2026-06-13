@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader.view.adapter.library
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import br.com.fenix.bilingualreader.R
@@ -12,7 +13,6 @@ import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.MangaCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 
 class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryMangaType) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), BaseAdapter<Manga, MangaCardListener> {
 
@@ -56,17 +56,6 @@ class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryManga
         }
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
-        if (payloads.isNotEmpty() && payloads.contains(AnimationUtil.PROPERTY_NO_ANIMATION)) {
-            when (getItemViewType(position)) {
-                HEADER -> (holder as MangaSeparatorHeaderViewHolder).bind(mMangaList[position] as Separator)
-                else -> (holder as MangaSeparatorGridViewHolder).bind(mMangaList[position] as Manga)
-            }
-            return
-        }
-        super.onBindViewHolder(holder, position, payloads)
-    }
-
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
             HEADER -> {
@@ -74,20 +63,8 @@ class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryManga
             }
             else -> {
                 (holder as MangaSeparatorGridViewHolder).bind(mMangaList[position] as Manga)
-                if (isAnimation) {
-                    holder.itemView.alpha = 0f
-                    holder.itemView.translationX = 100f
-                    holder.itemView.animate()
-                        .alpha(1f)
-                        .translationX(0f)
-                        .setDuration(200)
-                        .setInterpolator(android.view.animation.DecelerateInterpolator())
-                        .start()
-                } else {
-                    holder.itemView.animate().cancel()
-                    holder.itemView.alpha = 1f
-                    holder.itemView.translationX = 0f
-                }
+                if (isAnimation)
+                    holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_library_grid)
             }
         }
     }
@@ -96,9 +73,6 @@ class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryManga
         when (holder.itemViewType) {
             HEADER -> { }
             else -> {
-                holder.itemView.animate().cancel()
-                holder.itemView.alpha = 1f
-                holder.itemView.translationX = 0f
                 holder.itemView.clearAnimation()
             }
         }

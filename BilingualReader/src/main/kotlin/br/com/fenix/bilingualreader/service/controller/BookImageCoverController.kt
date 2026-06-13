@@ -11,10 +11,14 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -26,12 +30,10 @@ class BookImageCoverController private constructor() {
 
     companion object {
         val instance: BookImageCoverController by lazy { HOLDER.INSTANCE }
-        val thread: CoroutineDispatcher = Dispatchers.IO
+        val thread: CoroutineDispatcher = newSingleThreadContext("BookCovers")
     }
 
     private val mLOGGER = LoggerFactory.getLogger(BookImageCoverController::class.java)
-
-    private val runningJobs = java.util.Collections.synchronizedMap(java.util.WeakHashMap<ImageView, kotlinx.coroutines.Job>())
 
     private object HOLDER {
         val INSTANCE = BookImageCoverController()
@@ -54,6 +56,7 @@ class BookImageCoverController private constructor() {
             }
         } catch (e: Exception) {
             mLOGGER.warn("Error save image on LruCache: " + e.message, e)
+            Telemetry.recordException(e, "Error save image on LruCache: " + e.message)
         }
     }
 
@@ -62,6 +65,7 @@ class BookImageCoverController private constructor() {
             return instance.lru.get(key)
         } catch (e: Exception) {
             mLOGGER.warn("Error retrieve image from LruCache: " + e.message, e)
+            Telemetry.recordException(e, "Error retrieve image from LruCache: " + e.message)
         }
         return null
     }
@@ -137,13 +141,7 @@ class BookImageCoverController private constructor() {
             if (file == null || !file.exists())
                 return image
 
-            synchronized(hash.intern()) {
-                if (isCoverSize) {
-                    image = retrieveBitmapFromCache(context, hash)
-                    if (image != null) return image
-                }
-                image = getCoverFromFile(context, hash, book.file, isCoverSize)
-            }
+            image = getCoverFromFile(context, hash, book.file, isCoverSize)
         }
 
         return image
@@ -172,97 +170,28 @@ class BookImageCoverController private constructor() {
     }
 
     fun setImageCoverAsync(context: Context, book: Book, imageView: ImageView, notLocate: Bitmap?, isCoverSize: Boolean = true) {
-        runningJobs[imageView]?.cancel()
-        val job = CoroutineScope(thread).launch {
-            try {
-                val image: Bitmap? = getBookCover(context, book, isCoverSize)
-                withContext(Dispatchers.Main) {
-                    imageView.setImageBitmap(image ?: notLocate)
-                }
-            } catch (m: OutOfMemoryError) {
-                System.gc()
-                mLOGGER.error("Memory full, cleaning", m)
-            } catch (m: IOException) {
-                mLOGGER.error("Error to load image async: " + book.name, m)
-                Telemetry.recordException(m, "Error to load image async: " + m.message)
-            } catch (e: FileNotFoundException) {
-                mLOGGER.error("File not found. Error to load image async: " + book.name, e)
-            } catch (e: kotlinx.coroutines.CancellationException) {
-                // Ignore cancellation
-            } catch (e: Exception) {
-                mLOGGER.error("Error to load image async: " + book.name, e)
-                Telemetry.recordException(e, "Error to load image async: " + e.message)
-            } finally {
-                runningJobs.remove(imageView)
-            }
+        setImageCoverAsync(context, book, isCoverSize) {
+            val image = it ?: notLocate
+            imageView.setImageBitmap(image)
         }
-        runningJobs[imageView] = job
     }
 
     fun setImageCoverAsync(context: Context, book: Book, imagesView: ArrayList<ImageView>, notLocate: Bitmap?, isCoverSize: Boolean = true, onFinish: (Bitmap?) -> (Unit)) {
-        for (imageView in imagesView) {
-            runningJobs[imageView]?.cancel()
-        }
-        val job = CoroutineScope(thread).launch {
-            try {
-                val image: Bitmap? = getBookCover(context, book, isCoverSize)
-                withContext(Dispatchers.Main) {
-                    val finalImage = image ?: notLocate
-                    for (imageView in imagesView)
-                        imageView.setImageBitmap(finalImage)
-                    onFinish(image)
-                }
-            } catch (m: OutOfMemoryError) {
-                System.gc()
-                mLOGGER.error("Memory full, cleaning", m)
-            } catch (m: IOException) {
-                mLOGGER.error("Error to load image async: " + book.name, m)
-                Telemetry.recordException(m, "Error to load image async: " + m.message)
-            } catch (e: FileNotFoundException) {
-                mLOGGER.error("File not found. Error to load image async: " + book.name, e)
-            } catch (e: kotlinx.coroutines.CancellationException) {
-                // Ignore cancellation
-            } catch (e: Exception) {
-                mLOGGER.error("Error to load image async: " + book.name, e)
-                Telemetry.recordException(e, "Error to load image async: " + e.message)
-            } finally {
-                for (imageView in imagesView) {
-                    runningJobs.remove(imageView)
-                }
-            }
-        }
-        for (imageView in imagesView) {
-            runningJobs[imageView] = job
+        setImageCoverAsync(context, book, isCoverSize) {
+            val image = it ?: notLocate
+            for (imageView in imagesView)
+                imageView.setImageBitmap(image)
+
+            onFinish(image)
         }
     }
 
     fun setImageCoverAsync(context: Context, book: Book, imageView: ImageView, notLocate: Bitmap?, isCoverSize: Boolean = true, onFinish: (Bitmap?) -> (Unit)) {
-        runningJobs[imageView]?.cancel()
-        val job = CoroutineScope(thread).launch {
-            try {
-                val image: Bitmap? = getBookCover(context, book, isCoverSize)
-                withContext(Dispatchers.Main) {
-                    imageView.setImageBitmap(image ?: notLocate)
-                    onFinish(image)
-                }
-            } catch (m: OutOfMemoryError) {
-                System.gc()
-                mLOGGER.error("Memory full, cleaning", m)
-            } catch (m: IOException) {
-                mLOGGER.error("Error to load image async: " + book.name, m)
-                Telemetry.recordException(m, "Error to load image async: " + m.message)
-            } catch (e: FileNotFoundException) {
-                mLOGGER.error("File not found. Error to load image async: " + book.name, e)
-            } catch (e: kotlinx.coroutines.CancellationException) {
-                // Ignore cancellation
-            } catch (e: Exception) {
-                mLOGGER.error("Error to load image async: " + book.name, e)
-                Telemetry.recordException(e, "Error to load image async: " + e.message)
-            } finally {
-                runningJobs.remove(imageView)
-            }
+        setImageCoverAsync(context, book, isCoverSize) {
+            val image = it ?: notLocate
+            imageView.setImageBitmap(image)
+            onFinish(image)
         }
-        runningJobs[imageView] = job
     }
 
 }

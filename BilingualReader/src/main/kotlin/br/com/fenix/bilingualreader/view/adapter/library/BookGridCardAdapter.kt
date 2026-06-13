@@ -2,13 +2,13 @@ package br.com.fenix.bilingualreader.view.adapter.library
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.listener.BookCardListener
-import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 
 class BookGridCardAdapter(var type: LibraryBookType) : RecyclerView.Adapter<BookGridViewHolder>(), BaseAdapter<Book, BookCardListener> {
 
@@ -21,36 +21,13 @@ class BookGridCardAdapter(var type: LibraryBookType) : RecyclerView.Adapter<Book
         return BookGridViewHolder(type, item, mListener)
     }
 
-    override fun onBindViewHolder(holder: BookGridViewHolder, position: Int, payloads: MutableList<Any>) {
-        if (payloads.isNotEmpty() && payloads.contains(AnimationUtil.PROPERTY_NO_ANIMATION)) {
-            holder.bind(mMangaList[position])
-            return
-        }
-        super.onBindViewHolder(holder, position, payloads)
-    }
-
     override fun onBindViewHolder(holder: BookGridViewHolder, position: Int) {
         holder.bind(mMangaList[position])
-        if (isAnimation) {
-            holder.itemView.alpha = 0f
-            holder.itemView.translationX = 100f
-            holder.itemView.animate()
-                .alpha(1f)
-                .translationX(0f)
-                .setDuration(200)
-                .setInterpolator(android.view.animation.DecelerateInterpolator())
-                .start()
-        } else {
-            holder.itemView.animate().cancel()
-            holder.itemView.alpha = 1f
-            holder.itemView.translationX = 0f
-        }
+        if (isAnimation)
+            holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_library_grid)
     }
 
     override fun onViewDetachedFromWindow(holder: BookGridViewHolder) {
-        holder.itemView.animate().cancel()
-        holder.itemView.alpha = 1f
-        holder.itemView.translationX = 0f
         holder.itemView.clearAnimation()
         super.onViewDetachedFromWindow(holder)
     }
