@@ -60,6 +60,12 @@ import androidx.core.widget.NestedScrollView
 import androidx.palette.graphics.Palette
 import androidx.palette.graphics.Palette.Swatch
 import br.com.fenix.bilingualreader.R
+import android.graphics.drawable.GradientDrawable
+import android.view.ViewGroup
+import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.RenderEffectBlur
+import eightbitlab.com.blurview.RenderScriptBlur
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
@@ -78,7 +84,6 @@ import br.com.fenix.bilingualreader.service.ocr.ImageProcess
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
@@ -1432,6 +1437,81 @@ class ColorUtil {
 
 class PopupUtil {
     companion object PopupUtils {
+        fun setupPopupBackgrounds( activity: Activity, popupBottom: View?, popupLeft: View?, popupBackground: BlurView?) {
+            val sharedPreferences = GeneralConsts.getSharedPreferences(activity)
+            val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            val themeColor = activity.getColorFromAttr(R.attr.colorSurfaceVariant)
+            val isNight = activity.resources.getBoolean(R.bool.isNight)
+            val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, activity.resources.displayMetrics)
+
+            val finalColor = if (isGlass) {
+                val alpha = if (isNight) 0xD9 else 0x73 // Glassmorphism translucent alpha
+                (themeColor and 0x00FFFFFF) or (alpha shl 24)
+            } else {
+                themeColor
+            }
+
+            popupBottom?.let { pb ->
+                pb.background = null
+                val bottomSheetBg = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    setColor(finalColor)
+                    cornerRadii = floatArrayOf(
+                        cornerRadius, cornerRadius,
+                        cornerRadius, cornerRadius,
+                        0f, 0f,
+                        0f, 0f
+                    )
+                }
+                pb.background = bottomSheetBg
+            }
+
+            popupLeft?.let { pl ->
+                pl.background = null
+                val sideSheetBg = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    setColor(finalColor)
+                    cornerRadii = floatArrayOf(
+                        cornerRadius, cornerRadius, // top-left
+                        0f, 0f, // top-right
+                        0f, 0f, // bottom-right
+                        cornerRadius, cornerRadius  // bottom-left
+                    )
+                }
+                pl.background = sideSheetBg
+            }
+
+            popupBackground?.let { bg ->
+                bg.background = null
+                val headerBg = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    setColor(if (isGlass) android.graphics.Color.TRANSPARENT else (themeColor and 0x00FFFFFF) or (0x80 shl 24))
+                    cornerRadii = floatArrayOf(
+                        cornerRadius, cornerRadius,
+                        cornerRadius, cornerRadius,
+                        0f, 0f,
+                        0f, 0f
+                    )
+                }
+                bg.background = headerBg
+                bg.clipToOutline = true
+
+                if (isGlass) {
+                    val decorView = activity.window.decorView
+                    val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+                    val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(activity)
+                    val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+                    bg.setupWith(rootView, blurAlgorithm)
+                        .setFrameClearDrawable(background)
+                        .setBlurRadius(15f)
+                    bg.setBlurEnabled(true)
+                    bg.setBlurAutoUpdate(false)
+                } else {
+                    bg.setBlurEnabled(false)
+                }
+            }
+        }
+
         fun onGlobalLayout(view: View, runnable: Runnable) {
             val listener: OnGlobalLayoutListener = object : OnGlobalLayoutListener {
                 override fun onGlobalLayout() {

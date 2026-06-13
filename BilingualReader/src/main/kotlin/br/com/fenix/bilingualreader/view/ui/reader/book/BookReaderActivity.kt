@@ -300,71 +300,12 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     }
 
     private fun setupPopupBackgrounds() {
-        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        val themeColor = getColorFromAttr(R.attr.colorSurfaceVariant)
-        val isNight = resources.getBoolean(R.bool.isNight)
-        val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics)
-
-        val finalColor = if (isGlass) {
-            val alpha = if (isNight) 0xD9 else 0x73 // Glassmorphism translucent alpha
-            (themeColor and 0x00FFFFFF) or (alpha shl 24)
-        } else {
-            themeColor
-        }
-
-        val bottomSheetBg = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            setColor(finalColor)
-            cornerRadii = floatArrayOf(
-                cornerRadius, cornerRadius,
-                cornerRadius, cornerRadius,
-                0f, 0f,
-                0f, 0f
-            )
-        }
-        mMenuPopupConfigurationBottom?.background = bottomSheetBg
-
-        val sideSheetBg = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            setColor(finalColor)
-            cornerRadii = floatArrayOf(
-                cornerRadius, cornerRadius, // top-left
-                0f, 0f, // top-right
-                0f, 0f, // bottom-right
-                cornerRadius, cornerRadius  // bottom-left
-            )
-        }
-        mMenuPopupConfigurationLeft?.background = sideSheetBg
-
-        mMenuPopupConfigurationBackground?.let { bg ->
-            val headerBg = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                setColor(if (isGlass) android.graphics.Color.TRANSPARENT else (themeColor and 0x00FFFFFF) or (0x80 shl 24))
-                cornerRadii = floatArrayOf(
-                    cornerRadius, cornerRadius,
-                    cornerRadius, cornerRadius,
-                    0f, 0f,
-                    0f, 0f
-                )
-            }
-            bg.background = headerBg
-            bg.clipToOutline = true
-
-            if (isGlass) {
-                val context = this
-                val decorView = window.decorView
-                val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
-                val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-                val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-                bg.setupWith(rootView, blurAlgorithm)
-                    .setFrameClearDrawable(background)
-                    .setBlurRadius(15f)
-                bg.setBlurEnabled(true)
-                bg.setBlurAutoUpdate(false)
-            } else {
-                bg.setBlurEnabled(false)
-            }
-        }
+        PopupUtils.setupPopupBackgrounds(
+            this,
+            mMenuPopupConfigurationBottom,
+            mMenuPopupConfigurationLeft,
+            mMenuPopupConfigurationBackground
+        )
     }
 
     private fun initialize(book: Book?) {

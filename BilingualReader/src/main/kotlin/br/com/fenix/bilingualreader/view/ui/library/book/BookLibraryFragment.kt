@@ -11,7 +11,6 @@ import android.content.res.Resources
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.graphics.drawable.AnimatedVectorDrawable
-import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -19,7 +18,6 @@ import android.os.Looper
 import android.os.Message
 import android.provider.BaseColumns
 import android.util.Pair
-import android.util.TypedValue
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.Menu
@@ -85,7 +83,6 @@ import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
-import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookGridCardAdapter
@@ -101,8 +98,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import eightbitlab.com.blurview.BlurView
-import eightbitlab.com.blurview.RenderEffectBlur
-import eightbitlab.com.blurview.RenderScriptBlur
 import io.supercharge.shimmerlayout.ShimmerLayout
 import org.slf4j.LoggerFactory
 import java.util.UUID
@@ -356,7 +351,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
     override fun onResume() {
         super.onResume()
-        applyGlassmorphism()
+        setupPopupBackgrounds()
 
         mViewModel.getLibrary().let {
             if (it.language == Libraries.DEFAULT)
@@ -1416,58 +1411,9 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         }
     }
 
-    private fun applyGlassmorphism() {
-        val context = context ?: return
-        val mPreferences = GeneralConsts.getSharedPreferences(context)
-        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        val themeColor = context.getColorFromAttr(R.attr.colorSurfaceVariant)
-        val isNight = resources.getBoolean(R.bool.isNight)
-        val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics)
-
-        mMenuPopupLibrary.background = null
-        mMenuPopupLibraryBackground.background = null
-
-        if (isGlass) {
-            val alpha = if (isNight) 0xD9 else 0x73 // Glassmorphism translucent alpha
-            val translucentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
-            val bottomSheetBg = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                setColor(translucentColor)
-                cornerRadii = floatArrayOf(
-                    cornerRadius, cornerRadius,
-                    cornerRadius, cornerRadius,
-                    0f, 0f,
-                    0f, 0f
-                )
-            }
-            mMenuPopupLibrary.background = bottomSheetBg
-
-            val decorView = requireActivity().window.decorView
-            val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
-            val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-            val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-            mMenuPopupLibraryBackground.setupWith(rootView, blurAlgorithm)
-                .setFrameClearDrawable(background)
-                .setBlurRadius(15f)
-            mMenuPopupLibraryBackground.setBlurEnabled(true)
-            mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
-        } else {
-            mMenuPopupLibraryBackground.setBlurEnabled(false)
-            val alpha = 0x80 // 50% opacity
-            val semiTransparentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
-
-            val headerBg = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                setColor(semiTransparentColor)
-                cornerRadii = floatArrayOf(
-                    cornerRadius, cornerRadius,
-                    cornerRadius, cornerRadius,
-                    0f, 0f,
-                    0f, 0f
-                )
-            }
-            mMenuPopupLibraryBackground.background = headerBg
-        }
+    private fun setupPopupBackgrounds() {
+        val activity = activity ?: return
+        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupLibrary, null, mMenuPopupLibraryBackground)
     }
 
     private fun animateReplaceSkeleton() {

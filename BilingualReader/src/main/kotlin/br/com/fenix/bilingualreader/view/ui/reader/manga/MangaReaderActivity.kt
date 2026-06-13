@@ -599,25 +599,6 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         setupBottomSheetInsets()
     }
 
-    override fun onDestroy() {
-        if (::mBottomSheetTranslate.isInitialized) {
-            mBottomSheetTranslate.removeBottomSheetCallback(mBottomSheetTranslateCallback)
-        }
-        if (::mBottomSheetConfigurations.isInitialized) {
-            mBottomSheetConfigurations.removeBottomSheetCallback(mBottomSheetConfigurationsCallback)
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (mHandler.hasCallbacks(mDismissTouchView))
-                mHandler.removeCallbacks(mDismissTouchView)
-            if (mHandler.hasCallbacks(mMonitoringBattery))
-                mHandler.removeCallbacks(mMonitoringBattery)
-        } else {
-            mHandler.removeCallbacks(mDismissTouchView)
-            mHandler.removeCallbacks(mMonitoringBattery)
-        }
-        super.onDestroy()
-    }
-
     private fun initialize(manga: Manga?) {
         val fragment: MangaReaderFragment = if (manga != null && manga.file.exists()) {
             setManga(manga)
@@ -942,6 +923,14 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         } else {
             mHandler.removeCallbacks(mMonitoringBattery)
             mHandler.removeCallbacks(mDismissTouchView)
+        }
+
+        if (::mBottomSheetTranslate.isInitialized) {
+            mBottomSheetTranslate.removeBottomSheetCallback(mBottomSheetTranslateCallback)
+        }
+        
+        if (::mBottomSheetConfigurations.isInitialized) {
+            mBottomSheetConfigurations.removeBottomSheetCallback(mBottomSheetConfigurationsCallback)
         }
 
         super.onDestroy()
@@ -1591,80 +1580,18 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     private fun setupPopupBackgrounds() {
-        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        val themeColor = getColorFromAttr(R.attr.colorSurfaceVariant)
-        val isNight = resources.getBoolean(R.bool.isNight)
-        val finalColor = if (isGlass) {
-            val alpha = if (isNight) 0xD9 else 0x73 // Glassmorphism translucent alpha
-            (themeColor and 0x00FFFFFF) or (alpha shl 24)
-        } else {
-            themeColor
-        }
-
-        val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics)
-
-        // Portrait Bottom Sheets: round top corners
-        val bottomSheetBg = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            setColor(finalColor)
-            cornerRadii = floatArrayOf(
-                cornerRadius, cornerRadius,
-                cornerRadius, cornerRadius,
-                0f, 0f,
-                0f, 0f
-            )
-        }
-        mMenuPopupTranslateBottom?.background = bottomSheetBg
-        mMenuPopupConfigurationsBottom?.background = bottomSheetBg
-
-        // Landscape Side Sheets: round top-left and bottom-left corners (since they slide from right/end)
-        val sideSheetBg = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            setColor(finalColor)
-            cornerRadii = floatArrayOf(
-                cornerRadius, cornerRadius, // top-left
-                0f, 0f, // top-right
-                0f, 0f, // bottom-right
-                cornerRadius, cornerRadius  // bottom-left
-            )
-        }
-        mMenuPopupTranslateLeft?.background = sideSheetBg
-        mMenuPopupConfigurationsLeft?.background = sideSheetBg
-
-        // Setup header backgrounds
-        val processBlurView = { bg: BlurView? ->
-            bg?.let {
-                val headerBg = GradientDrawable().apply {
-                    shape = GradientDrawable.RECTANGLE
-                    setColor(if (isGlass) android.graphics.Color.TRANSPARENT else (themeColor and 0x00FFFFFF) or (0x80 shl 24))
-                    cornerRadii = floatArrayOf(
-                        cornerRadius, cornerRadius,
-                        cornerRadius, cornerRadius,
-                        0f, 0f,
-                        0f, 0f
-                    )
-                }
-                it.background = headerBg
-                it.clipToOutline = true
-
-                if (isGlass) {
-                    val context = this
-                    val decorView = window.decorView
-                    val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
-                    val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-                    val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-                    it.setupWith(rootView, blurAlgorithm)
-                        .setFrameClearDrawable(background)
-                        .setBlurRadius(15f)
-                    it.setBlurEnabled(true)
-                    it.setBlurAutoUpdate(false)
-                } else {
-                    it.setBlurEnabled(false)
-                }
-            }
-        }
-        processBlurView(mMenuPopupTranslateBackground)
-        processBlurView(mMenuPopupConfigurationsBackground)
+        PopupUtils.setupPopupBackgrounds(
+            this,
+            mMenuPopupTranslateBottom,
+            mMenuPopupTranslateLeft,
+            mMenuPopupTranslateBackground
+        )
+        PopupUtils.setupPopupBackgrounds(
+            this,
+            mMenuPopupConfigurationsBottom,
+            mMenuPopupConfigurationsLeft,
+            mMenuPopupConfigurationsBackground
+        )
     }
 
     private fun setupBottomSheetInsets() {

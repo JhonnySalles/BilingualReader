@@ -707,52 +707,8 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         mBlurTop?.background = topBg
         mToolbar.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
 
-        val themeColorVariant = context.getColorFromAttr(R.attr.colorSurfaceVariant)
-
-        mMenuPopupFilter.background = null
-        mMenuPopupLibraryBackground.background = null
-
-        if (isGlass) {
-            val alphaHeader = if (isNight) 0xD9 else 0x73 // Glassmorphism translucent alpha
-            val translucentColorVariant = (themeColorVariant and 0x00FFFFFF) or (alphaHeader shl 24)
-            val bottomSheetBg = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                setColor(translucentColorVariant)
-                cornerRadii = floatArrayOf(
-                    cornerRadius, cornerRadius,
-                    cornerRadius, cornerRadius,
-                    0f, 0f,
-                    0f, 0f
-                )
-            }
-            mMenuPopupFilter.background = bottomSheetBg
-
-            val decorView = requireActivity().window.decorView
-            val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
-            val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
-            val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-            mMenuPopupLibraryBackground.setupWith(rootView, blurAlgorithm)
-                .setFrameClearDrawable(background)
-                .setBlurRadius(15f)
-            mMenuPopupLibraryBackground.setBlurEnabled(true)
-            mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
-        } else {
-            mMenuPopupLibraryBackground.setBlurEnabled(false)
-            val alphaHeader = 0x80 // 50% opacity
-            val semiTransparentColor = (themeColorVariant and 0x00FFFFFF) or (alphaHeader shl 24)
-
-            val headerBg = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                setColor(semiTransparentColor)
-                cornerRadii = floatArrayOf(
-                    cornerRadius, cornerRadius,
-                    cornerRadius, cornerRadius,
-                    0f, 0f,
-                    0f, 0f
-                )
-            }
-            mMenuPopupLibraryBackground.background = headerBg
-        }
+        val activity = activity ?: return
+        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilter, null, mMenuPopupLibraryBackground)
     }
 
 }
