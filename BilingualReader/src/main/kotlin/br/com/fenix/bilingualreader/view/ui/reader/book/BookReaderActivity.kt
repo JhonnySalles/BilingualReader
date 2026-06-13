@@ -105,6 +105,29 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
 
     private var mMenuPopupBottomSheet: Boolean = true
     private lateinit var mBottomSheetConfiguration: BottomSheetBehavior<FrameLayout>
+
+    private val mBottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                mMenuPopupConfigurationBackground?.let { bg ->
+                    if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
+                        bg.setBlurAutoUpdate(true)
+                    } else {
+                        bg.setBlurAutoUpdate(false)
+                    }
+                }
+            }
+        }
+
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                mMenuPopupConfigurationBackground?.setBlurAutoUpdate(true)
+            }
+        }
+    }
+
     private lateinit var mLeftSheetConfiguration: SideSheetBehavior<FrameLayout>
 
     private lateinit var mTouchView: ConstraintLayout
@@ -200,27 +223,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
                 mBottomSheetConfiguration = this
             }
             mBottomSheetConfiguration.isDraggable = false
-            mBottomSheetConfiguration.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-                override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                    if (isGlass) {
-                        mMenuPopupConfigurationBackground?.let { bg ->
-                            if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
-                                bg.setBlurAutoUpdate(true)
-                            } else {
-                                bg.setBlurAutoUpdate(false)
-                            }
-                        }
-                    }
-                }
-
-                override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                    val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                    if (isGlass) {
-                        mMenuPopupConfigurationBackground?.setBlurAutoUpdate(true)
-                    }
-                }
-            })
+            mBottomSheetConfiguration.addBottomSheetCallback(mBottomSheetCallback)
             PopupUtils.onPopupTouch(this, mMenuPopupConfigurationBottom!!, mBottomSheetConfiguration, findViewById<ImageView>(R.id.popup_book_configuration_center_button), navigationColor = false)
         }
 
@@ -519,6 +522,10 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     }
 
     override fun onDestroy() {
+        if (::mBottomSheetConfiguration.isInitialized) {
+            mBottomSheetConfiguration.removeBottomSheetCallback(mBottomSheetCallback)
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (mHandler.hasCallbacks(mDismissTouchView))
                 mHandler.removeCallbacks(mDismissTouchView)

@@ -90,6 +90,31 @@ class AnnotationFragment : Fragment(), AnnotationListener {
     private lateinit var mPopupFilterChapterFragment: AnnotationPopupFilterChapter
     private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
 
+    private val mBottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            val ctx = context ?: return
+            val sharedPreferences = GeneralConsts.getSharedPreferences(ctx)
+            val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass && ::mMenuPopupLibraryBackground.isInitialized) {
+                if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
+                    mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                } else {
+                    mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                }
+            }
+        }
+
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            val ctx = context ?: return
+            val sharedPreferences = GeneralConsts.getSharedPreferences(ctx)
+            val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass && ::mMenuPopupLibraryBackground.isInitialized) {
+                mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+            }
+        }
+    }
+
+
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var mListener: AnnotationsListener
 
@@ -290,25 +315,7 @@ class AnnotationFragment : Fragment(), AnnotationListener {
         mBottomSheet.isDraggable = true
 
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
-        mBottomSheet.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                if (isGlass && ::mMenuPopupLibraryBackground.isInitialized) {
-                    if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
-                        mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
-                    } else {
-                        mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
-                    }
-                }
-            }
-
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                if (isGlass && ::mMenuPopupLibraryBackground.isInitialized) {
-                    mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
-                }
-            }
-        })
+        mBottomSheet.addBottomSheetCallback(mBottomSheetCallback)
 
         PopupUtils.onPopupTouch(requireActivity(), mMenuPopupFilter, mBottomSheet, root.findViewById<ImageView>(R.id.annotation_popup_filter_touch))
 
@@ -569,6 +576,13 @@ class AnnotationFragment : Fragment(), AnnotationListener {
             mRecyclerView.adapter?.notifyItemRangeChanged(index, range)
         else
             mRecyclerView.adapter?.notifyItemChanged(index)
+    }
+
+    override fun onDestroyView() {
+        if (::mBottomSheet.isInitialized) {
+            mBottomSheet.removeBottomSheetCallback(mBottomSheetCallback)
+        }
+        super.onDestroyView()
     }
 
     override fun onDestroy() {

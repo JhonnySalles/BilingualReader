@@ -143,6 +143,30 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     private var _mBottomSheet: BottomSheetBehavior<FrameLayout>? = null
     private val mBottomSheet: BottomSheetBehavior<FrameLayout> get() = _mBottomSheet!!
 
+    private val mBottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            val ctx = context ?: return
+            val sharedPreferences = GeneralConsts.getSharedPreferences(ctx)
+            val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
+                    mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                } else {
+                    mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                }
+            }
+        }
+
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            val ctx = context ?: return
+            val sharedPreferences = GeneralConsts.getSharedPreferences(ctx)
+            val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+            }
+        }
+    }
+
     private var mSkeletonLayout: LinearLayout by autoCleared()
     private var mShimmer: ShimmerLayout by autoCleared()
     private var mInflater: LayoutInflater by autoCleared()
@@ -373,6 +397,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         mHandler.removeCallbacksAndMessages(null)
         _searchView = null
         _mRecyclerView = null
+        _mBottomSheet?.removeBottomSheetCallback(mBottomSheetCallback)
         _mBottomSheet = null
         super.onDestroyView()
     }
@@ -660,25 +685,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         mBottomSheet.isDraggable = true
 
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
-        mBottomSheet.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                if (isGlass) {
-                    if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
-                        mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
-                    } else {
-                        mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
-                    }
-                }
-            }
-
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                if (isGlass) {
-                    mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
-                }
-            }
-        })
+        mBottomSheet.addBottomSheetCallback(mBottomSheetCallback)
 
         PopupUtils.onPopupTouch(requireActivity(), mMenuPopupLibrary, mBottomSheet, root.findViewById<ImageView>(R.id.book_library_popup_menu_order_filter_touch))
 

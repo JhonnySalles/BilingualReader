@@ -142,6 +142,51 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     private lateinit var mLeftSheetConfigurations: SideSheetBehavior<FrameLayout>
     private lateinit var mBottomSheetConfigurations: BottomSheetBehavior<FrameLayout>
 
+    private val mBottomSheetTranslateCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                mMenuPopupTranslateBackground?.let { bg ->
+                    if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
+                        bg.setBlurAutoUpdate(true)
+                    } else {
+                        bg.setBlurAutoUpdate(false)
+                    }
+                }
+            }
+        }
+
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                mMenuPopupTranslateBackground?.setBlurAutoUpdate(true)
+            }
+        }
+    }
+
+    private val mBottomSheetConfigurationsCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                mMenuPopupConfigurationsBackground?.let { bg ->
+                    if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
+                        bg.setBlurAutoUpdate(true)
+                    } else {
+                        bg.setBlurAutoUpdate(false)
+                    }
+                }
+            }
+        }
+
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                mMenuPopupConfigurationsBackground?.setBlurAutoUpdate(true)
+            }
+        }
+    }
+
+
     private lateinit var mPopupMangaColorFilterFragment: PopupMangaColorFilterFragment
     private lateinit var mPopupMangaAnnotationsFragment: PopupMangaAnnotationsFragment
     private lateinit var mPopupMangaSubtitleConfigurationFragment: PopupMangaSubtitleConfiguration
@@ -327,27 +372,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 mBottomSheetTranslate = this
             }
             mBottomSheetTranslate.isDraggable = false
-            mBottomSheetTranslate.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-                override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                    if (isGlass) {
-                        mMenuPopupTranslateBackground?.let { bg ->
-                            if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
-                                bg.setBlurAutoUpdate(true)
-                            } else {
-                                bg.setBlurAutoUpdate(false)
-                            }
-                        }
-                    }
-                }
-
-                override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                    val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                    if (isGlass) {
-                        mMenuPopupTranslateBackground?.setBlurAutoUpdate(true)
-                    }
-                }
-            })
+            mBottomSheetTranslate.addBottomSheetCallback(mBottomSheetTranslateCallback)
             PopupUtils.onPopupTouch(this, mMenuPopupTranslateBottom!!, mBottomSheetTranslate, findViewById<ImageView>(R.id.popup_manga_translate_center_button), navigationColor = false)
         }
 
@@ -393,27 +418,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 mBottomSheetConfigurations = this
             }
             mBottomSheetConfigurations.isDraggable = true
-            mBottomSheetConfigurations.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-                override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                    if (isGlass) {
-                        mMenuPopupConfigurationsBackground?.let { bg ->
-                            if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
-                                bg.setBlurAutoUpdate(true)
-                            } else {
-                                bg.setBlurAutoUpdate(false)
-                            }
-                        }
-                    }
-                }
-
-                override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                    val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                    if (isGlass) {
-                        mMenuPopupConfigurationsBackground?.setBlurAutoUpdate(true)
-                    }
-                }
-            })
+            mBottomSheetConfigurations.addBottomSheetCallback(mBottomSheetConfigurationsCallback)
             PopupUtils.onPopupTouch(this, mMenuPopupConfigurationsBottom!!, mBottomSheetConfigurations, findViewById<ImageView>(R.id.popup_manga_configurations_center_button), navigationColor = false)
         } else {
             mLeftSheetConfigurations = SideSheetBehavior.from(mMenuPopupConfigurationsLeft!!)
@@ -592,6 +597,25 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setupPopupBackgrounds()
         setupBottomSheetInsets()
+    }
+
+    override fun onDestroy() {
+        if (::mBottomSheetTranslate.isInitialized) {
+            mBottomSheetTranslate.removeBottomSheetCallback(mBottomSheetTranslateCallback)
+        }
+        if (::mBottomSheetConfigurations.isInitialized) {
+            mBottomSheetConfigurations.removeBottomSheetCallback(mBottomSheetConfigurationsCallback)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (mHandler.hasCallbacks(mDismissTouchView))
+                mHandler.removeCallbacks(mDismissTouchView)
+            if (mHandler.hasCallbacks(mMonitoringBattery))
+                mHandler.removeCallbacks(mMonitoringBattery)
+        } else {
+            mHandler.removeCallbacks(mDismissTouchView)
+            mHandler.removeCallbacks(mMonitoringBattery)
+        }
+        super.onDestroy()
     }
 
     private fun initialize(manga: Manga?) {
