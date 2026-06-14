@@ -13,6 +13,7 @@ import br.com.fenix.bilingualreader.model.entity.HistoryStatistics
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.FileType
+import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.repository.BookRepository
@@ -49,11 +50,13 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
     private val mDefaultKey = -3L
     val mDefaultLibrary = Library(mDefaultKey, app.applicationContext.getString(R.string.history_library_default), "", excluded = true)
 
-    private var mLibrary: Library? = null
+    private val mLibrary = MutableLiveData<Library?>(null)
+    val selectedLibrary: LiveData<Library?> = mLibrary
     private var mWordFilter: String = ""
 
     var mTypeFilter: Type = Type.MANGA
-    var mYearFilter: Int? = null
+    private val mYearFilter = MutableLiveData<Int?>(null)
+    val selectedYear: LiveData<Int?> = mYearFilter
 
     private var mLoading = MutableLiveData<Boolean>(false)
     val loading: LiveData<Boolean> = mLoading
@@ -61,6 +64,14 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
     private var mListFull = MutableLiveData<ArrayList<History>>(arrayListOf())
     private var mList = MutableLiveData<ArrayList<History>>(arrayListOf())
     val history: LiveData<ArrayList<History>> = mList
+
+    private val mOrder = MutableLiveData<Pair<Order, Boolean>>(Pair(Order.LastAccess, true))
+    val order: LiveData<Pair<Order, Boolean>> = mOrder
+
+    fun sorted(order: Order, isDesc: Boolean = false) {
+        mOrder.value = Pair(order, isDesc)
+        list()
+    }
 
     private var mSuggestionAuthor = setOf<String>()
     private var mSuggestionPublisher = setOf<String>()
@@ -127,8 +138,9 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
 
     private fun loadAggregatedHistory(): List<History> {
         val historyLogs = mHistoryRepository.listHistory().filter { it.type == mTypeFilter }
-        val filteredLogs = if (mYearFilter != null) {
-            historyLogs.filter { it.start.year == mYearFilter }
+        val year = mYearFilter.value
+        val filteredLogs = if (year != null) {
+            historyLogs.filter { it.start.year == year }
         } else {
             historyLogs
         }
@@ -171,7 +183,25 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
             }
         }
 
-        val sortedList = statsItems.sortedByDescending { it.lastAccess }
+        val currentOrder = mOrder.value ?: Pair(Order.LastAccess, true)
+        val isDesc = currentOrder.second
+        val order = currentOrder.first
+
+        val sortedList = if (isDesc) {
+            when (order) {
+                Order.Name -> statsItems.sortedByDescending { it.name }
+                Order.Favorite -> statsItems.sortedWith(compareBy<HistoryStatistics> { it.favorite }.thenByDescending { it.name })
+                Order.LastAccess -> statsItems.sortedWith(compareBy<HistoryStatistics> { it.lastAccess }.thenByDescending { it.name })
+                else -> statsItems.sortedByDescending { it.lastAccess }
+            }
+        } else {
+            when (order) {
+                Order.Name -> statsItems.sortedBy { it.name }
+                Order.Favorite -> statsItems.sortedWith(compareByDescending<HistoryStatistics> { it.favorite }.thenBy { it.name })
+                Order.LastAccess -> statsItems.sortedWith(compareByDescending<HistoryStatistics> { it.lastAccess }.thenBy { it.name })
+                else -> statsItems.sortedBy { it.lastAccess }
+            }
+        }
 
         val listWithHeaders = mutableListOf<History>()
         var lastDateStr = ""
@@ -329,15 +359,16 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
                     continue
                 }
 
-                if (mLibrary != null) {
-                    val key = if (mLibrary!!.id == mDefaultKey) {
+                val currentLib = mLibrary.value
+                if (currentLib != null) {
+                    val key = if (currentLib.id == mDefaultKey) {
                         when (history) {
                             is Manga -> GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
                             is Book -> GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK
-                            else -> mLibrary!!.id
+                            else -> currentLib.id
                         }
                     } else
-                        mLibrary!!.id
+                        currentLib.id
 
                     if (history.fkLibrary != key)
                         continue
@@ -380,11 +411,23 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
     }
 
     fun filterLibrary(library: Library?) {
-        if (library == mLibrary)
+        if (library == mLibrary.value)
             return
 
-        mLibrary = library
+        mLibrary.value = library
         mList.value = filterList()
+    }
+
+    fun setYear(year: Int?) {
+        mYearFilter.value = year
+    }
+
+    fun filterYear(year: Int?) {
+        if (year == mYearFilter.value)
+            return
+
+        mYearFilter.value = year
+        list()
     }
 
     override fun getFilter(): Filter {

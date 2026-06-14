@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.SearchManager
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.database.Cursor
 import android.database.MatrixCursor
@@ -69,6 +70,14 @@ import java.time.LocalDateTime
 import kotlin.math.ceil
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
+import android.widget.FrameLayout
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.viewpager.widget.ViewPager
+import br.com.fenix.bilingualreader.model.enums.Order
+import br.com.fenix.bilingualreader.util.helpers.PopupUtil
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.tabs.TabLayout
 
 class HistoryStatisticsFragment : Fragment() {
 
@@ -90,6 +99,43 @@ class HistoryStatisticsFragment : Fragment() {
     private var mSkeletonLayout: LinearLayout by autoCleared()
     private var mShimmer: ShimmerLayout by autoCleared()
     private var mInflater: LayoutInflater by autoCleared()
+
+    private var mMenuPopupHistoryStatistics: FrameLayout by autoCleared()
+    private var mMenuPopupHistoryStatisticsBackground: BlurView by autoCleared()
+    private var mPopupHistoryStatisticsView: ViewPager by autoCleared()
+    private var mPopupHistoryStatisticsTab: TabLayout by autoCleared()
+    private var mPopupLibrariesFragment: HistoryStatisticsPopupLibraries by autoCleared()
+    private var mPopupYearsFragment: HistoryStatisticsPopupYears by autoCleared()
+    private var mPopupOrderFragment: HistoryStatisticsPopupOrder by autoCleared()
+    private lateinit var miGridOrder: MenuItem
+    private var mSortType: Order = Order.LastAccess
+    private var mSortDesc: Boolean = true
+    private var _mBottomSheet: BottomSheetBehavior<FrameLayout>? = null
+    private val mBottomSheet: BottomSheetBehavior<FrameLayout> get() = _mBottomSheet!!
+
+    private val mBottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            val ctx = context ?: return
+            val sharedPreferences = GeneralConsts.getSharedPreferences(ctx)
+            val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
+                    mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(true)
+                } else {
+                    mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
+                }
+            }
+        }
+
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            val ctx = context ?: return
+            val sharedPreferences = GeneralConsts.getSharedPreferences(ctx)
+            val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(true)
+            }
+        }
+    }
 
     private val mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
@@ -145,6 +191,29 @@ class HistoryStatisticsFragment : Fragment() {
                 filterYear(year)
                 true
             }
+        }
+
+        MenuUtil.longClick(requireActivity(), R.id.menu_history_library) {
+            onOpenMenuHistoryStatistics(0)
+        }
+
+        MenuUtil.longClick(requireActivity(), R.id.menu_history_year) {
+            onOpenMenuHistoryStatistics(1)
+        }
+
+        miGridOrder = menu.findItem(R.id.menu_history_list_order)
+        val currentOrder = mViewModel.order.value ?: Pair(Order.LastAccess, true)
+        mSortType = currentOrder.first
+        mSortDesc = currentOrder.second
+        val iconSort: Int = when (mSortType) {
+            Order.Name -> if (mSortDesc) R.drawable.ico_animated_sort_to_desc_name else R.drawable.ico_animated_sort_to_asc_name
+            Order.Favorite -> if (mSortDesc) R.drawable.ico_animated_sort_to_desc_favorited else R.drawable.ico_animated_sort_to_asc_favorited
+            else -> if (mSortDesc) R.drawable.ico_animated_sort_to_desc_last_access else R.drawable.ico_animated_sort_to_asc_last_access
+        }
+        miGridOrder.setIcon(iconSort)
+
+        MenuUtil.longClick(requireActivity(), R.id.menu_history_list_order) {
+            onOpenMenuHistoryStatistics(2)
         }
 
         miSearch = menu.findItem(R.id.menu_history_search)
@@ -231,6 +300,13 @@ class HistoryStatisticsFragment : Fragment() {
         })
     }
 
+    override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
+        when (menuItem.itemId) {
+            R.id.menu_history_list_order -> onChangeSort()
+        }
+        return super.onOptionsItemSelected(menuItem)
+    }
+
     override fun onDestroyOptionsMenu() {
         mViewModel.clearFilter()
         super.onDestroyOptionsMenu()
@@ -245,18 +321,16 @@ class HistoryStatisticsFragment : Fragment() {
     }
 
     private fun filterYear(year: Int?) {
-        mViewModel.mYearFilter = year
-        updateTitleAndSubtitle()
-        mViewModel.list()
+        mViewModel.filterYear(year)
     }
 
     private fun updateTitleAndSubtitle() {
-        val activity = requireActivity() as AppCompatActivity
+        val activity = activity as? AppCompatActivity ?: return
         val typeTitle = when (mViewModel.mTypeFilter) {
             Type.MANGA -> getString(R.string.history_manga)
             Type.BOOK -> getString(R.string.history_book)
         }
-        val yearSubtitle = mViewModel.mYearFilter?.toString() ?: getString(R.string.history_menu_choice_all)
+        val yearSubtitle = mViewModel.selectedYear.value?.toString() ?: getString(R.string.history_menu_choice_all)
         activity.supportActionBar?.title = typeTitle
         activity.supportActionBar?.subtitle = "${getString(R.string.menu_history)} - $yearSubtitle"
     }
@@ -271,7 +345,7 @@ class HistoryStatisticsFragment : Fragment() {
 
             if (bundle.containsKey(GeneralConsts.KEYS.OBJECT.STATISTICS_YEAR)) {
                 val year = bundle.getInt(GeneralConsts.KEYS.OBJECT.STATISTICS_YEAR, -1)
-                mViewModel.mYearFilter = if (year != -1) year else null
+                mViewModel.setYear(if (year != -1) year else null)
             }
         }
 
@@ -297,9 +371,105 @@ class HistoryStatisticsFragment : Fragment() {
         mShimmer = root.findViewById(R.id.shimmer_skeleton)
         mInflater = inflater
 
+        mMenuPopupHistoryStatistics = root.findViewById(R.id.history_statistics_popup_menu)
+        mMenuPopupHistoryStatisticsBackground = root.findViewById(R.id.history_statistics_popup_header_background)
+        mPopupHistoryStatisticsTab = root.findViewById(R.id.history_statistics_popup_tab)
+        mPopupHistoryStatisticsView = root.findViewById(R.id.history_statistics_popup_view_pager)
+
+        mPopupHistoryStatisticsTab.setupWithViewPager(mPopupHistoryStatisticsView)
+        mPopupLibrariesFragment = HistoryStatisticsPopupLibraries()
+        mPopupYearsFragment = HistoryStatisticsPopupYears()
+        mPopupOrderFragment = HistoryStatisticsPopupOrder()
+
+        BottomSheetBehavior.from(mMenuPopupHistoryStatistics).apply {
+            peekHeight = 255
+            this.state = BottomSheetBehavior.STATE_COLLAPSED
+            _mBottomSheet = this
+        }
+        mBottomSheet.isDraggable = true
+        mBottomSheet.addBottomSheetCallback(mBottomSheetCallback)
+
+        PopupUtil.onPopupTouch(requireActivity(), mMenuPopupHistoryStatistics, mBottomSheet, root.findViewById<View>(R.id.history_statistics_popup_menu_order_filter_touch))
+
+        val viewFilterOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
+        viewFilterOrderPagerAdapter.addFragment(
+            mPopupLibrariesFragment,
+            resources.getString(R.string.config_title_libraries)
+        )
+        viewFilterOrderPagerAdapter.addFragment(
+            mPopupYearsFragment,
+            resources.getString(R.string.statistics_chart_year)
+        )
+        viewFilterOrderPagerAdapter.addFragment(
+            mPopupOrderFragment,
+            resources.getString(R.string.popup_library_manga_tab_item_ordering)
+        )
+        mPopupHistoryStatisticsView.adapter = viewFilterOrderPagerAdapter
+
         ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecyclerView)
         observer()
         return root
+    }
+
+    fun onOpenMenuHistoryStatistics(tab: Int) {
+        if (_mBottomSheet == null)
+            return
+
+        if (mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED && mPopupHistoryStatisticsView.currentItem == tab) {
+            mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            return
+        }
+
+        mPopupHistoryStatisticsView.currentItem = tab
+        mMenuPopupHistoryStatistics.visibility = View.VISIBLE
+        mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        if (isGlass) {
+            mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(true)
+            mHandler.postDelayed({
+                mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
+            }, 100)
+        }
+    }
+
+    private fun setupPopupBackgrounds() {
+        val activity = activity ?: return
+        PopupUtil.setupPopupBackgrounds(activity, mMenuPopupHistoryStatistics, mMenuPopupHistoryStatisticsBackground)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        MenuUtil.longClick(requireActivity(), R.id.menu_history_library) {
+            onOpenMenuHistoryStatistics(0)
+        }
+        MenuUtil.longClick(requireActivity(), R.id.menu_history_year) {
+            onOpenMenuHistoryStatistics(1)
+        }
+        MenuUtil.longClick(requireActivity(), R.id.menu_history_list_order) {
+            onOpenMenuHistoryStatistics(2)
+        }
+    }
+
+    inner class ViewPagerAdapter(fm: FragmentManager, behavior: Int) :
+        FragmentPagerAdapter(fm, behavior) {
+        private val fragments: MutableList<Fragment> = ArrayList()
+        private val fragmentTitle: MutableList<String> = ArrayList()
+        fun addFragment(fragment: Fragment, title: String) {
+            fragments.add(fragment)
+            fragmentTitle.add(title)
+        }
+
+        override fun getItem(position: Int): Fragment {
+            return fragments[position]
+        }
+
+        override fun getCount(): Int {
+            return fragments.size
+        }
+
+        override fun getPageTitle(position: Int): CharSequence {
+            return fragmentTitle[position]
+        }
     }
 
     private var itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
@@ -456,15 +626,20 @@ class HistoryStatisticsFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         setupTitleBackgrounds()
+        setupPopupBackgrounds()
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         mBlurTop.setBlurEnabled(isGlass)
+        mMenuPopupHistoryStatisticsBackground.setBlurEnabled(isGlass)
         if (isGlass) {
             mBlurTop.setBlurAutoUpdate(true)
+            mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(true)
             mHandler.postDelayed({
                 mBlurTop.setBlurAutoUpdate(false)
+                mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
             }, 100)
         } else {
             mBlurTop.setBlurAutoUpdate(false)
+            mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
         }
         mViewModel.list {
             if (it > -1)
@@ -497,6 +672,89 @@ class HistoryStatisticsFragment : Fragment() {
         mViewModel.years.observe(viewLifecycleOwner) {
             activity?.invalidateOptionsMenu()
         }
+
+        mViewModel.selectedLibrary.observe(viewLifecycleOwner) {
+            if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+                mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+            activity?.invalidateOptionsMenu()
+        }
+
+        mViewModel.selectedYear.observe(viewLifecycleOwner) {
+            if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+                mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+            updateTitleAndSubtitle()
+            activity?.invalidateOptionsMenu()
+        }
+
+        mViewModel.order.observe(viewLifecycleOwner) {
+            onChangeIconSort(it.first, it.second)
+        }
+    }
+
+    private fun onChangeSort() {
+        val orderBy = when (mViewModel.order.value?.first) {
+            Order.LastAccess -> Order.Name
+            Order.Name -> Order.Favorite
+            Order.Favorite -> Order.LastAccess
+            else -> Order.LastAccess
+        }
+
+        android.widget.Toast.makeText(
+            requireContext(),
+            getString(R.string.menu_manga_reading_order_change, getString(orderBy.getDescription())),
+            android.widget.Toast.LENGTH_SHORT
+        ).show()
+
+        mViewModel.sorted(orderBy, false)
+    }
+
+    private fun onChangeIconSort(order: Order, isDesc: Boolean?) {
+        if (!::miGridOrder.isInitialized) {
+            mSortType = order
+            mSortDesc = isDesc ?: true
+            return
+        }
+
+        if (isDesc != null) {
+            val icon: Int? = when (order) {
+                Order.Name -> if (isDesc) R.drawable.ico_animated_sort_to_desc_name else R.drawable.ico_animated_sort_to_asc_name
+                Order.Favorite -> if (isDesc) R.drawable.ico_animated_sort_to_desc_favorited else R.drawable.ico_animated_sort_to_asc_favorited
+                Order.LastAccess -> if (isDesc) R.drawable.ico_animated_sort_to_desc_last_access else R.drawable.ico_animated_sort_to_asc_last_access
+                else -> null
+            }
+            mSortDesc = isDesc
+            if (icon != null)
+                MenuUtil.animatedSequenceDrawable(miGridOrder, icon)
+        } else {
+            val initial: Int? = if (mSortDesc)
+                when (mSortType) {
+                    Order.Name -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_name
+                    Order.Favorite -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_favorited
+                    Order.LastAccess -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_last_access
+                    else -> null
+                } else
+                when (mSortType) {
+                    Order.Name -> R.drawable.ico_animated_sort_asc_ico_exit_name
+                    Order.Favorite -> R.drawable.ico_animated_sort_asc_ico_exit_favorited
+                    Order.LastAccess -> R.drawable.ico_animated_sort_asc_ico_exit_last_access
+                    else -> null
+                }
+
+            val final: Int? = when (order) {
+                Order.Name -> R.drawable.ico_animated_sort_asc_ico_enter_name
+                Order.Favorite -> R.drawable.ico_animated_sort_asc_ico_enter_favorited
+                Order.LastAccess -> R.drawable.ico_animated_sort_asc_ico_enter_last_access
+                else -> null
+            }
+
+            if (initial != null && final != null)
+                MenuUtil.animatedSequenceDrawable(miGridOrder, initial, final)
+
+            mSortDesc = false
+        }
+        mSortType = order
     }
 
     private fun open(manga: Manga) {
@@ -700,30 +958,46 @@ class HistoryStatisticsFragment : Fragment() {
 
     override fun onDestroyView() {
         mHandler.removeCallbacksAndMessages(null)
+        _mBottomSheet?.removeBottomSheetCallback(mBottomSheetCallback)
+        _mBottomSheet = null
         super.onDestroyView()
     }
 
     override fun onPause() {
         super.onPause()
+        if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+            mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
         mBlurTop.setBlurAutoUpdate(false)
         mBlurTop.setBlurEnabled(false)
+        mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
+        mMenuPopupHistoryStatisticsBackground.setBlurEnabled(false)
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         if (hidden) {
+            if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+                mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
             mBlurTop.setBlurAutoUpdate(false)
             mBlurTop.setBlurEnabled(false)
+            mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
+            mMenuPopupHistoryStatisticsBackground.setBlurEnabled(false)
         } else {
             mBlurTop.setBlurEnabled(isGlass)
+            mMenuPopupHistoryStatisticsBackground.setBlurEnabled(isGlass)
             if (isGlass) {
                 mBlurTop.setBlurAutoUpdate(true)
+                mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(true)
                 mHandler.postDelayed({
                     mBlurTop.setBlurAutoUpdate(false)
+                    mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
                 }, 100)
             } else {
                 mBlurTop.setBlurAutoUpdate(false)
+                mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
             }
         }
     }

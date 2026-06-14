@@ -12,6 +12,7 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.FileType
+import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.repository.BookRepository
@@ -44,7 +45,8 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
     private val mDefaultKey = -3L
     val mDefaultLibrary = Library(mDefaultKey, app.applicationContext.getString(R.string.history_library_default), "", excluded = true)
 
-    private var mLibrary: Library? = null
+    private val mLibrary = MutableLiveData<Library?>(null)
+    val selectedLibrary: LiveData<Library?> = mLibrary
     private var mWordFilter: String = ""
 
     private var mLoading = MutableLiveData<Boolean>(false)
@@ -56,6 +58,14 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
     private var mListFull = MutableLiveData<ArrayList<History>>(arrayListOf())
     private var mList = MutableLiveData<ArrayList<History>>(arrayListOf())
     val history: LiveData<ArrayList<History>> = mList
+
+    private val mOrder = MutableLiveData<Pair<Order, Boolean>>(Pair(Order.LastAccess, true))
+    val order: LiveData<Pair<Order, Boolean>> = mOrder
+
+    fun sorted(order: Order, isDesc: Boolean = false) {
+        mOrder.value = Pair(order, isDesc)
+        mList.value = filterList()
+    }
 
     private var mSuggestionAuthor = setOf<String>()
     private var mSuggestionPublisher = setOf<String>()
@@ -236,10 +246,8 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
     }
 
     private fun filterList(): ArrayList<History> {
-        val list = arrayListOf<History>()
-
-        val isTitleId = null
-        var title: History? = null
+        val sortedList = arrayListOf<History>()
+        val contentItems = mutableListOf<History>()
 
         if (mListFull.value != null && mListFull.value!!.isNotEmpty()) {
             val filter = mWordFilter
@@ -261,26 +269,22 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
             }
 
             for (history in mListFull.value!!) {
-                if (history == null)
+                if (history == null || history.id == null)
                     continue
-
-                if (history.id == isTitleId) {
-                    title = history
-                    continue
-                }
 
                 if (mType.value != null && history.type != mType.value)
                     continue
 
-                if (mLibrary != null) {
-                    val key = if (mLibrary!!.id == mDefaultKey) {
+                val currentLib = mLibrary.value
+                if (currentLib != null) {
+                    val key = if (currentLib.id == mDefaultKey) {
                         when (history) {
                             is Manga -> GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
                             is Book -> GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK
-                            else -> mLibrary!!.id
+                            else -> currentLib.id
                         }
                     } else
-                        mLibrary!!.id
+                        currentLib.id
 
                     if (history.fkLibrary != key)
                         continue
@@ -310,23 +314,55 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
                 }
 
                 if (matches) {
-                    if (title != null) {
-                        list.add(title)
-                        title = null
-                    }
-                    list.add(history)
+                    contentItems.add(history)
                 }
             }
         }
 
-        return list
+        val currentOrder = mOrder.value ?: Pair(Order.LastAccess, true)
+        val isDesc = currentOrder.second
+        val order = currentOrder.first
+
+        if (isDesc) {
+            when (order) {
+                Order.Name -> contentItems.sortByDescending { it.name }
+                Order.Favorite -> contentItems.sortWith(compareBy<History> { it.favorite }.thenByDescending { it.name })
+                Order.LastAccess -> contentItems.sortWith(compareBy<History> { it.lastAccess }.thenByDescending { it.name })
+                else -> contentItems.sortByDescending { it.lastAccess }
+            }
+        } else {
+            when (order) {
+                Order.Name -> contentItems.sortBy { it.name }
+                Order.Favorite -> contentItems.sortWith(compareByDescending<History> { it.favorite }.thenBy { it.name })
+                Order.LastAccess -> contentItems.sortWith(compareByDescending<History> { it.lastAccess }.thenBy { it.name })
+                else -> contentItems.sortBy { it.lastAccess }
+            }
+        }
+
+        val headerDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        var lastDateStr = ""
+        for (item in contentItems) {
+            val dateStr = item.lastAccess?.format(headerDateFormatter) ?: ""
+            if (dateStr != lastDateStr) {
+                lastDateStr = dateStr
+                val header = if (item.type == Type.MANGA) {
+                    Manga(null, null, java.io.File("")).apply { lastAccess = item.lastAccess }
+                } else {
+                    Book(null, null, java.io.File("")).apply { lastAccess = item.lastAccess }
+                }
+                sortedList.add(header)
+            }
+            sortedList.add(item)
+        }
+
+        return sortedList
     }
 
     fun filterLibrary(library: Library?) {
-        if (library == mLibrary)
+        if (library == mLibrary.value)
             return
 
-        mLibrary = library
+        mLibrary.value = library
         mList.value = filterList()
     }
 
