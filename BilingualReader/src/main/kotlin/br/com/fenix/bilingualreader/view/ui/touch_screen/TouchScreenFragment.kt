@@ -19,12 +19,15 @@ import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import android.content.SharedPreferences
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.util.TypedValue
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
+import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -40,7 +43,8 @@ class TouchScreenFragment : Fragment() {
     private val mLOGGER = LoggerFactory.getLogger(TouchScreenFragment::class.java)
 
     private lateinit var mPreferences: SharedPreferences
-    private var mBlurTop: BlurView? = null
+    private lateinit var mBlurTop: BlurView
+    private lateinit var mToolbar: Toolbar
 
     private lateinit var mImage: ImageView
     private lateinit var mTouchTop: TextView
@@ -54,8 +58,7 @@ class TouchScreenFragment : Fragment() {
     private lateinit var mSave: MaterialButton
     private lateinit var mDefault: MaterialButton
 
-    private lateinit var mToolbar: Toolbar
-
+    private val mHandler = Handler(Looper.getMainLooper())
     private var mType: Type = Type.MANGA
     private var mCover : Bitmap? by Delegates.observable(null) { _, _, newValue ->
         if (newValue != null)
@@ -277,45 +280,52 @@ class TouchScreenFragment : Fragment() {
         super.onResume()
         setupTitleBackgrounds()
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        mBlurTop?.setBlurEnabled(isGlass)
+        mBlurTop.setBlurEnabled(isGlass)
         if (isGlass) {
-            mBlurTop?.setBlurAutoUpdate(true)
-            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                mBlurTop?.setBlurAutoUpdate(false)
+            mBlurTop.setBlurAutoUpdate(true)
+            mHandler.postDelayed({
+                mBlurTop.setBlurAutoUpdate(false)
             }, 100)
         } else {
-            mBlurTop?.setBlurAutoUpdate(false)
+            mBlurTop.setBlurAutoUpdate(false)
         }
     }
 
     override fun onPause() {
         super.onPause()
-        mBlurTop?.setBlurAutoUpdate(false)
-        mBlurTop?.setBlurEnabled(false)
+        mBlurTop.setBlurAutoUpdate(false)
+        mBlurTop.setBlurEnabled(false)
+    }
+
+    override fun onDestroy() {
+        mHandler.removeCallbacksAndMessages(null)
+        super.onDestroy()
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         if (hidden) {
-            mBlurTop?.setBlurAutoUpdate(false)
-            mBlurTop?.setBlurEnabled(false)
+            mBlurTop.setBlurAutoUpdate(false)
+            mBlurTop.setBlurEnabled(false)
         } else {
-            mBlurTop?.setBlurEnabled(isGlass)
+            mBlurTop.setBlurEnabled(isGlass)
             if (isGlass) {
-                mBlurTop?.setBlurAutoUpdate(true)
-                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                    mBlurTop?.setBlurAutoUpdate(false)
+                mBlurTop.setBlurAutoUpdate(true)
+                mHandler.postDelayed({
+                    mBlurTop.setBlurAutoUpdate(false)
                 }, 100)
             } else {
-                mBlurTop?.setBlurAutoUpdate(false)
+                mBlurTop.setBlurAutoUpdate(false)
             }
         }
     }
 
     private fun setupWindowInsets() {
-        val mainBlurTop = mBlurTop ?: return
-        ViewCompat.setOnApplyWindowInsetsListener(mainBlurTop) { view, insets ->
+        if (!::mBlurTop.isInitialized)
+            return
+
+        ViewCompat.setOnApplyWindowInsetsListener(mBlurTop) { view, insets ->
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, view.paddingBottom)
             insets
@@ -323,14 +333,16 @@ class TouchScreenFragment : Fragment() {
     }
 
     private fun setupBlurViews(root: View) {
-        val mainBlurTop = mBlurTop ?: return
+        if (!::mBlurTop.isInitialized)
+            return
+
         val context = requireContext()
         val decorView = requireActivity().window.decorView
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
 
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-        mainBlurTop.setupWith(rootView, blurAlgorithm)
+        mBlurTop.setupWith(rootView, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }

@@ -1,6 +1,5 @@
 package br.com.fenix.bilingualreader.view.ui.book
 
-
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.content.res.Resources
@@ -60,11 +59,11 @@ class BookSearchFragment : Fragment(), BookParseListener {
     private val mViewModelBookSearch: BookSearchViewModel by activityViewModels()
     private val mViewModelAnnotations: BookAnnotationViewModel by activityViewModels()
 
+    private lateinit var mBlurTop: BlurView
     private lateinit var mToolbar: Toolbar
     private lateinit var miSearch: MenuItem
     private lateinit var searchView: SearchView
     private lateinit var mPreferences: SharedPreferences
-    private var mBlurTop: BlurView? = null
 
     private lateinit var mProgressContent: CoordinatorLayout
     private lateinit var mProgressIndicator: ProgressBar
@@ -168,13 +167,9 @@ class BookSearchFragment : Fragment(), BookParseListener {
         mScrollDown = root.findViewById(R.id.book_search_scroll_down)
 
         mToolbar = root.findViewById(R.id.toolbar_book_search)
+        mBlurTop = root.findViewById(R.id.book_search_blur_top)
 
         (requireActivity() as MenuActivity).setActionBar(mToolbar)
-
-        mBlurTop = root.findViewById(R.id.book_search_blur_top)
-        setupBlurViews(root)
-        setupWindowInsets()
-        setupTitleBackgrounds()
 
         mProgressContent.visibility = if (mViewModelBookSearch.parse != null && mViewModelBookSearch.parse!!.isLoading()) View.VISIBLE else View.GONE
         mScrollUp.visibility = View.GONE
@@ -253,13 +248,17 @@ class BookSearchFragment : Fragment(), BookParseListener {
                 val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
                 if (isGlass) {
                     if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        mBlurTop?.setBlurAutoUpdate(false)
+                        mBlurTop.setBlurAutoUpdate(false)
                     } else {
-                        mBlurTop?.setBlurAutoUpdate(true)
+                        mBlurTop.setBlurAutoUpdate(true)
                     }
                 }
             }
         })
+
+        setupBlurViews()
+        setupWindowInsets()
+        setupTitleBackgrounds()
 
         return root
     }
@@ -364,60 +363,64 @@ class BookSearchFragment : Fragment(), BookParseListener {
         super.onResume()
         setupTitleBackgrounds()
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        mBlurTop?.setBlurEnabled(isGlass)
+        mBlurTop.setBlurEnabled(isGlass)
         if (isGlass) {
-            mBlurTop?.setBlurAutoUpdate(true)
-            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                mBlurTop?.setBlurAutoUpdate(false)
+            mBlurTop.setBlurAutoUpdate(true)
+            mHandler.postDelayed({
+                mBlurTop.setBlurAutoUpdate(false)
             }, 100)
         } else {
-            mBlurTop?.setBlurAutoUpdate(false)
+            mBlurTop.setBlurAutoUpdate(false)
         }
     }
 
     override fun onPause() {
         super.onPause()
-        mBlurTop?.setBlurAutoUpdate(false)
-        mBlurTop?.setBlurEnabled(false)
+        mBlurTop.setBlurAutoUpdate(false)
+        mBlurTop.setBlurEnabled(false)
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         if (hidden) {
-            mBlurTop?.setBlurAutoUpdate(false)
-            mBlurTop?.setBlurEnabled(false)
+            mBlurTop.setBlurAutoUpdate(false)
+            mBlurTop.setBlurEnabled(false)
         } else {
-            mBlurTop?.setBlurEnabled(isGlass)
+            mBlurTop.setBlurEnabled(isGlass)
             if (isGlass) {
-                mBlurTop?.setBlurAutoUpdate(true)
-                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                    mBlurTop?.setBlurAutoUpdate(false)
+                mBlurTop.setBlurAutoUpdate(true)
+                mHandler.postDelayed({
+                    mBlurTop.setBlurAutoUpdate(false)
                 }, 100)
             } else {
-                mBlurTop?.setBlurAutoUpdate(false)
+                mBlurTop.setBlurAutoUpdate(false)
             }
         }
     }
 
     private fun setupWindowInsets() {
-        val mainBlurTop = mBlurTop ?: return
-        ViewCompat.setOnApplyWindowInsetsListener(mainBlurTop) { view, insets ->
+        if (!::mBlurTop.isInitialized)
+            return
+
+        ViewCompat.setOnApplyWindowInsetsListener(mBlurTop) { view, insets ->
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, view.paddingBottom)
             insets
         }
     }
 
-    private fun setupBlurViews(root: View) {
-        val mainBlurTop = mBlurTop ?: return
+    private fun setupBlurViews() {
+        if (!::mBlurTop.isInitialized)
+            return
+
         val context = requireContext()
         val decorView = requireActivity().window.decorView
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
 
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-        mainBlurTop.setupWith(rootView, blurAlgorithm)
+        mBlurTop.setupWith(rootView, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }

@@ -5,9 +5,11 @@ import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
-import android.util.TypedValue
+import android.os.Handler
+import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
 import android.view.SubMenu
@@ -53,6 +55,7 @@ import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryViewModel
 import br.com.fenix.bilingualreader.view.ui.statistics.StatisticsFragment
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyFragment
 import com.google.android.material.navigation.NavigationView
+import eightbitlab.com.blurview.BlurView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -66,18 +69,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private val mLOGGER = LoggerFactory.getLogger(MainActivity::class.java)
 
+    private lateinit var mPreferences: SharedPreferences
+
     private lateinit var mMangaLibraryModel: MangaLibraryViewModel
     private lateinit var mBookLibraryModel: BookLibraryViewModel
+    private lateinit var mBlurTop: BlurView
     private lateinit var mToolBar: Toolbar
     private lateinit var mFragmentManager: FragmentManager
     private lateinit var mNavigationView: NavigationView
     private lateinit var mMenu: Menu
     private lateinit var mToggle: ActionBarDrawerToggle
     private lateinit var mDrawer: DrawerLayout
-    private var mBlurTop: eightbitlab.com.blurview.BlurView? = null
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var mBinding: ActivityMainBinding
 
+    private val mHandler = Handler(Looper.getMainLooper())
     private val mDefaultUncaughtHandler = Thread.getDefaultUncaughtExceptionHandler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,7 +101,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val isDark = ThemeUtil.applyThemeMode(this)
 
-        val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
+        mPreferences = GeneralConsts.getSharedPreferences(this)
+        val theme = Themes.valueOf(mPreferences.getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(theme.getValue())
 
         super.onCreate(savedInstanceState)
@@ -106,16 +113,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         createNotificationChannel()
         DataBase.initializeBackup(this)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
+        mBinding = ActivityMainBinding.inflate(layoutInflater)
+        val view = mBinding.root
         setContentView(view)
 
         mToolBar = findViewById(R.id.main_toolbar)
+        mBlurTop = findViewById(R.id.main_blur_top)
+
         MenuUtil.tintToolbar(mToolBar, theme)
         setSupportActionBar(mToolBar)
 
         // drawer_Layout is a default layout from app
-        mDrawer = binding.drawerLayout
+        mDrawer = mBinding.drawerLayout
         mToggle = ActionBarDrawerToggle(
             this,
             mDrawer,
@@ -137,7 +146,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mToggle.syncState()
 
         // nav_view have a menu layout
-        mNavigationView = binding.navView
+        mNavigationView = mBinding.navView
         mNavigationView.setNavigationItemSelectedListener(this)
 
         mMangaLibraryModel.setDefaultLibrary(LibraryUtil.getDefault(this, Type.MANGA))
@@ -157,12 +166,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     is AnnotationFragment -> mToolBar.title = getString(R.string.menu_annotations)
                 }
 
-                val isGlass = GeneralConsts.getSharedPreferences(this@MainActivity)
-                    .getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
                 if (isGlass) {
-                    mBlurTop?.setBlurAutoUpdate(true)
-                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                        mBlurTop?.setBlurAutoUpdate(false)
+                    mBlurTop.setBlurAutoUpdate(true)
+                    mHandler.postDelayed({
+                        mBlurTop.setBlurAutoUpdate(false)
                     }, 100)
                 }
             }
@@ -171,21 +179,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         libraries()
 
         var fragment: Fragment
-        if (GeneralConsts.getSharedPreferences(this).getBoolean(GeneralConsts.KEYS.THEME.THEME_CHANGE, false)) {
-            with(GeneralConsts.getSharedPreferences(this).edit()) {
-                this.putBoolean(GeneralConsts.KEYS.THEME.THEME_CHANGE, false)
-                this.commit()
+        if (mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_CHANGE, false)) {
+            mPreferences.edit(commit = true) {
+                    this.putBoolean(GeneralConsts.KEYS.THEME.THEME_CHANGE, false)
             }
 
             mMangaLibraryModel.isLoading = false
             mBookLibraryModel.isLoading = false
             fragment = ConfigFragment()
         } else {
-            val idLibrary = GeneralConsts.getSharedPreferences(this).getLong(
-                GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY,
-                GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
-            )
-
+            val idLibrary = mPreferences.getLong(GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY, GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
             val library = mLibraries.find { it.id == idLibrary } ?: if (idLibrary.compareTo(R.id.menu_book_library_default) == 0)
                 LibraryUtil.getDefault(this, Type.BOOK)
             else
@@ -224,7 +227,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // content_fragment use for receive fragments layout
         mFragmentManager.beginTransaction().replace(R.id.main_content_root, fragment).commit()
 
-        mBlurTop = findViewById(R.id.main_blur_top)
         setupBlurViews()
         setupWindowInsets()
         setupTitleBackgrounds()
@@ -419,12 +421,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onDestroy() {
+        mHandler.removeCallbacksAndMessages(null)
         NotificationManagerCompat.from(this).cancelAll()
         clearCache()
 
-        val preferences = GeneralConsts.getSharedPreferences(this)
-        if (LocalDate.now().isAfter(LocalDate.parse(preferences.getString(GeneralConsts.KEYS.DATABASE.LAST_AUTO_BACKUP, "2025-01-01")))) {
-            GeneralConsts.getSharedPreferences(this).edit(commit = true) { putString(GeneralConsts.KEYS.DATABASE.LAST_AUTO_BACKUP, LocalDate.now().toString()) }
+        if (LocalDate.now().isAfter(LocalDate.parse(mPreferences.getString(GeneralConsts.KEYS.DATABASE.LAST_AUTO_BACKUP, "2025-01-01")))) {
+            mPreferences.edit(commit = true) { putString(GeneralConsts.KEYS.DATABASE.LAST_AUTO_BACKUP, LocalDate.now().toString()) }
             DataBase.autoBackupDatabase(this)
         }
 
@@ -434,42 +436,40 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onResume() {
         super.onResume()
         val isDark = ThemeUtil.applyThemeMode(this)
-        val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
+        val theme = Themes.valueOf(mPreferences.getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(theme.getValue())
         ThemeUtil.statusBarTransparentTheme(window, isDark, isLightStatus = !isDark)
         setupTitleBackgrounds()
 
-        val preferences = GeneralConsts.getSharedPreferences(this)
-        val isGlass = preferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        mBlurTop?.setBlurAutoUpdate(isGlass)
-        mBlurTop?.setBlurEnabled(isGlass)
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        mBlurTop.setBlurAutoUpdate(isGlass)
+        mBlurTop.setBlurEnabled(isGlass)
         setNavigatorBlurAutoUpdate(mDrawer.isDrawerOpen(GravityCompat.START))
     }
 
     override fun onPause() {
         super.onPause()
-        mBlurTop?.setBlurAutoUpdate(false)
-        mBlurTop?.setBlurEnabled(false)
+        mBlurTop.setBlurAutoUpdate(false)
+        mBlurTop.setBlurEnabled(false)
         setNavigatorBlurAutoUpdate(false)
     }
 
     fun setBlurAutoUpdate(enabled: Boolean) {
-        val preferences = GeneralConsts.getSharedPreferences(this)
-        val isGlass = preferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         if (isGlass) {
-            mBlurTop?.setBlurAutoUpdate(enabled)
+            mBlurTop.setBlurAutoUpdate(enabled)
         } else {
-            mBlurTop?.setBlurAutoUpdate(false)
+            mBlurTop.setBlurAutoUpdate(false)
         }
     }
 
     private fun setNavigatorBlurAutoUpdate(enabled: Boolean) {
         if (!::mNavigationView.isInitialized)
             return
+
         val headerView = mNavigationView.getHeaderView(0)
-        val navigatorBlur = headerView?.findViewById<eightbitlab.com.blurview.BlurView>(R.id.navigator_blur)
-        val preferences = GeneralConsts.getSharedPreferences(this)
-        val isGlass = preferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        val navigatorBlur = headerView?.findViewById<BlurView>(R.id.navigator_blur)
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         navigatorBlur?.setBlurEnabled(isGlass)
         if (isGlass) {
             navigatorBlur?.setBlurAutoUpdate(enabled)
@@ -480,7 +480,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
         val isDark = ThemeUtil.applyThemeMode(this)
-        val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
+        val theme = Themes.valueOf(mPreferences.getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(theme.getValue())
         super.onConfigurationChanged(newConfig)
         ThemeUtil.statusBarTransparentTheme(window, isDark, isLightStatus = !isDark)
@@ -488,10 +488,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun setupWindowInsets() {
-        val mainBlurTop = mBlurTop ?: return
+        if (!::mBlurTop.isInitialized)
+            return
+
         val mainContentRoot = findViewById<View>(R.id.main_content_root) ?: return
 
-        ViewCompat.setOnApplyWindowInsetsListener(mainBlurTop) { view, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(mBlurTop) { view, insets ->
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, view.paddingBottom)
             insets
@@ -505,19 +507,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun setupBlurViews() {
+        if (!::mBlurTop.isInitialized)
+            return
+
         val decorView = window.decorView
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) eightbitlab.com.blurview.RenderEffectBlur() else eightbitlab.com.blurview.RenderScriptBlur(this)
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
 
-        mBlurTop?.let { mainBlurTop ->
-            mainBlurTop.setupWith(rootView, blurAlgorithm)
+        mBlurTop.setupWith(rootView, blurAlgorithm)
                 .setFrameClearDrawable(background)
                 .setBlurRadius(15f)
-        }
 
         val headerView = mNavigationView.getHeaderView(0)
-        val navigatorBlur = headerView?.findViewById<eightbitlab.com.blurview.BlurView>(R.id.navigator_blur)
+        val navigatorBlur = headerView?.findViewById<BlurView>(R.id.navigator_blur)
         if (navigatorBlur != null) {
             val blurAlgorithmNav = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) eightbitlab.com.blurview.RenderEffectBlur() else eightbitlab.com.blurview.RenderScriptBlur(this)
             navigatorBlur.setupWith(rootView, blurAlgorithmNav)

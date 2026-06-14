@@ -24,7 +24,7 @@ import eightbitlab.com.blurview.RenderScriptBlur
 
 class HistoryStatisticsActivity : AppCompatActivity() {
 
-    private var mBlurTop: BlurView? = null
+    private lateinit var mBlurTop: BlurView
     private lateinit var mToolBar: Toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,10 +51,6 @@ class HistoryStatisticsActivity : AppCompatActivity() {
         mBlurTop = findViewById(R.id.history_statistics_blur_top)
         mToolBar = toolbar
 
-        setupBlurViews()
-        setupWindowInsets()
-        setupTitleBackgrounds()
-
         val bundle: Bundle? = intent.extras
 
         val fragment: Fragment = HistoryStatisticsFragment()
@@ -66,6 +62,10 @@ class HistoryStatisticsActivity : AppCompatActivity() {
                 .replace(R.id.root_frame_history_statistics, fragment)
                 .commit()
         }
+
+        setupBlurViews()
+        setupWindowInsets()
+        setupTitleBackgrounds()
     }
 
     override fun onResume() {
@@ -78,23 +78,23 @@ class HistoryStatisticsActivity : AppCompatActivity() {
 
         val sharedPreferences = GeneralConsts.getSharedPreferences(this)
         val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        mBlurTop?.setBlurAutoUpdate(isGlass)
-        mBlurTop?.setBlurEnabled(isGlass)
+        mBlurTop.setBlurAutoUpdate(isGlass)
+        mBlurTop.setBlurEnabled(isGlass)
     }
 
     override fun onPause() {
         super.onPause()
-        mBlurTop?.setBlurAutoUpdate(false)
-        mBlurTop?.setBlurEnabled(false)
+        mBlurTop.setBlurAutoUpdate(false)
+        mBlurTop.setBlurEnabled(false)
     }
 
     fun setBlurAutoUpdate(enabled: Boolean) {
         val sharedPreferences = GeneralConsts.getSharedPreferences(this)
         val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         if (isGlass) {
-            mBlurTop?.setBlurAutoUpdate(enabled)
+            mBlurTop.setBlurAutoUpdate(enabled)
         } else {
-            mBlurTop?.setBlurAutoUpdate(false)
+            mBlurTop.setBlurAutoUpdate(false)
         }
     }
 
@@ -108,10 +108,12 @@ class HistoryStatisticsActivity : AppCompatActivity() {
     }
 
     private fun setupWindowInsets() {
-        val mainBlurTop = mBlurTop ?: return
+        if (!::mBlurTop.isInitialized)
+            return
+
         val rootFrame = findViewById<View>(R.id.root_frame_history_statistics) ?: return
 
-        ViewCompat.setOnApplyWindowInsetsListener(mainBlurTop) { view, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(mBlurTop) { view, insets ->
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, view.paddingBottom)
             insets
@@ -125,13 +127,15 @@ class HistoryStatisticsActivity : AppCompatActivity() {
     }
 
     private fun setupBlurViews() {
-        val mainBlurTop = mBlurTop ?: return
+        if (!::mBlurTop.isInitialized)
+            return
+
         val decorView = window.decorView
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(Color.BLACK)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(this)
 
         val rootLayout = decorView.findViewById<ViewGroup>(android.R.id.content)
-        mainBlurTop.setupWith(rootLayout, blurAlgorithm)
+        mBlurTop.setupWith(rootLayout, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }

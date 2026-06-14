@@ -1,6 +1,5 @@
 package br.com.fenix.bilingualreader.view.ui.book
 
-
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.graphics.drawable.AnimatedVectorDrawable
@@ -74,9 +73,9 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
 
     private val mViewModel: BookAnnotationViewModel by activityViewModels()
 
+    private lateinit var mBlurTop: BlurView
     private lateinit var mToolbar: Toolbar
     private lateinit var mPreferences: SharedPreferences
-    private var mBlurTop: BlurView? = null
 
     private lateinit var mScrollUp: FloatingActionButton
     private lateinit var mScrollDown: FloatingActionButton
@@ -119,7 +118,6 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
 
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var mListener: AnnotationsListener
-
     private lateinit var mBook: Book
 
     private val mHandler = Handler(Looper.getMainLooper())
@@ -182,15 +180,12 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         mScrollDown = root.findViewById(R.id.book_annotation_scroll_down)
 
         mToolbar = root.findViewById(R.id.toolbar_book_annotation)
+        mBlurTop = root.findViewById(R.id.book_annotation_blur_top)
 
         mScrollUp.visibility = View.GONE
         mScrollDown.visibility = View.GONE
 
         (requireActivity() as MenuActivity).setActionBar(mToolbar)
-
-        mBlurTop = root.findViewById(R.id.book_annotation_blur_top)
-        setupBlurViews(root)
-        setupWindowInsets(root)
 
         mScrollUp.setOnClickListener {
             (mScrollUp.drawable as AnimatedVectorDrawable).start()
@@ -258,12 +253,12 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
                 val isPopupVisible = ::mBottomSheet.isInitialized && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
                 if (isGlass) {
                     if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        mBlurTop?.setBlurAutoUpdate(false)
+                        mBlurTop.setBlurAutoUpdate(false)
                         if (::mMenuPopupLibraryBackground.isInitialized) {
                             mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
                         }
                     } else {
-                        mBlurTop?.setBlurAutoUpdate(true)
+                        mBlurTop.setBlurAutoUpdate(true)
                         if (isPopupVisible && ::mMenuPopupLibraryBackground.isInitialized) {
                             mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
                         }
@@ -305,6 +300,8 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
 
         mPopupFilterView.adapter = viewOrderPagerAdapter
 
+        setupBlurViews()
+        setupWindowInsets(root)
         setupTitleBackgrounds()
 
         return root
@@ -567,21 +564,21 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         super.onResume()
         setupTitleBackgrounds()
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        mBlurTop?.setBlurEnabled(isGlass)
+        mBlurTop.setBlurEnabled(isGlass)
         if (isGlass) {
-            mBlurTop?.setBlurAutoUpdate(true)
-            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                mBlurTop?.setBlurAutoUpdate(false)
+            mBlurTop.setBlurAutoUpdate(true)
+            mHandler.postDelayed({
+                mBlurTop.setBlurAutoUpdate(false)
             }, 100)
         } else {
-            mBlurTop?.setBlurAutoUpdate(false)
+            mBlurTop.setBlurAutoUpdate(false)
         }
     }
 
     override fun onPause() {
         super.onPause()
-        mBlurTop?.setBlurAutoUpdate(false)
-        mBlurTop?.setBlurEnabled(false)
+        mBlurTop.setBlurAutoUpdate(false)
+        mBlurTop.setBlurEnabled(false)
         if (::mBottomSheet.isInitialized && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
             mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
         }
@@ -594,17 +591,17 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         super.onHiddenChanged(hidden)
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         if (hidden) {
-            mBlurTop?.setBlurAutoUpdate(false)
-            mBlurTop?.setBlurEnabled(false)
+            mBlurTop.setBlurAutoUpdate(false)
+            mBlurTop.setBlurEnabled(false)
         } else {
-            mBlurTop?.setBlurEnabled(isGlass)
+            mBlurTop.setBlurEnabled(isGlass)
             if (isGlass) {
-                mBlurTop?.setBlurAutoUpdate(true)
-                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                    mBlurTop?.setBlurAutoUpdate(false)
+                mBlurTop.setBlurAutoUpdate(true)
+                mHandler.postDelayed({
+                    mBlurTop.setBlurAutoUpdate(false)
                 }, 100)
             } else {
-                mBlurTop?.setBlurAutoUpdate(false)
+                mBlurTop.setBlurAutoUpdate(false)
             }
         }
     }
@@ -613,10 +610,7 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
-
-            mBlurTop?.let { view ->
-                view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, view.paddingBottom)
-            }
+            mBlurTop.setPadding(mBlurTop.paddingLeft, statusBarHeight, mBlurTop.paddingRight, mBlurTop.paddingBottom)
 
             val contentLayout = root.findViewById<View>(R.id.book_annotation_content)
             contentLayout?.setPadding(contentLayout.paddingLeft, contentLayout.paddingTop, contentLayout.paddingRight, navBarHeight)
@@ -628,15 +622,17 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         }
     }
 
-    private fun setupBlurViews(root: View) {
-        val mainBlurTop = mBlurTop ?: return
+    private fun setupBlurViews() {
+        if (!::mBlurTop.isInitialized)
+            return
+
         val context = requireContext()
         val decorView = requireActivity().window.decorView
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
 
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-        mainBlurTop.setupWith(rootView, blurAlgorithm)
+        mBlurTop.setupWith(rootView, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }

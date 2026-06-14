@@ -48,8 +48,8 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
     private lateinit var mScrollDown: FloatingActionButton
     private lateinit var mPreferences: SharedPreferences
 
+    private lateinit var mBlurTop: BlurView
     private lateinit var mToolbar: Toolbar
-    private var mBlurTop: BlurView? = null
 
     private var mPosInitial = 0
     private var mToolbarTitle = ""
@@ -76,10 +76,9 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
         mScrollUp = root.findViewById(R.id.chapter_scroll_up)
         mScrollDown = root.findViewById(R.id.chapter_scroll_down)
         mToolbar = root.findViewById(R.id.toolbar_chapter)
+        mBlurTop = root.findViewById(R.id.chapter_blur_top)
 
         (requireActivity() as MenuActivity).setActionBar(mToolbar)
-
-        mBlurTop = root.findViewById(R.id.chapter_blur_top)
         setupBlurViews(root)
         setupWindowInsets()
         setupTitleBackgrounds()
@@ -160,9 +159,9 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
                 val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
                 if (isGlass) {
                     if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        mBlurTop?.setBlurAutoUpdate(false)
+                        mBlurTop.setBlurAutoUpdate(false)
                     } else {
-                        mBlurTop?.setBlurAutoUpdate(true)
+                        mBlurTop.setBlurAutoUpdate(true)
                     }
                 }
             }
@@ -244,45 +243,47 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
         super.onResume()
         setupTitleBackgrounds()
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        mBlurTop?.setBlurEnabled(isGlass)
+        mBlurTop.setBlurEnabled(isGlass)
         if (isGlass) {
-            mBlurTop?.setBlurAutoUpdate(true)
-            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                mBlurTop?.setBlurAutoUpdate(false)
+            mBlurTop.setBlurAutoUpdate(true)
+            mHandler.postDelayed({
+                mBlurTop.setBlurAutoUpdate(false)
             }, 100)
         } else {
-            mBlurTop?.setBlurAutoUpdate(false)
+            mBlurTop.setBlurAutoUpdate(false)
         }
     }
 
     override fun onPause() {
         super.onPause()
-        mBlurTop?.setBlurAutoUpdate(false)
-        mBlurTop?.setBlurEnabled(false)
+        mBlurTop.setBlurAutoUpdate(false)
+        mBlurTop.setBlurEnabled(false)
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         if (hidden) {
-            mBlurTop?.setBlurAutoUpdate(false)
-            mBlurTop?.setBlurEnabled(false)
+            mBlurTop.setBlurAutoUpdate(false)
+            mBlurTop.setBlurEnabled(false)
         } else {
-            mBlurTop?.setBlurEnabled(isGlass)
+            mBlurTop.setBlurEnabled(isGlass)
             if (isGlass) {
-                mBlurTop?.setBlurAutoUpdate(true)
-                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                    mBlurTop?.setBlurAutoUpdate(false)
+                mBlurTop.setBlurAutoUpdate(true)
+                mHandler.postDelayed({
+                    mBlurTop.setBlurAutoUpdate(false)
                 }, 100)
             } else {
-                mBlurTop?.setBlurAutoUpdate(false)
+                mBlurTop.setBlurAutoUpdate(false)
             }
         }
     }
 
     private fun setupWindowInsets() {
-        val mainBlurTop = mBlurTop ?: return
-        ViewCompat.setOnApplyWindowInsetsListener(mainBlurTop) { view, insets ->
+        if (!::mBlurTop.isInitialized)
+            return
+
+        ViewCompat.setOnApplyWindowInsetsListener(mBlurTop) { view, insets ->
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, view.paddingBottom)
             insets
@@ -290,14 +291,16 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
     }
 
     private fun setupBlurViews(root: View) {
-        val mainBlurTop = mBlurTop ?: return
+        if (!::mBlurTop.isInitialized)
+            return
+
         val context = requireContext()
         val decorView = requireActivity().window.decorView
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
 
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
-        mainBlurTop.setupWith(rootView, blurAlgorithm)
+        mBlurTop.setupWith(rootView, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
     }

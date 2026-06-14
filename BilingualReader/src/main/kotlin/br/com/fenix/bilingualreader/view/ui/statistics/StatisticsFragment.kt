@@ -122,6 +122,7 @@ class StatisticsFragment : Fragment() {
     private var mBookChart: LineChart by autoCleared()
 
     private var mLoading = MutableLiveData(false)
+    private val mHandler = Handler(Looper.getMainLooper())
 
     private var mBookSelectYear = 0
     private lateinit var mBookSelectLibrary: Library
@@ -177,7 +178,6 @@ class StatisticsFragment : Fragment() {
         mRepository = StatisticsRepository(requireContext())
         mDefaultAllLibraries = requireContext().getString(R.string.statistics_chart_library_all)
 
-
         val background = android.graphics.drawable.ColorDrawable(requireContext().getColorFromAttr(R.attr.background))
 
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -186,7 +186,7 @@ class StatisticsFragment : Fragment() {
             RenderScriptBlur(requireContext())
         }
         val decorView = requireActivity().window.decorView
-        mProgress.setupWith(decorView.findViewById<ViewGroup>(android.R.id.content), blurAlgorithm)
+        mProgress.setupWith(decorView.findViewById(android.R.id.content), blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(10F)
         mLoading.value = true
@@ -210,19 +210,15 @@ class StatisticsFragment : Fragment() {
         view.findViewById<View>(R.id.statistics_book_btn_history).setOnClickListener { openHistory(Type.BOOK, mBookSelectYear) }
 
         val statisticsScrollView = view.findViewById<android.widget.ScrollView>(R.id.statistics_scroll_view)
-        var scrollRunnable: Runnable? = null
-        val scrollHandler = Handler(Looper.getMainLooper())
+        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         statisticsScrollView?.setOnScrollChangeListener { _, _, _, _, _ ->
-            val isGlass = GeneralConsts.getSharedPreferences(requireContext())
-                .getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
             if (isGlass) {
                 (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
-                scrollRunnable?.let { scrollHandler.removeCallbacks(it) }
-                val runnable = Runnable {
+                mHandler.removeCallbacksAndMessages(null)
+                mHandler.postDelayed({
                     (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
-                }
-                scrollRunnable = runnable
-                scrollHandler.postDelayed(runnable, 150)
+                }, 150)
             }
         }
 
@@ -237,6 +233,11 @@ class StatisticsFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         mProgress.setBlurAutoUpdate(false)
+    }
+
+    override fun onDestroy() {
+        mHandler.removeCallbacksAndMessages(null)
+        super.onDestroy()
     }
 
     private fun loadStatistics() {

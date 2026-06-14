@@ -162,11 +162,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mNextButton: MaterialButton
     private lateinit var miMarkPage: MenuItem
 
-    private var mBlurTop: BlurView? = null
-    private var mBlurBottom: BlurView? = null
-    private var mBlurProgress: BlurView? = null
-    private var mBlurNavPrevious: BlurView? = null
-    private var mBlurNavNext: BlurView? = null
+    private lateinit var mBlurTop: BlurView
+    private lateinit var mBlurBottom: BlurView
+    private lateinit var mBlurProgress: BlurView
+    private lateinit var mBlurNavPrevious: BlurView
+    private lateinit var mBlurNavNext: BlurView
 
     private var mOriginalToolbarTopBg: Drawable? = null
     private var mOriginalToolbarBottomBg: Drawable? = null
@@ -452,8 +452,6 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mOriginalToolbarBottomBg = mToolbarBottom.background
         mOriginalPageNavBg = mPageNavLayout.background
 
-        setupBlurViews()
-
         mPreviousButton = requireActivity().findViewById(R.id.reader_manga_nav_previous_file)
         mNextButton = requireActivity().findViewById(R.id.reader_manga_nav_next_file)
 
@@ -555,6 +553,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         mViewModel.filters.observe(viewLifecycleOwner) { onRefresh() }
 
+        setupBlurViews()
         setupWindowInsets()
         setupTitleBackgrounds()
 
@@ -1551,7 +1550,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         if (fullscreen) {
             mRoot.fitsSystemWindows = false
             changeContentsVisibility(fullscreen)
-            Handler(Looper.getMainLooper()).postDelayed({
+            mHandler.postDelayed({
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     windowInsetsController.let {
                         it.hide(WindowInsetsCompat.Type.systemBars())
@@ -1569,7 +1568,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                             or View.SYSTEM_UI_FLAG_LAYOUT_STABLE // Stable transition on fullscreen and immersive
                             )
 
-                    Handler(Looper.getMainLooper()).postDelayed({
+                    mHandler.postDelayed({
                         window.clearFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
                         window.addFlags(ContextCompat.getColor(requireContext(), R.color.transparent))
                     }, ANIMATION_DURATION + 100)
@@ -1590,7 +1589,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 }
             }, ANIMATION_DURATION)
         } else {
-            Handler(Looper.getMainLooper()).postDelayed({ changeContentsVisibility(fullscreen) }, ANIMATION_DURATION)
+            mHandler.postDelayed({ changeContentsVisibility(fullscreen) }, ANIMATION_DURATION)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 windowInsetsController.let {
                     it.show(WindowInsetsCompat.Type.systemBars())
@@ -1603,7 +1602,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                         or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
 
-                Handler(Looper.getMainLooper()).postDelayed({
+                mHandler.postDelayed({
                     window.clearFlags(ContextCompat.getColor(requireContext(), R.color.transparent))
                     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
                 }, ANIMATION_DURATION + 100)
@@ -2026,17 +2025,17 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private fun setBlurAutoUpdate(enabled: Boolean) {
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         val autoUpdate = isGlass && enabled
-        mBlurTop?.setBlurAutoUpdate(autoUpdate)
-        mBlurBottom?.setBlurAutoUpdate(autoUpdate)
+        mBlurTop.setBlurAutoUpdate(autoUpdate)
+        mBlurBottom.setBlurAutoUpdate(autoUpdate)
         mBlurProgress?.setBlurAutoUpdate(autoUpdate)
-        mBlurNavPrevious?.setBlurAutoUpdate(autoUpdate)
-        mBlurNavNext?.setBlurAutoUpdate(autoUpdate)
+        mBlurNavPrevious.setBlurAutoUpdate(autoUpdate)
+        mBlurNavNext.setBlurAutoUpdate(autoUpdate)
 
-        mBlurTop?.setBlurEnabled(isGlass)
-        mBlurBottom?.setBlurEnabled(isGlass)
-        mBlurProgress?.setBlurEnabled(isGlass)
-        mBlurNavPrevious?.setBlurEnabled(isGlass)
-        mBlurNavNext?.setBlurEnabled(isGlass)
+        mBlurTop.setBlurEnabled(isGlass)
+        mBlurBottom.setBlurEnabled(isGlass)
+        mBlurProgress.setBlurEnabled(isGlass)
+        mBlurNavPrevious.setBlurEnabled(isGlass)
+        mBlurNavNext.setBlurEnabled(isGlass)
     }
 
     private fun setupWindowInsets() {
@@ -2052,8 +2051,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             insets
         }
 
-        val progressTargetView = mBlurProgress ?: mPageNavLayout
-        ViewCompat.setOnApplyWindowInsetsListener(progressTargetView) { view, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(mBlurProgress) { view, insets ->
             val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
             val lp = view.layoutParams as ViewGroup.MarginLayoutParams
             lp.bottomMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80f, resources.displayMetrics).toInt() + navBarHeight
@@ -2061,8 +2059,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             insets
         }
 
-        val prevTargetView = mBlurNavPrevious ?: mPreviousButton
-        ViewCompat.setOnApplyWindowInsetsListener(prevTargetView) { view, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(mBlurNavPrevious) { view, insets ->
             val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
             val lp = view.layoutParams as ViewGroup.MarginLayoutParams
             lp.bottomMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 85f, resources.displayMetrics).toInt() + navBarHeight
@@ -2070,8 +2067,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             insets
         }
 
-        val nextTargetView = mBlurNavNext ?: mNextButton
-        ViewCompat.setOnApplyWindowInsetsListener(nextTargetView) { view, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(mBlurNavNext) { view, insets ->
             val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
             val lp = view.layoutParams as ViewGroup.MarginLayoutParams
             lp.bottomMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 85f, resources.displayMetrics).toInt() + navBarHeight
@@ -2081,95 +2077,71 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     private fun setupTitleBackgrounds() {
+        if (!::mBlurTop.isInitialized || !::mBlurBottom.isInitialized || !::mBlurProgress.isInitialized || !::mBlurNavPrevious.isInitialized || !::mBlurNavNext.isInitialized)
+            return
+
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         val context = requireContext()
         val themeColor = context.getColorFromAttr(R.attr.colorSurface)
 
-        mBlurTop?.setBlurEnabled(isGlass)
-        mBlurBottom?.setBlurEnabled(isGlass)
-        mBlurProgress?.setBlurEnabled(isGlass)
-        mBlurNavPrevious?.setBlurEnabled(isGlass)
-        mBlurNavNext?.setBlurEnabled(isGlass)
+        mBlurTop.setBlurEnabled(isGlass)
+        mBlurBottom.setBlurEnabled(isGlass)
+        mBlurProgress.setBlurEnabled(isGlass)
+        mBlurNavPrevious.setBlurEnabled(isGlass)
+        mBlurNavNext.setBlurEnabled(isGlass)
 
         val isNight = resources.getBoolean(R.bool.isNight)
-        val alpha = if (isNight) 0xD9 else 0x73 // 85% opacity for dark theme, 45% opacity for light theme
+        val alpha = if (isNight) 0xD9 else 0x73
         val translucentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
 
-        // Top Toolbar: flat straight line, translucent solid color
         val topBg = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             setColor(translucentColor)
         }
-        mBlurTop?.background = topBg
+        mBlurTop.background = topBg
         mToolbarTop.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
 
-        // Bottom Toolbar: flat straight line, translucent solid color
         val bottomBg = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             setColor(translucentColor)
         }
-        mBlurBottom?.background = bottomBg
+        mBlurBottom.background = bottomBg
         mToolbarBottom.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
-
-        // Progress and Button Background setup
         val progressCornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, resources.displayMetrics)
+        val buttonCornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100f, resources.displayMetrics)
+
+        val progressBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(translucentColor)
+            this.cornerRadius = progressCornerRadius
+        }
+        val prevButtonBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(translucentColor)
+            this.cornerRadius = buttonCornerRadius
+        }
+        val nextButtonBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(translucentColor)
+            this.cornerRadius = buttonCornerRadius
+        }
 
         if (isGlass) {
-            // Progress layout: fully rounded floating card
-            val progressBg = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                setColor(translucentColor)
-                this.cornerRadius = progressCornerRadius
-            }
-            mBlurProgress?.background = progressBg
+            mBlurProgress.background = progressBg
             mPageNavLayout.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
-
-            // Circular navigation buttons
-            val buttonCornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100f, resources.displayMetrics)
-            val prevButtonBg = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                setColor(translucentColor)
-                this.cornerRadius = buttonCornerRadius
-            }
-            val nextButtonBg = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                setColor(translucentColor)
-                this.cornerRadius = buttonCornerRadius
-            }
-            mBlurNavPrevious?.background = prevButtonBg
-            mBlurNavNext?.background = nextButtonBg
-
+            mBlurNavPrevious.background = prevButtonBg
+            mBlurNavNext.background = nextButtonBg
             mPreviousButton.backgroundTintList = ColorStateList.valueOf(android.graphics.Color.TRANSPARENT)
             mNextButton.backgroundTintList = ColorStateList.valueOf(android.graphics.Color.TRANSPARENT)
         } else {
-            // Non-glass/Disabled state:
-            // Navigation buttons get the same translucent color tone
-            val buttonCornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100f, resources.displayMetrics)
-            val prevButtonBg = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                setColor(translucentColor)
-                this.cornerRadius = buttonCornerRadius
-            }
-            val nextButtonBg = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                setColor(translucentColor)
-                this.cornerRadius = buttonCornerRadius
-            }
-            mBlurNavPrevious?.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
-            mBlurNavNext?.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+            mBlurProgress.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+            mPageNavLayout.background = progressBg
+            mBlurNavPrevious.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+            mBlurNavNext.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
             mPreviousButton.background = prevButtonBg
             mPreviousButton.backgroundTintList = null
             mNextButton.background = nextButtonBg
             mNextButton.backgroundTintList = null
-
-            // Progress container gets the same translucent color tone
-            val progressBg = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                setColor(translucentColor)
-                this.cornerRadius = progressCornerRadius
-            }
-            mBlurProgress?.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
-            mPageNavLayout.background = progressBg
         }
 
         if (!mIsFullscreen) {
@@ -2185,6 +2157,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     private fun setupBlurViews() {
+        if (!::mBlurTop.isInitialized || !::mBlurBottom.isInitialized || !::mBlurProgress.isInitialized || !::mBlurNavPrevious.isInitialized || !::mBlurNavNext.isInitialized)
+            return
+
         val context = requireContext()
         val decorView = requireActivity().window.decorView
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
@@ -2197,30 +2172,30 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
 
-        mBlurTop?.setupWith(rootView, blurAlgorithmTop)
-            ?.setFrameClearDrawable(background)
-            ?.setBlurRadius(15f)
+        mBlurTop.setupWith(rootView, blurAlgorithmTop)
+            .setFrameClearDrawable(background)
+            .setBlurRadius(15f)
 
-        mBlurBottom?.setupWith(rootView, blurAlgorithmBottom)
-            ?.setFrameClearDrawable(background)
-            ?.setBlurRadius(15f)
+        mBlurBottom.setupWith(rootView, blurAlgorithmBottom)
+            .setFrameClearDrawable(background)
+            .setBlurRadius(15f)
 
-        mBlurProgress?.setupWith(rootView, blurAlgorithmProgress)
-            ?.setFrameClearDrawable(background)
-            ?.setBlurRadius(15f)
+        mBlurProgress.setupWith(rootView, blurAlgorithmProgress)
+            .setFrameClearDrawable(background)
+            .setBlurRadius(15f)
 
-        mBlurNavPrevious?.setupWith(rootView, blurAlgorithmPrev)
-            ?.setFrameClearDrawable(background)
-            ?.setBlurRadius(15f)
+        mBlurNavPrevious.setupWith(rootView, blurAlgorithmPrev)
+            .setFrameClearDrawable(background)
+            .setBlurRadius(15f)
 
-        mBlurNavNext?.setupWith(rootView, blurAlgorithmNext)
-            ?.setFrameClearDrawable(background)
-            ?.setBlurRadius(15f)
+        mBlurNavNext.setupWith(rootView, blurAlgorithmNext)
+            .setFrameClearDrawable(background)
+            .setBlurRadius(15f)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mBlurProgress?.clipToOutline = true
-            mBlurNavPrevious?.clipToOutline = true
-            mBlurNavNext?.clipToOutline = true
+            mBlurProgress.clipToOutline = true
+            mBlurNavPrevious.clipToOutline = true
+            mBlurNavNext.clipToOutline = true
         }
     }
 
