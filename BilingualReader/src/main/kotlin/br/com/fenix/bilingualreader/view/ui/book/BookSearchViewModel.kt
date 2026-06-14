@@ -55,6 +55,7 @@ class BookSearchViewModel(var app: Application) : AndroidViewModel(app) {
         else
             mRepository.update(obj)
         mListHistory.value!!.add(obj)
+        mListHistory.value = mListHistory.value
     }
 
     fun delete(obj: BookSearch) {
@@ -62,6 +63,7 @@ class BookSearchViewModel(var app: Application) : AndroidViewModel(app) {
             mListHistory.value = mListHistory.value!!.filterNot { it == obj }.toMutableList()
 
         mRepository.delete(obj)
+        mListHistory.value = mListHistory.value
     }
 
     fun initialize(context: Context, book: Book, parse: DocumentParse) {

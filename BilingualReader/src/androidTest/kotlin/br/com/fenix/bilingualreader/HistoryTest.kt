@@ -102,17 +102,17 @@ class HistoryTest {
             
             // Espera o histórico carregar
             waitForSkeleton()
-            waitForView(withId(R.id.history_list))
-            waitForRecyclerViewData(R.id.history_list)
+            waitForView(withId(R.id.history_statistics_list))
+            waitForRecyclerViewData(R.id.history_statistics_list)
             Thread.sleep(waitTime)
 
             // Testar favorito no histórico (se houver itens)
             try {
                 // Força layout do primeiro item
-                onView(withId(R.id.history_list)).perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(0))
+                onView(withId(R.id.history_statistics_list)).perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(0))
                 Thread.sleep(500)
 
-                onView(withId(R.id.history_list))
+                onView(withId(R.id.history_statistics_list))
                     .perform(RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(0, longClick()))
                 Thread.sleep(waitTime)
                 // O texto pode ser "Add favorite" ou "Remove favorite", tentamos ambos ou usamos anyOf
@@ -136,7 +136,7 @@ class HistoryTest {
 
             // Abrir item e validar tela de leitura (Manga ou Book)
             try {
-                onView(withId(R.id.history_list))
+                onView(withId(R.id.history_statistics_list))
                     .perform(RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(0, click()))
                 Thread.sleep(waitTime)
                 
@@ -155,7 +155,7 @@ class HistoryTest {
 
             // Swipe para excluir no histórico
             try {
-                onView(withId(R.id.history_list))
+                onView(withId(R.id.history_statistics_list))
                     .perform(RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(0, swipeLeft()))
                 Thread.sleep(waitTime)
                 // Confirmar exclusão no diálogo (ID do botão "Delete" no diálogo do MaterialAlertDialogBuilder)

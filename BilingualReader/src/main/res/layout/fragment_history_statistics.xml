@@ -2,10 +2,9 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/frame_history_statistics_root"
+    android:id="@+id/frame_history_statistics"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="@dimen/default_navigator_header_margin_top"
     android:clipToPadding="false"
     android:clipChildren="false"
     tools:context=".view.ui.statistics.HistoryStatisticsFragment">
@@ -20,7 +19,7 @@
         <include layout="@layout/skeleton_shimmer_layout"/>
     
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/history_list"
+            android:id="@+id/history_statistics_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scrollbars="vertical"
@@ -30,13 +29,48 @@
             android:clipToPadding="false"
             android:paddingBottom="@dimen/history_padding"
             android:visibility="gone"
+            app:layout_constrainedHeight="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@+id/content_toolbar_history_statistics"/>
+
+        <com.google.android.material.appbar.AppBarLayout
+            style="@style/AppBarLayout"
+            android:id="@+id/content_toolbar_history_statistics"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="false"
+            android:theme="@style/MainToolbarContentTheme"
+            android:background="@android:color/transparent"
+            android:layout_marginStart="@dimen/reader_title_margin_negative"
+            android:layout_marginEnd="@dimen/reader_title_margin_negative"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <eightbitlab.com.blurview.BlurView
+                android:id="@+id/history_statistics_blur_top"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/toolbar_history_statistics"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/default_navigator_header_size"
+                    android:background="@android:color/transparent"
+                    android:gravity="start|center"
+                    android:paddingStart="@dimen/reader_title_margin_positive"
+                    android:paddingEnd="@dimen/reader_title_margin_positive"
+                    app:popupTheme="@style/MainToolbarStyle"
+                    style="@style/MainToolbarThemeWithShadow"/>
+
+            </eightbitlab.com.blurview.BlurView>
+
+        </com.google.android.material.appbar.AppBarLayout>
     
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/history_scroll_up"
+            android:id="@+id/history_statistics_scroll_up"
             style="@style/FloatingActionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -49,11 +83,11 @@
             app:fabCustomSize="@dimen/history_up_width"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/history_statistics_list"
             app:maxImageSize="@dimen/history_up_image_width" />
     
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/history_scroll_down"
+            android:id="@+id/history_statistics_scroll_down"
             style="@style/FloatingActionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -64,7 +98,7 @@
             android:visibility="gone"
             app:borderWidth="@dimen/history_down_border"
             app:fabCustomSize="@dimen/history_down_width"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/history_statistics_list"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:maxImageSize="@dimen/history_down_image_width" />

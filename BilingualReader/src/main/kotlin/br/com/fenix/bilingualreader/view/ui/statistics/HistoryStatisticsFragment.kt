@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader.view.ui.statistics
 import android.annotation.SuppressLint
 import android.app.SearchManager
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.Resources
 import android.database.Cursor
 import android.database.MatrixCursor
@@ -29,6 +30,7 @@ import android.widget.SearchView
 import android.widget.SimpleCursorAdapter
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
@@ -49,13 +51,20 @@ import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.statistics.HistoryStatisticsAdapter
+import br.com.fenix.bilingualreader.view.ui.chapters.ChaptersFragment
+import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.RenderEffectBlur
+import eightbitlab.com.blurview.RenderScriptBlur
 import io.supercharge.shimmerlayout.ShimmerLayout
+import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import kotlin.math.ceil
 import kotlin.properties.ReadWriteProperty
@@ -63,13 +72,20 @@ import kotlin.reflect.KProperty
 
 class HistoryStatisticsFragment : Fragment() {
 
-    private lateinit var mViewModel: HistoryStatisticsViewModel
-    private var mRecyclerView: RecyclerView by autoCleared()
-    private var mScrollUp: FloatingActionButton by autoCleared()
-    private var mScrollDown: FloatingActionButton by autoCleared()
+    private val mLOGGER = LoggerFactory.getLogger(HistoryStatisticsFragment::class.java)
+
+    private lateinit var mPreferences: SharedPreferences
     private lateinit var miSearch: MenuItem
     private var searchView: SearchView by autoCleared()
     private lateinit var miFilterYear: MenuItem
+    private lateinit var mBlurTop: BlurView
+    private lateinit var mToolbar: Toolbar
+
+    private var mScrollUp: FloatingActionButton by autoCleared()
+    private var mScrollDown: FloatingActionButton by autoCleared()
+
+    private lateinit var mViewModel: HistoryStatisticsViewModel
+    private var mRecyclerView: RecyclerView by autoCleared()
 
     private var mSkeletonLayout: LinearLayout by autoCleared()
     private var mShimmer: ShimmerLayout by autoCleared()
@@ -82,6 +98,8 @@ class HistoryStatisticsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
+        mPreferences = GeneralConsts.getSharedPreferences(requireContext())
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -246,14 +264,13 @@ class HistoryStatisticsFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mViewModel = ViewModelProvider(this)[HistoryStatisticsViewModel::class.java]
 
-        // Read arguments to initialize type and year filters
         arguments?.let { bundle ->
             val typeOrdinal = bundle.getInt(GeneralConsts.KEYS.OBJECT.TYPE, -1)
-            if (typeOrdinal != -1) {
+            if (typeOrdinal != -1)
                 mViewModel.mTypeFilter = Type.values()[typeOrdinal]
-            }
-            if (bundle.containsKey("YEAR")) {
-                val year = bundle.getInt("YEAR", -1)
+
+            if (bundle.containsKey(GeneralConsts.KEYS.OBJECT.STATISTICS_YEAR)) {
+                val year = bundle.getInt(GeneralConsts.KEYS.OBJECT.STATISTICS_YEAR, -1)
                 mViewModel.mYearFilter = if (year != -1) year else null
             }
         }
@@ -263,16 +280,18 @@ class HistoryStatisticsFragment : Fragment() {
         updateTitleAndSubtitle()
 
         val root = inflater.inflate(R.layout.fragment_history_statistics, container, false)
-        mRecyclerView = root.findViewById(R.id.history_list)
 
-        ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
-            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
-            mRecyclerView.setPadding(mRecyclerView.paddingLeft, mRecyclerView.paddingTop, mRecyclerView.paddingRight, navBarHeight)
-            insets
-        }
+        mBlurTop = root.findViewById(R.id.history_statistics_blur_top)
+        mToolbar = root.findViewById(R.id.toolbar_history_statistics)
+        mRecyclerView = root.findViewById(R.id.history_statistics_list)
 
-        mScrollUp = root.findViewById(R.id.history_scroll_up)
-        mScrollDown = root.findViewById(R.id.history_scroll_down)
+        (requireActivity() as MenuActivity).setActionBar(mToolbar)
+        setupBlurViews()
+        setupWindowInsets(root)
+        setupTitleBackgrounds()
+
+        mScrollUp = root.findViewById(R.id.history_statistics_scroll_up)
+        mScrollDown = root.findViewById(R.id.history_statistics_scroll_down)
 
         mSkeletonLayout = root.findViewById(R.id.skeleton_layout)
         mShimmer = root.findViewById(R.id.shimmer_skeleton)
@@ -287,9 +306,8 @@ class HistoryStatisticsFragment : Fragment() {
         override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean = false
 
         override fun getSwipeDirs(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
-            if (viewHolder.itemViewType == 1) { // 1 is HEADER
+            if (viewHolder.itemViewType == 1)
                 return 0
-            }
             return super.getSwipeDirs(recyclerView, viewHolder)
         }
 
@@ -354,16 +372,19 @@ class HistoryStatisticsFragment : Fragment() {
                 if (newState != AbsListView.OnScrollListener.SCROLL_STATE_FLING)
                     setAnimationRecycler(true)
 
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    (activity as? HistoryStatisticsActivity)?.setBlurAutoUpdate(false)
-                } else {
-                    (activity as? HistoryStatisticsActivity)?.setBlurAutoUpdate(true)
+                val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                if (isGlass) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        mBlurTop.setBlurAutoUpdate(false)
+                    } else {
+                        mBlurTop.setBlurAutoUpdate(true)
+                    }
                 }
             }
         })
 
         mRecyclerView.setOnScrollChangeListener { _, _, _, _, yOld ->
-            if (yOld > 20 && mScrollDown.visibility == View.VISIBLE) {
+            if (yOld > 20) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     if (mHandler.hasCallbacks(mDismissDownButton))
                         mHandler.removeCallbacks(mDismissDownButton)
@@ -371,7 +392,7 @@ class HistoryStatisticsFragment : Fragment() {
                     mHandler.removeCallbacks(mDismissDownButton)
 
                 mScrollDown.hide()
-            } else if (yOld < -20 && mScrollUp.visibility == View.VISIBLE) {
+            } else if (yOld < -20) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     if (mHandler.hasCallbacks(mDismissUpButton))
                         mHandler.removeCallbacks(mDismissUpButton)
@@ -381,7 +402,7 @@ class HistoryStatisticsFragment : Fragment() {
                 mScrollUp.hide()
             }
 
-            if (yOld > 180) {
+            if (yOld > 150) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     if (mHandler.hasCallbacks(mDismissUpButton))
                         mHandler.removeCallbacks(mDismissUpButton)
@@ -390,12 +411,12 @@ class HistoryStatisticsFragment : Fragment() {
 
                 mHandler.postDelayed(mDismissUpButton, 3000)
                 mScrollUp.show()
-            } else if (yOld < -180) {
+            } else if (yOld < -150) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    if (mHandler.hasCallbacks(mDismissDownButton))
-                        mHandler.removeCallbacks(mDismissDownButton)
+                    if (mHandler.hasCallbacks(mDismissUpButton))
+                        mHandler.removeCallbacks(mDismissUpButton)
                 } else
-                    mHandler.removeCallbacks(mDismissDownButton)
+                    mHandler.removeCallbacks(mDismissUpButton)
 
                 mHandler.postDelayed(mDismissDownButton, 3000)
                 mScrollDown.show()
@@ -434,6 +455,17 @@ class HistoryStatisticsFragment : Fragment() {
     @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
         super.onResume()
+        setupTitleBackgrounds()
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        mBlurTop.setBlurEnabled(isGlass)
+        if (isGlass) {
+            mBlurTop.setBlurAutoUpdate(true)
+            mHandler.postDelayed({
+                mBlurTop.setBlurAutoUpdate(false)
+            }, 100)
+        } else {
+            mBlurTop.setBlurAutoUpdate(false)
+        }
         mViewModel.list {
             if (it > -1)
                 mRecyclerView.adapter?.notifyItemChanged(0, it)
@@ -669,6 +701,69 @@ class HistoryStatisticsFragment : Fragment() {
     override fun onDestroyView() {
         mHandler.removeCallbacksAndMessages(null)
         super.onDestroyView()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mBlurTop.setBlurAutoUpdate(false)
+        mBlurTop.setBlurEnabled(false)
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        if (hidden) {
+            mBlurTop.setBlurAutoUpdate(false)
+            mBlurTop.setBlurEnabled(false)
+        } else {
+            mBlurTop.setBlurEnabled(isGlass)
+            if (isGlass) {
+                mBlurTop.setBlurAutoUpdate(true)
+                mHandler.postDelayed({
+                    mBlurTop.setBlurAutoUpdate(false)
+                }, 100)
+            } else {
+                mBlurTop.setBlurAutoUpdate(false)
+            }
+        }
+    }
+
+    private fun setupWindowInsets(root: View) {
+        if (!::mBlurTop.isInitialized)
+            return
+
+        ViewCompat.setOnApplyWindowInsetsListener(mBlurTop) { view, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, view.paddingBottom)
+            insets
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            mRecyclerView.setPadding(mRecyclerView.paddingLeft, mRecyclerView.paddingTop, mRecyclerView.paddingRight, navBarHeight)
+            insets
+        }
+    }
+
+    private fun setupBlurViews() {
+        if (!::mBlurTop.isInitialized)
+            return
+
+        val context = requireContext()
+        val decorView = requireActivity().window.decorView
+        val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
+
+        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+        mBlurTop.setupWith(rootView, blurAlgorithm)
+            .setFrameClearDrawable(background)
+            .setBlurRadius(15f)
+    }
+
+    private fun setupTitleBackgrounds() {
+        val barLayout = view?.findViewById<View>(R.id.content_toolbar_chapter)
+        val activity = activity ?: return
+        MenuUtil.setupToolbar(activity, mToolbar, mBlurTop, barLayout)
     }
 
 }

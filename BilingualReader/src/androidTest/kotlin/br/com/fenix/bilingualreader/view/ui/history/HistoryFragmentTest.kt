@@ -162,7 +162,7 @@ class HistoryFragmentTest {
     fun testHistoryFragmentDisplayed() {
         launchHistory()
         waitForViewToBeGone(withId(R.id.shimmer_skeleton))
-        waitForView(withId(R.id.history_list))
+        waitForView(withId(R.id.history_statistics_list))
     }
 
     @Test
@@ -171,16 +171,16 @@ class HistoryFragmentTest {
         waitForViewToBeGone(withId(R.id.shimmer_skeleton))
         
         // Scroll Up and Down buttons should be hidden initially
-        onView(withId(R.id.history_scroll_up)).check(matches(not(isDisplayed())))
-        onView(withId(R.id.history_scroll_down)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.history_statistics_scroll_up)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.history_statistics_scroll_down)).check(matches(not(isDisplayed())))
 
         // Scroll down to show Scroll Up button
-        onView(withId(R.id.history_list)).perform(swipeUp())
-        waitForView(withId(R.id.history_scroll_up))
+        onView(withId(R.id.history_statistics_list)).perform(swipeUp())
+        waitForView(withId(R.id.history_statistics_scroll_up))
         
         // Scroll up to show Scroll Down button
-        onView(withId(R.id.history_list)).perform(swipeDown())
-        waitForView(withId(R.id.history_scroll_down))
+        onView(withId(R.id.history_statistics_list)).perform(swipeDown())
+        waitForView(withId(R.id.history_statistics_scroll_down))
     }
 
     private fun waitForView(viewMatcher: Matcher<View>, timeout: Long = 10000): ViewInteraction {

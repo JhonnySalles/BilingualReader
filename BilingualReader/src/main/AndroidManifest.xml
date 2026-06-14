@@ -84,11 +84,6 @@
             android:exported="true"
             android:theme="@style/Theme.MangaReader"
             android:parentActivityName="br.com.fenix.bilingualreader.MainActivity"/>
-        <activity
-            android:name=".view.ui.statistics.HistoryStatisticsActivity"
-            android:exported="true"
-            android:theme="@style/Theme.MangaReader"
-            android:parentActivityName="br.com.fenix.bilingualreader.MainActivity"/>
 
         <meta-data
             android:name="com.google.android.gms.version"

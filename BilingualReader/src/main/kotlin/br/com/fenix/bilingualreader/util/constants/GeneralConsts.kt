@@ -296,6 +296,7 @@ class GeneralConsts private constructor() {
             const val BOOK_FONT_SIZE = "BOOK_FONT_SIZE"
             const val BOOK_ANNOTATION = "BOOK_ANNOTATION_OBJECT"
             const val BOOK_SEARCH = "BOOK_SEARCH_OBJECT"
+            const val STATISTICS_YEAR = "STATISTICS_YEAR"
         }
 
         object COLOR_FILTER {

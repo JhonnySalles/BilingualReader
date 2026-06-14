@@ -267,7 +267,7 @@ class HistoryFragment : Fragment() {
         mViewModel = ViewModelProvider(this)[HistoryViewModel::class.java]
 
         val root = inflater.inflate(R.layout.fragment_history, container, false)
-        mRecyclerView = root.findViewById(R.id.history_list)
+        mRecyclerView = root.findViewById(R.id.history_statistics_list)
 
         ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
             val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
@@ -275,8 +275,8 @@ class HistoryFragment : Fragment() {
             insets
         }
 
-        mScrollUp = root.findViewById(R.id.history_scroll_up)
-        mScrollDown = root.findViewById(R.id.history_scroll_down)
+        mScrollUp = root.findViewById(R.id.history_statistics_scroll_up)
+        mScrollDown = root.findViewById(R.id.history_statistics_scroll_down)
 
         mSkeletonLayout = root.findViewById(R.id.skeleton_layout)
         mShimmer = root.findViewById(R.id.shimmer_skeleton)

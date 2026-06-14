@@ -34,6 +34,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.view.components.MonthAxisValueFormatter
+import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -549,13 +550,15 @@ class StatisticsFragment : Fragment() {
     }
 
     private fun openHistory(type: Type, year: Int?) {
-        val intent = Intent(requireContext(), HistoryStatisticsActivity::class.java)
+        val intent = Intent(requireContext(), MenuActivity::class.java)
         val bundle = Bundle()
+        bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_history_statistics)
         bundle.putInt(GeneralConsts.KEYS.OBJECT.TYPE, type.ordinal)
-        if (year != null) {
-            bundle.putInt("YEAR", year)
-        }
+        if (year != null)
+            bundle.putInt(GeneralConsts.KEYS.OBJECT.STATISTICS_YEAR, year)
+
         intent.putExtras(bundle)
+        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
         startActivity(intent)
     }
 

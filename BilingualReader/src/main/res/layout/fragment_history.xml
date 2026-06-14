@@ -20,7 +20,7 @@
         <include layout="@layout/skeleton_shimmer_layout"/>
     
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/history_list"
+            android:id="@+id/history_statistics_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scrollbars="vertical"
@@ -36,7 +36,7 @@
             app:layout_constraintTop_toTopOf="parent"/>
     
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/history_scroll_up"
+            android:id="@+id/history_statistics_scroll_up"
             style="@style/FloatingActionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -53,7 +53,7 @@
             app:maxImageSize="@dimen/history_up_image_width" />
     
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/history_scroll_down"
+            android:id="@+id/history_statistics_scroll_down"
             style="@style/FloatingActionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
