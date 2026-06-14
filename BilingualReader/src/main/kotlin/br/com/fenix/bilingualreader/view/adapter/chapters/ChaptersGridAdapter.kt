@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Chapters
 import br.com.fenix.bilingualreader.service.listener.ChapterCardListener
-import br.com.fenix.bilingualreader.view.adapter.library.BookSeparatorGridCardAdapter
 
 
 class ChaptersGridAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
