@@ -34,6 +34,10 @@ import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
 import kotlin.properties.Delegates
+import android.graphics.drawable.GradientDrawable
+import android.util.TypedValue
+import androidx.core.content.ContextCompat
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 
 
 class TouchScreenFragment : Fragment() {
@@ -45,14 +49,14 @@ class TouchScreenFragment : Fragment() {
     private lateinit var mToolbar: Toolbar
 
     private lateinit var mImage: ImageView
-    private lateinit var mTouchTop: TextView
-    private lateinit var mTouchTopRight: TextView
-    private lateinit var mTouchTopLeft: TextView
-    private lateinit var mTouchLeft: TextView
-    private lateinit var mTouchRight: TextView
-    private lateinit var mTouchBottom: TextView
-    private lateinit var mTouchBottomLeft: TextView
-    private lateinit var mTouchBottomRight: TextView
+    private lateinit var mTouchTop: View
+    private lateinit var mTouchTopRight: View
+    private lateinit var mTouchTopLeft: View
+    private lateinit var mTouchLeft: View
+    private lateinit var mTouchRight: View
+    private lateinit var mTouchBottom: View
+    private lateinit var mTouchBottomLeft: View
+    private lateinit var mTouchBottomRight: View
     private lateinit var mSave: MaterialButton
     private lateinit var mDefault: MaterialButton
 
@@ -148,23 +152,17 @@ class TouchScreenFragment : Fragment() {
     private fun loadConfig() {
         val touch = TouchUtils.getTouch(requireContext(), mType)
 
-        mTouchTop.tag = touch[Position.TOP]
-        mTouchTopRight.tag = touch[Position.CORNER_TOP_RIGHT]
-        mTouchTopLeft.tag = touch[Position.CORNER_TOP_LEFT]
-        mTouchLeft.tag = touch[Position.LEFT]
-        mTouchRight.tag = touch[Position.RIGHT]
-        mTouchBottom.tag = touch[Position.BOTTOM]
-        mTouchBottomLeft.tag = touch[Position.CORNER_BOTTOM_LEFT]
-        mTouchBottomRight.tag = touch[Position.CORNER_BOTTOM_RIGHT]
-        
-        mTouchTop.text = getDescription(mTouchTop.tag as TouchScreen)
-        mTouchTopRight.text = getDescription(mTouchTopRight.tag as TouchScreen)
-        mTouchTopLeft.text = getDescription(mTouchTopLeft.tag as TouchScreen)
-        mTouchLeft.text = getDescription(mTouchLeft.tag as TouchScreen)
-        mTouchRight.text = getDescription(mTouchRight.tag as TouchScreen)
-        mTouchBottom.text = getDescription(mTouchBottom.tag as TouchScreen)
-        mTouchBottomLeft.text = getDescription(mTouchBottomLeft.tag as TouchScreen)
-        mTouchBottomRight.text = getDescription(mTouchBottomRight.tag as TouchScreen)
+        updateTouchZone(mTouchTop, touch[Position.TOP] ?: TouchScreen.TOUCH_NOT_ASSIGNED)
+        updateTouchZone(mTouchTopRight, touch[Position.CORNER_TOP_RIGHT] ?: TouchScreen.TOUCH_NOT_ASSIGNED)
+        updateTouchZone(mTouchTopLeft, touch[Position.CORNER_TOP_LEFT] ?: TouchScreen.TOUCH_NOT_ASSIGNED)
+        updateTouchZone(mTouchLeft, touch[Position.LEFT] ?: TouchScreen.TOUCH_NOT_ASSIGNED)
+        updateTouchZone(mTouchRight, touch[Position.RIGHT] ?: TouchScreen.TOUCH_NOT_ASSIGNED)
+        updateTouchZone(mTouchBottom, touch[Position.BOTTOM] ?: TouchScreen.TOUCH_NOT_ASSIGNED)
+        updateTouchZone(mTouchBottomLeft, touch[Position.CORNER_BOTTOM_LEFT] ?: TouchScreen.TOUCH_NOT_ASSIGNED)
+        updateTouchZone(mTouchBottomRight, touch[Position.CORNER_BOTTOM_RIGHT] ?: TouchScreen.TOUCH_NOT_ASSIGNED)
+
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        updateTouchZoneBackgrounds(isGlass)
     }
 
     private fun saveConfig() {
@@ -259,19 +257,138 @@ class TouchScreenFragment : Fragment() {
         }
     }
 
-    private fun changeTouch(button: TextView) {
+    private fun changeTouch(card: View) {
         val touch = TouchScreen.values().filter { it != TouchScreen.TOUCH_NOT_IMPLEMENTED }.associate { getString(it.getValue()) to it }
         val items = touch.keys.sorted().toTypedArray()
         MaterialAlertDialogBuilder(requireContext(), R.style.AppCompatAlertDialogStyle)
             .setTitle(getString(R.string.reading_touch_screen_change_title))
             .setItems(items) { _, selected ->
-                button.tag = if (selected >= 0 && items.size > selected)
-                    touch[items[selected]]
+                val selectedTouch = if (selected >= 0 && items.size > selected)
+                    touch[items[selected]] ?: TouchScreen.TOUCH_NOT_ASSIGNED
                 else
                     TouchScreen.TOUCH_NOT_ASSIGNED
-                button.text = getDescription(button.tag as TouchScreen)
+                updateTouchZone(card, selectedTouch)
             }
             .show()
+    }
+
+    private fun getIconForTouchScreen(touchScreen: TouchScreen): Int {
+        return when (touchScreen) {
+            TouchScreen.TOUCH_NOT_ASSIGNED -> R.drawable.ico_close
+            TouchScreen.TOUCH_ASPECT_FIT -> R.drawable.ico_reader_mode
+            TouchScreen.TOUCH_FIT_WIDTH -> R.drawable.ico_reading_mode
+            TouchScreen.TOUCH_CHAPTER_LIST -> R.drawable.ico_item_chapters_menu
+            TouchScreen.TOUCH_NEXT_FILE -> R.drawable.ico_tts_next
+            TouchScreen.TOUCH_PREVIOUS_FILE -> R.drawable.ico_tts_previous
+            TouchScreen.TOUCH_NEXT_PAGE -> R.drawable.ico_animated_text_next
+            TouchScreen.TOUCH_PREVIOUS_PAGE -> R.drawable.ico_animated_text_before
+            TouchScreen.TOUCH_SHARE_IMAGE -> R.drawable.ico_save_share_image
+            TouchScreen.TOUCH_PAGE_MARK -> R.drawable.ico_book_reader_page_mark
+            else -> 0
+        }
+    }
+
+    private fun updateTouchZone(card: View, touchScreen: TouchScreen) {
+        card.tag = touchScreen
+        var textView: TextView? = null
+        var imageView: ImageView? = null
+
+        fun findViews(view: View) {
+            if (view is TextView) {
+                textView = view
+            } else if (view is ImageView) {
+                imageView = view
+            } else if (view is ViewGroup) {
+                for (i in 0 until view.childCount) {
+                    findViews(view.getChildAt(i))
+                }
+            }
+        }
+
+        findViews(card)
+
+        if (textView != null) {
+            textView!!.text = getDescription(touchScreen)
+        }
+        if (imageView != null) {
+            val iconRes = getIconForTouchScreen(touchScreen)
+            if (iconRes != 0) {
+                imageView!!.setImageResource(iconRes)
+                imageView!!.visibility = View.VISIBLE
+            } else {
+                imageView!!.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun updateTouchZoneBackgrounds(isGlass: Boolean) {
+        if (!isAdded) return
+
+        fun applyBg(card: View, isPrimary: Boolean) {
+            var blurView: BlurView? = null
+            if (card is ViewGroup) {
+                for (i in 0 until card.childCount) {
+                    val child = card.getChildAt(i)
+                    if (child is BlurView) {
+                        blurView = child
+                        break
+                    }
+                }
+            }
+            if (blurView == null) return
+
+            val baseColor = if (isPrimary) {
+                requireContext().getColorFromAttr(R.attr.colorPrimaryContainer)
+            } else {
+                ContextCompat.getColor(requireContext(), R.color.touch_demonstration_alter)
+            }
+
+            val alpha = if (isGlass) 0x66 else 0x40 // 40% for Glass, 25% (75% transparency) for Flat
+            val dynamicColor = (baseColor and 0x00FFFFFF) or (alpha shl 24)
+
+            val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16f, resources.displayMetrics)
+            val shapeBg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(dynamicColor)
+                this.cornerRadius = cornerRadius
+            }
+
+            blurView.background = shapeBg
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                blurView.clipToOutline = true
+            }
+            blurView.outlineProvider = object : android.view.ViewOutlineProvider() {
+                override fun getOutline(view: View, outline: android.graphics.Outline) {
+                    outline.setRoundRect(0, 0, view.width, view.height, cornerRadius)
+                }
+            }
+
+            blurView.setBlurEnabled(isGlass)
+            if (isGlass) {
+                val decorView = requireActivity().window.decorView
+                val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+                val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+                val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(requireContext())
+                blurView.setupWith(rootView, blurAlgorithm)
+                    .setFrameClearDrawable(background)
+                    .setBlurRadius(15f)
+                blurView.setBlurAutoUpdate(true)
+                mHandler.postDelayed({
+                    blurView.setBlurAutoUpdate(false)
+                }, 100)
+            } else {
+                blurView.setBlurAutoUpdate(false)
+            }
+        }
+
+        applyBg(mTouchTop, false)
+        applyBg(mTouchBottom, false)
+        applyBg(mTouchLeft, false)
+        applyBg(mTouchRight, false)
+        applyBg(mTouchTopRight, true)
+        applyBg(mTouchTopLeft, true)
+        applyBg(mTouchBottomRight, true)
+        applyBg(mTouchBottomLeft, true)
     }
 
     override fun onResume() {
@@ -287,6 +404,7 @@ class TouchScreenFragment : Fragment() {
         } else {
             mBlurTop.setBlurAutoUpdate(false)
         }
+        updateTouchZoneBackgrounds(isGlass)
     }
 
     override fun onPause() {
@@ -316,6 +434,7 @@ class TouchScreenFragment : Fragment() {
             } else {
                 mBlurTop.setBlurAutoUpdate(false)
             }
+            updateTouchZoneBackgrounds(isGlass)
         }
     }
 

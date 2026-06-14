@@ -622,33 +622,43 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             touchBottom.setBackgroundColor(getColor(R.color.touch_demonstration_alter))
         }
 
+        mTouchView.animate().cancel()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (mHandler.hasCallbacks(mDismissTouchView))
+                mHandler.removeCallbacks(mDismissTouchView)
+        } else {
+            mHandler.removeCallbacks(mDismissTouchView)
+        }
+
         mTouchView.alpha = 0.0f
         mTouchView.visibility = View.VISIBLE
         mTouchView.animate().alpha(1.0f).setDuration(300L)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    super.onAnimationEnd(animation)
-                    mTouchView.alpha = 1f
-                    mTouchView.visibility = View.VISIBLE
-                }
-            })
+            .setListener(null)
+            .withEndAction {
+                mTouchView.alpha = 1f
+                mTouchView.visibility = View.VISIBLE
+            }
 
         mHandler.postDelayed(mDismissTouchView, 5000)
     }
 
     private fun closeViewTouch() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (mHandler.hasCallbacks(mDismissTouchView))
+                mHandler.removeCallbacks(mDismissTouchView)
+        } else {
+            mHandler.removeCallbacks(mDismissTouchView)
+        }
+
         if (mTouchView.isGone)
             return
 
-        mTouchView.alpha = 1.0f
+        mTouchView.animate().cancel()
         mTouchView.animate().alpha(0.0f).setDuration(300L)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    super.onAnimationEnd(animation)
-                    mTouchView.visibility = View.GONE
-                    mTouchView.alpha = 1f
-                }
-            })
+            .setListener(null)
+            .withEndAction {
+                mTouchView.visibility = View.GONE
+            }
     }
 
     inner class ViewPagerAdapter(fm: FragmentManager, behavior: Int) :

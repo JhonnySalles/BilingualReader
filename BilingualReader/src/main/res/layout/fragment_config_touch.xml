@@ -31,109 +31,369 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
-        <TextView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/touch_screen_config_top"
             android:layout_width="match_parent"
             android:layout_height="@dimen/reader_touch_demonstration_initial_horizontal"
-            android:gravity="center"
-            android:padding="16dp"
-            android:textSize="@dimen/reader_touch_demonstration_text_size"
-            android:text="@string/reading_touch_screen_share_image"
-            android:theme="@style/TouchDemonstration"
-            android:background="@drawable/touch_screen_configuration_secondary"
+            android:layout_margin="8dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            android:foreground="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/content_toolbar_touch_screen_config" />
+            app:layout_constraintTop_toBottomOf="@+id/content_toolbar_touch_screen_config">
 
-        <TextView
+            <eightbitlab.com.blurview.BlurView
+                android:id="@+id/touch_container_top"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:id="@+id/touch_icon_top"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="8dp"
+                        app:tint="@color/touch_demonstration_text" />
+
+                    <TextView
+                        android:id="@+id/touch_text_top"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TouchDemonstration"
+                        android:alpha="1.0"
+                        android:text="@string/reading_touch_screen_share_image" />
+                </LinearLayout>
+            </eightbitlab.com.blurview.BlurView>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/touch_screen_config_bottom"
             android:layout_width="match_parent"
             android:layout_height="@dimen/reader_touch_demonstration_initial_horizontal"
-            android:gravity="center"
-            android:padding="16dp"
-            android:text="@string/reading_touch_screen_chapters"
-            android:textSize="@dimen/reader_touch_demonstration_text_size"
-            android:theme="@style/TouchDemonstration"
-            android:background="@drawable/touch_screen_configuration_secondary"
+            android:layout_margin="8dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            android:foreground="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
             app:layout_constraintBottom_toTopOf="@+id/touch_screen_config_save"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
+            app:layout_constraintRight_toRightOf="parent">
 
-        <TextView
+            <eightbitlab.com.blurview.BlurView
+                android:id="@+id/touch_container_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:id="@+id/touch_icon_bottom"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="8dp"
+                        app:tint="@color/touch_demonstration_text" />
+
+                    <TextView
+                        android:id="@+id/touch_text_bottom"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TouchDemonstration"
+                        android:alpha="1.0"
+                        android:text="@string/reading_touch_screen_chapters" />
+                </LinearLayout>
+            </eightbitlab.com.blurview.BlurView>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/touch_screen_config_left"
             android:layout_width="@dimen/reader_touch_demonstration_initial_vertical"
-            android:layout_weight="1"
             android:layout_height="0dp"
-            android:gravity="center"
-            android:padding="16dp"
-            android:text="@string/reading_touch_screen_previous_page"
-            android:theme="@style/TouchDemonstration"
-            android:background="@drawable/touch_screen_configuration_secondary"
+            android:layout_margin="8dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            android:foreground="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
             app:layout_constraintBottom_toTopOf="@+id/touch_screen_config_save"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/content_toolbar_touch_screen_config" />
+            app:layout_constraintTop_toBottomOf="@+id/content_toolbar_touch_screen_config">
 
-        <TextView
+            <eightbitlab.com.blurview.BlurView
+                android:id="@+id/touch_container_left"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:id="@+id/touch_icon_left"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="8dp"
+                        app:tint="@color/touch_demonstration_text" />
+
+                    <TextView
+                        android:id="@+id/touch_text_left"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TouchDemonstration"
+                        android:alpha="1.0"
+                        android:text="@string/reading_touch_screen_previous_page" />
+                </LinearLayout>
+            </eightbitlab.com.blurview.BlurView>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/touch_screen_config_right"
             android:layout_width="@dimen/reader_touch_demonstration_initial_vertical"
-            android:layout_weight="1"
             android:layout_height="0dp"
-            android:gravity="center"
-            android:padding="16dp"
-            android:text="@string/reading_touch_screen_next_page"
-            android:theme="@style/TouchDemonstration"
-            android:background="@drawable/touch_screen_configuration_secondary"
+            android:layout_margin="8dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            android:foreground="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
             app:layout_constraintBottom_toTopOf="@+id/touch_screen_config_save"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/content_toolbar_touch_screen_config" />
+            app:layout_constraintTop_toBottomOf="@+id/content_toolbar_touch_screen_config">
 
-        <TextView
+            <eightbitlab.com.blurview.BlurView
+                android:id="@+id/touch_container_right"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:id="@+id/touch_icon_right"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="8dp"
+                        app:tint="@color/touch_demonstration_text" />
+
+                    <TextView
+                        android:id="@+id/touch_text_right"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TouchDemonstration"
+                        android:alpha="1.0"
+                        android:text="@string/reading_touch_screen_next_page" />
+                </LinearLayout>
+            </eightbitlab.com.blurview.BlurView>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/touch_screen_config_top_right"
             android:layout_width="@dimen/reader_touch_demonstration_initial_vertical"
             android:layout_height="@dimen/reader_touch_demonstration_initial_horizontal"
-            android:gravity="center"
-            android:padding="16dp"
-            android:text="@string/reading_touch_screen_aspect_fit"
-            android:theme="@style/TouchDemonstration"
-            android:background="@drawable/touch_screen_configuration_primary"
+            android:layout_margin="8dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            android:foreground="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/content_toolbar_touch_screen_config" />
+            app:layout_constraintTop_toBottomOf="@+id/content_toolbar_touch_screen_config">
 
-        <TextView
+            <eightbitlab.com.blurview.BlurView
+                android:id="@+id/touch_container_top_right"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:id="@+id/touch_icon_top_right"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="8dp"
+                        app:tint="@color/touch_demonstration_text" />
+
+                    <TextView
+                        android:id="@+id/touch_text_top_right"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TouchDemonstration"
+                        android:alpha="1.0"
+                        android:text="@string/reading_touch_screen_aspect_fit" />
+                </LinearLayout>
+            </eightbitlab.com.blurview.BlurView>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/touch_screen_config_top_left"
             android:layout_width="@dimen/reader_touch_demonstration_initial_vertical"
             android:layout_height="@dimen/reader_touch_demonstration_initial_horizontal"
-            android:gravity="center"
-            android:padding="16dp"
-            android:text="@string/reading_touch_screen_fit_width"
-            android:theme="@style/TouchDemonstration"
-            android:background="@drawable/touch_screen_configuration_primary"
+            android:layout_margin="8dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            android:foreground="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/content_toolbar_touch_screen_config" />
+            app:layout_constraintTop_toBottomOf="@+id/content_toolbar_touch_screen_config">
 
-        <TextView
+            <eightbitlab.com.blurview.BlurView
+                android:id="@+id/touch_container_top_left"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:id="@+id/touch_icon_top_left"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="8dp"
+                        app:tint="@color/touch_demonstration_text" />
+
+                    <TextView
+                        android:id="@+id/touch_text_top_left"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TouchDemonstration"
+                        android:alpha="1.0"
+                        android:text="@string/reading_touch_screen_fit_width" />
+                </LinearLayout>
+            </eightbitlab.com.blurview.BlurView>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/touch_screen_config_bottom_right"
             android:layout_width="@dimen/reader_touch_demonstration_initial_vertical"
             android:layout_height="@dimen/reader_touch_demonstration_initial_horizontal"
-            android:gravity="center"
-            android:padding="16dp"
-            android:text="@string/reading_touch_screen_next_file"
-            android:theme="@style/TouchDemonstration"
-            android:background="@drawable/touch_screen_configuration_primary"
+            android:layout_margin="8dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            android:foreground="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
             app:layout_constraintBottom_toTopOf="@+id/touch_screen_config_save"
-            app:layout_constraintRight_toRightOf="parent" />
+            app:layout_constraintRight_toRightOf="parent">
 
-        <TextView
+            <eightbitlab.com.blurview.BlurView
+                android:id="@+id/touch_container_bottom_right"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:id="@+id/touch_icon_bottom_right"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="8dp"
+                        app:tint="@color/touch_demonstration_text" />
+
+                    <TextView
+                        android:id="@+id/touch_text_bottom_right"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TouchDemonstration"
+                        android:alpha="1.0"
+                        android:text="@string/reading_touch_screen_next_file" />
+                </LinearLayout>
+            </eightbitlab.com.blurview.BlurView>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/touch_screen_config_bottom_left"
             android:layout_width="@dimen/reader_touch_demonstration_initial_vertical"
             android:layout_height="@dimen/reader_touch_demonstration_initial_horizontal"
-            android:gravity="center"
-            android:padding="16dp"
-            android:text="@string/reading_touch_screen_previous_file"
-            android:theme="@style/TouchDemonstration"
-            android:background="@drawable/touch_screen_configuration_primary"
+            android:layout_margin="8dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            android:foreground="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
             app:layout_constraintBottom_toTopOf="@+id/touch_screen_config_save"
-            app:layout_constraintLeft_toLeftOf="parent" />
+            app:layout_constraintLeft_toLeftOf="parent">
+
+            <eightbitlab.com.blurview.BlurView
+                android:id="@+id/touch_container_bottom_left"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:id="@+id/touch_icon_bottom_left"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="8dp"
+                        app:tint="@color/touch_demonstration_text" />
+
+                    <TextView
+                        android:id="@+id/touch_text_bottom_left"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TouchDemonstration"
+                        android:alpha="1.0"
+                        android:text="@string/reading_touch_screen_previous_file" />
+                </LinearLayout>
+            </eightbitlab.com.blurview.BlurView>
+        </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/touch_screen_config_save"

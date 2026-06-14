@@ -19,12 +19,14 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Outline
 import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.drawable.Animatable2
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -37,6 +39,8 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewOutlineProvider
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.view.Window
 import android.view.WindowManager
@@ -60,14 +64,6 @@ import androidx.core.widget.NestedScrollView
 import androidx.palette.graphics.Palette
 import androidx.palette.graphics.Palette.Swatch
 import br.com.fenix.bilingualreader.R
-import android.graphics.drawable.GradientDrawable
-import android.view.ViewGroup
-import android.view.ViewOutlineProvider
-import android.graphics.Outline
-import eightbitlab.com.blurview.BlurView
-import eightbitlab.com.blurview.RenderEffectBlur
-import eightbitlab.com.blurview.RenderScriptBlur
-import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
@@ -86,9 +82,13 @@ import br.com.fenix.bilingualreader.service.ocr.ImageProcess
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.service.repository.DataBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
+import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.RenderEffectBlur
+import eightbitlab.com.blurview.RenderScriptBlur
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -1306,7 +1306,7 @@ class AnimationUtil {
             if (isVertical) {
                 if (navigationColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
                     activity.window?.run {
-                        navigationBarColor = activity.getColorFromAttr(R.attr.colorSurfaceVariant)
+                        navigationBarColor = android.graphics.Color.TRANSPARENT
                         WindowCompat.getInsetsController(this, this.decorView).isAppearanceLightNavigationBars = true
                     }
 
@@ -1499,14 +1499,19 @@ class PopupUtil {
                 val bottomSheetBg = GradientDrawable().apply {
                     shape = GradientDrawable.RECTANGLE
                     setColor(finalColor)
-                    cornerRadii = floatArrayOf(
+                    cornerRadii = if (isGlass) floatArrayOf(
                         cornerRadius, cornerRadius,
                         cornerRadius, cornerRadius,
                         0f, 0f,
                         0f, 0f
-                    )
+                    ) else floatArrayOf(0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f)
                 }
-                pb.background = bottomSheetBg
+                if (!isGlass) {
+                    val topInset = activity.resources.getDimensionPixelSize(R.dimen.popup_background_size)
+                    pb.background = android.graphics.drawable.InsetDrawable(bottomSheetBg, 0, topInset, 0, 0)
+                } else {
+                    pb.background = bottomSheetBg
+                }
                 
                 pb.clipToOutline = true
                 pb.outlineProvider = object : ViewOutlineProvider() {

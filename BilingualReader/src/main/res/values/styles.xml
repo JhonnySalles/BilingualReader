@@ -58,7 +58,7 @@
 
     <style name="TouchDemonstration" >
         <item name="android:textSize">@dimen/reader_touch_demonstration_text_size</item>
-        <item name="android:shadowColor">@color/shadow</item>
+        <item name="android:shadowColor">?attr/titleShadowColor</item>
         <item name="android:shadowDx">1.5</item>
         <item name="android:shadowDy">1.3</item>
         <item name="android:shadowRadius">1.6</item>
