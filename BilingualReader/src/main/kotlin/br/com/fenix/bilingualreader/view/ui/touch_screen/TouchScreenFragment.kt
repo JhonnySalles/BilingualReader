@@ -343,7 +343,7 @@ class TouchScreenFragment : Fragment() {
                 ContextCompat.getColor(requireContext(), R.color.touch_demonstration_alter)
             }
 
-            val alpha = if (isGlass) 0x66 else 0x40 // 40% for Glass, 25% (75% transparency) for Flat
+            val alpha = if (isGlass) 0x66 else 0x26 // 40% for Glass, 15% (85% transparency) for Flat
             val dynamicColor = (baseColor and 0x00FFFFFF) or (alpha shl 24)
 
             val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16f, resources.displayMetrics)
