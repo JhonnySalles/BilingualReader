@@ -23,9 +23,9 @@ android {
         applicationId 'br.com.fenix'
         minSdk 26
         targetSdk 34
-        versionCode 7
+        versionCode 8
         versionName '1.0.'
-        versionNameSuffix '7'
+        versionNameSuffix '8'
 
         testInstrumentationRunner "br.com.fenix.bilingualreader.CustomTestRunner"
         applicationIdSuffix 'bilingualreader'
