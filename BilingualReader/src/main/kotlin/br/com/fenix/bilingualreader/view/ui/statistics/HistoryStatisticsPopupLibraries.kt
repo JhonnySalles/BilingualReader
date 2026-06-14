@@ -1,12 +1,11 @@
 package br.com.fenix.bilingualreader.view.ui.statistics
 
 import android.os.Bundle
-import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import br.com.fenix.bilingualreader.R
@@ -16,7 +15,7 @@ class HistoryStatisticsPopupLibraries : Fragment() {
 
     private lateinit var mViewModel: HistoryStatisticsViewModel
     private lateinit var mContainer: LinearLayout
-    private val mCheckBoxes = mutableListOf<Pair<Library?, CheckBox>>()
+    private val mItems = mutableListOf<Pair<Library?, TextView>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,26 +40,22 @@ class HistoryStatisticsPopupLibraries : Fragment() {
 
     private fun buildList() {
         mContainer.removeAllViews()
-        mCheckBoxes.clear()
+        mItems.clear()
 
         val inflater = LayoutInflater.from(context)
 
         // 1. "Todos"
-        val cbAll = CheckBox(ContextThemeWrapper(requireContext(), R.style.CheckBox)).apply {
-            text = getString(R.string.history_menu_choice_all)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        }
-        mCheckBoxes.add(Pair(null, cbAll))
-        mContainer.addView(cbAll)
+        val viewAll = inflater.inflate(R.layout.popup_list_item, mContainer, false) as TextView
+        viewAll.text = getString(R.string.history_menu_choice_all)
+        mItems.add(Pair(null, viewAll))
+        mContainer.addView(viewAll)
 
         // 2. Geral (Default Library)
         val defaultLib = mViewModel.mDefaultLibrary
-        val cbDefault = CheckBox(ContextThemeWrapper(requireContext(), R.style.CheckBox)).apply {
-            text = defaultLib.title
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        }
-        mCheckBoxes.add(Pair(defaultLib, cbDefault))
-        mContainer.addView(cbDefault)
+        val viewDefault = inflater.inflate(R.layout.popup_list_item, mContainer, false) as TextView
+        viewDefault.text = defaultLib.title
+        mItems.add(Pair(defaultLib, viewDefault))
+        mContainer.addView(viewDefault)
 
         // Divider
         val libs = mViewModel.libraries.value ?: emptyList()
@@ -70,12 +65,10 @@ class HistoryStatisticsPopupLibraries : Fragment() {
             val divider = inflater.inflate(R.layout.popup_divider, mContainer, false)
             mContainer.addView(divider)
             for (lib in typeLibs) {
-                val cb = CheckBox(ContextThemeWrapper(requireContext(), R.style.CheckBox)).apply {
-                    text = lib.title
-                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                }
-                mCheckBoxes.add(Pair(lib, cb))
-                mContainer.addView(cb)
+                val tv = inflater.inflate(R.layout.popup_list_item, mContainer, false) as TextView
+                tv.text = lib.title
+                mItems.add(Pair(lib, tv))
+                mContainer.addView(tv)
             }
         }
 
@@ -84,39 +77,24 @@ class HistoryStatisticsPopupLibraries : Fragment() {
     }
 
     private fun setupListeners() {
-        for (item in mCheckBoxes) {
+        for (item in mItems) {
             val lib = item.first
-            val cb = item.second
-            cb.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    removeListeners()
-                    for (other in mCheckBoxes) {
-                        if (other.second != cb) {
-                            other.second.isChecked = false
-                        }
-                    }
-                    mViewModel.filterLibrary(lib)
-                    setupListeners()
-                } else {
-                    cb.isChecked = true
-                }
+            val tv = item.second
+            tv.setOnClickListener {
+                mViewModel.filterLibrary(lib)
             }
         }
     }
 
-    private fun removeListeners() {
-        for (item in mCheckBoxes) {
-            item.second.setOnCheckedChangeListener(null)
-        }
-    }
-
     private fun updateSelection(selected: Library?) {
-        removeListeners()
-        for (item in mCheckBoxes) {
+        for (item in mItems) {
             val lib = item.first
-            val cb = item.second
-            cb.isChecked = lib == selected
+            val tv = item.second
+            if (lib == selected) {
+                tv.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ico_check_mark, 0)
+            } else {
+                tv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
+            }
         }
-        setupListeners()
     }
 }

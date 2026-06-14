@@ -40,7 +40,7 @@ class MenuActivity : AppCompatActivity() {
             ViewCompat.setOnApplyWindowInsetsListener(rootFrameMenu) { view, insets ->
                 val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
                 val id = intent.extras?.getInt(GeneralConsts.KEYS.FRAGMENT.ID) ?: 0
-                val isBottomSheetFragment = id == R.id.frame_book_annotation
+                val isBottomSheetFragment = id == R.id.frame_book_annotation || id == R.id.frame_history_statistics
                 view.setPadding(view.paddingLeft, 0, view.paddingRight, if (isBottomSheetFragment) 0 else navBarHeight)
                 insets
             }

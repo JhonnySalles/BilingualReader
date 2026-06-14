@@ -330,7 +330,12 @@ class HistoryStatisticsFragment : Fragment() {
             Type.MANGA -> getString(R.string.history_manga)
             Type.BOOK -> getString(R.string.history_book)
         }
-        val yearSubtitle = mViewModel.selectedYear.value?.toString() ?: getString(R.string.history_menu_choice_all)
+        val selected = mViewModel.selectedYears.value ?: emptySet()
+        val yearSubtitle = if (selected.isEmpty()) {
+            getString(R.string.history_menu_choice_all)
+        } else {
+            selected.sortedDescending().joinToString(", ")
+        }
         activity.supportActionBar?.title = typeTitle
         activity.supportActionBar?.subtitle = "${getString(R.string.menu_history)} - $yearSubtitle"
     }
@@ -674,16 +679,10 @@ class HistoryStatisticsFragment : Fragment() {
         }
 
         mViewModel.selectedLibrary.observe(viewLifecycleOwner) {
-            if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
-                mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-            }
             activity?.invalidateOptionsMenu()
         }
 
-        mViewModel.selectedYear.observe(viewLifecycleOwner) {
-            if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
-                mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-            }
+        mViewModel.selectedYears.observe(viewLifecycleOwner) {
             updateTitleAndSubtitle()
             activity?.invalidateOptionsMenu()
         }

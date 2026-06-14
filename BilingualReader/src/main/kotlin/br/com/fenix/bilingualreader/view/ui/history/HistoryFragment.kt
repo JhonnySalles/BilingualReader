@@ -665,9 +665,6 @@ class HistoryFragment : Fragment() {
         }
 
         mViewModel.selectedLibrary.observe(viewLifecycleOwner) {
-            if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
-                mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-            }
             activity?.invalidateOptionsMenu()
         }
 

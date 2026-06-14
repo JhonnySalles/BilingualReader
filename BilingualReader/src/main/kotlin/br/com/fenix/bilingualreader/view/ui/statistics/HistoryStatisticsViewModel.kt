@@ -55,8 +55,11 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
     private var mWordFilter: String = ""
 
     var mTypeFilter: Type = Type.MANGA
-    private val mYearFilter = MutableLiveData<Int?>(null)
-    val selectedYear: LiveData<Int?> = mYearFilter
+    private val mYearsFilter = MutableLiveData<Set<Int>>(emptySet())
+    val selectedYears: LiveData<Set<Int>> = mYearsFilter.let {
+        @Suppress("UNCHECKED_CAST")
+        it as LiveData<Set<Int>>
+    }
 
     private var mLoading = MutableLiveData<Boolean>(false)
     val loading: LiveData<Boolean> = mLoading
@@ -138,9 +141,9 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
 
     private fun loadAggregatedHistory(): List<History> {
         val historyLogs = mHistoryRepository.listHistory().filter { it.type == mTypeFilter }
-        val year = mYearFilter.value
-        val filteredLogs = if (year != null) {
-            historyLogs.filter { it.start.year == year }
+        val selected = mYearsFilter.value ?: emptySet()
+        val filteredLogs = if (selected.isNotEmpty()) {
+            historyLogs.filter { selected.contains(it.start.year) }
         } else {
             historyLogs
         }
@@ -419,14 +422,23 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
     }
 
     fun setYear(year: Int?) {
-        mYearFilter.value = year
+        mYearsFilter.value = if (year != null) setOf(year) else emptySet()
     }
 
     fun filterYear(year: Int?) {
-        if (year == mYearFilter.value)
-            return
-
-        mYearFilter.value = year
+        val current = mYearsFilter.value ?: emptySet()
+        if (year == null) {
+            if (current.isEmpty()) return
+            mYearsFilter.value = emptySet()
+        } else {
+            val next = current.toMutableSet()
+            if (next.contains(year)) {
+                next.remove(year)
+            } else {
+                next.add(year)
+            }
+            mYearsFilter.value = next
+        }
         list()
     }
 
