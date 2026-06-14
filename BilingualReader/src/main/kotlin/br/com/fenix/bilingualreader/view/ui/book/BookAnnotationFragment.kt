@@ -639,21 +639,6 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         mainBlurTop.setupWith(rootView, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics).toInt()
-            val outlineProvider = object : android.view.ViewOutlineProvider() {
-                override fun getOutline(view: View, outline: android.graphics.Outline) {
-                    outline.setRoundRect(0, -radius, view.width, view.height, radius.toFloat())
-                }
-            }
-            mainBlurTop.outlineProvider = outlineProvider
-            mainBlurTop.clipToOutline = true
-
-            val barLayout = root.findViewById<View>(R.id.content_toolbar_book_annotation)
-            barLayout?.outlineProvider = outlineProvider
-            barLayout?.clipToOutline = true
-        }
     }
 
     override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
@@ -665,7 +650,7 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         val barLayout = view?.findViewById<View>(R.id.content_toolbar_book_annotation)
         val activity = activity ?: return
         MenuUtil.setupToolbar(activity, mToolbar, mBlurTop, barLayout)
-        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilter, null, mMenuPopupLibraryBackground)
+        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilter, mMenuPopupLibraryBackground)
     }
 
 }

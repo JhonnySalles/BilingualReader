@@ -180,6 +180,7 @@
 
     <dimen name="manga_annotation_margin">10dp</dimen>
 
+    <dimen name="manga_detail_button_size">60dp</dimen>
     <dimen name="manga_detail_card_layout_width">150dp</dimen>
     <dimen name="manga_detail_card_layout_height">200dp</dimen>
     <dimen name="manga_detail_card_layout_width_tablet">200dp</dimen>
@@ -216,6 +217,7 @@
     <dimen name="manga_page_link_layout_height">250dp</dimen>
     <dimen name="manga_page_link_number_size">12sp</dimen>
 
+    <dimen name="book_detail_button_size">60dp</dimen>
     <dimen name="book_detail_card_layout_width">150dp</dimen>
     <dimen name="book_detail_card_layout_height">200dp</dimen>
     <dimen name="book_detail_card_layout_width_tablet">200dp</dimen>
@@ -444,6 +446,7 @@
     <dimen name="statistics_chart_point_font_size">3dp</dimen>
     <dimen name="statistics_button_size">60dp</dimen>
 
+    <dimen name="config_button_size">60dp</dimen>
     <dimen name="config_theme_height">200dp</dimen>
     <dimen name="config_theme_selected_stroke">3dp</dimen>
     <dimen name="config_book_font_type_height">100dp</dimen>
@@ -458,6 +461,7 @@
     <dimen name="about_app_name">18sp</dimen>
     <dimen name="about_title_size">16sp</dimen>
     <dimen name="about_content_size">12sp</dimen>
+    <dimen name="about_button_size">60dp</dimen>
     <dimen name="about_button_text_size">14sp</dimen>
     <dimen name="about_button_text_size_tablet">18sp</dimen>
     <dimen name="about_button_width">165dp</dimen>

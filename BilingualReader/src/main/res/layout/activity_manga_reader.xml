@@ -43,6 +43,7 @@
             android:orientation="vertical"
             android:paddingTop="1dp"
             android:saveEnabled="false"
+            android:visibility="gone"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
             <eightbitlab.com.blurview.BlurView

@@ -1,12 +1,13 @@
 package br.com.fenix.bilingualreader.view.ui.chapters
 
-import android.content.res.Configuration
+import android.content.SharedPreferences
 import android.content.res.Resources
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +15,8 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -24,10 +27,14 @@ import br.com.fenix.bilingualreader.service.listener.ChapterLoadListener
 import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
+import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.view.adapter.chapters.ChaptersGridAdapter
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.RenderEffectBlur
+import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
 import kotlin.math.max
 
@@ -39,8 +46,10 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var mScrollUp: FloatingActionButton
     private lateinit var mScrollDown: FloatingActionButton
+    private lateinit var mPreferences: SharedPreferences
 
     private lateinit var mToolbar: Toolbar
+    private var mBlurTop: BlurView? = null
 
     private var mPosInitial = 0
     private var mToolbarTitle = ""
@@ -52,6 +61,7 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        mPreferences = GeneralConsts.getSharedPreferences(requireContext())
 
         requireArguments().let {
             mPosInitial = if (it.containsKey(GeneralConsts.KEYS.CHAPTERS.PAGE)) it.getInt(GeneralConsts.KEYS.CHAPTERS.PAGE) else 0
@@ -68,6 +78,11 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
         mToolbar = root.findViewById(R.id.toolbar_chapter)
 
         (requireActivity() as MenuActivity).setActionBar(mToolbar)
+
+        mBlurTop = root.findViewById(R.id.chapter_blur_top)
+        setupBlurViews(root)
+        setupWindowInsets()
+        setupTitleBackgrounds()
 
         mToolbar.title = mToolbarTitle
 
@@ -139,6 +154,20 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
             }
         }
 
+        mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                if (isGlass) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        mBlurTop?.setBlurAutoUpdate(false)
+                    } else {
+                        mBlurTop?.setBlurAutoUpdate(true)
+                    }
+                }
+            }
+        })
+
         val listener = object : ChapterCardListener {
             override fun onClick(page: Chapters) {
                 val bundle = Bundle()
@@ -157,11 +186,9 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
         adapter.attachListener(listener)
         mRecyclerView.adapter = adapter
 
-        val count = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            max(4, (Resources.getSystem().displayMetrics.widthPixels) / resources.getDimension(R.dimen.chapters_grid_card_layout_width).toInt()) - 1
-        } else
-            3
-        mRecyclerView.layoutManager = StaggeredGridLayoutManager(count, StaggeredGridLayoutManager.VERTICAL)
+        val columnWidth: Int = resources.getDimension(R.dimen.chapters_grid_card_layout_width).toInt() + 1
+        val spaceCount: Int = max(1, (Resources.getSystem().displayMetrics.widthPixels -3) / columnWidth)
+        mRecyclerView.layoutManager = StaggeredGridLayoutManager(spaceCount, StaggeredGridLayoutManager.VERTICAL)
 
         observer()
         SharedData.addListener(this)
@@ -211,6 +238,74 @@ class ChaptersFragment : Fragment(), ChapterLoadListener {
 
         layout.findViewById<LinearLayout>(R.id.popup_chapter_background).setOnClickListener { popup.dismiss() }
         popup.show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setupTitleBackgrounds()
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        mBlurTop?.setBlurEnabled(isGlass)
+        if (isGlass) {
+            mBlurTop?.setBlurAutoUpdate(true)
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                mBlurTop?.setBlurAutoUpdate(false)
+            }, 100)
+        } else {
+            mBlurTop?.setBlurAutoUpdate(false)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mBlurTop?.setBlurAutoUpdate(false)
+        mBlurTop?.setBlurEnabled(false)
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        if (hidden) {
+            mBlurTop?.setBlurAutoUpdate(false)
+            mBlurTop?.setBlurEnabled(false)
+        } else {
+            mBlurTop?.setBlurEnabled(isGlass)
+            if (isGlass) {
+                mBlurTop?.setBlurAutoUpdate(true)
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    mBlurTop?.setBlurAutoUpdate(false)
+                }, 100)
+            } else {
+                mBlurTop?.setBlurAutoUpdate(false)
+            }
+        }
+    }
+
+    private fun setupWindowInsets() {
+        val mainBlurTop = mBlurTop ?: return
+        ViewCompat.setOnApplyWindowInsetsListener(mainBlurTop) { view, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, view.paddingBottom)
+            insets
+        }
+    }
+
+    private fun setupBlurViews(root: View) {
+        val mainBlurTop = mBlurTop ?: return
+        val context = requireContext()
+        val decorView = requireActivity().window.decorView
+        val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
+
+        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+        mainBlurTop.setupWith(rootView, blurAlgorithm)
+            .setFrameClearDrawable(background)
+            .setBlurRadius(15f)
+    }
+
+    private fun setupTitleBackgrounds() {
+        val barLayout = view?.findViewById<View>(R.id.content_toolbar_chapter)
+        val activity = activity ?: return
+        MenuUtil.setupToolbar(activity, mToolbar, mBlurTop, barLayout)
     }
 
 }

@@ -300,12 +300,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     }
 
     private fun setupPopupBackgrounds() {
-        PopupUtils.setupPopupBackgrounds(
-            this,
-            mMenuPopupConfigurationBottom,
-            mMenuPopupConfigurationLeft,
-            mMenuPopupConfigurationBackground
-        )
+        PopupUtils.setupPopupBackgrounds(this, mMenuPopupConfigurationBottom, mMenuPopupConfigurationBackground)
     }
 
     private fun initialize(book: Book?) {

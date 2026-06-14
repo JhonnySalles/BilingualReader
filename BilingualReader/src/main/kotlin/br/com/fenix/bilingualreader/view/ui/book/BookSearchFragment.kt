@@ -420,21 +420,6 @@ class BookSearchFragment : Fragment(), BookParseListener {
         mainBlurTop.setupWith(rootView, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics).toInt()
-            val outlineProvider = object : android.view.ViewOutlineProvider() {
-                override fun getOutline(view: View, outline: android.graphics.Outline) {
-                    outline.setRoundRect(0, -radius, view.width, view.height, radius.toFloat())
-                }
-            }
-            mainBlurTop.outlineProvider = outlineProvider
-            mainBlurTop.clipToOutline = true
-
-            val barLayout = root.findViewById<View>(R.id.content_toolbar_book_search)
-            barLayout?.outlineProvider = outlineProvider
-            barLayout?.clipToOutline = true
-        }
     }
 
     private fun setupTitleBackgrounds() {

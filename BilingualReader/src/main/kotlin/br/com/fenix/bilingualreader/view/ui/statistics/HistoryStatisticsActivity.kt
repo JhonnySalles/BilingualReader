@@ -134,21 +134,6 @@ class HistoryStatisticsActivity : AppCompatActivity() {
         mainBlurTop.setupWith(rootLayout, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics).toInt()
-            val outlineProvider = object : android.view.ViewOutlineProvider() {
-                override fun getOutline(view: View, outline: android.graphics.Outline) {
-                    outline.setRoundRect(0, -radius, view.width, view.height, radius.toFloat())
-                }
-            }
-            mainBlurTop.outlineProvider = outlineProvider
-            mainBlurTop.clipToOutline = true
-
-            val mainBarLayout = findViewById<View>(R.id.history_statistics_bar_layout)
-            mainBarLayout?.outlineProvider = outlineProvider
-            mainBarLayout?.clipToOutline = true
-        }
     }
 
     private fun setupTitleBackgrounds() {

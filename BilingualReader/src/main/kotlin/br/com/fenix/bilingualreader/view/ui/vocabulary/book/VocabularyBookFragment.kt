@@ -554,7 +554,7 @@ class VocabularyBookFragment : Fragment(), PopupOrderListener, SwipeRefreshLayou
 
     private fun setupPopupBackgrounds() {
         val activity = activity ?: return
-        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilterOrder, null, mMenuPopupLibraryBackground)
+        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilterOrder, mMenuPopupLibraryBackground)
     }
 
     override fun setObject(obj: Book) {

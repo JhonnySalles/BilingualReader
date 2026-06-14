@@ -1580,18 +1580,8 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     private fun setupPopupBackgrounds() {
-        PopupUtils.setupPopupBackgrounds(
-            this,
-            mMenuPopupTranslateBottom,
-            mMenuPopupTranslateLeft,
-            mMenuPopupTranslateBackground
-        )
-        PopupUtils.setupPopupBackgrounds(
-            this,
-            mMenuPopupConfigurationsBottom,
-            mMenuPopupConfigurationsLeft,
-            mMenuPopupConfigurationsBackground
-        )
+        PopupUtils.setupPopupBackgrounds(this, mMenuPopupTranslateBottom, mMenuPopupTranslateBackground)
+        PopupUtils.setupPopupBackgrounds(this, mMenuPopupConfigurationsBottom, mMenuPopupConfigurationsBackground)
     }
 
     private fun setupBottomSheetInsets() {

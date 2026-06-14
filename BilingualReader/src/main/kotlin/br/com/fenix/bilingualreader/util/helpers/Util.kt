@@ -62,6 +62,8 @@ import androidx.palette.graphics.Palette.Swatch
 import br.com.fenix.bilingualreader.R
 import android.graphics.drawable.GradientDrawable
 import android.view.ViewGroup
+import android.view.ViewOutlineProvider
+import android.graphics.Outline
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
@@ -946,7 +948,7 @@ class MenuUtil {
 
             val themeColor = activity.getColorFromAttr(R.attr.colorSurface)
             val isNight = activity.resources.getBoolean(R.bool.isNight)
-            val alpha = if (isNight) 0xD9 else 0x73 // 85% opacity for dark theme, 45% for light theme
+            val alpha = if (isNight) 0xA9 else 0x73
             val translucentColor = ((themeColor and 0x00FFFFFF) or (alpha shl 24)).toInt()
             val solidColor = ((themeColor and 0x00FFFFFF) or (0xFF shl 24)).toInt()
             val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, activity.resources.displayMetrics)
@@ -1478,7 +1480,7 @@ class ColorUtil {
 
 class PopupUtil {
     companion object PopupUtils {
-        fun setupPopupBackgrounds( activity: Activity, popupBottom: View?, popupLeft: View?, popupBackground: BlurView?) {
+        fun setupPopupBackgrounds( activity: Activity, popupBottom: View?, popupBackground: BlurView?) {
             val sharedPreferences = GeneralConsts.getSharedPreferences(activity)
             val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
             val themeColor = activity.getColorFromAttr(R.attr.colorSurfaceVariant)
@@ -1486,7 +1488,7 @@ class PopupUtil {
             val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, activity.resources.displayMetrics)
 
             val finalColor = if (isGlass) {
-                val alpha = if (isNight) 0xD9 else 0x73 // Glassmorphism translucent alpha
+                val alpha = if (isNight) 0xA9 else 0x73
                 (themeColor and 0x00FFFFFF) or (alpha shl 24)
             } else {
                 themeColor
@@ -1505,37 +1507,37 @@ class PopupUtil {
                     )
                 }
                 pb.background = bottomSheetBg
-            }
-
-            popupLeft?.let { pl ->
-                pl.background = null
-                val sideSheetBg = GradientDrawable().apply {
-                    shape = GradientDrawable.RECTANGLE
-                    setColor(finalColor)
-                    cornerRadii = floatArrayOf(
-                        cornerRadius, cornerRadius, // top-left
-                        0f, 0f, // top-right
-                        0f, 0f, // bottom-right
-                        cornerRadius, cornerRadius  // bottom-left
-                    )
+                
+                pb.clipToOutline = true
+                pb.outlineProvider = object : ViewOutlineProvider() {
+                    override fun getOutline(view: View, outline: Outline) {
+                        outline.setRoundRect(
+                            0,
+                            0,
+                            view.width,
+                            view.height + cornerRadius.toInt(),
+                            cornerRadius
+                        )
+                    }
                 }
-                pl.background = sideSheetBg
             }
 
             popupBackground?.let { bg ->
                 bg.background = null
+
                 val headerBg = GradientDrawable().apply {
                     shape = GradientDrawable.RECTANGLE
                     setColor(if (isGlass) android.graphics.Color.TRANSPARENT else (themeColor and 0x00FFFFFF) or (0x80 shl 24))
-                    cornerRadii = floatArrayOf(
-                        cornerRadius, cornerRadius,
-                        cornerRadius, cornerRadius,
-                        0f, 0f,
-                        0f, 0f
-                    )
+                    cornerRadii = floatArrayOf(cornerRadius, cornerRadius, cornerRadius, cornerRadius, 0f, 0f, 0f, 0f)
                 }
                 bg.background = headerBg
+                
                 bg.clipToOutline = true
+                bg.outlineProvider = object : ViewOutlineProvider() {
+                    override fun getOutline(view: View, outline: Outline) {
+                        outline.setRoundRect(0, 0, view.width, view.height + cornerRadius.toInt(), cornerRadius)
+                    }
+                }
 
                 if (isGlass) {
                     val decorView = activity.window.decorView

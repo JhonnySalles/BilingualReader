@@ -80,7 +80,7 @@
             android:id="@+id/config_book_libraries"
             style="@style/Button.LabelStart"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="@dimen/config_button_size"
             android:layout_margin="@dimen/margin_small"
             android:text="@string/config_title_libraries"
             app:icon="@drawable/ico_library_small" />
@@ -140,7 +140,7 @@
             android:id="@+id/config_book_touch_screen"
             style="@style/Button.LabelStart"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="@dimen/config_button_size"
             android:layout_marginStart="@dimen/margin_small"
             android:layout_marginEnd="@dimen/margin_small"
             android:layout_marginBottom="@dimen/margin_small"

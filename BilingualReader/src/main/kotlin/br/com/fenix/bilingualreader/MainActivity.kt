@@ -1,11 +1,10 @@
 package br.com.fenix.bilingualreader
 
-
+import androidx.core.content.edit
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
@@ -18,7 +17,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.edit
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
@@ -43,7 +41,6 @@ import br.com.fenix.bilingualreader.util.helpers.MsgUtil
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
-import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.view.ui.about.AboutFragment
 import br.com.fenix.bilingualreader.view.ui.annotation.AnnotationFragment
 import br.com.fenix.bilingualreader.view.ui.configuration.ConfigFragment
@@ -230,7 +227,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mBlurTop = findViewById(R.id.main_blur_top)
         setupBlurViews()
         setupWindowInsets()
-        applyGlassmorphism()
+        setupTitleBackgrounds()
     }
 
     private fun clearCache() {
@@ -440,7 +437,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(theme.getValue())
         ThemeUtil.statusBarTransparentTheme(window, isDark, isLightStatus = !isDark)
-        applyGlassmorphism()
+        setupTitleBackgrounds()
 
         val preferences = GeneralConsts.getSharedPreferences(this)
         val isGlass = preferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
@@ -487,7 +484,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setTheme(theme.getValue())
         super.onConfigurationChanged(newConfig)
         ThemeUtil.statusBarTransparentTheme(window, isDark, isLightStatus = !isDark)
-        applyGlassmorphism()
+        setupTitleBackgrounds()
     }
 
     private fun setupWindowInsets() {
@@ -517,21 +514,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mainBlurTop.setupWith(rootView, blurAlgorithm)
                 .setFrameClearDrawable(background)
                 .setBlurRadius(15f)
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                val radius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics).toInt()
-                val outlineProvider = object : android.view.ViewOutlineProvider() {
-                    override fun getOutline(view: View, outline: android.graphics.Outline) {
-                        outline.setRoundRect(0, -radius, view.width, view.height, radius.toFloat())
-                    }
-                }
-                mainBlurTop.outlineProvider = outlineProvider
-                mainBlurTop.clipToOutline = true
-
-                val mainBarLayout = findViewById<View>(R.id.main_bar_layout)
-                mainBarLayout?.outlineProvider = outlineProvider
-                mainBarLayout?.clipToOutline = true
-            }
         }
 
         val headerView = mNavigationView.getHeaderView(0)
@@ -544,7 +526,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    fun applyGlassmorphism() {
+    fun setupTitleBackgrounds() {
         val mainBarLayout = findViewById<View>(R.id.main_bar_layout)
         MenuUtil.setupToolbar(this, mToolBar, mBlurTop, mainBarLayout)
     }

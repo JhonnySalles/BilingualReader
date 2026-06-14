@@ -484,11 +484,10 @@
                 android:id="@+id/statistics_book_btn_history"
                 style="@style/Button"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/statistics_button_size"
                 android:layout_margin="@dimen/margin_small"
                 android:text="@string/menu_history"
-                app:icon="@drawable/ico_history"
-                app:iconSize="24dp" />
+                app:icon="@drawable/ico_history" />
         </LinearLayout>
 
     </LinearLayout>

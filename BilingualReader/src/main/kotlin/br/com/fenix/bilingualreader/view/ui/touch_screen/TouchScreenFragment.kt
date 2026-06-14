@@ -17,11 +17,20 @@ import br.com.fenix.bilingualreader.model.enums.TouchScreen
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
+import android.content.SharedPreferences
+import android.os.Build
+import android.util.TypedValue
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.RenderEffectBlur
+import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
 import kotlin.properties.Delegates
 
@@ -29,6 +38,9 @@ import kotlin.properties.Delegates
 class TouchScreenFragment : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(TouchScreenFragment::class.java)
+
+    private lateinit var mPreferences: SharedPreferences
+    private var mBlurTop: BlurView? = null
 
     private lateinit var mImage: ImageView
     private lateinit var mTouchTop: TextView
@@ -55,6 +67,7 @@ class TouchScreenFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        mPreferences = GeneralConsts.getSharedPreferences(requireContext())
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -63,6 +76,11 @@ class TouchScreenFragment : Fragment() {
         mToolbar = root.findViewById(R.id.toolbar_touch_screen_config)
 
         (requireActivity() as MenuActivity).setActionBar(mToolbar)
+
+        mBlurTop = root.findViewById(R.id.touch_screen_blur_top)
+        setupBlurViews(root)
+        setupWindowInsets()
+        setupTitleBackgrounds()
 
         mImage = root.findViewById(R.id.touch_screen_config_image)
         mSave = root.findViewById(R.id.touch_screen_config_save)
@@ -253,6 +271,74 @@ class TouchScreenFragment : Fragment() {
                 button.text = getDescription(button.tag as TouchScreen)
             }
             .show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setupTitleBackgrounds()
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        mBlurTop?.setBlurEnabled(isGlass)
+        if (isGlass) {
+            mBlurTop?.setBlurAutoUpdate(true)
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                mBlurTop?.setBlurAutoUpdate(false)
+            }, 100)
+        } else {
+            mBlurTop?.setBlurAutoUpdate(false)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mBlurTop?.setBlurAutoUpdate(false)
+        mBlurTop?.setBlurEnabled(false)
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        if (hidden) {
+            mBlurTop?.setBlurAutoUpdate(false)
+            mBlurTop?.setBlurEnabled(false)
+        } else {
+            mBlurTop?.setBlurEnabled(isGlass)
+            if (isGlass) {
+                mBlurTop?.setBlurAutoUpdate(true)
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    mBlurTop?.setBlurAutoUpdate(false)
+                }, 100)
+            } else {
+                mBlurTop?.setBlurAutoUpdate(false)
+            }
+        }
+    }
+
+    private fun setupWindowInsets() {
+        val mainBlurTop = mBlurTop ?: return
+        ViewCompat.setOnApplyWindowInsetsListener(mainBlurTop) { view, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, view.paddingBottom)
+            insets
+        }
+    }
+
+    private fun setupBlurViews(root: View) {
+        val mainBlurTop = mBlurTop ?: return
+        val context = requireContext()
+        val decorView = requireActivity().window.decorView
+        val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
+
+        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+        mainBlurTop.setupWith(rootView, blurAlgorithm)
+            .setFrameClearDrawable(background)
+            .setBlurRadius(15f)
+    }
+
+    private fun setupTitleBackgrounds() {
+        val barLayout = view?.findViewById<View>(R.id.content_toolbar_touch_screen_config)
+        val activity = activity ?: return
+        MenuUtil.setupToolbar(activity, mToolbar, mBlurTop, barLayout)
     }
 
 }
