@@ -14,7 +14,7 @@
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
         app:strokeWidth="0dp"
-        app:cardBackgroundColor="@android:color/transparent"
+        app:cardBackgroundColor="?attr/colorPrimaryContainer"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -40,7 +40,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/reader_touch_demonstration_text_size"
-                    android:theme="@style/TouchDemonstration.Horizontal.Top" />
+                    android:theme="@style/TouchDemonstration.Horizontal.Top"
+                    android:background="@android:color/transparent" />
             </LinearLayout>
         </eightbitlab.com.blurview.BlurView>
     </com.google.android.material.card.MaterialCardView>
@@ -52,7 +53,7 @@
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
         app:strokeWidth="0dp"
-        app:cardBackgroundColor="@android:color/transparent"
+        app:cardBackgroundColor="@color/touch_demonstration_alter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
@@ -78,7 +79,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/reader_touch_demonstration_text_size"
-                    android:theme="@style/TouchDemonstration.Horizontal" />
+                    android:theme="@style/TouchDemonstration.Horizontal"
+                    android:background="@android:color/transparent" />
             </LinearLayout>
         </eightbitlab.com.blurview.BlurView>
     </com.google.android.material.card.MaterialCardView>
@@ -90,7 +92,7 @@
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
         app:strokeWidth="0dp"
-        app:cardBackgroundColor="@android:color/transparent"
+        app:cardBackgroundColor="@color/touch_demonstration_alter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -115,7 +117,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:theme="@style/TouchDemonstration.Vertical" />
+                    android:theme="@style/TouchDemonstration.Vertical"
+                    android:background="@android:color/transparent" />
             </LinearLayout>
         </eightbitlab.com.blurview.BlurView>
     </com.google.android.material.card.MaterialCardView>
@@ -127,7 +130,7 @@
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
         app:strokeWidth="0dp"
-        app:cardBackgroundColor="@android:color/transparent"
+        app:cardBackgroundColor="@color/touch_demonstration_alter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -152,7 +155,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:theme="@style/TouchDemonstration.Vertical" />
+                    android:theme="@style/TouchDemonstration.Vertical"
+                    android:background="@android:color/transparent" />
             </LinearLayout>
         </eightbitlab.com.blurview.BlurView>
     </com.google.android.material.card.MaterialCardView>
@@ -165,7 +169,7 @@
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
         app:strokeWidth="0dp"
-        app:cardBackgroundColor="@android:color/transparent"
+        app:cardBackgroundColor="?attr/colorPrimaryContainer"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -189,7 +193,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:theme="@style/TouchDemonstration.Corner" />
+                    android:theme="@style/TouchDemonstration.Corner"
+                    android:background="@android:color/transparent" />
             </LinearLayout>
         </eightbitlab.com.blurview.BlurView>
     </com.google.android.material.card.MaterialCardView>
@@ -202,7 +207,7 @@
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
         app:strokeWidth="0dp"
-        app:cardBackgroundColor="@android:color/transparent"
+        app:cardBackgroundColor="?attr/colorPrimaryContainer"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -226,7 +231,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:theme="@style/TouchDemonstration.Corner" />
+                    android:theme="@style/TouchDemonstration.Corner"
+                    android:background="@android:color/transparent" />
             </LinearLayout>
         </eightbitlab.com.blurview.BlurView>
     </com.google.android.material.card.MaterialCardView>
@@ -238,7 +244,7 @@
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
         app:strokeWidth="0dp"
-        app:cardBackgroundColor="@android:color/transparent"
+        app:cardBackgroundColor="?attr/colorPrimaryContainer"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent">
 
@@ -262,7 +268,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:theme="@style/TouchDemonstration.Corner" />
+                    android:theme="@style/TouchDemonstration.Corner"
+                    android:background="@android:color/transparent" />
             </LinearLayout>
         </eightbitlab.com.blurview.BlurView>
     </com.google.android.material.card.MaterialCardView>
@@ -274,7 +281,7 @@
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
         app:strokeWidth="0dp"
-        app:cardBackgroundColor="@android:color/transparent"
+        app:cardBackgroundColor="?attr/colorPrimaryContainer"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent">
 
@@ -298,7 +305,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:theme="@style/TouchDemonstration.Corner" />
+                    android:theme="@style/TouchDemonstration.Corner"
+                    android:background="@android:color/transparent" />
             </LinearLayout>
         </eightbitlab.com.blurview.BlurView>
     </com.google.android.material.card.MaterialCardView>

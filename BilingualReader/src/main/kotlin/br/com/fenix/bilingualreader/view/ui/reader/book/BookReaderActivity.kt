@@ -616,6 +616,10 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
 
         findViews(card)
 
+        if (card is com.google.android.material.card.MaterialCardView) {
+            card.setCardBackgroundColor(android.graphics.Color.TRANSPARENT)
+        }
+
         val tv = textView
         if (tv != null) {
             tv.text = getString(touchScreen.getValue())
