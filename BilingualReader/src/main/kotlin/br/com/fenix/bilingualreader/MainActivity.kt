@@ -43,6 +43,7 @@ import br.com.fenix.bilingualreader.util.helpers.MsgUtil
 import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.ui.about.AboutFragment
 import br.com.fenix.bilingualreader.view.ui.annotation.AnnotationFragment
 import br.com.fenix.bilingualreader.view.ui.configuration.ConfigFragment
@@ -168,10 +169,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
                 if (isGlass) {
-                    mBlurTop.setBlurAutoUpdate(true)
-                    mHandler.postDelayed({
-                        mBlurTop.setBlurAutoUpdate(false)
-                    }, 100)
+                    mBlurTop.blurOnceDeferred(mHandler, 100)
                 }
             }
         }, false)
@@ -453,6 +451,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mBlurTop.setBlurEnabled(false)
         setNavigatorBlurAutoUpdate(false)
     }
+
+    val blurViews: List<BlurView>
+        get() {
+            val list = mutableListOf<BlurView>()
+            if (::mBlurTop.isInitialized) list.add(mBlurTop)
+            if (::mNavigationView.isInitialized) {
+                val headerView = mNavigationView.getHeaderView(0)
+                val navigatorBlur = headerView?.findViewById<BlurView>(R.id.navigator_blur)
+                if (navigatorBlur != null) list.add(navigatorBlur)
+            }
+            return list
+        }
 
     fun setBlurAutoUpdate(enabled: Boolean) {
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)

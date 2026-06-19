@@ -55,6 +55,8 @@ import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.statistics.HistoryStatisticsAdapter
+import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.ui.chapters.ChaptersFragment
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
@@ -378,6 +380,7 @@ class HistoryStatisticsFragment : Fragment() {
 
         mMenuPopupHistoryStatistics = root.findViewById(R.id.history_statistics_popup_menu)
         mMenuPopupHistoryStatisticsBackground = root.findViewById(R.id.history_statistics_popup_header_background)
+        mRecyclerView.itemAnimator = BlurAwareItemAnimator(listOf(mBlurTop, mMenuPopupHistoryStatisticsBackground))
         mPopupHistoryStatisticsTab = root.findViewById(R.id.history_statistics_popup_tab)
         mPopupHistoryStatisticsView = root.findViewById(R.id.history_statistics_popup_view_pager)
 
@@ -636,12 +639,8 @@ class HistoryStatisticsFragment : Fragment() {
         mBlurTop.setBlurEnabled(isGlass)
         mMenuPopupHistoryStatisticsBackground.setBlurEnabled(isGlass)
         if (isGlass) {
-            mBlurTop.setBlurAutoUpdate(true)
-            mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(true)
-            mHandler.postDelayed({
-                mBlurTop.setBlurAutoUpdate(false)
-                mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
-            }, 100)
+            mBlurTop.blurOnceDeferred(mHandler, 100)
+            mMenuPopupHistoryStatisticsBackground.blurOnceDeferred(mHandler, 100)
         } else {
             mBlurTop.setBlurAutoUpdate(false)
             mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)

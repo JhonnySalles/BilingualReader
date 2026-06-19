@@ -61,6 +61,8 @@ import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.history.HistoryCardAdapter
+import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -353,6 +355,7 @@ class HistoryFragment : Fragment() {
 
         mMenuPopupHistory = root.findViewById(R.id.history_popup_menu)
         mMenuPopupHistoryBackground = root.findViewById(R.id.history_popup_header_background)
+        mRecyclerView.itemAnimator = BlurAwareItemAnimator(listOf(mMenuPopupHistoryBackground))
         mPopupHistoryTab = root.findViewById(R.id.history_popup_tab)
         mPopupHistoryView = root.findViewById(R.id.history_popup_view_pager)
 
@@ -422,10 +425,7 @@ class HistoryFragment : Fragment() {
         mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
         if (isGlass) {
-            mMenuPopupHistoryBackground.setBlurAutoUpdate(true)
-            mHandler.postDelayed({
-                mMenuPopupHistoryBackground.setBlurAutoUpdate(false)
-            }, 100)
+            mMenuPopupHistoryBackground.blurOnceDeferred(mHandler, 100)
         }
     }
 
@@ -630,10 +630,7 @@ class HistoryFragment : Fragment() {
         } else {
             mMenuPopupHistoryBackground.setBlurEnabled(isGlass)
             if (isGlass) {
-                mMenuPopupHistoryBackground.setBlurAutoUpdate(true)
-                mHandler.postDelayed({
-                    mMenuPopupHistoryBackground.setBlurAutoUpdate(false)
-                }, 100)
+                mMenuPopupHistoryBackground.blurOnceDeferred(mHandler, 100)
             } else {
                 mMenuPopupHistoryBackground.setBlurAutoUpdate(false)
             }

@@ -32,6 +32,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.TypedValue
+import android.view.Choreographer
 import android.view.GestureDetector
 import android.view.Menu
 import android.view.MenuItem
@@ -1967,5 +1968,14 @@ fun Button.executeWithAnimation(action: () -> Unit) {
         handler.postDelayed(runnable, 400) // Fallback timeout
     } else {
         action()
+    }
+}
+
+fun BlurView.blurOnceDeferred(handler: Handler, delayMs: Long = 100L) {
+    Choreographer.getInstance().postFrameCallback {
+        setBlurAutoUpdate(true)
+        handler.postDelayed({
+            setBlurAutoUpdate(false)
+        }, delayMs)
     }
 }

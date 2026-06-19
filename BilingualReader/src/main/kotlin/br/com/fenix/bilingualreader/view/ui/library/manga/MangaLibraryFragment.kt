@@ -90,6 +90,8 @@ import br.com.fenix.bilingualreader.view.adapter.library.MangaGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaLineCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaSeparatorGridCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
+import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
@@ -640,6 +642,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
         mMenuPopupLibrary = root.findViewById(R.id.manga_library_popup_menu_library)
         mMenuPopupLibraryBackground = root.findViewById(R.id.manga_library_popup_header_background)
+        mRecyclerView.itemAnimator = BlurAwareItemAnimator(listOf(mMenuPopupLibraryBackground))
         mPopupLibraryTab = root.findViewById(R.id.manga_library_popup_library_tab)
         mPopupLibraryView = root.findViewById(R.id.manga_library_popup_library_view_pager)
 
