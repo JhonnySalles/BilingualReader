@@ -104,6 +104,7 @@ import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFr
 import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
 import br.com.fenix.bilingualreader.view.components.book.CurlPageTransformer
+import br.com.fenix.bilingualreader.view.components.book.Curl3DPageTransformer
 import br.com.fenix.bilingualreader.view.components.book.DefaultPageTransformer
 import br.com.fenix.bilingualreader.view.components.book.DepthPageTransformer
 import br.com.fenix.bilingualreader.view.components.book.FadePageTransformer
@@ -502,6 +503,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         when (mViewModel.paginationType.value) {
             PaginationType.Default -> menu.findItem(R.id.menu_item_reader_book_pagination_default).isChecked = true
             PaginationType.CurlPage -> menu.findItem(R.id.menu_item_reader_book_pagination_page_curl).isChecked = true
+            PaginationType.Curl3DPage -> menu.findItem(R.id.menu_item_reader_book_pagination_page_curl_3d).isChecked = true
             PaginationType.Zooming -> menu.findItem(R.id.menu_item_reader_book_pagination_stack).isChecked = true
             PaginationType.Stack -> menu.findItem(R.id.menu_item_reader_book_pagination_zoom).isChecked = true
             PaginationType.Fade -> menu.findItem(R.id.menu_item_reader_book_pagination_fade).isChecked = true
@@ -788,13 +790,20 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     else
                         mViewPager.setPageTransformer(DefaultPageTransformer())
                 }
+                PaginationType.Curl3DPage -> {
+                    if (enabledCurl)
+                        mViewPager.setPageTransformer(Curl3DPageTransformer())
+                    else
+                        mViewPager.setPageTransformer(DefaultPageTransformer())
+                }
                 PaginationType.Zooming -> mViewPager.setPageTransformer(ZoomPageTransform())
                 PaginationType.Fade -> mViewPager.setPageTransformer(FadePageTransformer(mScrollingMode == ScrollingType.PaginationVertical))
                 PaginationType.Depth -> mViewPager.setPageTransformer(DepthPageTransformer(mScrollingMode == ScrollingType.PaginationVertical))
                 else -> mViewPager.setPageTransformer(DefaultPageTransformer())
             }
 
-        (mPagerAdapter as TextViewAdapter).changeCurl(mPaginationType == PaginationType.CurlPage && enabledCurl)
+        val isCurl = (mPaginationType == PaginationType.CurlPage || mPaginationType == PaginationType.Curl3DPage) && enabledCurl
+        (mPagerAdapter as TextViewAdapter).changeCurl(isCurl, mPaginationType == PaginationType.Curl3DPage)
     }
 
     override fun onTouch(v: View, event: MotionEvent): Boolean {
@@ -885,6 +894,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
             R.id.menu_item_reader_book_pagination_default,
             R.id.menu_item_reader_book_pagination_page_curl,
+            R.id.menu_item_reader_book_pagination_page_curl_3d,
             R.id.menu_item_reader_book_pagination_stack,
             R.id.menu_item_reader_book_pagination_zoom,
             R.id.menu_item_reader_book_pagination_fade,
@@ -895,6 +905,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 val pagination = when (menuItem.itemId) {
                     R.id.menu_item_reader_book_pagination_default -> PaginationType.Default
                     R.id.menu_item_reader_book_pagination_page_curl -> PaginationType.CurlPage
+                    R.id.menu_item_reader_book_pagination_page_curl_3d -> PaginationType.Curl3DPage
                     R.id.menu_item_reader_book_pagination_stack -> PaginationType.Stack
                     R.id.menu_item_reader_book_pagination_zoom -> PaginationType.Zooming
                     R.id.menu_item_reader_book_pagination_fade -> PaginationType.Fade
@@ -1007,10 +1018,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                     }
                 }
 
-                if (miPaginationMode.subMenu != null) {
+                 if (miPaginationMode.subMenu != null) {
                     when (pagination) {
                         PaginationType.Default -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_default).isChecked = true
                         PaginationType.CurlPage -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_page_curl).isChecked = true
+                        PaginationType.Curl3DPage -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_page_curl_3d).isChecked = true
                         PaginationType.Stack -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_stack).isChecked = true
                         PaginationType.Zooming -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_zoom).isChecked = true
                         PaginationType.Depth -> miPaginationMode.subMenu!!.findItem(R.id.menu_item_reader_book_pagination_depth).isChecked = true

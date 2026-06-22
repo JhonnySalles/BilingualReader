@@ -74,9 +74,11 @@ class TextViewAdapter(var context: Context, model: BookReaderViewModel, parse: D
         }
     }
 
-    fun changeCurl(isCurl: Boolean) {
-        for(holder in mHolders.entries)
+    fun changeCurl(isCurl: Boolean, is3D: Boolean = false) {
+        for(holder in mHolders.entries) {
             holder.value.root.isCurlPage = isCurl
+            holder.value.root.is3DMode = is3D
+        }
     }
 
     fun clearParse() {
@@ -117,7 +119,8 @@ class TextViewAdapter(var context: Context, model: BookReaderViewModel, parse: D
             mViewModel.changeTextStyle(holder.textView)
         }
 
-        holder.root.isCurlPage = mViewModel.paginationType.value == PaginationType.CurlPage
+        holder.root.isCurlPage = mViewModel.paginationType.value == PaginationType.CurlPage || mViewModel.paginationType.value == PaginationType.Curl3DPage
+        holder.root.is3DMode = mViewModel.paginationType.value == PaginationType.Curl3DPage
         holder.textView.resetZoom()
 
         if (!holder.isOnlyImage)

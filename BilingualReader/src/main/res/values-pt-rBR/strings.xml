@@ -226,6 +226,7 @@
     <string name="config_book_pagination_type">Animação de transição de página</string>
     <string name="config_book_pagination_default">Padrão</string>
     <string name="config_book_pagination_page_curl">Ondulação de página</string>
+    <string name="config_book_pagination_page_curl_3d">Ondulação de página 3D</string>
     <string name="config_book_pagination_page_stack">Pilhas de página</string>
     <string name="config_book_pagination_page_zoom">Zoom de página</string>
     <string name="config_book_pagination_page_fade">Desbotamento de página</string>
@@ -465,6 +466,7 @@
     <string name="config_manga_pagination_type">Animação de transição de página</string>
     <string name="config_manga_pagination_default">Padrão</string>
     <string name="config_manga_pagination_page_curl">Ondulação de página</string>
+    <string name="config_manga_pagination_page_curl_3d">Ondulação de página 3D</string>
     <string name="config_manga_pagination_page_stack">Pilhas de página</string>
     <string name="config_manga_pagination_page_zoom">Zoom de página</string>
     <string name="config_manga_pagination_page_fade">Desbotamento de página</string>

@@ -807,9 +807,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         mViewPager.setSwipeOrientation(mScrollingMode, mPaginationType)
         if (mScrollingMode in setOf(ScrollingType.Vertical, ScrollingType.Horizontal, ScrollingType.HorizontalRightToLeft)) {
-            val isCurl = mPaginationType == PaginationType.CurlPage
+            val isCurl = mPaginationType == PaginationType.CurlPage || mPaginationType == PaginationType.Curl3DPage
             updatePageViews<PageCurlFrame>(mViewPager, PageCurlFrame::class.java) {
                 (it as PageCurlFrame).isCurlPage = isCurl
+                (it as PageCurlFrame).is3DMode = mPaginationType == PaginationType.Curl3DPage
             }
         }
     }
@@ -835,6 +836,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         when (mPaginationType) {
             PaginationType.Default -> menu.findItem(R.id.reading_manga_pagination_default).isChecked = true
             PaginationType.CurlPage -> menu.findItem(R.id.reading_manga_pagination_page_curl).isChecked = true
+            PaginationType.Curl3DPage -> menu.findItem(R.id.reading_manga_pagination_page_curl_3d).isChecked = true
             PaginationType.Stack -> menu.findItem(R.id.reading_manga_pagination_stack).isChecked = true
             PaginationType.Zooming -> menu.findItem(R.id.reading_manga_pagination_zoom).isChecked = true
             PaginationType.Depth -> menu.findItem(R.id.reading_manga_pagination_depth).isChecked = true
@@ -971,6 +973,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
             R.id.reading_manga_pagination_default,
             R.id.reading_manga_pagination_page_curl,
+            R.id.reading_manga_pagination_page_curl_3d,
             R.id.reading_manga_pagination_stack,
             R.id.reading_manga_pagination_zoom,
             R.id.reading_manga_pagination_depth,
@@ -981,6 +984,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 val pagination = when (item.itemId) {
                     R.id.reading_manga_pagination_default -> PaginationType.Default
                     R.id.reading_manga_pagination_page_curl -> PaginationType.CurlPage
+                    R.id.reading_manga_pagination_page_curl_3d -> PaginationType.Curl3DPage
                     R.id.reading_manga_pagination_stack -> PaginationType.Stack
                     R.id.reading_manga_pagination_zoom -> PaginationType.Zooming
                     R.id.reading_manga_pagination_depth -> PaginationType.Depth
@@ -1181,7 +1185,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
             val inflater = requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             val layout: View = inflater.inflate(R.layout.fragment_manga_page_pager, container, false)
-            layout.findViewById<PageCurlFrame>(R.id.frame_reader_page_root).isCurlPage = mPaginationType == PaginationType.CurlPage
+            
+            val isCurl = mPaginationType == PaginationType.CurlPage || mPaginationType == PaginationType.Curl3DPage
+            val curlFrame = layout.findViewById<PageCurlFrame>(R.id.frame_reader_page_root)
+            curlFrame.isCurlPage = isCurl
+            curlFrame.is3DMode = mPaginationType == PaginationType.Curl3DPage
 
             val imageViewPage: ImageViewPage = layout.findViewById<View>(R.id.page_image_view) as ImageViewPage
             if (mReaderMode === ReaderMode.ASPECT_FILL)

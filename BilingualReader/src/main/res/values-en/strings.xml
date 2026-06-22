@@ -226,6 +226,7 @@
     <string name="config_book_pagination_type">Page transition animation</string>
     <string name="config_book_pagination_default">Default</string>
     <string name="config_book_pagination_page_curl">Page curl</string>
+    <string name="config_book_pagination_page_curl_3d">Page curl 3D</string>
     <string name="config_book_pagination_page_stack">Page stacks</string>
     <string name="config_book_pagination_page_zoom">Page zoom</string>
     <string name="config_book_pagination_page_fade">Page fade</string>
@@ -465,6 +466,7 @@
     <string name="config_manga_pagination_type">Page transition animation</string>
     <string name="config_manga_pagination_default">Default</string>
     <string name="config_manga_pagination_page_curl">Page curl</string>
+    <string name="config_manga_pagination_page_curl_3d">Page curl 3D</string>
     <string name="config_manga_pagination_page_stack">Page stacks</string>
     <string name="config_manga_pagination_page_zoom">Page zoom</string>
     <string name="config_manga_pagination_page_fade">Page fade</string>

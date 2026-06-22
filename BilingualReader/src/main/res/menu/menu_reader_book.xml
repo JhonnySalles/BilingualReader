@@ -83,6 +83,9 @@
                     android:id="@+id/menu_item_reader_book_pagination_page_curl"
                     android:title="@string/config_book_pagination_page_curl" />
                 <item
+                    android:id="@+id/menu_item_reader_book_pagination_page_curl_3d"
+                    android:title="@string/config_book_pagination_page_curl_3d" />
+                <item
                     android:id="@+id/menu_item_reader_book_pagination_stack"
                     android:title="@string/config_book_pagination_page_stack" />
                 <item

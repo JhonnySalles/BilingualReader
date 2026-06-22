@@ -78,4 +78,17 @@ class PageTransformersTest {
         verify { page.translationX = -500f }
         verify { (page as PageCurl).setCurlFactor(0.5f) }
     }
+
+    @Test
+    fun `Curl3DPageTransformer delegates to PageCurl when applicable`() {
+        val page = mockk<View>(relaxed = true, moreInterfaces = arrayOf(PageCurl::class))
+        val transformer = Curl3DPageTransformer()
+
+        every { page.width } returns 1000
+        
+        transformer.transformPage(page, 0.5f)
+        
+        verify { page.translationX = -500f }
+        verify { (page as PageCurl).setCurlFactor(0.5f) }
+    }
 }

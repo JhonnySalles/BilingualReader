@@ -57,6 +57,9 @@
                     android:id="@+id/reading_manga_pagination_page_curl"
                     android:title="@string/config_manga_pagination_page_curl" />
                 <item
+                    android:id="@+id/reading_manga_pagination_page_curl_3d"
+                    android:title="@string/config_manga_pagination_page_curl_3d" />
+                <item
                     android:id="@+id/reading_manga_pagination_stack"
                     android:title="@string/config_manga_pagination_page_stack" />
                 <item
