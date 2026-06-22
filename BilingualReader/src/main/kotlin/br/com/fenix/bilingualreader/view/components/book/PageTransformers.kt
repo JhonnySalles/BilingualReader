@@ -25,6 +25,15 @@ class DefaultPageTransformer : ViewPager2.PageTransformer {
 
 class StackPageTransform(val isVertical: Boolean) : ViewPager2.PageTransformer {
     override fun transformPage(page: View, position: Float) {
+        val elevation = try {
+            page.resources.getDimension(br.com.fenix.bilingualreader.R.dimen.reader_elevation)
+        } catch (e: Exception) {
+            20f
+        }
+        page.translationZ = 0f
+        page.elevation = 0f
+        page.outlineProvider = android.view.ViewOutlineProvider.BOUNDS
+
         if (position >= -1.0f && position <= 1.0f) {
             if (isVertical)
                 page.translationX = 0f
@@ -76,6 +85,11 @@ class StackPageTransform(val isVertical: Boolean) : ViewPager2.PageTransformer {
                     else
                         page.translationX = page.width * position
                 }
+            }
+
+            if (position > 0.0f) {
+                page.translationZ = 20f
+                page.elevation = elevation
             }
         } else
             page.alpha = 0.0f
@@ -211,6 +225,15 @@ class FadePageTransformer(val isVertical: Boolean)  : ViewPager2.PageTransformer
 
 class DepthPageTransformer(val isVertical: Boolean) : ViewPager2.PageTransformer {
     override fun transformPage(page: View, position: Float) {
+        val elevation = try {
+            page.resources.getDimension(br.com.fenix.bilingualreader.R.dimen.reader_elevation)
+        } catch (e: Exception) {
+            20f
+        }
+        page.translationZ = 0f
+        page.elevation = 0f
+        page.outlineProvider = android.view.ViewOutlineProvider.BOUNDS
+
         if (position < -1)
             page.alpha = 0f
         else if (position <= 1) {
@@ -220,6 +243,10 @@ class DepthPageTransformer(val isVertical: Boolean) : ViewPager2.PageTransformer
                 page.translationX = 0f
                 page.scaleX = 1f
                 page.scaleY = 1f
+                if (position < 0f) {
+                    page.translationZ = 20f
+                    page.elevation = elevation
+                }
             } else {
                 page.alpha = 1- abs(position)
                 page.scaleX = 1- abs(position)

@@ -80,8 +80,8 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
                 else
                     setPageTransformer(false, HorizontalPageTransformer())}
             PaginationType.Stack -> setPageTransformer(mScrolling != ScrollingType.HorizontalRightToLeft, StackPageTransform(mScrolling, mElevation))
-            PaginationType.CurlPage -> setPageTransformer(false, CurlPageTransformer())
-            PaginationType.Curl3DPage -> setPageTransformer(false, Curl3DPageTransformer())
+            PaginationType.CurlPage -> setPageTransformer(true, CurlPageTransformer())
+            PaginationType.Curl3DPage -> setPageTransformer(true, Curl3DPageTransformer())
             PaginationType.Zooming -> setPageTransformer(false, ZoomPageTransform(mScrolling == ScrollingType.Vertical))
             PaginationType.Depth -> setPageTransformer(mScrolling != ScrollingType.HorizontalRightToLeft, DepthPageTransformer(mScrolling))
             PaginationType.Fade -> setPageTransformer(false, FadePageTransformer())
@@ -328,6 +328,13 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
                 page.translationZ = 0f
                 page.elevation = 0f
 
+                val elevation = try {
+                    page.resources.getDimension(R.dimen.reader_elevation)
+                } catch (e: Exception) {
+                    20f
+                }
+                page.outlineProvider = android.view.ViewOutlineProvider.BOUNDS
+
                 when (scrolling) {
                     ScrollingType.Vertical -> {
                         if (position <= 0) {
@@ -336,6 +343,10 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
                             page.scaleY = 1f
                             page.translationX = page.width * -position
                             page.translationY = if (position < 0) position * page.height else 0f
+                            if (position < 0f) {
+                                page.translationZ = 20f
+                                page.elevation = elevation
+                            }
                         } else {
                             page.translationX = page.width * -position
                             page.translationY = 0f
@@ -357,6 +368,10 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
                             page.alpha = 1f
                             page.scaleX = 1f
                             page.scaleY = 1f
+                            if (position > 0f) {
+                                page.translationZ = 20f
+                                page.elevation = elevation
+                            }
                         }
                     }
                     else -> {
@@ -366,6 +381,10 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
                             page.translationX = 0f
                             page.scaleX = 1f
                             page.scaleY = 1f
+                            if (position < 0f) {
+                                page.translationZ = 20f
+                                page.elevation = elevation
+                            }
                         } else {
                             page.translationY = 0f
                             page.translationX = -position * page.width

@@ -115,6 +115,16 @@ class PageCurlFrame @JvmOverloads constructor(context: Context, attrs: Attribute
         if (factor < 0)
             factor += 1
 
+        if (isCurlPage) {
+            if (layerType != LAYER_TYPE_SOFTWARE) {
+                setLayerType(LAYER_TYPE_SOFTWARE, null)
+            }
+        } else {
+            if (layerType != LAYER_TYPE_NONE) {
+                setLayerType(LAYER_TYPE_NONE, null)
+            }
+        }
+
         if (is3DMode) {
             val touchY = if (mTouchY >= 0f) mTouchY.coerceIn(0f, h) else h
             val maxAngle = Math.toRadians(25.0).toFloat()
