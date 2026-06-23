@@ -49,6 +49,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.book.BookAnnotationHeaderViewHolder
@@ -103,6 +104,13 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
                 } else {
                     mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
                 }
+            }
+
+            val activity = activity ?: return
+            if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                PopupUtils.updateNavigationBarColor(activity, true)
+            } else if (newState == BottomSheetBehavior.STATE_COLLAPSED || newState == BottomSheetBehavior.STATE_HIDDEN) {
+                PopupUtils.updateNavigationBarColor(activity, false)
             }
         }
 
@@ -573,6 +581,15 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         } else {
             mBlurTop.setBlurAutoUpdate(false)
         }
+
+        if (::mMenuPopupLibraryBackground.isInitialized) {
+            mMenuPopupLibraryBackground.setBlurEnabled(isGlass)
+            if (isGlass) {
+                mMenuPopupLibraryBackground.blurOnceDeferred(mHandler, 100)
+            } else {
+                mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+            }
+        }
     }
 
     override fun onPause() {
@@ -582,8 +599,9 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         if (::mBottomSheet.isInitialized && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
             mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            activity?.window?.navigationBarColor = android.graphics.Color.TRANSPARENT
+        if (::mMenuPopupLibraryBackground.isInitialized) {
+            mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+            mMenuPopupLibraryBackground.setBlurEnabled(false)
         }
     }
 
@@ -593,6 +611,13 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         if (hidden) {
             mBlurTop.setBlurAutoUpdate(false)
             mBlurTop.setBlurEnabled(false)
+            if (::mBottomSheet.isInitialized && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+                mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+            if (::mMenuPopupLibraryBackground.isInitialized) {
+                mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                mMenuPopupLibraryBackground.setBlurEnabled(false)
+            }
         } else {
             mBlurTop.setBlurEnabled(isGlass)
             if (isGlass) {
@@ -602,6 +627,18 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
                 }, 100)
             } else {
                 mBlurTop.setBlurAutoUpdate(false)
+            }
+
+            if (::mMenuPopupLibraryBackground.isInitialized) {
+                mMenuPopupLibraryBackground.setBlurEnabled(isGlass)
+                if (isGlass) {
+                    mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                    mHandler.postDelayed({
+                        mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                    }, 100)
+                } else {
+                    mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                }
             }
         }
     }

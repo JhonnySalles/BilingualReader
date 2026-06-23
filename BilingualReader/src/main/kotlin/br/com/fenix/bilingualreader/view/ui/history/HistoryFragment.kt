@@ -115,6 +115,13 @@ class HistoryFragment : Fragment() {
                     mMenuPopupHistoryBackground.setBlurAutoUpdate(false)
                 }
             }
+
+            val activity = activity ?: return
+            if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                PopupUtil.PopupUtils.updateNavigationBarColor(activity, true)
+            } else if (newState == BottomSheetBehavior.STATE_COLLAPSED || newState == BottomSheetBehavior.STATE_HIDDEN) {
+                PopupUtil.PopupUtils.updateNavigationBarColor(activity, false)
+            }
         }
 
         override fun onSlide(bottomSheet: View, slideOffset: Float) {
@@ -442,6 +449,7 @@ class HistoryFragment : Fragment() {
         MenuUtil.longClick(requireActivity(), R.id.menu_history_list_order) {
             onOpenMenuHistory(1)
         }
+        setupPopupBackgrounds()
     }
 
     private var itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {

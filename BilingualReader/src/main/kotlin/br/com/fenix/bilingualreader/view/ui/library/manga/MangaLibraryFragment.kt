@@ -152,6 +152,13 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                     mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
                 }
             }
+
+            val activity = activity ?: return
+            if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                PopupUtils.updateNavigationBarColor(activity, true)
+            } else if (newState == BottomSheetBehavior.STATE_COLLAPSED || newState == BottomSheetBehavior.STATE_HIDDEN) {
+                PopupUtils.updateNavigationBarColor(activity, false)
+            }
         }
 
         override fun onSlide(bottomSheet: View, slideOffset: Float) {
@@ -342,7 +349,6 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     private fun filter(text: String?) = mViewModel.filter.filter(text)
-
     override fun onResume() {
         super.onResume()
 
@@ -370,6 +376,14 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             setIsRefreshing(false)
 
         setupPopupBackgrounds()
+        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+        val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        mMenuPopupLibraryBackground.setBlurEnabled(isGlass)
+        if (isGlass) {
+            mMenuPopupLibraryBackground.blurOnceDeferred(mHandler, 100)
+        } else {
+            mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+        }
     }
 
     override fun onStop() {
@@ -1397,14 +1411,34 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             setAnimationRecycler(true)
         }
     }
-
     override fun onPause() {
         super.onPause()
         if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
             mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            activity?.window?.navigationBarColor = android.graphics.Color.TRANSPARENT
+        mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+        mMenuPopupLibraryBackground.setBlurEnabled(false)
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        val isGlass = GeneralConsts.getSharedPreferences(requireContext()).getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        if (hidden) {
+            if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+                mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+            mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+            mMenuPopupLibraryBackground.setBlurEnabled(false)
+        } else {
+            mMenuPopupLibraryBackground.setBlurEnabled(isGlass)
+            if (isGlass) {
+                mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                mHandler.postDelayed({
+                    mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                }, 100)
+            } else {
+                mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+            }
         }
     }
 

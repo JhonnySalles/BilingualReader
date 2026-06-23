@@ -139,7 +139,6 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     private var mPopupTypeFragment: LibraryBookPopupType by autoCleared()
     private var _mBottomSheet: BottomSheetBehavior<FrameLayout>? = null
     private val mBottomSheet: BottomSheetBehavior<FrameLayout> get() = _mBottomSheet!!
-
     private val mBottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
             val ctx = context ?: return
@@ -151,6 +150,13 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                 } else {
                     mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
                 }
+            }
+
+            val activity = activity ?: return
+            if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                PopupUtils.updateNavigationBarColor(activity, true)
+            } else if (newState == BottomSheetBehavior.STATE_COLLAPSED || newState == BottomSheetBehavior.STATE_HIDDEN) {
+                PopupUtils.updateNavigationBarColor(activity, false)
             }
         }
 
@@ -377,6 +383,15 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             setIsRefreshing(true)
         else
             setIsRefreshing(false)
+
+        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+        val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        mMenuPopupLibraryBackground.setBlurEnabled(isGlass)
+        if (isGlass) {
+            mMenuPopupLibraryBackground.blurOnceDeferred(mHandler, 100)
+        } else {
+            mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+        }
     }
 
     override fun onStop() {
@@ -1402,6 +1417,8 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                 mRecyclerView.adapter?.notifyItemRangeChanged(0, mRecyclerView.adapter?.itemCount ?: 0)
             }
         }
+
+        setupPopupBackgrounds()
     }
 
     override fun onPause() {
@@ -1409,8 +1426,29 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
             mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            activity?.window?.navigationBarColor = android.graphics.Color.TRANSPARENT
+        mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+        mMenuPopupLibraryBackground.setBlurEnabled(false)
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        val isGlass = GeneralConsts.getSharedPreferences(requireContext()).getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        if (hidden) {
+            if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+                mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+            mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+            mMenuPopupLibraryBackground.setBlurEnabled(false)
+        } else {
+            mMenuPopupLibraryBackground.setBlurEnabled(isGlass)
+            if (isGlass) {
+                mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                mHandler.postDelayed({
+                    mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                }, 100)
+            } else {
+                mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+            }
         }
     }
 

@@ -1305,11 +1305,8 @@ class AnimationUtil {
         fun animatePopupOpen(activity: Activity, frame: FrameLayout, isVertical: Boolean = true, navigationColor: Boolean = true, ending: () -> (Unit) = {}) {
             frame.visibility = View.VISIBLE
             if (isVertical) {
-                if (navigationColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-                    activity.window?.run {
-                        navigationBarColor = android.graphics.Color.TRANSPARENT
-                        WindowCompat.getInsetsController(this, this.decorView).isAppearanceLightNavigationBars = true
-                    }
+                if (navigationColor)
+                    PopupUtil.updateNavigationBarColor(activity, true)
 
                 val positionInitial = frame.translationY
                 frame.translationY = positionInitial + 200F
@@ -1347,8 +1344,8 @@ class AnimationUtil {
                             frame.visibility = View.GONE
                             frame.translationY = positionInitial
 
-                            if (navigationColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-                                activity.window.navigationBarColor = android.graphics.Color.TRANSPARENT
+                            if (navigationColor)
+                                PopupUtil.updateNavigationBarColor(activity, false)
                         }
                     })
             } else {
@@ -1368,6 +1365,7 @@ class AnimationUtil {
 
     }
 }
+
 
 fun com.google.android.material.button.MaterialButton.executeWithAnimation(action: () -> Unit) {
     val avd = this.icon as? AnimatedVectorDrawable
@@ -1481,6 +1479,20 @@ class ColorUtil {
 
 class PopupUtil {
     companion object PopupUtils {
+        fun updateNavigationBarColor(activity: Activity, isOpened: Boolean) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val window = activity.window ?: return
+                if (isOpened) {
+                    val themeColor = activity.getColorFromAttr(R.attr.colorSurfaceVariant)
+                    window.navigationBarColor = themeColor
+                    val isDark = ColorUtils.calculateLuminance(themeColor) < 0.5
+                    WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars = !isDark
+                } else {
+                    window.navigationBarColor = android.graphics.Color.TRANSPARENT
+                }
+            }
+        }
+
         fun setupPopupBackgrounds( activity: Activity, popupBottom: View?, popupBackground: BlurView?) {
             val sharedPreferences = GeneralConsts.getSharedPreferences(activity)
             val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
@@ -1500,12 +1512,12 @@ class PopupUtil {
                 val bottomSheetBg = GradientDrawable().apply {
                     shape = GradientDrawable.RECTANGLE
                     setColor(finalColor)
-                    cornerRadii = if (isGlass) floatArrayOf(
+                    cornerRadii = floatArrayOf(
                         cornerRadius, cornerRadius,
                         cornerRadius, cornerRadius,
                         0f, 0f,
                         0f, 0f
-                    ) else floatArrayOf(0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f)
+                    )
                 }
                 if (!isGlass) {
                     val topInset = activity.resources.getDimensionPixelSize(R.dimen.popup_background_size)
