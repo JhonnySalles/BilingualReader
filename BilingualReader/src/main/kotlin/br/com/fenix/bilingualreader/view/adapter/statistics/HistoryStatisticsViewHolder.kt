@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
@@ -24,10 +25,16 @@ class HistoryStatisticsViewHolder(itemView: View, private val listener: HistoryC
 
     companion object {
         lateinit var mDefaultImageCover: Bitmap
+        var mDescriptionAuthor: String = ""
+        var mDescriptionSeries: String = ""
+        var mDescriptionPublisher: String = ""
     }
 
     init {
         mDefaultImageCover = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_2)
+        mDescriptionSeries = itemView.context.getString(R.string.manga_library_line_series) + " "
+        mDescriptionPublisher = itemView.context.getString(R.string.manga_library_line_publisher) + " "
+        mDescriptionAuthor = itemView.context.getString(R.string.manga_library_line_authors) + " "
     }
 
     fun bind(history: History) {
@@ -43,6 +50,11 @@ class HistoryStatisticsViewHolder(itemView: View, private val listener: HistoryC
         val favorite = itemView.findViewById<ImageView>(R.id.history_favorite)
         val subtitle = itemView.findViewById<ImageView>(R.id.history_has_subtitle)
         val cardView = itemView.findViewById<LinearLayout>(R.id.history_card)
+
+        val series = itemView.findViewById<TextView>(R.id.history_line_series)
+        val author = itemView.findViewById<TextView>(R.id.history_line_author)
+        val publisher = itemView.findViewById<TextView>(R.id.history_line_publisher)
+        val progress = itemView.findViewById<ProgressBar>(R.id.history_line_progress)
 
         cardView.setOnClickListener { listener.onClick(history) }
         cardView.setOnLongClickListener {
@@ -78,6 +90,43 @@ class HistoryStatisticsViewHolder(itemView: View, private val listener: HistoryC
             pagesReadDaily.visibility = View.GONE
             timeReadDaily.visibility = View.GONE
         }
+
+        var authorText = ""
+        var seriesText = ""
+        var publisherText = ""
+
+        when (base) {
+            is Manga -> {
+                authorText = base.author
+                seriesText = base.series
+                publisherText = base.publisher
+            }
+            is Book -> {
+                authorText = base.author
+                publisherText = base.publisher
+            }
+        }
+
+        author.text = ""
+        author.visibility = if (authorText.isNotEmpty()) {
+            author.text = mDescriptionAuthor + authorText
+            View.VISIBLE
+        } else View.GONE
+
+        series.text = ""
+        series.visibility = if (seriesText.isNotEmpty()) {
+            series.text = mDescriptionSeries + seriesText
+            View.VISIBLE
+        } else View.GONE
+
+        publisher.text = ""
+        publisher.visibility = if (publisherText.isNotEmpty()) {
+            publisher.text = mDescriptionPublisher + publisherText
+            View.VISIBLE
+        } else View.GONE
+
+        progress.max = history.pages
+        progress.setProgress(history.bookMark, false)
 
         library.text = if (history.fkLibrary == GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA || history.fkLibrary == GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK)
             itemView.context.getString(R.string.manga_library_default).uppercase()

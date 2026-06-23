@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
@@ -24,10 +25,16 @@ class HistoryViewHolder(itemView: View, private val listener: HistoryCardListene
 
     companion object {
         lateinit var mDefaultImageCover: Bitmap
+        var mDescriptionAuthor: String = ""
+        var mDescriptionSeries: String = ""
+        var mDescriptionPublisher: String = ""
     }
 
     init {
         mDefaultImageCover = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_2)
+        mDescriptionSeries = itemView.context.getString(R.string.manga_library_line_series) + " "
+        mDescriptionPublisher = itemView.context.getString(R.string.manga_library_line_publisher) + " "
+        mDescriptionAuthor = itemView.context.getString(R.string.manga_library_line_authors) + " "
     }
 
     fun bind(history: History) {
@@ -43,6 +50,11 @@ class HistoryViewHolder(itemView: View, private val listener: HistoryCardListene
         val favorite = itemView.findViewById<ImageView>(R.id.history_favorite)
         val subtitle = itemView.findViewById<ImageView>(R.id.history_has_subtitle)
         val cardView = itemView.findViewById<LinearLayout>(R.id.history_card)
+
+        val series = itemView.findViewById<TextView>(R.id.history_line_series)
+        val author = itemView.findViewById<TextView>(R.id.history_line_author)
+        val publisher = itemView.findViewById<TextView>(R.id.history_line_publisher)
+        val progress = itemView.findViewById<ProgressBar>(R.id.history_line_progress)
 
         cardView.setOnClickListener { listener.onClick(history) }
         cardView.setOnLongClickListener {
@@ -63,6 +75,43 @@ class HistoryViewHolder(itemView: View, private val listener: HistoryCardListene
         fileSize.text = FileUtil.formatSize(history.fileSize)
         val percent: Float = if (history.bookMark > 0) ((history.bookMark.toFloat() / history.pages) * 100) else 0f
         pagesRead.text = "${history.bookMark} / ${history.pages}" + if (percent > 0) (" (" + Util.formatDecimal(percent) + ")") else ""
+
+        var authorText = ""
+        var seriesText = ""
+        var publisherText = ""
+
+        when (history) {
+            is Manga -> {
+                authorText = history.author
+                seriesText = history.series
+                publisherText = history.publisher
+            }
+            is Book -> {
+                authorText = history.author
+                publisherText = history.publisher
+            }
+        }
+
+        author.text = ""
+        author.visibility = if (authorText.isNotEmpty()) {
+            author.text = mDescriptionAuthor + authorText
+            View.VISIBLE
+        } else View.GONE
+
+        series.text = ""
+        series.visibility = if (seriesText.isNotEmpty()) {
+            series.text = mDescriptionSeries + seriesText
+            View.VISIBLE
+        } else View.GONE
+
+        publisher.text = ""
+        publisher.visibility = if (publisherText.isNotEmpty()) {
+            publisher.text = mDescriptionPublisher + publisherText
+            View.VISIBLE
+        } else View.GONE
+
+        progress.max = history.pages
+        progress.setProgress(history.bookMark, false)
 
         library.text = if (history.fkLibrary == GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA || history.fkLibrary == GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK)
             itemView.context.getString(R.string.manga_library_default).uppercase()
