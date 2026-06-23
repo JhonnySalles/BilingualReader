@@ -117,6 +117,7 @@ class HistoryStatisticsFragment : Fragment() {
 
     private val mBottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
+            if (view == null) return
             val ctx = context ?: return
             val sharedPreferences = GeneralConsts.getSharedPreferences(ctx)
             val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
@@ -130,6 +131,7 @@ class HistoryStatisticsFragment : Fragment() {
         }
 
         override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            if (view == null) return
             val ctx = context ?: return
             val sharedPreferences = GeneralConsts.getSharedPreferences(ctx)
             val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
@@ -633,23 +635,31 @@ class HistoryStatisticsFragment : Fragment() {
     @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
         super.onResume()
-        setupTitleBackgrounds()
-        setupPopupBackgrounds()
-        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        mBlurTop.setBlurEnabled(isGlass)
-        mMenuPopupHistoryStatisticsBackground.setBlurEnabled(isGlass)
-        if (isGlass) {
-            mBlurTop.blurOnceDeferred(mHandler, 100)
-            mMenuPopupHistoryStatisticsBackground.blurOnceDeferred(mHandler, 100)
-        } else {
-            mBlurTop.setBlurAutoUpdate(false)
-            mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
-        }
-        mViewModel.list {
-            if (it > -1)
-                mRecyclerView.adapter?.notifyItemChanged(0, it)
-            else
-                mRecyclerView.adapter?.notifyDataSetChanged()
+        if (view != null) {
+            setupTitleBackgrounds()
+            setupPopupBackgrounds()
+            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (::mBlurTop.isInitialized) {
+                mBlurTop.setBlurEnabled(isGlass)
+            }
+            mMenuPopupHistoryStatisticsBackground.setBlurEnabled(isGlass)
+            if (isGlass) {
+                if (::mBlurTop.isInitialized) {
+                    mBlurTop.blurOnceDeferred(mHandler, 100)
+                }
+                mMenuPopupHistoryStatisticsBackground.blurOnceDeferred(mHandler, 100)
+            } else {
+                if (::mBlurTop.isInitialized) {
+                    mBlurTop.setBlurAutoUpdate(false)
+                }
+                mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
+            }
+            mViewModel.list {
+                if (it > -1)
+                    mRecyclerView.adapter?.notifyItemChanged(0, it)
+                else
+                    mRecyclerView.adapter?.notifyDataSetChanged()
+            }
         }
     }
 
@@ -963,39 +973,57 @@ class HistoryStatisticsFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
-            mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+        if (view != null) {
+            if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+                mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+            if (::mBlurTop.isInitialized) {
+                mBlurTop.setBlurAutoUpdate(false)
+                mBlurTop.setBlurEnabled(false)
+            }
+            mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
+            mMenuPopupHistoryStatisticsBackground.setBlurEnabled(false)
         }
-        mBlurTop.setBlurAutoUpdate(false)
-        mBlurTop.setBlurEnabled(false)
-        mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
-        mMenuPopupHistoryStatisticsBackground.setBlurEnabled(false)
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
-        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        if (hidden) {
-            if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
-                mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-            }
-            mBlurTop.setBlurAutoUpdate(false)
-            mBlurTop.setBlurEnabled(false)
-            mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
-            mMenuPopupHistoryStatisticsBackground.setBlurEnabled(false)
-        } else {
-            mBlurTop.setBlurEnabled(isGlass)
-            mMenuPopupHistoryStatisticsBackground.setBlurEnabled(isGlass)
-            if (isGlass) {
-                mBlurTop.setBlurAutoUpdate(true)
-                mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(true)
-                mHandler.postDelayed({
+        if (view != null) {
+            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (hidden) {
+                if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+                    mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+                }
+                if (::mBlurTop.isInitialized) {
                     mBlurTop.setBlurAutoUpdate(false)
-                    mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
-                }, 100)
-            } else {
-                mBlurTop.setBlurAutoUpdate(false)
+                    mBlurTop.setBlurEnabled(false)
+                }
                 mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
+                mMenuPopupHistoryStatisticsBackground.setBlurEnabled(false)
+            } else {
+                if (::mBlurTop.isInitialized) {
+                    mBlurTop.setBlurEnabled(isGlass)
+                }
+                mMenuPopupHistoryStatisticsBackground.setBlurEnabled(isGlass)
+                if (isGlass) {
+                    if (::mBlurTop.isInitialized) {
+                        mBlurTop.setBlurAutoUpdate(true)
+                    }
+                    mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(true)
+                    mHandler.postDelayed({
+                        if (view != null) {
+                            if (::mBlurTop.isInitialized) {
+                                mBlurTop.setBlurAutoUpdate(false)
+                            }
+                            mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
+                        }
+                    }, 100)
+                } else {
+                    if (::mBlurTop.isInitialized) {
+                        mBlurTop.setBlurAutoUpdate(false)
+                    }
+                    mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
+                }
             }
         }
     }

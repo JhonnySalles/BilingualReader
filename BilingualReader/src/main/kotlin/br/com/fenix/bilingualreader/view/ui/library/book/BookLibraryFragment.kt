@@ -141,6 +141,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     private val mBottomSheet: BottomSheetBehavior<FrameLayout> get() = _mBottomSheet!!
     private val mBottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
+            if (view == null) return
             val ctx = context ?: return
             val sharedPreferences = GeneralConsts.getSharedPreferences(ctx)
             val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
@@ -161,6 +162,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
         }
 
         override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            if (view == null) return
             val ctx = context ?: return
             val sharedPreferences = GeneralConsts.getSharedPreferences(ctx)
             val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
@@ -359,39 +361,41 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
     override fun onResume() {
         super.onResume()
-        setupPopupBackgrounds()
+        if (view != null) {
+            setupPopupBackgrounds()
 
-        mViewModel.getLibrary().let {
-            if (it.language == Libraries.DEFAULT)
-                mainFunctions.clearLibraryTitle()
+            mViewModel.getLibrary().let {
+                if (it.language == Libraries.DEFAULT)
+                    mainFunctions.clearLibraryTitle()
+                else
+                    mainFunctions.changeLibraryTitle(it.title)
+            }
+
+            ScannerBook.getInstance(requireContext()).addUpdateHandler(mUpdateHandler)
+
+            if (!mViewModel.isLoading) {
+                if (mViewModel.isEmpty())
+                    refresh()
+                else
+                    mViewModel.updateList { change, indexes ->
+                        if (change && indexes.isNotEmpty())
+                            sortList()
+                    }
+            }
+
+            if (ScannerBook.getInstance(requireContext()).isRunning(mViewModel.getLibrary()))
+                setIsRefreshing(true)
             else
-                mainFunctions.changeLibraryTitle(it.title)
-        }
+                setIsRefreshing(false)
 
-        ScannerBook.getInstance(requireContext()).addUpdateHandler(mUpdateHandler)
-
-        if (!mViewModel.isLoading) {
-            if (mViewModel.isEmpty())
-                refresh()
-            else
-                mViewModel.updateList { change, indexes ->
-                    if (change && indexes.isNotEmpty())
-                        sortList()
-                }
-        }
-
-        if (ScannerBook.getInstance(requireContext()).isRunning(mViewModel.getLibrary()))
-            setIsRefreshing(true)
-        else
-            setIsRefreshing(false)
-
-        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
-        val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        mMenuPopupLibraryBackground.setBlurEnabled(isGlass)
-        if (isGlass) {
-            mMenuPopupLibraryBackground.blurOnceDeferred(mHandler, 100)
-        } else {
-            mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+            val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+            val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            mMenuPopupLibraryBackground.setBlurEnabled(isGlass)
+            if (isGlass) {
+                mMenuPopupLibraryBackground.blurOnceDeferred(mHandler, 100)
+            } else {
+                mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+            }
         }
     }
 
@@ -979,14 +983,22 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
 
     private fun loadConfig() {
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
-        mSortType = Order.valueOf(sharedPreferences.getString(GeneralConsts.KEYS.LIBRARY.BOOK_ORDER, Order.Name.toString()).toString())
+        mSortType = try {
+            Order.valueOf(sharedPreferences.getString(GeneralConsts.KEYS.LIBRARY.BOOK_ORDER, Order.Name.toString()).toString())
+        } catch (e: Exception) {
+            Order.Name
+        }
 
-        mGridType = LibraryBookType.valueOf(
-            sharedPreferences.getString(
-                GeneralConsts.KEYS.LIBRARY.BOOK_LIBRARY_TYPE,
-                LibraryBookType.LINE.toString()
-            ).toString()
-        )
+        mGridType = try {
+            LibraryBookType.valueOf(
+                sharedPreferences.getString(
+                    GeneralConsts.KEYS.LIBRARY.BOOK_LIBRARY_TYPE,
+                    LibraryBookType.LINE.toString()
+                ).toString()
+            )
+        } catch (e: Exception) {
+            LibraryBookType.LINE
+        }
         mViewModel.setLibraryType(mGridType)
         mViewModel.sorted(mSortType)
     }

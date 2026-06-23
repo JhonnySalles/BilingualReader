@@ -142,6 +142,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     private val mBottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
+            if (view == null) return
             val ctx = context ?: return
             val sharedPreferences = GeneralConsts.getSharedPreferences(ctx)
             val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
@@ -162,6 +163,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         }
 
         override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            if (view == null) return
             val ctx = context ?: return
             val sharedPreferences = GeneralConsts.getSharedPreferences(ctx)
             val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
@@ -376,14 +378,16 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         else
             setIsRefreshing(false)
 
-        setupPopupBackgrounds()
-        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
-        val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        mMenuPopupLibraryBackground.setBlurEnabled(isGlass)
-        if (isGlass) {
-            mMenuPopupLibraryBackground.blurOnceDeferred(mHandler, 100)
-        } else {
-            mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+        if (view != null) {
+            setupPopupBackgrounds()
+            val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+            val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            mMenuPopupLibraryBackground.setBlurEnabled(isGlass)
+            if (isGlass) {
+                mMenuPopupLibraryBackground.blurOnceDeferred(mHandler, 100)
+            } else {
+                mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+            }
         }
     }
 
@@ -978,19 +982,27 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     private fun loadConfig() {
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
-        mSortType = Order.valueOf(
-            sharedPreferences.getString(
-                GeneralConsts.KEYS.LIBRARY.MANGA_ORDER,
-                Order.Name.toString()
-            ).toString()
-        )
+        mSortType = try {
+            Order.valueOf(
+                sharedPreferences.getString(
+                    GeneralConsts.KEYS.LIBRARY.MANGA_ORDER,
+                    Order.Name.toString()
+                ).toString()
+            )
+        } catch (e: Exception) {
+            Order.Name
+        }
 
-        mGridType = LibraryMangaType.valueOf(
-            sharedPreferences.getString(
-                GeneralConsts.KEYS.LIBRARY.MANGA_LIBRARY_TYPE,
-                LibraryMangaType.LINE.toString()
-            ).toString()
-        )
+        mGridType = try {
+            LibraryMangaType.valueOf(
+                sharedPreferences.getString(
+                    GeneralConsts.KEYS.LIBRARY.MANGA_LIBRARY_TYPE,
+                    LibraryMangaType.LINE.toString()
+                ).toString()
+            )
+        } catch (e: Exception) {
+            LibraryMangaType.LINE
+        }
 
         mViewModel.setLibraryType(mGridType)
         mViewModel.sorted(mSortType)

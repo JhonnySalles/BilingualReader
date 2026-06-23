@@ -105,6 +105,7 @@ class HistoryFragment : Fragment() {
 
     private val mBottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
+            if (view == null) return
             val ctx = context ?: return
             val sharedPreferences = GeneralConsts.getSharedPreferences(ctx)
             val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
@@ -125,6 +126,7 @@ class HistoryFragment : Fragment() {
         }
 
         override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            if (view == null) return
             val ctx = context ?: return
             val sharedPreferences = GeneralConsts.getSharedPreferences(ctx)
             val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
@@ -608,39 +610,45 @@ class HistoryFragment : Fragment() {
     @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
         super.onResume()
-        setupPopupBackgrounds()
-        mViewModel.list {
-            if (it > -1)
-                mRecyclerView.adapter?.notifyItemChanged(0, it)
-            else
-                mRecyclerView.adapter?.notifyDataSetChanged()
+        if (view != null) {
+            setupPopupBackgrounds()
+            mViewModel.list {
+                if (it > -1)
+                    mRecyclerView.adapter?.notifyItemChanged(0, it)
+                else
+                    mRecyclerView.adapter?.notifyDataSetChanged()
+            }
         }
     }
 
     override fun onPause() {
         super.onPause()
-        if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
-            mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-        }
-        mMenuPopupHistoryBackground.setBlurAutoUpdate(false)
-        mMenuPopupHistoryBackground.setBlurEnabled(false)
-    }
-
-    override fun onHiddenChanged(hidden: Boolean) {
-        super.onHiddenChanged(hidden)
-        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        if (hidden) {
+        if (view != null) {
             if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
                 mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
             }
             mMenuPopupHistoryBackground.setBlurAutoUpdate(false)
             mMenuPopupHistoryBackground.setBlurEnabled(false)
-        } else {
-            mMenuPopupHistoryBackground.setBlurEnabled(isGlass)
-            if (isGlass) {
-                mMenuPopupHistoryBackground.blurOnceDeferred(mHandler, 100)
-            } else {
+        }
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (view != null) {
+            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (hidden) {
+                if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+                    mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+                }
                 mMenuPopupHistoryBackground.setBlurAutoUpdate(false)
+                mMenuPopupHistoryBackground.setBlurEnabled(false)
+            } else {
+                mMenuPopupHistoryBackground.setBlurEnabled(isGlass)
+                if (isGlass) {
+                    mMenuPopupHistoryBackground.blurOnceDeferred(mHandler, 100)
+                } else {
+                    mMenuPopupHistoryBackground.setBlurAutoUpdate(false)
+                }
             }
         }
     }

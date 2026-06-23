@@ -1985,9 +1985,13 @@ fun Button.executeWithAnimation(action: () -> Unit) {
 
 fun BlurView.blurOnceDeferred(handler: Handler, delayMs: Long = 100L) {
     Choreographer.getInstance().postFrameCallback {
-        setBlurAutoUpdate(true)
-        handler.postDelayed({
-            setBlurAutoUpdate(false)
-        }, delayMs)
+        if (isAttachedToWindow) {
+            setBlurAutoUpdate(true)
+            handler.postDelayed({
+                if (isAttachedToWindow) {
+                    setBlurAutoUpdate(false)
+                }
+            }, delayMs)
+        }
     }
 }
