@@ -440,8 +440,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setupTitleBackgrounds()
 
         val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-        mBlurTop.setBlurAutoUpdate(isGlass)
         mBlurTop.setBlurEnabled(isGlass)
+        if (isGlass) {
+            mBlurTop.blurOnceDeferred(mHandler, 100)
+        } else {
+            mBlurTop.setBlurAutoUpdate(false)
+        }
         setNavigatorBlurAutoUpdate(mDrawer.isDrawerOpen(GravityCompat.START))
     }
 
@@ -470,6 +474,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mBlurTop.setBlurAutoUpdate(enabled)
         } else {
             mBlurTop.setBlurAutoUpdate(false)
+        }
+    }
+
+    fun blurOnceDeferred(delayMs: Long) {
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        if (isGlass && ::mBlurTop.isInitialized) {
+            mBlurTop.blurOnceDeferred(mHandler, delayMs)
         }
     }
 

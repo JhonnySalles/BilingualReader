@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.RecyclerView
 import eightbitlab.com.blurview.BlurView
 
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
+
 class BlurAwareItemAnimator(
     private val blurViews: List<BlurView>,
     private val autoRestoreDelay: Long = 50L
@@ -82,21 +84,17 @@ class BlurAwareItemAnimator(
         runningAnimations--
         if (runningAnimations <= 0) {
             runningAnimations = 0
-            
-            // Prioridade baixa: usamos postFrameCallback do Choreographer
-            // para que a reativação do blur ocorra estritamente no final
-            // do frame de desenho atual ou no próximo frame, após as animações.
-            Choreographer.getInstance().postFrameCallback {
-                handler.postDelayed({
-                    if (runningAnimations == 0) {
-                        getViews().forEach { bv ->
-                            bv.setBlurAutoUpdate(true)
-                            // Executa um redesenho de frame único e desliga novamente
-                            handler.postDelayed({ bv.setBlurAutoUpdate(false) }, 50)
-                        }
+            handler.postDelayed({
+                if (runningAnimations == 0) {
+                    getViews().forEach { bv ->
+                        bv.blurOnceDeferred(handler, 50)
                     }
-                }, autoRestoreDelay)
-            }
+                }
+            }, autoRestoreDelay)
         }
+    }
+
+    fun destroy() {
+        handler.removeCallbacksAndMessages(null)
     }
 }

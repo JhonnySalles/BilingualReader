@@ -383,7 +383,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
             val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
             val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
             mMenuPopupLibraryBackground.setBlurEnabled(isGlass)
-            if (isGlass) {
+            if (isGlass && !mViewModel.isLoading) {
                 mMenuPopupLibraryBackground.blurOnceDeferred(mHandler, 100)
             } else {
                 mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
@@ -403,6 +403,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     override fun onDestroyView() {
+        (mRecyclerView.itemAnimator as? BlurAwareItemAnimator)?.destroy()
         mHandler.removeCallbacksAndMessages(null)
         _searchView = null
         _mRecyclerView = null
@@ -1068,9 +1069,10 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     private fun observer() {
         mViewModel.loading.observe(viewLifecycleOwner) {
-            if (!it)
+            if (!it) {
                 animateReplaceSkeleton()
-            else
+                (activity as? br.com.fenix.bilingualreader.MainActivity)?.blurOnceDeferred(300)
+            } else
                 showSkeleton(it)
         }
 
