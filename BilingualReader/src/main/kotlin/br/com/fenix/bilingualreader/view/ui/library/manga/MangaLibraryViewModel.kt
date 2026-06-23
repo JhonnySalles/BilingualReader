@@ -285,6 +285,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                     indexes.add(Pair(ListMode.FULL, list.size))
                     mListMangas.value = list.toMutableList()
                     mListMangasFull.value = list.toMutableList()
+                    sorted()
                 } else {
                     mListMangas.value = mutableListOf()
                     mListMangasFull.value = mutableListOf()

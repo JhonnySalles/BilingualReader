@@ -265,6 +265,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                     indexes.add(Pair(ListMode.FULL, list.size))
                     mListBook.value = list.toMutableList()
                     mListBookFull.value = list.toMutableList()
+                    sorted()
                 } else {
                     mListBook.value = mutableListOf()
                     mListBookFull.value = mutableListOf()
