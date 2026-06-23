@@ -417,7 +417,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                         bitmap
                     } else null
 
-                    if (bitmap == null) return
+                    if (bitmap == null)
+                        return
 
                     mLastPage.addFirst(Pair(page, bitmap.copy(bitmap.config, true)))
                     updateDotsLastPage()

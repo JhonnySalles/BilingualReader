@@ -46,6 +46,11 @@ class PageCurlFrame @JvmOverloads constructor(context: Context, attrs: Attribute
         isAntiAlias = true
     }
 
+    private val mBackgroundPaint: Paint = Paint().apply {
+        style = Paint.Style.FILL
+        color = context.getColorFromAttr(android.R.attr.colorBackground)
+    }
+
     private var mTouchY = -1f
     private val mMirrorMatrix = Matrix()
     private var mShadowGradient: Shader? = null
@@ -81,6 +86,7 @@ class PageCurlFrame @JvmOverloads constructor(context: Context, attrs: Attribute
 
             val canvas = mCanvasCache ?: return
             canvas.drawColor(Color.TRANSPARENT, android.graphics.PorterDuff.Mode.CLEAR)
+            canvas.drawColor(mBackgroundPaint.color)
             
             val oldCurlPage = isCurlPage
             isCurlPage = false
@@ -279,6 +285,7 @@ class PageCurlFrame @JvmOverloads constructor(context: Context, attrs: Attribute
                 if (mCurl != 0f && mCurl != 1f && mCurl != -1f)
                     clipPath(mClipPath)
 
+                drawRect(0f, 0f, width.toFloat(), height.toFloat(), mBackgroundPaint)
                 super.dispatchDraw(canvas)
             }
 
