@@ -226,6 +226,9 @@ dependencies {
     //Loading Skeleton
     implementation 'io.supercharge:shimmerlayout:2.1.0'
 
+    // COIL
+    implementation 'io.coil-kt:coil:2.6.0'
+
     // SENTRY
     implementation 'io.sentry:sentry-android:7.14.0'
 

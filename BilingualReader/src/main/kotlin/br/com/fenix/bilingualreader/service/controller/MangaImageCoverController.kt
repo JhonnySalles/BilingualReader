@@ -3,7 +3,7 @@ package br.com.fenix.bilingualreader.service.controller
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.LruCache
+import android.graphics.drawable.BitmapDrawable
 import android.widget.ImageView
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
@@ -19,20 +19,21 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
+import coil.load
 
 
 class MangaImageCoverController private constructor() {
 
     companion object {
         val instance: MangaImageCoverController by lazy { HOLDER.INSTANCE }
-        val thread: CoroutineDispatcher = newSingleThreadContext("MangaCovers")
+        val thread: CoroutineDispatcher = java.util.concurrent.Executors.newFixedThreadPool(3).asCoroutineDispatcher()
     }
 
     private val mLOGGER = LoggerFactory.getLogger(MangaImageCoverController::class.java)
@@ -41,40 +42,8 @@ class MangaImageCoverController private constructor() {
         val INSTANCE = MangaImageCoverController()
     }
 
-    private val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
-    private val cacheSize = maxMemory / 4
-    private val lru = object : LruCache<String, Bitmap>(cacheSize) {
-        override fun sizeOf(key: String, bitmap: Bitmap): Int {
-            return bitmap.byteCount / 1024
-        }
-    }
-
-    private fun saveBitmapToLru(key: String, bitmap: Bitmap) {
-        try {
-            synchronized(instance.lru) {
-                if (instance.lru.get(key) == null)
-                    instance.lru.remove(key)
-                instance.lru.put(key, bitmap)
-            }
-        } catch (e: Exception) {
-            mLOGGER.warn("Error save image on LruCache: " + e.message, e)
-            Telemetry.recordException(e, "Error save image on LruCache: " + e.message)
-        }
-    }
-
-    private fun retrieveBitmapFromLru(key: String): Bitmap? {
-        try {
-            return instance.lru.get(key)
-        } catch (e: Exception) {
-            mLOGGER.warn("Error retrieve image from LruCache: " + e.message, e)
-            Telemetry.recordException(e, "Error retrieve image from LruCache: " + e.message)
-        }
-        return null
-    }
-
     private fun saveBitmapToCache(context: Context, key: String, bitmap: Bitmap) {
         try {
-            saveBitmapToLru(key, bitmap)
             val cacheDir = File(GeneralConsts.getCoverDir(context), GeneralConsts.CACHE_FOLDER.MANGA_COVERS)
             if (!cacheDir.exists())
                 cacheDir.mkdir()
@@ -90,15 +59,10 @@ class MangaImageCoverController private constructor() {
 
     private fun retrieveBitmapFromCache(context: Context, key: String): Bitmap? {
         try {
-            var image = retrieveBitmapFromLru(key)
-            if (image != null) return image
-
             val file = File(GeneralConsts.getCoverDir(context), GeneralConsts.CACHE_FOLDER.MANGA_COVERS + '/' + key)
 
             if (file.exists()) {
-                image = BitmapFactory.decodeFile(file.absolutePath) ?: return null
-                saveBitmapToLru(key, image)
-                return image
+                return BitmapFactory.decodeFile(file.absolutePath) ?: return null
             }
         } catch (e: Exception) {
             mLOGGER.error("Error retrieve bitmap from cache: " + e.message, e)
@@ -156,6 +120,40 @@ class MangaImageCoverController private constructor() {
         return cover
     }
 
+    fun getMangaCoverFile(context: Context, manga: Manga, isCoverSize: Boolean): File? {
+        val hash = generateHash(manga.file)
+        val cacheDir = File(GeneralConsts.getCoverDir(context), GeneralConsts.CACHE_FOLDER.MANGA_COVERS)
+        val cacheFile = File(cacheDir, hash)
+
+        if (isCoverSize && cacheFile.exists()) {
+            return cacheFile
+        }
+
+        if (!manga.file.exists()) {
+            return null
+        }
+
+        val parse = ParseFactory.create(manga.file) ?: return null
+        try {
+            if (parse is RarParse) {
+                val folder = GeneralConsts.CACHE_FOLDER.RAR + '/' + Util.normalizeNameCache(manga.file.nameWithoutExtension)
+                val cacheDirRar = File(GeneralConsts.getCacheDir(context), folder)
+                (parse as RarParse?)!!.setCacheDirectory(cacheDirRar)
+            }
+
+            val cover = getCoverFromFile(context, hash, parse, isCoverSize)
+            if (cover != null) {
+                return cacheFile
+            }
+        } catch (e: Exception) {
+            mLOGGER.error("Error getMangaCoverFile: " + e.message, e)
+        } finally {
+            Util.destroyParse(parse)
+        }
+
+        return null
+    }
+
     fun getMangaCover(context: Context, manga: Manga, isCoverSize: Boolean): Bitmap? {
         val hash = generateHash(manga.file)
         var image: Bitmap? = null
@@ -207,9 +205,13 @@ class MangaImageCoverController private constructor() {
     }
 
     fun setImageCoverAsync(context: Context, manga: Manga, imageView: ImageView, notLocate: Bitmap?, isCoverSize: Boolean = true) {
-        setImageCoverAsync(context, manga, isCoverSize) {
-            val image = it ?: notLocate
-            imageView.setImageBitmap(image)
+        imageView.load(manga) {
+            allowHardware(false)
+            crossfade(true)
+            if (notLocate != null) {
+                placeholder(BitmapDrawable(context.resources, notLocate))
+                error(BitmapDrawable(context.resources, notLocate))
+            }
         }
     }
 
@@ -231,10 +233,24 @@ class MangaImageCoverController private constructor() {
         isCoverSize: Boolean = true,
         onFinish: (Bitmap?) -> (Unit)
     ) {
-        setImageCoverAsync(context, manga, isCoverSize) {
-            val image = it ?: notLocate
-            imageView.setImageBitmap(image)
-            onFinish(image)
+        imageView.load(manga) {
+            allowHardware(false)
+            crossfade(true)
+            if (notLocate != null) {
+                placeholder(BitmapDrawable(context.resources, notLocate))
+                error(BitmapDrawable(context.resources, notLocate))
+            }
+            target(
+                onSuccess = { result ->
+                    val bitmap = (result as? BitmapDrawable)?.bitmap
+                    imageView.setImageBitmap(bitmap)
+                    onFinish(bitmap)
+                },
+                onError = {
+                    imageView.setImageBitmap(notLocate)
+                    onFinish(notLocate)
+                }
+            )
         }
     }
 

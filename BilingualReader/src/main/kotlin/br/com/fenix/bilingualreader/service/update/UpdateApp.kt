@@ -129,7 +129,7 @@ class UpdateApp(var mContext: Context) {
                 val request: Request = Request.Builder().url(url).build()
                 val response = OkHttpClient().newCall(request).execute()
 
-                val body = response.body()
+                val body = response.body
                 val length = body!!.contentLength()
                 val byte = body.byteStream()
 

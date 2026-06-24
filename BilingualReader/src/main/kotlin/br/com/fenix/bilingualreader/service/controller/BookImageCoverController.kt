@@ -3,7 +3,7 @@ package br.com.fenix.bilingualreader.service.controller
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.LruCache
+import android.graphics.drawable.BitmapDrawable
 import android.widget.ImageView
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.service.parses.book.ImageParse
@@ -15,19 +15,20 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
+import coil.load
 
 
 class BookImageCoverController private constructor() {
 
     companion object {
         val instance: BookImageCoverController by lazy { HOLDER.INSTANCE }
-        val thread: CoroutineDispatcher = newSingleThreadContext("BookCovers")
+        val thread: CoroutineDispatcher = java.util.concurrent.Executors.newFixedThreadPool(3).asCoroutineDispatcher()
     }
 
     private val mLOGGER = LoggerFactory.getLogger(BookImageCoverController::class.java)
@@ -36,40 +37,8 @@ class BookImageCoverController private constructor() {
         val INSTANCE = BookImageCoverController()
     }
 
-    private val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
-    private val cacheSize = maxMemory / 4
-    private val lru = object : LruCache<String, Bitmap>(cacheSize) {
-        override fun sizeOf(key: String, bitmap: Bitmap): Int {
-            return bitmap.byteCount / 1024
-        }
-    }
-
-    private fun saveBitmapToLru(key: String, bitmap: Bitmap) {
-        try {
-            synchronized(instance.lru) {
-                if (instance.lru.get(key) == null)
-                    instance.lru.remove(key)
-                instance.lru.put(key, bitmap)
-            }
-        } catch (e: Exception) {
-            mLOGGER.warn("Error save image on LruCache: " + e.message, e)
-            Telemetry.recordException(e, "Error save image on LruCache: " + e.message)
-        }
-    }
-
-    private fun retrieveBitmapFromLru(key: String): Bitmap? {
-        try {
-            return instance.lru.get(key)
-        } catch (e: Exception) {
-            mLOGGER.warn("Error retrieve image from LruCache: " + e.message, e)
-            Telemetry.recordException(e, "Error retrieve image from LruCache: " + e.message)
-        }
-        return null
-    }
-
     private fun saveBitmapToCache(context: Context, key: String, bitmap: Bitmap) {
         try {
-            saveBitmapToLru(key, bitmap)
             val cacheDir = File(GeneralConsts.getCoverDir(context), GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
             if (!cacheDir.exists())
                 cacheDir.mkdir()
@@ -85,15 +54,10 @@ class BookImageCoverController private constructor() {
 
     private fun retrieveBitmapFromCache(context: Context, key: String): Bitmap? {
         try {
-            var image = retrieveBitmapFromLru(key)
-            if (image != null) return image
-
             val file = File(GeneralConsts.getCoverDir(context), GeneralConsts.CACHE_FOLDER.BOOK_COVERS + '/' + key)
 
             if (file.exists()) {
-                image = BitmapFactory.decodeFile(file.absolutePath) ?: return null
-                saveBitmapToLru(key, image)
-                return image
+                return BitmapFactory.decodeFile(file.absolutePath) ?: return null
             }
         } catch (e: Exception) {
             mLOGGER.error("Error retrieve bitmap from cache: " + e.message, e)
@@ -124,6 +88,28 @@ class BookImageCoverController private constructor() {
             cover = ImageParse(context).getCoverPage(file.path, false)
 
         return cover
+    }
+
+    fun getBookCoverFile(context: Context, book: Book, isCoverSize: Boolean): File? {
+        val hash = generateHash(book.file)
+        val cacheDir = File(GeneralConsts.getCoverDir(context), GeneralConsts.CACHE_FOLDER.BOOK_COVERS)
+        val cacheFile = File(cacheDir, hash)
+
+        if (isCoverSize && cacheFile.exists()) {
+            return cacheFile
+        }
+
+        val file = book.file
+        if (file == null || !file.exists()) {
+            return null
+        }
+
+        val cover = getCoverFromFile(context, hash, file, isCoverSize)
+        if (cover != null) {
+            return cacheFile
+        }
+
+        return null
     }
 
     fun getBookCover(context: Context, book: Book, isCoverSize: Boolean): Bitmap? {
@@ -167,9 +153,13 @@ class BookImageCoverController private constructor() {
     }
 
     fun setImageCoverAsync(context: Context, book: Book, imageView: ImageView, notLocate: Bitmap?, isCoverSize: Boolean = true) {
-        setImageCoverAsync(context, book, isCoverSize) {
-            val image = it ?: notLocate
-            imageView.setImageBitmap(image)
+        imageView.load(book) {
+            allowHardware(false)
+            crossfade(true)
+            if (notLocate != null) {
+                placeholder(BitmapDrawable(context.resources, notLocate))
+                error(BitmapDrawable(context.resources, notLocate))
+            }
         }
     }
 
@@ -184,10 +174,24 @@ class BookImageCoverController private constructor() {
     }
 
     fun setImageCoverAsync(context: Context, book: Book, imageView: ImageView, notLocate: Bitmap?, isCoverSize: Boolean = true, onFinish: (Bitmap?) -> (Unit)) {
-        setImageCoverAsync(context, book, isCoverSize) {
-            val image = it ?: notLocate
-            imageView.setImageBitmap(image)
-            onFinish(image)
+        imageView.load(book) {
+            allowHardware(false)
+            crossfade(true)
+            if (notLocate != null) {
+                placeholder(BitmapDrawable(context.resources, notLocate))
+                error(BitmapDrawable(context.resources, notLocate))
+            }
+            target(
+                onSuccess = { result ->
+                    val bitmap = (result as? BitmapDrawable)?.bitmap
+                    imageView.setImageBitmap(bitmap)
+                    onFinish(bitmap)
+                },
+                onError = {
+                    imageView.setImageBitmap(notLocate)
+                    onFinish(notLocate)
+                }
+            )
         }
     }
 
