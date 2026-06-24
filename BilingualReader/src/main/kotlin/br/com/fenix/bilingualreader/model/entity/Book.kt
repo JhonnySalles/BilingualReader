@@ -10,6 +10,7 @@ import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -59,7 +60,7 @@ class Book(
     fileAlteration: Date,
     lastVocabImport: LocalDateTime?,
     lastVerify: LocalDate?
-) : Serializable, History {
+) : Serializable, History, EntityBase<Long, Book> {
 
     constructor(
         id: Long?, title: String, author: String, password: String, annotation: String, release: LocalDate, genre: String, publisher: String, series: String, isbn: String,
@@ -260,8 +261,8 @@ class Book(
                 this.pages != book.pages || this.language != book.language ||
                 this.tags != book.tags || this.lastAccess != book.lastAccess
 
-        this.bookMark = book.bookMark
         this.completed = book.completed
+        this.bookMark = book.bookMark
         this.pages = book.pages
         this.tags = book.tags
         this.language = book.language

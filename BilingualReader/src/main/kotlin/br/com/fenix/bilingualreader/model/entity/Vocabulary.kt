@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import com.google.gson.annotations.SerializedName
 
@@ -16,7 +17,7 @@ import com.google.gson.annotations.SerializedName
 data class Vocabulary(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = DataBaseConsts.VOCABULARY.COLUMNS.ID)
-    var id: Long?,
+    override var id: Long?,
 
     @ColumnInfo(name = DataBaseConsts.VOCABULARY.COLUMNS.WORD)
     @SerializedName("palavra")
@@ -50,7 +51,7 @@ data class Vocabulary(
 
     @ColumnInfo(name = DataBaseConsts.VOCABULARY.COLUMNS.APPEARS, defaultValue="0")
     var appears: Int
-) {
+) : EntityBase<Long, Vocabulary> {
 
     @Ignore
     var vocabularyMangas: List<VocabularyManga> = listOf()

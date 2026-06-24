@@ -7,6 +7,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.File
 import java.io.Serializable
@@ -19,7 +20,7 @@ import java.io.Serializable
 data class Library(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = DataBaseConsts.LIBRARIES.COLUMNS.ID)
-    var id: Long?,
+    override var id: Long?,
 
     @ColumnInfo(name = DataBaseConsts.LIBRARIES.COLUMNS.TITLE)
     var title: String = Libraries.DEFAULT.name,
@@ -38,7 +39,7 @@ data class Library(
 
     @ColumnInfo(name = DataBaseConsts.LIBRARIES.COLUMNS.EXCLUDED)
     var excluded: Boolean = false
-) : Serializable {
+) : Serializable, EntityBase<Long, Library> {
 
     @Ignore
     var menuKey: Int = 0

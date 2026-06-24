@@ -6,6 +6,7 @@ import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.File
@@ -20,7 +21,7 @@ import java.time.LocalDateTime
 class LinkedFile(
     id: Long?, idManga: Long, pages: Int, path: String, name: String, type: String, folder: String,
     language: Languages, dateCreate: LocalDateTime?, lastAccess: LocalDateTime?, lastAlteration: LocalDateTime?
-) : Serializable {
+) : Serializable, EntityBase<Long, LinkedFile> {
 
     @Ignore
     constructor(
@@ -67,7 +68,7 @@ class LinkedFile(
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = DataBaseConsts.FILELINK.COLUMNS.ID)
-    var id: Long? = id
+    override var id: Long? = id
 
     @ColumnInfo(name = DataBaseConsts.FILELINK.COLUMNS.FK_ID_MANGA)
     var idManga: Long = idManga

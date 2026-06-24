@@ -6,6 +6,7 @@ import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -18,7 +19,7 @@ import java.time.temporal.ChronoUnit
 data class History(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.ID)
-    var id: Long?,
+    override var id: Long?,
 
     @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.FK_ID_LIBRARY)
     val fkLibrary: Long,
@@ -64,7 +65,7 @@ data class History(
 
     @ColumnInfo(name = DataBaseConsts.HISTORY.COLUMNS.NOTIFIED)
     var isNotify: Boolean
-) {
+) : EntityBase<Long, History> {
 
     @Ignore
     constructor(fkLibrary: Long, fkReference: Long, type: Type, pageStart: Int, pages: Int, volume: String, averageTimeByPage: Long = 0, useTTS: Boolean = false, isNotify: Boolean = false) : this(

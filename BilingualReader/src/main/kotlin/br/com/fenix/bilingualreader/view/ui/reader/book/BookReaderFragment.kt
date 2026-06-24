@@ -312,7 +312,10 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
             mCoverWarning.visibility = View.GONE
 
             BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, true)
-            mHandler.postDelayed({ BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, false) }, 300)
+            mHandler.postDelayed({
+                    if (mCoverWarning.visibility != View.VISIBLE)
+                        BookImageCoverController.instance.setImageCoverAsync(requireContext(), mBook!!, mCoverImage, null, false)
+            }, 300)
             generateHistory(mBook!!)
         } else {
             mCoverMessage.visibility = View.VISIBLE
@@ -884,9 +887,11 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
     }
 
     private val mRefreshSizeDelay = Runnable {
-        if (!ReaderConsts.READER.BOOK_WEB_VIEW_MODE)
+        if (!ReaderConsts.READER.BOOK_WEB_VIEW_MODE) {
             (mPagerAdapter as TextViewAdapter).refreshSize()
-        mPagerAdapter.notifyDataSetChanged()
+            (mPagerAdapter as TextViewAdapter).refreshFont()
+        } else
+            mPagerAdapter.notifyDataSetChanged()
     }
 
     private fun removeRefreshSizeDelay() {
@@ -1241,7 +1246,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, mBook!!)
         intent.putExtras(bundle)
         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
-        startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_ANNOTATION, null)
+        startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_ANNOTATION)
     }
 
     fun configTouchFunctions() {
@@ -1255,7 +1260,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, mBook!!)
         intent.putExtras(bundle)
         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
-        startActivityForResult(intent, GeneralConsts.REQUEST.TOUCH_CONFIGURATION, null)
+        startActivityForResult(intent, GeneralConsts.REQUEST.TOUCH_CONFIGURATION)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -1329,7 +1334,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         intent.putExtras(bundle)
         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
-        startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_SEARCH, null)
+        startActivityForResult(intent, GeneralConsts.REQUEST.BOOK_SEARCH)
     }
 
     private var mWakeLock : PowerManager.WakeLock? = null

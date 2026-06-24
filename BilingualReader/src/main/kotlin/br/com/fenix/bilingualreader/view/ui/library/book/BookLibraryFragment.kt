@@ -109,7 +109,6 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     private lateinit var mViewModel: BookLibraryViewModel
     private lateinit var mainFunctions: MainListener
 
-    private lateinit var mMapOrder: HashMap<Order, String>
     private lateinit var mRoot: FrameLayout
     private lateinit var mRefreshLayout: SwipeRefreshLayout
     private lateinit var mRecyclerView: RecyclerView
@@ -624,12 +623,12 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             resources.getString(R.string.popup_library_book_tab_item_type)
         )
         viewFilterOrderPagerAdapter.addFragment(
-            mPopupFilterFragment,
-            resources.getString(R.string.popup_library_book_tab_item_filter)
-        )
-        viewFilterOrderPagerAdapter.addFragment(
             mPopupOrderFragment,
             resources.getString(R.string.popup_library_book_tab_item_ordering)
+        )
+        viewFilterOrderPagerAdapter.addFragment(
+            mPopupFilterFragment,
+            resources.getString(R.string.popup_library_book_tab_item_filter)
         )
 
         mPopupLibraryView.adapter = viewFilterOrderPagerAdapter

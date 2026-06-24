@@ -407,7 +407,11 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                     val volumes = mutableSetOf<String>()
 
                     process.forEach {
-                        authors.add(it.author)
+                        if (it.author.endsWith("."))
+                            authors.add(it.author.substringBeforeLast("."))
+                        else
+                            authors.add(it.author)
+
                         publishers.add(it.publisher)
                         series.add(it.series)
                         volumes.add(it.volume)

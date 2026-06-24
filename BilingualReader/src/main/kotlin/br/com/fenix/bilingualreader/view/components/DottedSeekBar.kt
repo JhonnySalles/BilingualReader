@@ -157,65 +157,38 @@ class DottedSeekBar : AppCompatSeekBar {
         invalidate()
     }
 
+    private fun drawDots(canvas: Canvas, positions: IntArray, mark: Drawable?) {
+        if (positions.isEmpty() || mark == null)
+            return
+
+        val trackWidth = (measuredWidth - paddingLeft - paddingRight - thumb.intrinsicWidth).toFloat()
+        val startX = (paddingLeft + thumb.intrinsicWidth / 2f)
+        val top = paddingTop + (measuredHeight - paddingTop - paddingBottom - mark.intrinsicHeight) / 2f
+
+        val range = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            (max - min).toFloat()
+        else
+            (max - MIN).toFloat()
+
+        val image = mark.toBitmap()
+
+        for (position in positions) {
+            val scale: Float = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                if (range > 0) (position - min) / range else 0f
+            else
+                if (range > 0) (position - MIN) / range else 0f
+
+            val dotX = startX + (trackWidth * scale) + 0.5f
+            canvas.drawBitmap(image, dotX - (image.width / 2f), top, null)
+        }
+    }
+
     @Synchronized
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        if (mDotsPrimaryPositions.isNotEmpty() && mDotPrimaryMark != null) {
-            val w: Int = mDotPrimaryMark!!.intrinsicWidth
-            val h: Int = mDotPrimaryMark!!.intrinsicHeight
-            val halfW = if (w >= 0) w / 2 else 1
-            val halfH = if (h >= 0) h / 2 else 1
-            mDotPrimaryMark!!.setBounds(-halfW, -halfH, halfW, halfH)
-
-            val top = paddingTop + (measuredHeight - paddingTop - paddingBottom) / 2 - (h / 2f)
-            val padding = paddingLeft - thumbOffset + (thumb.intrinsicWidth / 4f)
-
-            val range = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                (max - min).toFloat()
-            else
-                (max - MIN).toFloat()
-
-            val available = (measuredWidth - paddingLeft - paddingRight)
-            val image = mDotPrimaryMark!!.toBitmap()
-            for (position in mDotsPrimaryPositions) {
-                val scale: Float = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                    if (range > 0) (position - min) / range else 0f
-                else
-                    if (range > 0) (position - MIN) / range else 0f
-
-                val step = (available * scale + 0.5f)
-                canvas.drawBitmap(image, padding + step, top, null)
-            }
-        }
-
-        if (mDotsSecondaryPositions.isNotEmpty() && mDotSecondaryMark != null) {
-            val w: Int = mDotSecondaryMark!!.intrinsicWidth
-            val h: Int = mDotSecondaryMark!!.intrinsicHeight
-            val halfW = if (w >= 0) w / 2 else 1
-            val halfH = if (h >= 0) h / 2 else 1
-            mDotSecondaryMark!!.setBounds(-halfW, -halfH, halfW, halfH)
-
-            val top = paddingTop + (measuredHeight - paddingTop - paddingBottom) / 2 - (h / 2f)
-            val padding = paddingLeft - thumbOffset + (thumb.intrinsicWidth / 4f)
-
-            val range = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                (max - min).toFloat()
-            else
-                (max - MIN).toFloat()
-
-            val available = (measuredWidth - paddingLeft - paddingRight)
-            val image = mDotSecondaryMark!!.toBitmap()
-            for (position in mDotsSecondaryPositions) {
-                val scale: Float = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                    if (range > 0) (position - min) / range else 0f
-                else
-                    if (range > 0) (position - MIN) / range else 0f
-
-                val step = (available * scale + 0.5f)
-                canvas.drawBitmap(image, padding + step, top, null)
-            }
-        }
+        drawDots(canvas, mDotsPrimaryPositions, mDotPrimaryMark)
+        drawDots(canvas, mDotsSecondaryPositions, mDotSecondaryMark)
 
         canvas.withTranslation((paddingLeft - thumbOffset).toFloat(), paddingTop.toFloat()) {
             thumb.draw(canvas)

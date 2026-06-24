@@ -6,6 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 
 
@@ -29,14 +30,14 @@ import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 data class VocabularyManga(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = DataBaseConsts.MANGA_VOCABULARY.COLUMNS.ID)
-    var id: Long?,
+    override var id: Long?,
     @ColumnInfo(name = DataBaseConsts.MANGA_VOCABULARY.COLUMNS.ID_VOCABULARY, index = true)
     val idVocabulary: Long,
     @ColumnInfo(name = DataBaseConsts.MANGA_VOCABULARY.COLUMNS.ID_MANGA, index = true)
     val idManga: Long,
     @ColumnInfo(name = DataBaseConsts.MANGA_VOCABULARY.COLUMNS.APPEARS)
     var appears: Int
-) {
+) : EntityBase<Long, VocabularyManga> {
     @Ignore
     var manga: Manga? = null
 }

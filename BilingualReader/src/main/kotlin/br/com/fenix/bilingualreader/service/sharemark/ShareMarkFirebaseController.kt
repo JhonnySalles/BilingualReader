@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.service.sharemark
 
 import android.content.Context
+import br.com.ebook.universalimageloader.utils.L
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.History
@@ -130,9 +131,9 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
 
                 repositoryManga.listSync(lastSync).apply {
                     for (manga in this)
-                        share.find { it.file == manga.name }.also {
-                            if (it != null) {
-                                if (compare(it, manga)) {
+                        share.parallelStream().filter { it.file == manga.name }.findFirst().also {
+                            if (it.isPresent) {
+                                if (compare(it.get(), manga)) {
                                     repositoryManga.update(manga, alteration)
                                     withContext(Dispatchers.Main) {
                                         update(manga)
@@ -169,7 +170,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                     }
                 }
 
-                share.parallelStream().forEach {
+                share.forEach {
                     repositoryManga.findByFileName(it.file)?.let { manga ->
                         it.history?.let { h ->
                             val histories = repositoryHistory.find(manga.type, manga.fkLibrary!!, manga.id!!).map { h -> GeneralConsts.dateTimeToDate(h.start) }
@@ -339,7 +340,7 @@ class ShareMarkFirebaseController(override var context: Context) : ShareMarkBase
                     }
                 }
 
-                share.parallelStream().forEach {
+                share.forEach {
                     repositoryBook.findByFileName(it.file)?.let { book ->
                         it.history?.let { h ->
                             val histories = repositoryHistory.find(book.type, book.fkLibrary!!, book.id!!).map { h -> GeneralConsts.dateTimeToDate(h.start) }

@@ -9,6 +9,7 @@ import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.Annotation
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.Serializable
 import java.time.LocalDateTime
@@ -21,7 +22,7 @@ import java.time.LocalDateTime
 data class MangaAnnotation(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = DataBaseConsts.MANGA_ANNOTATION.COLUMNS.ID)
-    var id: Long?,
+    override var id: Long?,
     @ColumnInfo(name = DataBaseConsts.MANGA_ANNOTATION.COLUMNS.FK_ID_MANGA)
     override val id_parent: Long,
     @ColumnInfo(name = DataBaseConsts.MANGA_ANNOTATION.COLUMNS.PAGE)
@@ -40,7 +41,7 @@ data class MangaAnnotation(
     var alteration: LocalDateTime,
     @ColumnInfo(name = DataBaseConsts.MANGA_ANNOTATION.COLUMNS.CREATED)
     var created: LocalDateTime
-) : Serializable, Annotation {
+) : Serializable, Annotation, EntityBase<Long, MangaAnnotation> {
 
     //For a annotation title
     @Ignore

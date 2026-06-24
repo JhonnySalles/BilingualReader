@@ -386,10 +386,12 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                 try {
                     val authors = mutableSetOf<String>()
                     val publishers = mutableSetOf<String>()
-                    val tags = mutableSetOf<String>()
 
                     process.forEach {
-                        authors.add(it.author)
+                        if (it.author.contains(","))
+                            authors.addAll(it.author.split(",").map { it.trim() })
+                        else
+                            authors.add(it.author)
                         publishers.add(it.publisher)
                     }
 
@@ -410,6 +412,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             }
         }
     }
+
     fun getSuggestions(filter : String): List<String> {
         val type = filter.substringBeforeLast(':')
         val condition = filter.substringAfterLast(':')

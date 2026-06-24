@@ -1348,7 +1348,7 @@ class ConfigFragment : Fragment() {
             R.anim.fade_in_fragment_add_enter,
             R.anim.fade_out_fragment_remove_exit
         )
-        startActivityForResult(intent, GeneralConsts.REQUEST.CONFIG_LIBRARIES, null)
+        startActivityForResult(intent, GeneralConsts.REQUEST.CONFIG_LIBRARIES)
     }
 
     private fun prepareThemes() {
@@ -1539,7 +1539,7 @@ class ConfigFragment : Fragment() {
         bundle.putSerializable(GeneralConsts.KEYS.OBJECT.TYPE, type)
         intent.putExtras(bundle)
         requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
-        startActivityForResult(intent, GeneralConsts.REQUEST.TOUCH_CONFIGURATION, null)
+        startActivityForResult(intent, GeneralConsts.REQUEST.TOUCH_CONFIGURATION)
     }
 
 }

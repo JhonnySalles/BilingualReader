@@ -7,6 +7,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Type
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
@@ -52,7 +53,7 @@ class Manga(
     fileAlteration: Date,
     lastVocabImport: LocalDateTime?,
     lastVerify: LocalDate?
-) : Serializable, History {
+) : Serializable, History, EntityBase<Long, Manga> {
 
     constructor( id: Long?, title: String,
         path: String, folder: String, name: String, size: Long, fileType: FileType,
@@ -232,8 +233,8 @@ class Manga(
                 this.author != manga.author || this.series != manga.series || this.publisher != manga.publisher ||
                 this.volume != manga.volume || this.release != manga.release
 
-        this.bookMark = manga.bookMark
         this.completed = manga.completed
+        this.bookMark = manga.bookMark
         this.favorite = manga.favorite
         this.lastAccess = manga.lastAccess
         this.hasSubtitle = manga.hasSubtitle
