@@ -19,9 +19,8 @@ import br.com.fenix.bilingualreader.service.parses.manga.RarParse
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Notifications
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
@@ -149,10 +148,7 @@ class ScannerManga(private val context: Context) {
 
             } catch (e: Exception) {
                 mLOGGER.error("Error when notify handlers: " + e.message, e)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error when notify handlers: " + e.message)
-                    recordException(e)
-                }
+                Telemetry.recordException(e, "Error when notify handlers: " + e.message)
             }
         }
     }
@@ -218,7 +214,7 @@ class ScannerManga(private val context: Context) {
                     .filterNot { it.isDirectory }.forEach {
                         walked = true
                         if (mIsStopped)
-                            return
+                            return@forEach
                         if (FileType.isManga(it.name)) {
                             if (storageFiles.containsKey(it.path))
                                 storageFiles.remove(it.path)
@@ -271,16 +267,10 @@ class ScannerManga(private val context: Context) {
                                     }
                                 } catch (e: Exception) {
                                     mLOGGER.error("Error load manga " + it.name, e)
-                                    Firebase.crashlytics.apply {
-                                        setCustomKey("message", "Error load manga: " + e.message)
-                                        recordException(e)
-                                    }
+                                    Telemetry.recordException(e, "Error load manga: " + e.message)
                                 } catch (e: IOException) {
                                     mLOGGER.error("Error load manga " + it.name, e)
-                                    Firebase.crashlytics.apply {
-                                        setCustomKey("message", "Error load manga: " + e.message)
-                                        recordException(e)
-                                    }
+                                    Telemetry.recordException(e, "Error load manga: " + e.message)
                                 }
                             }
                         }
@@ -297,10 +287,7 @@ class ScannerManga(private val context: Context) {
 
             } catch (e: Exception) {
                 mLOGGER.error("Error to scanner manga.", e)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error to scanner manga: " + e.message)
-                    recordException(e)
-                }
+                Telemetry.recordException(e, "Error to scanner manga: " + e.message)
             } finally {
                 endingUpdate(isProcess)
 

@@ -8,6 +8,7 @@ import br.com.ebook.foobnix.pdf.info.IMG
 import br.com.ebook.foobnix.pdf.info.PageUrl
 import br.com.ebook.foobnix.pdf.info.model.BookCSS
 import br.com.ebook.foobnix.sys.ImageExtractor
+import br.com.ebook.foobnix.sys.NativeLibLoader
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import org.slf4j.LoggerFactory
@@ -20,8 +21,8 @@ class ImageParse(var context: Context) {
     private val mImageExtractor: ImageExtractor
 
     init {
-        System.loadLibrary("mypdf")
-        System.loadLibrary("mobi")
+        NativeLibLoader.loadLibrary("mypdf")
+        NativeLibLoader.loadLibrary("mobi")
 
         init(context)
 
@@ -30,7 +31,8 @@ class ImageParse(var context: Context) {
 
     companion object {
         fun init(context: Context) {
-            val cacheDir = File(GeneralConsts.getCacheDir(context), GeneralConsts.CACHE_FOLDER.BOOKS + '/')
+            val baseCacheDir = GeneralConsts.getCacheDir(context)
+            val cacheDir = File(baseCacheDir, GeneralConsts.CACHE_FOLDER.BOOKS + '/')
 
             CacheZipUtils.init(context, cacheDir)
             ExtUtils.init(context)

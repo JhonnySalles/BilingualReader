@@ -88,9 +88,16 @@ class MangaSeparatorGridCardAdapter(var context: Context, var type: LibraryManga
     }
 
     override fun removeList(manga: Manga) {
-        if (mMangaList.contains(manga))
-            notifyItemRemoved(mMangaList.indexOf(manga))
-        mMangaList.remove(manga)
+        val index = mMangaList.indexOf(manga)
+        if (index != -1) {
+            (mMangaList as MutableList<Any>).removeAt(index)
+            notifyItemRemoved(index)
+        }
+    }
+
+    override fun getItem(position: Int): Manga? {
+        val item = mMangaList.getOrNull(position)
+        return if (item is Manga) item else null
     }
 
     private fun getSeparator(order: Order, manga: Manga) : Separator {

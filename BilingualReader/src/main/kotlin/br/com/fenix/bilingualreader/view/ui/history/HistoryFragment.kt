@@ -3,6 +3,8 @@ package br.com.fenix.bilingualreader.view.ui.history
 import android.annotation.SuppressLint
 import android.app.SearchManager
 import android.content.Intent
+import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.database.Cursor
 import android.database.MatrixCursor
@@ -14,6 +16,11 @@ import android.os.Looper
 import android.provider.BaseColumns
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
+import android.widget.FrameLayout
+import androidx.viewpager.widget.ViewPager
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.tabs.TabLayout
+import eightbitlab.com.blurview.BlurView
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -28,7 +35,14 @@ import android.widget.PopupMenu
 import android.widget.SearchView
 import android.widget.SimpleCursorAdapter
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -37,14 +51,18 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.PopupUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.history.HistoryCardAdapter
+import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -52,23 +70,71 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import io.supercharge.shimmerlayout.ShimmerLayout
 import java.time.LocalDateTime
 import kotlin.math.ceil
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 
 class HistoryFragment : Fragment() {
 
+    private lateinit var mPreferences: SharedPreferences
     private lateinit var mViewModel: HistoryViewModel
-    private lateinit var mRecyclerView: RecyclerView
-    private lateinit var mScrollUp: FloatingActionButton
-    private lateinit var mScrollDown: FloatingActionButton
+    private var mRecyclerView: RecyclerView by autoCleared()
+    private var mScrollUp: FloatingActionButton by autoCleared()
+    private var mScrollDown: FloatingActionButton by autoCleared()
     private lateinit var miSearch: MenuItem
-    private lateinit var searchView: SearchView
+    private var searchView: SearchView by autoCleared()
     private lateinit var miFilterType: MenuItem
 
-    private lateinit var mSkeletonLayout: LinearLayout
-    private lateinit var mShimmer: ShimmerLayout
-    private lateinit var mInflater: LayoutInflater
+    private var mSkeletonLayout: LinearLayout by autoCleared()
+    private var mShimmer: ShimmerLayout by autoCleared()
+    private var mInflater: LayoutInflater by autoCleared()
 
     private var mFilterType: Type? = null
+
+    private var mMenuPopupHistory: FrameLayout by autoCleared()
+    private var mMenuPopupHistoryBackground: BlurView by autoCleared()
+    private var mPopupHistoryView: ViewPager by autoCleared()
+    private var mPopupHistoryTab: TabLayout by autoCleared()
+    private var mPopupLibrariesFragment: HistoryPopupLibraries by autoCleared()
+    private var mPopupOrderFragment: HistoryPopupOrder by autoCleared()
+    private lateinit var miGridOrder: MenuItem
+    private var mSortType: Order = Order.LastAccess
+    private var mSortDesc: Boolean = true
+    private var _mBottomSheet: BottomSheetBehavior<FrameLayout>? = null
+    private val mBottomSheet: BottomSheetBehavior<FrameLayout> get() = _mBottomSheet!!
+
+    private val mBottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            if (view == null) return
+            val ctx = context ?: return
+            val sharedPreferences = GeneralConsts.getSharedPreferences(ctx)
+            val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
+                    mMenuPopupHistoryBackground.setBlurAutoUpdate(true)
+                } else {
+                    mMenuPopupHistoryBackground.setBlurAutoUpdate(false)
+                }
+            }
+
+            val activity = activity ?: return
+            if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                PopupUtil.PopupUtils.updateNavigationBarColor(activity, true)
+            } else if (newState == BottomSheetBehavior.STATE_COLLAPSED || newState == BottomSheetBehavior.STATE_HIDDEN) {
+                PopupUtil.PopupUtils.updateNavigationBarColor(activity, false)
+            }
+        }
+
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            if (view == null) return
+            val ctx = context ?: return
+            val sharedPreferences = GeneralConsts.getSharedPreferences(ctx)
+            val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                mMenuPopupHistoryBackground.setBlurAutoUpdate(true)
+            }
+        }
+    }
 
     private val mHandler = Handler(Looper.getMainLooper())
     private val mDismissUpButton = Runnable { mScrollUp.hide() }
@@ -77,6 +143,7 @@ class HistoryFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        mPreferences = GeneralConsts.getSharedPreferences(requireContext())
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -98,9 +165,13 @@ class HistoryFragment : Fragment() {
             true
         }
 
+        MenuUtil.longClick(requireActivity(), R.id.menu_history_library) {
+            onOpenMenuHistory(0)
+        }
+
         val manga = miLibrary.subMenu?.addSubMenu(Menu.NONE, Menu.NONE, 102,requireContext().getString(R.string.history_manga))
         val book = miLibrary.subMenu?.addSubMenu(Menu.NONE, Menu.NONE, 103,requireContext().getString(R.string.history_book))
-        for (library in mViewModel.getLibraryList())
+        for (library in mViewModel.libraries.value ?: emptyList())
             when (library.type) {
                 Type.BOOK -> book!!.add(library.title)?.setOnMenuItemClickListener { _: MenuItem? ->
                     filterLibrary(library)
@@ -141,6 +212,21 @@ class HistoryFragment : Fragment() {
             else -> R.drawable.ico_menu_type_all
         }
         miFilterType.setIcon(iconType)
+
+        miGridOrder = menu.findItem(R.id.menu_history_list_order)
+        val currentOrder = mViewModel.order.value ?: Pair(Order.LastAccess, true)
+        mSortType = currentOrder.first
+        mSortDesc = currentOrder.second
+        val iconSort: Int = when (mSortType) {
+            Order.Name -> if (mSortDesc) R.drawable.ico_animated_sort_to_desc_name else R.drawable.ico_animated_sort_to_asc_name
+            Order.Favorite -> if (mSortDesc) R.drawable.ico_animated_sort_to_desc_favorited else R.drawable.ico_animated_sort_to_asc_favorited
+            else -> if (mSortDesc) R.drawable.ico_animated_sort_to_desc_last_access else R.drawable.ico_animated_sort_to_asc_last_access
+        }
+        miGridOrder.setIcon(iconSort)
+
+        MenuUtil.longClick(requireActivity(), R.id.menu_history_list_order) {
+            onOpenMenuHistory(1)
+        }
 
         miSearch = menu.findItem(R.id.menu_history_search)
         searchView = miSearch.actionView as SearchView
@@ -235,6 +321,7 @@ class HistoryFragment : Fragment() {
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
             R.id.menu_history_library -> {}
+            R.id.menu_history_list_order -> onChangeSort()
         }
         return super.onOptionsItemSelected(menuItem)
     }
@@ -260,17 +347,111 @@ class HistoryFragment : Fragment() {
         mViewModel = ViewModelProvider(this)[HistoryViewModel::class.java]
 
         val root = inflater.inflate(R.layout.fragment_history, container, false)
-        mRecyclerView = root.findViewById(R.id.history_list)
-        mScrollUp = root.findViewById(R.id.history_scroll_up)
-        mScrollDown = root.findViewById(R.id.history_scroll_down)
+        mRecyclerView = root.findViewById(R.id.history_statistics_list)
+
+        ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            mRecyclerView.setPadding(mRecyclerView.paddingLeft, mRecyclerView.paddingTop, mRecyclerView.paddingRight, navBarHeight)
+            insets
+        }
+
+        mScrollUp = root.findViewById(R.id.history_statistics_scroll_up)
+        mScrollDown = root.findViewById(R.id.history_statistics_scroll_down)
 
         mSkeletonLayout = root.findViewById(R.id.skeleton_layout)
         mShimmer = root.findViewById(R.id.shimmer_skeleton)
         mInflater = inflater
 
+        mMenuPopupHistory = root.findViewById(R.id.history_popup_menu)
+        mMenuPopupHistoryBackground = root.findViewById(R.id.history_popup_header_background)
+        mRecyclerView.itemAnimator = BlurAwareItemAnimator(listOf(mMenuPopupHistoryBackground))
+        mPopupHistoryTab = root.findViewById(R.id.history_popup_tab)
+        mPopupHistoryView = root.findViewById(R.id.history_popup_view_pager)
+
+        mPopupHistoryTab.setupWithViewPager(mPopupHistoryView)
+        mPopupLibrariesFragment = HistoryPopupLibraries()
+        mPopupOrderFragment = HistoryPopupOrder()
+
+        BottomSheetBehavior.from(mMenuPopupHistory).apply {
+            peekHeight = 255
+            this.state = BottomSheetBehavior.STATE_COLLAPSED
+            _mBottomSheet = this
+        }
+        mBottomSheet.isDraggable = true
+        mBottomSheet.addBottomSheetCallback(mBottomSheetCallback)
+
+        PopupUtil.onPopupTouch(requireActivity(), mMenuPopupHistory, mBottomSheet, root.findViewById<View>(R.id.history_popup_menu_order_filter_touch))
+
+        val viewFilterOrderPagerAdapter = ViewPagerAdapter(childFragmentManager, 0)
+        viewFilterOrderPagerAdapter.addFragment(
+            mPopupLibrariesFragment,
+            resources.getString(R.string.config_title_libraries)
+        )
+        viewFilterOrderPagerAdapter.addFragment(
+            mPopupOrderFragment,
+            resources.getString(R.string.popup_library_manga_tab_item_ordering)
+        )
+        mPopupHistoryView.adapter = viewFilterOrderPagerAdapter
+
         ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecyclerView)
         observer()
         return root
+    }
+
+    inner class ViewPagerAdapter(fm: FragmentManager, behavior: Int) :
+        FragmentPagerAdapter(fm, behavior) {
+        private val fragments: MutableList<Fragment> = ArrayList()
+        private val fragmentTitle: MutableList<String> = ArrayList()
+        fun addFragment(fragment: Fragment, title: String) {
+            fragments.add(fragment)
+            fragmentTitle.add(title)
+        }
+
+        override fun getItem(position: Int): Fragment {
+            return fragments[position]
+        }
+
+        override fun getCount(): Int {
+            return fragments.size
+        }
+
+        override fun getPageTitle(position: Int): CharSequence {
+            return fragmentTitle[position]
+        }
+    }
+
+    fun onOpenMenuHistory(tab: Int) {
+        if (_mBottomSheet == null)
+            return
+
+        if (mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED && mPopupHistoryView.currentItem == tab) {
+            mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            return
+        }
+
+        mPopupHistoryView.currentItem = tab
+        mMenuPopupHistory.visibility = View.VISIBLE
+        mBottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        if (isGlass) {
+            mMenuPopupHistoryBackground.blurOnceDeferred(mHandler, 100)
+        }
+    }
+
+    private fun setupPopupBackgrounds() {
+        val activity = activity ?: return
+        PopupUtil.setupPopupBackgrounds(activity, mMenuPopupHistory, mMenuPopupHistoryBackground)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        MenuUtil.longClick(requireActivity(), R.id.menu_history_library) {
+            onOpenMenuHistory(0)
+        }
+        MenuUtil.longClick(requireActivity(), R.id.menu_history_list_order) {
+            onOpenMenuHistory(1)
+        }
+        setupPopupBackgrounds()
     }
 
     private var itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
@@ -278,28 +459,41 @@ class HistoryFragment : Fragment() {
                 return false
             }
 
+            override fun getSwipeDirs(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
+                if (viewHolder.itemViewType == 1) { // 1 is HEADER in HistoryCardAdapter
+                    return 0
+                }
+                return super.getSwipeDirs(recyclerView, viewHolder)
+            }
+
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val history = mViewModel.getAndRemove(viewHolder.bindingAdapterPosition) ?: return
                 val position = viewHolder.bindingAdapterPosition
-                var excluded = false
-                val dialog: AlertDialog =
-                    MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
-                        .setTitle(getString(R.string.manga_library_menu_delete))
-                        .setMessage(getString(R.string.history_delete_description) + "\n" + history.name)
-                        .setPositiveButton(
-                            R.string.action_delete
-                        ) { _, _ ->
-                            mViewModel.deletePermanent(history)
-                            mRecyclerView.adapter?.notifyItemRemoved(position)
-                            excluded = true
-                        }.setOnDismissListener {
-                            if (!excluded) {
-                                mViewModel.add(history, position)
-                                mRecyclerView.adapter?.notifyItemChanged(position)
+                if (position == RecyclerView.NO_POSITION) return
+                val adapter = mRecyclerView.adapter as? HistoryCardAdapter ?: return
+                val history = adapter.getItem(position) ?: return
+                mRecyclerView.post {
+                    mViewModel.remove(history)
+                    mRecyclerView.adapter?.notifyItemRemoved(position)
+                    
+                    var excluded = false
+                    val dialog: AlertDialog =
+                        MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
+                            .setTitle(getString(R.string.manga_library_menu_delete))
+                            .setMessage(getString(R.string.history_delete_description) + "\n" + history.name)
+                            .setPositiveButton(
+                                R.string.action_delete
+                            ) { _, _ ->
+                                mViewModel.deletePermanent(history)
+                                excluded = true
+                            }.setOnDismissListener {
+                                if (!excluded) {
+                                    mViewModel.add(history, position)
+                                    mRecyclerView.adapter?.notifyItemInserted(position)
+                                }
                             }
-                        }
-                        .create()
-                dialog.show()
+                            .create()
+                    dialog.show()
+                }
             }
         }
 
@@ -330,6 +524,16 @@ class HistoryFragment : Fragment() {
                 super.onScrollStateChanged(recyclerView, newState)
                 if (newState != AbsListView.OnScrollListener.SCROLL_STATE_FLING)
                     setAnimationRecycler(true)
+
+                val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+                val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                if (isGlass) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+                    } else {
+                        (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
+                    }
+                }
             }
         })
 
@@ -406,11 +610,46 @@ class HistoryFragment : Fragment() {
     @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
         super.onResume()
-        mViewModel.list {
-            if (it > -1)
-                mRecyclerView.adapter?.notifyItemChanged(0, it)
-            else
-                mRecyclerView.adapter?.notifyDataSetChanged()
+        if (view != null) {
+            setupPopupBackgrounds()
+            mViewModel.list {
+                if (it > -1)
+                    mRecyclerView.adapter?.notifyItemChanged(0, it)
+                else
+                    mRecyclerView.adapter?.notifyDataSetChanged()
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (view != null) {
+            if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+                mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+            mMenuPopupHistoryBackground.setBlurAutoUpdate(false)
+            mMenuPopupHistoryBackground.setBlurEnabled(false)
+        }
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (view != null) {
+            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (hidden) {
+                if (_mBottomSheet != null && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+                    mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+                }
+                mMenuPopupHistoryBackground.setBlurAutoUpdate(false)
+                mMenuPopupHistoryBackground.setBlurEnabled(false)
+            } else {
+                mMenuPopupHistoryBackground.setBlurEnabled(isGlass)
+                if (isGlass) {
+                    mMenuPopupHistoryBackground.blurOnceDeferred(mHandler, 100)
+                } else {
+                    mMenuPopupHistoryBackground.setBlurAutoUpdate(false)
+                }
+            }
         }
     }
 
@@ -433,6 +672,82 @@ class HistoryFragment : Fragment() {
         mViewModel.type.observe(viewLifecycleOwner) {
             onChangeIconFilterType(it)
         }
+
+        mViewModel.libraries.observe(viewLifecycleOwner) {
+            activity?.invalidateOptionsMenu()
+        }
+
+        mViewModel.selectedLibrary.observe(viewLifecycleOwner) {
+            activity?.invalidateOptionsMenu()
+        }
+
+        mViewModel.order.observe(viewLifecycleOwner) {
+            onChangeIconSort(it.first, it.second)
+        }
+    }
+
+    private fun onChangeSort() {
+        val orderBy = when (mViewModel.order.value?.first) {
+            Order.LastAccess -> Order.Name
+            Order.Name -> Order.Favorite
+            Order.Favorite -> Order.LastAccess
+            else -> Order.LastAccess
+        }
+
+        android.widget.Toast.makeText(
+            requireContext(),
+            getString(R.string.menu_manga_reading_order_change, getString(orderBy.getDescription())),
+            android.widget.Toast.LENGTH_SHORT
+        ).show()
+
+        mViewModel.sorted(orderBy, false)
+    }
+
+    private fun onChangeIconSort(order: Order, isDesc: Boolean?) {
+        if (!::miGridOrder.isInitialized) {
+            mSortType = order
+            mSortDesc = isDesc ?: true
+            return
+        }
+
+        if (isDesc != null) {
+            val icon: Int? = when (order) {
+                Order.Name -> if (isDesc) R.drawable.ico_animated_sort_to_desc_name else R.drawable.ico_animated_sort_to_asc_name
+                Order.Favorite -> if (isDesc) R.drawable.ico_animated_sort_to_desc_favorited else R.drawable.ico_animated_sort_to_asc_favorited
+                Order.LastAccess -> if (isDesc) R.drawable.ico_animated_sort_to_desc_last_access else R.drawable.ico_animated_sort_to_asc_last_access
+                else -> null
+            }
+            mSortDesc = isDesc
+            if (icon != null)
+                MenuUtil.animatedSequenceDrawable(miGridOrder, icon)
+        } else {
+            val initial: Int? = if (mSortDesc)
+                when (mSortType) {
+                    Order.Name -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_name
+                    Order.Favorite -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_favorited
+                    Order.LastAccess -> R.drawable.ico_animated_sort_desc_to_asc_ico_exit_last_access
+                    else -> null
+                } else
+                when (mSortType) {
+                    Order.Name -> R.drawable.ico_animated_sort_asc_ico_exit_name
+                    Order.Favorite -> R.drawable.ico_animated_sort_asc_ico_exit_favorited
+                    Order.LastAccess -> R.drawable.ico_animated_sort_asc_ico_exit_last_access
+                    else -> null
+                }
+
+            val final: Int? = when (order) {
+                Order.Name -> R.drawable.ico_animated_sort_asc_ico_enter_name
+                Order.Favorite -> R.drawable.ico_animated_sort_asc_ico_enter_favorited
+                Order.LastAccess -> R.drawable.ico_animated_sort_asc_ico_enter_last_access
+                else -> null
+            }
+
+            if (initial != null && final != null)
+                MenuUtil.animatedSequenceDrawable(miGridOrder, initial, final)
+
+            mSortDesc = false
+        }
+        mSortType = order
     }
 
     private fun onChangeIconFilterType(type: Type?) {
@@ -562,7 +877,7 @@ class HistoryFragment : Fragment() {
                                 R.string.action_positive
                             ) { _, _ ->
                                 mViewModel.deletePermanent(manga)
-                                mRecyclerView.adapter?.notifyItemRemoved(position)
+                                (mRecyclerView.adapter as HistoryCardAdapter).remove(manga)
                             }
                             .setNegativeButton(
                                 R.string.action_negative
@@ -613,7 +928,7 @@ class HistoryFragment : Fragment() {
                                 R.string.action_positive
                             ) { _, _ ->
                                 mViewModel.deletePermanent(book)
-                                mRecyclerView.adapter?.notifyItemRemoved(position)
+                                (mRecyclerView.adapter as HistoryCardAdapter).remove(book)
                             }
                             .setNegativeButton(
                                 R.string.action_negative
@@ -638,6 +953,7 @@ class HistoryFragment : Fragment() {
 
     private fun showSkeleton(show: Boolean) {
         if (show) {
+            mSkeletonLayout.alpha = 1f
             mSkeletonLayout.removeAllViews()
 
             mSkeletonLayout.addView(mInflater.inflate(R.layout.line_card_history_skeleton_title, null))
@@ -649,6 +965,7 @@ class HistoryFragment : Fragment() {
 
             mShimmer.visibility = View.VISIBLE
             mRecyclerView.visibility = View.GONE
+            mRecyclerView.alpha = 1f
             mSkeletonLayout.visibility = View.VISIBLE
             mShimmer.startShimmerAnimation()
             mSkeletonLayout.bringToFront()
@@ -656,7 +973,9 @@ class HistoryFragment : Fragment() {
             mShimmer.stopShimmerAnimation()
             mShimmer.visibility = View.GONE
             mSkeletonLayout.visibility = View.GONE
+            mSkeletonLayout.alpha = 1f
             mRecyclerView.visibility = View.VISIBLE
+            mRecyclerView.alpha = 1f
             setAnimationRecycler(true)
         }
     }
@@ -669,4 +988,45 @@ class HistoryFragment : Fragment() {
         mSkeletonLayout.animate().alpha(0f).setDuration(1000).withEndAction { showSkeleton(false) }.start()
     }
 
+    override fun onDestroyView() {
+        mHandler.removeCallbacksAndMessages(null)
+        _mBottomSheet?.removeBottomSheetCallback(mBottomSheetCallback)
+        _mBottomSheet = null
+        super.onDestroyView()
+    }
+
 }
+
+private class AutoClearedValueHistory<T : Any>(val fragment: Fragment) : ReadWriteProperty<Fragment, T> {
+    private var _value: T? = null
+
+    init {
+        fragment.lifecycle.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                if (event == Lifecycle.Event.ON_CREATE) {
+                    fragment.viewLifecycleOwnerLiveData.observe(fragment) { viewLifecycleOwner ->
+                        viewLifecycleOwner?.lifecycle?.addObserver(object : LifecycleEventObserver {
+                            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                                if (event == Lifecycle.Event.ON_DESTROY) {
+                                    _value = null
+                                }
+                            }
+                        })
+                    }
+                }
+            }
+        })
+    }
+
+    override fun getValue(thisRef: Fragment, property: KProperty<*>): T {
+        return _value ?: throw IllegalStateException(
+            "should never call to retrieve value after onDestroyView"
+        )
+    }
+
+    override fun setValue(thisRef: Fragment, property: KProperty<*>, value: T) {
+        _value = value
+    }
+}
+
+private fun <T : Any> Fragment.autoCleared() = AutoClearedValueHistory<T>(this)

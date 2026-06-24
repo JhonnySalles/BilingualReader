@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.view.ui.book
 
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.drawable.AnimatedVectorDrawable
@@ -23,6 +24,8 @@ import android.widget.ProgressBar
 import android.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,14 +39,17 @@ import br.com.fenix.bilingualreader.service.listener.BookSearchListener
 import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.repository.SharedData
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.view.adapter.book.BookSearchHistoryAdapter
 import br.com.fenix.bilingualreader.view.adapter.book.BookSearchLineAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaListCardAdapter
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.RenderEffectBlur
+import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
-
 
 class BookSearchFragment : Fragment(), BookParseListener {
 
@@ -52,9 +58,11 @@ class BookSearchFragment : Fragment(), BookParseListener {
     private val mViewModelBookSearch: BookSearchViewModel by activityViewModels()
     private val mViewModelAnnotations: BookAnnotationViewModel by activityViewModels()
 
+    private lateinit var mBlurTop: BlurView
     private lateinit var mToolbar: Toolbar
     private lateinit var miSearch: MenuItem
     private lateinit var searchView: SearchView
+    private lateinit var mPreferences: SharedPreferences
 
     private lateinit var mProgressContent: CoordinatorLayout
     private lateinit var mProgressIndicator: ProgressBar
@@ -80,6 +88,7 @@ class BookSearchFragment : Fragment(), BookParseListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        mPreferences = GeneralConsts.getSharedPreferences(requireContext())
 
         arguments?.let {
             val book = it.getSerializable(GeneralConsts.KEYS.OBJECT.BOOK) as Book
@@ -157,6 +166,7 @@ class BookSearchFragment : Fragment(), BookParseListener {
         mScrollDown = root.findViewById(R.id.book_search_scroll_down)
 
         mToolbar = root.findViewById(R.id.toolbar_book_search)
+        mBlurTop = root.findViewById(R.id.book_search_blur_top)
 
         (requireActivity() as MenuActivity).setActionBar(mToolbar)
 
@@ -230,6 +240,24 @@ class BookSearchFragment : Fragment(), BookParseListener {
                 mScrollDown.show()
             }
         }
+
+        mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                if (isGlass) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        mBlurTop.setBlurAutoUpdate(false)
+                    } else {
+                        mBlurTop.setBlurAutoUpdate(true)
+                    }
+                }
+            }
+        })
+
+        setupBlurViews()
+        setupWindowInsets()
+        setupTitleBackgrounds()
 
         return root
     }
@@ -328,6 +356,78 @@ class BookSearchFragment : Fragment(), BookParseListener {
 
     override fun onConverting(isConverting: Boolean) {
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setupTitleBackgrounds()
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        mBlurTop.setBlurEnabled(isGlass)
+        if (isGlass) {
+            mBlurTop.setBlurAutoUpdate(true)
+            mHandler.postDelayed({
+                mBlurTop.setBlurAutoUpdate(false)
+            }, 100)
+        } else {
+            mBlurTop.setBlurAutoUpdate(false)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mBlurTop.setBlurAutoUpdate(false)
+        mBlurTop.setBlurEnabled(false)
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        if (hidden) {
+            mBlurTop.setBlurAutoUpdate(false)
+            mBlurTop.setBlurEnabled(false)
+        } else {
+            mBlurTop.setBlurEnabled(isGlass)
+            if (isGlass) {
+                mBlurTop.setBlurAutoUpdate(true)
+                mHandler.postDelayed({
+                    mBlurTop.setBlurAutoUpdate(false)
+                }, 100)
+            } else {
+                mBlurTop.setBlurAutoUpdate(false)
+            }
+        }
+    }
+
+    private fun setupWindowInsets() {
+        if (!::mBlurTop.isInitialized)
+            return
+
+        ViewCompat.setOnApplyWindowInsetsListener(mBlurTop) { view, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, view.paddingBottom)
+            insets
+        }
+    }
+
+    private fun setupBlurViews() {
+        if (!::mBlurTop.isInitialized)
+            return
+
+        val context = requireContext()
+        val decorView = requireActivity().window.decorView
+        val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
+
+        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+        mBlurTop.setupWith(rootView, blurAlgorithm)
+            .setFrameClearDrawable(background)
+            .setBlurRadius(15f)
+    }
+
+    private fun setupTitleBackgrounds() {
+        val barLayout = view?.findViewById<View>(R.id.content_toolbar_book_search)
+        val activity = activity ?: return
+        MenuUtil.setupToolbar(activity, mToolbar, mBlurTop, barLayout)
     }
 
 }

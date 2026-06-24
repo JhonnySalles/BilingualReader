@@ -10,6 +10,7 @@
     tools:context=".view.ui.configuration.ConfigFragment">
 
     <ScrollView
+        android:id="@+id/config_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false">

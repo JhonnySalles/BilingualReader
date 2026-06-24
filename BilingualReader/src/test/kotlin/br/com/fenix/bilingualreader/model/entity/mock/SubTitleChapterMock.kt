@@ -1,6 +1,6 @@
 package br.com.fenix.bilingualreader.model.entity.mock
 
-import br.com.fenix.bilingualreader.model.entity.*
+import br.com.fenix.bilingualreader.model.entity.SubTitleChapter
 import br.com.fenix.bilingualreader.model.enums.Languages
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull

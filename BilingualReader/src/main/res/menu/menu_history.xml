@@ -10,18 +10,26 @@
         app:actionViewClass="android.widget.SearchView"
         app:showAsAction="always" />
 
+    <item android:id="@+id/menu_history_list_order"
+        android:title="@string/menu_manga_reading_order"
+        android:icon="@drawable/ico_animated_sort_to_desc_name"
+        android:orderInCategory="101"
+        app:showAsAction="always">
+    </item>
+
     <item android:id="@+id/menu_history_library"
         android:title="@string/menu_history_library"
         android:icon="@drawable/ico_animated_menu_type_library"
-        android:orderInCategory="101"
+        android:orderInCategory="102"
         app:showAsAction="always">
         <menu/>
     </item>
 
+
     <item android:id="@+id/menu_history_type"
         android:title="@string/menu_history_type"
         android:icon="@drawable/ico_menu_type_all"
-        android:orderInCategory="102"
+        android:orderInCategory="103"
         app:showAsAction="always">
         <menu/>
     </item>

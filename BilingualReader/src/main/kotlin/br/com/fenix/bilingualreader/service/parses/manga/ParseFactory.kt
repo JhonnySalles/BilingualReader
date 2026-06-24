@@ -19,15 +19,16 @@ class ParseFactory {
         fun create(file: File): Parse? {
             var parser: Parse? = null
             val fileName = file.absolutePath.lowercase(Locale.getDefault())
-            if (file.isDirectory)
+            if (file.isDirectory) {
                 parser = DirectoryParse()
-
-            when {
-                FileType.CBZ.`is`(fileName) || FileType.ZIP.`is`(fileName) -> parser = ZipParse()
-                FileType.CBR.`is`(fileName) || FileType.RAR.`is`(fileName) -> parser = RarParse()
-                FileType.CBT.`is`(fileName) || FileType.TAR.`is`(fileName) -> parser = TarParse()
-                FileType.CB7.`is`(fileName) || FileType.SEVENZ.`is`(fileName) -> parser =  SevenZipParse()
-                FileType.EPUB.`is`(fileName) || FileType.EPUB3.`is`(fileName) -> parser = EpubParse()
+            } else {
+                when {
+                    FileType.CBZ.`is`(fileName) || FileType.ZIP.`is`(fileName) -> parser = ZipParse()
+                    FileType.CBR.`is`(fileName) || FileType.RAR.`is`(fileName) -> parser = RarParse()
+                    FileType.CBT.`is`(fileName) || FileType.TAR.`is`(fileName) -> parser = TarParse()
+                    FileType.CB7.`is`(fileName) || FileType.SEVENZ.`is`(fileName) -> parser = SevenZipParse()
+                    FileType.EPUB.`is`(fileName) || FileType.EPUB3.`is`(fileName) -> parser = EpubParse()
+                }
             }
 
             return tryParse(parser, file)

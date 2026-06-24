@@ -6,7 +6,6 @@ plugins {
     id 'com.google.gms.google-services'
     id 'com.google.firebase.appdistribution'
     id 'com.google.firebase.crashlytics'
-    id 'io.sentry.android.gradle'
 }
 
 def secrets = file("src/main/assets/secrets.properties")
@@ -23,14 +22,12 @@ android {
     defaultConfig {
         applicationId 'br.com.fenix'
         minSdk 26
-        minSdkVersion 26
         targetSdk 34
-        versionCode 7
+        versionCode 8
         versionName '1.0.'
-        versionNameSuffix '7'
-        archivesBaseName = "BilingualReader_" + versionName + versionNameSuffix
+        versionNameSuffix '8'
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "br.com.fenix.bilingualreader.CustomTestRunner"
         applicationIdSuffix 'bilingualreader'
 
         manifestPlaceholders = [
@@ -42,10 +39,15 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            manifestPlaceholders["crashlyticsEnabled"] = "true"
+            manifestPlaceholders["sentryAutoInit"] = "true"
         }
         debug {
-            minifyEnabled false
+            minifyEnabled true
             testCoverageEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            manifestPlaceholders["crashlyticsEnabled"] = "true"
+            manifestPlaceholders["sentryAutoInit"] = "true"
             firebaseAppDistribution {
                 serviceCredentialsFile="./app-distribution.json"
                 releaseNotes="BilingualReader App"
@@ -66,16 +68,30 @@ android {
     }
     packagingOptions {
         resources {
-            excludes += ['META-INF/CONTRIBUTORS.md', 'META-INF/LICENSE.md']
+            excludes += [
+                'META-INF/CONTRIBUTORS.md',
+                'META-INF/LICENSE.md',
+                'META-INF/LICENSE-notice.md',
+                'META-INF/AL2.0',
+                'META-INF/LGPL2.1'
+            ]
         }
     }
     buildToolsVersion '33.0.0'
     namespace 'br.com.fenix.bilingualreader'
 
+    sourceSets {
+        test.assets.srcDirs += files("$projectDir/schemas")
+    }
+
     testOptions {
         unitTests {
             includeAndroidResources = true
             all {
+                maxHeapSize = "2g"
+                forkEvery = 50
+                maxParallelForks = 1
+                jvmArgs '-XX:MaxMetaspaceSize=512m'
                 if (project.hasProperty('showTests')) {
                     outputs.upToDateWhen { false }
                     testLogging {
@@ -92,21 +108,26 @@ android {
                         println "${color}${result.resultType}: ${descriptor.className} > ${descriptor.name}${reset}"
                     }
                 }
+                useJUnitPlatform()
             }
         }
     }
 }
-
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
 
 configurations {
     all*.exclude group: 'xpp3', module: 'xpp3'
+    configurations.all {
+        if (name.contains("Test") || name.contains("androidTest")) {
+            exclude group: 'com.github.tony19', module: 'logback-android'
+        }
+    }
 }
 
 dependencies {
-    / ** MANGA - COMIC **/
+    // ** MANGA - COMIC **
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
     implementation 'androidx.activity:activity-ktx:1.7.1'
@@ -205,10 +226,13 @@ dependencies {
     //Loading Skeleton
     implementation 'io.supercharge:shimmerlayout:2.1.0'
 
+    // COIL
+    implementation 'io.coil-kt:coil:2.6.0'
+
     // SENTRY
     implementation 'io.sentry:sentry-android:7.14.0'
 
-    / ** BOOK **/
+    // ** BOOK **
     implementation project(':ebook')
 
     //Edge TTS
@@ -217,15 +241,23 @@ dependencies {
     implementation "androidx.media3:media3-exoplayer-dash:1.3.1"
     implementation "androidx.media3:media3-ui:1.3.1"
 
-    / ** TEST **/
+    // ** TEST **
+    testImplementation "androidx.arch.core:core-testing:2.2.0"
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.10.0'
     testImplementation 'junit:junit:4.13.2'
     testImplementation "io.mockk:mockk:1.13.10"
-    testImplementation "org.robolectric:robolectric:4.10.3"
+    testImplementation 'org.robolectric:robolectric:4.12'
+    testImplementation 'org.slf4j:slf4j-nop:1.7.36'
+    androidTestImplementation 'org.slf4j:slf4j-nop:1.7.36'
     testImplementation "androidx.room:room-testing:2.5.0"
+    testImplementation "androidx.test:core:1.5.0"
     testImplementation "androidx.test:core-ktx:1.5.0"
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
     androidTestImplementation "androidx.arch.core:core-testing:2.2.0"
     androidTestImplementation "androidx.room:room-testing:2.5.0"
-    androidTestImplementation "androidx.fragment:fragment-testing:1.8.0"
+    debugImplementation "androidx.fragment:fragment-testing-manifest:1.6.2"
+    androidTestImplementation "androidx.fragment:fragment-testing:1.6.2"
     androidTestImplementation "androidx.test:core:1.5.0"
     androidTestImplementation "androidx.test:runner:1.5.2"
     androidTestImplementation "androidx.test:rules:1.5.0"
@@ -234,5 +266,6 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
     androidTestImplementation "androidx.test.espresso:espresso-contrib:3.5.1"
     androidTestImplementation "androidx.test.espresso:espresso-intents:3.5.1"
+    androidTestImplementation "io.mockk:mockk-android:1.13.10"
 
 }

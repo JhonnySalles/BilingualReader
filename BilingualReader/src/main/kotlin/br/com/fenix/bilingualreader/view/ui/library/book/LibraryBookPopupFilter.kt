@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Filter
-import br.com.fenix.bilingualreader.view.ui.library.manga.MangaLibraryViewModel
 import org.slf4j.LoggerFactory
 
 
@@ -17,7 +16,7 @@ class LibraryBookPopupFilter : Fragment() {
 
     private val mLOGGER = LoggerFactory.getLogger(LibraryBookPopupFilter::class.java)
 
-    private lateinit var mViewModel: MangaLibraryViewModel
+    private lateinit var mViewModel: BookLibraryViewModel
 
     private lateinit var mFilterFavorite: CheckBox
     private lateinit var mFilterReading: CheckBox
@@ -27,7 +26,7 @@ class LibraryBookPopupFilter : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mViewModel = ViewModelProvider(requireActivity()).get(MangaLibraryViewModel::class.java)
+        mViewModel = ViewModelProvider(requireActivity()).get(BookLibraryViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

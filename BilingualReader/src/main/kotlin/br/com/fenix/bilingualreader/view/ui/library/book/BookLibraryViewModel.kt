@@ -7,6 +7,7 @@ import android.widget.Filterable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -21,14 +22,10 @@ import br.com.fenix.bilingualreader.service.repository.BookRepository
 import br.com.fenix.bilingualreader.service.repository.TagsRepository
 import br.com.fenix.bilingualreader.service.sharemark.ShareMarkBase
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.util.Locale
@@ -41,7 +38,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
 
     private val mLOGGER = LoggerFactory.getLogger(BookLibraryViewModel::class.java)
 
-    var isLaunch : Boolean = true
+    var isLoading : Boolean = true
 
     private var mStackLibrary = mutableMapOf<String, Triple<Int, Library, MutableList<Book>>>()
     private var mLibrary: Library = Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK)
@@ -102,16 +99,11 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
 
     fun restoreLastStackLibrary(id: String) {
         if (mStackLibrary.contains(id)) {
-            mStackLibrary.remove(id)
-            for (item in mStackLibrary) {
-                if (item.value.first == mStackLibrary.size) {
-                    mLibrary = item.value.second
-                    mListBookFull.value = item.value.third.toMutableList()
-                    mListBook.value = item.value.third.toMutableList()
-                    setSuggestions(mListBookFull.value)
-                    break
-                }
-            }
+            val item = mStackLibrary.remove(id)!!
+            mLibrary = item.second
+            mListBookFull.value = item.third.toMutableList()
+            mListBook.value = item.third.toMutableList()
+            setSuggestions(mListBookFull.value)
         }
     }
 
@@ -215,77 +207,95 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         return index
     }
 
-    fun updateList(index : Int) : Int {
-        val book = mListBook.value!![index]
-        mBookRepository.get(book.id!!)?.let {
-            book.update(it, true)
+    fun updateList(index: Int): Int {
+        val list = mListBook.value
+        if (list.isNullOrEmpty() || index < 0 || index >= list.size) {
+            return -1
         }
-        return index
+        val book = list[index]
+        val updatedBook = mBookRepository.get(book.id!!)
+        if (updatedBook != null && book.modify(updatedBook)) {
+            book.update(updatedBook, true)
+            return index
+        }
+        return -1
     }
 
     fun updateList(refreshComplete: (Boolean, indexes: MutableList<Pair<ListMode, Int>>) -> (Unit)) {
-        var change = false
-        val indexes = mutableListOf<Pair<ListMode, Int>>()
-        if (mListBookFull.value != null && mListBookFull.value!!.isNotEmpty()) {
-            val list = mBookRepository.listRecentChange(mLibrary)
-            if (list.isNotEmpty()) {
-                change = true
-                for (Book in list) {
-                    if (mListBookFull.value!!.contains(Book)) {
-                        if (mListBookFull.value!![mListBookFull.value!!.indexOf(Book)].update(Book, true)) {
-                            val index = mListBook.value!!.indexOf(Book)
-                            if (index > -1)
-                                indexes.add(Pair(ListMode.MOD, index))
-                        }
-                    } else {
-                        mListBook.value!!.add(Book)
-                        mListBookFull.value!!.add(Book)
-                        indexes.add(Pair(ListMode.ADD, mListBook.value!!.size))
-                    }
-                }
-            }
-            val listDel = mBookRepository.listRecentDeleted(mLibrary)
-            if (listDel.isNotEmpty()) {
-                change = true
-                for (Book in listDel) {
-                    if (mListBookFull.value!!.contains(Book)) {
-                        val index = mListBook.value!!.indexOf(Book)
-                        mListBook.value!!.remove(Book)
-                        mListBookFull.value!!.remove(Book)
-                        indexes.add(Pair(ListMode.REM, index))
-                    }
-                }
-            }
-        } else {
-            val list = mBookRepository.list(mLibrary)
-            indexes.add(Pair(ListMode.FULL, list.size))
-            mListBook.value = list.toMutableList()
-            mListBookFull.value = list.toMutableList()
-            //Receive value force refresh, not necessary notify
-            change = false
-        }
+        viewModelScope.launch {
+            val currentFullList = mListBookFull.value ?: mutableListOf()
+            if (currentFullList.isNotEmpty()) {
+                val list = withContext(Dispatchers.IO) { mBookRepository.listRecentChange(mLibrary) }
+                val listDel = withContext(Dispatchers.IO) { mBookRepository.listRecentDeleted(mLibrary) }
 
-        setSuggestions(mListBookFull.value)
-        refreshComplete(change, indexes)
+                var change = false
+                val indexes = mutableListOf<Pair<ListMode, Int>>()
+
+                if (list.isNotEmpty()) {
+                    change = true
+                    for (Book in list) {
+                        if (mListBookFull.value!!.contains(Book)) {
+                            val existingBook = mListBookFull.value!![mListBookFull.value!!.indexOf(Book)]
+                            if (existingBook.modify(Book)) {
+                                existingBook.update(Book, true)
+                                val index = mListBook.value!!.indexOf(Book)
+                                if (index > -1)
+                                    indexes.add(Pair(ListMode.MOD, index))
+                            }
+                        } else {
+                            mListBook.value!!.add(Book)
+                            mListBookFull.value!!.add(Book)
+                            indexes.add(Pair(ListMode.ADD, mListBook.value!!.size - 1))
+                        }
+                    }
+                }
+                if (listDel.isNotEmpty()) {
+                    change = true
+                    for (Book in listDel) {
+                        if (mListBookFull.value!!.contains(Book)) {
+                            val index = mListBook.value!!.indexOf(Book)
+                            mListBook.value!!.remove(Book)
+                            mListBookFull.value!!.remove(Book)
+                            indexes.add(Pair(ListMode.REM, index))
+                        }
+                    }
+                }
+                setSuggestions(mListBookFull.value)
+                refreshComplete(change, indexes)
+            } else {
+                val list = withContext(Dispatchers.IO) { mBookRepository.list(mLibrary) }
+                val indexes = mutableListOf<Pair<ListMode, Int>>()
+                if (list != null) {
+                    indexes.add(Pair(ListMode.FULL, list.size))
+                    mListBook.value = list.toMutableList()
+                    mListBookFull.value = list.toMutableList()
+                    sorted()
+                } else {
+                    mListBook.value = mutableListOf()
+                    mListBookFull.value = mutableListOf()
+                    indexes.add(Pair(ListMode.FULL, 0))
+                }
+                setSuggestions(mListBookFull.value)
+                refreshComplete(false, indexes)
+            }
+        }
     }
 
     fun list(refreshComplete: (Boolean) -> (Unit)) {
         mLoading.value = true
-        CoroutineScope(Dispatchers.IO).launch {
-            async {
-                val list = mBookRepository.list(mLibrary)
-                withContext(Dispatchers.Main) {
-                    mLoading.value = false
+        viewModelScope.launch(Dispatchers.IO) {
+            val list = mBookRepository.list(mLibrary)
+            withContext(Dispatchers.Main) {
+                mLoading.value = false
 
-                    if (mListBookFull.value == null || mListBookFull.value!!.isEmpty()) {
-                        mListBook.value = list.toMutableList()
-                        mListBookFull.value = list.toMutableList()
-                        setSuggestions(mListBookFull.value)
-                    } else
-                        update(list)
+                if (mListBookFull.value == null || mListBookFull.value!!.isEmpty()) {
+                    mListBook.value = list.toMutableList()
+                    mListBookFull.value = list.toMutableList()
+                    setSuggestions(mListBookFull.value)
+                } else
+                    update(list)
 
-                    refreshComplete(mListBook.value!!.isNotEmpty())
-                }
+                refreshComplete(mListBook.value!!.isNotEmpty())
             }
         }
     }
@@ -379,36 +389,31 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         if (list.isNullOrEmpty())
             return
 
-        val process = list.parallelStream().collect(Collectors.toList())
+        val process = ArrayList(list)
 
-        CoroutineScope(newSingleThreadContext("SuggestionThread")).launch {
-            async {
-                try {
-                    val authors = mutableSetOf<String>()
-                    val publishers = mutableSetOf<String>()
+        viewModelScope.launch(Dispatchers.Default) {
+            try {
+                val authors = mutableSetOf<String>()
+                val publishers = mutableSetOf<String>()
 
-                    process.forEach {
-                        if (it.author.contains(","))
-                            authors.addAll(it.author.split(",").map { it.trim() })
-                        else
-                            authors.add(it.author)
-                        publishers.add(it.publisher)
-                    }
-
-                    authors.removeIf {it.isEmpty()}
-                    publishers.removeIf {it.isEmpty()}
-
-                    withContext(Dispatchers.Main) {
-                        mSuggestionAuthor = authors
-                        mSuggestionPublisher = publishers
-                    }
-                } catch (e: Exception) {
-                    mLOGGER.error("Error generate suggestion: " + e.message, e)
-                    Firebase.crashlytics.apply {
-                        setCustomKey("message", "Error generate suggestion: " + e.message)
-                        recordException(e)
-                    }
+                process.forEach {
+                    if (it.author.contains(","))
+                        authors.addAll(it.author.split(",").map { it.trim() })
+                    else
+                        authors.add(it.author)
+                    publishers.add(it.publisher)
                 }
+
+                authors.removeIf {it.isEmpty()}
+                publishers.removeIf {it.isEmpty()}
+
+                withContext(Dispatchers.Main) {
+                    mSuggestionAuthor = authors
+                    mSuggestionPublisher = publishers
+                }
+            } catch (e: Exception) {
+                mLOGGER.error("Error generate suggestion: " + e.message, e)
+                Telemetry.recordException(e, "Error generate suggestion: " + e.message)
             }
         }
     }
@@ -423,6 +428,11 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             FilterType.Type -> FileType.getBook().parallelStream().map { "$it" }.collect(Collectors.toList())
             else -> listOf()
         }
+    }
+
+    fun filterType(filter: FilterType) {
+        mTypeFilter.value = filter
+        getFilter().filter(mWordFilter)
     }
 
     fun clearFilter() {

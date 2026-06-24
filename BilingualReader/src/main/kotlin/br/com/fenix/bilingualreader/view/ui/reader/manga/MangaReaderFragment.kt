@@ -6,6 +6,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Bitmap
@@ -14,6 +15,7 @@ import android.graphics.PorterDuff
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -21,6 +23,7 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore.Images
 import android.util.SparseArray
+import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.Gravity
@@ -33,7 +36,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
+import android.view.animation.AccelerateInterpolator
 import android.view.animation.AnticipateOvershootInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -52,6 +57,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.util.isNotEmpty
 import androidx.core.util.size
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -90,6 +96,7 @@ import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
 import br.com.fenix.bilingualreader.util.helpers.Util
@@ -105,13 +112,17 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Picasso.LoadedFrom
-import com.squareup.picasso.RequestHandler
 import com.squareup.picasso.Target
+import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.RenderEffectBlur
+import eightbitlab.com.blurview.RenderScriptBlur
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.OutputStream
@@ -130,6 +141,9 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     private val mViewModel: MangaReaderViewModel by activityViewModels()
 
+    private var mSavedInstanceState: Bundle? = null
+    private var mFileToParse: File? = null
+
     private lateinit var mRoot: CoordinatorLayout
     private lateinit var mToolbarTop: AppBarLayout
     private lateinit var mPageNavLayout: LinearLayout
@@ -147,6 +161,18 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mPreviousButton: MaterialButton
     private lateinit var mNextButton: MaterialButton
     private lateinit var miMarkPage: MenuItem
+
+    private lateinit var mBlurTop: BlurView
+    private lateinit var mBlurBottom: BlurView
+    private lateinit var mBlurProgress: BlurView
+    private lateinit var mBlurNavPrevious: BlurView
+    private lateinit var mBlurNavNext: BlurView
+
+    private var mOriginalToolbarTopBg: Drawable? = null
+    private var mOriginalToolbarBottomBg: Drawable? = null
+    private var mOriginalPageNavBg: Drawable? = null
+    private var mOriginalNavPreviousTint: ColorStateList? = null
+    private var mOriginalNavNextTint: ColorStateList? = null
 
     private lateinit var mCoverContent: ConstraintLayout
     private lateinit var mCoverImage: ImageView
@@ -189,6 +215,14 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     private val mLastPage = LinkedList<Pair<Int, Bitmap>>()
     private val mHandler = Handler(Looper.getMainLooper())
+
+    private var mLocalCurrentPage = 0
+        set(value) {
+            field = value
+            if (isAdded && !isRemoving && !isDetached) {
+                Companion.mCurrentPage = value
+            }
+        }
 
     init {
         mResourceViewMode[R.id.manga_view_mode_aspect_fill] = ReaderMode.ASPECT_FILL
@@ -331,7 +365,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mCurrentPage = 0
+        mLocalCurrentPage = 0
         mStorage = Storage(requireContext())
         mLibrary = LibraryUtil.getDefault(requireContext(), Type.MANGA)
         mPreferences = GeneralConsts.getSharedPreferences(requireContext())
@@ -353,82 +387,16 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             } else
                 bundle.getSerializable(GeneralConsts.KEYS.OBJECT.FILE) as File?
 
+            mFileToParse = file
+
             if (file != null && file.exists()) {
                 if (mManga == null)
                     mManga = mStorage.findMangaByName(file.name)
 
                 if (mManga != null) {
-                    mCurrentPage = mManga!!.bookMark - 1
+                    mLocalCurrentPage = mManga!!.bookMark - 1
                     mStorage.updateLastAccess(mManga!!)
                 }
-
-                mParse = ParseFactory.create(file)
-                if (mParse != null) {
-                    if (mParse is RarParse) {
-                        val child = mCacheFolder[mCacheFolderIndex]
-                        val cacheDir = File(GeneralConsts.getCacheDir(requireContext()), child)
-                        if (!cacheDir.exists()) {
-                            cacheDir.mkdir()
-                        } else {
-                            if (cacheDir.listFiles() != null)
-                                for (f in cacheDir.listFiles()!!)
-                                    f.delete()
-                        }
-                        (mParse as RarParse?)!!.setCacheDirectory(cacheDir)
-                    }
-
-                    if (savedInstanceState == null)
-                        mSubtitleController.getListChapter(mManga, mParse!!)
-
-                    val dots = mutableListOf<Int>()
-                    val inverse = mutableListOf<Int>()
-
-                    val pages = (mParse?.numPages() ?: 2) - 1
-                    for (chapter in mParse?.getChapters() ?: intArrayOf()) {
-                        inverse.add(pages - chapter)
-                        dots.add(chapter)
-                    }
-
-                    var times = 0
-                    val handler = Handler()
-                    var setDot: () -> Unit = {}
-                    setDot = {
-                        try {
-                            (requireActivity() as MangaReaderActivity).setMangaDots(dots, inverse)
-                        } catch (e: Exception) {
-                            mLOGGER.error("Error to set dots: " + e.message, e)
-                            times++
-                            if (times < 3)
-                                handler.postDelayed(setDot, 1000)
-                            else
-                                Firebase.crashlytics.apply {
-                                    setCustomKey("message", "Error to set dots: " + e.message)
-                                    recordException(e)
-                                }
-                        }
-                    }
-                    handler.postDelayed(setDot, 1000)
-
-                    mSubtitleController.mReaderFragment = this
-                    mFileName = file.name
-                    mCurrentPage = max(0, min(mCurrentPage, mParse!!.numPages()))
-                    mComicHandler = MangaHandler(mParse!!)
-                    mPicasso = Picasso.Builder(requireContext())
-                        .addRequestHandler((mComicHandler as RequestHandler))
-                        .build()
-                } else
-                    mLOGGER.info("Error in open file.")
-            } else {
-                (requireActivity() as MangaReaderActivity).setMangaDots(mutableListOf(), mutableListOf())
-                mLOGGER.info("File not founded.")
-                MaterialAlertDialogBuilder(requireActivity(), R.style.AppCompatAlertDialogStyle)
-                    .setTitle(getString(R.string.manga_excluded))
-                    .setMessage(getString(R.string.file_not_found))
-                    .setPositiveButton(
-                        R.string.action_neutral
-                    ) { _, _ -> }
-                    .create()
-                    .show()
             }
 
             mGestureDetector = GestureDetector(requireActivity(), MyTouchListener())
@@ -462,6 +430,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        mSavedInstanceState = savedInstanceState
         val view: View = inflater.inflate(R.layout.fragment_manga_reader, container, false)
 
         mRoot = requireActivity().findViewById(R.id.root_activity_manga_reader)
@@ -472,8 +441,22 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mPopupColorLeft = requireActivity().findViewById(R.id.popup_manga_configurations_side_sheet)
         mPageNavLayout = requireActivity().findViewById(R.id.reader_manga_bottom_progress_content)
         mToolbarBottom = requireActivity().findViewById(R.id.reader_manga_toolbar_reader_bottom)
+
+        mBlurTop = requireActivity().findViewById(R.id.reader_manga_blur_top)
+        mBlurBottom = requireActivity().findViewById(R.id.reader_manga_blur_bottom)
+        mBlurProgress = requireActivity().findViewById(R.id.reader_manga_blur_progress)
+        mBlurNavPrevious = requireActivity().findViewById(R.id.reader_manga_blur_nav_previous)
+        mBlurNavNext = requireActivity().findViewById(R.id.reader_manga_blur_nav_next)
+
+        mOriginalToolbarTopBg = mToolbarTop.background
+        mOriginalToolbarBottomBg = mToolbarBottom.background
+        mOriginalPageNavBg = mPageNavLayout.background
+
         mPreviousButton = requireActivity().findViewById(R.id.reader_manga_nav_previous_file)
         mNextButton = requireActivity().findViewById(R.id.reader_manga_nav_next_file)
+
+        mOriginalNavPreviousTint = mPreviousButton.backgroundTintList
+        mOriginalNavNextTint = mNextButton.backgroundTintList
         mViewPager = view.findViewById<View>(R.id.fragment_manga_reader_pager) as ImageViewPager
         mViewRecycler = view.findViewById<View>(R.id.fragment_manga_reader_recycler) as ZoomRecyclerView
 
@@ -499,49 +482,116 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         }
         mPageNavTextView = mPageNavLayout.findViewById<View>(R.id.reader_manga_bottom_progress_title) as TextView
 
-        if (mParse == null) {
-            val cover = if (mManga != null) MangaImageCoverController.instance.getMangaCover(requireContext(), mManga!!, isCoverSize = true) else null
-            mCoverImage.setImageBitmap(ImageUtil.applyCoverEffect(requireContext(), cover, Type.BOOK))
-            mCoverMessage.text = getString(R.string.reading_manga_open_exception)
-            mPageNavTextView.text = ""
+        mCoverMessage.visibility = View.GONE
+        mCoverWarning.visibility = View.GONE
 
+        if (mManga != null) {
+            MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mManga!!, mCoverImage, null, true) {
+                activity?.supportStartPostponedEnterTransition()
+            }
+            mHandler.postDelayed({ MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mManga!!, mCoverImage, null, false) }, 300)
+        } else {
+            mCoverImage.setImageBitmap(ImageUtil.applyCoverEffect(requireContext(), null, Type.BOOK))
+            mCoverMessage.text = getString(R.string.reading_manga_open_exception)
             mCoverMessage.visibility = View.VISIBLE
             mCoverWarning.visibility = View.VISIBLE
-            return view
-        } else {
-            mCoverMessage.visibility = View.GONE
-            mCoverWarning.visibility = View.GONE
-
-            MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mManga!!, mCoverImage, null, true)
-            mHandler.postDelayed({ MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mManga!!, mCoverImage, null, false) }, 300)
+            activity?.supportStartPostponedEnterTransition()
         }
 
-        var run: Runnable? = null
-        run = Runnable {
-            val image = getCurrencyImageView()
-            if (image == null || image.isGone)
-                mHandler.postDelayed(run!!, 800)
-            else {
-                mCoverContent.animate().alpha(0.0f).setDuration(600L).setListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator) {
-                        super.onAnimationEnd(animation)
-                        mCoverContent.visibility = View.GONE
+        mPageSeekBar.isEnabled = false
 
-                        if (mPreferences.getBoolean(GeneralConsts.KEYS.TOUCH.MANGA_TOUCH_DEMONSTRATION, true)) {
-                            with(mPreferences.edit()) {
-                                this.putBoolean(GeneralConsts.KEYS.TOUCH.MANGA_TOUCH_DEMONSTRATION, false)
-                                this.commit()
+        val file = mFileToParse
+        if (file != null && file.exists()) {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val parse = ParseFactory.create(file)
+                    if (parse != null) {
+                        if (parse is RarParse) {
+                            val child = mCacheFolder[mCacheFolderIndex]
+                            val cacheDir = File(GeneralConsts.getCacheDir(requireContext()), child)
+                            if (!cacheDir.exists()) {
+                                cacheDir.mkdir()
+                            } else {
+                                cacheDir.listFiles()?.forEach { it.delete() }
                             }
-                            (requireActivity() as MangaReaderActivity).openViewTouch()
+                            parse.setCacheDirectory(cacheDir)
+                        }
+
+                        withContext(Dispatchers.Main) {
+                            if (isAdded && context != null) {
+                                mParse = parse
+                                mSubtitleController.mReaderFragment = this@MangaReaderFragment
+                                mFileName = file.name
+                                mLocalCurrentPage = max(0, min(mLocalCurrentPage, parse.numPages()))
+                                mComicHandler = MangaHandler(parse)
+                                mPicasso = Picasso.Builder(requireContext())
+                                    .addRequestHandler(mComicHandler)
+                                    .build()
+
+                                if (mSavedInstanceState == null)
+                                    mSubtitleController.getListChapter(mManga, parse)
+
+                                setupMangaChaptersDots(parse)
+                                prepareMangaReader()
+                            }
+                        }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            if (isAdded && context != null) showParseError()
                         }
                     }
-                })
+                } catch (e: Exception) {
+                    mLOGGER.error("Error parsing manga asynchronously", e)
+                    withContext(Dispatchers.Main) {
+                        if (isAdded && context != null) showParseError()
+                    }
+                }
             }
+        } else {
+            showParseError()
         }
 
-        mHandler.postDelayed(run, 2000)
+        mViewModel.filters.observe(viewLifecycleOwner) { onRefresh() }
 
-        mPageSeekBar.max = (mParse?.numPages() ?: 2) - 1
+        setupBlurViews()
+        setupWindowInsets()
+        setupTitleBackgrounds()
+
+        return view
+    }
+
+    private fun setupMangaChaptersDots(parse: Parse) {
+        val dots = mutableListOf<Int>()
+        val inverse = mutableListOf<Int>()
+
+        val pages = parse.numPages() - 1
+        for (chapter in parse.getChapters() ?: intArrayOf()) {
+            inverse.add(pages - chapter)
+            dots.add(chapter)
+        }
+
+        try {
+            (requireActivity() as MangaReaderActivity).setMangaDots(dots, inverse)
+        } catch (e: Exception) {
+            mLOGGER.error("Error to set dots: " + e.message, e)
+        }
+    }
+
+    private fun showParseError() {
+        (requireActivity() as MangaReaderActivity).setMangaDots(mutableListOf(), mutableListOf())
+        mCoverMessage.visibility = View.VISIBLE
+        mCoverWarning.visibility = View.VISIBLE
+        val cover = if (mManga != null) MangaImageCoverController.instance.getMangaCover(requireContext(), mManga!!, isCoverSize = true) else null
+        mCoverImage.setImageBitmap(ImageUtil.applyCoverEffect(requireContext(), cover, Type.BOOK))
+        mCoverMessage.text = getString(R.string.reading_manga_open_exception)
+        mPageNavTextView.text = ""
+        activity?.supportStartPostponedEnterTransition()
+    }
+
+    private fun prepareMangaReader() {
+        val parse = mParse ?: return
+        mPageSeekBar.isEnabled = true
+        mPageSeekBar.max = parse.numPages() - 1
         mPageSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
@@ -573,10 +623,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     openLastPage()
                 } catch (e: Exception) {
                     mLOGGER.error("Error to insert last page: " + e.message, e)
-                    Firebase.crashlytics.apply {
-                        setCustomKey("message", "Error to insert last page: " + e.message)
-                        recordException(e)
-                    }
+                    Telemetry.recordException(e, "Error to insert last page: " + e.message)
                 }
             }
 
@@ -600,11 +647,12 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         configureScrolling(mScrollingMode, mPaginationType, true)
 
-        if (savedInstanceState != null) {
-            val fullscreen = savedInstanceState.getBoolean(ReaderConsts.STATES.STATE_FULLSCREEN)
+        val savedState = mSavedInstanceState
+        if (savedState != null) {
+            val fullscreen = savedState.getBoolean(ReaderConsts.STATES.STATE_FULLSCREEN)
             setFullscreen(fullscreen)
-            val newComicId = savedInstanceState.getLong(ReaderConsts.STATES.STATE_NEW_COMIC)
-            val titleRes = savedInstanceState.getInt(ReaderConsts.STATES.STATE_NEW_COMIC_TITLE)
+            val newComicId = savedState.getLong(ReaderConsts.STATES.STATE_NEW_COMIC)
+            val titleRes = savedState.getInt(ReaderConsts.STATES.STATE_NEW_COMIC_TITLE)
             confirmSwitch(mStorage.getManga(newComicId), titleRes)
         } else
             setFullscreen(true)
@@ -613,13 +661,34 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         requireActivity().title = mFileName
         updateSeekBar()
 
-        mViewModel.filters.observe(viewLifecycleOwner) { onRefresh() }
+        var run: Runnable? = null
+        run = Runnable {
+            val image = getCurrencyImageView()
+            if (image == null || image.isGone)
+                mHandler.postDelayed(run!!, 800)
+            else {
+                mCoverContent.animate().alpha(0.0f).setDuration(600L).setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        super.onAnimationEnd(animation)
+                        mCoverContent.visibility = View.GONE
 
-        return view
+                        if (mPreferences.getBoolean(GeneralConsts.KEYS.TOUCH.MANGA_TOUCH_DEMONSTRATION, true)) {
+                            with(mPreferences.edit()) {
+                                this.putBoolean(GeneralConsts.KEYS.TOUCH.MANGA_TOUCH_DEMONSTRATION, false)
+                                this.commit()
+                            }
+                            (requireActivity() as MangaReaderActivity).openViewTouch()
+                        }
+                    }
+                })
+            }
+        }
+
+        mHandler.postDelayed(run, 500)
     }
 
     private fun configureScrolling(scrolling: ScrollingType, pagination: PaginationType, isInitial: Boolean = false) {
-        val page = if (isInitial) mCurrentPage + 1 else getCurrentPage()
+        val page = if (isInitial) mLocalCurrentPage + 1 else getCurrentPage()
         val isChange = isInitial || ((scrolling == ScrollingType.Scrolling || scrolling == ScrollingType.ScrollingDivider) && mViewPager.isVisible) ||
                 ((scrolling == ScrollingType.Horizontal || scrolling == ScrollingType.HorizontalRightToLeft || scrolling == ScrollingType.Vertical) && mViewRecycler.isVisible)
 
@@ -640,6 +709,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     mViewPager.setOnTouchListener(this@MangaReaderFragment)
                     mViewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
                         override fun onPageSelected(position: Int) {
+                            if (!isAdded || isRemoving || isDetached) return
                             if (mScrollingMode == ScrollingType.HorizontalRightToLeft)
                                 setCurrentPage(mViewPager.adapter!!.count - position)
                             else
@@ -737,9 +807,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         mViewPager.setSwipeOrientation(mScrollingMode, mPaginationType)
         if (mScrollingMode in setOf(ScrollingType.Vertical, ScrollingType.Horizontal, ScrollingType.HorizontalRightToLeft)) {
-            val isCurl = mPaginationType == PaginationType.CurlPage
+            val isCurl = mPaginationType == PaginationType.CurlPage || mPaginationType == PaginationType.Curl3DPage
             updatePageViews<PageCurlFrame>(mViewPager, PageCurlFrame::class.java) {
                 (it as PageCurlFrame).isCurlPage = isCurl
+                (it as PageCurlFrame).is3DMode = mPaginationType == PaginationType.Curl3DPage
             }
         }
     }
@@ -765,6 +836,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         when (mPaginationType) {
             PaginationType.Default -> menu.findItem(R.id.reading_manga_pagination_default).isChecked = true
             PaginationType.CurlPage -> menu.findItem(R.id.reading_manga_pagination_page_curl).isChecked = true
+            PaginationType.Curl3DPage -> menu.findItem(R.id.reading_manga_pagination_page_curl_3d).isChecked = true
             PaginationType.Stack -> menu.findItem(R.id.reading_manga_pagination_stack).isChecked = true
             PaginationType.Zooming -> menu.findItem(R.id.reading_manga_pagination_zoom).isChecked = true
             PaginationType.Depth -> menu.findItem(R.id.reading_manga_pagination_depth).isChecked = true
@@ -796,6 +868,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             it.setEnd(LocalDateTime.now())
             it.id = mViewModel.save(it)
         }
+        setBlurAutoUpdate(false)
         super.onPause()
     }
 
@@ -808,6 +881,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         if (::mPicasso.isInitialized)
             mPicasso.shutdown()
 
+        mHandler.removeCallbacksAndMessages(null)
         super.onDestroy()
     }
 
@@ -899,6 +973,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
             R.id.reading_manga_pagination_default,
             R.id.reading_manga_pagination_page_curl,
+            R.id.reading_manga_pagination_page_curl_3d,
             R.id.reading_manga_pagination_stack,
             R.id.reading_manga_pagination_zoom,
             R.id.reading_manga_pagination_depth,
@@ -909,6 +984,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 val pagination = when (item.itemId) {
                     R.id.reading_manga_pagination_default -> PaginationType.Default
                     R.id.reading_manga_pagination_page_curl -> PaginationType.CurlPage
+                    R.id.reading_manga_pagination_page_curl_3d -> PaginationType.Curl3DPage
                     R.id.reading_manga_pagination_stack -> PaginationType.Stack
                     R.id.reading_manga_pagination_zoom -> PaginationType.Zooming
                     R.id.reading_manga_pagination_depth -> PaginationType.Depth
@@ -1008,7 +1084,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             ScrollingType.Scrolling,
             ScrollingType.ScrollingDivider,
                 -> {
-                val isShort = abs(mCurrentPage - page) < 6
+                val isShort = abs(mLocalCurrentPage - page) < 6
                 if (animated && isShort)
                     mViewRecycler.smoothScrollToPosition(page - 1)
                 else {
@@ -1024,6 +1100,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     }
 
     private fun setChangeProgress(page: Int, seekbar: Int) {
+        if (!isAdded || isRemoving || isDetached) return
         mPageSeekBar.progress = seekbar
 
         val navPage: String = if (mParse == null) "" else StringBuilder()
@@ -1031,15 +1108,15 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             .toString()
 
         mPageNavTextView.text = navPage
-        mCurrentPage = page - 1
+        mLocalCurrentPage = page - 1
 
-        if (mCurrentPage < 0)
-            mCurrentPage = 0
+        if (mLocalCurrentPage < 0)
+            mLocalCurrentPage = 0
 
         if (mManga != null)
-            mSubtitleController.changeSubtitleInReader(mManga!!, mCurrentPage)
+            mSubtitleController.changeSubtitleInReader(mManga!!, mLocalCurrentPage)
 
-        (requireActivity() as MangaReaderActivity).changePage(mManga?.title ?: "", getChapterSelected(mCurrentPage), page)
+        (requireActivity() as MangaReaderActivity).changePage(mManga?.title ?: "", getChapterSelected(mLocalCurrentPage), page)
     }
 
     private fun getChapterSelected(page: Int): String {
@@ -1049,7 +1126,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             if (mParse!!.isComicInfo()) {
                 mParse!!.getComicInfo()?.let {
                     val chapters = mutableMapOf<Int, String>()
-                    if (it.pages != null && it.pages!!.size > mCurrentPage) {
+                    if (it.pages != null && it.pages!!.size > mLocalCurrentPage) {
                         for ((index, comic) in it.pages!!.withIndex()) {
                             if (comic.bookmark != null)
                                 chapters[index] = comic.bookmark!!
@@ -1108,7 +1185,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
             val inflater = requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             val layout: View = inflater.inflate(R.layout.fragment_manga_page_pager, container, false)
-            layout.findViewById<PageCurlFrame>(R.id.frame_reader_page_root).isCurlPage = mPaginationType == PaginationType.CurlPage
+            
+            val isCurl = mPaginationType == PaginationType.CurlPage || mPaginationType == PaginationType.Curl3DPage
+            val curlFrame = layout.findViewById<PageCurlFrame>(R.id.frame_reader_page_root)
+            curlFrame.isCurlPage = isCurl
+            curlFrame.is3DMode = mPaginationType == PaginationType.Curl3DPage
 
             val imageViewPage: ImageViewPage = layout.findViewById<View>(R.id.page_image_view) as ImageViewPage
             if (mReaderMode === ReaderMode.ASPECT_FILL)
@@ -1239,10 +1320,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             request.transform(mViewModel.filters.value!!).into(t)
         } catch (e: Exception) {
             mLOGGER.error("Error in open image: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error in open image: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error in open image: " + e.message)
         }
     }
 
@@ -1260,10 +1338,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             request.transform(mViewModel.filters.value!!).into(t)
         } catch (e: Exception) {
             mLOGGER.error("Error in open image: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error in open image: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error in open image: " + e.message)
         }
     }
 
@@ -1284,10 +1359,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 .into(t)
         } catch (e: Exception) {
             mLOGGER.error("Error in open image: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error in open image: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error in open image: " + e.message)
         }
     }
 
@@ -1311,10 +1383,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
             mLOGGER.error("Bitmap load fail: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Bitmap load fail: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Bitmap load fail: " + e.message)
             val layout = mLayout.get() ?: return
             setVisibility(View.GONE, View.GONE, View.VISIBLE)
             val ib = layout.findViewById<View>(R.id.reload_button) as ImageButton
@@ -1489,13 +1558,13 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         if (fullscreen) {
             mRoot.fitsSystemWindows = false
             changeContentsVisibility(fullscreen)
-            Handler(Looper.getMainLooper()).postDelayed({
+            mHandler.postDelayed({
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     windowInsetsController.let {
                         it.hide(WindowInsetsCompat.Type.systemBars())
                         it.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                     }
-                    WindowCompat.setDecorFitsSystemWindows(window, true)
+                    WindowCompat.setDecorFitsSystemWindows(window, false)
                 } else {
                     getActionBar()?.hide()
                     @Suppress("DEPRECATION")
@@ -1507,7 +1576,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                             or View.SYSTEM_UI_FLAG_LAYOUT_STABLE // Stable transition on fullscreen and immersive
                             )
 
-                    Handler(Looper.getMainLooper()).postDelayed({
+                    mHandler.postDelayed({
                         window.clearFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
                         window.addFlags(ContextCompat.getColor(requireContext(), R.color.transparent))
                     }, ANIMATION_DURATION + 100)
@@ -1528,7 +1597,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 }
             }, ANIMATION_DURATION)
         } else {
-            Handler(Looper.getMainLooper()).postDelayed({ changeContentsVisibility(fullscreen) }, ANIMATION_DURATION)
+            mHandler.postDelayed({ changeContentsVisibility(fullscreen) }, ANIMATION_DURATION)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 windowInsetsController.let {
                     it.show(WindowInsetsCompat.Type.systemBars())
@@ -1541,17 +1610,23 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                         or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
 
-                Handler(Looper.getMainLooper()).postDelayed({
+                mHandler.postDelayed({
                     window.clearFlags(ContextCompat.getColor(requireContext(), R.color.transparent))
                     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
                 }, ANIMATION_DURATION + 100)
             }
 
-            window.statusBarColor = resources.getColor(R.color.status_bar_color)
+            val isNight = resources.getBoolean(R.bool.isNight)
+            window.statusBarColor = android.graphics.Color.TRANSPARENT
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.navigationBarColor = resources.getColor(R.color.status_bar_color)
+            window.navigationBarColor = android.graphics.Color.TRANSPARENT
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                window.isNavigationBarContrastEnforced = false
+                window.isStatusBarContrastEnforced = false
+            }
+            WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = !isNight
         }
 
 
@@ -1568,60 +1643,80 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         val initialTranslation = if (isFullScreen) 0f else -50f
         val finalTranslation = if (isFullScreen) -50f else 0f
 
+        val targetTop = mBlurTop ?: mToolbarTop
+        val targetBottom = mBlurBottom ?: mToolbarBottom
+        val targetProgress = mBlurProgress ?: mPageNavLayout
+        val prevTarget = mBlurNavPrevious ?: mPreviousButton
+        val nextTarget = mBlurNavNext ?: mNextButton
+
+        setupTitleBackgrounds()
+
         if (!isFullScreen) {
-            mPageNavLayout.visibility = visibility
-            mToolbarBottom.visibility = visibility
-            mToolbarTop.visibility = visibility
-            mNextButton.visibility = visibility
-            mPreviousButton.visibility = visibility
+            targetTop.visibility = View.VISIBLE
+            targetTop.translationY = initialTranslation
+            targetTop.alpha = initialAlpha
 
-            mPageNavLayout.alpha = initialAlpha
-            mToolbarTop.alpha = initialAlpha
-            mToolbarBottom.alpha = initialAlpha
-            mNextButton.alpha = initialAlpha
-            mPreviousButton.alpha = initialAlpha
+            targetBottom.visibility = View.VISIBLE
+            targetBottom.translationY = (initialTranslation * -1)
+            targetBottom.alpha = initialAlpha
 
-            mToolbarTop.translationY = initialTranslation
-            mToolbarBottom.translationY = (initialTranslation * -1)
+            targetProgress.visibility = View.VISIBLE
+            targetProgress.translationY = (initialTranslation * -1)
+            targetProgress.alpha = initialAlpha
+
+            nextTarget.visibility = View.VISIBLE
+            nextTarget.translationY = (initialTranslation * -1)
+            nextTarget.alpha = initialAlpha
+
+            prevTarget.visibility = View.VISIBLE
+            prevTarget.translationY = (initialTranslation * -1)
+            prevTarget.alpha = initialAlpha
         }
 
-        mPageNavLayout.animate().alpha(finalAlpha).setDuration(ANIMATION_DURATION)
+        val interpolator = if (isFullScreen) AccelerateInterpolator(2.0f) else DecelerateInterpolator(2.0f)
+
+        targetTop.animate().alpha(finalAlpha).translationY(finalTranslation)
+            .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
-                    mPageNavLayout.visibility = visibility
+                    targetTop.visibility = visibility
                 }
             })
 
-        mToolbarBottom.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
-            .setDuration(ANIMATION_DURATION).setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    super.onAnimationEnd(animation)
-                    mToolbarBottom.visibility = visibility
-                }
-            })
-
-        mToolbarTop.animate().alpha(finalAlpha).translationY(finalTranslation)
-            .setDuration(ANIMATION_DURATION).setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    super.onAnimationEnd(animation)
-                    mToolbarTop.visibility = visibility
-                }
-            })
-
-        mNextButton.animate().alpha(finalAlpha).setDuration(ANIMATION_DURATION)
+        targetBottom.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
+            .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
-                    mNextButton.visibility = visibility
+                    targetBottom.visibility = visibility
                 }
             })
 
-        mPreviousButton.animate().alpha(finalAlpha).setDuration(ANIMATION_DURATION)
+        targetProgress.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
+            .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
-                    mPreviousButton.visibility = visibility
+                    targetProgress.visibility = visibility
+                }
+            })
+
+        nextTarget.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
+            .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
+            .setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    super.onAnimationEnd(animation)
+                    nextTarget.visibility = visibility
+                }
+            })
+
+        prevTarget.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
+            .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
+            .setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    super.onAnimationEnd(animation)
+                    prevTarget.visibility = visibility
                 }
             })
     }
@@ -1748,10 +1843,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 Util.closeOutputStream(os)
             } catch (e: Exception) {
                 mLOGGER.error("Error generate image to share: " + e.message, e)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error generate image to share: " + e.message)
-                    recordException(e)
-                }
+                Telemetry.recordException(e, "Error generate image to share: " + e.message)
             } finally {
                 Util.closeInputStream(it)
             }
@@ -1924,6 +2016,195 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         TransitionManager.beginDelayedTransition(mRoot, transition)
         mLastPageContainer.visibility = if (isVisible) View.VISIBLE else View.GONE
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Companion.mCurrentPage = mLocalCurrentPage
+        setupTitleBackgrounds()
+        setBlurAutoUpdate(true)
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        setBlurAutoUpdate(!hidden)
+    }
+
+    private fun setBlurAutoUpdate(enabled: Boolean) {
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        val autoUpdate = isGlass && enabled
+        mBlurTop.setBlurAutoUpdate(autoUpdate)
+        mBlurBottom.setBlurAutoUpdate(autoUpdate)
+        mBlurProgress?.setBlurAutoUpdate(autoUpdate)
+        mBlurNavPrevious.setBlurAutoUpdate(autoUpdate)
+        mBlurNavNext.setBlurAutoUpdate(autoUpdate)
+
+        mBlurTop.setBlurEnabled(isGlass)
+        mBlurBottom.setBlurEnabled(isGlass)
+        mBlurProgress.setBlurEnabled(isGlass)
+        mBlurNavPrevious.setBlurEnabled(isGlass)
+        mBlurNavNext.setBlurEnabled(isGlass)
+    }
+
+    private fun setupWindowInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(mToolbarTop) { view, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            view.setPadding(view.paddingLeft, statusBarHeight, view.paddingRight, view.paddingBottom)
+            insets
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(mToolbarBottom) { view, insets ->
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            view.setPadding(view.paddingLeft, view.paddingTop, view.paddingRight, navBarHeight)
+            insets
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(mBlurProgress) { view, insets ->
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            val lp = view.layoutParams as ViewGroup.MarginLayoutParams
+            lp.bottomMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80f, resources.displayMetrics).toInt() + navBarHeight
+            view.layoutParams = lp
+            insets
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(mBlurNavPrevious) { view, insets ->
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            val lp = view.layoutParams as ViewGroup.MarginLayoutParams
+            lp.bottomMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 85f, resources.displayMetrics).toInt() + navBarHeight
+            view.layoutParams = lp
+            insets
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(mBlurNavNext) { view, insets ->
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            val lp = view.layoutParams as ViewGroup.MarginLayoutParams
+            lp.bottomMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 85f, resources.displayMetrics).toInt() + navBarHeight
+            view.layoutParams = lp
+            insets
+        }
+    }
+
+    private fun setupTitleBackgrounds() {
+        if (!::mBlurTop.isInitialized || !::mBlurBottom.isInitialized || !::mBlurProgress.isInitialized || !::mBlurNavPrevious.isInitialized || !::mBlurNavNext.isInitialized)
+            return
+
+        val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        val context = requireContext()
+        val themeColor = context.getColorFromAttr(R.attr.colorSurface)
+
+        mBlurTop.setBlurEnabled(isGlass)
+        mBlurBottom.setBlurEnabled(isGlass)
+        mBlurProgress.setBlurEnabled(isGlass)
+        mBlurNavPrevious.setBlurEnabled(isGlass)
+        mBlurNavNext.setBlurEnabled(isGlass)
+
+        val isNight = resources.getBoolean(R.bool.isNight)
+        val alpha = if (isNight) 0xD9 else 0x73
+        val translucentColor = (themeColor and 0x00FFFFFF) or (alpha shl 24)
+
+        val topBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(translucentColor)
+        }
+        mBlurTop.background = topBg
+        mToolbarTop.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+
+        val bottomBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(translucentColor)
+        }
+        mBlurBottom.background = bottomBg
+        mToolbarBottom.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+        val progressCornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, resources.displayMetrics)
+        val buttonCornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100f, resources.displayMetrics)
+
+        val progressBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(translucentColor)
+            this.cornerRadius = progressCornerRadius
+        }
+        val prevButtonBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(translucentColor)
+            this.cornerRadius = buttonCornerRadius
+        }
+        val nextButtonBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(translucentColor)
+            this.cornerRadius = buttonCornerRadius
+        }
+
+        if (isGlass) {
+            mBlurProgress.background = progressBg
+            mPageNavLayout.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+            mBlurNavPrevious.background = prevButtonBg
+            mBlurNavNext.background = nextButtonBg
+            mPreviousButton.backgroundTintList = ColorStateList.valueOf(android.graphics.Color.TRANSPARENT)
+            mNextButton.backgroundTintList = ColorStateList.valueOf(android.graphics.Color.TRANSPARENT)
+        } else {
+            mBlurProgress.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+            mPageNavLayout.background = progressBg
+            mBlurNavPrevious.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+            mBlurNavNext.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+            mPreviousButton.background = prevButtonBg
+            mPreviousButton.backgroundTintList = null
+            mNextButton.background = nextButtonBg
+            mNextButton.backgroundTintList = null
+        }
+
+        if (!mIsFullscreen) {
+            val window = requireActivity().window
+            window.statusBarColor = android.graphics.Color.TRANSPARENT
+            window.navigationBarColor = android.graphics.Color.TRANSPARENT
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                window.isNavigationBarContrastEnforced = false
+                window.isStatusBarContrastEnforced = false
+            }
+            WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = !isNight
+        }
+    }
+
+    private fun setupBlurViews() {
+        if (!::mBlurTop.isInitialized || !::mBlurBottom.isInitialized || !::mBlurProgress.isInitialized || !::mBlurNavPrevious.isInitialized || !::mBlurNavNext.isInitialized)
+            return
+
+        val context = requireContext()
+        val decorView = requireActivity().window.decorView
+        val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+
+        val blurAlgorithmTop = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
+        val blurAlgorithmBottom = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
+        val blurAlgorithmProgress = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
+        val blurAlgorithmPrev = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
+        val blurAlgorithmNext = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
+
+        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+
+        mBlurTop.setupWith(rootView, blurAlgorithmTop)
+            .setFrameClearDrawable(background)
+            .setBlurRadius(15f)
+
+        mBlurBottom.setupWith(rootView, blurAlgorithmBottom)
+            .setFrameClearDrawable(background)
+            .setBlurRadius(15f)
+
+        mBlurProgress.setupWith(rootView, blurAlgorithmProgress)
+            .setFrameClearDrawable(background)
+            .setBlurRadius(15f)
+
+        mBlurNavPrevious.setupWith(rootView, blurAlgorithmPrev)
+            .setFrameClearDrawable(background)
+            .setBlurRadius(15f)
+
+        mBlurNavNext.setupWith(rootView, blurAlgorithmNext)
+            .setFrameClearDrawable(background)
+            .setBlurRadius(15f)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mBlurProgress.clipToOutline = true
+            mBlurNavPrevious.clipToOutline = true
+            mBlurNavNext.clipToOutline = true
+        }
     }
 
 }

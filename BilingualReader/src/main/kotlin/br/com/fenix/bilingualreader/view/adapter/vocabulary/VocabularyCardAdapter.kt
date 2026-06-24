@@ -23,7 +23,7 @@ class VocabularyCardAdapter(var listener: VocabularyCardListener) :
     }
 
     companion object {
-        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Vocabulary>() {
+        internal val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Vocabulary>() {
             override fun areItemsTheSame(oldItem: Vocabulary, newItem: Vocabulary): Boolean =
                 oldItem.id == newItem.id
 

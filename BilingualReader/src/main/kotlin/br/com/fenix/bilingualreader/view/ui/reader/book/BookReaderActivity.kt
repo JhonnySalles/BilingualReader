@@ -53,6 +53,7 @@ import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
 import br.com.fenix.bilingualreader.util.helpers.Util
@@ -61,8 +62,14 @@ import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.sidesheet.SideSheetBehavior
 import com.google.android.material.tabs.TabLayout
+import eightbitlab.com.blurview.BlurView
+import android.graphics.drawable.GradientDrawable
+import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import com.google.android.material.sidesheet.SideSheetBehavior
+import eightbitlab.com.blurview.RenderEffectBlur
+import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
 import java.io.File
 
@@ -89,6 +96,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
 
     private var mMenuPopupConfigurationBottom: FrameLayout? = null
     private var mMenuPopupConfigurationLeft: FrameLayout? = null
+    private var mMenuPopupConfigurationBackground: BlurView? = null
     private lateinit var mPopupConfigurationTab: TabLayout
     private lateinit var mPopupConfigurationView: ViewPager
 
@@ -98,6 +106,29 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
 
     private var mMenuPopupBottomSheet: Boolean = true
     private lateinit var mBottomSheetConfiguration: BottomSheetBehavior<FrameLayout>
+
+    private val mBottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                mMenuPopupConfigurationBackground?.let { bg ->
+                    if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
+                        bg.setBlurAutoUpdate(true)
+                    } else {
+                        bg.setBlurAutoUpdate(false)
+                    }
+                }
+            }
+        }
+
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                mMenuPopupConfigurationBackground?.setBlurAutoUpdate(true)
+            }
+        }
+    }
+
     private lateinit var mLeftSheetConfiguration: SideSheetBehavior<FrameLayout>
 
     private lateinit var mTouchView: ConstraintLayout
@@ -114,12 +145,20 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     private var mDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeUtil.applyThemeMode(this)
         mPreferences = GeneralConsts.getSharedPreferences(this)
         val theme = Themes.valueOf(mPreferences.getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(theme.getValue())
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_reader)
+
+        supportPostponeEnterTransition()
+        mHandler.postDelayed({
+            supportStartPostponedEnterTransition()
+        }, 1000)
+
+        androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
 
         Formatter.initializeAsync(applicationContext)
 
@@ -148,6 +187,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
         mMenuPopupBottomSheet = findViewById<ImageView>(R.id.popup_book_configuration_center_button) != null
         mMenuPopupConfigurationBottom = findViewById(R.id.popup_book_configuration_bottom_sheet)
         mMenuPopupConfigurationLeft = findViewById(R.id.popup_book_configuration_side_sheet)
+        mMenuPopupConfigurationBackground = findViewById(R.id.popup_book_configuration_popup_header_background)
         mPopupConfigurationTab = findViewById(R.id.popup_book_configuration_tab)
         mPopupConfigurationView = findViewById(R.id.popup_book_configuration_view_pager)
 
@@ -184,6 +224,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
                 mBottomSheetConfiguration = this
             }
             mBottomSheetConfiguration.isDraggable = false
+            mBottomSheetConfiguration.addBottomSheetCallback(mBottomSheetCallback)
             PopupUtils.onPopupTouch(this, mMenuPopupConfigurationBottom!!, mBottomSheetConfiguration, findViewById<ImageView>(R.id.popup_book_configuration_center_button), navigationColor = false)
         }
 
@@ -221,6 +262,8 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             closeViewTouch()
         }
 
+        setupPopupBackgrounds()
+
         if (savedInstanceState == null) {
             SharedData.clearChapters()
             if (Intent.ACTION_VIEW == intent.action) {
@@ -255,6 +298,10 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
             }
         } else
             mFragment = supportFragmentManager.findFragmentById(R.id.root_frame_book_reader) as BookReaderFragment?
+    }
+
+    private fun setupPopupBackgrounds() {
+        PopupUtils.setupPopupBackgrounds(this, mMenuPopupConfigurationBottom, mMenuPopupConfigurationBackground)
     }
 
     private fun initialize(book: Book?) {
@@ -412,6 +459,10 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     }
 
     override fun onDestroy() {
+        if (::mBottomSheetConfiguration.isInitialized) {
+            mBottomSheetConfiguration.removeBottomSheetCallback(mBottomSheetCallback)
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (mHandler.hasCallbacks(mDismissTouchView))
                 mHandler.removeCallbacks(mDismissTouchView)
@@ -527,6 +578,111 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
         mFragment?.configTouchFunctions()
     }
 
+    private fun getIconForTouchScreen(touchScreen: TouchScreen): Int {
+        return when (touchScreen) {
+            TouchScreen.TOUCH_NOT_ASSIGNED -> R.drawable.ico_close
+            TouchScreen.TOUCH_ASPECT_FIT -> R.drawable.ico_reader_mode
+            TouchScreen.TOUCH_FIT_WIDTH -> R.drawable.ico_reading_mode
+            TouchScreen.TOUCH_CHAPTER_LIST -> R.drawable.ico_item_chapters_menu
+            TouchScreen.TOUCH_NEXT_FILE -> R.drawable.ico_tts_next
+            TouchScreen.TOUCH_PREVIOUS_FILE -> R.drawable.ico_tts_previous
+            TouchScreen.TOUCH_NEXT_PAGE -> R.drawable.ico_animated_text_next
+            TouchScreen.TOUCH_PREVIOUS_PAGE -> R.drawable.ico_animated_text_before
+            TouchScreen.TOUCH_SHARE_IMAGE -> R.drawable.ico_save_share_image
+            TouchScreen.TOUCH_PAGE_MARK -> R.drawable.ico_book_reader_page_mark
+            else -> 0
+        }
+    }
+
+    private fun setupTouchZone(card: View, touchScreen: TouchScreen, isPrimary: Boolean, isGlass: Boolean) {
+        var textView: TextView? = null
+        var imageView: ImageView? = null
+        var blurView: BlurView? = null
+
+        fun findViews(view: View) {
+            if (view is TextView) {
+                textView = view
+            } else if (view is ImageView) {
+                imageView = view
+            } else if (view is BlurView) {
+                blurView = view
+            }
+            if (view is ViewGroup) {
+                for (i in 0 until view.childCount) {
+                    findViews(view.getChildAt(i))
+                }
+            }
+        }
+
+        findViews(card)
+
+        if (card is com.google.android.material.card.MaterialCardView) {
+            card.setCardBackgroundColor(android.graphics.Color.TRANSPARENT)
+        }
+
+        val tv = textView
+        if (tv != null) {
+            tv.text = getString(touchScreen.getValue())
+        }
+
+        val iv = imageView
+        if (iv != null) {
+            val iconRes = getIconForTouchScreen(touchScreen)
+            if (iconRes != 0) {
+                iv.setImageResource(iconRes)
+                iv.visibility = View.VISIBLE
+            } else {
+                iv.visibility = View.GONE
+            }
+        }
+
+        val bv = blurView
+        if (bv != null) {
+            val baseColor = if (isPrimary) {
+                getColorFromAttr(R.attr.colorPrimaryContainer)
+            } else {
+                ContextCompat.getColor(this, R.color.touch_demonstration_alter)
+            }
+
+            val alpha = if (isGlass) 0x66 else 0xA6 // 40% for Glass, 65% (35% transparency) for Flat
+            val dynamicColor = (baseColor and 0x00FFFFFF) or (alpha shl 24)
+
+            val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16f, resources.displayMetrics)
+            val shapeBg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(dynamicColor)
+                this.cornerRadius = cornerRadius
+            }
+
+            bv.background = shapeBg
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                bv.clipToOutline = true
+            }
+            bv.outlineProvider = object : android.view.ViewOutlineProvider() {
+                override fun getOutline(view: View, outline: android.graphics.Outline) {
+                    outline.setRoundRect(0, 0, view.width, view.height, cornerRadius)
+                }
+            }
+
+            bv.setBlurEnabled(isGlass)
+            if (isGlass) {
+                val decorView = window.decorView
+                val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+                val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+                val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(this)
+                bv.setupWith(rootView, blurAlgorithm)
+                    .setFrameClearDrawable(background)
+                    .setBlurRadius(15f)
+                bv.setBlurAutoUpdate(true)
+                mHandler.postDelayed({
+                    bv.setBlurAutoUpdate(false)
+                }, 100)
+            } else {
+                bv.setBlurAutoUpdate(false)
+            }
+        }
+    }
+
     override fun openTouchFunctions() {
         val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationBottom else mMenuPopupConfigurationLeft
         if (layout!!.visibility != View.GONE)
@@ -536,73 +692,75 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
 
         val touch = TouchUtils.getTouch(this, Type.BOOK)
 
-        val touchTop = findViewById<TextView>(R.id.reader_book_touch_top)
-        val touchTopRight = findViewById<TextView>(R.id.reader_book_touch_top_right)
-        val touchTopLeft = findViewById<TextView>(R.id.reader_book_touch_top_left)
-        val touchLeft = findViewById<TextView>(R.id.reader_book_touch_left)
-        val touchRight = findViewById<TextView>(R.id.reader_book_touch_right)
-        val touchBottom = findViewById<TextView>(R.id.reader_book_touch_bottom)
-        val touchBottomLeft = findViewById<TextView>(R.id.reader_book_touch_bottom_left)
-        val touchBottomRight = findViewById<TextView>(R.id.reader_book_touch_bottom_right)
+        val touchTop = findViewById<View>(R.id.reader_book_touch_top)
+        val touchTopRight = findViewById<View>(R.id.reader_book_touch_top_right)
+        val touchTopLeft = findViewById<View>(R.id.reader_book_touch_top_left)
+        val touchLeft = findViewById<View>(R.id.reader_book_touch_left)
+        val touchRight = findViewById<View>(R.id.reader_book_touch_right)
+        val touchBottom = findViewById<View>(R.id.reader_book_touch_bottom)
+        val touchBottomLeft = findViewById<View>(R.id.reader_book_touch_bottom_left)
+        val touchBottomRight = findViewById<View>(R.id.reader_book_touch_bottom_right)
 
-        touchTop.text = getString(touch[Position.TOP]!!.getValue())
-        touchTopRight.text = getString(touch[Position.CORNER_TOP_RIGHT]!!.getValue())
-        touchTopLeft.text = getString(touch[Position.CORNER_TOP_LEFT]!!.getValue())
-        touchLeft.text = getString(touch[Position.LEFT]!!.getValue())
-        touchRight.text = getString(touch[Position.RIGHT]!!.getValue())
-        touchBottom.text = getString(touch[Position.BOTTOM]!!.getValue())
-        touchBottomLeft.text = getString(touch[Position.CORNER_BOTTOM_LEFT]!!.getValue())
-        touchBottomRight.text = getString(touch[Position.CORNER_BOTTOM_RIGHT]!!.getValue())
+        val sharedPreferences = GeneralConsts.getSharedPreferences(this)
+        val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
 
-        if ((touch[Position.CORNER_TOP_RIGHT] == TouchScreen.TOUCH_NOT_ASSIGNED && touch[Position.CORNER_TOP_LEFT] == TouchScreen.TOUCH_NOT_ASSIGNED) ||
-            (touch[Position.CORNER_TOP_RIGHT] == touch[Position.RIGHT] && touch[Position.CORNER_TOP_LEFT] == touch[Position.LEFT])) {
-            touchTopRight.visibility = View.GONE
-            touchTopLeft.visibility = View.GONE
-            touchTop.setBackgroundColor(getColorFromAttr(R.attr.colorPrimaryContainer))
+        val showTopCorners = !((touch[Position.CORNER_TOP_RIGHT] == TouchScreen.TOUCH_NOT_ASSIGNED && touch[Position.CORNER_TOP_LEFT] == TouchScreen.TOUCH_NOT_ASSIGNED) ||
+                (touch[Position.CORNER_TOP_RIGHT] == touch[Position.RIGHT] && touch[Position.CORNER_TOP_LEFT] == touch[Position.LEFT]))
+
+        val showBottomCorners = !((touch[Position.CORNER_BOTTOM_RIGHT] == TouchScreen.TOUCH_NOT_ASSIGNED && touch[Position.CORNER_BOTTOM_LEFT] == TouchScreen.TOUCH_NOT_ASSIGNED) ||
+                (touch[Position.CORNER_BOTTOM_RIGHT] == touch[Position.RIGHT] && touch[Position.CORNER_BOTTOM_LEFT] == touch[Position.LEFT]))
+
+        touchTopRight.visibility = if (showTopCorners) View.VISIBLE else View.GONE
+        touchTopLeft.visibility = if (showTopCorners) View.VISIBLE else View.GONE
+        touchBottomRight.visibility = if (showBottomCorners) View.VISIBLE else View.GONE
+        touchBottomLeft.visibility = if (showBottomCorners) View.VISIBLE else View.GONE
+
+        setupTouchZone(touchTop, touch[Position.TOP]!!, isPrimary = !showTopCorners, isGlass = isGlass)
+        setupTouchZone(touchTopRight, touch[Position.CORNER_TOP_RIGHT]!!, isPrimary = true, isGlass = isGlass)
+        setupTouchZone(touchTopLeft, touch[Position.CORNER_TOP_LEFT]!!, isPrimary = true, isGlass = isGlass)
+        setupTouchZone(touchLeft, touch[Position.LEFT]!!, isPrimary = false, isGlass = isGlass)
+        setupTouchZone(touchRight, touch[Position.RIGHT]!!, isPrimary = false, isGlass = isGlass)
+        setupTouchZone(touchBottom, touch[Position.BOTTOM]!!, isPrimary = !showBottomCorners, isGlass = isGlass)
+        setupTouchZone(touchBottomLeft, touch[Position.CORNER_BOTTOM_LEFT]!!, isPrimary = true, isGlass = isGlass)
+        setupTouchZone(touchBottomRight, touch[Position.CORNER_BOTTOM_RIGHT]!!, isPrimary = true, isGlass = isGlass)
+
+        mTouchView.animate().cancel()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (mHandler.hasCallbacks(mDismissTouchView))
+                mHandler.removeCallbacks(mDismissTouchView)
         } else {
-            touchTopRight.visibility = View.VISIBLE
-            touchTopLeft.visibility = View.VISIBLE
-            touchTop.setBackgroundColor(getColor(R.color.touch_demonstration_alter))
-        }
-
-        if ((touch[Position.CORNER_BOTTOM_RIGHT] == TouchScreen.TOUCH_NOT_ASSIGNED && touch[Position.CORNER_BOTTOM_LEFT] == TouchScreen.TOUCH_NOT_ASSIGNED) ||
-            (touch[Position.CORNER_BOTTOM_RIGHT] == touch[Position.RIGHT] && touch[Position.CORNER_BOTTOM_LEFT] == touch[Position.LEFT])) {
-        touchBottomRight.visibility = View.GONE
-            touchBottomLeft.visibility = View.GONE
-            touchBottom.setBackgroundColor(getColorFromAttr(R.attr.colorPrimaryContainer))
-        } else {
-            touchBottomRight.visibility = View.VISIBLE
-            touchBottomLeft.visibility = View.VISIBLE
-            touchBottom.setBackgroundColor(getColor(R.color.touch_demonstration_alter))
+            mHandler.removeCallbacks(mDismissTouchView)
         }
 
         mTouchView.alpha = 0.0f
         mTouchView.visibility = View.VISIBLE
         mTouchView.animate().alpha(1.0f).setDuration(300L)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    super.onAnimationEnd(animation)
-                    mTouchView.alpha = 1f
-                    mTouchView.visibility = View.VISIBLE
-                }
-            })
+            .setListener(null)
+            .withEndAction {
+                mTouchView.alpha = 1f
+                mTouchView.visibility = View.VISIBLE
+            }
 
         mHandler.postDelayed(mDismissTouchView, 5000)
     }
 
     private fun closeViewTouch() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (mHandler.hasCallbacks(mDismissTouchView))
+                mHandler.removeCallbacks(mDismissTouchView)
+        } else {
+            mHandler.removeCallbacks(mDismissTouchView)
+        }
+
         if (mTouchView.isGone)
             return
 
-        mTouchView.alpha = 1.0f
+        mTouchView.animate().cancel()
         mTouchView.animate().alpha(0.0f).setDuration(300L)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    super.onAnimationEnd(animation)
-                    mTouchView.visibility = View.GONE
-                    mTouchView.alpha = 1f
-                }
-            })
+            .setListener(null)
+            .withEndAction {
+                mTouchView.visibility = View.GONE
+            }
     }
 
     inner class ViewPagerAdapter(fm: FragmentManager, behavior: Int) :

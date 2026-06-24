@@ -1043,7 +1043,10 @@ class PagesLinkFragment : Fragment() {
         override fun handleMessage(msg: Message) {
             val imageLoad = msg.obj as PagesLinkViewModel.ImageLoad
             when (msg.what) {
-                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_IMAGE_START -> processImageLoading(true)
+                PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_IMAGE_START -> {
+                    mForceImageReload.visibility = View.GONE
+                    processImageLoading(true)
+                }
                 PageLinkConsts.MESSAGES.MESSAGE_PAGES_LINK_IMAGE_UPDATED -> {
                     processImageLoading()
                     notifyItemChanged(imageLoad.type, imageLoad.index)

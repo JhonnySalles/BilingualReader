@@ -7,12 +7,11 @@ import android.view.View
 import android.widget.ImageView
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
@@ -34,12 +33,13 @@ class ImageController private constructor() {
 
     private fun saveBitmapToCache(context: Context, key: String, bitmap: Bitmap) {
         try {
-            val cacheDir = File(GeneralConsts.getCacheDir(context), GeneralConsts.CACHE_FOLDER.IMAGE)
+            val cacheDirBase = GeneralConsts.getCacheDir(context)
+            val cacheDir = File(cacheDirBase, GeneralConsts.CACHE_FOLDER.IMAGE)
             if (!cacheDir.exists())
-                cacheDir.mkdir()
+                cacheDir.mkdirs()
 
             val byte = ImageUtil.imageToByteArray(bitmap) ?: return
-            val image = File(cacheDir.path + '/' + key)
+            val image = File(cacheDir, key)
             image.writeBytes(byte)
         } catch (e: Exception) {
             mLOGGER.error("Error save bitmap to cache: " + e.message, e)
@@ -48,7 +48,8 @@ class ImageController private constructor() {
 
     private fun getBitmapFromCache(context: Context, key: String): Bitmap? {
         try {
-            val file = File(GeneralConsts.getCacheDir(context), GeneralConsts.CACHE_FOLDER.IMAGE + '/' + key)
+            val cacheDirBase = GeneralConsts.getCacheDir(context)
+            val file = File(cacheDirBase, GeneralConsts.CACHE_FOLDER.IMAGE + '/' + key)
 
             if (file.exists())
                 return BitmapFactory.decodeFile(file.absolutePath)
@@ -63,6 +64,9 @@ class ImageController private constructor() {
         Util.MD5(link)
 
     private fun getImage(context: Context, link: String): Bitmap? {
+        if (link.isBlank() || link == "null")
+            return null
+
         val hash = generateHash(link)
         var image: Bitmap? = getBitmapFromCache(context, hash)
 
@@ -79,29 +83,33 @@ class ImageController private constructor() {
         return image
     }
 
+    // Internal dispatcher provider for testing
+    internal var ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    internal var mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+
+    internal var imageScope: CoroutineScope? = null
+
     fun setImageAsync(context: Context, link: String, imageView: ImageView) {
-        CoroutineScope(Dispatchers.IO).launch {
+        if (link.isBlank() || link == "null")
+            return
+
+        val scope = imageScope ?: CoroutineScope(mainDispatcher)
+        scope.launch {
             try {
-                var image: Bitmap? = null
-                val deferred = async {
-                    image = getImage(context, link)
+                val image = withContext(ioDispatcher) {
+                    getImage(context, link)
                 }
-                deferred.await()
-                withContext(Dispatchers.Main) {
-                    if (image != null) {
-                        imageView.setImageBitmap(image)
-                        imageView.visibility = View.VISIBLE
-                    }
+                
+                if (image != null) {
+                    imageView.setImageBitmap(image)
+                    imageView.visibility = View.VISIBLE
                 }
             } catch (m: OutOfMemoryError) {
                 System.gc()
                 mLOGGER.error("Memory full, cleaning", m)
             } catch (e: Exception) {
                 mLOGGER.error("Error to get image async", e)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error to get image async: " + e.message)
-                    recordException(e)
-                }
+                Telemetry.recordException(e, "Error to get image async: " + e.message)
             }
         }
     }

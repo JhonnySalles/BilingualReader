@@ -8,7 +8,7 @@
         style="@style/AppBackground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
+        android:fitsSystemWindows="false"
         android:animateLayoutChanges="true"
         tools:context=".view.ui.reader.manga.MangaReaderActivity">
 
@@ -42,18 +42,29 @@
             android:layout_gravity="center_horizontal"
             android:orientation="vertical"
             android:paddingTop="1dp"
-            android:visibility="gone"
             android:saveEnabled="false"
+            android:visibility="gone"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+            <eightbitlab.com.blurview.BlurView
+                android:id="@+id/popup_manga_translate_header_background"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/popup_background_size"
+                android:layout_gravity="top" />
 
             <ImageView
                 android:id="@+id/popup_manga_translate_center_button"
                 style="@style/TextTitle.Popup"
-                android:layout_width="@dimen/popup_button_center"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|top"
+                android:paddingTop="@dimen/popup_button_padding_vertical"
+                android:paddingBottom="@dimen/popup_button_padding_vertical"
+                android:paddingStart="@dimen/popup_button_padding_horizontal"
+                android:paddingEnd="@dimen/popup_button_padding_horizontal"
                 android:contentDescription="@string/popup_reading_manga_open"
-                android:scaleType="centerCrop"
+                android:layout_marginTop="@dimen/popup_button_margin"
+                android:scaleType="fitCenter"
                 android:src="@drawable/ico_line_popup"/>
 
             <ImageView
@@ -70,7 +81,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
+                android:layout_marginTop="@dimen/popup_background_size"
                 android:orientation="vertical">
 
                 <com.google.android.material.tabs.TabLayout
@@ -81,8 +92,8 @@
                     app:tabGravity="fill"
                     app:tabMode="fixed"
                     app:tabPaddingBottom="0dp"
-                    app:tabPaddingEnd="0dp"
-                    app:tabPaddingStart="0dp"
+                    app:tabPaddingEnd="8dp"
+                    app:tabPaddingStart="8dp"
                     app:tabPaddingTop="0dp">
 
                     <com.google.android.material.tabs.TabItem
@@ -109,7 +120,6 @@
                     android:id="@+id/popup_manga_translate_view_pager"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:paddingTop="2dp"
                     app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
             </LinearLayout>
         </FrameLayout>
@@ -128,20 +138,31 @@
             android:saveEnabled="false"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
+            <eightbitlab.com.blurview.BlurView
+                android:id="@+id/popup_manga_configurations_header_background"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/popup_background_size"
+                android:layout_gravity="top" />
+
             <ImageView
                 android:id="@+id/popup_manga_configurations_center_button"
                 style="@style/TextTitle.Popup"
-                android:layout_width="@dimen/popup_button_center"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|top"
                 android:contentDescription="@string/popup_reading_manga_open"
-                android:scaleType="centerCrop"
+                android:paddingTop="@dimen/popup_button_padding_vertical"
+                android:paddingBottom="@dimen/popup_button_padding_vertical"
+                android:paddingStart="@dimen/popup_button_padding_horizontal"
+                android:paddingEnd="@dimen/popup_button_padding_horizontal"
+                android:layout_marginTop="@dimen/popup_button_margin"
+                android:scaleType="fitCenter"
                 android:src="@drawable/ico_line_popup"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
+                android:layout_marginTop="@dimen/popup_background_size"
                 android:orientation="vertical">
 
                 <com.google.android.material.tabs.TabLayout
@@ -152,8 +173,8 @@
                     app:tabGravity="fill"
                     app:tabMode="fixed"
                     app:tabPaddingBottom="0dp"
-                    app:tabPaddingEnd="0dp"
-                    app:tabPaddingStart="0dp"
+                    app:tabPaddingEnd="8dp"
+                    app:tabPaddingStart="8dp"
                     app:tabPaddingTop="0dp">
 
                     <com.google.android.material.tabs.TabItem
@@ -174,7 +195,6 @@
                     android:id="@+id/popup_manga_configurations_view_pager"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:paddingTop="2dp"
                     app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
             </LinearLayout>
         </FrameLayout>

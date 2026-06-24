@@ -18,115 +18,29 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
-            android:paddingLeft="@dimen/book_line_skeleton_item_margin"
-            android:paddingRight="@dimen/book_line_skeleton_item_margin"
-            android:layout_marginEnd="@dimen/margin">
+            android:gravity="center_vertical"
+            android:paddingStart="@dimen/book_line_skeleton_item_margin"
+            android:paddingEnd="@dimen/book_line_skeleton_item_margin">
+
+            <View
+                android:layout_width="180dp"
+                android:layout_height="@dimen/book_line_skeleton_item_height"
+                android:background="@drawable/skeleton"/>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/book_line_skeleton_item_small_height"
-                android:layout_marginStart="@dimen/book_line_skeleton_item_margin"
-                android:layout_marginEnd="150dp"
-                android:layout_marginTop="@dimen/book_line_skeleton_item_margin_top"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="60dp"
                 android:background="@drawable/skeleton"/>
 
             <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/book_line_skeleton_item_height"
-                android:layout_marginTop="@dimen/book_line_skeleton_item_margin_top"
-                android:layout_marginStart="@dimen/book_line_skeleton_item_margin"
-                android:layout_marginEnd="50dp"
+                android:layout_width="100dp"
+                android:layout_height="@dimen/book_line_skeleton_item_small_height"
+                android:layout_marginTop="12dp"
                 android:background="@drawable/skeleton"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="@dimen/book_line_skeleton_item_margin_top"
-                android:layout_gravity="bottom">
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_gravity="bottom">
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/book_line_skeleton_item_small_height"
-                        android:layout_marginStart="@dimen/book_line_skeleton_item_margin"
-                        android:layout_marginEnd="180dp"
-                        android:background="@drawable/skeleton"/>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/book_line_skeleton_item_small_height"
-                        android:layout_marginStart="@dimen/book_line_skeleton_item_margin"
-                        android:layout_marginEnd="80dp"
-                        android:layout_marginTop="@dimen/book_line_skeleton_item_margin_top"
-                        android:background="@drawable/skeleton"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/book_line_skeleton_item_margin_top"
-                        android:orientation="horizontal">
-
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_weight="2"
-                            android:layout_height="@dimen/book_line_skeleton_item_small_height"
-                            android:layout_marginStart="@dimen/book_line_skeleton_item_margin"
-                            android:layout_marginEnd="40dp"
-                            android:background="@drawable/skeleton"/>
-
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="@dimen/book_line_skeleton_item_small_height"
-                            android:layout_marginStart="@dimen/book_line_skeleton_item_margin"
-                            android:layout_marginEnd="40dp"
-                            android:background="@drawable/skeleton"/>
-
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_weight="2"
-                            android:layout_height="@dimen/book_line_skeleton_item_small_height"
-                            android:layout_marginStart="@dimen/book_line_skeleton_item_margin"
-                            android:background="@drawable/skeleton"/>
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/book_line_skeleton_item_progress_height"
-                        android:layout_marginTop="@dimen/book_line_skeleton_item_margin_top"
-                        android:layout_marginStart="@dimen/book_line_skeleton_item_margin"
-                        android:background="@drawable/skeleton"/>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_gravity="bottom">
-
-                    <View
-                        android:layout_width="@dimen/history_skeleton_item_height"
-                        android:layout_height="@dimen/history_skeleton_item_height"
-                        android:layout_marginStart="10dp"
-                        android:background="@drawable/skeleton"/>
-
-                    <View
-                        android:layout_width="@dimen/history_skeleton_item_height"
-                        android:layout_height="@dimen/history_skeleton_item_height"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginStart="10dp"
-                        android:background="@drawable/skeleton"/>
-                </LinearLayout>
-            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 

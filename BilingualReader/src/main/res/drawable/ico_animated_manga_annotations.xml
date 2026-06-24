@@ -17,17 +17,17 @@
                 <path
                     android:name="bookmark_marked"
                     android:pathData="M 28.657 10.528 L 28.657 12.115 C 28.657 12.261 28.777 12.38 28.92 12.38 L 30.245 12.38 Z"
-                    android:fillColor="?attr/colorSecondary"
+                    android:fillColor="@color/reader_buttons"
                     android:fillType="evenOdd"/>
                 <path
                     android:name="bookmark_page"
                     android:pathData="M 27.599 10.528 L 28.393 10.528 L 28.393 12.116 C 28.393 12.41 28.63 12.645 28.924 12.645 L 30.245 12.645 L 30.245 17.143 C 30.245 17.436 30.008 17.672 29.716 17.672 L 25.746 17.672 C 25.454 17.672 25.218 17.434 25.218 17.141 L 25.218 11.059 C 25.218 10.766 25.456 10.528 25.749 10.528 L 26.012 10.528 L 26.012 13.703 L 26.805 12.909 L 27.599 13.703 Z"
-                    android:fillColor="?attr/colorSecondary"
+                    android:fillColor="@color/reader_buttons"
                     android:fillType="evenOdd"/>
                 <path
                     android:name="bookmark_bookmark"
                     android:pathData="M 26.276 10.528 L 26.276 13.068 L 26.805 12.539 L 27.335 13.068 L 27.335 10.528 Z"
-                    android:fillColor="?attr/colorSecondary"/>
+                    android:fillColor="@color/reader_buttons"/>
             </group>
         </vector>
     </aapt:attr>

@@ -100,7 +100,7 @@
     </style>
 
     <style name="TitleShadow" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
-        <item name="android:shadowColor">@color/shadow</item>
+        <item name="android:shadowColor">?attr/titleShadowColor</item>
         <item name="android:shadowDx">5</item>
         <item name="android:shadowDy">5</item>
         <item name="android:shadowRadius">5</item>
@@ -108,15 +108,32 @@
 
     <style name="SubTitleShadow" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
         <item name="android:textSize">11sp</item>
-        <item name="android:shadowColor">@color/shadow</item>
-        <item name="android:shadowDx">3</item>
-        <item name="android:shadowDy">3</item>
+        <item name="android:shadowColor">?attr/subTitleShadowColor</item>
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">1</item>
         <item name="android:shadowRadius">3</item>
     </style>
 
     <style name="SearchShadow" parent="Widget.AppCompat.SearchView">
         <item name="android:textColor">?attr/toolbarTitleColor</item>
-        <item name="android:shadowColor">@color/shadow</item>
+        <item name="android:shadowColor">?attr/titleShadowColor</item>
+        <item name="android:shadowDx">3</item>
+        <item name="android:shadowDy">3</item>
+        <item name="android:shadowRadius">3</item>
+    </style>
+
+    <style name="DetailTitleShadow" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:shadowColor">#000000</item>
+        <item name="android:shadowDx">5</item>
+        <item name="android:shadowDy">5</item>
+        <item name="android:shadowRadius">5</item>
+    </style>
+
+    <style name="DetailSubTitleShadow" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:shadowColor">#000000</item>
         <item name="android:shadowDx">3</item>
         <item name="android:shadowDy">3</item>
         <item name="android:shadowRadius">3</item>
@@ -197,9 +214,9 @@
     </style>
 
     <style name="ReaderBookToolbarTheme" parent="Base.Theme.MangaReader">
-        <item name="android:textColor">?attr/colorPrimaryContainer</item>
-        <item name="android:textColorPrimary">?attr/colorPrimaryContainer</item>
-        <item name="android:textColorSecondary">?attr/colorPrimaryContainer</item>
+        <item name="android:textColor">?attr/colorOutline</item>
+        <item name="android:textColorPrimary">?attr/colorOutline</item>
+        <item name="android:textColorSecondary">?attr/colorOutline</item>
         <item name="android:ellipsize">start</item>
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
@@ -248,7 +265,7 @@
     <style name="MainNavigationTitle" parent="Base.Theme.MangaReader">
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">?attr/colorPrimaryContainer</item>
-        <item name="android:background">@color/title_background</item>
+        <item name="android:background">@android:color/transparent</item>
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Body1</item>
     </style>
 

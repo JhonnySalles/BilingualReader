@@ -5,18 +5,17 @@ import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookConfiguration
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Date
 
-class BookRepository(context: Context) {
+class BookRepository(private val context: Context) {
 
     private val mLOGGER = LoggerFactory.getLogger(BookRepository::class.java)
-    private var mDataBase = DataBase.getDataBase(context).getBookDao()
-    private var mConfiguration = DataBase.getDataBase(context).getBookConfigurationDao()
-    private var mLibrary = DataBase.getDataBase(context).getLibrariesDao()
+    private val mDataBase get() = DataBase.getDataBase(context).getBookDao()
+    private val mConfiguration get() = DataBase.getDataBase(context).getBookConfigurationDao()
+    private val mLibrary get() = DataBase.getDataBase(context).getLibrariesDao()
 
     // --------------------------------------------------------- BOOK ---------------------------------------------------------
     fun save(obj: Book, lastAlteration: LocalDateTime? = LocalDateTime.now()): Long {
@@ -61,10 +60,7 @@ class BookRepository(context: Context) {
             loadLibrary(mDataBase.list(library.id))
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when list Book: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when list Book: " + e.message)
             listOf()
         }
     }
@@ -74,10 +70,7 @@ class BookRepository(context: Context) {
             loadLibrary(mDataBase.listRecentChange(library.id))
         } catch (e: Exception) {
             mLOGGER.error("Error when list recent change Book: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when list recent change Book: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when list recent change Book: " + e.message)
             listOf()
         }
     }
@@ -87,10 +80,7 @@ class BookRepository(context: Context) {
             loadLibrary(mDataBase.listRecentDeleted(library.id))
         } catch (e: Exception) {
             mLOGGER.error("Error when list recent deleted Book: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when list recent deleted Book: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when list recent deleted Book: " + e.message)
             listOf()
         }
     }
@@ -100,10 +90,7 @@ class BookRepository(context: Context) {
             loadLibrary(mDataBase.listDeleted(library.id))
         } catch (e: Exception) {
             mLOGGER.error("Error when list deleted Book: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when list deleted Book: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when list deleted Book: " + e.message)
             listOf()
         }
     }
@@ -113,10 +100,7 @@ class BookRepository(context: Context) {
             loadLibrary(mDataBase.listHistory())
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book History: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when list Book History: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when list Book History: " + e.message)
             null
         }
     }
@@ -132,10 +116,7 @@ class BookRepository(context: Context) {
             }
         } catch (e: Exception) {
             mLOGGER.error("Error when mark read Book: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when mark read Book: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when mark read Book: " + e.message)
         }
     }
 
@@ -152,10 +133,7 @@ class BookRepository(context: Context) {
             }
         } catch (e: Exception) {
             mLOGGER.error("Error when clear Book History: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when clear Book History: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when clear Book History: " + e.message)
         }
     }
 
@@ -164,10 +142,7 @@ class BookRepository(context: Context) {
             loadLibrary(mDataBase.get(id))
         } catch (e: Exception) {
             mLOGGER.error("Error when get Book: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when get Book: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when get Book: " + e.message)
             null
         }
     }
@@ -177,10 +152,7 @@ class BookRepository(context: Context) {
             loadLibrary(mDataBase.getByFileName(name))
         } catch (e: Exception) {
             mLOGGER.error("Error when find Book by file name: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when find Book by file name: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when find Book by file name: " + e.message)
             null
         }
     }
@@ -190,10 +162,7 @@ class BookRepository(context: Context) {
             loadLibrary(mDataBase.getByPath(name))
         } catch (e: Exception) {
             mLOGGER.error("Error when find Book by file name: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when find Book by file name: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when find Book by file name: " + e.message)
             null
         }
     }
@@ -203,10 +172,7 @@ class BookRepository(context: Context) {
             loadLibrary(mDataBase.listByFolder(folder))
         } catch (e: Exception) {
             mLOGGER.error("Error when find Book by file folder: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when find Book by file folder: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when find Book by file folder: " + e.message)
             null
         }
     }
@@ -216,10 +182,7 @@ class BookRepository(context: Context) {
             loadLibrary(mDataBase.listOrderByPath(library.id))
         } catch (e: Exception) {
             mLOGGER.error("Error when find Book by file folder: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when find Book by file folder: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when find Book by file folder: " + e.message)
             null
         }
     }
@@ -229,10 +192,7 @@ class BookRepository(context: Context) {
             loadLibrary(mDataBase.listSync(GeneralConsts.dateToDateTime(date)))
         } catch (e: Exception) {
             mLOGGER.error("Error when list Book to sync: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when list Book to sync: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when list Book to sync: " + e.message)
             listOf()
         }
     }
@@ -249,10 +209,7 @@ class BookRepository(context: Context) {
                 Pair(null, null)
         } catch (e: Exception) {
             mLOGGER.error("Error when find last read Book: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when find last read Book: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when find last read Book: " + e.message)
             Pair(null, null)
         }
     }
@@ -285,10 +242,7 @@ class BookRepository(context: Context) {
             mConfiguration.findByBook(idBook)
         } catch (e: Exception) {
             mLOGGER.error("Error when find Book Configuration: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when find Book Configuration: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when find Book Configuration: " + e.message)
             null
         }
     }

@@ -145,6 +145,6 @@
     <color name="manga_reader_pink_theme_toolbarStartColor">#129C27B0</color>
     <color name="manga_reader_pink_theme_toolbarCenterColor">#66FF8DFF</color>
     <color name="manga_reader_pink_theme_toolbarEndColor">#ffe6ff</color>
-    <color name="manga_reader_pink_theme_toolbarTitleColor">#FFFFFF</color>
+    <color name="manga_reader_pink_theme_toolbarTitleColor">#1C1B1B</color>
     <color name="manga_reader_pink_theme_toolbarTitleAccents">#735855</color>
 </resources>

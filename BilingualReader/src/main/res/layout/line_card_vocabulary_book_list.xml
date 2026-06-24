@@ -32,7 +32,7 @@
             android:id="@+id/vocabulary_book_list_image_cover"
             android:layout_width="@dimen/vocabulary_book_cover_width"
             android:layout_height="@dimen/vocabulary_book_cover_height"
-            android:adjustViewBounds="true"
+            android:adjustViewBounds="false"
             android:scaleType="centerCrop"
             app:srcCompat="@mipmap/book_cover_2" />
 

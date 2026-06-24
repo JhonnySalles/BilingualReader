@@ -15,10 +15,9 @@ import androidx.core.content.FileProvider
 import br.com.fenix.bilingualreader.BuildConfig
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.service.listener.ApiListener
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.slf4j.LoggerFactory
@@ -80,10 +79,7 @@ class UpdateApp(var mContext: Context) {
         } catch (e: Exception) {
             mLOGGER.error("Error update app: " + e.message, e)
             listener.onFailure(e.message.toString())
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error update app: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error update app: " + e.message)
         }
     }
 
@@ -93,10 +89,7 @@ class UpdateApp(var mContext: Context) {
         } catch (e: Exception) {
             mLOGGER.error("Error update app: " + e.message, e)
             Toast.makeText(mContext, mContext.getString(R.string.config_update_app_error), Toast.LENGTH_SHORT).show()
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error update app: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error update app: " + e.message)
         }
     }
 
@@ -136,7 +129,7 @@ class UpdateApp(var mContext: Context) {
                 val request: Request = Request.Builder().url(url).build()
                 val response = OkHttpClient().newCall(request).execute()
 
-                val body = response.body()
+                val body = response.body
                 val length = body!!.contentLength()
                 val byte = body.byteStream()
 
@@ -159,10 +152,7 @@ class UpdateApp(var mContext: Context) {
                 file
             } catch (e: IOException) {
                 mLOGGER.error("Error to download update file: " + e.message, e)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error to download update file: " + e.message)
-                    recordException(e)
-                }
+                Telemetry.recordException(e, "Error to download update file: " + e.message)
                 null
             }
         }
@@ -197,10 +187,7 @@ class UpdateApp(var mContext: Context) {
                 } catch (e: Exception) {
                     mLOGGER.error("Error update app: " + e.message, e)
                     Toast.makeText(mContext, mContext.getString(R.string.config_update_app_error_update), Toast.LENGTH_SHORT).show()
-                    Firebase.crashlytics.apply {
-                        setCustomKey("message", "Error update app: " + e.message)
-                        recordException(e)
-                    }
+                    Telemetry.recordException(e, "Error update app: " + e.message)
                 }
             } else
                 Toast.makeText(mContext, mContext.getString(R.string.config_update_app_error_download), Toast.LENGTH_SHORT).show()

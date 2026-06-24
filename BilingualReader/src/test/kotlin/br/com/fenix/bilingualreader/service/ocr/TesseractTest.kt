@@ -2,12 +2,19 @@ package br.com.fenix.bilingualreader.service.ocr
 
 import android.content.Context
 import android.graphics.Bitmap
+import androidx.test.core.app.ApplicationProvider
 import br.com.fenix.bilingualreader.model.enums.Languages
-import com.googlecode.tesseract.android.TessBaseAPI
-import io.mockk.*
-import org.junit.*
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.verify
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Before
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -17,68 +24,70 @@ import org.robolectric.annotation.Config
 class TesseractTest {
 
     private lateinit var context: Context
-    private lateinit var tesseractApi: TessBaseAPI
+    private lateinit var tesseractApi: TesseractApi
 
     @Before
     fun setUp() {
-        context = mockk(relaxed = true)
+        context = ApplicationProvider.getApplicationContext()
+        tesseractApi = mockk(relaxed = true)
         
-        // Mock Tesseract static to avoid real asset copying in init
+        // Use mockkObject for Kotlin Companion objects
+        mockkObject(GeneralConsts.Companion)
         mockkObject(Tesseract.Companion)
+        every { GeneralConsts.getCacheDir(any()) } returns context.cacheDir
         every { Tesseract.copyTessData(any()) } just Runs
-        
-        // Mock TessBaseAPI constructor
-        mockkConstructor(TessBaseAPI::class)
-        every { anyConstructed<TessBaseAPI>().init(any(), any()) } returns true
-        every { anyConstructed<TessBaseAPI>().utF8Text } returns "Detected Text"
-        every { anyConstructed<TessBaseAPI>().recycle() } just Runs
-        
-        // Mock ImageProcess static
-        mockkObject(ImageProcess.Companion)
-        every { ImageProcess.processGrayscale(any()) } returns mockk(relaxed = true)
-    }
-
-    @After
-    fun tearDown() {
-        unmockkAll()
+        Tesseract.inCopy = false
     }
 
     @Test
-    fun process_initializesWithCorrectLanguage() {
-        val tesseract = Tesseract(context)
-        val bitmap = mockk<Bitmap>(relaxed = true)
+    fun testProcessSyncJapanese() {
+        val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
         
-        // Test Japanese
-        tesseract.process(Languages.JAPANESE, bitmap)
-        verify { anyConstructed<TessBaseAPI>().init(any(), "jpn") }
+        // Setup Tesseract behavior
+        every { tesseractApi.init(any(), "jpn") } returns true
+        every { tesseractApi.utF8Text } returns "日本語"
+
+        val tesseract = Tesseract(context, tessApiFactory = { tesseractApi })
         
-        // Test English
-        tesseract.process(Languages.ENGLISH, bitmap)
-        verify { anyConstructed<TessBaseAPI>().init(any(), "eng") }
+        // Force inCopy to false for the test
+        Tesseract.inCopy = false
+        
+        val result = tesseract.process(Languages.JAPANESE, bitmap)
+
+        assertEquals("日本語", result)
+        
+        verify { tesseractApi.init(any(), "jpn") }
+        verify { tesseractApi.setImage(any()) }
     }
 
     @Test
-    fun process_returnsRecognizedText() {
-        val tesseract = Tesseract(context)
-        val bitmap = mockk<Bitmap>(relaxed = true)
+    fun testProcessSyncEnglish() {
+        val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
+        
+        every { tesseractApi.init(any(), "eng") } returns true
+        every { tesseractApi.utF8Text } returns "Hello"
+
+        val tesseract = Tesseract(context, tessApiFactory = { tesseractApi })
+        Tesseract.inCopy = false
         
         val result = tesseract.process(Languages.ENGLISH, bitmap)
-        
-        assertNotNull("Result should not be null", result)
-        assertEquals("Detected Text", result)
-        verify { anyConstructed<TessBaseAPI>().setImage(any<Bitmap>()) }
-        verify { anyConstructed<TessBaseAPI>().recycle() }
+
+        assertEquals("Hello", result)
+        verify { tesseractApi.init(any(), "eng") }
     }
 
     @Test
-    fun process_returnsNullIfInitFails() {
-        every { anyConstructed<TessBaseAPI>().init(any(), any()) } returns false
+    fun testProcessSyncFailedInit() {
+        val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
         
-        val tesseract = Tesseract(context)
-        val bitmap = mockk<Bitmap>(relaxed = true)
+        every { tesseractApi.init(any(), any()) } returns false
+
+        val tesseract = Tesseract(context, tessApiFactory = { tesseractApi })
+        Tesseract.inCopy = false
         
-        val result = tesseract.process(Languages.ENGLISH, bitmap)
-        
-        Assert.assertNull("Result should be null when init fails", result)
+        val result = tesseract.process(Languages.JAPANESE, bitmap)
+
+        assertNull(result)
+        verify { tesseractApi.init(any(), any()) }
     }
 }

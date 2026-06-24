@@ -6,7 +6,7 @@
     style="@style/AppBackground"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
+    android:fitsSystemWindows="false"
     android:clipToPadding="false"
     android:clipChildren="false"
     tools:context=".MainActivity">
@@ -24,15 +24,6 @@
         android:layout_height="match_parent"
         layout="@layout/activity_main_content" />
 
-    <View
-        android:background="?attr/statusBarColor"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:translationY="-99dp"
-        android:layout_gravity="top"
-        android:layout_marginStart="@dimen/reader_title_margin_negative"
-        android:layout_marginEnd="@dimen/reader_title_margin_negative"/>
-
     <!-- action bar -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/main_bar_layout"
@@ -40,17 +31,27 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/MainToolbarContentTheme"
+        android:background="@android:color/transparent"
+        app:elevation="0dp"
         android:layout_marginStart="@dimen/reader_title_margin_negative"
-        android:layout_marginEnd="@dimen/reader_title_margin_negative"
-        android:paddingStart="@dimen/reader_title_margin_positive"
-        android:paddingEnd="@dimen/reader_title_margin_positive">
+        android:layout_marginEnd="@dimen/reader_title_margin_negative">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/main_toolbar"
+        <eightbitlab.com.blurview.BlurView
+            android:id="@+id/main_blur_top"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/default_navigator_header_size"
-            app:popupTheme="@style/MainToolbarStyle"
-            style="@style/MainToolbarThemeWithShadow"/>
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/main_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/default_navigator_header_size"
+                android:background="@android:color/transparent"
+                android:paddingStart="@dimen/reader_title_margin_positive"
+                android:paddingEnd="@dimen/reader_title_margin_positive"
+                app:popupTheme="@style/MainToolbarStyle"
+                style="@style/MainToolbarThemeWithShadow"/>
+
+        </eightbitlab.com.blurview.BlurView>
 
     </com.google.android.material.appbar.AppBarLayout>
 

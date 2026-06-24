@@ -12,7 +12,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 
-
 class ComponentsUtil {
 
     companion object ComponentsUtils {
@@ -20,14 +19,30 @@ class ComponentsUtil {
             Settings.canDrawOverlays(context)
 
         private const val duration = 300L
+
+        /** Returns true when the system animator scale is 0 (e.g. disabled in tests or accessibility). */
+        private fun areAnimationsDisabled(context: Context): Boolean = try {
+            Settings.Global.getFloat(
+                context.contentResolver,
+                Settings.Global.ANIMATOR_DURATION_SCALE
+            ) == 0f
+        } catch (_: Settings.SettingNotFoundException) {
+            false
+        }
         fun changeAnimateVisibility(component: View, visible: Boolean) {
             if ((visible && component.visibility == View.VISIBLE) || (!visible && component.visibility != View.VISIBLE))
                 return
 
             val visibility = if (visible) View.VISIBLE else View.GONE
+
+            if (areAnimationsDisabled(component.context)) {
+                component.alpha = 1.0f
+                component.visibility = visibility
+                return
+            }
+
             val initialAlpha = if (visible) 0.0f else 1.0f
             val finalAlpha = if (visible) 1.0f else 0.0f
-
 
             if (visible) {
                 component.visibility = visibility
@@ -45,12 +60,20 @@ class ComponentsUtil {
 
         fun changeAnimateVisibility(components: List<View>, visible: Boolean) {
             val visibility = if (visible) View.VISIBLE else View.GONE
-            val initialAlpha = if (visible) 0.0f else 1.0f
-            val finalAlpha = if (visible) 1.0f else 0.0f
+            val disableAnim = components.firstOrNull()?.let { areAnimationsDisabled(it.context) } ?: false
 
             for (component in components) {
                 if ((visible && component.visibility == View.VISIBLE) || (!visible && component.visibility != View.VISIBLE))
                     continue
+
+                if (disableAnim) {
+                    component.alpha = 1.0f
+                    component.visibility = visibility
+                    continue
+                }
+
+                val initialAlpha = if (visible) 0.0f else 1.0f
+                val finalAlpha = if (visible) 1.0f else 0.0f
 
                 if (visible) {
                     component.visibility = visibility

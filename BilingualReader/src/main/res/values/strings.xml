@@ -46,7 +46,7 @@
     <string name="notifications_share_mark_drive_title">Synchronization</string>
     <string name="notifications_share_mark_drive_content">Synchronization bookmarks to cloud</string>
     <string name="notifications_scanner_library">Scanning libraries</string>
-    <string name="notifications_scanner_library_content">Scanning files in %s library folders. (%s)</string>
+    <string name="notifications_scanner_library_content">Scanning files in %1$s library folders. (%2$s)</string>
     <string name="notifications_scanner_library_processed">Scanning %s library completed successfully.</string>
 
     <!-- MENU -->
@@ -185,6 +185,7 @@
     <string name="config_update_app_error_download">Error downloading the application.</string>
     <string name="config_update_app_error_update">Error updating application, need to manually run the apk in the download folder.</string>
 
+    <string name="config_theme_glassmorphism">Use translucent blur?</string>
     <string name="config_theme_mode">Theme mode</string>
     <string-array name="theme_mode">
         <item>System</item>
@@ -227,6 +228,7 @@
     <string name="config_book_pagination_type">Page transition animation</string>
     <string name="config_book_pagination_default">Default</string>
     <string name="config_book_pagination_page_curl">Page curl</string>
+    <string name="config_book_pagination_page_curl_3d">Page curl 3D</string>
     <string name="config_book_pagination_page_stack">Page stacks</string>
     <string name="config_book_pagination_page_zoom">Page zoom</string>
     <string name="config_book_pagination_page_fade">Page fade</string>
@@ -279,7 +281,7 @@
     </string-array>
 
     <!-- READER - BOOK -->
-    <string name="book_share_mark_processed">Bookmarks syncs. Send %d, Receive %d</string>
+    <string name="book_share_mark_processed">Bookmarks syncs. Send %1$d, Receive %2$d</string>
     <string name="book_share_mark_unprocessed">Bookmarks not shared to cloud</string>
     <string name="book_share_mark_without_alteration">No changes to bookmarks found</string>
     <string name="book_share_mark_error_download">An error occurred when download bookmarks from cloud</string>
@@ -302,8 +304,8 @@
     <string name="menu_book_reading_view_touch">Touch functions</string>
     <string name="menu_book_reading_config_touch">Configure touch functions</string>
 
-    <string name="reading_book_title_position">Position %d of %d • %s%%</string>
-    <string name="reading_book_title_chapter">Chapter %d: %s</string>
+    <string name="reading_book_title_position">Position %1$d of %2$d • %3$s%%</string>
+    <string name="reading_book_title_chapter">Chapter %1$d: %2$s</string>
 
     <string name="reading_book_page_mark">Page marker</string>
     <string name="reading_book_page_index">Page index</string>
@@ -315,7 +317,7 @@
     <string name="reading_book_menu_text_functions_find">Find</string>
     <string name="reading_book_menu_text_functions_translate">Translate</string>
 
-    <string name="reading_book_time_to_ending_hour">Remaining: %d h %d min</string>
+    <string name="reading_book_time_to_ending_hour">Remaining: %1$d h %2$d min</string>
     <string name="reading_book_time_to_ending_minutes">Remaining: %d minutes</string>
 
 
@@ -391,8 +393,8 @@
 
     <string name="book_annotation_list_divide_title" translatable="false">%s</string>
     <string name="book_annotation_list_divide_count" translatable="false">(%d)</string>
-    <string name="book_annotation_list_title_detach">Page %d of %d • Detach</string>
-    <string name="book_annotation_list_title_mark">Page %d of %d • Marker</string>
+    <string name="book_annotation_list_title_detach">Page %1$d of %2$d • Detach</string>
+    <string name="book_annotation_list_title_mark">Page %1$d of %2$d • Marker</string>
     <string name="book_annotation_list_add_note">Add note</string>
     <string name="book_annotation_list_favorite">Favorite</string>
     <string name="book_annotation_list_options">Options</string>
@@ -418,7 +420,7 @@
     <string name="book_annotation_change_detach_description">Select detach color:</string>
 
     <!-- BOOK POPUP ANNOTATION LAYOUT -->
-    <string name="book_annotation_popup_title">Page %d - %s</string>
+    <string name="book_annotation_popup_title">Page %1$d - %2$s</string>
     <string name="book_annotation_popup_delete">Delete</string>
     <string name="book_annotation_popup_cancel">Cancel</string>
     <string name="book_annotation_popup_confirm">Confirm</string>
@@ -482,7 +484,7 @@
     <string name="reader_manga_not_found">Not found</string>
     <string name="file_not_found">File not found</string>
 
-    <string name="manga_share_mark_processed">Bookmarks syncs. Send %d, Receive %d</string>
+    <string name="manga_share_mark_processed">Bookmarks syncs. Send %1$d, Receive %2$d</string>
     <string name="manga_share_mark_unprocessed">Bookmarks not shared to cloud</string>
     <string name="manga_share_mark_without_alteration">No changes to bookmarks found</string>
     <string name="manga_share_mark_error_download">An error occurred when download from cloud</string>
@@ -513,6 +515,7 @@
     <string name="config_manga_pagination_type">Page transition animation</string>
     <string name="config_manga_pagination_default">Default</string>
     <string name="config_manga_pagination_page_curl">Page curl</string>
+    <string name="config_manga_pagination_page_curl_3d">Page curl 3D</string>
     <string name="config_manga_pagination_page_stack">Page stacks</string>
     <string name="config_manga_pagination_page_zoom">Page zoom</string>
     <string name="config_manga_pagination_page_fade">Page fade</string>
@@ -576,7 +579,7 @@
     <string name="manga_annotation_page_marked">Page %d marked.</string>
     <string name="manga_annotation_page_unmarked">Page %d unmarked.</string>
 
-    <string name="manga_annotation_title_mark">Page %d of %d</string>
+    <string name="manga_annotation_title_mark">Page %1$d of %2$d</string>
 
     <!-- OCR -->
     <string name="ocr_tesseract_copy_data">Copying necessary data files, please wait…</string>
@@ -624,7 +627,7 @@
     <string name="popup_reading_manga_subtitle_page">Page</string>
     <string name="popup_reading_manga_subtitle_text">Text</string>
     <string name="popup_reading_manga_subtitle_extra">Extra</string>
-    <string name="popup_reading_manga_subtitle_find_subtitle">Founded subtitle: chapter %s and page %s.</string>
+    <string name="popup_reading_manga_subtitle_find_subtitle">Founded subtitle: chapter %1$s and page %2$s.</string>
     <string name="popup_reading_manga_subtitle_not_find_subtitle">Could not find the subtitle in files.</string>
     <string name="popup_reading_manga_subtitle_list_empty">Subtitle list is empty.</string>
     <string name="popup_reading_manga_subtitle_chapter_not_found">Chapter in another language not found.</string>
@@ -835,7 +838,7 @@
     <string name="manga_detail_web_information_volumes"><![CDATA[<b>Volumes:</b> %s]]></string>
     <string name="manga_detail_web_information_chapters"><![CDATA[<b>Chapters:</b> %s]]></string>
     <string name="manga_detail_web_information_publish"><![CDATA[<b>Published:</b> %s]]></string>
-    <string name="manga_detail_web_information_publish_from_to"><![CDATA[<b>Published:</b> %s to %s]]></string>
+    <string name="manga_detail_web_information_publish_from_to"><![CDATA[<b>Published:</b> %1$s to %2$s]]></string>
     <string name="manga_detail_web_information_publish_in_publication">in publication</string>
     <string name="manga_detail_web_information_authors"><![CDATA[<b>Authors:</b> %s]]></string>
     <string name="manga_detail_web_information_genre"><![CDATA[<b>Genres:</b> %s]]></string>
@@ -876,7 +879,7 @@
     <string name="book_detail_web_information_volumes"><![CDATA[<b>Volumes:</b> %s]]></string>
     <string name="book_detail_web_information_chapters"><![CDATA[<b>Chapters:</b> %s]]></string>
     <string name="book_detail_web_information_publish"><![CDATA[<b>Published:</b> %s]]></string>
-    <string name="book_detail_web_information_publish_from_to"><![CDATA[<b>Published:</b> %s to %s]]></string>
+    <string name="book_detail_web_information_publish_from_to"><![CDATA[<b>Published:</b> %1$s to %2$s]]></string>
     <string name="book_detail_web_information_publish_in_publication">in publication</string>
     <string name="book_detail_web_information_authors"><![CDATA[<b>Authors:</b> %s]]></string>
     <string name="book_detail_web_information_genre"><![CDATA[<b>Genres:</b> %s]]></string>

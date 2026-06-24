@@ -1,0 +1,36 @@
+<resources>
+    <!-- Tema específico para testes que inclui ActionBar baseado em Material3 -->
+    <style name="Theme.MangaReader.Test" parent="Theme.Material3.DayNight">
+        <item name="colorPrimary">@color/manga_reader_theme_primary</item>
+        <item name="colorOnPrimary">@color/manga_reader_theme_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/manga_reader_theme_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/manga_reader_theme_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/manga_reader_theme_secondary</item>
+        <item name="colorOnSecondary">@color/manga_reader_theme_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/manga_reader_theme_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/manga_reader_theme_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/manga_reader_theme_tertiary</item>
+        <item name="colorOnTertiary">@color/manga_reader_theme_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/manga_reader_theme_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/manga_reader_theme_onTertiaryContainer</item>
+        <item name="colorError">@color/manga_reader_theme_error</item>
+        <item name="colorOnError">@color/manga_reader_theme_onError</item>
+        <item name="colorErrorContainer">@color/manga_reader_theme_errorContainer</item>
+        <item name="colorOnErrorContainer">@color/manga_reader_theme_onErrorContainer</item>
+        <item name="android:colorBackground">@color/manga_reader_theme_background</item>
+        <item name="colorOnBackground">@color/manga_reader_theme_onBackground</item>
+        <item name="colorSurface">@color/manga_reader_theme_surface</item>
+        <item name="colorOnSurface">@color/manga_reader_theme_onSurface</item>
+        <item name="colorSurfaceVariant">@color/manga_reader_theme_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/manga_reader_theme_onSurfaceVariant</item>
+        <item name="colorOutline">@color/manga_reader_theme_outline</item>
+        <item name="colorOutlineVariant">@color/manga_reader_theme_outlineVariant</item>
+        
+        <!-- Força a exibição da ActionBar para que o menu de opções apareça nos testes -->
+        <item name="windowActionBar">true</item>
+        <item name="windowNoTitle">false</item>
+        
+        <!-- Compatibilidade com Material3 -->
+        <item name="materialButtonStyle">@style/Widget.Material3.Button</item>
+    </style>
+</resources>

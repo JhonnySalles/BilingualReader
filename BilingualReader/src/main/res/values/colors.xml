@@ -28,7 +28,8 @@
     <color name="chapter_page_semitransparent">#CE212121</color>
     <color name="main_header_background_top">#000000</color>
 
-    <color name="reader_buttons">#FFFFFFFF</color>
+    <color name="reader_buttons">#1C1B1B</color>
+    <color name="reader_buttons_inverse">#ffffff</color>
     <color name="reader_semi_transparent">#DD000000</color>
 
     <color name="reader_background_start">#FF000000</color>
@@ -75,6 +76,7 @@
 
     <color name="shadow">#000000</color>
     <color name="shadow_inverse">#FFFFFF</color>
+    <color name="shadow_day">#B0B0B0</color>
     <color name="transparent">#00000000</color>
     <color name="translucent">#55000000</color>
 
@@ -86,15 +88,15 @@
     <color name="overlay_semi_transparent">#333333AA</color>
 
     <color name="manga_reader_detailTextInverse">#ffffff</color>
-    <color name="manga_reader_readerTextTitleColor">#ffffff</color>
+    <color name="manga_reader_readerTextTitleColor">#1C1B1B</color>
 
     <color name="manga_reader_fileLinkedBackground">#212121</color>
 
     <color name="subtitle_exists">#FFFFFF</color>
     <color name="touch_demonstration_alter">#212121</color>
 
-    <color name="skeleton">#BCBBBB</color>
-    <color name="shimmer">#DFDEDE</color>
+    <color name="skeleton">#E0E0E0</color>
+    <color name="shimmer">#F5F5F5</color>
 
     <!--
        colorPrimary, colorOnPrimary = Buttons

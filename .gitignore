@@ -15,3 +15,8 @@ local.properties
 /olds
 /app-distribution.json
 BilingualReader/src/main/assets/app-distribution.json
+sentry.properties
+BilingualReader/google-services.json
+test_unit.txt
+.agent/*
+/BilingualReader/BilingualReader/build

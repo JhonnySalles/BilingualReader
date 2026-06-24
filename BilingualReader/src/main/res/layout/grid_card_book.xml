@@ -20,7 +20,7 @@
             android:id="@+id/book_grid_image_cover"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:adjustViewBounds="true"
+            android:adjustViewBounds="false"
             android:scaleType="centerCrop"
             android:transitionName="transition_book_cover"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -44,17 +44,17 @@
             app:layout_constraintRight_toRightOf="parent">
 
             <!-- Title, secondary and supporting text -->
-            <TextView
+            <br.com.fenix.bilingualreader.view.components.TextViewWithBorder
                 android:id="@+id/book_grid_title"
-                style="@style/TextTitle.Card"
+                style="@style/TextNormal.Card.Title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/book_grid_title_size"
                 android:transitionName="transition_book_title"/>
 
-            <TextView
+            <br.com.fenix.bilingualreader.view.components.TextViewWithBorder
                 android:id="@+id/book_grid_sub_title"
-                style="@style/TextNormal.Card.Title"
+                style="@style/TextTitle.Card.Alter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
@@ -69,7 +69,7 @@
                 android:orientation="horizontal"
                 android:paddingTop="1dp">
 
-                <TextView
+                <br.com.fenix.bilingualreader.view.components.TextViewWithBorder
                     android:id="@+id/book_grid_file_type"
                     style="@style/TextNormal.Card"
                     android:layout_width="0dp"
@@ -82,7 +82,7 @@
                     android:singleLine="true"
                     android:transitionName="transition_book_title"/>
 
-                <TextView
+                <br.com.fenix.bilingualreader.view.components.TextViewWithBorder
                     android:id="@+id/book_grid_pages"
                     style="@style/TextNormal.Card"
                     android:layout_width="wrap_content"
@@ -93,7 +93,7 @@
                     android:textAlignment="gravity"
                     android:transitionName="transition_book_title"/>
 
-                <TextView
+                <br.com.fenix.bilingualreader.view.components.TextViewWithBorder
                     android:id="@+id/book_grid_last_access"
                     style="@style/TextNormal.Card"
                     android:layout_width="wrap_content"

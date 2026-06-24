@@ -9,6 +9,7 @@ import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.interfaces.PageCurl
+import br.com.fenix.bilingualreader.view.components.PageCurlFrame
 import org.slf4j.LoggerFactory
 import kotlin.math.abs
 
@@ -79,7 +80,8 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
                 else
                     setPageTransformer(false, HorizontalPageTransformer())}
             PaginationType.Stack -> setPageTransformer(mScrolling != ScrollingType.HorizontalRightToLeft, StackPageTransform(mScrolling, mElevation))
-            PaginationType.CurlPage -> setPageTransformer(false, CurlPageTransformer())
+            PaginationType.CurlPage -> setPageTransformer(true, CurlPageTransformer())
+            PaginationType.Curl3DPage -> setPageTransformer(true, Curl3DPageTransformer())
             PaginationType.Zooming -> setPageTransformer(false, ZoomPageTransform(mScrolling == ScrollingType.Vertical))
             PaginationType.Depth -> setPageTransformer(mScrolling != ScrollingType.HorizontalRightToLeft, DepthPageTransformer(mScrolling))
             PaginationType.Fade -> setPageTransformer(false, FadePageTransformer())
@@ -222,13 +224,75 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
                 page.alpha = 1f
                 page.translationY = 0f
 
-                if (page is PageCurl) {
-                    // hold the page steady and let the views do the work
+                if (page is PageCurlFrame) {
+                    page.is3DMode = false
+                    if (position > -1.0f && position < 1.0f) {
+                        page.translationX = -position * page.width
+                        if (position < 0f) {
+                            page.isCurlPage = true
+                            page.translationZ = 1f
+                            page.setCurlFactor(position)
+                        } else {
+                            page.isCurlPage = false
+                            page.translationZ = 0f
+                            page.setCurlFactor(0f)
+                        }
+                    } else {
+                        page.translationX = 0.0f
+                        page.isCurlPage = false
+                        page.translationZ = 0f
+                        page.setCurlFactor(0f)
+                    }
+                } else if (page is PageCurl) {
                     if (position > -1.0f && position < 1.0f)
                         page.translationX = -position * page.width
                     else
                         page.translationX = 0.0f
+                    (page as PageCurl).setCurlFactor(position)
+                } else
+                    page.translationX = 0f
+            } else
+                page.alpha = 0f
+        }
+    }
 
+    private class Curl3DPageTransformer : PageTransformer {
+        override fun transformPage(page: View, position: Float) {
+            if (position < -1)
+                page.alpha = 0f
+            else if (position <= 1) {
+                page.background = null
+                page.translationZ = 0f
+                page.elevation = 0f
+                page.scaleX = 1f
+                page.scaleY = 1f
+                page.alpha = 1f
+                page.translationY = 0f
+
+                if (page is PageCurlFrame) {
+                    page.is3DMode = true
+                    if (position > -1.0f && position < 1.0f) {
+                        page.translationX = -position * page.width
+                        if (position < 0f) {
+                            page.isCurlPage = true
+                            page.translationZ = 1f
+                            page.setCurlFactor(position)
+                        } else {
+                            page.isCurlPage = false
+                            page.translationZ = 0f
+                            page.setCurlFactor(0f)
+                        }
+                    } else {
+                        page.translationX = 0.0f
+                        page.isCurlPage = false
+                        page.translationZ = 0f
+                        page.setCurlFactor(0f)
+                    }
+                } else if (page is PageCurl) {
+                    if (position > -1.0f && position < 1.0f)
+                        page.translationX = -position * page.width
+                    else
+                        page.translationX = 0.0f
                     (page as PageCurl).setCurlFactor(position)
                 } else
                     page.translationX = 0f
@@ -264,6 +328,13 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
                 page.translationZ = 0f
                 page.elevation = 0f
 
+                val elevation = try {
+                    page.resources.getDimension(R.dimen.reader_elevation)
+                } catch (e: Exception) {
+                    20f
+                }
+                page.outlineProvider = android.view.ViewOutlineProvider.BOUNDS
+
                 when (scrolling) {
                     ScrollingType.Vertical -> {
                         if (position <= 0) {
@@ -272,6 +343,10 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
                             page.scaleY = 1f
                             page.translationX = page.width * -position
                             page.translationY = if (position < 0) position * page.height else 0f
+                            if (position < 0f) {
+                                page.translationZ = 20f
+                                page.elevation = elevation
+                            }
                         } else {
                             page.translationX = page.width * -position
                             page.translationY = 0f
@@ -293,6 +368,10 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
                             page.alpha = 1f
                             page.scaleX = 1f
                             page.scaleY = 1f
+                            if (position > 0f) {
+                                page.translationZ = 20f
+                                page.elevation = elevation
+                            }
                         }
                     }
                     else -> {
@@ -302,6 +381,10 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
                             page.translationX = 0f
                             page.scaleX = 1f
                             page.scaleY = 1f
+                            if (position < 0f) {
+                                page.translationZ = 20f
+                                page.elevation = elevation
+                            }
                         } else {
                             page.translationY = 0f
                             page.translationX = -position * page.width

@@ -145,6 +145,6 @@
     <color name="manga_reader_green_theme_toolbarStartColor">#112BFF00</color>
     <color name="manga_reader_green_theme_toolbarCenterColor">#6600FF2E</color>
     <color name="manga_reader_green_theme_toolbarEndColor">#e6ffe6</color>
-    <color name="manga_reader_green_theme_toolbarTitleColor">#FFFFFF</color>
+    <color name="manga_reader_green_theme_toolbarTitleColor">#1C1B1B</color>
     <color name="manga_reader_green_theme_toolbarTitleAccents">#009900</color>
 </resources>

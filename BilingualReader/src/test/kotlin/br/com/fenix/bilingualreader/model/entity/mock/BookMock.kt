@@ -3,7 +3,6 @@ package br.com.fenix.bilingualreader.model.entity.mock
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Languages
-import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import java.time.LocalDate

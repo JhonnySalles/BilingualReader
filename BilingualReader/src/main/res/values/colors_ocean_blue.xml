@@ -145,6 +145,6 @@
     <color name="manga_reader_ocean_blue_theme_toolbarStartColor">#110051FF</color>
     <color name="manga_reader_ocean_blue_theme_toolbarCenterColor">#660051FF</color>
     <color name="manga_reader_ocean_blue_theme_toolbarEndColor">#66b3ff</color>
-    <color name="manga_reader_ocean_blue_theme_toolbarTitleColor">#FFFFFF</color>
+    <color name="manga_reader_ocean_blue_theme_toolbarTitleColor">#1C1B1B</color>
     <color name="manga_reader_ocean_blue_theme_toolbarTitleAccents">#0000ff</color>
 </resources>

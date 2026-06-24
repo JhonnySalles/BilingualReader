@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.AnimatedSplash.Splash" parent="Theme.SplashScreen">
+        <item name="android:windowSplashScreenBackground">@color/manga_reader_splash_light_screen</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ico_animated_splash_screen</item>
+        <item name="android:windowSplashScreenAnimationDuration">1000</item>
+        <item name="postSplashScreenTheme">@style/Theme.MangaReader</item>
+    </style>
+</resources>

@@ -145,6 +145,6 @@
     <color name="manga_reader_blood_red_theme_toolbarStartColor">#11FF0008</color>
     <color name="manga_reader_blood_red_theme_toolbarCenterColor">#66ff0000</color>
     <color name="manga_reader_blood_red_theme_toolbarEndColor">#ff999c</color>
-    <color name="manga_reader_blood_red_theme_toolbarTitleColor">#FFFFFF</color>
+    <color name="manga_reader_blood_red_theme_toolbarTitleColor">#1C1B1B</color>
     <color name="manga_reader_blood_red_theme_toolbarTitleAccents">#990800</color>
 </resources>

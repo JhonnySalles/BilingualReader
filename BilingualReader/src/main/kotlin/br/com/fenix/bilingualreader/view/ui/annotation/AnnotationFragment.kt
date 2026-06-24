@@ -24,6 +24,8 @@ import android.widget.PopupMenu
 import android.widget.SearchView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -47,6 +49,7 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.view.adapter.annotation.AnnotationLineAdapter
@@ -59,6 +62,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
+import eightbitlab.com.blurview.BlurView
 import org.slf4j.LoggerFactory
 
 
@@ -75,6 +79,7 @@ class AnnotationFragment : Fragment(), AnnotationListener {
     private lateinit var miFilterType: MenuItem
 
     private lateinit var mMenuPopupFilter: FrameLayout
+    private lateinit var mMenuPopupLibraryBackground: BlurView
     private lateinit var mPopupFilterView: ViewPager
     private lateinit var mPopupFilterTab: TabLayout
     private lateinit var mPopupChaptersTab: TabLayout
@@ -82,6 +87,38 @@ class AnnotationFragment : Fragment(), AnnotationListener {
     private lateinit var mPopupFilterColorFragment: AnnotationPopupFilterColor
     private lateinit var mPopupFilterChapterFragment: AnnotationPopupFilterChapter
     private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
+
+    private val mBottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            val ctx = context ?: return
+            val sharedPreferences = GeneralConsts.getSharedPreferences(ctx)
+            val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass && ::mMenuPopupLibraryBackground.isInitialized) {
+                if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
+                    mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                } else {
+                    mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                }
+            }
+
+            val activity = activity ?: return
+            if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                PopupUtils.updateNavigationBarColor(activity, true)
+            } else if (newState == BottomSheetBehavior.STATE_COLLAPSED || newState == BottomSheetBehavior.STATE_HIDDEN) {
+                PopupUtils.updateNavigationBarColor(activity, false)
+            }
+        }
+
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            val ctx = context ?: return
+            val sharedPreferences = GeneralConsts.getSharedPreferences(ctx)
+            val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass && ::mMenuPopupLibraryBackground.isInitialized) {
+                mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+            }
+        }
+    }
+
 
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var mListener: AnnotationsListener
@@ -169,6 +206,15 @@ class AnnotationFragment : Fragment(), AnnotationListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_annotation, container, false)
 
+        ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            val contentLayout = root.findViewById<View>(R.id.annotation_content)
+            contentLayout?.setPadding(contentLayout.paddingLeft, contentLayout.paddingTop, contentLayout.paddingRight, navBarHeight)
+            val popupLayout = root.findViewById<View>(R.id.annotation_popup_filter)
+            popupLayout?.setPadding(popupLayout.paddingLeft, popupLayout.paddingTop, popupLayout.paddingRight, navBarHeight)
+            insets
+        }
+
         mRecyclerView = root.findViewById(R.id.annotation_recycler_view)
 
         mScrollUp = root.findViewById(R.id.annotation_scroll_up)
@@ -237,6 +283,30 @@ class AnnotationFragment : Fragment(), AnnotationListener {
         }
 
         mMenuPopupFilter = root.findViewById(R.id.annotation_popup_filter)
+        mMenuPopupLibraryBackground = root.findViewById(R.id.annotation_popup_header_background)
+
+        mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+                val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                val isPopupVisible = ::mBottomSheet.isInitialized && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
+                if (isGlass) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+                        if (::mMenuPopupLibraryBackground.isInitialized) {
+                            mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                        }
+                    } else {
+                        (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
+                        if (isPopupVisible && ::mMenuPopupLibraryBackground.isInitialized) {
+                            mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                        }
+                    }
+                }
+            }
+        })
+
         mPopupFilterTab = root.findViewById(R.id.annotation_popup_filter_tab)
         mPopupFilterView = root.findViewById(R.id.annotation_popup_order_filter_view_pager)
 
@@ -248,6 +318,9 @@ class AnnotationFragment : Fragment(), AnnotationListener {
             mBottomSheet = this
         }
         mBottomSheet.isDraggable = true
+
+        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+        mBottomSheet.addBottomSheetCallback(mBottomSheetCallback)
 
         PopupUtils.onPopupTouch(requireActivity(), mMenuPopupFilter, mBottomSheet, root.findViewById<ImageView>(R.id.annotation_popup_filter_touch))
 
@@ -510,6 +583,13 @@ class AnnotationFragment : Fragment(), AnnotationListener {
             mRecyclerView.adapter?.notifyItemChanged(index)
     }
 
+    override fun onDestroyView() {
+        if (::mBottomSheet.isInitialized) {
+            mBottomSheet.removeBottomSheetCallback(mBottomSheetCallback)
+        }
+        super.onDestroyView()
+    }
+
     override fun onDestroy() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (mHandler.hasCallbacks(mDismissUpButton))
@@ -522,6 +602,69 @@ class AnnotationFragment : Fragment(), AnnotationListener {
         }
 
         super.onDestroy()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setupPopupBackgrounds()
+
+        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+        val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        if (::mMenuPopupLibraryBackground.isInitialized) {
+            mMenuPopupLibraryBackground.setBlurEnabled(isGlass)
+            if (isGlass) {
+                mMenuPopupLibraryBackground.blurOnceDeferred(mHandler, 100)
+            } else {
+                mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (::mBottomSheet.isInitialized && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+            mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+        if (::mMenuPopupLibraryBackground.isInitialized) {
+            mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+            mMenuPopupLibraryBackground.setBlurEnabled(false)
+        }
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        val isGlass = GeneralConsts.getSharedPreferences(requireContext()).getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        if (hidden) {
+            if (::mBottomSheet.isInitialized && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+                mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+            if (::mMenuPopupLibraryBackground.isInitialized) {
+                mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                mMenuPopupLibraryBackground.setBlurEnabled(false)
+            }
+        } else {
+            if (::mMenuPopupLibraryBackground.isInitialized) {
+                mMenuPopupLibraryBackground.setBlurEnabled(isGlass)
+                if (isGlass) {
+                    mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                    mHandler.postDelayed({
+                        mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                    }, 100)
+                } else {
+                    mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                }
+            }
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        setupPopupBackgrounds()
+    }
+
+    private fun setupPopupBackgrounds() {
+        val activity = activity ?: return
+        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilter, mMenuPopupLibraryBackground)
     }
 
 

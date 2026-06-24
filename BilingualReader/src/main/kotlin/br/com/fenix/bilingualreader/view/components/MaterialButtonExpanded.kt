@@ -5,7 +5,6 @@ import android.util.AttributeSet
 import br.com.fenix.bilingualreader.R
 import com.google.android.material.button.MaterialButton
 
-
 class MaterialButtonExpanded(context: Context, attrs: AttributeSet) : MaterialButton(context, attrs) {
 
     private val STATE_EXPANDED = intArrayOf(R.attr.state_expanded)

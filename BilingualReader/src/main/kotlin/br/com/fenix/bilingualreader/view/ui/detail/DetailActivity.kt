@@ -18,6 +18,7 @@ import br.com.fenix.bilingualreader.view.ui.detail.manga.MangaDetailFragment
 class DetailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeUtil.applyThemeMode(this)
         val theme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(theme.getValue())
 
@@ -29,6 +30,9 @@ class DetailActivity : AppCompatActivity() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar_detail)
         MenuUtil.tintToolbar(toolbar, theme)
         setSupportActionBar(toolbar)
+
+        toolbar.setTitleTextAppearance(this, R.style.DetailTitleShadow)
+        toolbar.setSubtitleTextAppearance(this, R.style.DetailSubTitleShadow)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowTitleEnabled(true)
@@ -45,10 +49,13 @@ class DetailActivity : AppCompatActivity() {
         }
 
         fragment.arguments = bundle
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.root_frame_detail, fragment)
-            .commit()
+
+        if (savedInstanceState == null) {
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.root_frame_detail, fragment)
+                .commit()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -62,9 +69,9 @@ class DetailActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
         val intent = Intent()
         setResult(RESULT_OK, intent)
+        super.onBackPressed()
         supportFinishAfterTransition()
     }
 

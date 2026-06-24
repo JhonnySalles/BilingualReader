@@ -23,6 +23,7 @@ import br.com.fenix.bilingualreader.service.repository.HistoryRepository
 import br.com.fenix.bilingualreader.service.repository.MangaAnnotationRepository
 import br.com.fenix.bilingualreader.service.repository.MangaRepository
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.api.client.extensions.android.http.AndroidHttp
@@ -34,8 +35,6 @@ import com.google.api.client.http.HttpRequestInitializer
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
 import com.google.gson.GsonBuilder
 import com.google.gson.stream.JsonReader
 import kotlinx.coroutines.CoroutineScope
@@ -177,7 +176,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
             parents.add(idFolder)
 
             gfile.parents = parents
-            val file = drive.Files().create(gfile, fileContent).setFields("id").execute()
+            val file = drive.files().create(gfile, fileContent).setFields("id").execute()
             file.id
         } catch (e: GoogleJsonResponseException) {
             mLOGGER.warn("Error create share file from drive.", e)
@@ -193,7 +192,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
             val gfile = com.google.api.services.drive.model.File()
             gfile.name = nameWithoutExtension + "_" + LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern(GeneralConsts.SHARE_MARKS.DATE_TIME)) + GeneralConsts.SHARE_MARKS.FILE_EXTENSION
-            drive.Files().update(idFile, gfile).execute()
+            drive.files().update(idFile, gfile).execute()
 
             uploadShareFile(
                 drive,
@@ -203,17 +202,11 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
             )
         } catch (e: GoogleJsonResponseException) {
             mLOGGER.error("Error upload share file from drive: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error upload share file from drive: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error upload share file from drive: " + e.message)
             throw DriveUploadException("")
         } catch (e: Exception) {
             mLOGGER.error("Error upload share file from drive: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error upload share file from drive: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error upload share file from drive: " + e.message)
             throw DriveUploadException("")
         }
     }
@@ -224,7 +217,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                 val gFolder = com.google.api.services.drive.model.File()
                 gFolder.name = GeneralConsts.SHARE_MARKS.FOLDER
                 gFolder.mimeType = "application/vnd.google-apps.folder"
-                mIdFolder = drive.Files().create(gFolder).setFields("id").execute().id
+                mIdFolder = drive.files().create(gFolder).setFields("id").execute().id
             }
 
             if (mIdManga.isEmpty())
@@ -250,10 +243,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                 )
         } catch (e: Exception) {
             mLOGGER.error("Error to create share file to drive: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error to create share file to drive: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error to create share file to drive: " + e.message)
             throw DriveUploadException("")
         }
     }
@@ -382,10 +372,7 @@ class ShareMarkGDriveController(override var context: Context) : ShareMarkBase(c
                 ShareMarkType.ERROR_UPLOAD
             } catch (e: Exception) {
                 mLOGGER.error("Error save share file from drive: " + e.message, e)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error save share file from drive: " + e.message)
-                    recordException(e)
-                }
+                Telemetry.recordException(e, "Error save share file from drive: " + e.message)
                 ShareMarkType.ERROR
             }
         }

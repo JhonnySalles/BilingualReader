@@ -1,7 +1,10 @@
 package br.com.fenix.bilingualreader.model.dao
 
 import br.com.fenix.bilingualreader.model.entity.mock.MangaMock
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -66,7 +69,7 @@ class MangaDAOTest : DataBaseBaseTest() {
     @Test
     fun getByFileName() {
         val dao = db.getMangaDao()
-        val manga = MangaMock.mockEntity(1L).apply { fileName = "MangaFile.cbz" }
+        val manga = MangaMock.mockEntity(1L).apply { name = "MangaFile.cbz" }
         dao.save(manga)
 
         val result = dao.getByFileName("MangaFile.cbz")

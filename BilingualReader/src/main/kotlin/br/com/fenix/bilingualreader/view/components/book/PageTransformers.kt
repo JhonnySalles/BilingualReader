@@ -3,6 +3,7 @@ package br.com.fenix.bilingualreader.view.components.book
 import android.view.View
 import androidx.viewpager2.widget.ViewPager2
 import br.com.fenix.bilingualreader.model.interfaces.PageCurl
+import br.com.fenix.bilingualreader.view.components.PageCurlFrame
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -24,6 +25,15 @@ class DefaultPageTransformer : ViewPager2.PageTransformer {
 
 class StackPageTransform(val isVertical: Boolean) : ViewPager2.PageTransformer {
     override fun transformPage(page: View, position: Float) {
+        val elevation = try {
+            page.resources.getDimension(br.com.fenix.bilingualreader.R.dimen.reader_elevation)
+        } catch (e: Exception) {
+            20f
+        }
+        page.translationZ = 0f
+        page.elevation = 0f
+        page.outlineProvider = android.view.ViewOutlineProvider.BOUNDS
+
         if (position >= -1.0f && position <= 1.0f) {
             if (isVertical)
                 page.translationX = 0f
@@ -76,6 +86,11 @@ class StackPageTransform(val isVertical: Boolean) : ViewPager2.PageTransformer {
                         page.translationX = page.width * position
                 }
             }
+
+            if (position > 0.0f) {
+                page.translationZ = 20f
+                page.elevation = elevation
+            }
         } else
             page.alpha = 0.0f
     }
@@ -112,13 +127,72 @@ class CurlPageTransformer : ViewPager2.PageTransformer {
             page.alpha = 1f
             page.translationY = 0f
 
-            if (page is PageCurl) {
-                // hold the page steady and let the views do the work
+            if (page is PageCurlFrame) {
+                page.is3DMode = false
+                if (position > -1.0f && position < 1.0f) {
+                    page.translationX = -position * page.width
+                    if (position < 0f) {
+                        page.isCurlPage = true
+                        page.translationZ = 1f
+                        page.setCurlFactor(position)
+                    } else {
+                        page.isCurlPage = false
+                        page.translationZ = 0f
+                        page.setCurlFactor(0f)
+                    }
+                } else {
+                    page.translationX = 0.0f
+                    page.isCurlPage = false
+                    page.translationZ = 0f
+                    page.setCurlFactor(0f)
+                }
+            } else if (page is PageCurl) {
                 if (position > -1.0f && position < 1.0f)
                     page.translationX = -position * page.width
                 else
                     page.translationX = 0.0f
+                (page as PageCurl).setCurlFactor(position)
+            } else
+                page.translationX = 0f
+        } else
+            page.alpha = 0f
+    }
+}
 
+class Curl3DPageTransformer : ViewPager2.PageTransformer {
+    override fun transformPage(page: View, position: Float) {
+        if (position < -1)
+            page.alpha = 0f
+        else if (position <= 1) {
+            page.scaleX = 1f
+            page.scaleY = 1f
+            page.alpha = 1f
+            page.translationY = 0f
+
+            if (page is PageCurlFrame) {
+                page.is3DMode = true
+                if (position > -1.0f && position < 1.0f) {
+                    page.translationX = -position * page.width
+                    if (position < 0f) {
+                        page.isCurlPage = true
+                        page.translationZ = 1f
+                        page.setCurlFactor(position)
+                    } else {
+                        page.isCurlPage = false
+                        page.translationZ = 0f
+                        page.setCurlFactor(0f)
+                    }
+                } else {
+                    page.translationX = 0.0f
+                    page.isCurlPage = false
+                    page.translationZ = 0f
+                    page.setCurlFactor(0f)
+                }
+            } else if (page is PageCurl) {
+                if (position > -1.0f && position < 1.0f)
+                    page.translationX = -position * page.width
+                else
+                    page.translationX = 0.0f
                 (page as PageCurl).setCurlFactor(position)
             } else
                 page.translationX = 0f
@@ -151,6 +225,15 @@ class FadePageTransformer(val isVertical: Boolean)  : ViewPager2.PageTransformer
 
 class DepthPageTransformer(val isVertical: Boolean) : ViewPager2.PageTransformer {
     override fun transformPage(page: View, position: Float) {
+        val elevation = try {
+            page.resources.getDimension(br.com.fenix.bilingualreader.R.dimen.reader_elevation)
+        } catch (e: Exception) {
+            20f
+        }
+        page.translationZ = 0f
+        page.elevation = 0f
+        page.outlineProvider = android.view.ViewOutlineProvider.BOUNDS
+
         if (position < -1)
             page.alpha = 0f
         else if (position <= 1) {
@@ -160,6 +243,10 @@ class DepthPageTransformer(val isVertical: Boolean) : ViewPager2.PageTransformer
                 page.translationX = 0f
                 page.scaleX = 1f
                 page.scaleY = 1f
+                if (position < 0f) {
+                    page.translationZ = 20f
+                    page.elevation = elevation
+                }
             } else {
                 page.alpha = 1- abs(position)
                 page.scaleX = 1- abs(position)

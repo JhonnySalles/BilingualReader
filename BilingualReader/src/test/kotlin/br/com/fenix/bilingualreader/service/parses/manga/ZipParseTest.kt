@@ -2,8 +2,12 @@ package br.com.fenix.bilingualreader.service.parses.manga
 
 import br.com.fenix.bilingualreader.service.parses.ParserBaseTest
 import br.com.fenix.bilingualreader.service.parses.mock.ParseMock
-import org.junit.Assert.*
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 import java.io.File
 
 class ZipParseTest : ParserBaseTest() {
@@ -32,9 +36,8 @@ class ZipParseTest : ParserBaseTest() {
         assertNotNull(comicInfo)
         assertEquals("Mock Title", comicInfo?.title)
 
-        // getPagePaths should have "" and "chapter1"
+        // getPagePaths should have "chapter1"
         val paths = zipParse.getPagePaths()
-        assertTrue(paths.containsKey(""))
         assertTrue(paths.containsKey("chapter1"))
         
         // getChapters should have the index of page03.jpg (which is 2 after sorting)

@@ -2,9 +2,8 @@ package br.com.fenix.bilingualreader.service.parses.manga
 
 import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.simpleframework.xml.Serializer
@@ -29,23 +28,25 @@ class TarParse : Parse {
 
     override fun parse(file: File?) {
         mEntries.clear()
-        val fis = BufferedInputStream(FileInputStream(file))
-        val tar = TarArchiveInputStream(fis)
-        var entry = tar.nextTarEntry
-        while (entry != null) {
-            if (entry.isDirectory) {
-                entry = tar.nextTarEntry
-                continue
+        BufferedInputStream(FileInputStream(file)).use { fis ->
+            TarArchiveInputStream(fis).use { tar ->
+                var entry = tar.nextTarEntry
+                while (entry != null) {
+                    if (entry.isDirectory) {
+                        entry = tar.nextTarEntry
+                        continue
+                    }
+
+                    if (FileUtil.isImage(entry.name))
+                        mEntries.add(TarEntry(entry, Util.toByteArray(tar)!!))
+                    else if (FileUtil.isJson(entry.name))
+                        mSubtitles.add(TarEntry(entry, Util.toByteArray(tar)!!))
+                    else if (FileUtil.isXml(entry.name) && entry.name.contains("comicinfo", true))
+                        mComicInfo = TarEntry(entry, Util.toByteArray(tar)!!)
+
+                    entry = tar.nextTarEntry
+                }
             }
-
-            if (FileUtil.isImage(entry.name))
-                mEntries.add(TarEntry(entry, Util.toByteArray(tar)!!))
-            else if (FileUtil.isJson(entry.name))
-                mSubtitles.add(TarEntry(entry, Util.toByteArray(tar)!!))
-            else if (FileUtil.isXml(entry.name) && entry.name.contains("comicinfo", true))
-                mComicInfo = TarEntry(entry, Util.toByteArray(tar)!!)
-
-            entry = tar.nextTarEntry
         }
 
         mEntries.sortWith(compareBy<TarEntry> { Util.getFolderFromPath(it.entry.name) }.thenComparing { a, b ->
@@ -129,10 +130,7 @@ class TarParse : Parse {
                 serializer.read(ComicInfo::class.java, page)
             } catch (e: Exception) {
                 mLOGGER.error("Error to get comic info: " + e.message, e)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error to get comic info: " + e.message)
-                    recordException(e)
-                }
+                Telemetry.recordException(e, "Error to get comic info: " + e.message)
                 null
             }
         } else

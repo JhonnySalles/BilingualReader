@@ -24,12 +24,10 @@ import android.view.View
 import android.webkit.WebView
 import android.widget.FrameLayout
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.BookConfiguration
@@ -44,7 +42,6 @@ import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
 import br.com.fenix.bilingualreader.model.enums.TextSpeech
-import br.com.fenix.bilingualreader.model.enums.ThemeMode
 import br.com.fenix.bilingualreader.service.controller.WebInterface
 import br.com.fenix.bilingualreader.service.japanese.Formatter
 import br.com.fenix.bilingualreader.service.listener.TextSelectCallbackListener
@@ -57,14 +54,14 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.constants.ReaderConsts
 import br.com.fenix.bilingualreader.util.helpers.ColorUtil
 import br.com.fenix.bilingualreader.util.helpers.ImageUtil
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.view.components.ImageGetter
 import br.com.fenix.bilingualreader.view.components.book.TextViewAdapter
 import br.com.fenix.bilingualreader.view.components.book.TextViewClickMovement
 import br.com.fenix.bilingualreader.view.components.book.TextViewSelectCallback
 import br.com.fenix.bilingualreader.view.ui.popup.PopupAnnotations
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -362,18 +359,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     }
 
     private fun loadPreferences(isJapanese: Boolean) {
-        isDark = when (ThemeMode.valueOf(mPreferences.getString(GeneralConsts.KEYS.THEME.THEME_MODE, ThemeMode.SYSTEM.toString())!!)) {
-            ThemeMode.DARK -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                true
-            }
-
-            ThemeMode.LIGHT -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                false
-            }
-            else -> app.resources.getBoolean(R.bool.isNight)
-        }
+        isDark = ThemeUtil.applyThemeMode(app.applicationContext)
 
         val voice = if (isJapanese) GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_JAPANESE else GeneralConsts.KEYS.READER.BOOK_READER_TTS_VOICE_NORMAL
         mTTSVoice.value = TextSpeech.valueOf(mPreferences.getString(voice, TextSpeech.getDefault(isJapanese).toString())!!)
@@ -610,10 +596,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             } catch (e: Exception) {
                 mLOGGER.error("Error to generate image: " + e.message, e)
                 holder.imageView.setImageBitmap(null)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error to generate image: " + e.message)
-                    recordException(e)
-                }
+                Telemetry.recordException(e, "Error to generate image: " + e.message)
             }
             holder.textView.linksClickable = false
             holder.textView.movementMethod = null
@@ -781,10 +764,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             return bitmap
         } catch (e: Exception) {
             mLOGGER.error("Error to load image page: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error to load image page: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error to load image page: " + e.message)
         }
         return null
     }

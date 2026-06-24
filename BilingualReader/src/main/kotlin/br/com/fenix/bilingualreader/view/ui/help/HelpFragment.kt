@@ -71,8 +71,9 @@ class HelpFragment : Fragment() {
             true
         }
         mScrollUp.visibility = View.GONE
+        var scrollRunnable: Runnable? = null
         mScrollView.setOnScrollChangeListener { _, _, yNew, _, yOld ->
-            if ((yNew - yOld) < -150) {
+            if ((yNew - yOld) < -20) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     if (mHandler.hasCallbacks(mDismissUpButton))
                         mHandler.removeCallbacks(mDismissUpButton)
@@ -91,6 +92,18 @@ class HelpFragment : Fragment() {
 
                 
                 mScrollUp.hide()
+            }
+
+            val isGlass = br.com.fenix.bilingualreader.util.constants.GeneralConsts.getSharedPreferences(requireContext())
+                .getBoolean(br.com.fenix.bilingualreader.util.constants.GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
+                scrollRunnable?.let { mHandler.removeCallbacks(it) }
+                val runnable = Runnable {
+                    (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+                }
+                scrollRunnable = runnable
+                mHandler.postDelayed(runnable, 150)
             }
         }
 

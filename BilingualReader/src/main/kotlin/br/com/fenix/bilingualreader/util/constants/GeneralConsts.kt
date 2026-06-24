@@ -13,7 +13,6 @@ import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -24,13 +23,22 @@ import java.util.concurrent.TimeUnit
 
 class GeneralConsts private constructor() {
     companion object {
-        fun getCoverDir(context: Context): File? {
+        fun getCoverDir(context: Context): File {
             val caches = context.externalCacheDirs
-            return caches.last()
+            return if (!caches.isNullOrEmpty() && caches.last() != null) caches.last()!! else context.cacheDir
         }
 
-        fun getCacheDir(context: Context): File? {
-            return context.externalCacheDir
+        fun getCacheDir(context: Context): File {
+            val external = context.externalCacheDir
+            if (external != null && !external.absolutePath.isNullOrEmpty()) return external
+
+            val internal = context.cacheDir
+            if (internal != null && !internal.absolutePath.isNullOrEmpty()) return internal
+
+            val files = context.filesDir
+            if (files != null && !files.absolutePath.isNullOrEmpty()) return files
+
+            return File(System.getProperty("java.io.tmpdir"), "BilingualReaderCache").also { if (!it.exists()) it.mkdirs() }
         }
 
         fun getSharedPreferences(context: Context): SharedPreferences {
@@ -97,20 +105,23 @@ class GeneralConsts private constructor() {
 
         @TargetApi(26)
         fun formatCountDays(context: Context, dateTime: LocalDateTime?): String {
-            val today = LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0, 0))
+            val today = LocalDate.now().atStartOfDay()
             return if (dateTime == null)
                 ""
-            else if (dateTime.isAfter(today))
-                context.getString(R.string.date_format_today)
-            else if (dateTime.isAfter(today.minusDays(1)))
-                context.getString(R.string.date_format_yesterday)
-            else if (dateTime.isAfter(today.minusDays(7)))
-                context.getString(
-                    R.string.date_format_day_ago,
-                    ChronoUnit.DAYS.between(dateTime, today).toString()
-                )
-            else
-                formatterDate(context, dateTime)
+            else {
+                val compareDate = dateTime.toLocalDate().atStartOfDay()
+                if (compareDate.isEqual(today))
+                    context.getString(R.string.date_format_today)
+                else if (compareDate.isEqual(today.minusDays(1)))
+                    context.getString(R.string.date_format_yesterday)
+                else if (compareDate.isAfter(today.minusDays(7)))
+                    context.getString(
+                        R.string.date_format_day_ago,
+                        ChronoUnit.DAYS.between(compareDate, today).toString()
+                    )
+                else
+                    formatterDate(context, dateTime)
+            }
         }
 
         fun formatCountDays(context: Context, dateTime: Date?): String {
@@ -195,7 +206,6 @@ class GeneralConsts private constructor() {
             const val MANGA_SHOW_CLOCK_AND_BATTERY = "MANGA_SHOW_CLOCK_AND_BATTERY"
             const val MANGA_USE_MAGNIFIER_TYPE = "MANGA_USE_MAGNIFIER_TYPE"
             const val MANGA_KEEP_ZOOM_BETWEEN_PAGES = "MANGA_KEEP_ZOOM_BETWEEN_PAGES"
-
             const val BOOK_PAGE_ALIGNMENT = "BOOK_PAGE_ALIGNMENT"
             const val BOOK_PAGE_MARGIN = "BOOK_PAGE_MARGIN"
             const val BOOK_PAGE_SPACING = "BOOK_PAGE_SPACING"
@@ -286,6 +296,7 @@ class GeneralConsts private constructor() {
             const val BOOK_FONT_SIZE = "BOOK_FONT_SIZE"
             const val BOOK_ANNOTATION = "BOOK_ANNOTATION_OBJECT"
             const val BOOK_SEARCH = "BOOK_SEARCH_OBJECT"
+            const val STATISTICS_YEAR = "STATISTICS_YEAR"
         }
 
         object COLOR_FILTER {
@@ -322,6 +333,7 @@ class GeneralConsts private constructor() {
             const val THEME_USED = "THEME_USED"
             const val THEME_MODE = "THEME_MODE"
             const val THEME_CHANGE = "THEME_CHANGE"
+            const val THEME_GLASSMORPHISM = "THEME_GLASSMORPHISM"
         }
 
         object SHARE_MARKS {

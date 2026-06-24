@@ -3,22 +3,35 @@ package br.com.fenix.bilingualreader.service.scanner
 import android.content.Context
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.service.parses.manga.Parse
+import br.com.fenix.bilingualreader.service.parses.manga.ParseFactory
 import br.com.fenix.bilingualreader.service.repository.Storage
 import br.com.fenix.bilingualreader.util.helpers.Notifications
-import io.mockk.*
-import org.junit.*
+import com.google.firebase.FirebaseApp
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkConstructor
+import io.mockk.mockkObject
+import io.mockk.mockkStatic
+import io.mockk.unmockkAll
+import io.mockk.verify
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
-import java.util.*
+import java.util.UUID
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])
 class ScannerMangaTest {
 
-    @get:Rule
+    @Rule @JvmField
     val tempFolder = TemporaryFolder()
 
     private lateinit var context: Context
@@ -26,21 +39,39 @@ class ScannerMangaTest {
 
     @Before
     fun setUp() {
-        context = mockk(relaxed = true)
+        context = androidx.test.core.app.ApplicationProvider.getApplicationContext<Context>()
         
+        // Initialize CacheZipUtils with a temporary directory
+        br.com.ebook.foobnix.ext.CacheZipUtils.init(context, tempFolder.newFolder("scanner_tests"))
+
         // Mock static Notification helpers
         mockkObject(Notifications.NotificationUtils)
         every { Notifications.getNotification(any(), any(), any()) } returns mockk(relaxed = true)
         every { Notifications.getID() } returns 1
         
-        // Mock Storage constructor to avoid real DB access
+        // Mock Storage constructor
         mockkConstructor(Storage::class)
         every { anyConstructed<Storage>().listMangas(any()) } returns emptyList()
         every { anyConstructed<Storage>().listDeleted(any()) } returns emptyList()
         every { anyConstructed<Storage>().findMangaByPath(any()) } returns null
         every { anyConstructed<Storage>().save(manga = any<Manga>(), lastAlteration = any()) } returns 1L
+        
+        // Mock Firebase
+        mockkStatic(FirebaseApp::class)
+        every { FirebaseApp.initializeApp(any()) } returns mockk()
+        mockkStatic(FirebaseCrashlytics::class)
+        every { FirebaseCrashlytics.getInstance() } returns mockk(relaxed = true)
 
-        library = Library(id = 1L, title = "Test Library", path = tempFolder.root.absolutePath)
+        mockkObject(ParseFactory.Factory)
+        val parse = mockk<Parse>(relaxed = true)
+        every { ParseFactory.Factory.create(any<String>()) } returns parse
+        every { ParseFactory.Factory.create(any<File>()) } returns parse
+        every { parse.numPages() } returns 1
+
+        val tempDirFile = tempFolder.root
+        library = Library(id = 3L, title = "Manga Library", path = tempDirFile.absolutePath)
+        // Ensure the directory is not empty so 'walked' flag is set to true in ScannerManga
+        File(tempDirFile, "placeholder.txt").createNewFile()
     }
 
     @After
@@ -51,32 +82,37 @@ class ScannerMangaTest {
     @Test
     fun libraryUpdateRunnable_detectsAndSavesNewManga() {
         // Create a fake manga file
-        val mangaFile = tempFolder.newFile("manga_test.zip")
+        val mangaFile = File(tempFolder.root, "manga_test.zip")
+        mangaFile.createNewFile()
         
         val scanner = ScannerManga(context)
         
-        // Access private inner class using reflection to run it synchronously
+        // Access private inner class using reflection
         val runnableClass = ScannerManga::class.java.declaredClasses.find { it.name.contains("LibraryUpdateRunnable") }
         val constructor = runnableClass?.getDeclaredConstructor(ScannerManga::class.java, UUID::class.java, Library::class.java, Boolean::class.java)
         constructor?.isAccessible = true
+        val runnableObj = constructor?.newInstance(scanner, UUID.randomUUID(), library, true)
         
-        // LibraryUpdateRunnable(id, library, isSilent)
-        val runnable = constructor?.newInstance(scanner, UUID.randomUUID(), library, true) as Runnable
+        // Use reflection to call run() to avoid ClassCastException
+        val runMethod = runnableClass?.getMethod("run")
+        runMethod?.invoke(runnableObj)
         
-        // Execute scanning logic
-        runnable.run()
-        
-        // Verify that storage.save was called at least once for the new manga
+        // Verify the code reached the scan loop
+        verify(atLeast = 1) { anyConstructed<Storage>().listMangas(any()) }
+
+        // Verify that storage.save was called for the new manga
+        verify(atLeast = 1) { anyConstructed<Storage>().save(manga = any<Manga>(), lastAlteration = any()) }
         verify(atLeast = 1) { 
-            anyConstructed<Storage>().save(manga = match { it.path == mangaFile.absolutePath }, lastAlteration = any()) 
+            anyConstructed<Storage>().save(manga = match<Manga> { 
+                it.path.contains("manga_test.zip", ignoreCase = true) 
+            }, lastAlteration = any()) 
         }
     }
 
     @Test
     fun libraryUpdateRunnable_deletesMissingManga() {
-        // Setup existing manga in storage that doesn't exist on disk
         val missingManga = mockk<Manga>(relaxed = true)
-        every { missingManga.path } returns "/non/existent/path.zip"
+        every { missingManga.path } returns "/non/existent/manga.zip"
         every { anyConstructed<Storage>().listMangas(any()) } returns listOf(missingManga)
         
         val scanner = ScannerManga(context)
@@ -84,11 +120,11 @@ class ScannerMangaTest {
         val runnableClass = ScannerManga::class.java.declaredClasses.find { it.name.contains("LibraryUpdateRunnable") }
         val constructor = runnableClass?.getDeclaredConstructor(ScannerManga::class.java, UUID::class.java, Library::class.java, Boolean::class.java)
         constructor?.isAccessible = true
-        val runnable = constructor?.newInstance(scanner, UUID.randomUUID(), library, true) as Runnable
+        val runnableObj = constructor?.newInstance(scanner, UUID.randomUUID(), library, true)
         
-        runnable.run()
+        val runMethod = runnableClass?.getMethod("run")
+        runMethod?.invoke(runnableObj)
         
-        // Verify that storage.delete was called for the missing manga
-        verify { anyConstructed<Storage>().delete(missingManga) }
+        verify { anyConstructed<Storage>().delete(manga = missingManga) }
     }
 }

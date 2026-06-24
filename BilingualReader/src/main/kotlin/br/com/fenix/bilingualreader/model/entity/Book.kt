@@ -10,7 +10,6 @@ import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
-import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
@@ -21,6 +20,7 @@ import java.io.Serializable
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Date
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 
 
 @Entity(
@@ -91,7 +91,7 @@ class Book(
     @Ignore
     constructor(fkLibrary: Long?, id: Long?, file: File) : this(
         id, file.nameWithoutExtension,  "", "",  "", null,  "", "", "","", 1, "", 0,
-        "", 0, false, Languages.ENGLISH, file.path, file.parent, file.name, FileType.UNKNOWN, file.length(), false,
+        "", 0, false, Languages.ENGLISH, file.path, file.parent ?: "", file.name, FileType.UNKNOWN, file.length(), false,
         fkLibrary, mutableListOf(), false, LocalDateTime.now(), null, null, Date(file.lastModified()),
         null, null
     ) {
@@ -257,9 +257,20 @@ class Book(
     }
 
     fun update(book: Book, isFull: Boolean = false) : Boolean {
-        val updated = this.bookMark != book.bookMark || this.favorite != book.favorite ||
+        var updated = this.bookMark != book.bookMark || this.favorite != book.favorite ||
                 this.pages != book.pages || this.language != book.language ||
                 this.tags != book.tags || this.lastAccess != book.lastAccess
+
+        if (isFull) {
+            updated = updated || this.title != book.title || this.author != book.author ||
+                    this.password != book.password || this.annotation != book.annotation ||
+                    this.release != book.release || this.genre != book.genre ||
+                    this.volume != book.volume || this.chapter != book.chapter ||
+                    this.chapterDescription != book.chapterDescription ||
+                    this.extension != book.extension ||
+                    this.publisher != book.publisher || this.series != book.series ||
+                    this.isbn != book.isbn
+        }
 
         this.completed = book.completed
         this.bookMark = book.bookMark
@@ -344,6 +355,23 @@ class Book(
         this.lastVocabImport = null
 
         return updated
+    }
+
+    fun modify(book: Book): Boolean {
+        return this.title != book.title ||
+                this.author != book.author ||
+                this.bookMark != book.bookMark ||
+                this.completed != book.completed ||
+                this.favorite != book.favorite ||
+                this.pages != book.pages ||
+                this.language != book.language ||
+                this.tags != book.tags ||
+                this.lastAccess != book.lastAccess ||
+                this.publisher != book.publisher ||
+                this.series != book.series ||
+                this.genre != book.genre ||
+                this.volume != book.volume ||
+                this.release != book.release
     }
 
 }

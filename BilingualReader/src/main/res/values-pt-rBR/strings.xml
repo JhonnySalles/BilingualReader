@@ -47,7 +47,7 @@
     <string name="notifications_share_mark_drive_title">Sincronizando</string>
     <string name="notifications_share_mark_drive_content">Sincronizando marcações com a cloud.</string>
     <string name="notifications_scanner_library">Escaneando bibliotecas</string>
-    <string name="notifications_scanner_library_content">Escaneando arquivos nas pastas da biblioteca %s. (%s)</string>
+    <string name="notifications_scanner_library_content">Escaneando arquivos nas pastas da biblioteca %1$s. (%2$s)</string>
     <string name="notifications_scanner_library_processed">Escaneamento da biblioteca %s concluído com sucesso.</string>
 
     <!-- MENU -->
@@ -183,6 +183,7 @@
     <string name="config_update_app_error_download">Erro no download do aplicativo.</string>
     <string name="config_update_app_error_update">Erro na atualização do aplicativo, necessário executar manualmente o apk na pasta de download.</string>
 
+    <string name="config_theme_glassmorphism">Usar desfoque translúcido?</string>
     <string name="config_theme_mode">Modo tema</string>
     <string-array name="theme_mode">
         <item>Sistema</item>
@@ -225,6 +226,7 @@
     <string name="config_book_pagination_type">Animação de transição de página</string>
     <string name="config_book_pagination_default">Padrão</string>
     <string name="config_book_pagination_page_curl">Ondulação de página</string>
+    <string name="config_book_pagination_page_curl_3d">Ondulação de página 3D</string>
     <string name="config_book_pagination_page_stack">Pilhas de página</string>
     <string name="config_book_pagination_page_zoom">Zoom de página</string>
     <string name="config_book_pagination_page_fade">Desbotamento de página</string>
@@ -277,7 +279,7 @@
     </string-array>
 
     <!-- READER - BOOK -->
-    <string name="book_share_mark_processed">Marcadores sincronizado. Enviado %d, Recebido %d</string>
+    <string name="book_share_mark_processed">Marcadores sincronizado. Enviado %1$d, Recebido %2$d</string>
     <string name="book_share_mark_unprocessed">Marcadores não compartilhados</string>
     <string name="book_share_mark_without_alteration">Nenhuma alteração em marcadores encontrada</string>
     <string name="book_share_mark_error_download">Ocorreu um erro no download dos marcadores</string>
@@ -300,8 +302,8 @@
     <string name="menu_book_reading_view_touch">Funções touch</string>
     <string name="menu_book_reading_config_touch">Configura funções touch</string>
 
-    <string name="reading_book_title_position">Posição %d de %d • %s%%</string>
-    <string name="reading_book_title_chapter">Capítulo %d: %s</string>
+    <string name="reading_book_title_position">Posição %1$d de %2$d • %3$s%%</string>
+    <string name="reading_book_title_chapter">Capítulo %1$d: %2$s</string>
 
     <string name="reading_book_page_mark">Marcador de página</string>
     <string name="reading_book_page_index">Índice</string>
@@ -312,7 +314,7 @@
     <string name="reading_book_menu_text_functions_find">Encontrar</string>
     <string name="reading_book_menu_text_functions_translate">Traduzir</string>
 
-    <string name="reading_book_time_to_ending_hour">Restante: %d h %d min</string>
+    <string name="reading_book_time_to_ending_hour">Restante: %1$d h %2$d min</string>
     <string name="reading_book_time_to_ending_minutes">Restante: %d minutos</string>
 
 
@@ -365,8 +367,8 @@
 
     <string name="book_annotation_note">Nota</string>
 
-    <string name="book_annotation_list_title_detach">Página %d de %d • Destaque</string>
-    <string name="book_annotation_list_title_mark">Página %d de %d • Marcador</string>
+    <string name="book_annotation_list_title_detach">Página %1$d de %2$d • Destaque</string>
+    <string name="book_annotation_list_title_mark">Página %1$d de %2$d • Marcador</string>
     <string name="book_annotation_list_add_note">Adicionar nota</string>
     <string name="book_annotation_list_favorite">Favorito</string>
     <string name="book_annotation_list_options">Opções</string>
@@ -392,7 +394,7 @@
     <string name="book_annotation_change_detach_description">Selecione a cor de destaque:</string>
 
     <!-- BOOK POPUP ANNOTATION LAYOUT -->
-    <string name="book_annotation_popup_title">Página %d - %s</string>
+    <string name="book_annotation_popup_title">Página %1$d - %2$s</string>
     <string name="book_annotation_popup_delete">Deletar</string>
     <string name="book_annotation_popup_cancel">Cancelar</string>
     <string name="book_annotation_popup_confirm">Confirmar</string>
@@ -433,7 +435,7 @@
     <string name="reader_manga_not_found">Não encontrado</string>
     <string name="file_not_found">Arquivo não encontrado</string>
 
-    <string name="manga_share_mark_processed">Marcadores sincronizado. Enviado %d, Recebido %d</string>
+    <string name="manga_share_mark_processed">Marcadores sincronizado. Enviado %1$d, Recebido %2$d</string>
     <string name="manga_share_mark_unprocessed">Marcadores não compartilhados na cloud</string>
     <string name="manga_share_mark_without_alteration">Nenhuma alteração em marcadores encontrada</string>
     <string name="manga_share_mark_error_download">Ocorreu um erro no download dos marcadores</string>
@@ -464,6 +466,7 @@
     <string name="config_manga_pagination_type">Animação de transição de página</string>
     <string name="config_manga_pagination_default">Padrão</string>
     <string name="config_manga_pagination_page_curl">Ondulação de página</string>
+    <string name="config_manga_pagination_page_curl_3d">Ondulação de página 3D</string>
     <string name="config_manga_pagination_page_stack">Pilhas de página</string>
     <string name="config_manga_pagination_page_zoom">Zoom de página</string>
     <string name="config_manga_pagination_page_fade">Desbotamento de página</string>
@@ -527,7 +530,7 @@
     <string name="manga_annotation_page_marked">Página %d marcada.</string>
     <string name="manga_annotation_page_unmarked">Página %d desmarcada.</string>
 
-    <string name="manga_annotation_title_mark">Página %d de %d</string>
+    <string name="manga_annotation_title_mark">Página %1$d de %2$d</string>
 
     <!-- OCR -->
     <string name="ocr_tesseract_copy_data">Copiando arquivos necessários, aguarde…</string>
@@ -575,7 +578,7 @@
     <string name="popup_reading_manga_subtitle_text">Texto</string>
     <string name="popup_reading_manga_subtitle_page">Página</string>
     <string name="popup_reading_manga_subtitle_extra">Extra</string>
-    <string name="popup_reading_manga_subtitle_find_subtitle">Encontrado a legenda: capítulo %s e página %s.</string>
+    <string name="popup_reading_manga_subtitle_find_subtitle">Encontrado a legenda: capítulo %1$s e página %2$s.</string>
     <string name="popup_reading_manga_subtitle_not_find_subtitle">Não foi possível encontrar a legenda.</string>
     <string name="popup_reading_manga_subtitle_list_empty">Lista de legenda vazias.</string>
     <string name="popup_reading_manga_subtitle_chapter_not_found">Não encontrado o capítulo em outra linguagem.</string>
@@ -777,7 +780,7 @@
     <string name="manga_detail_local_information_comic_info_teams"><![CDATA[<b>Times:</b> %s]]></string>
     <string name="manga_detail_local_information_comic_info_locations"><![CDATA[<b>Localizações:</b> %s]]></string>
     <string name="manga_detail_local_information_comic_info_book_marks_title">Marcadores nas páginas</string>
-    <string name="manga_detail_web_information_publish_from_to"><![CDATA[<b>Publicação:</b> %s até %s]]></string>
+    <string name="manga_detail_web_information_publish_from_to"><![CDATA[<b>Publicação:</b> %1$s até %2$s]]></string>
 
     <string name="manga_detail_web_information">Informações Web</string>
     <string name="manga_detail_related">Relacionados</string>
@@ -830,7 +833,7 @@
     <string name="book_detail_web_information_publish_in_publication">in publication</string>
     <string name="book_detail_web_information_authors"><![CDATA[<b>Autores:</b> %s]]></string>
     <string name="book_detail_web_information_genre"><![CDATA[<b>Gêneros:</b> %s]]></string>
-    <string name="book_detail_web_information_publish_from_to"><![CDATA[<b>Publicação:</b> %s até %s]]></string>
+    <string name="book_detail_web_information_publish_from_to"><![CDATA[<b>Publicação:</b> %1$s até %2$s]]></string>
 
     <!-- HISTORY - Manga / Comic / Book -->
     <string name="menu_history_library">Biblioteca</string>

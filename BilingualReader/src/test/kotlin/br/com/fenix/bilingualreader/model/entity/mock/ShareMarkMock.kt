@@ -4,7 +4,7 @@ import br.com.fenix.bilingualreader.model.entity.ShareMark
 import br.com.fenix.bilingualreader.model.enums.Type
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
-import java.util.*
+import java.util.Date
 
 object ShareMarkMock {
 

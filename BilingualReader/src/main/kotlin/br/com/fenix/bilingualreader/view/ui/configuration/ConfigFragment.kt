@@ -13,9 +13,13 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.edit
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import br.com.fenix.bilingualreader.MainActivity
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.FontType
@@ -45,6 +49,7 @@ import br.com.fenix.bilingualreader.util.helpers.InvalidDatabase
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MsgUtil
 import br.com.fenix.bilingualreader.util.helpers.RestoredNewDatabase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
 import br.com.fenix.bilingualreader.util.secrets.Secrets
@@ -69,8 +74,9 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import com.google.api.services.drive.DriveScopes
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.lucasr.twowayview.TwoWayView
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -80,7 +86,6 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
-
 
 class ConfigFragment : Fragment() {
 
@@ -92,6 +97,7 @@ class ConfigFragment : Fragment() {
     private lateinit var mConfigSystemThemeMode: TextInputLayout
     private lateinit var mConfigSystemThemeModeAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mConfigSystemThemes: TwoWayView
+    private lateinit var mConfigSystemThemeGlassmorphism: SwitchMaterial
 
     private lateinit var mConfigSystemFormatDate: TextInputLayout
     private lateinit var mConfigSystemFormatDateAutoComplete: MaterialAutoCompleteTextView
@@ -281,6 +287,14 @@ class ConfigFragment : Fragment() {
         mConfigCoversDelete = view.findViewById(R.id.config_covers_delete)
         mConfigStatisticsDelete = view.findViewById(R.id.config_statistics_delete)
 
+        mConfigSystemThemeGlassmorphism = view.findViewById(R.id.config_system_theme_glassmorphism)
+        mConfigSystemThemeGlassmorphism.setOnCheckedChangeListener { _, isChecked ->
+            val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+            sharedPreferences.edit(commit = true) {
+                putBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, isChecked)
+            }
+            (requireActivity() as? MainActivity)?.setupTitleBackgrounds()
+        }
 
         mMangaLibraryPathAutoComplete.setOnClickListener {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
@@ -343,6 +357,7 @@ class ConfigFragment : Fragment() {
         mMangaMapPaginationType = hashMapOf(
             getString(R.string.config_manga_pagination_default) to PaginationType.Default,
             getString(R.string.config_manga_pagination_page_curl) to PaginationType.CurlPage,
+            getString(R.string.config_manga_pagination_page_curl_3d) to PaginationType.Curl3DPage,
             getString(R.string.config_manga_pagination_page_stack) to PaginationType.Stack,
             getString(R.string.config_manga_pagination_page_zoom) to PaginationType.Zooming,
             getString(R.string.config_manga_pagination_page_fade) to PaginationType.Fade,
@@ -352,6 +367,7 @@ class ConfigFragment : Fragment() {
         mBookMapPaginationType = hashMapOf(
             getString(R.string.config_book_pagination_default) to PaginationType.Default,
             getString(R.string.config_book_pagination_page_curl) to PaginationType.CurlPage,
+            getString(R.string.config_book_pagination_page_curl_3d) to PaginationType.Curl3DPage,
             getString(R.string.config_book_pagination_page_stack) to PaginationType.Stack,
             getString(R.string.config_book_pagination_page_zoom) to PaginationType.Zooming,
             getString(R.string.config_book_pagination_page_fade) to PaginationType.Fade,
@@ -627,10 +643,7 @@ class ConfigFragment : Fragment() {
                     } catch (e: Exception) {
                         mLOGGER.error("Error delete bitmap to cache: " + e.message, e)
                         Toast.makeText(requireContext(), getString(R.string.config_covers_delete_error), Toast.LENGTH_SHORT).show()
-                        Firebase.crashlytics.apply {
-                            setCustomKey("message", "Error delete bitmap to cache: " + e.message)
-                            recordException(e)
-                        }
+                        Telemetry.recordException(e, "Error delete bitmap to cache: " + e.message)
                     }
                 }
                 .setNegativeButton(R.string.action_cancel) { _, _ -> }
@@ -648,10 +661,7 @@ class ConfigFragment : Fragment() {
                     } catch (e: Exception) {
                         mLOGGER.error("Error delete statistics: " + e.message, e)
                         Toast.makeText(requireContext(), getString(R.string.config_statistics_clear_error), Toast.LENGTH_SHORT).show()
-                        Firebase.crashlytics.apply {
-                            setCustomKey("message", "Error delete statistics: " + e.message)
-                            recordException(e)
-                        }
+                        Telemetry.recordException(e, "Error delete statistics: " + e.message)
                     }
                 }
                 .setNegativeButton(R.string.action_cancel) { _, _ -> }
@@ -729,6 +739,22 @@ class ConfigFragment : Fragment() {
 
         googleSigIn(GoogleSignIn.getLastSignedInAccount(requireContext()))
 
+        val configScrollView = view.findViewById<android.widget.ScrollView>(R.id.config_scroll_view)
+        var scrollRunnable: Runnable? = null
+        val scrollHandler = android.os.Handler(android.os.Looper.getMainLooper())
+        configScrollView?.setOnScrollChangeListener { _, _, _, _, _ ->
+            val isGlass = GeneralConsts.getSharedPreferences(requireContext()).getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                (activity as? MainActivity)?.setBlurAutoUpdate(true)
+                scrollRunnable?.let { scrollHandler.removeCallbacks(it) }
+                val runnable = Runnable {
+                    (activity as? MainActivity)?.setBlurAutoUpdate(false)
+                }
+                scrollRunnable = runnable
+                scrollHandler.postDelayed(runnable, 150)
+            }
+        }
+
         mViewModel.loadLibrary(null)
     }
 
@@ -738,10 +764,24 @@ class ConfigFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        mViewModel.removeLibraryDefault(mMangaLibraryPath.editText?.text.toString(), mBookLibraryPath.editText?.text.toString())
-        ViewModelProvider(this)[MangaLibraryViewModel::class.java].setDefaultLibrary(LibraryUtil.getDefault(requireContext(), Type.MANGA))
-        ViewModelProvider(this)[BookLibraryViewModel::class.java].setDefaultLibrary(LibraryUtil.getDefault(requireContext(), Type.BOOK))
-        (requireActivity() as MainActivity).setLibraries(mViewModel.getListLibrary())
+        val mangaPath = mMangaLibraryPath.editText?.text.toString()
+        val bookPath = mBookLibraryPath.editText?.text.toString()
+        val context = requireContext().applicationContext
+        val mangaViewModel = ViewModelProvider(this)[MangaLibraryViewModel::class.java]
+        val bookViewModel = ViewModelProvider(this)[BookLibraryViewModel::class.java]
+        val mainActivity = requireActivity() as MainActivity
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            mViewModel.removeLibraryDefault(mangaPath, bookPath)
+            val defaultManga = LibraryUtil.getDefault(context, Type.MANGA)
+            val defaultBook = LibraryUtil.getDefault(context, Type.BOOK)
+            val listLibrary = mViewModel.getListLibrary()
+            withContext(Dispatchers.Main) {
+                mangaViewModel.setDefaultLibrary(defaultManga)
+                bookViewModel.setDefaultLibrary(defaultBook)
+                mainActivity.setLibraries(listLibrary)
+            }
+        }
 
         super.onDestroyView()
     }
@@ -899,18 +939,34 @@ class ConfigFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_config, container, false)
+        val root = inflater.inflate(R.layout.fragment_config, container, false)
+        ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            val scrollView = (root as? ViewGroup)?.getChildAt(0)
+            scrollView?.setPadding(scrollView.paddingLeft, scrollView.paddingTop, scrollView.paddingRight, navBarHeight)
+            insets
+        }
+        return root
     }
 
     private fun saveConfig() {
-        mViewModel.saveDefault(Type.MANGA, mMangaLibraryPath.editText?.text.toString())
-        mViewModel.saveDefault(Type.BOOK, mBookLibraryPath.editText?.text.toString())
+        val mangaPath = mMangaLibraryPath.editText?.text.toString()
+        val bookPath = mBookLibraryPath.editText?.text.toString()
+        lifecycleScope.launch(Dispatchers.IO) {
+            mViewModel.saveDefault(Type.MANGA, mangaPath)
+            mViewModel.saveDefault(Type.BOOK, bookPath)
+        }
 
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
         with(sharedPreferences.edit()) {
             this.putString(
                 GeneralConsts.KEYS.LIBRARY.MANGA_ORDER,
                 mMangaOrderSelect.toString()
+            )
+
+            this.putBoolean(
+                GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM,
+                mConfigSystemThemeGlassmorphism.isChecked
             )
 
             this.putString(
@@ -1054,7 +1110,7 @@ class ConfigFragment : Fragment() {
                 mConfigSystemThemeSelect.toString()
             )
 
-            this.commit()
+            this.apply()
         }
 
         mLOGGER.info(
@@ -1073,6 +1129,11 @@ class ConfigFragment : Fragment() {
         val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
 
         mMangaLibraryPath.editText?.setText(mViewModel.getDefault(Type.MANGA))
+
+        mConfigSystemThemeGlassmorphism.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM,
+            false
+        )
 
         mMangaReaderModeSelect = ReaderMode.valueOf(
             sharedPreferences.getString(
@@ -1469,7 +1530,7 @@ class ConfigFragment : Fragment() {
                     font.toString()
                 )
 
-            this.commit()
+            this.apply()
         }
     }
 

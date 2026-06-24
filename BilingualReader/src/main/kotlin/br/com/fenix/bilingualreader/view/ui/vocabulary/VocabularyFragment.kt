@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.view.ui.vocabulary
 
+
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.drawable.AnimatedVectorDrawable
@@ -20,6 +21,8 @@ import android.widget.ImageView
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -36,9 +39,11 @@ import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.functions.InitializeVocabulary
 import br.com.fenix.bilingualreader.service.listener.PopupOrderListener
 import br.com.fenix.bilingualreader.service.listener.VocabularyCardListener
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyLoadState
 import br.com.fenix.bilingualreader.view.adapter.vocabulary.VocabularyMangaListCardAdapter
@@ -46,6 +51,7 @@ import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
+import eightbitlab.com.blurview.BlurView
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
@@ -70,10 +76,42 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
     private lateinit var searchView: SearchView
 
     private lateinit var mMenuPopupFilterOrder: FrameLayout
+    private lateinit var mMenuPopupLibraryBackground: BlurView
     private lateinit var mPopupFilterOrderView: ViewPager
     private lateinit var mPopupFilterOrderTab: TabLayout
     private lateinit var mPopupOrderFragment: VocabularyPopupOrder
     private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
+
+    private val mBottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            val ctx = context ?: return
+            val sharedPreferences = GeneralConsts.getSharedPreferences(ctx)
+            val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass && ::mMenuPopupLibraryBackground.isInitialized) {
+                if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
+                    mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                } else {
+                    mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                }
+            }
+
+            val activity = activity ?: return
+            if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                PopupUtils.updateNavigationBarColor(activity, true)
+            } else if (newState == BottomSheetBehavior.STATE_COLLAPSED || newState == BottomSheetBehavior.STATE_HIDDEN) {
+                PopupUtils.updateNavigationBarColor(activity, false)
+            }
+        }
+
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            val ctx = context ?: return
+            val sharedPreferences = GeneralConsts.getSharedPreferences(ctx)
+            val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass && ::mMenuPopupLibraryBackground.isInitialized) {
+                mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+            }
+        }
+    }
 
     private lateinit var mListener: VocabularyCardListener
 
@@ -165,6 +203,15 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
     ): View? {
         val root = inflater.inflate(R.layout.fragment_vocabulary, container, false)
 
+        ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            val contentLayout = root.findViewById<View>(R.id.vocabulary_refresh)
+            contentLayout?.setPadding(contentLayout.paddingLeft, contentLayout.paddingTop, contentLayout.paddingRight, navBarHeight)
+            val popupLayout = root.findViewById<View>(R.id.vocabulary_popup_menu_order_filter)
+            popupLayout?.setPadding(popupLayout.paddingLeft, popupLayout.paddingTop, popupLayout.paddingRight, navBarHeight)
+            insets
+        }
+
         mMapOrder = hashMapOf(
             Order.Description to getString(R.string.config_option_vocabulary_order_description),
             Order.Frequency to getString(R.string.config_option_vocabulary_order_frequency),
@@ -179,6 +226,30 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
         mScrollDown = root.findViewById(R.id.vocabulary_scroll_down)
 
         mMenuPopupFilterOrder = root.findViewById(R.id.vocabulary_popup_menu_order_filter)
+        mMenuPopupLibraryBackground = root.findViewById(R.id.vocabulary_popup_header_background)
+
+        mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+                val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+                val isPopupVisible = ::mBottomSheet.isInitialized && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
+                if (isGlass) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+                        if (::mMenuPopupLibraryBackground.isInitialized) {
+                            mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                        }
+                    } else {
+                        (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
+                        if (isPopupVisible && ::mMenuPopupLibraryBackground.isInitialized) {
+                            mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                        }
+                    }
+                }
+            }
+        })
+
         mPopupFilterOrderTab = root.findViewById(R.id.vocabulary_popup_order_filter_tab)
         mPopupFilterOrderView = root.findViewById(R.id.vocabulary_popup_order_filter_view_pager)
 
@@ -262,6 +333,9 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
             mBottomSheet = this
         }
         mBottomSheet.isDraggable = true
+
+        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+        mBottomSheet.addBottomSheetCallback(mBottomSheetCallback)
 
         PopupUtils.onPopupTouch(requireActivity(), mMenuPopupFilterOrder, mBottomSheet, root.findViewById<ImageView>(R.id.vocabulary_popup_menu_order_filter_touch))
 
@@ -382,6 +456,13 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
             mViewModel.sorted(orderBy)
     }
 
+    override fun onDestroyView() {
+        if (::mBottomSheet.isInitialized) {
+            mBottomSheet.removeBottomSheetCallback(mBottomSheetCallback)
+        }
+        super.onDestroyView()
+    }
+
     override fun onDestroy() {
         if (::mPopupOrderFragment.isInitialized)
             mPopupOrderFragment.clearListener()
@@ -421,6 +502,8 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
 
         val myAdapter = mRecyclerView.adapter
         mRecyclerView.adapter = myAdapter
+
+        setupPopupBackgrounds()
     }
 
     override fun setObject(obj: Vocabulary) {
@@ -443,6 +526,64 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
 
     override fun popupGetObserver(): LiveData<Pair<Order, Boolean>> {
         return mViewModel.order
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (::mBottomSheet.isInitialized && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+            mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+        if (::mMenuPopupLibraryBackground.isInitialized) {
+            mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+            mMenuPopupLibraryBackground.setBlurEnabled(false)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setupPopupBackgrounds()
+
+        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+        val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        if (::mMenuPopupLibraryBackground.isInitialized) {
+            mMenuPopupLibraryBackground.setBlurEnabled(isGlass)
+            if (isGlass) {
+                mMenuPopupLibraryBackground.blurOnceDeferred(mHandler, 100)
+            } else {
+                mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+            }
+        }
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        val isGlass = GeneralConsts.getSharedPreferences(requireContext()).getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+        if (hidden) {
+            if (::mBottomSheet.isInitialized && mBottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
+                mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+            if (::mMenuPopupLibraryBackground.isInitialized) {
+                mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                mMenuPopupLibraryBackground.setBlurEnabled(false)
+            }
+        } else {
+            if (::mMenuPopupLibraryBackground.isInitialized) {
+                mMenuPopupLibraryBackground.setBlurEnabled(isGlass)
+                if (isGlass) {
+                    mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                    mHandler.postDelayed({
+                        mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                    }, 100)
+                } else {
+                    mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
+                }
+            }
+        }
+    }
+
+    private fun setupPopupBackgrounds() {
+        val activity = activity ?: return
+        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilterOrder, mMenuPopupLibraryBackground)
     }
 
     inner class ViewPagerAdapter(fm: FragmentManager, behavior: Int) :

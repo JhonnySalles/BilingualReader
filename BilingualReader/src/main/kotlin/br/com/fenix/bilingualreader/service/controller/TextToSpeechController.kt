@@ -35,16 +35,14 @@ import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.service.services.NotificationBroadcastReceiver
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.Notifications
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.TextUtil
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
 import io.github.whitemagic2014.tts.TTS
 import io.github.whitemagic2014.tts.TTSVoice
 import io.github.whitemagic2014.tts.bean.Voice
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.time.LocalTime
-import java.util.stream.Collectors
 
 
 class TextToSpeechController(val context: Context, book: Book, parse: DocumentParse?, cover: Bitmap?, val fontSize: Int) {
@@ -77,9 +75,11 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
         val providers = TTSVoice.provides()
 
         mVoice = if (providers.any { it.shortName.equals(language.getNameAzure(), ignoreCase = true) })
-            providers.stream().filter { v: Voice -> v.shortName == language.getNameAzure() }.collect(Collectors.toList())[0]
-        else
+            providers.stream().filter { v: Voice -> v.shortName.equals(language.getNameAzure(), ignoreCase = true) }.findFirst().get()
+        else if (providers.isNotEmpty())
             providers.first()
+        else
+            Voice()
 
         mVoiceRate = if (speed < 0) "-$speed%" else "+$speed%"
     }
@@ -98,7 +98,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 return false
             }
 
-            val voice = providers.stream().filter { v: Voice -> v.shortName.equals(language.getNameAzure(), ignoreCase = true) }.collect(Collectors.toList())[0]
+            val voice = providers.stream().filter { v: Voice -> v.shortName.equals(language.getNameAzure(), ignoreCase = true) }.findFirst().orElse(null) ?: return false
             val changeVoice = mVoice != voice
             mVoice = voice
             mVoiceRate = if (rate < 0) "-$rate%" else "+$rate%"
@@ -109,10 +109,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
             true
         } catch (e: Exception) {
             mLOGGER.error("Error to set voice: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error to set voice: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error to set voice: " + e.message)
             false
         }
     }
@@ -133,10 +130,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                     mThread.interrupt()
                 } catch (e: Exception) {
                     mLOGGER.error("Error to stop tts: " + e.message, e)
-                    Firebase.crashlytics.apply {
-                        setCustomKey("message", "Error to stop tts: " + e.message)
-                        recordException(e)
-                    }
+                    Telemetry.recordException(e, "Error to stop tts: " + e.message)
                 }
             endingThread()
         }
@@ -334,10 +328,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 mLOGGER.warn("Audio tts generated finish. ${speach.audio}")
         } catch (e: Exception) {
             mLOGGER.error("Error to generate tts: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error to generate tts: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error to generate tts: " + e.message)
         } finally {
             loaded(speach.media)
         }
@@ -381,10 +372,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
 
         } catch (e: Exception) {
             mLOGGER.error("Error to playing audio tts: ${speech.audio}", e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error to playing audio tts: ${speech.audio}")
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error to playing audio tts: ${speech.audio}")
             mPlayAudio = false
         }
     }
@@ -565,10 +553,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
             } catch (e: Exception) {
                 mLOGGER.error("Error to reading page on tts: " + e.message, e)
                 Toast.makeText(context, context.getString(R.string.tts_error), Toast.LENGTH_LONG).show()
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error to reading page on tts: " + e.message)
-                    recordException(e)
-                }
+                Telemetry.recordException(e, "Error to reading page on tts: " + e.message)
             } finally {
                 endingThread()
             }
@@ -607,10 +592,7 @@ class TextToSpeechController(val context: Context, book: Book, parse: DocumentPa
                 mNotificationManager.cancel(mNotifyId)
             } catch (e: Exception) {
                 mLOGGER.error("Error to cancel tts notification: " + e.message, e)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error to cancel tts notification: " + e.message)
-                    recordException(e)
-                }
+                Telemetry.recordException(e, "Error to cancel tts notification: " + e.message)
             }
         }
 

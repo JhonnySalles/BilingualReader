@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.view.adapter.chapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import br.com.fenix.bilingualreader.R
@@ -19,6 +20,7 @@ class ChaptersGridAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         private const val CONTENT = 0
     }
 
+    var isAnimation: Boolean = true
     override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
         super.onViewAttachedToWindow(holder)
 
@@ -44,8 +46,20 @@ class ChaptersGridAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             }
             else -> {
                 (holder as ChaptersViewHolder).bind(mChaptersList[position])
+                if (isAnimation)
+                    holder.itemView.animation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_chapters)
             }
         }
+    }
+
+    override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
+        when (holder.itemViewType) {
+            HEADER -> { }
+            else -> {
+                holder.itemView.clearAnimation()
+            }
+        }
+        super.onViewDetachedFromWindow(holder)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {

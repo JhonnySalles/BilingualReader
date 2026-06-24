@@ -1,72 +1,63 @@
 package br.com.fenix.bilingualreader.view.ui.book
 
-import android.content.Intent
-import android.os.Bundle
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.rules.ActivityScenarioRule
+import android.content.Context
+import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.scrollTo
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.Visibility
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.TestActivity
 import br.com.fenix.bilingualreader.model.entity.Book
-import br.com.fenix.bilingualreader.service.parses.book.DocumentParse
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
-import br.com.fenix.bilingualreader.utils.BookTestUtil
-import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
-import junit.framework.TestCase
-import org.junit.FixMethodOrder
-import org.junit.Rule
+import org.hamcrest.Matchers.anyOf
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.MethodSorters
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import java.io.File
 
-
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(AndroidJUnit4::class)
 class BookSearchFragmentTest {
 
-    private val book: Book = BookTestUtil.getBook(ApplicationProvider.getApplicationContext(), "/storage/1D01-1E06/Livros/" + "Russian-Roulette-epub.epub")
-    private var intent: Intent? = null
-
-    init {
-        DocumentParse.init(ApplicationProvider.getApplicationContext())
-
-        //Clear cache
-        BookTestUtil.clearCache(ApplicationProvider.getApplicationContext())
-
-        TestCase.assertTrue(
-            "Book informed not found, please verify book in " + BookSearchFragmentTest::class.java.name,
-            book.file.exists()
-        )
+    private fun createMockBook(context: Context): Book {
+        val tempFile = File(context.cacheDir, "test_path.epub")
+        if (!tempFile.exists()) tempFile.createNewFile()
+        return Book(null, 1L, tempFile)
     }
 
-
-    private val awaitProcess = 2L
-    private val fontSize = GeneralConsts.KEYS.READER.BOOK_PAGE_FONT_SIZE_DEFAULT
-
-    init {
-        intent = Intent(ApplicationProvider.getApplicationContext(), MenuActivity::class.java)
-        val bundle = Bundle()
-
-        bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_book_search)
-        bundle.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
-        bundle.putString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PATH, book.path)
-        bundle.putString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PASSWORD, book.password)
-        bundle.putInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE, fontSize.toInt())
-        bundle.putBoolean(GeneralConsts.KEYS.OBJECT.DOCUMENT_JAPANESE_STYLE, false)
-
-        intent?.putExtras(bundle)
+    private fun launchFragment() {
+        val scenario = ActivityScenario.launch(TestActivity::class.java)
+        scenario.onActivity { activity ->
+            val book = createMockBook(activity)
+            val fragment = BookSearchFragment()
+            val args = android.os.Bundle()
+            args.putSerializable(GeneralConsts.KEYS.OBJECT.BOOK, book)
+            args.putString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PATH, book.path)
+            args.putString(GeneralConsts.KEYS.OBJECT.DOCUMENT_PASSWORD, "")
+            args.putInt(GeneralConsts.KEYS.OBJECT.DOCUMENT_FONT_SIZE, 12)
+            args.putBoolean(GeneralConsts.KEYS.OBJECT.DOCUMENT_JAPANESE_STYLE, false)
+            fragment.arguments = args
+            
+            activity.setFragment(fragment)
+        }
     }
-
-
-    @get:Rule
-    val activityScenarioRule = ActivityScenarioRule<MenuActivity>(intent)
 
     @Test
-    fun `1_test_book_search`() {
-
-        val waiter = CountDownLatch(1)
-        waiter.await(10, TimeUnit.MINUTES)
+    fun testViewsAreDisplayed() {
+        launchFragment()
+        onView(withId(R.id.toolbar_book_search)).check(matches(isDisplayed()))
+        onView(withId(R.id.book_search_history_content)).check(matches(anyOf(isDisplayed(), withEffectiveVisibility(Visibility.GONE))))
+        onView(withId(R.id.book_search_recycler_view)).check(matches(anyOf(isDisplayed(), withEffectiveVisibility(Visibility.GONE))))
     }
 
+    @Test
+    fun testHistoryClearButtonClick() {
+        launchFragment()
+        // O histórico pode estar oculto inicialmente, mas o botão deve estar lá no layout
+        onView(withId(R.id.book_search_history_clear)).perform(scrollTo(), click())
+    }
 }

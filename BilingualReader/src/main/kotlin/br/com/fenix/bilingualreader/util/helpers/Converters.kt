@@ -2,6 +2,8 @@ package br.com.fenix.bilingualreader.util.helpers
 
 import android.graphics.Bitmap
 import androidx.room.TypeConverter
+import br.com.fenix.bilingualreader.model.enums.Libraries
+import br.com.fenix.bilingualreader.model.enums.Type
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.time.LocalDate
@@ -110,6 +112,26 @@ class Converters {
         if (date == null)
             return null
         return Date(date)
+    }
+
+    @TypeConverter
+    fun fromType(value: String?): Type? {
+        return value?.let { Type.valueOf(it) }
+    }
+
+    @TypeConverter
+    fun typeToString(type: Type?): String? {
+        return type?.name
+    }
+
+    @TypeConverter
+    fun fromLibraries(value: String?): Libraries? {
+        return value?.let { Libraries.valueOf(it) }
+    }
+
+    @TypeConverter
+    fun librariesToString(libraries: Libraries?): String? {
+        return libraries?.name
     }
 
 }

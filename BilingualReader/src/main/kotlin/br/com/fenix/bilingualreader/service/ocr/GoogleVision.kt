@@ -4,9 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.widget.Toast
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
@@ -71,10 +70,7 @@ class GoogleVision(private var context: Context) {
             .addOnSuccessListener { visionText -> setText(getBlocks(visionText)) }
             .addOnFailureListener { e ->
                 mLOGGER.error("Error to process google vision ocr: " + e.message, e)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error to process google vision ocr: " + e.message)
-                    recordException(e)
-                }
+                Telemetry.recordException(e, "Error to process google vision ocr: " + e.message)
 
                 val msg = if (e.message != null && e.message!!.isNotEmpty())
                     e.message

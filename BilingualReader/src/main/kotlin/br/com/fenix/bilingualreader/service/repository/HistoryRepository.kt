@@ -6,16 +6,18 @@ import br.com.fenix.bilingualreader.model.enums.Type
 import org.slf4j.LoggerFactory
 
 
-class HistoryRepository(var context: Context) {
+class HistoryRepository(private val context: Context) {
 
     private val mLOGGER = LoggerFactory.getLogger(HistoryRepository::class.java)
-    private var mDataBase = DataBase.getDataBase(context).getHistoryDao()
+    private val mDataBase get() = DataBase.getDataBase(context).getHistoryDao()
 
 
     fun clearAll() {
         for (history in mDataBase.findAll())
             mDataBase.delete(history)
     }
+
+    fun listHistory(): List<History> = mDataBase.findAll()
 
     fun save(obj: History): Long {
         return if (obj.id != null) {

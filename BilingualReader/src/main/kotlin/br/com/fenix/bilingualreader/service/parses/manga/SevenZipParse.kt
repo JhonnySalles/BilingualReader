@@ -2,9 +2,8 @@ package br.com.fenix.bilingualreader.service.parses.manga
 
 import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
 import org.simpleframework.xml.Serializer
@@ -27,29 +26,30 @@ class SevenZipParse : Parse {
 
     override fun parse(file: File?) {
         mEntries.clear()
-        val sevenZFile = SevenZFile(file)
-        var entry = sevenZFile.nextEntry
-        while (entry != null) {
-            if (entry.isDirectory) {
+        SevenZFile(file).use { sevenZFile ->
+            var entry = sevenZFile.nextEntry
+            while (entry != null) {
+                if (entry.isDirectory) {
+                    entry = sevenZFile.nextEntry
+                    continue
+                }
+
+                if (FileUtil.isImage(entry.name)) {
+                    val content = ByteArray(entry.size.toInt())
+                    sevenZFile.read(content)
+                    mEntries.add(SevenZEntry(entry, content))
+                } else if (FileUtil.isJson(entry.name)) {
+                    val content = ByteArray(entry.size.toInt())
+                    sevenZFile.read(content)
+                    mSubtitles.add(SevenZEntry(entry, content))
+                } else if (FileUtil.isXml(entry.name) && entry.name.contains("comicinfo", true)) {
+                    val content = ByteArray(entry.size.toInt())
+                    sevenZFile.read(content)
+                    mComicInfo = SevenZEntry(entry, content)
+                }
+
                 entry = sevenZFile.nextEntry
-                continue
             }
-
-            if (FileUtil.isImage(entry.name)) {
-                val content = ByteArray(entry.size.toInt())
-                sevenZFile.read(content)
-                mEntries.add(SevenZEntry(entry, content))
-            } else if (FileUtil.isJson(entry.name)) {
-                val content = ByteArray(entry.size.toInt())
-                sevenZFile.read(content)
-                mSubtitles.add(SevenZEntry(entry, content))
-            } else if (FileUtil.isXml(entry.name) && entry.name.contains("comicinfo", true)) {
-                val content = ByteArray(entry.size.toInt())
-                sevenZFile.read(content)
-                mComicInfo = SevenZEntry(entry, content)
-            }
-
-            entry = sevenZFile.nextEntry
         }
 
         mEntries.sortWith(compareBy<SevenZEntry> { Util.getFolderFromPath(it.entry.name) }.thenComparing { a, b ->
@@ -112,7 +112,7 @@ class SevenZipParse : Parse {
 
         for ((index, item) in mEntries.withIndex()) {
             val path = Util.getFolderFromPath(getName(item.entry))
-            if (path.isNotEmpty() && !paths.containsKey(path))
+            if (!paths.containsKey(path))
                 paths[path] = index
         }
 
@@ -133,10 +133,7 @@ class SevenZipParse : Parse {
                 serializer.read(ComicInfo::class.java, page)
             } catch (e: Exception) {
                 mLOGGER.error("Error to get comic info: " + e.message, e)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error to get comic info: " + e.message)
-                    recordException(e)
-                }
+                Telemetry.recordException(e, "Error to get comic info: " + e.message)
                 null
             }
         } else

@@ -28,9 +28,8 @@ import br.com.fenix.bilingualreader.service.tracker.ParseInformation
 import br.com.fenix.bilingualreader.service.tracker.mal.MalMangaDetail
 import br.com.fenix.bilingualreader.service.tracker.mal.MyAnimeListTracker
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -125,10 +124,7 @@ class BookDetailViewModel(var app: Application) : AndroidViewModel(app) {
                                         mListChapters.value = chapters
                                     } catch (e: Exception) {
                                         mLOGGER.error("Error obtain chapters of book: " + e.message, e)
-                                        Firebase.crashlytics.apply {
-                                            setCustomKey("message", "Error obtain chapters of book: " + e.message)
-                                            recordException(e)
-                                        }
+                                        Telemetry.recordException(e, "Error obtain chapters of book: " + e.message)
                                     } finally {
                                         parse?.clear()
                                         parse = null
@@ -155,10 +151,7 @@ class BookDetailViewModel(var app: Application) : AndroidViewModel(app) {
                 }
             } catch (e: Exception) {
                 mLOGGER.error("Error to generate new cover and update meta on book: " + e.message, e)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error to generate new cover and update meta on book: " + e.message)
-                    recordException(e)
-                }
+                Telemetry.recordException(e, "Error to generate new cover and update meta on book: " + e.message)
             }
         }
     }

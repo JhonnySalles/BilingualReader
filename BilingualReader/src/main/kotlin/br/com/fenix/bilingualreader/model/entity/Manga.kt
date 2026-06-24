@@ -7,7 +7,6 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Type
-import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.parses.manga.Parse
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
@@ -18,6 +17,7 @@ import java.io.Serializable
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Date
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 
 
 @Entity(
@@ -71,7 +71,7 @@ class Manga(
 
     @Ignore
     constructor(fkLibrary: Long?, id: Long?, file: File) : this(
-        id, file.nameWithoutExtension, file.path, file.parent, file.name, file.length(), FileType.UNKNOWN,
+        id, file.nameWithoutExtension, file.path, file.parent ?: "", file.name, file.length(), FileType.UNKNOWN,
         1, intArrayOf(), mapOf(), 0, false, false, false, "", "", "", "",
         "", null, fkLibrary, false, LocalDateTime.now(), null, null, Date(file.lastModified()),
         null, null
@@ -228,10 +228,17 @@ class Manga(
     }
 
     fun update(manga: Manga, isFull: Boolean = false) : Boolean {
-        val updated = this.bookMark != manga.bookMark || this.favorite != manga.favorite ||
-                this.hasSubtitle != manga.hasSubtitle || this.lastAccess != manga.lastAccess ||
-                this.author != manga.author || this.series != manga.series || this.publisher != manga.publisher ||
-                this.volume != manga.volume || this.release != manga.release
+        var updated = this.bookMark != manga.bookMark || this.favorite != manga.favorite ||
+                this.hasSubtitle != manga.hasSubtitle ||
+                this.excluded != manga.excluded || this.lastAccess != manga.lastAccess
+
+        if (isFull) {
+            updated = updated || this.title != manga.title || this.pages != manga.pages ||
+                    this.chapters != manga.chapters || this.chaptersPages != manga.chaptersPages ||
+                    this.author != manga.author || this.series != manga.series ||
+                    this.genre != manga.genre || this.publisher != manga.publisher ||
+                    this.volume != manga.volume || this.release != manga.release
+        }
 
         this.completed = manga.completed
         this.bookMark = manga.bookMark
@@ -240,18 +247,16 @@ class Manga(
         this.hasSubtitle = manga.hasSubtitle
         this.lastAlteration = manga.lastAlteration
         this.lastVocabImport = manga.lastVocabImport
-        this.author = manga.author
-        this.series = manga.series
-        this.genre = manga.genre
-        this.publisher = manga.publisher
-        this.volume = manga.volume
-        this.release = manga.release
-
         if (isFull) {
             this.title = manga.title
+            this.author = manga.author
+            this.series = manga.series
+            this.genre = manga.genre
+            this.publisher = manga.publisher
+            this.volume = manga.volume
+            this.release = manga.release
             this.chapters = manga.chapters
             this.chaptersPages = manga.chaptersPages
-            this.pages = manga.pages
             this.pages = manga.pages
         }
 
@@ -321,6 +326,22 @@ class Manga(
         }
 
         return updated
+    }
+
+    fun modify(manga: Manga): Boolean {
+        return this.title != manga.title ||
+                this.bookMark != manga.bookMark ||
+                this.completed != manga.completed ||
+                this.favorite != manga.favorite ||
+                this.pages != manga.pages ||
+                this.lastAccess != manga.lastAccess ||
+                this.hasSubtitle != manga.hasSubtitle ||
+                this.author != manga.author ||
+                this.series != manga.series ||
+                this.genre != manga.genre ||
+                this.publisher != manga.publisher ||
+                this.volume != manga.volume ||
+                this.release != manga.release
     }
 
 }

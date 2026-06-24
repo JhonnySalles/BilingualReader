@@ -1,6 +1,5 @@
 package br.com.fenix.bilingualreader.view.ui.reader.book
 
-import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +16,7 @@ import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
 import br.com.fenix.bilingualreader.model.enums.SpacingLayoutType
 import br.com.fenix.bilingualreader.service.listener.PopupLayoutListener
+import br.com.fenix.bilingualreader.util.helpers.executeWithAnimation
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
@@ -82,6 +82,7 @@ class PopupBookLayout : Fragment() {
         mBookMapPaginationType = hashMapOf(
             getString(R.string.config_book_pagination_default) to PaginationType.Default,
             getString(R.string.config_book_pagination_page_curl) to PaginationType.CurlPage,
+            getString(R.string.config_book_pagination_page_curl_3d) to PaginationType.Curl3DPage,
             getString(R.string.config_book_pagination_page_stack) to PaginationType.Stack,
             getString(R.string.config_book_pagination_page_zoom) to PaginationType.Zooming,
             getString(R.string.config_book_pagination_page_fade) to PaginationType.Fade,
@@ -110,55 +111,65 @@ class PopupBookLayout : Fragment() {
 
 
         mMarginSmall.setOnClickListener {
-            (mMarginSmall.icon as AnimatedVectorDrawable).start()
-            mViewModel.setSelectMargin(MarginLayoutType.Small)
+            mMarginSmall.executeWithAnimation {
+                mViewModel.setSelectMargin(MarginLayoutType.Small)
+            }
         }
 
         mMarginMedium.setOnClickListener {
-            (mMarginMedium.icon as AnimatedVectorDrawable).start()
-            mViewModel.setSelectMargin(MarginLayoutType.Medium)
+            mMarginMedium.executeWithAnimation {
+                mViewModel.setSelectMargin(MarginLayoutType.Medium)
+            }
         }
 
         mMarginBig.setOnClickListener {
-            (mMarginBig.icon as AnimatedVectorDrawable).start()
-            mViewModel.setSelectMargin(MarginLayoutType.Big)
+            mMarginBig.executeWithAnimation {
+                mViewModel.setSelectMargin(MarginLayoutType.Big)
+            }
         }
 
 
         mSpacingSmall.setOnClickListener {
-            (mSpacingSmall.icon as AnimatedVectorDrawable).start()
-            mViewModel.setSelectSpacing(SpacingLayoutType.Small)
+            mSpacingSmall.executeWithAnimation {
+                mViewModel.setSelectSpacing(SpacingLayoutType.Small)
+            }
         }
 
         mSpacingMedium.setOnClickListener {
-            (mSpacingMedium.icon as AnimatedVectorDrawable).start()
-            mViewModel.setSelectSpacing(SpacingLayoutType.Medium)
+            mSpacingMedium.executeWithAnimation {
+                mViewModel.setSelectSpacing(SpacingLayoutType.Medium)
+            }
         }
 
         mSpacingBig.setOnClickListener {
-            (mSpacingBig.icon as AnimatedVectorDrawable).start()
-            mViewModel.setSelectSpacing(SpacingLayoutType.Big)
+            mSpacingBig.executeWithAnimation {
+                mViewModel.setSelectSpacing(SpacingLayoutType.Big)
+            }
         }
 
 
         mAlignmentJustify.setOnClickListener {
-            (mAlignmentJustify.icon as AnimatedVectorDrawable).start()
-            mViewModel.setSelectAlignment(AlignmentLayoutType.Justify)
+            mAlignmentJustify.executeWithAnimation {
+                mViewModel.setSelectAlignment(AlignmentLayoutType.Justify)
+            }
         }
 
         mAlignmentCenter.setOnClickListener {
-            (mAlignmentCenter.icon as AnimatedVectorDrawable).start()
-            mViewModel.setSelectAlignment(AlignmentLayoutType.Center)
+            mAlignmentCenter.executeWithAnimation {
+                mViewModel.setSelectAlignment(AlignmentLayoutType.Center)
+            }
         }
 
         mAlignmentLeft.setOnClickListener {
-            (mAlignmentLeft.icon as AnimatedVectorDrawable).start()
-            mViewModel.setSelectAlignment(AlignmentLayoutType.Left)
+            mAlignmentLeft.executeWithAnimation {
+                mViewModel.setSelectAlignment(AlignmentLayoutType.Left)
+            }
         }
 
         mAlignmentRight.setOnClickListener {
-            (mAlignmentRight.icon as AnimatedVectorDrawable).start()
-            mViewModel.setSelectAlignment(AlignmentLayoutType.Right)
+            mAlignmentRight.executeWithAnimation {
+                mViewModel.setSelectAlignment(AlignmentLayoutType.Right)
+            }
         }
 
         setButtonMarked(getAlignmentsButton(), getSelected(mViewModel.alignmentType.value ?: AlignmentLayoutType.Justify))

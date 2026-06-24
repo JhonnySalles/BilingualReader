@@ -1,7 +1,6 @@
 package br.com.fenix.bilingualreader.service.sharemark
 
 import android.content.Context
-import br.com.ebook.universalimageloader.utils.L
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.BookAnnotation
 import br.com.fenix.bilingualreader.model.entity.History

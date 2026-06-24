@@ -60,25 +60,31 @@ class Information() {
 
     private fun setManga(context: Context, manga: MalMangaDetail) {
         this.link = "https://myanimelist.net/manga/${manga.id}"
-        this.imageLink = manga.mainPicture?.medium.toString()
-        this.title = manga.title
+        this.imageLink = manga.mainPicture?.medium ?: ""
+        this.title = manga.title ?: ""
         this.alternativeTitles = ""
 
         manga.alternativeTitles?.let {
-            if (it.english.isNotEmpty())
-                this.alternativeTitles += it.english + ", "
-            if (it.japanese.isNotEmpty())
-                this.alternativeTitles += it.japanese + ", "
-            if (it.synonyms.isNotEmpty())
-                this.alternativeTitles += it.synonyms + ", "
+            val en = it.english
+            if (!en.isNullOrEmpty())
+                this.alternativeTitles += en + ", "
+            val ja = it.japanese
+            if (!ja.isNullOrEmpty())
+                this.alternativeTitles += ja + ", "
+            val syns = it.synonyms
+            if (!syns.isNullOrEmpty()) {
+                this.alternativeTitles += syns.filterNotNull().joinToString() + ", "
+            }
 
-            this.synonyms = it.synonyms.toString()
+            this.synonyms = syns?.toString() ?: ""
         }
 
-        this.alternativeTitles = context.getString(
-            R.string.manga_detail_web_information_alternative_titles,
-            this.alternativeTitles.substringBeforeLast(",").plus(".")
-        )
+        if (this.alternativeTitles.isNotEmpty()) {
+            this.alternativeTitles = context.getString(
+                R.string.manga_detail_web_information_alternative_titles,
+                this.alternativeTitles.substringBeforeLast(",").plus(".")
+            )
+        }
 
         manga.synopsis?.let { this.synopsis = it }
         this.volumes = context.getString(
@@ -115,17 +121,28 @@ class Information() {
         else
             ""
 
-        this.genres = if (manga.authors != null)
+        this.genres = if (manga.genres != null)
             context.getString(
                 R.string.manga_detail_web_information_genre,
-                manga.genres?.joinToString { it.name })
+                manga.genres.mapNotNull { it.name }.joinToString()
+            )
         else
             ""
 
         this.authors = if (manga.authors != null)
             context.getString(
                 R.string.manga_detail_web_information_authors,
-                manga.authors.joinToString { it.author.firstName + " " + it.author.lastName + "(" + it.role + ")" })
+                manga.authors.mapNotNull {
+                    val author = it.author
+                    if (author != null) {
+                        val firstName = author.firstName ?: ""
+                        val lastName = author.lastName ?: ""
+                        val name = "$firstName $lastName".trim()
+                        val role = it.role ?: ""
+                        if (role.isNotEmpty()) "$name ($role)" else name
+                    } else null
+                }.joinToString()
+            )
         else
             ""
 

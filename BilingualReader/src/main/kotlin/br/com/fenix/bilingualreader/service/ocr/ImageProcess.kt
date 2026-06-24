@@ -17,12 +17,20 @@ class ImageProcess {
         fun toGrayscale(image: Bitmap): Bitmap {
             val grayScale = Bitmap.createBitmap(image.width, image.height, Bitmap.Config.ARGB_8888)
 
-            val cmGray = ColorMatrix()
-            cmGray.setSaturation(0F)
-            val pGray = Paint()
-            pGray.colorFilter = ColorMatrixColorFilter(cmGray)
-
-            Canvas(grayScale).drawBitmap(image, 0F, 0F, pGray)
+            for (x in 0 until image.width) {
+                for (y in 0 until image.height) {
+                    val pixel = image.getPixel(x, y)
+                    val r = (pixel shr 16) and 0xFF
+                    val g = (pixel shr 8) and 0xFF
+                    val b = pixel and 0xFF
+                    
+                    // Standard luminance formula
+                    val gray = (0.299 * r + 0.587 * g + 0.114 * b).toInt()
+                    val grayColor = (0xFF shl 24) or (gray shl 16) or (gray shl 8) or gray
+                    
+                    grayScale.setPixel(x, y, grayColor)
+                }
+            }
 
             return grayScale
         }

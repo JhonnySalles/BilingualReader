@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.view.components.book
 
 import android.os.Handler
+import android.os.Looper
 import android.text.Selection
 import android.text.Spannable
 import android.text.method.LinkMovementMethod
@@ -15,26 +16,18 @@ import br.com.fenix.bilingualreader.service.listener.SelectionChangeListener
 import org.slf4j.LoggerFactory
 import kotlin.math.abs
 
-
-class TextViewClickMovement : LinkMovementMethod() {
+class TextViewClickMovement(private val mSelectionListener: SelectionChangeListener? = null) : LinkMovementMethod() {
 
     companion object {
-        private var sInstance: TextViewClickMovement? = null
-
         private const val LONG_CLICK_TIME = 1000L
-        private var mSelectionListener: SelectionChangeListener? = null
 
-        fun getInstance(selectionListener: SelectionChangeListener?): MovementMethod {
-            if (sInstance == null)
-                sInstance = TextViewClickMovement()
-            mSelectionListener = selectionListener
-            return sInstance!!
-        }
+        fun getInstance(selectionListener: SelectionChangeListener?): MovementMethod =
+            TextViewClickMovement(selectionListener)
     }
 
     private val mLOGGER = LoggerFactory.getLogger(TextViewClickMovement::class.java)
 
-    private var mLongClickHandler: Handler = Handler()
+    private var mLongClickHandler: Handler = Handler(Looper.getMainLooper())
     private var mIsLongPressed = false
     private var mPressedCoordinate: FloatArray? = null
 

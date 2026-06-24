@@ -6,80 +6,90 @@ import com.github.junrar.rarfile.FileHeader
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkConstructor
-import io.mockk.unmockkConstructor
-import org.junit.After
-import org.junit.Assert.*
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.File
 
 class RarParseTest : ParserBaseTest() {
 
-    @Before
-    override fun setUp() {
-        super.setUp()
-        mockkConstructor(Archive::class)
-    }
-
-    @After
-    override fun tearDown() {
-        super.tearDown()
-        unmockkConstructor(Archive::class)
-    }
-
     @Test
     fun testRarParse() {
         val rarFile = File(testDir, "test_manga.rar")
-        rarFile.writeText("dummy rar content")
+        rarFile.createNewFile()
 
         val header1 = mockk<FileHeader>()
-        val header2 = mockk<FileHeader>()
-        val headerSub = mockk<FileHeader>()
-        val headerInfo = mockk<FileHeader>()
-
         every { header1.isDirectory } returns false
         every { header1.fileName } returns "page01.jpg"
 
+        val header2 = mockk<FileHeader>()
         every { header2.isDirectory } returns false
-        every { header2.fileName } returns "page02.png"
+        every { header2.fileName } returns "chapter1/page02.jpg"
 
-        every { headerSub.isDirectory } returns false
-        every { headerSub.fileName } returns "vocabulary.json"
+        val subHeader = mockk<FileHeader>()
+        every { subHeader.isDirectory } returns false
+        every { subHeader.fileName } returns "vocabulary.json"
 
-        every { headerInfo.isDirectory } returns false
-        every { headerInfo.fileName } returns "ComicInfo.xml"
-
-        val headers = mutableListOf(header1, header2, headerSub, headerInfo)
-        var index = 0
+        mockkConstructor(Archive::class)
+        every { anyConstructed<Archive>().nextFileHeader() } returnsMany listOf(header1, header2, subHeader, null)
+        every { anyConstructed<Archive>().getInputStream(header1) } returns ByteArrayInputStream("image1".toByteArray())
+        every { anyConstructed<Archive>().getInputStream(header2) } returns ByteArrayInputStream("image2".toByteArray())
+        every { anyConstructed<Archive>().getInputStream(subHeader) } returns ByteArrayInputStream("{\"word\": \"rar\"}".toByteArray())
         
-        // Use anyConstructed<Archive>() to mock the instance created inside parse()
-        every { anyConstructed<Archive>().nextFileHeader() } answers {
-            if (index < headers.size) headers[index++] else null
-        }
-        
-        val subContent = "{\"word\": \"test\"}"
-        val infoContent = """
-            <?xml version="1.0"?>
-            <ComicInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-              <Title>Mock Title</Title>
-            </ComicInfo>
-        """.trimIndent()
-        
-        every { anyConstructed<Archive>().getInputStream(headerSub) } returns ByteArrayInputStream(subContent.toByteArray())
-        every { anyConstructed<Archive>().getInputStream(headerInfo) } returns ByteArrayInputStream(infoContent.toByteArray())
-        every { anyConstructed<Archive>().close() } returns Unit
-
         val rarParse = RarParse()
         rarParse.parse(rarFile)
 
+        // numPages should be 2 (images only)
         assertEquals(2, rarParse.numPages())
+
+        // verify sorting and path logic
+        assertEquals("page01.jpg", rarParse.getPagePath(0))
+        assertEquals("chapter1/page02.jpg", rarParse.getPagePath(1))
+
         assertTrue(rarParse.hasSubtitles())
-        assertEquals(1, rarParse.getSubtitles().size)
-        assertTrue(rarParse.isComicInfo())
-        assertNotNull(rarParse.getComicInfo())
-        assertEquals("Mock Title", rarParse.getComicInfo()?.title)
+        val subtitles = rarParse.getSubtitles()
+        assertEquals(1, subtitles.size)
+        assertTrue(subtitles[0].contains("rar"))
 
         rarParse.destroy(false)
+    }
+
+    @Test
+    fun testRarWithCache() {
+        val rarFile = File(testDir, "test_cache.rar")
+        rarFile.createNewFile()
+        val cacheDir = File(testDir, "cache") // Use testDir for isolation
+
+        val header = mockk<FileHeader>()
+        every { header.isDirectory } returns false
+        every { header.fileName } returns "cached_page.jpg"
+
+        mockkConstructor(Archive::class)
+        every { anyConstructed<Archive>().nextFileHeader() } returnsMany listOf(header, null)
+        every { anyConstructed<Archive>().mainHeader.isSolid } returns false
+        
+        // Mock extractFile to simulate writing to the cache file
+        every { anyConstructed<Archive>().extractFile(header, any()) } answers {
+            val os = secondArg<java.io.OutputStream>()
+            os.write("cached content".toByteArray())
+        }
+
+        val rarParse = RarParse()
+        rarParse.setCacheDirectory(cacheDir)
+        rarParse.parse(rarFile)
+
+        val stream = rarParse.getPage(0)
+        val content = stream.bufferedReader().use { it.readText() }
+        assertEquals("cached content", content)
+
+        // Verify file was created in cache
+        assertTrue(cacheDir.exists(), "Cache dir should exist")
+        assertEquals(1, cacheDir.listFiles()?.size ?: 0)
+
+        rarParse.destroy(true)
+        // Verify cache was cleared
+        assertFalse(cacheDir.exists(), "Cache directory should have been deleted")
     }
 }

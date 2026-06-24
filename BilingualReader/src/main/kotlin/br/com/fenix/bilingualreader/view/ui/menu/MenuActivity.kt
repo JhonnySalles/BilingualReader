@@ -1,10 +1,13 @@
 package br.com.fenix.bilingualreader.view.ui.menu
 
+
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.Themes
@@ -14,14 +17,15 @@ import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.view.ui.book.BookAnnotationFragment
 import br.com.fenix.bilingualreader.view.ui.book.BookSearchFragment
 import br.com.fenix.bilingualreader.view.ui.chapters.ChaptersFragment
+import br.com.fenix.bilingualreader.view.ui.statistics.HistoryStatisticsFragment
 import br.com.fenix.bilingualreader.view.ui.touch_screen.TouchScreenFragment
-
 
 class MenuActivity : AppCompatActivity() {
 
     private lateinit var mTheme : Themes
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeUtil.applyThemeMode(this)
         mTheme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(mTheme.getValue())
 
@@ -30,6 +34,17 @@ class MenuActivity : AppCompatActivity() {
 
         ThemeUtil.statusBarTransparentTheme(window, resources.getBoolean(R.bool.isNight), isLightStatus = !resources.getBoolean(R.bool.isNight))
         MenuUtil.tintBackground(this, findViewById(R.id.menu_background))
+
+        val rootFrameMenu = findViewById<android.view.View>(R.id.root_frame_menu)
+        if (rootFrameMenu != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootFrameMenu) { view, insets ->
+                val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+                val id = intent.extras?.getInt(GeneralConsts.KEYS.FRAGMENT.ID) ?: 0
+                val isBottomSheetFragment = id == R.id.frame_book_annotation || id == R.id.frame_history_statistics
+                view.setPadding(view.paddingLeft, 0, view.paddingRight, if (isBottomSheetFragment) 0 else navBarHeight)
+                insets
+            }
+        }
 
         val id = intent.extras!!.getInt(GeneralConsts.KEYS.FRAGMENT.ID)
 
@@ -41,6 +56,7 @@ class MenuActivity : AppCompatActivity() {
             R.id.frame_book_search -> BookSearchFragment()
             R.id.frame_book_annotation -> BookAnnotationFragment()
             R.id.frame_touch_screen_config -> TouchScreenFragment()
+            R.id.frame_history_statistics -> HistoryStatisticsFragment()
             else -> null
         }
 

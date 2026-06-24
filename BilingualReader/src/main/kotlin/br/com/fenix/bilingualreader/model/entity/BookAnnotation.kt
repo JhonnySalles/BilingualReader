@@ -9,10 +9,10 @@ import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.MarkType
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.Annotation
-import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 import br.com.fenix.bilingualreader.util.constants.DataBaseConsts
 import java.io.Serializable
 import java.time.LocalDateTime
+import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 
 
 @Entity(
@@ -122,8 +122,6 @@ data class BookAnnotation(
         if (isRoot != other.isRoot) return false
         if (isTitle != other.isTitle) return false
         if (markType != other.markType) return false
-        if (alteration != other.alteration) return false
-        if (created != other.created) return false
         if (type != other.type) return false
 
         return true
@@ -138,8 +136,6 @@ data class BookAnnotation(
         result = 31 * result + isRoot.hashCode()
         result = 31 * result + isTitle.hashCode()
         result = 31 * result + markType.hashCode()
-        result = 31 * result + alteration.hashCode()
-        result = 31 * result + created.hashCode()
         result = 31 * result + type.hashCode()
         return result
     }

@@ -12,11 +12,12 @@ import androidx.paging.cachedIn
 import br.com.fenix.bilingualreader.model.entity.Vocabulary
 import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.service.repository.VocabularyRepository
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.transformLatest
+import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 
 
@@ -96,7 +97,9 @@ class VocabularyViewModel(application: Application) : AndroidViewModel(applicati
     fun getOrder(): Pair<Order, Boolean> = currentQuery.value.order
 
     fun update(vocabulary: Vocabulary) {
-        mDataBase.update(vocabulary)
+        viewModelScope.launch(Dispatchers.IO) {
+            mDataBase.update(vocabulary)
+        }
     }
 
     fun sorted(order: Order, isDesc: Boolean = false) {
@@ -129,10 +132,7 @@ class VocabularyViewModel(application: Application) : AndroidViewModel(applicati
                 )
             } catch (e: Exception) {
                 mLOGGER.error("Error paging list vocabulary: " + e.message, e)
-                Firebase.crashlytics.apply {
-                    setCustomKey("message", "Error paging list vocabulary: " + e.message)
-                    recordException(e)
-                }
+                Telemetry.recordException(e, "Error paging list vocabulary: " + e.message)
                 LoadResult.Error(e)
             }
         }

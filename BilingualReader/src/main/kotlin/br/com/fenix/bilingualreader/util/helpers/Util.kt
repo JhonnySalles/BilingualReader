@@ -19,17 +19,20 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Outline
 import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.drawable.Animatable2
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.TypedValue
+import android.view.Choreographer
 import android.view.GestureDetector
 import android.view.Menu
 import android.view.MenuItem
@@ -37,9 +40,12 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewOutlineProvider
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.view.Window
 import android.view.WindowManager
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.SearchView
@@ -47,6 +53,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
@@ -68,6 +75,7 @@ import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.Position
+import br.com.fenix.bilingualreader.model.enums.ThemeMode
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.model.enums.TouchScreen
 import br.com.fenix.bilingualreader.model.enums.Type
@@ -79,6 +87,9 @@ import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFr
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
+import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.RenderEffectBlur
+import eightbitlab.com.blurview.RenderScriptBlur
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -282,7 +293,7 @@ class Util {
                 name.substringBeforeLast("capítulo").replace("capítulo", "", true)
             else name
 
-            return name
+            return name.trim()
         }
 
         fun getExtensionFromPath(path: String): String {
@@ -321,10 +332,13 @@ class Util {
         fun getChapterFromPath(path: String): Float {
             if (path.isEmpty()) return -1f
 
-            var folder = if (path.contains('/', true))
-                path.replaceAfterLast('/', "").replace("/", "", false).lowercase()
+            val normalizedPath = path.trimEnd('/', '\\')
+            var folder = if (normalizedPath.contains('/', true))
+                normalizedPath.substringAfterLast('/')
+            else if (normalizedPath.contains('\\', true))
+                normalizedPath.substringAfterLast('\\')
             else
-                path.replaceAfterLast('\\', "").replace("\\", "", false).lowercase()
+                normalizedPath
 
             folder = if (folder.contains("capitulo", true))
                 folder.substringAfterLast("capitulo").replace("capitulo", "", true)
@@ -332,7 +346,7 @@ class Util {
                 folder.substringAfterLast("capítulo").replace("capítulo", "", true)
             else folder
 
-            return folder.toFloatOrNull() ?: -1f
+            return folder.trim().toFloatOrNull() ?: -1f
         }
 
         fun getFolderFromPath(path: String): String {
@@ -928,6 +942,47 @@ class ImageUtil {
 class MenuUtil {
     companion object MenuUtils {
 
+        fun setupToolbar(activity: Activity, toolbar: View?, blurTop: BlurView?, barLayout: View?) {
+            val sharedPreferences = GeneralConsts.getSharedPreferences(activity)
+            val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            blurTop?.setBlurEnabled(isGlass)
+
+            val themeColor = activity.getColorFromAttr(R.attr.colorSurface)
+            val isNight = activity.resources.getBoolean(R.bool.isNight)
+            val alpha = if (isNight) 0xA9 else 0x73
+            val translucentColor = ((themeColor and 0x00FFFFFF) or (alpha shl 24)).toInt()
+            val solidColor = ((themeColor and 0x00FFFFFF) or (0xFF shl 24)).toInt()
+            val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, activity.resources.displayMetrics)
+
+            val topBg = if (isGlass) {
+                GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    setColor(translucentColor)
+                    cornerRadii = floatArrayOf(
+                        0f, 0f,
+                        0f, 0f,
+                        cornerRadius, cornerRadius,
+                        cornerRadius, cornerRadius
+                    )
+                }
+            } else {
+                val middleColor = ((themeColor and 0x00FFFFFF) or (0xB3 shl 24)).toInt() // 70% opacity
+                val transparentColor = (themeColor and 0x00FFFFFF).toInt() // 0% opacity
+                GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(solidColor, solidColor, middleColor, transparentColor)).apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadii = floatArrayOf(
+                        0f, 0f,
+                        0f, 0f,
+                        cornerRadius, cornerRadius,
+                        cornerRadius, cornerRadius
+                    )
+                }
+            }
+            blurTop?.background = topBg
+            toolbar?.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+            barLayout?.background = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+        }
+
         fun tintBackground(context: Context, background: View) {
             background.setBackgroundColor(context.getColorFromAttr(R.attr.background))
         }
@@ -1059,6 +1114,22 @@ class MenuUtil {
 class ThemeUtil {
     companion object ThemeUtils {
 
+        fun applyThemeMode(context: Context): Boolean {
+            val preferences = GeneralConsts.getSharedPreferences(context)
+            val themeMode = ThemeMode.valueOf(preferences.getString(GeneralConsts.KEYS.THEME.THEME_MODE, ThemeMode.SYSTEM.toString())!!)
+            val mode = when (themeMode) {
+                ThemeMode.DARK -> AppCompatDelegate.MODE_NIGHT_YES
+                ThemeMode.LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
+                ThemeMode.SYSTEM -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            }
+            AppCompatDelegate.setDefaultNightMode(mode)
+            return when (themeMode) {
+                ThemeMode.DARK -> true
+                ThemeMode.LIGHT -> false
+                ThemeMode.SYSTEM -> context.resources.getBoolean(R.bool.isNight)
+            }
+        }
+
         private var mapThemes: HashMap<String, Themes>? = null
         fun getThemes(context: Context): HashMap<String, Themes> {
             return if (mapThemes != null)
@@ -1113,10 +1184,13 @@ class ThemeUtil {
                 window.setBackgroundDrawable(background)
             }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                window.setDecorFitsSystemWindows(false)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 window.isStatusBarContrastEnforced = false
                 window.isNavigationBarContrastEnforced = false
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                window.setDecorFitsSystemWindows(false)
             } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
                 window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
 
@@ -1225,15 +1299,14 @@ class TextUtil {
 
 class AnimationUtil {
     companion object AnimationUtils {
+        const val PROPERTY_NO_ANIMATION = "NO_ANIMATION"
+
         const val duration = 200L
         fun animatePopupOpen(activity: Activity, frame: FrameLayout, isVertical: Boolean = true, navigationColor: Boolean = true, ending: () -> (Unit) = {}) {
             frame.visibility = View.VISIBLE
             if (isVertical) {
-                if (navigationColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-                    activity.window?.run {
-                        navigationBarColor = activity.getColorFromAttr(R.attr.colorSurfaceVariant)
-                        WindowCompat.getInsetsController(this, this.decorView).isAppearanceLightNavigationBars = true
-                    }
+                if (navigationColor)
+                    PopupUtil.updateNavigationBarColor(activity, true)
 
                 val positionInitial = frame.translationY
                 frame.translationY = positionInitial + 200F
@@ -1271,8 +1344,8 @@ class AnimationUtil {
                             frame.visibility = View.GONE
                             frame.translationY = positionInitial
 
-                            if (navigationColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-                                activity.window.navigationBarColor = android.graphics.Color.TRANSPARENT
+                            if (navigationColor)
+                                PopupUtil.updateNavigationBarColor(activity, false)
                         }
                     })
             } else {
@@ -1290,6 +1363,35 @@ class AnimationUtil {
             }
         }
 
+    }
+}
+
+
+fun com.google.android.material.button.MaterialButton.executeWithAnimation(action: () -> Unit) {
+    val avd = this.icon as? AnimatedVectorDrawable
+    if (avd != null) {
+        var isActionRun = false
+        val runAction = {
+            if (!isActionRun) {
+                isActionRun = true
+                action()
+            }
+        }
+        val handler = Handler(Looper.getMainLooper())
+        val runnable = Runnable { runAction() }
+        avd.clearAnimationCallbacks()
+        avd.registerAnimationCallback(object : Animatable2.AnimationCallback() {
+            override fun onAnimationEnd(drawable: Drawable?) {
+                super.onAnimationEnd(drawable)
+                handler.removeCallbacks(runnable)
+                runAction()
+            }
+        })
+        avd.reset()
+        avd.start()
+        handler.postDelayed(runnable, 400)
+    } else {
+        action()
     }
 }
 
@@ -1377,6 +1479,100 @@ class ColorUtil {
 
 class PopupUtil {
     companion object PopupUtils {
+        fun updateNavigationBarColor(activity: Activity, isOpened: Boolean) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val window = activity.window ?: return
+                if (isOpened) {
+                    val themeColor = activity.getColorFromAttr(R.attr.colorSurfaceVariant)
+                    window.navigationBarColor = themeColor
+                    val isDark = ColorUtils.calculateLuminance(themeColor) < 0.5
+                    WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars = !isDark
+                } else {
+                    window.navigationBarColor = android.graphics.Color.TRANSPARENT
+                }
+            }
+        }
+
+        fun setupPopupBackgrounds( activity: Activity, popupBottom: View?, popupBackground: BlurView?) {
+            val sharedPreferences = GeneralConsts.getSharedPreferences(activity)
+            val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            val themeColor = activity.getColorFromAttr(R.attr.colorSurfaceVariant)
+            val isNight = activity.resources.getBoolean(R.bool.isNight)
+            val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, activity.resources.displayMetrics)
+
+            val finalColor = if (isGlass) {
+                val alpha = if (isNight) 0xA9 else 0x73
+                (themeColor and 0x00FFFFFF) or (alpha shl 24)
+            } else {
+                themeColor
+            }
+
+            popupBottom?.let { pb ->
+                pb.background = null
+                val bottomSheetBg = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    setColor(finalColor)
+                    cornerRadii = floatArrayOf(
+                        cornerRadius, cornerRadius,
+                        cornerRadius, cornerRadius,
+                        0f, 0f,
+                        0f, 0f
+                    )
+                }
+                if (!isGlass) {
+                    val topInset = activity.resources.getDimensionPixelSize(R.dimen.popup_background_size)
+                    pb.background = android.graphics.drawable.InsetDrawable(bottomSheetBg, 0, topInset, 0, 0)
+                } else {
+                    pb.background = bottomSheetBg
+                }
+                
+                pb.clipToOutline = true
+                pb.outlineProvider = object : ViewOutlineProvider() {
+                    override fun getOutline(view: View, outline: Outline) {
+                        outline.setRoundRect(
+                            0,
+                            0,
+                            view.width,
+                            view.height + cornerRadius.toInt(),
+                            cornerRadius
+                        )
+                    }
+                }
+            }
+
+            popupBackground?.let { bg ->
+                bg.background = null
+
+                val headerBg = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    setColor(if (isGlass) android.graphics.Color.TRANSPARENT else (themeColor and 0x00FFFFFF) or (0x80 shl 24))
+                    cornerRadii = floatArrayOf(cornerRadius, cornerRadius, cornerRadius, cornerRadius, 0f, 0f, 0f, 0f)
+                }
+                bg.background = headerBg
+                
+                bg.clipToOutline = true
+                bg.outlineProvider = object : ViewOutlineProvider() {
+                    override fun getOutline(view: View, outline: Outline) {
+                        outline.setRoundRect(0, 0, view.width, view.height + cornerRadius.toInt(), cornerRadius)
+                    }
+                }
+
+                if (isGlass) {
+                    val decorView = activity.window.decorView
+                    val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+                    val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(activity)
+                    val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+                    bg.setupWith(rootView, blurAlgorithm)
+                        .setFrameClearDrawable(background)
+                        .setBlurRadius(15f)
+                    bg.setBlurEnabled(true)
+                    bg.setBlurAutoUpdate(false)
+                } else {
+                    bg.setBlurEnabled(false)
+                }
+            }
+        }
+
         fun onGlobalLayout(view: View, runnable: Runnable) {
             val listener: OnGlobalLayoutListener = object : OnGlobalLayoutListener {
                 override fun onGlobalLayout() {
@@ -1750,5 +1946,52 @@ class TouchUtil {
             return touch.toMap()
         }
 
+    }
+}
+
+fun Button.executeWithAnimation(action: () -> Unit) {
+    val iconDrawable = try {
+        val method = this.javaClass.getMethod("getIcon")
+        method.invoke(this) as? Drawable
+    } catch (e: Exception) {
+        null
+    }
+    val avd = iconDrawable as? AnimatedVectorDrawable
+    if (avd != null) {
+        var isActionRun = false
+        val runAction = {
+            if (!isActionRun) {
+                isActionRun = true
+                action()
+            }
+        }
+        val handler = Handler(Looper.getMainLooper())
+        val runnable = Runnable { runAction() }
+        avd.clearAnimationCallbacks()
+        avd.registerAnimationCallback(object : Animatable2.AnimationCallback() {
+            override fun onAnimationEnd(drawable: Drawable?) {
+                super.onAnimationEnd(drawable)
+                handler.removeCallbacks(runnable)
+                runAction()
+            }
+        })
+        avd.reset()
+        avd.start()
+        handler.postDelayed(runnable, 400) // Fallback timeout
+    } else {
+        action()
+    }
+}
+
+fun BlurView.blurOnceDeferred(handler: Handler, delayMs: Long = 100L) {
+    Choreographer.getInstance().postFrameCallback {
+        if (isAttachedToWindow) {
+            setBlurAutoUpdate(true)
+            handler.postDelayed({
+                if (isAttachedToWindow) {
+                    setBlurAutoUpdate(false)
+                }
+            }, delayMs)
+        }
     }
 }

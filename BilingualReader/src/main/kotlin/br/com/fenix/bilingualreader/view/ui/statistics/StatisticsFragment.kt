@@ -1,5 +1,6 @@
 package br.com.fenix.bilingualreader.view.ui.statistics
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
@@ -16,16 +17,24 @@ import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Statistics
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.service.repository.StatisticsRepository
+import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.view.components.MonthAxisValueFormatter
+import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -35,13 +44,19 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 import kotlin.math.round
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 
 class StatisticsFragment : Fragment() {
@@ -54,62 +69,63 @@ class StatisticsFragment : Fragment() {
 
     private lateinit var mRepository: StatisticsRepository
 
-    private lateinit var mRoot: FrameLayout
-    private lateinit var mContent: ConstraintLayout
-    private lateinit var mProgress: BlurView
+    private var mRoot: FrameLayout by autoCleared()
+    private var mContent: ConstraintLayout by autoCleared()
+    private var mProgress: BlurView by autoCleared()
     private lateinit var mDefaultAllLibraries: String
 
     // --------------------------------------------------------- Manga / Comic ---------------------------------------------------------
-    private lateinit var mMangaReading: TextView
-    private lateinit var mMangaToRead: TextView
-    private lateinit var mMangaLibrary: TextView
-    private lateinit var mMangaRead: TextView
+    private var mMangaReading: TextView by autoCleared()
+    private var mMangaToRead: TextView by autoCleared()
+    private var mMangaLibrary: TextView by autoCleared()
+    private var mMangaRead: TextView by autoCleared()
 
-    private lateinit var mMangaCompletePages: TextView
-    private lateinit var mMangaCompleteTimes: TextView
+    private var mMangaCompletePages: TextView by autoCleared()
+    private var mMangaCompleteTimes: TextView by autoCleared()
 
-    private lateinit var mMangaCurrentPages: TextView
-    private lateinit var mMangaCurrentTimes: TextView
+    private var mMangaCurrentPages: TextView by autoCleared()
+    private var mMangaCurrentTimes: TextView by autoCleared()
 
-    private lateinit var mMangaTotalPages: TextView
-    private lateinit var mMangaTotalTime: TextView
-    private lateinit var mMangaReadingAverage: TextView
+    private var mMangaTotalPages: TextView by autoCleared()
+    private var mMangaTotalTime: TextView by autoCleared()
+    private var mMangaReadingAverage: TextView by autoCleared()
 
-    private lateinit var mMangaYear: TextInputLayout
-    private lateinit var mMangaYearAutoComplete: MaterialAutoCompleteTextView
-    private lateinit var mMangaChartLibrary: TextInputLayout
-    private lateinit var mMangaChartLibraryAutoComplete: MaterialAutoCompleteTextView
-    private lateinit var mMangaChart: LineChart
+    private var mMangaYear: TextInputLayout by autoCleared()
+    private var mMangaYearAutoComplete: MaterialAutoCompleteTextView by autoCleared()
+    private var mMangaChartLibrary: TextInputLayout by autoCleared()
+    private var mMangaChartLibraryAutoComplete: MaterialAutoCompleteTextView by autoCleared()
+    private var mMangaChart: LineChart by autoCleared()
 
-    private var mMangaSelectYear = LocalDateTime.now().year
+    private var mMangaSelectYear = 0
     private lateinit var mMangaSelectLibrary:Library
 
     // --------------------------------------------------------- Book ---------------------------------------------------------
 
-    private lateinit var mBookReading: TextView
-    private lateinit var mBookToRead: TextView
-    private lateinit var mBookLibrary: TextView
-    private lateinit var mBookRead: TextView
+    private var mBookReading: TextView by autoCleared()
+    private var mBookToRead: TextView by autoCleared()
+    private var mBookLibrary: TextView by autoCleared()
+    private var mBookRead: TextView by autoCleared()
 
-    private lateinit var mBookCompletePages: TextView
-    private lateinit var mBookCompleteTimes: TextView
+    private var mBookCompletePages: TextView by autoCleared()
+    private var mBookCompleteTimes: TextView by autoCleared()
 
-    private lateinit var mBookCurrentPages: TextView
-    private lateinit var mBookCurrentTimes: TextView
+    private var mBookCurrentPages: TextView by autoCleared()
+    private var mBookCurrentTimes: TextView by autoCleared()
 
-    private lateinit var mBookTotalPages: TextView
-    private lateinit var mBookTotalTime: TextView
-    private lateinit var mBookReadingAverage: TextView
+    private var mBookTotalPages: TextView by autoCleared()
+    private var mBookTotalTime: TextView by autoCleared()
+    private var mBookReadingAverage: TextView by autoCleared()
 
-    private lateinit var mBookYear: TextInputLayout
-    private lateinit var mBookYearAutoComplete: MaterialAutoCompleteTextView
-    private lateinit var mBookChartLibrary: TextInputLayout
-    private lateinit var mBookChartLibraryAutoComplete: MaterialAutoCompleteTextView
-    private lateinit var mBookChart: LineChart
+    private var mBookYear: TextInputLayout by autoCleared()
+    private var mBookYearAutoComplete: MaterialAutoCompleteTextView by autoCleared()
+    private var mBookChartLibrary: TextInputLayout by autoCleared()
+    private var mBookChartLibraryAutoComplete: MaterialAutoCompleteTextView by autoCleared()
+    private var mBookChart: LineChart by autoCleared()
 
     private var mLoading = MutableLiveData(false)
+    private val mHandler = Handler(Looper.getMainLooper())
 
-    private var mBookSelectYear = LocalDateTime.now().year
+    private var mBookSelectYear = 0
     private lateinit var mBookSelectLibrary: Library
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -162,158 +178,267 @@ class StatisticsFragment : Fragment() {
 
         mRepository = StatisticsRepository(requireContext())
         mDefaultAllLibraries = requireContext().getString(R.string.statistics_chart_library_all)
-        mMangaSelectLibrary = Library(null, mDefaultAllLibraries)
-        mBookSelectLibrary = Library(null, mDefaultAllLibraries)
 
+        val background = android.graphics.drawable.ColorDrawable(requireContext().getColorFromAttr(R.attr.background))
 
-        val background = requireActivity().window.decorView.background
-
-        mProgress.setupWith(mRoot, RenderScriptBlur(requireContext()))
+        val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            RenderEffectBlur()
+        } else {
+            RenderScriptBlur(requireContext())
+        }
+        val decorView = requireActivity().window.decorView
+        mProgress.setupWith(decorView.findViewById(android.R.id.content), blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(10F)
         mLoading.value = true
 
+        ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            val scrollView = mContent.getChildAt(0)
+            scrollView?.setPadding(scrollView.paddingLeft, scrollView.paddingTop, scrollView.paddingRight, navBarHeight)
+            insets
+        }
+
         mLoading.observe(viewLifecycleOwner) {
             mProgress.visibility = if (it) View.VISIBLE else View.GONE
+            mProgress.setBlurAutoUpdate(it)
+        }
+
+        view.findViewById<View>(R.id.statistics_manga_reading_card).setOnClickListener { openHistory(Type.MANGA, null) }
+        view.findViewById<View>(R.id.statistics_manga_btn_history).setOnClickListener { openHistory(Type.MANGA, mMangaSelectYear) }
+
+        view.findViewById<View>(R.id.statistics_book_reading_card).setOnClickListener { openHistory(Type.BOOK, null) }
+        view.findViewById<View>(R.id.statistics_book_btn_history).setOnClickListener { openHistory(Type.BOOK, mBookSelectYear) }
+
+        val statisticsScrollView = view.findViewById<android.widget.ScrollView>(R.id.statistics_scroll_view)
+        val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+        statisticsScrollView?.setOnScrollChangeListener { _, _, _, _, _ ->
+            val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
+                mHandler.removeCallbacksAndMessages(null)
+                mHandler.postDelayed({
+                    (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+                }, 150)
+            }
         }
 
         loadStatistics()
     }
 
+    override fun onResume() {
+        super.onResume()
+        mProgress.setBlurAutoUpdate(mLoading.value == true)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mProgress.setBlurAutoUpdate(false)
+    }
+
+    override fun onDestroy() {
+        mHandler.removeCallbacksAndMessages(null)
+        super.onDestroy()
+    }
+
     private fun loadStatistics() {
-        try {
-            mLoading.value = true
-            val statistics = mRepository.statistics()
+        mLoading.value = true
+        lifecycleScope.launch {
+            try {
+                val statistics = withContext(Dispatchers.IO) { mRepository.statistics() }
 
-            for (statistic in statistics) {
-                when (statistic.type) {
-                    Type.MANGA -> {
-                        mMangaReading.text = statistic.reading.toString()
-                        mMangaToRead.text = statistic.toRead.toString()
-                        mMangaLibrary.text = statistic.library.toString()
-                        mMangaRead.text = statistic.read.toString()
-                        mMangaCompletePages.text = statistic.completeReadingPages.toString()
-                        mMangaCompleteTimes.text = generateSeconds(statistic.completeReadingSeconds)
-                        mMangaCurrentPages.text = statistic.currentReadingPages.toString()
-                        mMangaCurrentTimes.text = generateSeconds(statistic.currentReadingSeconds)
-                        mMangaTotalPages.text = statistic.totalReadPages.toString()
-                        mMangaTotalTime.text = generateSeconds(statistic.totalReadSeconds)
-                        mMangaReadingAverage.text = getString(
-                            R.string.statistics_average,
-                            round(statistic.totalReadSeconds.toFloat() / statistic.totalReadPages / 60).toInt()
-                        )
-                    }
+                for (statistic in statistics) {
+                    when (statistic.type) {
+                        Type.MANGA -> {
+                            mMangaReading.text = statistic.reading.toString()
+                            mMangaToRead.text = statistic.toRead.toString()
+                            mMangaLibrary.text = statistic.library.toString()
+                            mMangaRead.text = statistic.read.toString()
+                            mMangaCompletePages.text = statistic.completeReadingPages.toString()
+                            mMangaCompleteTimes.text = generateSeconds(statistic.completeReadingSeconds)
+                            mMangaCurrentPages.text = statistic.currentReadingPages.toString()
+                            mMangaCurrentTimes.text = generateSeconds(statistic.currentReadingSeconds)
+                            mMangaTotalPages.text = statistic.totalReadPages.toString()
+                            mMangaTotalTime.text = generateSeconds(statistic.totalReadSeconds)
+                            mMangaReadingAverage.text = getString(
+                                R.string.statistics_average,
+                                round(statistic.totalReadSeconds.toFloat() / statistic.totalReadPages / 60).toInt()
+                            )
+                        }
 
-                    Type.BOOK -> {
-                        mBookReading.text = statistic.reading.toString()
-                        mBookToRead.text = statistic.toRead.toString()
-                        mBookLibrary.text = statistic.library.toString()
-                        mBookRead.text = statistic.read.toString()
-                        mBookCompletePages.text = statistic.completeReadingPages.toString()
-                        mBookCompleteTimes.text = generateSeconds(statistic.completeReadingSeconds)
-                        mBookCurrentPages.text = statistic.currentReadingPages.toString()
-                        mBookCurrentTimes.text = generateSeconds(statistic.currentReadingSeconds)
-                        mBookTotalPages.text = statistic.totalReadPages.toString()
-                        mBookTotalTime.text = generateSeconds(statistic.totalReadSeconds)
-                        mBookReadingAverage.text = getString(
-                            R.string.statistics_average,
-                            round(statistic.totalReadSeconds.toFloat() / statistic.totalReadPages / 60).toInt()
-                        )
+                        Type.BOOK -> {
+                            mBookReading.text = statistic.reading.toString()
+                            mBookToRead.text = statistic.toRead.toString()
+                            mBookLibrary.text = statistic.library.toString()
+                            mBookRead.text = statistic.read.toString()
+                            mBookCompletePages.text = statistic.completeReadingPages.toString()
+                            mBookCompleteTimes.text = generateSeconds(statistic.completeReadingSeconds)
+                            mBookCurrentPages.text = statistic.currentReadingPages.toString()
+                            mBookCurrentTimes.text = generateSeconds(statistic.currentReadingSeconds)
+                            mBookTotalPages.text = statistic.totalReadPages.toString()
+                            mBookTotalTime.text = generateSeconds(statistic.totalReadSeconds)
+                            mBookReadingAverage.text = getString(
+                                R.string.statistics_average,
+                                round(statistic.totalReadSeconds.toFloat() / statistic.totalReadPages / 60).toInt()
+                            )
+                        }
                     }
                 }
-            }
 
-            setupChart(mBookChart)
-            setupChart(mMangaChart)
+                setupChart(mBookChart)
+                setupChart(mMangaChart)
 
-            val libraries = mRepository.getLibraryList()
+                val libraries = withContext(Dispatchers.IO) { mRepository.getLibraryList() }
 
-            var default = LibraryUtil.getDefault(requireContext(), Type.BOOK)
-            val librariesBook = mutableMapOf(Pair(mDefaultAllLibraries, Library(null, mDefaultAllLibraries)), Pair(default.title, default))
-            librariesBook.putAll(libraries.filter { it.type == Type.BOOK }.associateBy { it.title })
+                val defaultBook = LibraryUtil.getDefault(requireContext(), Type.BOOK)
+                val librariesBook = mutableMapOf(Pair(mDefaultAllLibraries, Library(null, mDefaultAllLibraries)), Pair(defaultBook.title, defaultBook))
+                librariesBook.putAll(libraries.filter { it.type == Type.BOOK }.associateBy { it.title })
 
-            val adapterBookLibrary = ArrayAdapter(requireContext(), R.layout.list_item, librariesBook.keys.toTypedArray())
-            mBookChartLibraryAutoComplete.setAdapter(adapterBookLibrary)
-            mBookChartLibraryAutoComplete.setText(mDefaultAllLibraries, false)
-            mBookChartLibraryAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
-                val selected = parent.getItemAtPosition(position).toString()
-                if (librariesBook.contains(selected)) {
-                    mBookSelectLibrary = librariesBook[selected]!!
-                    try {
+                if (!::mBookSelectLibrary.isInitialized || !librariesBook.contains(mBookSelectLibrary.title)) {
+                    mBookSelectLibrary = Library(null, mDefaultAllLibraries)
+                }
+
+                val adapterBookLibrary = ArrayAdapter(requireContext(), R.layout.list_item, librariesBook.keys.toTypedArray())
+                mBookChartLibraryAutoComplete.setAdapter(adapterBookLibrary)
+                mBookChartLibraryAutoComplete.setText(mBookSelectLibrary.title, false)
+                mBookChartLibraryAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
+                    val selected = parent.getItemAtPosition(position).toString()
+                    if (librariesBook.contains(selected)) {
+                        mBookSelectLibrary = librariesBook[selected]!!
                         mLoading.value = true
-                        val id = if (mDefaultAllLibraries == mBookSelectLibrary.title) null else mBookSelectLibrary.id
-                        setChartData(mBookChart, getData(mRepository.statistics(Type.BOOK, mBookSelectYear, id), mBookSelectYear))
-                    } finally {
-                        mLoading.value = false
+                        lifecycleScope.launch {
+                            try {
+                                val id = if (mDefaultAllLibraries == mBookSelectLibrary.title) null else mBookSelectLibrary.id
+                                val stats = withContext(Dispatchers.IO) {
+                                    mRepository.statistics(Type.BOOK, mBookSelectYear, id)
+                                }
+                                setChartData(mBookChart, getData(stats, mBookSelectYear))
+                            } catch (e: Exception) {
+                                mLOGGER.error("Error loading book library statistics: " + e.message, e)
+                            } finally {
+                                mLoading.value = false
+                            }
+                        }
                     }
                 }
-            }
 
-            default = LibraryUtil.getDefault(requireContext(), Type.MANGA)
-            val librariesManga = mutableMapOf(Pair(mDefaultAllLibraries, Library(null, mDefaultAllLibraries)), Pair(default.title, default))
-            librariesManga.putAll(libraries.filter { it.type == Type.MANGA }.associateBy { it.title })
+                val defaultManga = LibraryUtil.getDefault(requireContext(), Type.MANGA)
+                val librariesManga = mutableMapOf(Pair(mDefaultAllLibraries, Library(null, mDefaultAllLibraries)), Pair(defaultManga.title, defaultManga))
+                librariesManga.putAll(libraries.filter { it.type == Type.MANGA }.associateBy { it.title })
 
-            val adapterMangaLibrary = ArrayAdapter(requireContext(), R.layout.list_item, librariesManga.keys.toTypedArray())
-            mMangaChartLibraryAutoComplete.setAdapter(adapterMangaLibrary)
-            mMangaChartLibraryAutoComplete.setText(mDefaultAllLibraries, false)
-            mMangaChartLibraryAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
-                val selected = parent.getItemAtPosition(position).toString()
-                if (librariesManga.contains(selected)) {
-                    mMangaSelectLibrary = librariesManga[selected]!!
-                    try {
+                if (!::mMangaSelectLibrary.isInitialized || !librariesManga.contains(mMangaSelectLibrary.title)) {
+                    mMangaSelectLibrary = Library(null, mDefaultAllLibraries)
+                }
+
+                val adapterMangaLibrary = ArrayAdapter(requireContext(), R.layout.list_item, librariesManga.keys.toTypedArray())
+                mMangaChartLibraryAutoComplete.setAdapter(adapterMangaLibrary)
+                mMangaChartLibraryAutoComplete.setText(mMangaSelectLibrary.title, false)
+                mMangaChartLibraryAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
+                    val selected = parent.getItemAtPosition(position).toString()
+                    if (librariesManga.contains(selected)) {
+                        mMangaSelectLibrary = librariesManga[selected]!!
                         mLoading.value = true
-                        val id = if (mDefaultAllLibraries == mMangaSelectLibrary.title) null else mMangaSelectLibrary.id
-                        setChartData(mMangaChart, getData(mRepository.statistics(Type.MANGA, mMangaSelectYear, id), mMangaSelectYear))
-                    } finally {
-                        mLoading.value = false
+                        lifecycleScope.launch {
+                            try {
+                                val id = if (mDefaultAllLibraries == mMangaSelectLibrary.title) null else mMangaSelectLibrary.id
+                                val stats = withContext(Dispatchers.IO) {
+                                    mRepository.statistics(Type.MANGA, mMangaSelectYear, id)
+                                }
+                                setChartData(mMangaChart, getData(stats, mMangaSelectYear))
+                            } catch (e: Exception) {
+                                mLOGGER.error("Error loading manga library statistics: " + e.message, e)
+                            } finally {
+                                mLoading.value = false
+                            }
+                        }
                     }
                 }
-            }
 
-            val years = mutableListOf<Int>()
-
-            years.clear()
-            years.addAll(mRepository.listYears(Type.MANGA))
-            if (years.isEmpty())
-                years.add(LocalDateTime.now().year)
-
-            mMangaYearAutoComplete.setAdapter(ArrayAdapter(requireContext(), R.layout.list_item, years.sortedDescending().toTypedArray()))
-            mMangaYearAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
-                try {
-                    mLoading.value = true
-                    val selected = parent.getItemAtPosition(position).toString().toInt()
-                    val id = if (mDefaultAllLibraries == mMangaSelectLibrary.title) null else mMangaSelectLibrary.id
-                    setChartData(mMangaChart, getData(mRepository.statistics(Type.MANGA, selected, id), selected))
-                } finally {
-                    mLoading.value = false
+                val yearsManga = withContext(Dispatchers.IO) {
+                    val list = mutableListOf<Int>()
+                    list.addAll(mRepository.listYears(Type.MANGA))
+                    if (list.isEmpty()) {
+                        list.add(LocalDateTime.now().year)
+                    }
+                    list
                 }
-            }
-            val mangaYear = years.last()
-            mMangaYearAutoComplete.setText(mangaYear.toString(), false)
-
-            years.clear()
-            years.addAll(mRepository.listYears(Type.BOOK))
-            if (years.isEmpty())
-                years.add(LocalDateTime.now().year)
-
-            mBookYearAutoComplete.setAdapter(ArrayAdapter(requireContext(), R.layout.list_item, years.sortedDescending().toTypedArray()))
-            mBookYearAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
-                try {
-                    mLoading.value = true
-                    val selected = parent.getItemAtPosition(position).toString().toInt()
-                    val id = if (mDefaultAllLibraries == mBookSelectLibrary.title) null else mBookSelectLibrary.id
-                    setChartData(mBookChart, getData(mRepository.statistics(Type.BOOK, selected, id), selected))
-                } finally {
-                    mLoading.value = false
+                val defaultMangaYear = yearsManga.last()
+                if (mMangaSelectYear == 0 || !yearsManga.contains(mMangaSelectYear)) {
+                    mMangaSelectYear = defaultMangaYear
                 }
-            }
-            val bookYear = years.last()
-            mBookYearAutoComplete.setText(bookYear.toString(), false)
 
-            setChartData(mBookChart, getData(mRepository.statistics(Type.BOOK, bookYear, null), bookYear))
-            setChartData(mMangaChart, getData(mRepository.statistics(Type.MANGA, mangaYear, null), mangaYear))
-        } finally {
-            Handler(Looper.getMainLooper()).postDelayed({ mLoading.value = false }, 1000)
+                mMangaYearAutoComplete.setAdapter(ArrayAdapter(requireContext(), R.layout.list_item, yearsManga.sortedDescending().toTypedArray()))
+                mMangaYearAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
+                    mLoading.value = true
+                    lifecycleScope.launch {
+                        try {
+                            val selected = parent.getItemAtPosition(position).toString().toInt()
+                            mMangaSelectYear = selected
+                            val id = if (mDefaultAllLibraries == mMangaSelectLibrary.title) null else mMangaSelectLibrary.id
+                            val stats = withContext(Dispatchers.IO) {
+                                mRepository.statistics(Type.MANGA, selected, id)
+                            }
+                            setChartData(mMangaChart, getData(stats, selected))
+                        } catch (e: Exception) {
+                            mLOGGER.error("Error loading manga year statistics: " + e.message, e)
+                        } finally {
+                            mLoading.value = false
+                        }
+                    }
+                }
+                mMangaYearAutoComplete.setText(mMangaSelectYear.toString(), false)
+
+                val yearsBook = withContext(Dispatchers.IO) {
+                    val list = mutableListOf<Int>()
+                    list.addAll(mRepository.listYears(Type.BOOK))
+                    if (list.isEmpty()) {
+                        list.add(LocalDateTime.now().year)
+                    }
+                    list
+                }
+                val defaultBookYear = yearsBook.last()
+                if (mBookSelectYear == 0 || !yearsBook.contains(mBookSelectYear)) {
+                    mBookSelectYear = defaultBookYear
+                }
+
+                mBookYearAutoComplete.setAdapter(ArrayAdapter(requireContext(), R.layout.list_item, yearsBook.sortedDescending().toTypedArray()))
+                mBookYearAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
+                    mLoading.value = true
+                    lifecycleScope.launch {
+                        try {
+                            val selected = parent.getItemAtPosition(position).toString().toInt()
+                            mBookSelectYear = selected
+                            val id = if (mDefaultAllLibraries == mBookSelectLibrary.title) null else mBookSelectLibrary.id
+                            val stats = withContext(Dispatchers.IO) {
+                                mRepository.statistics(Type.BOOK, selected, id)
+                            }
+                            setChartData(mBookChart, getData(stats, selected))
+                        } catch (e: Exception) {
+                            mLOGGER.error("Error loading book year statistics: " + e.message, e)
+                        } finally {
+                            mLoading.value = false
+                        }
+                    }
+                }
+                mBookYearAutoComplete.setText(mBookSelectYear.toString(), false)
+
+                val bookLibraryId = if (mDefaultAllLibraries == mBookSelectLibrary.title) null else mBookSelectLibrary.id
+                val finalBookStats = withContext(Dispatchers.IO) {
+                    mRepository.statistics(Type.BOOK, mBookSelectYear, bookLibraryId)
+                }
+                setChartData(mBookChart, getData(finalBookStats, mBookSelectYear))
+
+                val mangaLibraryId = if (mDefaultAllLibraries == mMangaSelectLibrary.title) null else mMangaSelectLibrary.id
+                val finalMangaStats = withContext(Dispatchers.IO) {
+                    mRepository.statistics(Type.MANGA, mMangaSelectYear, mangaLibraryId)
+                }
+                setChartData(mMangaChart, getData(finalMangaStats, mMangaSelectYear))
+
+            } catch (e: Exception) {
+                mLOGGER.error("Error loading statistics: " + e.message, e)
+            } finally {
+                mLoading.value = false
+            }
         }
     }
 
@@ -424,4 +549,51 @@ class StatisticsFragment : Fragment() {
         return data
     }
 
+    private fun openHistory(type: Type, year: Int?) {
+        val intent = Intent(requireContext(), MenuActivity::class.java)
+        val bundle = Bundle()
+        bundle.putInt(GeneralConsts.KEYS.FRAGMENT.ID, R.id.frame_history_statistics)
+        bundle.putInt(GeneralConsts.KEYS.OBJECT.TYPE, type.ordinal)
+        if (year != null)
+            bundle.putInt(GeneralConsts.KEYS.OBJECT.STATISTICS_YEAR, year)
+
+        intent.putExtras(bundle)
+        requireActivity().overridePendingTransition(R.anim.fade_in_fragment_add_enter, R.anim.fade_out_fragment_remove_exit)
+        startActivity(intent)
+    }
+
 }
+
+private class AutoClearedValue<T : Any>(val fragment: Fragment) : ReadWriteProperty<Fragment, T> {
+    private var _value: T? = null
+
+    init {
+        fragment.lifecycle.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                if (event == Lifecycle.Event.ON_CREATE) {
+                    fragment.viewLifecycleOwnerLiveData.observe(fragment) { viewLifecycleOwner ->
+                        viewLifecycleOwner?.lifecycle?.addObserver(object : LifecycleEventObserver {
+                            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                                if (event == Lifecycle.Event.ON_DESTROY) {
+                                    _value = null
+                                }
+                            }
+                        })
+                    }
+                }
+            }
+        })
+    }
+
+    override fun getValue(thisRef: Fragment, property: KProperty<*>): T {
+        return _value ?: throw IllegalStateException(
+            "should never call to retrieve value after onDestroyView"
+        )
+    }
+
+    override fun setValue(thisRef: Fragment, property: KProperty<*>, value: T) {
+        _value = value
+    }
+}
+
+private fun <T : Any> Fragment.autoCleared() = AutoClearedValue<T>(this)

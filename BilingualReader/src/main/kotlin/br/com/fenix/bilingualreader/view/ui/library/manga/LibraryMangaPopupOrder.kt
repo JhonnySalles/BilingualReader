@@ -27,7 +27,7 @@ class LibraryMangaPopupOrder : Fragment() {
 
     private lateinit var mCheckList : Map<TriStateCheckBox, Order>
 
-    private lateinit var listener: PopupOrderListener
+    private var listener: PopupOrderListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.popup_library_order_manga, container, false)
@@ -45,9 +45,9 @@ class LibraryMangaPopupOrder : Fragment() {
 
         var order = Order.Name
         var isDesc = false
-        if (::listener.isInitialized) {
-            order = listener.popupGetOrder()?.first ?: Order.Name
-            isDesc = listener.popupGetOrder()?.second ?: false
+        if (listener != null) {
+            order = listener!!.popupGetOrder()?.first ?: Order.Name
+            isDesc = listener!!.popupGetOrder()?.second ?: false
         }
 
         setChecked(mCheckList, order, isDesc)
@@ -123,7 +123,7 @@ class LibraryMangaPopupOrder : Fragment() {
     }
 
     private fun observer() {
-        listener.popupGetObserver().observe(viewLifecycleOwner) {
+        listener?.popupGetObserver()?.observe(viewLifecycleOwner) {
             removeListener(mCheckList)
             setChecked(mCheckList, it.first, it.second)
             addListener(mCheckList)

@@ -3,6 +3,7 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="nav_header_vertical_spacing">8dp</dimen>
     <dimen name="nav_header_height">200dp</dimen>
+    <dimen name="nav_header_text_dimen">40dp</dimen>
     <dimen name="default_navigator_header_margin_top">60dp</dimen>
     <dimen name="default_navigator_header_padding">10dp</dimen>
     <dimen name="default_navigator_header_padding_tablet">20dp</dimen>
@@ -16,6 +17,10 @@
 
     <dimen name="padding_small">5dp</dimen>
     <dimen name="popup_button_center">70dp</dimen>
+    <dimen name="popup_button_margin">9dp</dimen>
+    <dimen name="popup_button_padding_vertical">6dp</dimen>
+    <dimen name="popup_button_padding_horizontal">24dp</dimen>
+    <dimen name="popup_background_size">30dp</dimen>
 
     <dimen name="manga_grid_card_image">220dp</dimen>
     <dimen name="manga_grid_card_image_small">150dp</dimen>
@@ -175,6 +180,7 @@
 
     <dimen name="manga_annotation_margin">10dp</dimen>
 
+    <dimen name="manga_detail_button_size">60dp</dimen>
     <dimen name="manga_detail_card_layout_width">150dp</dimen>
     <dimen name="manga_detail_card_layout_height">200dp</dimen>
     <dimen name="manga_detail_card_layout_width_tablet">200dp</dimen>
@@ -211,6 +217,7 @@
     <dimen name="manga_page_link_layout_height">250dp</dimen>
     <dimen name="manga_page_link_number_size">12sp</dimen>
 
+    <dimen name="book_detail_button_size">60dp</dimen>
     <dimen name="book_detail_card_layout_width">150dp</dimen>
     <dimen name="book_detail_card_layout_height">200dp</dimen>
     <dimen name="book_detail_card_layout_width_tablet">200dp</dimen>
@@ -396,7 +403,7 @@
 
     <dimen name="history_divider_title">20sp</dimen>
 
-    <dimen name="history_scrolling_button_margin">10dp</dimen>
+    <dimen name="history_scrolling_button_margin">40dp</dimen>
     <dimen name="history_up_border">2dp</dimen>
     <dimen name="history_up_width">40dp</dimen>
     <dimen name="history_up_image_width">30dp</dimen>
@@ -437,7 +444,9 @@
     <dimen name="statistics_chart_height">300dp</dimen>
     <dimen name="statistics_chart_label_font_size">3dp</dimen>
     <dimen name="statistics_chart_point_font_size">3dp</dimen>
+    <dimen name="statistics_button_size">60dp</dimen>
 
+    <dimen name="config_button_size">60dp</dimen>
     <dimen name="config_theme_height">200dp</dimen>
     <dimen name="config_theme_selected_stroke">3dp</dimen>
     <dimen name="config_book_font_type_height">100dp</dimen>
@@ -452,6 +461,7 @@
     <dimen name="about_app_name">18sp</dimen>
     <dimen name="about_title_size">16sp</dimen>
     <dimen name="about_content_size">12sp</dimen>
+    <dimen name="about_button_size">60dp</dimen>
     <dimen name="about_button_text_size">14sp</dimen>
     <dimen name="about_button_text_size_tablet">18sp</dimen>
     <dimen name="about_button_width">165dp</dimen>

@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.res.AssetManager
 import android.net.Uri
 import android.widget.Toast
+import androidx.annotation.VisibleForTesting
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -34,13 +35,11 @@ import br.com.fenix.bilingualreader.model.entity.VocabularyManga
 import br.com.fenix.bilingualreader.util.helpers.BackupError
 import br.com.fenix.bilingualreader.util.helpers.Converters
 import br.com.fenix.bilingualreader.util.helpers.ErrorRestoreDatabase
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import de.raphaelebner.roomdatabasebackup.core.RoomBackup
 import org.slf4j.LoggerFactory
 import java.io.BufferedReader
 import java.io.File
-
 
 @Database(
     version = 3, exportSchema = true,
@@ -74,43 +73,65 @@ abstract class DataBase : RoomDatabase() {
         private const val DATABASE_NAME = "BilingualReader.db"
 
         lateinit var mAssets: AssetManager
-        private lateinit var INSTANCE: DataBase
+        @Volatile
+        private var INSTANCE: DataBase? = null
+
+        @VisibleForTesting
+        var isTesting = false
+
+        @VisibleForTesting
+        fun setTestingInstance(database: DataBase?) {
+            INSTANCE = database
+            isTesting = true
+        }
 
         fun getDataBase(context: Context): DataBase {
-            if (!::INSTANCE.isInitialized)
-                mAssets = context.assets
+            val instance = INSTANCE
+            if (instance != null)
+                return instance
+
             synchronized(DataBase::class.java) { // Used for a two or many cores
-                INSTANCE = Room.databaseBuilder(context, DataBase::class.java, DATABASE_NAME)
-                    .addCallback(rdc)
-                    .addMigrations(
-                        Migrations.MIGRATION_1_2,
-                        Migrations.MIGRATION_2_3,
-                        Migrations.MIGRATION_3_4,
-                        Migrations.MIGRATION_4_5,
-                        Migrations.MIGRATION_5_6,
-                        Migrations.MIGRATION_6_7,
-                        Migrations.MIGRATION_7_8,
-                        Migrations.MIGRATION_8_9,
-                        Migrations.MIGRATION_9_10,
-                        Migrations.MIGRATION_10_11,
-                        Migrations.MIGRATION_11_12,
-                        Migrations.MIGRATION_12_13,
-                        Migrations.MIGRATION_13_14
-                    )
-                    .allowMainThreadQueries()
-                    /*.setQueryCallback(object : QueryCallback { // Shows query
-                        override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
-                            println("SQL Query: $sqlQuery SQL Args: $bindArgs")
-                        }
-                    }, Executors.newSingleThreadExecutor())*/
-                    .build() // MainThread uses another thread in db conection
+                var instance = INSTANCE
+                if (instance == null) {
+                    mAssets = context.applicationContext.assets
+
+                    instance = Room.databaseBuilder(context, DataBase::class.java, DATABASE_NAME)
+                        .addCallback(rdc)
+                        .addMigrations(
+                            Migrations.MIGRATION_1_2,
+                            Migrations.MIGRATION_2_3,
+                            Migrations.MIGRATION_3_4,
+                            Migrations.MIGRATION_4_5,
+                            Migrations.MIGRATION_5_6,
+                            Migrations.MIGRATION_6_7,
+                            Migrations.MIGRATION_7_8,
+                            Migrations.MIGRATION_8_9,
+                            Migrations.MIGRATION_9_10,
+                            Migrations.MIGRATION_10_11,
+                            Migrations.MIGRATION_11_12,
+                            Migrations.MIGRATION_12_13,
+                            Migrations.MIGRATION_13_14
+                        )
+                        .allowMainThreadQueries()
+                        /*.setQueryCallback(object : QueryCallback { // Shows query
+                            override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                                println("SQL Query: $sqlQuery SQL Args: $bindArgs")
+                            }
+                        }, Executors.newSingleThreadExecutor())*/
+                            .build() // MainThread uses another thread in db conection
+
+                    INSTANCE = instance
+                }
+                return instance
             }
-            return INSTANCE
         }
 
         fun close() {
-            if (::INSTANCE.isInitialized)
-                INSTANCE.close()
+            INSTANCE?.let {
+                if (it.isOpen)
+                    it.close()
+            }
+            INSTANCE = null
         }
 
         private var rdc: Callback = object : Callback() {
@@ -118,17 +139,33 @@ abstract class DataBase : RoomDatabase() {
                 mLOGGER.info("Create initial database data....")
 
                 val kanji = mAssets.open("kanji.sql").bufferedReader().use(BufferedReader::readText)
-                database.execSQL(Migrations.SQLINITIAL.KANJI + kanji)
+                execSqlBatch(database, Migrations.SQLINITIAL.KANJI, kanji)
 
                 val kanjax = mAssets.open("kanjax.sql").bufferedReader().use(BufferedReader::readText)
-                database.execSQL(Migrations.SQLINITIAL.KANJAX + kanjax)
+                execSqlBatch(database, Migrations.SQLINITIAL.KANJAX, kanjax)
 
                 val vocabulary = mAssets.open("vocabulary.sql").bufferedReader().use(BufferedReader::readText)
-                database.execSQL(Migrations.SQLINITIAL.VOCABULARY + vocabulary)
+                execSqlBatch(database, Migrations.SQLINITIAL.VOCABULARY, vocabulary)
 
                 mLOGGER.info("Completed initial database data.")
             }
         }
+
+        private fun execSqlBatch(database: SupportSQLiteDatabase, prefix: String, data: String) {
+            val batchSize = 450
+            val values = data.split("),(")
+            
+            for (i in values.indices step batchSize) {
+                val end = if (i + batchSize > values.size) values.size else i + batchSize
+                val chunk = values.subList(i, end).joinToString("),(")
+                
+                var sql = prefix + (if (i > 0) "(" else "") + chunk + (if (end < values.size) ")" else "")
+                if (!sql.endsWith(";")) sql += ";"
+                
+                database.execSQL(sql)
+            }
+        }
+
 
 
         private lateinit var BACKUP : RoomBackup
@@ -139,7 +176,7 @@ abstract class DataBase : RoomDatabase() {
 
         // Backup and restore
         fun backupDatabase(context: Context, file: File) {
-            BACKUP.database(INSTANCE)
+            BACKUP.database(INSTANCE!!)
                 .enableLogDebug(true)
                 .backupLocation(RoomBackup.BACKUP_FILE_LOCATION_CUSTOM_FILE)
                 .backupLocationCustomFile(File(file.path))
@@ -152,10 +189,7 @@ abstract class DataBase : RoomDatabase() {
                             BACKUP.restartApp(Intent(context, MainActivity::class.java))
                         else {
                             mLOGGER.error("Error when backup database: $message.")
-                            Firebase.crashlytics.apply {
-                                setCustomKey("message", "Error when backup database: " + message)
-                                recordException(BackupError(message))
-                            }
+                            Telemetry.recordException(BackupError(message), "Error when backup database: " + message)
                             throw BackupError("Error when backup database")
                         }
                     }
@@ -163,8 +197,14 @@ abstract class DataBase : RoomDatabase() {
         }
 
         fun autoBackupDatabase(context: Context, isRestart: Boolean = false) {
+            val db = INSTANCE
+            if (db == null || isTesting) {
+                mLOGGER.warn("DataBase instance is null or in testing mode, skipping auto backup.")
+                return
+            }
+
             mLOGGER.warn("Generate auto backup...")
-            BACKUP.database(INSTANCE)
+            BACKUP.database(db)
                 .enableLogDebug(true)
                 .backupLocation(RoomBackup.BACKUP_FILE_LOCATION_INTERNAL)
                 .maxFileCount(5)
@@ -179,17 +219,14 @@ abstract class DataBase : RoomDatabase() {
                             }
                         } else {
                             mLOGGER.error("Error when auto backup database: $message.")
-                            Firebase.crashlytics.apply {
-                                setCustomKey("message", "Error when auto backup database: " + message)
-                                recordException(BackupError(message))
-                            }
+                            Telemetry.recordException(BackupError(message), "Error when auto backup database: " + message)
                         }
                     }
                 }.backup()
         }
 
         fun restoreDatabase(context: Context, file: File) {
-            BACKUP.database(INSTANCE)
+            BACKUP.database(INSTANCE!!)
                 .enableLogDebug(true)
                 .backupLocation(RoomBackup.BACKUP_FILE_LOCATION_CUSTOM_FILE)
                 .backupLocationCustomFile(File(file.path))
@@ -202,10 +239,7 @@ abstract class DataBase : RoomDatabase() {
                             BACKUP.restartApp(Intent(context, MainActivity::class.java))
                         } else {
                             mLOGGER.error("Error when restore backup database: $message.")
-                            Firebase.crashlytics.apply {
-                                setCustomKey("message", "Error when restore backup database: " + message)
-                                recordException(ErrorRestoreDatabase(message))
-                            }
+                            Telemetry.recordException(ErrorRestoreDatabase(message), "Error when restore backup database: " + message)
                             throw ErrorRestoreDatabase("Error when restore backup database file.")
                         }
                     }

@@ -5,8 +5,7 @@ import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.enums.Libraries
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import org.slf4j.LoggerFactory
 
 class LibraryRepository(var context: Context) {
@@ -35,10 +34,7 @@ class LibraryRepository(var context: Context) {
                 mDataBase.list()
         } catch (e: Exception) {
             mLOGGER.error("Error when list Library: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when list Library: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when list Library: " + e.message)
             listOf()
         }
     }
@@ -48,10 +44,7 @@ class LibraryRepository(var context: Context) {
             mDataBase.listEnabled()
         } catch (e: Exception) {
             mLOGGER.error("Error when list Library enabled: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when list Library enabled: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when list Library enabled: " + e.message)
             listOf()
         }
     }
@@ -61,10 +54,7 @@ class LibraryRepository(var context: Context) {
             mDataBase.get(id)
         } catch (e: Exception) {
             mLOGGER.error("Error when get Library: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when get Library: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when get Library: " + e.message)
             null
         }
     }
@@ -74,10 +64,7 @@ class LibraryRepository(var context: Context) {
             mDataBase.get(type, language)
         } catch (e: Exception) {
             mLOGGER.error("Error when get Library: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when get Library: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when get Library: " + e.message)
             null
         }
     }
@@ -87,10 +74,7 @@ class LibraryRepository(var context: Context) {
             mDataBase.findDeleted(path)
         } catch (e: Exception) {
             mLOGGER.error("Error when find Library deleted: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when find Library deleted: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when find Library deleted: " + e.message)
             null
         }
     }
@@ -100,10 +84,7 @@ class LibraryRepository(var context: Context) {
             mDataBase.removeDefault(path)
         } catch (e: Exception) {
             mLOGGER.error("Error when remove Default Library: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when remove Default Library: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when remove Default Library: " + e.message)
         }
     }
 
@@ -112,10 +93,7 @@ class LibraryRepository(var context: Context) {
             LibraryUtil.getDefault(context, type).path
         } catch (e: Exception) {
             mLOGGER.error("Error when get Default Library: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when get Default Library: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when get Default Library: " + e.message)
             ""
         }
     }
@@ -130,10 +108,7 @@ class LibraryRepository(var context: Context) {
                 mDataBase.save(library)
         } catch (e: Exception) {
             mLOGGER.error("Error when save Default Library: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error when save Default Library: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error when save Default Library: " + e.message)
         }
     }
 

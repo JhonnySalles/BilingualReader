@@ -14,7 +14,6 @@ import android.content.pm.ShortcutManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.AdaptiveIconDrawable
-import android.graphics.drawable.Animatable2
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -45,6 +44,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.view.setPadding
@@ -84,9 +86,12 @@ import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.LibraryUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
+import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.util.helpers.executeWithAnimation
 import br.com.fenix.bilingualreader.view.adapter.reader.MangaChaptersCardAdapter
 import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
@@ -102,8 +107,11 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.sidesheet.SideSheetBehavior
 import com.google.android.material.tabs.TabLayout
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import eightbitlab.com.blurview.BlurView
+import android.graphics.drawable.GradientDrawable
+import android.view.ViewGroup
+import eightbitlab.com.blurview.RenderEffectBlur
+import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
 import java.io.File
 
@@ -122,15 +130,62 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     private lateinit var mLanguageOcrDescription: TextView
     private var mMenuPopupTranslateBottom: FrameLayout? = null
     private var mMenuPopupTranslateLeft: FrameLayout? = null
+    private var mMenuPopupTranslateBackground: BlurView? = null
     private lateinit var mPopupTranslateView: ViewPager
     private var mMenuPopupConfigurationsBottom: FrameLayout? = null
     private var mMenuPopupConfigurationsLeft: FrameLayout? = null
+    private var mMenuPopupConfigurationsBackground: BlurView? = null
     private lateinit var mPopupConfigurationsView: ViewPager
     private lateinit var mPopupConfigurationsTab: TabLayout
     private lateinit var mLeftSheetTranslate: SideSheetBehavior<FrameLayout>
     private lateinit var mBottomSheetTranslate: BottomSheetBehavior<FrameLayout>
     private lateinit var mLeftSheetConfigurations: SideSheetBehavior<FrameLayout>
     private lateinit var mBottomSheetConfigurations: BottomSheetBehavior<FrameLayout>
+
+    private val mBottomSheetTranslateCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                mMenuPopupTranslateBackground?.let { bg ->
+                    if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
+                        bg.setBlurAutoUpdate(true)
+                    } else {
+                        bg.setBlurAutoUpdate(false)
+                    }
+                }
+            }
+        }
+
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                mMenuPopupTranslateBackground?.setBlurAutoUpdate(true)
+            }
+        }
+    }
+
+    private val mBottomSheetConfigurationsCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                mMenuPopupConfigurationsBackground?.let { bg ->
+                    if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
+                        bg.setBlurAutoUpdate(true)
+                    } else {
+                        bg.setBlurAutoUpdate(false)
+                    }
+                }
+            }
+        }
+
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            if (isGlass) {
+                mMenuPopupConfigurationsBackground?.setBlurAutoUpdate(true)
+            }
+        }
+    }
+
 
     private lateinit var mPopupMangaColorFilterFragment: PopupMangaColorFilterFragment
     private lateinit var mPopupMangaAnnotationsFragment: PopupMangaAnnotationsFragment
@@ -169,12 +224,18 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeUtil.applyThemeMode(this)
         mPreferences = GeneralConsts.getSharedPreferences(this)
         val theme = Themes.valueOf(mPreferences.getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(theme.getValue())
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_manga_reader)
+
+        supportPostponeEnterTransition()
+        mHandler.postDelayed({
+            supportStartPostponedEnterTransition()
+        }, 1000)
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
@@ -204,8 +265,10 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         mProgressContent = findViewById(R.id.reader_manga_bottom_progress_content)
         mMenuPopupTranslateBottom = findViewById(R.id.popup_manga_translate_bottom_sheet)
         mMenuPopupTranslateLeft = findViewById(R.id.popup_manga_translate_side_sheet)
+        mMenuPopupTranslateBackground = findViewById(R.id.popup_manga_translate_header_background)
         mMenuPopupConfigurationsBottom = findViewById(R.id.popup_manga_configurations_bottom_sheet)
         mMenuPopupConfigurationsLeft = findViewById(R.id.popup_manga_configurations_side_sheet)
+        mMenuPopupConfigurationsBackground = findViewById(R.id.popup_manga_configurations_header_background)
 
         val btnMenuFloating = findViewById<ImageView>(R.id.popup_manga_translate_floating_button)
         btnMenuFloating.setOnClickListener {
@@ -215,31 +278,26 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
         val btnMenuFileLink = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_file_link)
         btnMenuFileLink.setOnClickListener {
-            (btnMenuFileLink.icon as AnimatedVectorDrawable).start()
-            openFileLink()
+            btnMenuFileLink.executeWithAnimation {
+                openFileLink()
+            }
         }
 
         val btnFloatingButtons = findViewById<MaterialButton>(R.id.reader_manga_btn_floating_buttons)
         btnFloatingButtons.setOnClickListener {
-            (btnFloatingButtons.icon as AnimatedVectorDrawable).start()
-            openFloatingButtons()
+            btnFloatingButtons.executeWithAnimation {
+                openFloatingButtons()
+            }
         }
 
         val btnRotate = findViewById<MaterialButton>(R.id.reader_manga_btn_screen_rotate)
         btnRotate.setOnClickListener {
-            (btnRotate.icon as AnimatedVectorDrawable).clearAnimationCallbacks()
-            (btnRotate.icon as AnimatedVectorDrawable).registerAnimationCallback(object :
-                Animatable2.AnimationCallback() {
-                override fun onAnimationEnd(drawable: Drawable?) {
-                    super.onAnimationEnd(drawable)
-                    requestedOrientation = if (requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-                            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                        else
-                            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                }
-            })
-            (btnRotate.icon as AnimatedVectorDrawable).reset()
-            (btnRotate.icon as AnimatedVectorDrawable).start()
+            btnRotate.executeWithAnimation {
+                requestedOrientation = if (requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+                        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    else
+                        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            }
         }
 
         btnRotate.setOnLongClickListener {
@@ -249,30 +307,24 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
         val buttonChapters = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_chapters)
         buttonChapters.setOnClickListener {
-            (buttonChapters.icon as AnimatedVectorDrawable).clearAnimationCallbacks()
-            (buttonChapters.icon as AnimatedVectorDrawable).registerAnimationCallback(object :
-                Animatable2.AnimationCallback() {
-                override fun onAnimationEnd(drawable: Drawable?) {
-                    super.onAnimationEnd(drawable)
-                    openChapters()
-                }
-            })
-            (buttonChapters.icon as AnimatedVectorDrawable).reset()
-            (buttonChapters.icon as AnimatedVectorDrawable).start()
+            buttonChapters.executeWithAnimation {
+                openChapters()
+            }
         }
 
         val buttonOcr = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_ocr)
         buttonOcr?.setOnClickListener {
-            (buttonOcr.icon as AnimatedVectorDrawable).reset()
-            (buttonOcr.icon as AnimatedVectorDrawable).start()
-            showMenuFromButton(buttonOcr, it)
+            buttonOcr.executeWithAnimation {
+                showMenuFromButton(buttonOcr, buttonOcr)
+            }
         }
 
         val btnMenuPage = findViewById<MaterialButton>(R.id.reader_manga_btn_menu_page_linked)
         btnMenuPage.setOnClickListener {
             btnMenuPage.setIconResource(if (mSubtitleController.isDrawing()) R.drawable.ico_animated_page_linked_remove else R.drawable.ico_animated_page_linked_insert)
-            (btnMenuPage.icon as AnimatedVectorDrawable).start()
-            mSubtitleController.drawPageLinked()
+            btnMenuPage.executeWithAnimation {
+                mSubtitleController.drawPageLinked()
+            }
         }
 
         mLibrary = LibraryUtil.getDefault(this, Type.MANGA)
@@ -281,12 +333,14 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         val next = findViewById<MaterialButton>(R.id.reader_manga_nav_next_file)
 
         previous.setOnClickListener {
-            (previous.icon as AnimatedVectorDrawable).start()
-            switchManga(false)
+            previous.executeWithAnimation {
+                switchManga(false)
+            }
         }
         next.setOnClickListener {
-            (next.icon as AnimatedVectorDrawable).start()
-            switchManga(true)
+            next.executeWithAnimation {
+                switchManga(true)
+            }
         }
 
         mToolBar.setOnClickListener { dialogPageIndex() }
@@ -318,6 +372,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 mBottomSheetTranslate = this
             }
             mBottomSheetTranslate.isDraggable = false
+            mBottomSheetTranslate.addBottomSheetCallback(mBottomSheetTranslateCallback)
             PopupUtils.onPopupTouch(this, mMenuPopupTranslateBottom!!, mBottomSheetTranslate, findViewById<ImageView>(R.id.popup_manga_translate_center_button), navigationColor = false)
         }
 
@@ -363,6 +418,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
                 mBottomSheetConfigurations = this
             }
             mBottomSheetConfigurations.isDraggable = true
+            mBottomSheetConfigurations.addBottomSheetCallback(mBottomSheetConfigurationsCallback)
             PopupUtils.onPopupTouch(this, mMenuPopupConfigurationsBottom!!, mBottomSheetConfigurations, findViewById<ImageView>(R.id.popup_manga_configurations_center_button), navigationColor = false)
         } else {
             mLeftSheetConfigurations = SideSheetBehavior.from(mMenuPopupConfigurationsLeft!!)
@@ -451,30 +507,23 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             if (index >= 0)
                 mPopupConfigurationsTab.selectTab(mPopupConfigurationsTab.getTabAt(index), true)
 
-            (buttonAnnotations.icon as AnimatedVectorDrawable).clearAnimationCallbacks()
-            (buttonAnnotations.icon as AnimatedVectorDrawable).registerAnimationCallback(object :
-                Animatable2.AnimationCallback() {
-                override fun onAnimationEnd(drawable: Drawable?) {
-                    super.onAnimationEnd(drawable)
-                    val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationsBottom else mMenuPopupConfigurationsLeft
-                    val isOpened = layout!!.isVisible
+            buttonAnnotations.executeWithAnimation {
+                val layout = if (mMenuPopupBottomSheet) mMenuPopupConfigurationsBottom else mMenuPopupConfigurationsLeft
+                val isOpened = layout!!.isVisible
 
-                    if (mMenuPopupBottomSheet)
-                        mMenuPopupTranslateBottom!!.visibility = View.GONE
-                    else
-                        mMenuPopupConfigurationsLeft!!.visibility = View.GONE
+                if (mMenuPopupBottomSheet)
+                    mMenuPopupTranslateBottom!!.visibility = View.GONE
+                else
+                    mMenuPopupConfigurationsLeft!!.visibility = View.GONE
 
-                    if (mMenuPopupBottomSheet)
-                        mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_EXPANDED
-                    else
-                        mLeftSheetConfigurations.state = SideSheetBehavior.STATE_EXPANDED
+                if (mMenuPopupBottomSheet)
+                    mBottomSheetConfigurations.state = BottomSheetBehavior.STATE_EXPANDED
+                else
+                    mLeftSheetConfigurations.state = SideSheetBehavior.STATE_EXPANDED
 
-                    if (!isOpened)
-                        AnimationUtil.animatePopupOpen(this@MangaReaderActivity, layout, mMenuPopupBottomSheet, navigationColor = false)
-                }
-            })
-            (buttonAnnotations.icon as AnimatedVectorDrawable).reset()
-            (buttonAnnotations.icon as AnimatedVectorDrawable).start()
+                if (!isOpened)
+                    AnimationUtil.animatePopupOpen(this@MangaReaderActivity, layout, mMenuPopupBottomSheet, navigationColor = false)
+            }
         }
 
         mRepository = MangaRepository(applicationContext)
@@ -544,6 +593,10 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             }
         } else
             mFragment = supportFragmentManager.findFragmentById(R.id.root_frame_manga_reader) as MangaReaderFragment?
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        setupPopupBackgrounds()
+        setupBottomSheetInsets()
     }
 
     private fun initialize(manga: Manga?) {
@@ -631,7 +684,14 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             mManga!!.pages
         ) else ""
         mToolBar.title = title
-        mToolBar.subtitle = text
+        val boldSubtitle = android.text.SpannableString(text)
+        boldSubtitle.setSpan(
+            android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+            0,
+            text.length,
+            android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        mToolBar.subtitle = boldSubtitle
         SharedData.selectPage(page)
     }
 
@@ -674,10 +734,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             shortcut.dynamicShortcuts = list
         } catch (e: Exception) {
             mLOGGER.error("Error generate shortcut: " + e.message, e)
-            Firebase.crashlytics.apply {
-                setCustomKey("message", "Error generate shortcut: " + e.message)
-                recordException(e)
-            }
+            Telemetry.recordException(e, "Error generate shortcut: " + e.message)
         }
     }
 
@@ -817,6 +874,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     private var mLastFloatingButtons = false
     override fun onResume() {
         super.onResume()
+        setupPopupBackgrounds()
         if (mLastFloatingWindowOcr)
             openFloatingOcr()
 
@@ -865,6 +923,14 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         } else {
             mHandler.removeCallbacks(mMonitoringBattery)
             mHandler.removeCallbacks(mDismissTouchView)
+        }
+
+        if (::mBottomSheetTranslate.isInitialized) {
+            mBottomSheetTranslate.removeBottomSheetCallback(mBottomSheetTranslateCallback)
+        }
+        
+        if (::mBottomSheetConfigurations.isInitialized) {
+            mBottomSheetConfigurations.removeBottomSheetCallback(mBottomSheetConfigurationsCallback)
         }
 
         super.onDestroy()
@@ -1178,61 +1244,164 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
             mFloatingButtons.show()
     }
 
+    private fun getIconForTouchScreen(touchScreen: TouchScreen): Int {
+        return when (touchScreen) {
+            TouchScreen.TOUCH_NOT_ASSIGNED -> R.drawable.ico_close
+            TouchScreen.TOUCH_ASPECT_FIT -> R.drawable.ico_reader_mode
+            TouchScreen.TOUCH_FIT_WIDTH -> R.drawable.ico_reading_mode
+            TouchScreen.TOUCH_CHAPTER_LIST -> R.drawable.ico_item_chapters_menu
+            TouchScreen.TOUCH_NEXT_FILE -> R.drawable.ico_tts_next
+            TouchScreen.TOUCH_PREVIOUS_FILE -> R.drawable.ico_tts_previous
+            TouchScreen.TOUCH_NEXT_PAGE -> R.drawable.ico_animated_text_next
+            TouchScreen.TOUCH_PREVIOUS_PAGE -> R.drawable.ico_animated_text_before
+            TouchScreen.TOUCH_SHARE_IMAGE -> R.drawable.ico_save_share_image
+            TouchScreen.TOUCH_PAGE_MARK -> R.drawable.ico_book_reader_page_mark
+            else -> 0
+        }
+    }
+
+    private fun setupTouchZone(card: View, touchScreen: TouchScreen, isPrimary: Boolean, isGlass: Boolean) {
+        var textView: TextView? = null
+        var imageView: ImageView? = null
+        var blurView: BlurView? = null
+
+        fun findViews(view: View) {
+            if (view is TextView) {
+                textView = view
+            } else if (view is ImageView) {
+                imageView = view
+            } else if (view is BlurView) {
+                blurView = view
+            }
+            if (view is ViewGroup) {
+                for (i in 0 until view.childCount) {
+                    findViews(view.getChildAt(i))
+                }
+            }
+        }
+
+        findViews(card)
+
+        if (card is com.google.android.material.card.MaterialCardView) {
+            card.setCardBackgroundColor(android.graphics.Color.TRANSPARENT)
+        }
+
+        val tv = textView
+        if (tv != null) {
+            tv.text = getString(touchScreen.getValue())
+        }
+
+        val iv = imageView
+        if (iv != null) {
+            val iconRes = getIconForTouchScreen(touchScreen)
+            if (iconRes != 0) {
+                iv.setImageResource(iconRes)
+                iv.visibility = View.VISIBLE
+            } else {
+                iv.visibility = View.GONE
+            }
+        }
+
+        val bv = blurView
+        if (bv != null) {
+            val baseColor = if (isPrimary) {
+                getColorFromAttr(R.attr.colorPrimaryContainer)
+            } else {
+                ContextCompat.getColor(this, R.color.touch_demonstration_alter)
+            }
+
+            val alpha = if (isGlass) 0x66 else 0xA6 // 40% for Glass, 65% (35% transparency) for Flat
+            val dynamicColor = (baseColor and 0x00FFFFFF) or (alpha shl 24)
+
+            val cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16f, resources.displayMetrics)
+            val shapeBg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(dynamicColor)
+                this.cornerRadius = cornerRadius
+            }
+
+            bv.background = shapeBg
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                bv.clipToOutline = true
+            }
+            bv.outlineProvider = object : android.view.ViewOutlineProvider() {
+                override fun getOutline(view: View, outline: android.graphics.Outline) {
+                    outline.setRoundRect(0, 0, view.width, view.height, cornerRadius)
+                }
+            }
+
+            bv.setBlurEnabled(isGlass)
+            if (isGlass) {
+                val decorView = window.decorView
+                val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+                val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
+                val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(this)
+                bv.setupWith(rootView, blurAlgorithm)
+                    .setFrameClearDrawable(background)
+                    .setBlurRadius(15f)
+                bv.setBlurAutoUpdate(true)
+                mHandler.postDelayed({
+                    bv.setBlurAutoUpdate(false)
+                }, 100)
+            } else {
+                bv.setBlurAutoUpdate(false)
+            }
+        }
+    }
+
     fun openViewTouch() {
         mFragment?.setFullscreen(true)
 
         val touch = TouchUtils.getTouch(this, Type.MANGA)
 
-        val touchTop = findViewById<TextView>(R.id.reader_manga_touch_top)
-        val touchTopRight = findViewById<TextView>(R.id.reader_manga_touch_top_right)
-        val touchTopLeft = findViewById<TextView>(R.id.reader_manga_touch_top_left)
-        val touchLeft = findViewById<TextView>(R.id.reader_manga_touch_left)
-        val touchRight = findViewById<TextView>(R.id.reader_manga_touch_right)
-        val touchBottom = findViewById<TextView>(R.id.reader_manga_touch_bottom)
-        val touchBottomLeft = findViewById<TextView>(R.id.reader_manga_touch_bottom_left)
-        val touchBottomRight = findViewById<TextView>(R.id.reader_manga_touch_bottom_right)
+        val touchTop = findViewById<View>(R.id.reader_manga_touch_top)
+        val touchTopRight = findViewById<View>(R.id.reader_manga_touch_top_right)
+        val touchTopLeft = findViewById<View>(R.id.reader_manga_touch_top_left)
+        val touchLeft = findViewById<View>(R.id.reader_manga_touch_left)
+        val touchRight = findViewById<View>(R.id.reader_manga_touch_right)
+        val touchBottom = findViewById<View>(R.id.reader_manga_touch_bottom)
+        val touchBottomLeft = findViewById<View>(R.id.reader_manga_touch_bottom_left)
+        val touchBottomRight = findViewById<View>(R.id.reader_manga_touch_bottom_right)
 
-        touchTop.text = getString(touch[Position.TOP]!!.getValue())
-        touchTopRight.text = getString(touch[Position.CORNER_TOP_RIGHT]!!.getValue())
-        touchTopLeft.text = getString(touch[Position.CORNER_TOP_LEFT]!!.getValue())
-        touchLeft.text = getString(touch[Position.LEFT]!!.getValue())
-        touchRight.text = getString(touch[Position.RIGHT]!!.getValue())
-        touchBottom.text = getString(touch[Position.BOTTOM]!!.getValue())
-        touchBottomLeft.text = getString(touch[Position.CORNER_BOTTOM_LEFT]!!.getValue())
-        touchBottomRight.text = getString(touch[Position.CORNER_BOTTOM_RIGHT]!!.getValue())
+        val sharedPreferences = GeneralConsts.getSharedPreferences(this)
+        val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
 
-        if ((touch[Position.CORNER_TOP_RIGHT] == TouchScreen.TOUCH_NOT_ASSIGNED && touch[Position.CORNER_TOP_LEFT] == TouchScreen.TOUCH_NOT_ASSIGNED) ||
-            (touch[Position.CORNER_TOP_RIGHT] == touch[Position.RIGHT] && touch[Position.CORNER_TOP_LEFT] == touch[Position.LEFT])) {
-            touchTopRight.visibility = View.GONE
-            touchTopLeft.visibility = View.GONE
-            touchTop.setBackgroundColor(getColorFromAttr(R.attr.colorPrimaryContainer))
+        val showTopCorners = !((touch[Position.CORNER_TOP_RIGHT] == TouchScreen.TOUCH_NOT_ASSIGNED && touch[Position.CORNER_TOP_LEFT] == TouchScreen.TOUCH_NOT_ASSIGNED) ||
+                (touch[Position.CORNER_TOP_RIGHT] == touch[Position.RIGHT] && touch[Position.CORNER_TOP_LEFT] == touch[Position.LEFT]))
+
+        val showBottomCorners = !((touch[Position.CORNER_BOTTOM_RIGHT] == TouchScreen.TOUCH_NOT_ASSIGNED && touch[Position.CORNER_BOTTOM_LEFT] == TouchScreen.TOUCH_NOT_ASSIGNED) ||
+                (touch[Position.CORNER_BOTTOM_RIGHT] == touch[Position.RIGHT] && touch[Position.CORNER_BOTTOM_LEFT] == touch[Position.LEFT]))
+
+        touchTopRight.visibility = if (showTopCorners) View.VISIBLE else View.GONE
+        touchTopLeft.visibility = if (showTopCorners) View.VISIBLE else View.GONE
+        touchBottomRight.visibility = if (showBottomCorners) View.VISIBLE else View.GONE
+        touchBottomLeft.visibility = if (showBottomCorners) View.VISIBLE else View.GONE
+
+        setupTouchZone(touchTop, touch[Position.TOP]!!, isPrimary = !showTopCorners, isGlass = isGlass)
+        setupTouchZone(touchTopRight, touch[Position.CORNER_TOP_RIGHT]!!, isPrimary = true, isGlass = isGlass)
+        setupTouchZone(touchTopLeft, touch[Position.CORNER_TOP_LEFT]!!, isPrimary = true, isGlass = isGlass)
+        setupTouchZone(touchLeft, touch[Position.LEFT]!!, isPrimary = false, isGlass = isGlass)
+        setupTouchZone(touchRight, touch[Position.RIGHT]!!, isPrimary = false, isGlass = isGlass)
+        setupTouchZone(touchBottom, touch[Position.BOTTOM]!!, isPrimary = !showBottomCorners, isGlass = isGlass)
+        setupTouchZone(touchBottomLeft, touch[Position.CORNER_BOTTOM_LEFT]!!, isPrimary = true, isGlass = isGlass)
+        setupTouchZone(touchBottomRight, touch[Position.CORNER_BOTTOM_RIGHT]!!, isPrimary = true, isGlass = isGlass)
+
+        mTouchView.animate().cancel()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (mHandler.hasCallbacks(mDismissTouchView))
+                mHandler.removeCallbacks(mDismissTouchView)
         } else {
-            touchTopRight.visibility = View.VISIBLE
-            touchTopLeft.visibility = View.VISIBLE
-            touchTop.setBackgroundColor(getColor(R.color.touch_demonstration_alter))
-        }
-
-        if ((touch[Position.CORNER_BOTTOM_RIGHT] == TouchScreen.TOUCH_NOT_ASSIGNED && touch[Position.CORNER_BOTTOM_LEFT] == TouchScreen.TOUCH_NOT_ASSIGNED) ||
-            (touch[Position.CORNER_BOTTOM_RIGHT] == touch[Position.RIGHT] && touch[Position.CORNER_BOTTOM_LEFT] == touch[Position.LEFT])) {
-            touchBottomRight.visibility = View.GONE
-            touchBottomLeft.visibility = View.GONE
-            touchBottom.setBackgroundColor(getColorFromAttr(R.attr.colorPrimaryContainer))
-        } else {
-            touchBottomRight.visibility = View.VISIBLE
-            touchBottomLeft.visibility = View.VISIBLE
-            touchBottom.setBackgroundColor(getColor(R.color.touch_demonstration_alter))
+            mHandler.removeCallbacks(mDismissTouchView)
         }
 
         mTouchView.alpha = 0.0f
         mTouchView.visibility = View.VISIBLE
         mTouchView.animate().alpha(1.0f).setDuration(300L)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    super.onAnimationEnd(animation)
-                    mTouchView.alpha = 1f
-                    mTouchView.visibility = View.VISIBLE
-                }
-            })
+            .setListener(null)
+            .withEndAction {
+                mTouchView.alpha = 1f
+                mTouchView.visibility = View.VISIBLE
+            }
 
         mHandler.postDelayed(mDismissTouchView, 5000)
     }
@@ -1284,18 +1453,22 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     }
 
     private fun closeViewTouch() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (mHandler.hasCallbacks(mDismissTouchView))
+                mHandler.removeCallbacks(mDismissTouchView)
+        } else {
+            mHandler.removeCallbacks(mDismissTouchView)
+        }
+
         if (mTouchView.isGone)
             return
 
-        mTouchView.alpha = 1.0f
+        mTouchView.animate().cancel()
         mTouchView.animate().alpha(0.0f).setDuration(300L)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    super.onAnimationEnd(animation)
-                    mTouchView.visibility = View.GONE
-                    mTouchView.alpha = 1f
-                }
-            })
+            .setListener(null)
+            .withEndAction {
+                mTouchView.visibility = View.GONE
+            }
     }
 
     private fun chapterVisibility(isVisible: Boolean) {
@@ -1511,6 +1684,28 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
     override fun setCurrentPage(page: Int) {
         mFragment?.setCurrentPage(page)
+    }
+
+    private fun setupPopupBackgrounds() {
+        PopupUtils.setupPopupBackgrounds(this, mMenuPopupTranslateBottom, mMenuPopupTranslateBackground)
+        PopupUtils.setupPopupBackgrounds(this, mMenuPopupConfigurationsBottom, mMenuPopupConfigurationsBackground)
+    }
+
+    private fun setupBottomSheetInsets() {
+        mMenuPopupTranslateBottom?.let { bottomSheet ->
+            ViewCompat.setOnApplyWindowInsetsListener(bottomSheet) { view, insets ->
+                val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+                view.setPadding(view.paddingLeft, view.paddingTop, view.paddingRight, navBarHeight)
+                insets
+            }
+        }
+        mMenuPopupConfigurationsBottom?.let { bottomSheet ->
+            ViewCompat.setOnApplyWindowInsetsListener(bottomSheet) { view, insets ->
+                val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+                view.setPadding(view.paddingLeft, view.paddingTop, view.paddingRight, navBarHeight)
+                insets
+            }
+        }
     }
 
 }

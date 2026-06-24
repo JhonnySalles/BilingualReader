@@ -24,8 +24,6 @@ import com.google.android.material.card.MaterialCardView
 class MangaSeparatorGridViewHolder(var type: LibraryMangaType, itemView: View, private val listener: MangaCardListener) : RecyclerView.ViewHolder(itemView) {
 
     companion object {
-        var mIsLandscape: Boolean = false
-        var mMangaCardSize: Pair<Int, Int> = Pair(0, 0)
         var mMangaImage: Int = 0
         lateinit var mDefaultImageCover1: Bitmap
         lateinit var mDefaultImageCover2: Bitmap
@@ -35,8 +33,6 @@ class MangaSeparatorGridViewHolder(var type: LibraryMangaType, itemView: View, p
     }
 
     init {
-        mIsLandscape = itemView.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        mMangaCardSize = AdapterUtils.getMangaCardSize(itemView.context, type, mIsLandscape)
         mMangaImage = itemView.resources.getDimension(R.dimen.manga_separator_grid_card_image).toInt()
 
         mDefaultImageCover1 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_1)
@@ -83,8 +79,10 @@ class MangaSeparatorGridViewHolder(var type: LibraryMangaType, itemView: View, p
         favoriteIcon.setImageResource(if (manga.favorite) R.drawable.ico_favorite_mark else R.drawable.ico_favorite_unmark)
         config.setOnClickListener { listener.onClickConfig(manga, cardView, configIcon, layoutPosition) }
 
-        cardView.layoutParams.width = mMangaCardSize.first
-        cardView.layoutParams.height = mMangaCardSize.second
+        val isLandscape = itemView.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val cardSize = AdapterUtils.getMangaCardSize(itemView.context, type, isLandscape)
+        cardView.layoutParams.width = cardSize.first
+        cardView.layoutParams.height = cardSize.second
         mangaImage.layoutParams.height = mMangaImage
         cardView.setOnClickListener { listener.onClick(manga, itemView) }
         cardView.setOnLongClickListener {

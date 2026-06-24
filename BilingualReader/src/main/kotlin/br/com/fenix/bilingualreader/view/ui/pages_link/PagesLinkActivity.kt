@@ -9,9 +9,8 @@ import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.enums.Themes
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -28,6 +27,7 @@ class PagesLinkActivity : AppCompatActivity() {
     private lateinit var mTheme : Themes
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeUtil.applyThemeMode(this)
         mTheme = Themes.valueOf(GeneralConsts.getSharedPreferences(this).getString(GeneralConsts.KEYS.THEME.THEME_USED, Themes.ORIGINAL.toString())!!)
         setTheme(mTheme.getValue())
 
@@ -123,10 +123,7 @@ class PagesLinkActivity : AppCompatActivity() {
                     }
                 } catch (e: Exception) {
                     mLOGGER.error("Error clearing cache folders: " + e.message, e)
-                    Firebase.crashlytics.run {
-                        setCustomKey("message", "Error clearing cache folders: " + e.message)
-                        recordException(e)
-                    }
+                    Telemetry.recordException(e, "Error clearing cache folders: " + e.message)
                 }
             }
         }

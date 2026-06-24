@@ -3,5 +3,5 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
     <solid android:color="@color/skeleton"/>
-    <corners android:radius="6dp"/>
+    <corners android:radius="12dp"/>
 </shape>
