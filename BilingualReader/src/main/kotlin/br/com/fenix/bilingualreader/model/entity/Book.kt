@@ -357,4 +357,21 @@ class Book(
         return updated
     }
 
+    fun modify(book: Book): Boolean {
+        return this.title != book.title ||
+                this.author != book.author ||
+                this.bookMark != book.bookMark ||
+                this.completed != book.completed ||
+                this.favorite != book.favorite ||
+                this.pages != book.pages ||
+                this.language != book.language ||
+                this.tags != book.tags ||
+                this.lastAccess != book.lastAccess ||
+                this.publisher != book.publisher ||
+                this.series != book.series ||
+                this.genre != book.genre ||
+                this.volume != book.volume ||
+                this.release != book.release
+    }
+
 }

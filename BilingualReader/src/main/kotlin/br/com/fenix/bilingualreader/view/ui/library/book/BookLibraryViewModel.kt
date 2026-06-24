@@ -213,10 +213,12 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             return -1
         }
         val book = list[index]
-        mBookRepository.get(book.id!!)?.let {
-            book.update(it, true)
+        val updatedBook = mBookRepository.get(book.id!!)
+        if (updatedBook != null && book.modify(updatedBook)) {
+            book.update(updatedBook, true)
+            return index
         }
-        return index
+        return -1
     }
 
     fun updateList(refreshComplete: (Boolean, indexes: MutableList<Pair<ListMode, Int>>) -> (Unit)) {
@@ -233,7 +235,9 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                     change = true
                     for (Book in list) {
                         if (mListBookFull.value!!.contains(Book)) {
-                            if (mListBookFull.value!![mListBookFull.value!!.indexOf(Book)].update(Book, true)) {
+                            val existingBook = mListBookFull.value!![mListBookFull.value!!.indexOf(Book)]
+                            if (existingBook.modify(Book)) {
+                                existingBook.update(Book, true)
                                 val index = mListBook.value!!.indexOf(Book)
                                 if (index > -1)
                                     indexes.add(Pair(ListMode.MOD, index))

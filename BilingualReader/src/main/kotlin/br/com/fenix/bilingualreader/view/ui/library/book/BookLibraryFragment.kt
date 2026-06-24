@@ -379,7 +379,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                 else
                     mViewModel.updateList { change, indexes ->
                         if (change && indexes.isNotEmpty())
-                            sortList()
+                            notifyDataSet(indexes)
                     }
             }
 
@@ -429,9 +429,9 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                 GeneralConsts.SCANNER.MESSAGE_BOOK_UPDATE_FINISHED -> {
                     setIsRefreshing(false)
                     if (obj as Boolean && ::mViewModel.isInitialized && _mRecyclerView != null) { // Bug when rotate is necessary verify is initialized
-                        mViewModel.updateList { change, _ ->
+                        mViewModel.updateList { change, indexes ->
                             if (change && _mRecyclerView != null)
-                                sortList()
+                                notifyDataSet(indexes)
                         }
                     }
                 }

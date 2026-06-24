@@ -328,4 +328,20 @@ class Manga(
         return updated
     }
 
+    fun modify(manga: Manga): Boolean {
+        return this.title != manga.title ||
+                this.bookMark != manga.bookMark ||
+                this.completed != manga.completed ||
+                this.favorite != manga.favorite ||
+                this.pages != manga.pages ||
+                this.lastAccess != manga.lastAccess ||
+                this.hasSubtitle != manga.hasSubtitle ||
+                this.author != manga.author ||
+                this.series != manga.series ||
+                this.genre != manga.genre ||
+                this.publisher != manga.publisher ||
+                this.volume != manga.volume ||
+                this.release != manga.release
+    }
+
 }
