@@ -2,12 +2,10 @@ package br.com.fenix.bilingualreader.view.components
 
 import android.os.Handler
 import android.os.Looper
-import android.view.Choreographer
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.RecyclerView
-import eightbitlab.com.blurview.BlurView
-
 import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
+import eightbitlab.com.blurview.BlurView
 
 class BlurAwareItemAnimator(
     private val blurViews: List<BlurView>,

@@ -103,8 +103,8 @@ import br.com.fenix.bilingualreader.util.helpers.TextUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.TouchUtil.TouchUtils
 import br.com.fenix.bilingualreader.view.components.DottedSeekBar
-import br.com.fenix.bilingualreader.view.components.book.CurlPageTransformer
 import br.com.fenix.bilingualreader.view.components.book.Curl3DPageTransformer
+import br.com.fenix.bilingualreader.view.components.book.CurlPageTransformer
 import br.com.fenix.bilingualreader.view.components.book.DefaultPageTransformer
 import br.com.fenix.bilingualreader.view.components.book.DepthPageTransformer
 import br.com.fenix.bilingualreader.view.components.book.FadePageTransformer

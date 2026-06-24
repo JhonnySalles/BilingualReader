@@ -1,11 +1,11 @@
 package br.com.fenix.bilingualreader
 
 import android.app.Application
-import com.google.firebase.FirebaseApp
+import br.com.fenix.bilingualreader.service.parses.book.BookCoverFetcher
+import br.com.fenix.bilingualreader.service.parses.manga.MangaCoverFetcher
 import coil.ImageLoader
 import coil.ImageLoaderFactory
-import br.com.fenix.bilingualreader.service.parses.manga.MangaCoverFetcher
-import br.com.fenix.bilingualreader.service.parses.book.BookCoverFetcher
+import com.google.firebase.FirebaseApp
 
 class BilingualReaderApplication : Application(), ImageLoaderFactory {
     override fun onCreate() {
