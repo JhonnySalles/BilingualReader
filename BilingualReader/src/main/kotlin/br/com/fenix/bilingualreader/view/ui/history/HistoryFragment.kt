@@ -527,11 +527,16 @@ class HistoryFragment : Fragment() {
 
                 val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
                 val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                if (isGlass) {
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
-                    } else {
-                        (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
+                val isPopupVisible = _mBottomSheet != null && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+                    if (isGlass) {
+                        mMenuPopupHistoryBackground.setBlurAutoUpdate(false)
+                    }
+                } else {
+                    (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
+                    if (isGlass && isPopupVisible) {
+                        mMenuPopupHistoryBackground.setBlurAutoUpdate(true)
                     }
                 }
             }

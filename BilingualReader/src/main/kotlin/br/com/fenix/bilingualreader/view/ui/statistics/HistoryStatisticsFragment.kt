@@ -552,11 +552,16 @@ class HistoryStatisticsFragment : Fragment() {
                     setAnimationRecycler(true)
 
                 val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                if (isGlass) {
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        mBlurTop.setBlurAutoUpdate(false)
-                    } else {
-                        mBlurTop.setBlurAutoUpdate(true)
+                val isPopupVisible = _mBottomSheet != null && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    mBlurTop.setBlurAutoUpdate(false)
+                    if (isGlass) {
+                        mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
+                    }
+                } else {
+                    mBlurTop.setBlurAutoUpdate(true)
+                    if (isGlass && isPopupVisible) {
+                        mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(true)
                     }
                 }
             }
