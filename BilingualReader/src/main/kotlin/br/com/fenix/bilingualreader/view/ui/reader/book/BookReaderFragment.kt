@@ -1246,7 +1246,7 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 ScrollingType.Pagination,
                 ScrollingType.PaginationVertical,
                     -> {
-                    mViewPager.currentItem = page - 1
+                    mViewPager.setCurrentItem(page - 1, animated)
                 }
 
                 ScrollingType.PaginationRightToLeft -> {

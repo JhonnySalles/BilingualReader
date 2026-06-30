@@ -90,6 +90,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
             mLOGGER.error("*** CRASH APP *** ", e)
+            Telemetry.recordException(e, "*** CRASH APP ***: " + e.message)
             mDefaultUncaughtHandler?.uncaughtException(t, e)
         }
 

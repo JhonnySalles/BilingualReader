@@ -1073,7 +1073,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             ScrollingType.Vertical,
             ScrollingType.Horizontal,
                 -> {
-                mViewPager.currentItem = page - 1
+                mViewPager.setCurrentItem(page - 1, animated)
             }
 
             ScrollingType.HorizontalRightToLeft -> {

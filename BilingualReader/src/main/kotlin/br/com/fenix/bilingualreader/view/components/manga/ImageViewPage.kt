@@ -131,6 +131,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
     }
 
     init {
+        mTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
         scaleType = ScaleType.MATRIX
         imageMatrix = mMatrix
         mScaleGestureDetector = ScaleGestureDetector(getContext(), PrivateScaleDetector())
@@ -349,6 +350,20 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
         }
 
         override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+            val orientation = mParentViewPager?.orientation
+            if (orientation != null && !mPinch) {
+                val isHorizontal = orientation == ORIENTATION_HORIZONTAL
+                val delta = if (isHorizontal) -distanceX else -distanceY
+                if (!canChildScroll(orientation, delta)) {
+                    if (isHorizontal) {
+                        mMatrix.postTranslate(0f, -distanceY)
+                    } else {
+                        mMatrix.postTranslate(-distanceX, 0f)
+                    }
+                    imageMatrix = mMatrix
+                    return true
+                }
+            }
             mMatrix.postTranslate(-distanceX, -distanceY)
             imageMatrix = mMatrix
             return true
@@ -511,7 +526,6 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
         if (!canChildScroll(orientation, -1f) && !canChildScroll(orientation, 1f))
             return
 
-
         if (e.action == MotionEvent.ACTION_DOWN) {
             mInitialX = e.x
             mInitialY = e.y
@@ -526,13 +540,17 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
             val scaledDy = dy.absoluteValue * if (isVpHorizontal) 1f else .5f
 
             if (scaledDx > mTouchSlop || scaledDy > mTouchSlop) {
-                if (isVpHorizontal == (scaledDy > scaledDx))
+                if (isVpHorizontal == (scaledDy > scaledDx)) {
                     parent.requestDisallowInterceptTouchEvent(false)
-                else {
-                    if (canChildScroll(orientation, if (isVpHorizontal) dx else dy))
+                } else {
+                    if (canChildScroll(orientation, if (isVpHorizontal) dx else dy)) {
                         parent.requestDisallowInterceptTouchEvent(true)
-                    else
+                    } else {
+                        // Reset initial position to prevent accumulated delta jump (snap/puxão)
+                        mInitialX = e.x
+                        mInitialY = e.y
                         parent.requestDisallowInterceptTouchEvent(false)
+                    }
                 }
             }
         }
@@ -543,7 +561,7 @@ open class ImageViewPage(context: Context, attributeSet: AttributeSet?) : AppCom
             return false
 
         val imageHeight = computeCurrentImageSize().y.toFloat()
-        val offsetY = computeCurrentOffset().x.toFloat()
+        val offsetY = computeCurrentOffset().y.toFloat()
         if (offsetY >= 0 && direction < 0)
             return false
         else if (abs(offsetY) + height >= imageHeight && direction > 0)

@@ -5,6 +5,8 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import androidx.viewpager.widget.ViewPager
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.Scroller
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.model.enums.ScrollingType
@@ -23,6 +25,26 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
     private var mScrolling = ScrollingType.Pagination
     private var mPaginationType = PaginationType.Default
     private var mElevation = context.resources.getDimension(R.dimen.reader_elevation)
+
+    init {
+        setCustomScrollerDuration(550)
+    }
+
+    private fun setCustomScrollerDuration(duration: Int) {
+        try {
+            val scrollerField = ViewPager::class.java.getDeclaredField("mScroller")
+            scrollerField.isAccessible = true
+            val interpolator = AccelerateDecelerateInterpolator()
+            val scroller = object : Scroller(context, interpolator) {
+                override fun startScroll(startX: Int, startY: Int, dx: Int, dy: Int, durationMs: Int) {
+                    super.startScroll(startX, startY, dx, dy, duration)
+                }
+            }
+            scrollerField.set(this, scroller)
+        } catch (e: Exception) {
+            mLOGGER.warn("Could not set custom scroller", e)
+        }
+    }
 
     interface OnSwipeOutListener {
         fun onSwipeOutAtStart()

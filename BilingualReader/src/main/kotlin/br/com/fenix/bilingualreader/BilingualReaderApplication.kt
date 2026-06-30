@@ -11,6 +11,11 @@ class BilingualReaderApplication : Application(), ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
         FirebaseApp.initializeApp(this)
+
+        io.sentry.android.core.SentryAndroid.init(this) { options ->
+            options.isDebug = BuildConfig.DEBUG
+            options.tracesSampleRate = 1.0
+        }
     }
 
     override fun newImageLoader(): ImageLoader {
