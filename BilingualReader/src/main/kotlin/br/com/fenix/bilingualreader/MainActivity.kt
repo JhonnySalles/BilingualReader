@@ -422,11 +422,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onDestroy() {
         mHandler.removeCallbacksAndMessages(null)
         NotificationManagerCompat.from(this).cancelAll()
-        clearCache()
+        if (isFinishing) {
+            clearCache()
 
-        if (LocalDate.now().isAfter(LocalDate.parse(mPreferences.getString(GeneralConsts.KEYS.DATABASE.LAST_AUTO_BACKUP, "2025-01-01")))) {
-            mPreferences.edit(commit = true) { putString(GeneralConsts.KEYS.DATABASE.LAST_AUTO_BACKUP, LocalDate.now().toString()) }
-            DataBase.autoBackupDatabase(this)
+            if (LocalDate.now().isAfter(LocalDate.parse(mPreferences.getString(GeneralConsts.KEYS.DATABASE.LAST_AUTO_BACKUP, "2025-01-01")))) {
+                mPreferences.edit(commit = true) { putString(GeneralConsts.KEYS.DATABASE.LAST_AUTO_BACKUP, LocalDate.now().toString()) }
+                DataBase.autoBackupDatabase(this)
+            }
         }
 
         super.onDestroy()

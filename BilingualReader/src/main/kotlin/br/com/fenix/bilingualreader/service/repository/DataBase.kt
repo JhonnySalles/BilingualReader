@@ -86,13 +86,12 @@ abstract class DataBase : RoomDatabase() {
         }
 
         fun getDataBase(context: Context): DataBase {
-            val instance = INSTANCE
-            if (instance != null)
-                return instance
+            if (INSTANCE != null && INSTANCE!!.isOpen)
+                return INSTANCE!!
 
             synchronized(DataBase::class.java) { // Used for a two or many cores
                 var instance = INSTANCE
-                if (instance == null) {
+                if (instance == null || !instance.isOpen) {
                     mAssets = context.applicationContext.assets
 
                     instance = Room.databaseBuilder(context, DataBase::class.java, DATABASE_NAME)
