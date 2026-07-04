@@ -490,25 +490,28 @@ class HistoryStatisticsViewModel(var app: Application) : AndroidViewModel(app), 
                 val series = mutableSetOf<String>()
                 val volumes = mutableSetOf<String>()
 
-                process.forEach {
+                process.forEach { historyItem ->
+                    val it = if (historyItem is HistoryStatistics) historyItem.base else historyItem
                     when (it.type) {
                         Type.BOOK -> {
-                            if ((it as Book).author.contains(","))
-                                authors.addAll(it.author.split(",").map { it.trim() })
+                            val book = it as Book
+                            if (book.author.contains(","))
+                                authors.addAll(book.author.split(",").map { it.trim() })
                             else
-                                authors.add(it.author)
+                                authors.add(book.author)
 
-                            publishers.add(it.publisher)
-                            series.add(it.series)
+                            publishers.add(book.publisher)
+                            series.add(book.series)
                         }
                         Type.MANGA -> {
-                            if ((it as Manga).author.endsWith("."))
-                                authors.add(it.author.substringBeforeLast("."))
+                            val manga = it as Manga
+                            if (manga.author.endsWith("."))
+                                authors.add(manga.author.substringBeforeLast("."))
                             else
-                                authors.add(it.author)
+                                authors.add(manga.author)
 
-                            publishers.add(it.publisher)
-                            series.add(it.series)
+                            publishers.add(manga.publisher)
+                            series.add(manga.series)
                         }
                     }
                     volumes.add(it.volume)
