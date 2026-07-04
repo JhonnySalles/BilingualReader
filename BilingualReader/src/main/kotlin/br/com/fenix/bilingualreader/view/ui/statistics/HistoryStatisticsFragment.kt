@@ -90,6 +90,7 @@ class HistoryStatisticsFragment : Fragment() {
     private lateinit var miFilterYear: MenuItem
     private lateinit var mBlurTop: BlurView
     private lateinit var mToolbar: Toolbar
+    private var mRoot: FrameLayout by autoCleared()
 
     private var mScrollUp: FloatingActionButton by autoCleared()
     private var mScrollDown: FloatingActionButton by autoCleared()
@@ -360,18 +361,17 @@ class HistoryStatisticsFragment : Fragment() {
         mViewModel.initData()
 
         updateTitleAndSubtitle()
-
         val root = inflater.inflate(R.layout.fragment_history_statistics, container, false)
+        mRoot = root as FrameLayout
 
         mBlurTop = root.findViewById(R.id.history_statistics_blur_top)
         mToolbar = root.findViewById(R.id.toolbar_history_statistics)
         mRecyclerView = root.findViewById(R.id.history_statistics_list)
 
         (requireActivity() as MenuActivity).setActionBar(mToolbar)
-        setupBlurViews()
+        setupBlurViews(root)
         setupWindowInsets(root)
         setupTitleBackgrounds()
-
         mScrollUp = root.findViewById(R.id.history_statistics_scroll_up)
         mScrollDown = root.findViewById(R.id.history_statistics_scroll_down)
 
@@ -441,9 +441,10 @@ class HistoryStatisticsFragment : Fragment() {
         }
     }
 
+
     private fun setupPopupBackgrounds() {
         val activity = activity ?: return
-        PopupUtil.setupPopupBackgrounds(activity, mMenuPopupHistoryStatistics, mMenuPopupHistoryStatisticsBackground)
+        PopupUtil.setupPopupBackgrounds(activity, mMenuPopupHistoryStatistics, mMenuPopupHistoryStatisticsBackground, mRoot)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -1049,7 +1050,7 @@ class HistoryStatisticsFragment : Fragment() {
         }
     }
 
-    private fun setupBlurViews() {
+    private fun setupBlurViews(fragmentRoot: View) {
         if (!::mBlurTop.isInitialized)
             return
 
@@ -1058,7 +1059,7 @@ class HistoryStatisticsFragment : Fragment() {
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
 
-        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+        val rootView = fragmentRoot.findViewById<ViewGroup>(R.id.history_statistics_content) ?: decorView.findViewById<ViewGroup>(android.R.id.content)
         mBlurTop.setupWith(rootView, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)

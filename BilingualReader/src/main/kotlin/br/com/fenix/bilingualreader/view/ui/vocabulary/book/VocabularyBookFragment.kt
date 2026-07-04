@@ -597,10 +597,9 @@ class VocabularyBookFragment : Fragment(), PopupOrderListener, SwipeRefreshLayou
         mRecyclerView.adapter = myAdapter
         setupPopupBackgrounds()
     }
-
     private fun setupPopupBackgrounds() {
         val activity = activity ?: return
-        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilterOrder, mMenuPopupLibraryBackground)
+        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilterOrder, mMenuPopupLibraryBackground, mRoot)
     }
 
     override fun setObject(obj: Book) {

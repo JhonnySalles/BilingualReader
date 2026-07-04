@@ -656,6 +656,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
         mRoot = root.findViewById(R.id.frame_manga_library_root)
         _mRecyclerView = root.findViewById(R.id.manga_library_recycler_view)
+        mRecyclerView.setHasFixedSize(true)
+        mRecyclerView.setItemViewCacheSize(Util.getOptimalViewCacheSize(requireContext()))
         mRefreshLayout = root.findViewById(R.id.manga_library_refresh)
         mScrollUp = root.findViewById(R.id.manga_library_scroll_up)
         mScrollDown = root.findViewById(R.id.manga_library_scroll_down)
@@ -1447,7 +1449,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         } else {
             mMenuPopupLibraryBackground.setBlurEnabled(isGlass)
             if (isGlass) {
-                mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                 mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
                 mHandler.postDelayed({
                     mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
                 }, 100)
@@ -1459,7 +1461,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     private fun setupPopupBackgrounds() {
         val activity = activity ?: return
-        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupLibrary, mMenuPopupLibraryBackground)
+        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupLibrary, mMenuPopupLibraryBackground, mRoot)
     }
 
     private fun animateReplaceSkeleton() {

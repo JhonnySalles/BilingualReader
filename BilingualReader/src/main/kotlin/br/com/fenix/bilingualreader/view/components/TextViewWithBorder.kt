@@ -16,6 +16,8 @@ class TextViewWithBorder : AppCompatTextView {
 
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
+    private val strokeColorFilter = PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN)
+
     public override fun onDraw(canvas: Canvas) {
         val originalStyle = paint.style
         val originalStrokeWidth = paint.strokeWidth
@@ -25,7 +27,7 @@ class TextViewWithBorder : AppCompatTextView {
         paint.strokeWidth = 2f
         paint.strokeJoin = Paint.Join.ROUND
         paint.strokeMiter = 10f
-        paint.colorFilter = PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN)
+        paint.colorFilter = strokeColorFilter
         super.onDraw(canvas)
 
         paint.style = Paint.Style.FILL

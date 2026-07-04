@@ -602,6 +602,17 @@ class Util {
             return array.split(",").map { it.toInt() }.toIntArray()
         }
 
+        fun getOptimalViewCacheSize(context: Context): Int {
+            val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            val memoryInfo = ActivityManager.MemoryInfo()
+            activityManager.getMemoryInfo(memoryInfo)
+            return if (memoryInfo.lowMemory || memoryInfo.availMem < 1024 * 1024 * 500) {
+                5
+            } else {
+                25
+            }
+        }
+
     }
 }
 
@@ -1493,7 +1504,7 @@ class PopupUtil {
             }
         }
 
-        fun setupPopupBackgrounds( activity: Activity, popupBottom: View?, popupBackground: BlurView?) {
+        fun setupPopupBackgrounds( activity: Activity, popupBottom: View?, popupBackground: BlurView?, customRootView: ViewGroup? = null) {
             val sharedPreferences = GeneralConsts.getSharedPreferences(activity)
             val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
             val themeColor = activity.getColorFromAttr(R.attr.colorSurfaceVariant)
@@ -1561,7 +1572,7 @@ class PopupUtil {
                     val decorView = activity.window.decorView
                     val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
                     val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(activity)
-                    val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+                    val rootView = customRootView ?: decorView.findViewById<ViewGroup>(android.R.id.content)
                     bg.setupWith(rootView, blurAlgorithm)
                         .setFrameClearDrawable(background)
                         .setBlurRadius(15f)

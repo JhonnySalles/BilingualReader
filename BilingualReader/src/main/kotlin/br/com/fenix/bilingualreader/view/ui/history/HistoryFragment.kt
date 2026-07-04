@@ -90,7 +90,7 @@ class HistoryFragment : Fragment() {
     private var mInflater: LayoutInflater by autoCleared()
 
     private var mFilterType: Type? = null
-
+    private var mRoot: FrameLayout by autoCleared()
     private var mMenuPopupHistory: FrameLayout by autoCleared()
     private var mMenuPopupHistoryBackground: BlurView by autoCleared()
     private var mPopupHistoryView: ViewPager by autoCleared()
@@ -345,10 +345,9 @@ class HistoryFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mViewModel = ViewModelProvider(this)[HistoryViewModel::class.java]
-
         val root = inflater.inflate(R.layout.fragment_history, container, false)
+        mRoot = root as FrameLayout
         mRecyclerView = root.findViewById(R.id.history_statistics_list)
-
         ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
             val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
             mRecyclerView.setPadding(mRecyclerView.paddingLeft, mRecyclerView.paddingTop, mRecyclerView.paddingRight, navBarHeight)
@@ -438,9 +437,10 @@ class HistoryFragment : Fragment() {
         }
     }
 
+
     private fun setupPopupBackgrounds() {
         val activity = activity ?: return
-        PopupUtil.setupPopupBackgrounds(activity, mMenuPopupHistory, mMenuPopupHistoryBackground)
+        PopupUtil.setupPopupBackgrounds(activity, mMenuPopupHistory, mMenuPopupHistoryBackground, mRoot)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

@@ -640,9 +640,10 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             popupLayout?.setPadding(popupLayout.paddingLeft, popupLayout.paddingTop, popupLayout.paddingRight, navBarHeight)
             insets
         }
-
         mRoot = root.findViewById(R.id.frame_book_library_root)
         _mRecyclerView = root.findViewById(R.id.book_library_recycler_view)
+        mRecyclerView.setHasFixedSize(true)
+        mRecyclerView.setItemViewCacheSize(Util.getOptimalViewCacheSize(requireContext()))
         mRefreshLayout = root.findViewById(R.id.book_library_refresh)
         mScrollUp = root.findViewById(R.id.book_library_scroll_up)
         mScrollDown = root.findViewById(R.id.book_library_scroll_down)
@@ -1466,10 +1467,9 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             }
         }
     }
-
     private fun setupPopupBackgrounds() {
         val activity = activity ?: return
-        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupLibrary, mMenuPopupLibraryBackground)
+        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupLibrary, mMenuPopupLibraryBackground, mRoot)
     }
 
     private fun animateReplaceSkeleton() {

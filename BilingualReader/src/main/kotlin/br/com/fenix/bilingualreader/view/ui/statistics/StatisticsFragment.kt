@@ -186,8 +186,7 @@ class StatisticsFragment : Fragment() {
         } else {
             RenderScriptBlur(requireContext())
         }
-        val decorView = requireActivity().window.decorView
-        mProgress.setupWith(decorView.findViewById(android.R.id.content), blurAlgorithm)
+        mProgress.setupWith(mRoot, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(10F)
         mLoading.value = true

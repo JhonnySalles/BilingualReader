@@ -87,6 +87,7 @@ class AnnotationFragment : Fragment(), AnnotationListener {
     private lateinit var mPopupFilterColorFragment: AnnotationPopupFilterColor
     private lateinit var mPopupFilterChapterFragment: AnnotationPopupFilterChapter
     private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
+    private lateinit var mRoot: FrameLayout
 
     private val mBottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -205,6 +206,7 @@ class AnnotationFragment : Fragment(), AnnotationListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_annotation, container, false)
+        mRoot = root as FrameLayout
 
         ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
             val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
@@ -662,11 +664,12 @@ class AnnotationFragment : Fragment(), AnnotationListener {
         setupPopupBackgrounds()
     }
 
+
+
     private fun setupPopupBackgrounds() {
         val activity = activity ?: return
-        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilter, mMenuPopupLibraryBackground)
+        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilter, mMenuPopupLibraryBackground, mRoot)
     }
-
 
     private var itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
         override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {

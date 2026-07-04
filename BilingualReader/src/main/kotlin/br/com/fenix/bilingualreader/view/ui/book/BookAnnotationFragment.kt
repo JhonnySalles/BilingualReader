@@ -77,7 +77,7 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
     private lateinit var mBlurTop: BlurView
     private lateinit var mToolbar: Toolbar
     private lateinit var mPreferences: SharedPreferences
-
+    private lateinit var mRoot: FrameLayout
     private lateinit var mScrollUp: FloatingActionButton
     private lateinit var mScrollDown: FloatingActionButton
     private lateinit var miSearch: MenuItem
@@ -181,9 +181,8 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_book_annotation, container, false)
-
+        mRoot = root as FrameLayout
         mRecyclerView = root.findViewById(R.id.book_annotation_recycler_view)
-
         mScrollUp = root.findViewById(R.id.book_annotation_scroll_up)
         mScrollDown = root.findViewById(R.id.book_annotation_scroll_down)
 
@@ -308,7 +307,8 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
 
         mPopupFilterView.adapter = viewOrderPagerAdapter
 
-        setupBlurViews()
+
+        setupBlurViews(root)
         setupWindowInsets(root)
         setupTitleBackgrounds()
 
@@ -659,7 +659,8 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         }
     }
 
-    private fun setupBlurViews() {
+
+    private fun setupBlurViews(fragmentRoot: View) {
         if (!::mBlurTop.isInitialized)
             return
 
@@ -668,7 +669,7 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
 
-        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+        val rootView = fragmentRoot.findViewById(R.id.book_annotation_content) ?: decorView.findViewById<ViewGroup>(android.R.id.content)
         mBlurTop.setupWith(rootView, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)
@@ -679,11 +680,12 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
         setupTitleBackgrounds()
     }
 
+
     private fun setupTitleBackgrounds() {
         val barLayout = view?.findViewById<View>(R.id.content_toolbar_book_annotation)
         val activity = activity ?: return
         MenuUtil.setupToolbar(activity, mToolbar, mBlurTop, barLayout)
-        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilter, mMenuPopupLibraryBackground)
+        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilter, mMenuPopupLibraryBackground, mRoot)
     }
 
 }
