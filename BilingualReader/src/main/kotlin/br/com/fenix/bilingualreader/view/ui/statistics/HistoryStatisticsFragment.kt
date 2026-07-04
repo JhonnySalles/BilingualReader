@@ -444,7 +444,8 @@ class HistoryStatisticsFragment : Fragment() {
 
     private fun setupPopupBackgrounds() {
         val activity = activity ?: return
-        PopupUtil.setupPopupBackgrounds(activity, mMenuPopupHistoryStatistics, mMenuPopupHistoryStatisticsBackground, mRoot)
+        val contentContainer = view?.findViewById<ViewGroup>(R.id.history_statistics_content) ?: mRoot
+        PopupUtil.setupPopupBackgrounds(activity, mMenuPopupHistoryStatistics, mMenuPopupHistoryStatisticsBackground, contentContainer)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

@@ -668,7 +668,8 @@ class AnnotationFragment : Fragment(), AnnotationListener {
 
     private fun setupPopupBackgrounds() {
         val activity = activity ?: return
-        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilter, mMenuPopupLibraryBackground, mRoot)
+        val contentContainer = view?.findViewById<ViewGroup>(R.id.annotation_content)
+        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilter, mMenuPopupLibraryBackground, contentContainer)
     }
 
     private var itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {

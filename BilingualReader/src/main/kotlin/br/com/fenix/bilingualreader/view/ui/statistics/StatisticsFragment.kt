@@ -186,7 +186,8 @@ class StatisticsFragment : Fragment() {
         } else {
             RenderScriptBlur(requireContext())
         }
-        mProgress.setupWith(mRoot, blurAlgorithm)
+        val contentScroll = mRoot.findViewById<ViewGroup>(R.id.statistics_scroll_view) ?: mRoot
+        mProgress.setupWith(contentScroll, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(10F)
         mLoading.value = true

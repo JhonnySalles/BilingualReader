@@ -684,8 +684,9 @@ class BookAnnotationFragment : Fragment(), AnnotationListener {
     private fun setupTitleBackgrounds() {
         val barLayout = view?.findViewById<View>(R.id.content_toolbar_book_annotation)
         val activity = activity ?: return
+        val contentContainer = view?.findViewById<ViewGroup>(R.id.book_annotation_content)
         MenuUtil.setupToolbar(activity, mToolbar, mBlurTop, barLayout)
-        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilter, mMenuPopupLibraryBackground, mRoot)
+        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilter, mMenuPopupLibraryBackground, contentContainer)
     }
 
 }

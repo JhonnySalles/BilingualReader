@@ -440,7 +440,8 @@ class HistoryFragment : Fragment() {
 
     private fun setupPopupBackgrounds() {
         val activity = activity ?: return
-        PopupUtil.setupPopupBackgrounds(activity, mMenuPopupHistory, mMenuPopupHistoryBackground, mRoot)
+        val contentContainer = view?.findViewById<ViewGroup>(R.id.history_content) ?: mRoot
+        PopupUtil.setupPopupBackgrounds(activity, mMenuPopupHistory, mMenuPopupHistoryBackground, contentContainer)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
