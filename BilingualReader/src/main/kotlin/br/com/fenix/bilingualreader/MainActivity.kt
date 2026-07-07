@@ -62,6 +62,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.time.LocalDate
@@ -151,9 +152,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mNavigationView = mBinding.navView
         mNavigationView.setNavigationItemSelectedListener(this)
 
-        mMangaLibraryModel.setDefaultLibrary(LibraryUtil.getDefault(this, Type.MANGA))
-        mBookLibraryModel.setDefaultLibrary(LibraryUtil.getDefault(this, Type.BOOK))
-
         mFragmentManager = supportFragmentManager
         mFragmentManager.registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
             override fun onFragmentResumed(fm: FragmentManager, f: Fragment) {
@@ -175,60 +173,81 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }, false)
 
-        libraries()
+        lifecycleScope.launch(Dispatchers.IO) {
+            val defaultManga = LibraryUtil.getDefault(this@MainActivity, Type.MANGA)
+            val defaultBook = LibraryUtil.getDefault(this@MainActivity, Type.BOOK)
 
-        var fragment: Fragment
-        if (mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_CHANGE, false)) {
-            mPreferences.edit(commit = true) {
-                    this.putBoolean(GeneralConsts.KEYS.THEME.THEME_CHANGE, false)
+            var loadedLibraries = listOf<Library>()
+            try {
+                val repository = LibraryRepository(this@MainActivity)
+                loadedLibraries = repository.listEnabled()
+            } catch (e: Exception) {
+                mLOGGER.error("Error loading libraries: " + e.message, e)
+                Telemetry.recordException(e, "Error loading libraries: " + e.message)
             }
 
-            mMangaLibraryModel.isLoading = false
-            mBookLibraryModel.isLoading = false
-            fragment = ConfigFragment()
-        } else {
-            val idLibrary = mPreferences.getLong(GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY, GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
-            val library = mLibraries.find { it.id == idLibrary } ?: if (idLibrary.compareTo(R.id.menu_book_library_default) == 0)
-                LibraryUtil.getDefault(this, Type.BOOK)
-            else
-                LibraryUtil.getDefault(this, Type.MANGA)
+            withContext(Dispatchers.Main) {
+                mMangaLibraryModel.setDefaultLibrary(defaultManga)
+                mBookLibraryModel.setDefaultLibrary(defaultBook)
 
-            fragment = when (library.type) {
-                Type.MANGA -> {
-                    mMangaLibraryModel.setLibrary(library)
-                    mBookLibraryModel.isLoading = false
-                    MangaLibraryFragment()
+                if (loadedLibraries.isNotEmpty()) {
+                    setLibraries(loadedLibraries)
                 }
 
-                Type.BOOK -> {
-                    mBookLibraryModel.setLibrary(library)
+                var fragment: Fragment
+                if (mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_CHANGE, false)) {
+                    mPreferences.edit(commit = true) {
+                        this.putBoolean(GeneralConsts.KEYS.THEME.THEME_CHANGE, false)
+                    }
+
                     mMangaLibraryModel.isLoading = false
-                    BookLibraryFragment()
-                }
-
-                else -> {
-                    mMangaLibraryModel.setLibrary(LibraryUtil.getDefault(this, Type.MANGA))
                     mBookLibraryModel.isLoading = false
-                    MangaLibraryFragment()
-                }
-            }
+                    fragment = ConfigFragment()
+                } else {
+                    val idLibrary = mPreferences.getLong(GeneralConsts.KEYS.LIBRARY.LAST_LIBRARY, GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
+                    val library = loadedLibraries.find { it.id == idLibrary } ?: if (idLibrary.compareTo(R.id.menu_book_library_default) == 0)
+                        defaultBook
+                    else
+                        defaultManga
 
-            intent.dataString?.let {
-                mMangaLibraryModel.isLoading = false
-                mBookLibraryModel.isLoading = false
-                fragment = when (it) {
-                    "history" -> HistoryFragment()
-                    else -> fragment
+                    fragment = when (library.type) {
+                        Type.MANGA -> {
+                            mMangaLibraryModel.setLibrary(library)
+                            mBookLibraryModel.isLoading = false
+                            MangaLibraryFragment()
+                        }
+
+                        Type.BOOK -> {
+                            mBookLibraryModel.setLibrary(library)
+                            mMangaLibraryModel.isLoading = false
+                            BookLibraryFragment()
+                        }
+
+                        else -> {
+                            mMangaLibraryModel.setLibrary(defaultManga)
+                            mBookLibraryModel.isLoading = false
+                            MangaLibraryFragment()
+                        }
+                    }
+
+                    intent.dataString?.let {
+                        mMangaLibraryModel.isLoading = false
+                        mBookLibraryModel.isLoading = false
+                        fragment = when (it) {
+                            "history" -> HistoryFragment()
+                            else -> fragment
+                        }
+                    }
                 }
+
+                // content_fragment use for receive fragments layout
+                mFragmentManager.beginTransaction().replace(R.id.main_content_root, fragment).commit()
+
+                setupBlurViews()
+                setupWindowInsets()
+                setupTitleBackgrounds()
             }
         }
-
-        // content_fragment use for receive fragments layout
-        mFragmentManager.beginTransaction().replace(R.id.main_content_root, fragment).commit()
-
-        setupBlurViews()
-        setupWindowInsets()
-        setupTitleBackgrounds()
     }
 
     private fun clearCache() {
