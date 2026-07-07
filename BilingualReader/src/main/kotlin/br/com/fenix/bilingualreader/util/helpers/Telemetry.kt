@@ -13,8 +13,8 @@ object Telemetry {
     fun recordException(e: Throwable, message: String? = null) {
         // Se você estiver testando no Android Studio (Debug), isso irá impedir o envio!
         // Comente a linha abaixo caso queira testar envios em ambiente de desenvolvimento.
-        if (BuildConfig.DEBUG)
-            return
+        //if (BuildConfig.DEBUG)
+          //  return
 
         if (!isEnabled) {
             mLOGGER.warn("Telemetry disabled. Exception ignored: ${e.message}")
