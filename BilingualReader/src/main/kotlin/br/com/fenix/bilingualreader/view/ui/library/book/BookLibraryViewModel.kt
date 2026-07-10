@@ -28,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
+import java.util.LinkedHashMap
 import java.util.Locale
 import java.util.Objects
 import java.util.regex.Pattern
@@ -40,7 +41,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
 
     var isLoading : Boolean = true
 
-    private var mStackLibrary = mutableMapOf<String, Triple<Int, Library, MutableList<Book>>>()
+    private var mStackLibrary = mutableMapOf<String, Triple<Int, Library, LinkedHashMap<Long, Book>>>()
     private var mLibrary: Library = Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK)
     private val mBookRepository: BookRepository = BookRepository(app.applicationContext)
     private val mTagsRepository: TagsRepository = TagsRepository(app.applicationContext)
@@ -59,7 +60,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     private var mLibraryType = MutableLiveData(LibraryBookType.GRID_BIG)
     val libraryType: LiveData<LibraryBookType> = mLibraryType
 
-    private var mListBookFull = MutableLiveData<MutableList<Book>>(mutableListOf())
+    private val mFullMap = LinkedHashMap<Long, Book>()
     private var mListBook = MutableLiveData<MutableList<Book>>(mutableListOf())
     val listBook: LiveData<MutableList<Book>> = mListBook
 
@@ -69,6 +70,147 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
 
     private var mProcessShareMark = false
 
+    private data class IncrementalDiff(
+        val change: Boolean,
+        val indexes: MutableList<Pair<ListMode, Int>>,
+        val toAdd: List<Book>,
+        val toRemoveVisibleIndices: List<Int>,
+        val existingUpdates: List<Pair<Long, Book>>
+    )
+
+    private fun isFilterActive(): Boolean =
+        mWordFilter.isNotEmpty() || mTypeFilter.value != FilterType.None
+
+    private fun fullValues(): Collection<Book> = mFullMap.values
+
+    private fun setFullFromList(list: List<Book>) {
+        mFullMap.clear()
+        for (book in list) {
+            book.id?.let { mFullMap[it] = book }
+        }
+    }
+
+    private fun rebuildFullMap(sorted: List<Book>) {
+        mFullMap.clear()
+        for (book in sorted) {
+            book.id?.let { mFullMap[it] = book }
+        }
+    }
+
+    private fun insertInFullMap(book: Book, position: Int) {
+        val id = book.id ?: return
+        if (position > -1 && position < mFullMap.size) {
+            val newMap = LinkedHashMap<Long, Book>()
+            var index = 0
+            for ((key, value) in mFullMap) {
+                if (index == position) newMap[id] = book
+                newMap[key] = value
+                index++
+            }
+            mFullMap.clear()
+            mFullMap.putAll(newMap)
+        } else {
+            mFullMap[id] = book
+        }
+    }
+
+    private fun removeFromFull(book: Book) {
+        book.id?.let { mFullMap.remove(it) }
+    }
+
+    private fun containsInFull(book: Book): Boolean =
+        book.id != null && mFullMap.containsKey(book.id)
+
+    private fun setSuggestionsFromFull() = setSuggestions(mFullMap.values.toList())
+
+    private fun sortList(list: MutableList<Book>, order: Order, isDesc: Boolean) {
+        if (isDesc) {
+            when (order) {
+                Order.Date -> list.sortByDescending { it.dateCreate }
+                Order.LastAccess -> list.sortWith(compareByDescending<Book> { it.lastAccess }.thenByDescending { it.name })
+                Order.Favorite -> list.sortWith(compareByDescending<Book> { it.favorite }.thenByDescending { it.name })
+                Order.Author -> list.sortWith(compareByDescending<Book> { it.author }.thenByDescending { it.name })
+                else -> list.sortByDescending { it.name }
+            }
+        } else {
+            when (order) {
+                Order.Date -> list.sortBy { it.dateCreate }
+                Order.LastAccess -> list.sortWith(compareByDescending<Book> { it.lastAccess }.thenBy { it.name })
+                Order.Favorite -> list.sortWith(compareByDescending<Book> { it.favorite }.thenBy { it.name })
+                Order.Author -> list.sortWith(compareByDescending<Book> { it.author }.thenBy { it.name })
+                else -> list.sortBy { it.name }
+            }
+        }
+    }
+
+    private fun computeIncrementalDiff(
+        recentChanges: List<Book>,
+        recentDeleted: List<Book>,
+        fullSnapshot: Map<Long, Book>,
+        visibleSnapshot: List<Book>
+    ): IncrementalDiff {
+        val visibleIndexById = HashMap<Long, Int>()
+        visibleSnapshot.forEachIndexed { index, book ->
+            book.id?.let { visibleIndexById[it] = index }
+        }
+
+        val indexes = mutableListOf<Pair<ListMode, Int>>()
+        var change = false
+        val toAdd = mutableListOf<Book>()
+        val toRemoveVisibleIndices = mutableListOf<Int>()
+        val existingUpdates = mutableListOf<Pair<Long, Book>>()
+
+        if (recentChanges.isNotEmpty()) {
+            change = true
+            for (book in recentChanges) {
+                val id = book.id ?: continue
+                val existing = fullSnapshot[id]
+                if (existing != null) {
+                    if (existing.modify(book)) {
+                        existingUpdates.add(id to book)
+                        visibleIndexById[id]?.let { index ->
+                            indexes.add(Pair(ListMode.MOD, index))
+                        }
+                    }
+                } else {
+                    toAdd.add(book)
+                }
+            }
+        }
+
+        if (recentDeleted.isNotEmpty()) {
+            change = true
+            for (book in recentDeleted) {
+                val id = book.id ?: continue
+                if (fullSnapshot.containsKey(id)) {
+                    visibleIndexById[id]?.let { index ->
+                        toRemoveVisibleIndices.add(index)
+                        indexes.add(Pair(ListMode.REM, index))
+                    }
+                }
+            }
+        }
+
+        return IncrementalDiff(change, indexes, toAdd, toRemoveVisibleIndices, existingUpdates)
+    }
+
+    private fun applyIncrementalDiff(diff: IncrementalDiff) {
+        for ((id, book) in diff.existingUpdates) {
+            mFullMap[id]?.update(book, true)
+        }
+
+        for (book in diff.toAdd) {
+            book.id?.let { mFullMap[it] = book }
+            mListBook.value!!.add(book)
+            diff.indexes.add(Pair(ListMode.ADD, mListBook.value!!.size - 1))
+        }
+
+        for (index in diff.toRemoveVisibleIndices.sortedDescending()) {
+            val book = mListBook.value!!.removeAt(index)
+            removeFromFull(book)
+        }
+    }
+
     fun setDefaultLibrary(library: Library) {
         if (mLibrary.id == library.id)
             mLibrary = library
@@ -76,7 +218,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
 
     fun setLibrary(library: Library) {
         if (mLibrary.id != library.id) {
-            mListBookFull.value = mutableListOf()
+            mFullMap.clear()
             mListBook.value = mutableListOf()
         }
         mLibrary = library
@@ -101,21 +243,23 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
         if (mStackLibrary.contains(id)) {
             val item = mStackLibrary.remove(id)!!
             mLibrary = item.second
-            mListBookFull.value = item.third.toMutableList()
-            mListBook.value = item.third.toMutableList()
-            setSuggestions(mListBookFull.value)
+            mFullMap.clear()
+            mFullMap.putAll(item.third)
+            mListBook.value = mFullMap.values.toMutableList()
+            setSuggestionsFromFull()
         }
     }
 
-    fun addStackLibrary(id: String, library: Library) = mStackLibrary.put(id, Triple(mStackLibrary.size + 1, library, mListBookFull.value!!))
+    fun addStackLibrary(id: String, library: Library) =
+        mStackLibrary.put(id, Triple(mStackLibrary.size + 1, library, LinkedHashMap(mFullMap)))
 
     fun removeStackLibrary(id: String) = mStackLibrary.remove(id)
 
     fun emptyList(idLibrary: Long) {
         if (mLibrary.id == idLibrary) {
-            mListBookFull.value = mutableListOf()
+            mFullMap.clear()
             mListBook.value = mutableListOf()
-            setSuggestions(mListBookFull.value)
+            setSuggestionsFromFull()
         } else {
             for (stack in mStackLibrary)
                 if (stack.value.second.id == idLibrary)
@@ -135,10 +279,10 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     fun add(Book: Book, position: Int = -1) {
         if (position > -1) {
             mListBook.value!!.add(position, Book)
-            mListBookFull.value!!.add(position, Book)
+            insertInFullMap(Book, position)
         } else {
             mListBook.value!!.add(Book)
-            mListBookFull.value!!.add(Book)
+            insertInFullMap(Book, -1)
         }
     }
 
@@ -149,30 +293,26 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
 
     fun getAndRemove(position: Int): Book? {
         val Book = if (mListBook.value != null) mListBook.value!!.removeAt(position) else null
-        if (Book != null) mListBookFull.value!!.remove(Book)
+        if (Book != null) removeFromFull(Book)
         return Book
     }
 
     fun remove(Book: Book) {
-        if (mListBookFull.value != null) {
-            mListBook.value!!.remove(Book)
-            mListBookFull.value!!.remove(Book)
-        }
+        mListBook.value!!.remove(Book)
+        removeFromFull(Book)
     }
 
     fun remove(position: Int) {
-        if (mListBookFull.value != null) {
-            val Book = mListBook.value!!.removeAt(position)
-            mListBookFull.value!!.remove(Book)
-        }
+        val Book = mListBook.value!!.removeAt(position)
+        removeFromFull(Book)
     }
 
     fun update(list: List<Book>) {
         if (list.isNotEmpty()) {
             for (Book in list) {
-                if (!mListBookFull.value!!.contains(Book)) {
+                if (!containsInFull(Book)) {
                     mListBook.value!!.add(Book)
-                    mListBookFull.value!!.add(Book)
+                    insertInFullMap(Book, -1)
                 }
             }
         }
@@ -180,16 +320,16 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
 
     fun setList(list: ArrayList<Book>) {
         mListBook.value = list
-        mListBookFull.value = list.toMutableList()
+        setFullFromList(list)
         setSuggestions(list)
     }
 
     fun addList(Book: Book): Int {
         var index = -1
-        if (!mListBookFull.value!!.contains(Book)) {
+        if (!containsInFull(Book)) {
             index = mListBook.value!!.size
             mListBook.value!!.add(Book)
-            mListBookFull.value!!.add(Book)
+            insertInFullMap(Book, -1)
         }
 
         return index
@@ -198,10 +338,10 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     fun remList(Book: Book): Int {
         var index = -1
 
-        if (mListBookFull.value!!.contains(Book)) {
+        if (containsInFull(Book)) {
             index = mListBook.value!!.indexOf(Book)
             mListBook.value!!.remove(Book)
-            mListBookFull.value!!.remove(Book)
+            removeFromFull(Book)
         }
 
         return index
@@ -223,59 +363,36 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
 
     fun updateList(refreshComplete: (Boolean, indexes: MutableList<Pair<ListMode, Int>>) -> (Unit)) {
         viewModelScope.launch {
-            val currentFullList = mListBookFull.value ?: mutableListOf()
-            if (currentFullList.isNotEmpty()) {
+            if (mFullMap.isNotEmpty()) {
                 val list = withContext(Dispatchers.IO) { mBookRepository.listRecentChange(mLibrary) }
                 val listDel = withContext(Dispatchers.IO) { mBookRepository.listRecentDeleted(mLibrary) }
 
-                var change = false
-                val indexes = mutableListOf<Pair<ListMode, Int>>()
+                val fullSnapshot = LinkedHashMap(mFullMap)
+                val visibleSnapshot = mListBook.value?.toList() ?: emptyList()
 
-                if (list.isNotEmpty()) {
-                    change = true
-                    for (Book in list) {
-                        if (mListBookFull.value!!.contains(Book)) {
-                            val existingBook = mListBookFull.value!![mListBookFull.value!!.indexOf(Book)]
-                            if (existingBook.modify(Book)) {
-                                existingBook.update(Book, true)
-                                val index = mListBook.value!!.indexOf(Book)
-                                if (index > -1)
-                                    indexes.add(Pair(ListMode.MOD, index))
-                            }
-                        } else {
-                            mListBook.value!!.add(Book)
-                            mListBookFull.value!!.add(Book)
-                            indexes.add(Pair(ListMode.ADD, mListBook.value!!.size - 1))
-                        }
-                    }
+                val diff = withContext(Dispatchers.Default) {
+                    computeIncrementalDiff(list, listDel, fullSnapshot, visibleSnapshot)
                 }
-                if (listDel.isNotEmpty()) {
-                    change = true
-                    for (Book in listDel) {
-                        if (mListBookFull.value!!.contains(Book)) {
-                            val index = mListBook.value!!.indexOf(Book)
-                            mListBook.value!!.remove(Book)
-                            mListBookFull.value!!.remove(Book)
-                            indexes.add(Pair(ListMode.REM, index))
-                        }
-                    }
+
+                withContext(Dispatchers.Main) {
+                    applyIncrementalDiff(diff)
+                    setSuggestionsFromFull()
+                    refreshComplete(diff.change, diff.indexes)
                 }
-                setSuggestions(mListBookFull.value)
-                refreshComplete(change, indexes)
             } else {
                 val list = withContext(Dispatchers.IO) { mBookRepository.list(mLibrary) }
                 val indexes = mutableListOf<Pair<ListMode, Int>>()
                 if (list != null) {
                     indexes.add(Pair(ListMode.FULL, list.size))
                     mListBook.value = list.toMutableList()
-                    mListBookFull.value = list.toMutableList()
+                    setFullFromList(list)
                     sorted()
                 } else {
                     mListBook.value = mutableListOf()
-                    mListBookFull.value = mutableListOf()
+                    mFullMap.clear()
                     indexes.add(Pair(ListMode.FULL, 0))
                 }
-                setSuggestions(mListBookFull.value)
+                setSuggestionsFromFull()
                 refreshComplete(false, indexes)
             }
         }
@@ -288,10 +405,10 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             withContext(Dispatchers.Main) {
                 mLoading.value = false
 
-                if (mListBookFull.value == null || mListBookFull.value!!.isEmpty()) {
+                if (mFullMap.isEmpty()) {
                     mListBook.value = list.toMutableList()
-                    mListBookFull.value = list.toMutableList()
-                    setSuggestions(mListBookFull.value)
+                    setFullFromList(list)
+                    setSuggestionsFromFull()
                 } else
                     update(list)
 
@@ -334,52 +451,17 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
     fun sorted(order: Order, isDesc: Boolean = false) {
         mOrder.value = Pair(order, isDesc)
 
-        if (isDesc)
-            when (order) {
-                Order.Date -> {
-                    mListBookFull.value!!.sortByDescending { it.dateCreate }
-                    mListBook.value!!.sortByDescending { it.dateCreate }
-                }
-                Order.LastAccess -> {
-                    mListBookFull.value!!.sortWith(compareByDescending<Book> { it.lastAccess }.thenByDescending { it.name })
-                    mListBook.value!!.sortWith(compareByDescending<Book> { it.lastAccess }.thenByDescending { it.name })
-                }
-                Order.Favorite -> {
-                    mListBookFull.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenByDescending { it.name })
-                    mListBook.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenByDescending { it.name })
-                }
-                Order.Author -> {
-                    mListBookFull.value!!.sortWith(compareByDescending<Book> { it.author }.thenByDescending { it.name })
-                    mListBook.value!!.sortWith(compareByDescending<Book> { it.author }.thenByDescending { it.name })
-                }
-                else -> {
-                    mListBookFull.value!!.sortByDescending { it.name }
-                    mListBook.value!!.sortByDescending { it.name }
-                }
-            }
-        else
-            when (order) {
-                Order.Date -> {
-                    mListBookFull.value!!.sortBy { it.dateCreate }
-                    mListBook.value!!.sortBy { it.dateCreate }
-                }
-                Order.LastAccess -> {
-                    mListBookFull.value!!.sortWith(compareByDescending<Book> { it.lastAccess }.thenBy { it.name })
-                    mListBook.value!!.sortWith(compareByDescending<Book> { it.lastAccess }.thenBy { it.name })
-                }
-                Order.Favorite -> {
-                    mListBookFull.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenBy { it.name })
-                    mListBook.value!!.sortWith(compareByDescending<Book> { it.favorite }.thenBy { it.name })
-                }
-                Order.Author -> {
-                    mListBookFull.value!!.sortWith(compareByDescending<Book> { it.author }.thenBy { it.name })
-                    mListBook.value!!.sortWith(compareByDescending<Book> { it.author }.thenBy { it.name })
-                }
-                else -> {
-                    mListBookFull.value!!.sortBy { it.name }
-                    mListBook.value!!.sortBy { it.name }
-                }
-            }
+        val sortedFull = mFullMap.values.toMutableList()
+        sortList(sortedFull, order, isDesc)
+        rebuildFullMap(sortedFull)
+
+        if (!isFilterActive()) {
+            mListBook.value = sortedFull
+        } else {
+            val sortedVisible = mListBook.value!!.toMutableList()
+            sortList(sortedVisible, order, isDesc)
+            mListBook.value = sortedVisible
+        }
     }
 
     private fun setSuggestions(list : List<Book>?) {
@@ -437,7 +519,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
 
     fun clearFilter() {
         val newList: MutableList<Book> = mutableListOf()
-        newList.addAll(mListBookFull.value!!.filter(Objects::nonNull))
+        newList.addAll(fullValues().filter(Objects::nonNull))
         mListBook.value = newList
     }
 
@@ -501,7 +583,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             val filteredList: MutableList<Book> = mutableListOf()
 
             if (constraint.isNullOrEmpty() && mTypeFilter.value == FilterType.None) {
-                filteredList.addAll(mListBookFull.value!!.filter(Objects::nonNull))
+                filteredList.addAll(fullValues().filter(Objects::nonNull))
             } else {
                 var filterPattern = constraint.toString()
                 val filterCondition = arrayListOf<Pair<FilterType, String>>()
@@ -520,7 +602,7 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
                 }
 
                 filterPattern = filterPattern.lowercase(Locale.getDefault()).trim()
-                filteredList.addAll(mListBookFull.value!!.filter {
+                filteredList.addAll(fullValues().filter {
                     filtered(it, filterPattern, filterCondition)
                 })
             }
@@ -548,12 +630,14 @@ class BookLibraryViewModel(var app: Application) : AndroidViewModel(app), Filter
             val process: (book: Book) -> (Unit) = { item ->
                 if (mLibrary.id == item.fkLibrary) {
                     notify = true
-                    mListBookFull.value?.find { book -> book.id == item.id }?.let { book ->
-                        book.favorite = item.favorite
-                        book.bookMark = item.bookMark
-                        book.pages = item.pages
-                        book.completed = item.completed
-                        book.lastAccess = item.lastAccess
+                    item.id?.let { id ->
+                        mFullMap[id]?.let { book ->
+                            book.favorite = item.favorite
+                            book.bookMark = item.bookMark
+                            book.pages = item.pages
+                            book.completed = item.completed
+                            book.lastAccess = item.lastAccess
+                        }
                     }
                 }
             }
