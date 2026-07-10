@@ -107,7 +107,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
 
     private val mBottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
-            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            val isGlass = mIsGlassmorphism
             if (isGlass) {
                 mMenuPopupConfigurationBackground?.let { bg ->
                     if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
@@ -120,7 +120,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
         }
 
         override fun onSlide(bottomSheet: View, slideOffset: Float) {
-            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            val isGlass = mIsGlassmorphism
             if (isGlass) {
                 mMenuPopupConfigurationBackground?.setBlurAutoUpdate(true)
             }
@@ -135,6 +135,9 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     private val mDismissTouchView = Runnable { closeViewTouch() }
 
     private lateinit var mPreferences: SharedPreferences
+    // O tema glassmorphism so muda com recriacao da Activity, entao lemos a preferencia uma
+    // unica vez em vez de a cada onSlide/onStateChanged do BottomSheet.
+    private val mIsGlassmorphism: Boolean by lazy { mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false) }
     private lateinit var mStorage: Storage
     private lateinit var mRepository: BookRepository
     private lateinit var mLibrary: Library

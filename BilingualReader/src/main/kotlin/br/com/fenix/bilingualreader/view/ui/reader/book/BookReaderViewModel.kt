@@ -579,7 +579,10 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
     fun prepareHtml(context: Context, parse: DocumentParse?, page: Int, holder: TextViewAdapter.TextViewPagerHolder, listener: TextSelectCallbackListener?) {
         holder.pageMark.visibility = if (mAnnotation.any { it.page == page && it.markType == MarkType.PageMark }) View.VISIBLE else View.GONE
 
-        var text = parse?.getPage(page)?.pageHTMLWithImages.orEmpty()
+        // Abre a pagina nativa uma unica vez (antes abria duas: uma sem reciclar - vazamento -
+        // e outra apenas para reciclar), reduzindo o custo de JNI por bind.
+        val documentPage = parse?.getPage(page)
+        var text = documentPage?.pageHTMLWithImages.orEmpty()
 
         if (text.contains("<image-begin>image"))
             text = text.replace("<image-begin>", "<img src=\"data:").replace("<image-end>", "\" />")
@@ -635,7 +638,7 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
                 holder.textView.text = processed
             }
         }
-        parse?.getPage(page)?.recycle()
+        documentPage?.recycle()
         holder.textView.setBackgroundColor(Color.TRANSPARENT)
     }
 

@@ -144,7 +144,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
     private val mBottomSheetTranslateCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
-            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            val isGlass = mIsGlassmorphism
             if (isGlass) {
                 mMenuPopupTranslateBackground?.let { bg ->
                     if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
@@ -157,7 +157,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         }
 
         override fun onSlide(bottomSheet: View, slideOffset: Float) {
-            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            val isGlass = mIsGlassmorphism
             if (isGlass) {
                 mMenuPopupTranslateBackground?.setBlurAutoUpdate(true)
             }
@@ -166,7 +166,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
 
     private val mBottomSheetConfigurationsCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
-            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            val isGlass = mIsGlassmorphism
             if (isGlass) {
                 mMenuPopupConfigurationsBackground?.let { bg ->
                     if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
@@ -179,7 +179,7 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
         }
 
         override fun onSlide(bottomSheet: View, slideOffset: Float) {
-            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            val isGlass = mIsGlassmorphism
             if (isGlass) {
                 mMenuPopupConfigurationsBackground?.setBlurAutoUpdate(true)
             }
@@ -209,6 +209,9 @@ class MangaReaderActivity : AppCompatActivity(), OcrProcess, ChapterLoadListener
     private val mDismissTouchView = Runnable { closeViewTouch() }
 
     private lateinit var mPreferences: SharedPreferences
+    // O tema glassmorphism so muda com recriacao da Activity, entao lemos a preferencia uma
+    // unica vez em vez de a cada onSlide/onStateChanged dos BottomSheets.
+    private val mIsGlassmorphism: Boolean by lazy { mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false) }
     private lateinit var mStorage: Storage
     private lateinit var mRepository: MangaRepository
     private lateinit var mSubtitleController: SubTitleController

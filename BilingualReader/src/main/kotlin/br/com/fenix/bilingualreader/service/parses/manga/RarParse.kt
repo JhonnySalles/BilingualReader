@@ -22,6 +22,34 @@ import java.io.InputStream
 
 class RarParse : Parse {
 
+    companion object {
+        // Numero maximo de arquivos RAR mantidos em cache de disco simultaneamente.
+        private const val MAX_CACHED_ARCHIVES = 6
+
+        // Nome estavel de pasta de cache por arquivo: inclui caminho, tamanho e data de
+        // modificacao, de modo que o cache seja reaproveitado entre sessoes e invalidado
+        // automaticamente caso o arquivo mude.
+        fun cacheFolderName(file: File): String =
+            Util.MD5(file.absolutePath + "_" + file.length() + "_" + file.lastModified())
+
+        // Mantem apenas as pastas de cache mais recentes, preservando sempre a atual.
+        fun trimCache(baseDir: File, keepFolder: String) {
+            try {
+                val folders = baseDir.listFiles()?.filter { it.isDirectory } ?: return
+                if (folders.size <= MAX_CACHED_ARCHIVES)
+                    return
+
+                folders.sortedByDescending { it.lastModified() }
+                    .drop(MAX_CACHED_ARCHIVES)
+                    .filter { it.name != keepFolder }
+                    .forEach { dir ->
+                        dir.listFiles()?.forEach { it.delete() }
+                        dir.delete()
+                    }
+            } catch (ignored: Exception) { }
+        }
+    }
+
     private val mLOGGER = LoggerFactory.getLogger(RarParse::class.java)
 
     private val mHeaders = ArrayList<FileHeader>()
@@ -244,13 +272,15 @@ class RarParse : Parse {
         mFile = null
     }
 
-    fun setCacheDirectory(cacheDirectory: File?) {
+    fun setCacheDirectory(cacheDirectory: File?, preserveExisting: Boolean = false) {
         mCacheDir = cacheDirectory
         mCacheDir?.let {
             if (!it.exists())
                 it.mkdirs()
 
-            if (it.listFiles() != null) {
+            // Quando preserveExisting=true (leitor de manga com pasta estavel por arquivo),
+            // o cache extraido e reaproveitado entre sessoes, evitando reextrair RAR solido.
+            if (!preserveExisting && it.listFiles() != null) {
                 for (f in it.listFiles()!!)
                     f.delete()
             }

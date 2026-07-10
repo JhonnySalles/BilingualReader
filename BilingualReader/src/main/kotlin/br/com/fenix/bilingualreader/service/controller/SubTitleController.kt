@@ -631,42 +631,43 @@ class SubTitleController private constructor(private val context: Context) {
             }
         }
 
-    fun changeSubtitleInReader(manga: Manga, pageNumber: Int) =
-        runBlocking { // this: CoroutineScope
-            launch {
-                mManga = manga
-                if (mSelectedSubTitle.value == null || mSelectedSubTitle.value?.id == null) {
-                    mSelectedSubTitle.value = mSubtitleRepository.findByIdManga(manga.id!!)
+    fun changeSubtitleInReader(manga: Manga, pageNumber: Int) {
+        // Executa na main (LiveData.value exige main), mas sem bloquear: o IO pesado
+        // (consulta ao banco e leitura do arquivo) roda em Dispatchers.IO.
+        CoroutineScope(Dispatchers.Main).launch {
+            mManga = manga
+            if (mSelectedSubTitle.value == null || mSelectedSubTitle.value?.id == null) {
+                mSelectedSubTitle.value = withContext(Dispatchers.IO) { mSubtitleRepository.findByIdManga(manga.id!!) }
 
-                    if (mSelectedSubTitle.value == null)
-                        try {
-                            mSelectedSubTitle.value = findSubtitle(manga, pageNumber)
-                        } catch (e: java.lang.Exception) {
-                            mLOGGER.info("Subtitle not founded in file: " + e.message)
-                            return@launch
-                        }
-                }
-
-                if (mSelectedSubTitle.value?.pageCount != pageNumber) {
-                    var differ = pageNumber - mSelectedSubTitle.value?.pageCount!!
-                    if (differ == 0) differ = 1
-                    val run = if (mSelectedSubTitle.value?.pageCount!! < pageNumber)
-                        getNextSelectPage(differ)
-                    else
-                        getBeforeSelectPage(false, differ * -1)
-
-                    if (!run) {
-                        if (mSelectedSubTitle.value?.pageCount!! < pageNumber)
-                            getNextSelectSubtitle()
-                        else
-                            getBeforeSelectSubtitle()
+                if (mSelectedSubTitle.value == null)
+                    try {
+                        mSelectedSubTitle.value = withContext(Dispatchers.IO) { findSubtitle(manga, pageNumber) }
+                    } catch (e: java.lang.Exception) {
+                        mLOGGER.info("Subtitle not founded in file: " + e.message)
+                        return@launch
                     }
-                }
-
-                mSelectedSubTitle.value?.pageCount = pageNumber
-                updatePageSelect()
             }
+
+            if (mSelectedSubTitle.value?.pageCount != pageNumber) {
+                var differ = pageNumber - mSelectedSubTitle.value?.pageCount!!
+                if (differ == 0) differ = 1
+                val run = if (mSelectedSubTitle.value?.pageCount!! < pageNumber)
+                    getNextSelectPage(differ)
+                else
+                    getBeforeSelectPage(false, differ * -1)
+
+                if (!run) {
+                    if (mSelectedSubTitle.value?.pageCount!! < pageNumber)
+                        getNextSelectSubtitle()
+                    else
+                        getBeforeSelectSubtitle()
+                }
+            }
+
+            mSelectedSubTitle.value?.pageCount = pageNumber
+            updatePageSelect()
         }
+    }
 
     private fun updatePageSelect() {
         if (mSelectedSubTitle.value != null)
