@@ -246,6 +246,9 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                     val selection = cursor.getString(colum)
                     val query = searchView.query.toString().substringBeforeLast('@', "") + " " + selection
                     searchView.setQuery(query.trim(), false)
+                    if (selection.endsWith(":")) {
+                        searchSrcTextView.post { searchSrcTextView.showDropDown() }
+                    }
                 }
                 return true
             }
@@ -290,6 +293,9 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                                             cursor.addRow(arrayOf(index, "@$substring:$suggestion "))
                                     }
                                 }
+                            }
+                            if (newText.endsWith(":")) {
+                                searchSrcTextView.post { searchSrcTextView.showDropDown() }
                             }
                             return false
                         }

@@ -34,7 +34,7 @@ class MangaHandler(private var mParse: Parse) : RequestHandler() {
         options.inJustDecodeBounds = false
 
         stream = mParse.getPage(pageNum)
-        val bitmap = BitmapFactory.decodeStream(stream, null, options)
+        val bitmap = BitmapFactory.decodeStream(stream, null, options)!!
         Util.closeInputStream(stream)
 
         return Result(bitmap, Picasso.LoadedFrom.DISK)

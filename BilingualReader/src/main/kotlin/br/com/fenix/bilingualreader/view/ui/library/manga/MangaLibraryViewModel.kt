@@ -607,19 +607,20 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
 
     private val mMangaFilter = object : Filter() {
         override fun performFiltering(constraint: CharSequence?): FilterResults {
-            mWordFilter = constraint.toString()
+            mWordFilter = constraint?.toString() ?: ""
             val filteredList: MutableList<Manga> = mutableListOf()
 
             if (constraint.isNullOrEmpty() && mTypeFilter.value == FilterType.None) {
                 filteredList.addAll(fullValues().filter(Objects::nonNull))
             } else {
-                var filterPattern = constraint.toString()
+                var filterPattern = constraint?.toString() ?: ""
                 val filterCondition = arrayListOf<Pair<FilterType, String>>()
-                constraint!!.contains('@').run {
-                    val m = Pattern.compile("(@\\S*:([^\"]\\S*|\".+?\"\\s*))").matcher(constraint)
+                if (constraint != null && constraint.contains('@')) {
+                    val m = Pattern.compile("(@\\S*:(\"[^\"]*\"|[^\\s]+))\\s*").matcher(constraint)
                     while (m.find()) {
+                        val fullMatch = m.group(0) ?: continue
                         val item = m.group(1)?.replace("\"", "") ?: continue
-                        filterPattern = filterPattern.replace(m.group(1)!!, "", true)
+                        filterPattern = filterPattern.replace(fullMatch, "", true)
                         val type = Util.stringToFilter(app.applicationContext, Type.MANGA, item.substringBefore(":").replace("@", ""))
                         if (type != FilterType.None) {
                             val condition = item.substringAfter(":")

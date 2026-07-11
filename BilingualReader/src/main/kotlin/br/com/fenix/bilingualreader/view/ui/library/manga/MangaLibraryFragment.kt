@@ -245,6 +245,9 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                     val selection = cursor.getString(colum)
                     val query = searchView.query.toString().substringBeforeLast('@', "") + " " + selection
                     searchView.setQuery(query.trim(), false)
+                    if (selection.endsWith(":")) {
+                        searchSrcTextView.post { searchSrcTextView.showDropDown() }
+                    }
                 }
                 return true
             }
@@ -284,6 +287,9 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                                             cursor.addRow(arrayOf(index, "@$substring:$suggestion "))
                                     }
                                 }
+                            }
+                            if (newText.endsWith(":")) {
+                                searchSrcTextView.post { searchSrcTextView.showDropDown() }
                             }
                             return false
                         }

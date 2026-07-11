@@ -27,7 +27,7 @@ class ImageViewPager(context: Context, attributeSet: AttributeSet) : ViewPager(c
     private var mElevation = context.resources.getDimension(R.dimen.reader_elevation)
 
     init {
-        setCustomScrollerDuration(550)
+        setCustomScrollerDuration(400)
     }
 
     private fun setCustomScrollerDuration(duration: Int) {
