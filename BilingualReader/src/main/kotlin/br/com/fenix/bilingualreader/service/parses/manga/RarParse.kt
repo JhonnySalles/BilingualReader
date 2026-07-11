@@ -170,16 +170,17 @@ class RarParse : Parse {
     }
 
     override fun getPage(num: Int): InputStream {
-        if (mArchive!!.mainHeader.isSolid) {
-            synchronized(this) {
-                if (!mSolidFileExtracted) {
-                    for (h in mArchive!!.fileHeaders) {
-                        if (!h.isDirectory && FileUtil.isImage(getName(h))) {
-                            getPageStream(h)
-                        }
+        var isSolid = false
+        synchronized(this) {
+            isSolid = mArchive?.mainHeader?.isSolid ?: false
+            if (isSolid && !mSolidFileExtracted) {
+                val files = mArchive?.fileHeaders ?: emptyList()
+                for (h in files) {
+                    if (!h.isDirectory && FileUtil.isImage(getName(h))) {
+                        getPageStream(h)
                     }
-                    mSolidFileExtracted = true
                 }
+                mSolidFileExtracted = true
             }
         }
         return getPageStream(mHeaders[num])
@@ -189,7 +190,28 @@ class RarParse : Parse {
         try {
             mArchive?.close()
         } catch (ignored: Exception) {}
-        mArchive = if (mFile != null) Archive(mFile) else null
+        val archive = if (mFile != null) Archive(mFile) else null
+        mArchive = archive
+        if (archive != null) {
+            val newHeaders = archive.fileHeaders
+            for (i in mHeaders.indices) {
+                val oldHeader = mHeaders[i]
+                val newHeader = newHeaders.find { it.fileName == oldHeader.fileName }
+                if (newHeader != null) {
+                    mHeaders[i] = newHeader
+                }
+            }
+            for (i in mSubtitles.indices) {
+                val oldHeader = mSubtitles[i]
+                val newHeader = newHeaders.find { it.fileName == oldHeader.fileName }
+                if (newHeader != null) {
+                    mSubtitles[i] = newHeader
+                }
+            }
+            mComicInfo?.let { oldHeader ->
+                mComicInfo = newHeaders.find { it.fileName == oldHeader.fileName }
+            }
+        }
     }
 
     private fun getHeaderByName(name: String): FileHeader? {
@@ -204,13 +226,17 @@ class RarParse : Parse {
                 if (cacheFile.exists())
                     return FileInputStream(cacheFile)
 
+                val tempFile = File(mCacheDir, Util.MD5(name) + ".tmp")
                 synchronized(this) {
-                    val os = FileOutputStream(cacheFile)
+                    if (cacheFile.exists())
+                        return FileInputStream(cacheFile)
+
+                    val os = FileOutputStream(tempFile)
                     try {
                         val targetHeader = if (isFirst) header else getHeaderByName(name) ?: header
                         mArchive!!.extractFile(targetHeader, os)
                     } catch (e : CrcErrorException) {
-                        cacheFile.delete()
+                        tempFile.delete()
                         if (isFirst) {
                             Thread.sleep(200)
                             getPageStream(header, false)
@@ -219,7 +245,7 @@ class RarParse : Parse {
                             throw e
                         }
                     } catch (e: Exception) {
-                        cacheFile.delete()
+                        tempFile.delete()
                         mLOGGER.error("Error to get page stream (recreating archive): " + e.message, e)
                         if (isFirst) {
                             recreateArchive()
@@ -231,6 +257,7 @@ class RarParse : Parse {
                     } finally {
                         os.close()
                     }
+                    tempFile.renameTo(cacheFile)
                 }
                 return FileInputStream(cacheFile)
             }

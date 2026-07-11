@@ -934,6 +934,7 @@ class HistoryStatisticsFragment : Fragment() {
     }
 
     private fun showSkeleton(show: Boolean) {
+        if (view == null) return
         if (show) {
             mSkeletonLayout.alpha = 1f
             mSkeletonLayout.removeAllViews()

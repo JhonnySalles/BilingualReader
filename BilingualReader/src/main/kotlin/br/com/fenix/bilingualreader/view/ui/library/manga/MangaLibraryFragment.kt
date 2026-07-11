@@ -1380,6 +1380,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     private fun showSkeleton(show: Boolean) {
+        if (view == null) return
         if (show) {
             mSkeletonLayout.alpha = 1f
             mSkeletonLayout.removeAllViews()
