@@ -48,7 +48,7 @@ class ImageParseTest {
         ShadowImageExtractor.mock = imageExtractor
         
         val bitmapMock = mockk<android.graphics.Bitmap>()
-        every { imageExtractor.proccessCoverPage(any()) } returns bitmapMock
+        every { imageExtractor.processCoverPage(any()) } returns bitmapMock
 
         val imageParse = try {
             ImageParse(context)
@@ -59,7 +59,7 @@ class ImageParseTest {
         if (imageParse != null) {
             val cover = imageParse.getCoverPage("/some/path/image.jpg", true)
             assertNotNull(cover)
-            verify { imageExtractor.proccessCoverPage(any()) }
+            verify { imageExtractor.processCoverPage(any()) }
         }
     }
 }

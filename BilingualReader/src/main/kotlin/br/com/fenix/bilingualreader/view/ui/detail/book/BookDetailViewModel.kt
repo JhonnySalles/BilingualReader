@@ -8,9 +8,6 @@ import android.graphics.Bitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import br.com.ebook.foobnix.entity.FileMeta
-import br.com.ebook.foobnix.entity.FileMetaCore
-import br.com.ebook.foobnix.ext.CacheZipUtils
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -93,9 +90,7 @@ class BookDetailViewModel(var app: Application) : AndroidViewModel(app) {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                async {
-                    val ebookMeta = FileMetaCore.get().getEbookMeta(book.path, CacheZipUtils.CacheDir.ZipApp, false)
-                    FileMetaCore.get().udpateFullMeta(FileMeta(book.path), ebookMeta)
+                    val ebookMeta = br.com.ebook.core.BookExtractorFactory.getMetadata(book.path)
 
                     if (book.update(ebookMeta, book.library.language)) {
                         mBookRepository.update(book)
@@ -131,14 +126,14 @@ class BookDetailViewModel(var app: Application) : AndroidViewModel(app) {
                                     }
                                 }
                             }
-
-                            override fun onSearching(isSearching: Boolean) { }
-
-                            override fun onConverting(isConverting: Boolean) { }
-
                         }
-                    )
-                }
+
+                        override fun onSearching(isSearching: Boolean) { }
+
+                        override fun onConverting(isConverting: Boolean) { }
+
+                    }
+                )
 
                 var image: Bitmap? = null
                 val deferred = async {

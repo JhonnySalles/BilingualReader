@@ -129,7 +129,7 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
     fun isLoaded(): Boolean = isLoaded
 
     fun isLoading(): Boolean = isLoading
-    fun isSearching(): Boolean = TempHolder.isSeaching
+    fun isSearching(): Boolean = TempHolder.isSearching
     fun isConverting(): Boolean = TempHolder.isConverting
 
     fun cancelOpen() {

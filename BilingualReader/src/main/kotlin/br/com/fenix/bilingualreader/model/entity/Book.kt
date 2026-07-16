@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import br.com.ebook.foobnix.ext.EbookMeta
+import br.com.ebook.core.BookMetadata
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Languages
 import br.com.fenix.bilingualreader.model.enums.Libraries
@@ -301,16 +301,14 @@ class Book(
         return updated
     }
 
-    fun update(meta: EbookMeta, language: Libraries) : Boolean {
-        val metaRelease = if (meta.release != null) GeneralConsts.dateToDateTime(meta.release).toLocalDate() else null
-
-        val series = meta.sequence ?: let {
+    fun update(meta: br.com.ebook.core.BookMetadata, language: Libraries) : Boolean {
+        val series = if (meta.series.isNotEmpty()) meta.series else let {
             var index = -1
-            if (title.contains(" vol.",true)) {
+            if (title.contains(" vol.", true)) {
                 index = title.lastIndexOf(" vol.", 0, true)
                 if (index < 0)
                     index = title.indexOf(" vol.", 0, true)
-            } else if (title.contains("volume", true)){
+            } else if (title.contains("volume", true)) {
                 index = title.lastIndexOf("volume", 0, true)
                 if (index < 0)
                     index = title.indexOf("volume", 0, true)
@@ -318,28 +316,28 @@ class Book(
             if (index > -1) title.substring(0, index).trim() else ""
         }
 
-        val updated = this.title != meta.title || this.author != (meta.author ?: "") || this.annotation != (meta.annotation ?: "") ||
-                this.genre != (meta.genre ?: "") || this.publisher != (meta.publisher ?: "") || this.series != series ||
-                this.isbn != (meta.isbn ?: "") || this.release != metaRelease
+        val updated = this.title != meta.title || this.author != meta.author || this.annotation != meta.annotation ||
+                this.genre != meta.genre || this.publisher != meta.publisher || this.series != series ||
+                this.isbn != meta.isbn || this.release != meta.releaseDate
 
         this.title = meta.title
-        this.author = meta.author ?: ""
-        this.annotation = meta.annotation ?: ""
-        this.genre = meta.genre ?: ""
-        this.publisher = meta.publisher ?: ""
+        this.author = meta.author
+        this.annotation = meta.annotation
+        this.genre = meta.genre
+        this.publisher = meta.publisher
         this.series = series
-        this.isbn = meta.isbn ?: ""
-        this.release = metaRelease
+        this.isbn = meta.isbn
+        this.release = meta.releaseDate
         this.fileSize = file.length()
 
-        if (meta.getsIndex() > 0)
-            this.volume = meta.getsIndex().toString()
+        if (meta.seriesIndex > 0)
+            this.volume = meta.seriesIndex.toString()
         else if (title.lowercase().contains(" vol."))
             this.volume = title.lowercase().substringAfterLast("vol.", "").substringBefore("—").trim().replace(Regex("[^\\d.][\\s\\S]+"), "")
         else
             this.volume = fileName.lowercase().substringAfterLast("volume", "").trim().replace(Regex("[^\\d.][\\s\\S]+"), "")
 
-        this.language = when (meta.lang) {
+        this.language = when (meta.language.lowercase(Locale.getDefault())) {
             "ja", "jp" -> Languages.JAPANESE
             "en" -> Languages.ENGLISH
             "pt" -> Languages.PORTUGUESE

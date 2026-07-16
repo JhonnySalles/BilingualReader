@@ -841,7 +841,7 @@ public class ExtUtils {
                 mime = mimeType;
             else {
                 BookType codecType = BookType.getByUri(name);
-                mime = codecType.getFirstMimeTime();
+                mime = codecType.getFirstMimeType();
             }
         } catch (Exception e) {
             mime = "application/" + ExtUtils.getFileExtension(file);

@@ -8,8 +8,6 @@ import android.os.Message
 import android.os.Process
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
-import br.com.ebook.foobnix.entity.FileMeta
-import br.com.ebook.foobnix.entity.FileMetaCore
 import br.com.ebook.foobnix.ext.CacheZipUtils
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
@@ -242,8 +240,9 @@ class ScannerBook(private val context: Context) {
                                     book.lastVerify = LocalDate.now()
                                     book.id = storage.save(book, null)
 
-                                    val ebookMeta = FileMetaCore.get().getEbookMeta(it.path, CacheZipUtils.CacheDir.ZipApp, false)
-                                    FileMetaCore.get().udpateFullMeta(FileMeta(it.path), ebookMeta)
+                                    val ebookMeta = kotlinx.coroutines.runBlocking {
+                                        br.com.ebook.core.BookExtractorFactory.getMetadata(it.path)
+                                    }
 
                                     book.update(ebookMeta, mLibrary.language)
                                     storage.save(book, null)
