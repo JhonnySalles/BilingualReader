@@ -4,9 +4,9 @@ import br.com.ebook.extractor.EpubBookExtractor
 import br.com.ebook.extractor.MobiBookExtractor
 import br.com.ebook.core.BookContent
 import br.com.ebook.foobnix.ext.CacheZipUtils
-import br.com.ebook.pdf.info.ExtUtils
-import br.com.ebook.pdf.info.JsonHelper
-import br.com.ebook.pdf.info.model.BookCSS
+import br.com.ebook.foobnix.pdf.info.ExtUtils
+import br.com.ebook.foobnix.pdf.info.JsonHelper
+import br.com.ebook.foobnix.pdf.info.model.BookCSS
 import br.com.ebook.foobnix.sys.TempHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +34,9 @@ class MobiContext : PdfContext() {
     }
 
     override fun openDocumentInner(fileName: String, password: String): CodecDocument? {
+        if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+            throw IllegalStateException("Document extraction must not run on the UI thread.")
+        }
         LOGGER.info("Context: MobiContext - {}", fileName)
 
         val cache = cacheFile ?: getCacheFileName(fileName)
@@ -45,8 +48,8 @@ class MobiContext : PdfContext() {
                 try {
                     val outName = if (BookCSS.get().isAutoHypens) "temp".hashCode() else originalHashCode
                     
-                    val contentResult = runBlocking {
-                        MobiBookExtractor.extractContent(fileName, CacheZipUtils.CACHE_BOOK_DIR.path)
+                    val contentResult = runBlocking(br.com.ebook.core.EbookDispatcher.dispatcher) {
+                        MobiBookExtractor.extractContent(fileName, CacheZipUtils.CACHE_BOOK_DIR?.path ?: "")
                     }
                     val content = contentResult.getOrThrow()
                     

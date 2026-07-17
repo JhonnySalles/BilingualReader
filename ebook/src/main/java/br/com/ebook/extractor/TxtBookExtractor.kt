@@ -2,10 +2,11 @@ package br.com.ebook.extractor
 
 import android.text.TextUtils
 import br.com.ebook.core.*
+import br.com.ebook.core.EbookSettings
 import br.com.ebook.util.IOUtils
 import br.com.ebook.foobnix.android.utils.TxtUtils
-import br.com.ebook.hypen.HypenUtils
-import br.com.ebook.pdf.info.ExtUtils
+import br.com.ebook.foobnix.hypen.HypenUtils
+import br.com.ebook.foobnix.pdf.info.ExtUtils
 import br.com.ebook.foobnix.pdf.info.model.BookCSS
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState
 import org.slf4j.LoggerFactory
@@ -52,7 +53,7 @@ object TxtBookExtractor : BookExtractor {
     }
 
     override suspend fun extractContent(path: String, outputDir: String): Result<BookContent> = runCatching {
-        val prePrefix = if (AppState.get().isPreText) "pre_" else ""
+        val prePrefix = if (EbookSettings.isPreText) "pre_" else ""
         val file = File(outputDir, prePrefix + OUT_FB2_XML)
         val encoding = ExtUtils.determineEncoding(FileInputStream(path))
 
@@ -61,7 +62,7 @@ object TxtBookExtractor : BookExtractor {
                 writer.println("<!DOCTYPE html>")
                 writer.println("<html>")
                 
-                if (AppState.get().isPreText) {
+                if (EbookSettings.isPreText) {
                     writer.println("<head><style>@page{margin:0px 0.5em} pre{margin:0px} {body:margin:0px;}</style></head>")
                 } else {
                     writer.println("<head><style>p,p+p{margin:0;}</style></head>")
@@ -69,22 +70,22 @@ object TxtBookExtractor : BookExtractor {
 
                 writer.println("<body>")
 
-                if (AppState.get().isPreText) {
+                if (EbookSettings.isPreText) {
                     writer.println("<pre>")
                 }
 
-                if (AppState.get().isLineBreaksText) {
+                if (EbookSettings.isLineBreaksText) {
                     writer.println("<p>")
                 }
 
-                if (BookCSS.get().isAutoHypens) {
-                    HypenUtils.applyLanguage(BookCSS.get().hypenLang)
+                if (EbookSettings.isAutoHypens) {
+                    HypenUtils.applyLanguage(EbookSettings.hypenLang)
                 }
 
                 var line: String?
                 while (input.readLine().also { line = it } != null) {
                     var outLn: String? = null
-                    if (AppState.get().isPreText) {
+                    if (EbookSettings.isPreText) {
                         outLn = retab(line!!, 8)
                         outLn = TextUtils.htmlEncode(outLn)
                         if (TxtUtils.isLineStartEndUpperCase(outLn)) {
@@ -92,7 +93,7 @@ object TxtBookExtractor : BookExtractor {
                         }
                     } else {
                         val trimmedLine = line!!.trim()
-                        if (AppState.get().isLineBreaksText) {
+                        if (EbookSettings.isLineBreaksText) {
                             outLn = if (trimmedLine.isEmpty()) "<br/>" else format(line!!)
                         } else {
                             outLn = when {
@@ -106,11 +107,11 @@ object TxtBookExtractor : BookExtractor {
                     writer.println(outLn)
                 }
 
-                if (AppState.get().isLineBreaksText) {
+                if (EbookSettings.isLineBreaksText) {
                     writer.println("</p>")
                 }
 
-                if (AppState.get().isPreText) {
+                if (EbookSettings.isPreText) {
                     writer.println("</pre>")
                 }
 
@@ -145,7 +146,7 @@ object TxtBookExtractor : BookExtractor {
         try {
             formatted = formatted.replace("\n", "").replace("\r", "")
             formatted = TextUtils.htmlEncode(formatted)
-            if (BookCSS.get().isAutoHypens) {
+            if (EbookSettings.isAutoHypens) {
                 formatted = HypenUtils.applyHypnes(formatted)
             }
             formatted = formatted.trim()

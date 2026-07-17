@@ -100,8 +100,7 @@ public final class RawBitmap {
             TempHolder.get().path = jopa;
         }
 
-        if (Config.SHOW_LOG)
-            LOGGER.info("nativeInvert: {} - {}", TempHolder.get().path, BookType.DJVU.is(TempHolder.get().path));
+        
 
         if (!MagicHelper.isNeedMagic() && BookType.DJVU.is(TempHolder.get().path)) {
             nativeInvert(pixels, width, height);

@@ -10,7 +10,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 
 import br.com.ebook.Config;
-import br.com.ebook.foobnix.ext.EpubExtractor;
+import br.com.ebook.util.IOUtils;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 
 public class FontExtractor {
@@ -34,8 +34,7 @@ public class FontExtractor {
         try {
             File fontsDir = getFontsDir(c, to);
             if (fontsDir.exists()) {
-                if (Config.SHOW_LOG)
-                    LOGGER.info("FontExtractor Dir exists: {}", fontsDir);
+                
             } else {
                 fontsDir.mkdirs();
             }
@@ -43,10 +42,9 @@ public class FontExtractor {
             for (String fontName : list) {
                 File fontFile = new File(fontsDir, fontName);
                 if (!fontFile.exists()) {
-                    if (Config.SHOW_LOG)
-                        LOGGER.info("FontExtractor Copy file {} to {}", fontName, fontFile);
+                    
                     InputStream open = c.getAssets().open(from + "/" + fontName);
-                    EpubExtractor.writeToStream(open, new FileOutputStream(fontFile));
+                    IOUtils.copyTo(open, new FileOutputStream(fontFile));
                     open.close();
                 }
             }

@@ -79,8 +79,7 @@ public class DjvuPage extends AbstractCodecPage {
 
     @Override
     public BitmapRef renderBitmap(final int width, final int height, final RectF pageSliceBounds) {
-        if (Config.SHOW_LOG)
-            LOGGER.info("Render DJVU Page: {}x{} - {}", width, height, pageSliceBounds);
+        
         final int renderMode = 0;// 0-color,1-black,2 color only, 3 mask, 4 backgroud, 5 foreground
         BitmapRef bmp = null;
         if (width > 0 && height > 0) {
@@ -129,8 +128,7 @@ public class DjvuPage extends AbstractCodecPage {
 
         RectF rectF = new RectF(0, 0, 1f, 1f);
         float k = (float) originH / originW;
-        if (Config.SHOW_LOG)
-            LOGGER.info("Render! w{} H {} {} {}", originW, originH, k, width * k);
+        
         BitmapRef renderBitmap = renderBitmap(width, (int) (width * k), rectF);
         return renderBitmap.getBitmap();
     }
@@ -149,8 +147,7 @@ public class DjvuPage extends AbstractCodecPage {
                 return;
             }
 
-            if (Config.SHOW_LOG)
-                LOGGER.info("MUPDF! recycle page: {} - {}", docHandle, pageHandle);
+            
             long p = pageHandle;
             pageHandle = 0;
             free(p);

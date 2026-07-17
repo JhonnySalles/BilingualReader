@@ -315,8 +315,7 @@ public class ExtUtils {
     }
 
     public static String getFileExtension(String name) {
-        if (Config.SHOW_LOG)
-            LOGGER.info("getFileExtension 1: {}", name);
+        
         if (name == null)
             return "";
 
@@ -448,8 +447,7 @@ public class ExtUtils {
 
     public static boolean isTextFomat(Intent intent) {
         if (intent == null || intent.getData() == null || intent.getData().getPath() == null) {
-            if (Config.SHOW_LOG)
-                LOGGER.info("isTextFomat: intent or data or path is null");
+            
             return false;
         }
         return isTextFomat(intent.getData().getPath());
@@ -720,8 +718,7 @@ public class ExtUtils {
             return;
         }
 
-        if (Config.SHOW_LOG)
-            LOGGER.info("showDocument: {}", uri.getPath());
+        
 
         if (AppState.get().isAlwaysOpenAsMagazine)
             openHorizontalView(c, new File(uri.getPath()), page - 1);
@@ -751,10 +748,8 @@ public class ExtUtils {
         openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         // openIntent.setDataAndType(getUriProvider(context, file), mimeType);
         openIntent.setDataAndType(getUriProvider(context, file), mimeType);
-        // if (Config.SHOW_LOG)
-        //    LOGGER.info("getUriProvider2: {}", getUriProvider(context, file));
-        // if (Config.SHOW_LOG)
-        //    LOGGER.info("getUriProvider2: {}", Uri.fromFile(file));
+        // 
+        // 
 
         // 1. Check if there is a default app opener for this type of content.
         final PackageManager packageManager = context.getPackageManager();
@@ -825,8 +820,7 @@ public class ExtUtils {
         else
             uriForFile = Uri.fromFile(file);
 
-        if (Config.SHOW_LOG)
-            LOGGER.info("getUriProvider: {}", uriForFile);
+        
         return uriForFile;
     }
 
@@ -846,8 +840,7 @@ public class ExtUtils {
         } catch (Exception e) {
             mime = "application/" + ExtUtils.getFileExtension(file);
         }
-        if (Config.SHOW_LOG)
-            LOGGER.info("getMimeType: {}", mime);
+        
         return mime;
     }
 
@@ -867,8 +860,7 @@ public class ExtUtils {
             detector.reset();
             fis.close();
 
-            if (Config.SHOW_LOG)
-                LOGGER.info("File Encoding: {}", encoding);
+            
 
         } catch (Exception e) {
             LOGGER.error("Error determine encoding: {}", e.getMessage(), e);

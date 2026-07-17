@@ -3,7 +3,7 @@ package br.com.ebook.core
 import br.com.ebook.extractor.*
 import br.com.ebook.foobnix.android.utils.TxtUtils
 import br.com.ebook.foobnix.ext.CacheZipUtils
-import br.com.ebook.pdf.info.ExtUtils
+import br.com.ebook.foobnix.pdf.info.ExtUtils
 import org.jsoup.Jsoup
 import org.jsoup.safety.Safelist
 import org.slf4j.LoggerFactory
@@ -23,6 +23,11 @@ object BookExtractorFactory {
             "html", "htm", "xhtml", "xhtm", "mht", "mhtml" -> HtmlBookExtractor
             "rtf" -> RtfBookExtractor
             "pdf", "xps" -> PdfBookExtractor
+            "cbz", "cbr" -> CbzCbrBookExtractor
+            "docx" -> DocxBookExtractor
+            "odt" -> OdtBookExtractor
+            "md", "markdown" -> MarkdownBookExtractor
+            "djvu" -> DjvuBookExtractor
             else -> null
         }
     }

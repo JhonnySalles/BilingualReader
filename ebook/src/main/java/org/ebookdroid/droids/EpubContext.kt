@@ -2,12 +2,14 @@ package org.ebookdroid.droids
 
 import br.com.ebook.extractor.EpubBookExtractor
 import br.com.ebook.foobnix.ext.CacheZipUtils
-import br.com.ebook.pdf.info.ExtUtils
-import br.com.ebook.pdf.info.JsonHelper
-import br.com.ebook.pdf.info.model.BookCSS
+import br.com.ebook.foobnix.pdf.info.ExtUtils
+import br.com.ebook.foobnix.pdf.info.JsonHelper
+import br.com.ebook.foobnix.pdf.info.model.BookCSS
 import br.com.ebook.foobnix.sys.TempHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.ebookdroid.core.codec.CodecDocument
 import org.ebookdroid.droids.mupdf.codec.MuPdfDocument
@@ -18,6 +20,12 @@ import java.io.File
 class EpubContext : PdfContext() {
     private val LOGGER = LoggerFactory.getLogger(EpubContext::class.java)
     private var cacheFile: File? = null
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    override fun freeContext() {
+        scope.cancel()
+        super.freeContext()
+    }
 
     override fun getCacheFileName(fileNameOriginal: String): File {
         val hash = (fileNameOriginal + BookCSS.get().isAutoHypens + BookCSS.get().hypenLang).hashCode()
@@ -49,7 +57,7 @@ class EpubContext : PdfContext() {
             LOGGER.info("Loaded notes from file: {}", jsonFile)
         }
 
-        CoroutineScope(Dispatchers.IO).launch {
+        scope.launch {
             try {
                 muPdfDocument.setMediaAttachment(EpubBookExtractor.getAttachments(fileName))
                 if (!jsonFile.isFile) {

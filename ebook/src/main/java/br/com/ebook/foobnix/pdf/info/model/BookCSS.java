@@ -166,8 +166,7 @@ public class BookCSS {
                 "svg {display:block} \n" + //
                 "figure > * {font-size: 0.7em}";
 
-        if (Config.SHOW_LOG)
-            LOGGER.info("BookCSS: resetToDefault");
+        
 
     }
 

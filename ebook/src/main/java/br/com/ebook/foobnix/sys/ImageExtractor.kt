@@ -11,7 +11,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.util.Base64
 import android.util.Pair
-import br.com.ebook.BaseExtractor
+import br.com.ebook.util.BitmapUtils
 import br.com.ebook.Config
 import br.com.ebook.core.BookExtractorFactory
 import br.com.ebook.foobnix.android.utils.Dips
@@ -175,7 +175,7 @@ class ImageExtractor private constructor(private val context: Context) : ImageDo
             pageUrl.height = (pageUrl.width * 1.5).toInt()
         }
 
-        val ebookMeta = runBlocking {
+        val ebookMeta = runBlocking(br.com.ebook.core.EbookDispatcher.dispatcher) {
             BookExtractorFactory.getMetadata(path)
         }
 
@@ -183,28 +183,28 @@ class ImageExtractor private constructor(private val context: Context) : ImageDo
         var cover: Bitmap? = null
 
         if (ebookMeta.coverImage != null) {
-            cover = BaseExtractor.arrayToBitmap(ebookMeta.coverImage, pageUrl.width)
+            cover = BitmapUtils.arrayToBitmap(ebookMeta.coverImage, pageUrl.width)
         } else {
             // Usamos a nova BookExtractorFactory em Kotlin
-            val coverBytes = runBlocking {
+            val coverBytes = runBlocking(br.com.ebook.core.EbookDispatcher.dispatcher) {
                 BookExtractorFactory.getExtractor(unZipPath)?.extractCover(unZipPath)?.getOrNull()
             }
             if (coverBytes != null) {
-                cover = BaseExtractor.arrayToBitmap(coverBytes, pageUrl.width)
-            } else if (BookType.PDF.is(unZipPath) || BookType.DJVU.is(unZipPath) || BookType.TIFF.is(unZipPath)) {
+                cover = BitmapUtils.arrayToBitmap(coverBytes, pageUrl.width)
+            } else if (BookType.PDF.`is`(unZipPath) || BookType.DJVU.`is`(unZipPath) || BookType.TIFF.`is`(unZipPath)) {
                 cover = processOtherPage(pageUrl)
             } else if (ExtUtils.isFileArchive(unZipPath)) {
                 val ext = ExtUtils.getFileExtension(unZipPath)
-                cover = BaseExtractor.getBookCoverWithTitle("...", "  [" + ext.uppercase(Locale.getDefault()) + "]", true)
+                cover = BitmapUtils.getBookCoverWithTitle("...", "  [" + ext.uppercase(Locale.getDefault()) + "]", true)
                 pageUrl.tempWithWatermakr = true
             } else if (ExtUtils.isFontFile(unZipPath)) {
-                cover = BaseExtractor.getBookCoverWithTitle("font", "", true)
+                cover = BitmapUtils.getBookCoverWithTitle("font", "", true)
                 pageUrl.tempWithWatermakr = true
             }
         }
 
         if (cover == null) {
-            cover = BaseExtractor.getBookCoverWithTitle(ebookMeta.author, ebookMeta.title, true)
+            cover = BitmapUtils.getBookCoverWithTitle(ebookMeta.author, ebookMeta.title, true)
             pageUrl.tempWithWatermakr = true
         }
 
@@ -280,21 +280,23 @@ class ImageExtractor private constructor(private val context: Context) : ImageDo
             if (pageUrl.isCrop) bitmap = cropBitmap(bitmap)
         }
 
-        if (bitmap != null) {
+        var currentBitmap = bitmap
+        if (currentBitmap != null) {
             if (pageUrl.isInvert) {
-                val bmp = RawBitmap(bitmap, Rect(0, 0, bitmap.width, bitmap.height))
+                val bmp = RawBitmap(currentBitmap, Rect(0, 0, currentBitmap.width, currentBitmap.height))
                 bmp.invert()
-                bitmap.recycle()
-                bitmap = bmp.toBitmap().bitmap
+                currentBitmap.recycle()
+                currentBitmap = bmp.toBitmap().bitmap
             }
 
-            if (pageUrl.rotate > 0) {
+            if (currentBitmap != null && pageUrl.rotate > 0) {
                 val matrix = Matrix()
                 matrix.postRotate(pageUrl.rotate.toFloat())
-                val rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-                bitmap.recycle()
-                bitmap = rotatedBitmap
+                val rotatedBitmap = Bitmap.createBitmap(currentBitmap, 0, 0, currentBitmap.width, currentBitmap.height, matrix, true)
+                currentBitmap.recycle()
+                currentBitmap = rotatedBitmap
             }
+            bitmap = currentBitmap
         }
 
         if (!pageCodec.isRecycled) pageCodec.recycle()
@@ -319,8 +321,8 @@ class ImageExtractor private constructor(private val context: Context) : ImageDo
         return cropped
     }
 
-    override fun getStream(imageUri: String, extra: Any?): InputStream? {
-        return getStreamInner(imageUri)
+    override fun getStream(imageUri: String?, extra: Any?): InputStream? {
+        return getStreamInner(imageUri ?: "")
     }
 
     fun getStreamInner(imageUri: String): InputStream? {
@@ -350,7 +352,7 @@ class ImageExtractor private constructor(private val context: Context) : ImageDo
 
         return try {
             if (ExtUtils.isImageFile(file)) {
-                return BaseExtractor.decodeImage(path, IMG.getImageSize())
+                return BitmapUtils.decodeImage(path, IMG.getImageSize())
             }
 
             if (path.endsWith("json")) {
@@ -460,6 +462,6 @@ class ImageExtractor private constructor(private val context: Context) : ImageDo
     }
 
     private fun messageFile(msg: String, name: String): InputStream? {
-        return BaseExtractor.getBookCoverWithTitle(msg, name, true)?.let { bitmapToStream(it) }
+        return BitmapUtils.getBookCoverWithTitle(msg, name, true)?.let { bitmapToStream(it) }
     }
 }

@@ -188,9 +188,7 @@ class MobiParser @Throws(IOException::class) constructor(private val raw: ByteBu
 
         compression = asInt(raw, mobiOffset, 2)
         val encryption = asInt(raw, mobiOffset + 12, 2)
-        if (Config.SHOW_LOG) {
-            LOGGER.info("MobiParser -- encryption: {}", encryption)
-        }
+        
 
         mobiType = asInt(raw, mobiOffset + 24, 4)
         encoding = if (asInt(raw, mobiOffset + 28, 4) == 1252) "cp1251" else "UTF-8"

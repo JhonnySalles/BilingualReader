@@ -71,8 +71,7 @@ public class BitmapManager {
         try {
             createBitmap = Bitmap.createBitmap(width, height, config);
         } catch (Throwable e) {
-            if (Config.SHOW_LOG)
-                LOGGER.error("Error get bitmap: {}", e.getMessage(), e);
+            
             createBitmap = Bitmap.createBitmap(1, 1, config);
         }
         BitmapRef ref = new BitmapRef(createBitmap, generation.get());

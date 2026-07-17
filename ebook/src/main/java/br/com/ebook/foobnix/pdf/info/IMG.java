@@ -259,8 +259,7 @@ public class IMG {
         try {
             ImageLoader.getInstance().clearMemoryCache();
         } catch (Exception e) {
-            if (br.com.ebook.Config.SHOW_LOG)
-                LOGGER.error("Error clear memory cache: {}", e.getMessage(), e);
+            
         }
     }
 
@@ -268,8 +267,7 @@ public class IMG {
         try {
             ImageLoader.getInstance().clearDiskCache();
         } catch (Exception e) {
-            if (br.com.ebook.Config.SHOW_LOG)
-                LOGGER.error("Error clear disc cache: {}", e.getMessage(), e);
+            
         }
     }
 

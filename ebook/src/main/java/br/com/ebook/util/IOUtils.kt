@@ -7,6 +7,7 @@ import java.util.zip.ZipFile
 object IOUtils {
     const val BUFFER_SIZE = 16 * 1024
 
+    @JvmStatic
     @Throws(IOException::class)
     fun InputStream.copyTo(out: OutputStream) {
         val buffer = ByteArray(BUFFER_SIZE)

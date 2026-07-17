@@ -4,6 +4,8 @@ import android.util.Base64
 import br.com.ebook.core.*
 import br.com.ebook.util.IOUtils
 import br.com.ebook.util.IOUtils.copyTo
+import br.com.ebook.util.Fb2Templates
+import br.com.ebook.core.EbookSettings
 import br.com.ebook.foobnix.android.utils.StreamUtils
 import br.com.ebook.foobnix.android.utils.TxtUtils
 import br.com.ebook.foobnix.hypen.HypenUtils
@@ -18,6 +20,7 @@ import org.slf4j.LoggerFactory
 import org.xmlpull.v1.XmlPullParser
 import java.io.*
 import java.nio.charset.StandardCharsets
+import java.time.LocalDate
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -123,7 +126,7 @@ object Fb2BookExtractor : BookExtractor {
         lastName = lastName.trim()
         firstName = firstName.trim()
 
-        var author = if (AppState.get().isFirstSurname) {
+        var author = if (EbookSettings.isFirstSurname) {
             if (firstName.isNotEmpty() && lastName.isNotEmpty()) "$lastName $firstName" else lastName + firstName
         } else {
             if (firstName.isNotEmpty() && lastName.isNotEmpty()) "$firstName $lastName" else firstName + lastName
@@ -293,8 +296,8 @@ object Fb2BookExtractor : BookExtractor {
             ZipOutputStream(BufferedOutputStream(FileOutputStream(File(toName)))).use { zos ->
                 zos.setLevel(0)
                 writeToZip(zos, "mimetype", "application/epub+zip")
-                writeToZip(zos, "META-INF/container.xml", container_xml)
-                writeToZip(zos, "OEBPS/content.opf", content_opf)
+                writeToZip(zos, "META-INF/container.xml", Fb2Templates.container_xml)
+                writeToZip(zos, "OEBPS/content.opf", Fb2Templates.content_opf)
 
                 val encoding = findHeaderEncoding(inputFile)
                 val titles = getFb2Titles(inputFile, encoding)
@@ -317,9 +320,9 @@ object Fb2BookExtractor : BookExtractor {
             ZipOutputStream(BufferedOutputStream(FileOutputStream(outputFile))).use { zos ->
                 zos.setLevel(0)
                 writeToZip(zos, "mimetype", "application/epub+zip")
-                writeToZip(zos, "META-INF/container.xml", container_xml)
+                writeToZip(zos, "META-INF/container.xml", Fb2Templates.container_xml)
 
-                var meta = content_opf.replace("fb2.fb2", "temp" + ExtUtils.REFLOW_HTML)
+                var meta = Fb2Templates.content_opf.replace("fb2.fb2", "temp" + ExtUtils.REFLOW_HTML)
                 meta = meta.replace("%title%", title)
                 meta = meta.replace("%creator%", author)
 
@@ -345,8 +348,8 @@ object Fb2BookExtractor : BookExtractor {
         val out = ByteArrayOutputStream()
         val writer = PrintWriter(out)
         
-        if (BookCSS.get().isAutoHypens) {
-            HypenUtils.applyLanguage(BookCSS.get().hypenLang)
+        if (EbookSettings.isAutoHypens) {
+            HypenUtils.applyLanguage(EbookSettings.hypenLang)
         }
 
         var count = 0
@@ -376,7 +379,7 @@ object Fb2BookExtractor : BookExtractor {
                 for (i in subLine.indices) {
                     var sub = if (i == 0) subLine[i] else "</" + subLine[i]
 
-                    if (BookCSS.get().isAutoHypens && sub.contains("<title")) {
+                    if (EbookSettings.isAutoHypens && sub.contains("<title")) {
                         titleBegin = true
                     }
 
@@ -390,7 +393,7 @@ object Fb2BookExtractor : BookExtractor {
                         isFindBodyEnd = true
                     }
 
-                    if (!isFindBodyEnd && (AppState.get().isDouble || !titleBegin) && BookCSS.get().isAutoHypens) {
+                    if (!isFindBodyEnd && (EbookSettings.isDouble || !titleBegin) && EbookSettings.isAutoHypens) {
                         sub = HypenUtils.applyHypnesOld(sub)
                     }
                     writer.println(sub)
@@ -406,7 +409,7 @@ object Fb2BookExtractor : BookExtractor {
         for (i in titles.indices) {
             navs.append(createNavPoint(i + 1, titles[i]))
         }
-        return NCX.replace("%nav%", navs.toString())
+        return Fb2Templates.NCX.replace("%nav%", navs.toString())
     }
 
     fun generateNCXbyOutline(titles: List<OutlineLink>): String {
@@ -420,7 +423,7 @@ object Fb2BookExtractor : BookExtractor {
                 navs.append(createNav)
             }
         }
-        return NCX.replace("%nav%", navs.toString())
+        return Fb2Templates.NCX.replace("%nav%", navs.toString())
     }
 
     fun getFb2Titles(fb2: String, encoding: String): List<String> {
@@ -490,38 +493,7 @@ object Fb2BookExtractor : BookExtractor {
         return encoding
     }
 
-    const val container_xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<container version=\"1.0\" xmlns=\"urn:oasis:names:tc:opendocument:xmlns:container\">\n" +
-            "  <rootfiles>\n" +
-            "    <rootfile full-path=\"OEBPS/content.opf\" media-type=\"application/oebps-package+xml\"/>\n" +
-            "  </rootfiles>\n" +
-            "</container>"
 
-    const val content_opf = "<?xml version=\"1.0\"?>\n" +
-            "<package version=\"2.0\" unique-identifier=\"uid\" xmlns=\"http://www.idpf.org/2007/opf\">\n" +
-            " <metadata xmlns:opf=\"http://www.idpf.org/2007/opf\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\">\n" +
-            "  <dc:title>%title%</dc:title>\n" +
-            "  <dc:creator>%creator%</dc:creator>\n" +
-            "<meta name=\"cover\" content=\"cover.jpg\" />\n" +
-            " </metadata>\n" +
-            "\n<manifest>\n" +
-            "  <item id=\"idBookFb2\" href=\"fb2.fb2\" media-type=\"application/xhtml+xml\"/>\n" +
-            "  <item id=\"idResourceFb2\" href=\"fb2.ncx\" media-type=\"application/x-dtbncx+xml\"/>\n" +
-            " </manifest>\n" +
-            " \n<spine toc=\"idResourceFb2\">\n" +
-            "  <itemref idref=\"idBookFb2\"/>\n" +
-            "</spine>\n" +
-            "</package>"
-
-    const val NCX = "<?xml version=\"1.0\"?>\n" +
-            "<ncx version=\"2005-1\" xml:lang=\"en\" xmlns=\"http://www.daisy.org/z3986/2005/ncx/\">\n" +
-            " <head>\n" +
-            " </head>\n" +
-            " <docTitle>\n" +
-            "  <text>title</text>\n" +
-            " </docTitle>\n" +
-            " <navMap>\n  \n%nav% \n   \n </navMap>\n" +
-            "</ncx>"
 
     fun createNavPoint(id: Int, text: String): String {
         return "<navPoint id=\"toc-$id\" playOrder=\"$id\">\n" +
@@ -530,6 +502,38 @@ object Fb2BookExtractor : BookExtractor {
                 "</navLabel>\n" +
                 "<content src=\"fb2.fb2#$id\"/>\n" +
                 "</navPoint>"
+    }
+
+    fun generateHyphenFile(input: InputStreamReader): ByteArrayOutputStream {
+        val out = ByteArrayOutputStream()
+        val writer = PrintWriter(out)
+        val reader = BufferedReader(input)
+        var line: String?
+
+        while (reader.readLine().also { line = it } != null) {
+            if (TempHolder.get().loadingCancelled) {
+                break
+            }
+            var currentLine = line ?: ""
+            if (!currentLine.endsWith(" ")) {
+                currentLine = "$currentLine "
+            }
+
+            val subLine = currentLine.split("</")
+
+            for (i in subLine.indices) {
+                var processedLine = if (i == 0) {
+                    subLine[i]
+                } else {
+                    "</${subLine[i]}"
+                }
+
+                processedLine = HypenUtils.applyHypnes(processedLine)
+                writer.print(processedLine)
+            }
+        }
+        writer.close()
+        return out
     }
 
     fun writeToZip(zos: ZipOutputStream, name: String, stream: InputStream) {

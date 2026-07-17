@@ -1,6 +1,7 @@
 package br.com.ebook.extractor
 
 import br.com.ebook.core.*
+import br.com.ebook.core.EbookSettings
 import br.com.ebook.util.IOUtils
 import br.com.ebook.foobnix.android.utils.TxtUtils
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState
@@ -73,7 +74,7 @@ object CalibreBookExtractor {
                             "dc:title" -> title = xpp.nextText() ?: ""
                             "dc:creator" -> {
                                 var creatorVal = xpp.nextText() ?: ""
-                                if (AppState.get().isFirstSurname) {
+                                if (EbookSettings.isFirstSurname) {
                                     creatorVal = TxtUtils.replaceLastFirstName(creatorVal) ?: ""
                                 }
                                 author = if (author.isEmpty()) creatorVal else "$author, $creatorVal"

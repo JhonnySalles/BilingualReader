@@ -1,6 +1,7 @@
 package br.com.ebook.extractor
 
 import br.com.ebook.core.*
+import br.com.ebook.core.EbookSettings
 import br.com.ebook.util.IOUtils
 import br.com.ebook.util.IOUtils.copyTo
 import br.com.ebook.util.IOUtils.readAllBytes
@@ -8,7 +9,6 @@ import br.com.ebook.util.IOUtils.getEntryBytes
 import br.com.ebook.foobnix.android.utils.TxtUtils
 import br.com.ebook.foobnix.pdf.info.ExtUtils
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState
-import br.com.ebook.foobnix.ext.Fb2Extractor
 import br.com.ebook.foobnix.ext.CacheZipUtils.ATTACHMENTS_CACHE_DIR
 import br.com.ebook.foobnix.sys.TempHolder
 import org.jsoup.Jsoup
@@ -56,13 +56,13 @@ object EpubBookExtractor : BookExtractor {
                         if (!name.endsWith("container.xml") && (nameLow.endsWith("html") || nameLow.endsWith("htm") || nameLow.endsWith("xml"))) {
                             zipFile.getInputStream(entry).use { inputStream ->
                                 InputStreamReader(inputStream, StandardCharsets.UTF_8).use { reader ->
-                                    val hStream = Fb2Extractor.generateHyphenFile(reader)
-                                    Fb2Extractor.writeToZipNoClose(zos, name, ByteArrayInputStream(hStream.toByteArray()))
+                                    val hStream = Fb2BookExtractor.generateHyphenFile(reader)
+                                    Fb2BookExtractor.writeToZipNoClose(zos, name, ByteArrayInputStream(hStream.toByteArray()))
                                 }
                             }
                         } else {
                             zipFile.getInputStream(entry).use { inputStream ->
-                                Fb2Extractor.writeToZipNoClose(zos, name, inputStream)
+                                Fb2BookExtractor.writeToZipNoClose(zos, name, inputStream)
                             }
                         }
                     }
@@ -178,7 +178,7 @@ object EpubBookExtractor : BookExtractor {
             }
         }
 
-        if (AppState.get().isFirstSurname) {
+        if (EbookSettings.isFirstSurname) {
             author = TxtUtils.replaceLastFirstName(author) ?: ""
         }
 
@@ -362,7 +362,7 @@ object EpubBookExtractor : BookExtractor {
         val zipEntriesByName = mutableMapOf<String, ZipEntry>()
 
         ZipFile(File(path), StandardCharsets.UTF_8).use { zipFile ->
-            br.com.ebook.foobnix.ext.CacheZipUtils.removeFiles(ATTACHMENTS_CACHE_DIR.listFiles())
+            br.com.ebook.foobnix.ext.CacheZipUtils.removeFiles(ATTACHMENTS_CACHE_DIR?.listFiles())
 
             // Passada 1: Coletar links de notas e indexar todas as entradas do ZIP
             val entries = zipFile.entries()

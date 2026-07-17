@@ -1,11 +1,11 @@
 package br.com.ebook.extractor
 
 import br.com.ebook.core.*
+import br.com.ebook.core.EbookSettings
 import br.com.ebook.util.IOUtils
 import br.com.ebook.foobnix.hypen.HypenUtils
-import br.com.ebook.pdf.info.ExtUtils
+import br.com.ebook.foobnix.pdf.info.ExtUtils
 import br.com.ebook.foobnix.pdf.info.model.BookCSS
-import br.com.ebook.Config
 import org.jsoup.Jsoup
 import org.jsoup.safety.Safelist
 import org.slf4j.LoggerFactory
@@ -48,8 +48,8 @@ object HtmlBookExtractor : BookExtractor {
             val htmlBuilder = StringBuilder()
 
             BufferedReader(InputStreamReader(FileInputStream(path), encoding)).use { input ->
-                if (BookCSS.get().isAutoHypens) {
-                    HypenUtils.applyLanguage(BookCSS.get().hypenLang)
+                if (EbookSettings.isAutoHypens) {
+                    HypenUtils.applyLanguage(EbookSettings.hypenLang)
                 }
 
                 var isBody = false
@@ -70,7 +70,7 @@ object HtmlBookExtractor : BookExtractor {
 
             var cleanHtml = Jsoup.clean(htmlBuilder.toString(), Safelist.relaxed().removeTags("img"))
 
-            if (BookCSS.get().isAutoHypens) {
+            if (EbookSettings.isAutoHypens) {
                 cleanHtml = HypenUtils.applyHypnes(cleanHtml)
                 cleanHtml = Jsoup.clean(cleanHtml, Safelist.relaxed())
             }

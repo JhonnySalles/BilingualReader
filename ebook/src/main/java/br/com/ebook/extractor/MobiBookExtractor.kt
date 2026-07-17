@@ -1,6 +1,7 @@
 package br.com.ebook.extractor
 
 import br.com.ebook.core.*
+import br.com.ebook.core.EbookSettings
 import br.com.ebook.util.IOUtils
 import br.com.ebook.foobnix.android.utils.TxtUtils
 import br.com.ebook.foobnix.mobi.parser.MobiParser
@@ -49,7 +50,7 @@ object MobiBookExtractor : BookExtractor {
             title = file.name
         }
 
-        if (AppState.get().isFirstSurname) {
+        if (EbookSettings.isFirstSurname) {
             author = TxtUtils.replaceLastFirstName(author)
         }
 

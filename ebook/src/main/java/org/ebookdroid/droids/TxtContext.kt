@@ -14,12 +14,15 @@ class TxtContext : PdfContext() {
     private val LOGGER = LoggerFactory.getLogger(TxtContext::class.java)
 
     override fun openDocumentInner(fileName: String, password: String): CodecDocument? {
+        if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+            throw IllegalStateException("Document extraction must not run on the UI thread.")
+        }
         var finalFileName = fileName
         var notes: Map<String, String>? = null
 
         try {
-            val contentResult = runBlocking {
-                TxtBookExtractor.extractContent(fileName, CacheZipUtils.CACHE_BOOK_DIR.path)
+            val contentResult = runBlocking(br.com.ebook.core.EbookDispatcher.dispatcher) {
+                TxtBookExtractor.extractContent(fileName, CacheZipUtils.CACHE_BOOK_DIR?.path ?: "")
             }
             val content = contentResult.getOrThrow()
             if (content is BookContent.HtmlFile) {

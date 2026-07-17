@@ -2,9 +2,10 @@ package br.com.ebook.extractor
 
 import android.text.TextUtils
 import br.com.ebook.core.*
+import br.com.ebook.core.EbookSettings
 import br.com.ebook.util.IOUtils
 import br.com.ebook.foobnix.hypen.HypenUtils
-import br.com.ebook.pdf.info.model.BookCSS
+import br.com.ebook.foobnix.pdf.info.model.BookCSS
 import com.rtfparserkit.converter.text.StringTextConverter
 import com.rtfparserkit.parser.IRtfParser
 import com.rtfparserkit.parser.IRtfSource
@@ -77,8 +78,8 @@ object RtfBookExtractor : BookExtractor {
                 writer.println("<html>")
                 writer.println("<body>")
 
-                if (BookCSS.get().isAutoHypens) {
-                    HypenUtils.applyLanguage(BookCSS.get().hypenLang)
+                if (EbookSettings.isAutoHypens) {
+                    HypenUtils.applyLanguage(EbookSettings.hypenLang)
                 }
 
                 FileInputStream(path).use { fis ->
@@ -94,7 +95,7 @@ object RtfBookExtractor : BookExtractor {
                         override fun processExtractedText(text: String?) {
                             if (text == null) return
                             var htmlEncode = TextUtils.htmlEncode(text)
-                            if (BookCSS.get().isAutoHypens) {
+                            if (EbookSettings.isAutoHypens) {
                                 htmlEncode = HypenUtils.applyHypnes(htmlEncode)
                             }
                             writer.println(htmlEncode)

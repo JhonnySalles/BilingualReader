@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.ebook.foobnix.ext.Fb2Extractor;
+import br.com.ebook.extractor.Fb2BookExtractor;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.sys.TempHolder;
 
@@ -50,9 +50,9 @@ public class MuPdfOutline {
                 }
                 outlineLink.setTitle(outlineLink.getTitle().replace("[title]", "").replace("[subtitle]", ""));
 
-                if (outlineLink.getTitle().contains(Fb2Extractor.DIVIDER)) {
+                if (outlineLink.getTitle().contains(Fb2BookExtractor.DIVIDER)) {
                     try {
-                        String[] split = outlineLink.getTitle().split(Fb2Extractor.DIVIDER);
+                        String[] split = outlineLink.getTitle().split(Fb2BookExtractor.DIVIDER);
                         int level2 = Integer.parseInt(split[0]);
                         outlineLink.setLevel(level2);
                         outlineLink.setTitle(split[1]);

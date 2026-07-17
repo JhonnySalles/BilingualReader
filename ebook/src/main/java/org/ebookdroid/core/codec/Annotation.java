@@ -22,8 +22,7 @@ public class Annotation extends RectF {
         super(x0, y0, x1, y1);
         type = _type == -1 ? AnnotationType.UNKNOWN : AnnotationType.values()[_type];
         this.text = text;
-        if (Config.SHOW_LOG)
-            LOGGER.info("Annotation text2: {}", text);
+        
     }
 
     public Annotation(int page, int index) {

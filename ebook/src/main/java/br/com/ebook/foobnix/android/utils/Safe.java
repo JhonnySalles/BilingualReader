@@ -27,8 +27,7 @@ public class Safe {
         ImageLoader.getInstance().loadImage(TXT_SAFE_RUN, IMG.noneOptions, new SimpleImageLoadingListener() {
             @Override
             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                if (Config.SHOW_LOG)
-                    LOGGER.info(TXT_SAFE_RUN + " end {}", imageUri);
+                
                 if (action != null) {
                     ImageLoader.getInstance().clearAllTasks();
                     action.run();

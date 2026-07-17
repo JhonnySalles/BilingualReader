@@ -572,11 +572,9 @@ public class AppState {
                 BookCSS.get().load(a);
                 //DragingPopup.loadCache(a);
                 PasswordState.get().load(a);
-                if (Config.SHOW_LOG)
-                    LOGGER.info("AppState Load lasta: {}", lastClosedActivity);
+                
             } else {
-                if (Config.SHOW_LOG)
-                    LOGGER.info("AppState is Loaded: {}", lastClosedActivity);
+                
             }
             isLoaded = true;
         } catch (Exception e) {
@@ -632,8 +630,7 @@ public class AppState {
 
         int currentHash = Objects.hashCode(AppState.get(), false);
         if (currentHash == hashCode) {
-            if (Config.SHOW_LOG)
-                LOGGER.info("Objects: Ignore save hashCode the same");
+            
             return;
         }
         sp = a.getSharedPreferences(ExportSettingsManager.PREFIX_PDF, Context.MODE_PRIVATE);

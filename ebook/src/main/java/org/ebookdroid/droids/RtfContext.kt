@@ -24,13 +24,16 @@ class RtfContext : PdfContext() {
     }
 
     override fun openDocumentInner(fileName: String, password: String): CodecDocument? {
+        if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+            throw IllegalStateException("Document extraction must not run on the UI thread.")
+        }
         val cache = cacheFile ?: getCacheFileName(fileName)
         var finalPath = cache.path
 
         if (!cache.isFile) {
             try {
-                val result = runBlocking {
-                    RtfBookExtractor.extractContent(fileName, CacheZipUtils.CACHE_BOOK_DIR.path)
+                val result = runBlocking(br.com.ebook.core.EbookDispatcher.dispatcher) {
+                    RtfBookExtractor.extractContent(fileName, CacheZipUtils.CACHE_BOOK_DIR?.path ?: "")
                 }
                 val content = result.getOrThrow()
                 if (content is BookContent.HtmlFile) {

@@ -121,11 +121,11 @@ object CacheZipUtils {
     }
 
     @JvmStatic
-    fun isSingleAndSupportEntry(is: File?): Pair<Boolean, String> {
-        if (is == null) return Pair(false, "")
+    fun isSingleAndSupportEntry(file: File?): Pair<Boolean, String> {
+        if (file == null) return Pair(false, "")
         var name = ""
         try {
-            ZipFile(is, StandardCharsets.UTF_8).use { zipFile ->
+            ZipFile(file, StandardCharsets.UTF_8).use { zipFile ->
                 var find = false
                 val entries = zipFile.entries()
                 while (entries.hasMoreElements()) {

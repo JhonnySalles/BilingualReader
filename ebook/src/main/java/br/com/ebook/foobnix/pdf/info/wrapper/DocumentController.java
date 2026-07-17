@@ -225,8 +225,7 @@ public abstract class DocumentController {
         if (!getLinkHistory().isEmpty()) {
             final int last = getLinkHistory().removeLast();
             onScrollY(last);
-            if (Config.SHOW_LOG)
-                LOGGER.info("onLinkHistory: {}", last);
+            
 
         }
     }

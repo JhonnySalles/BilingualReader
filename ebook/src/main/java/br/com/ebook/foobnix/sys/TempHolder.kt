@@ -6,29 +6,46 @@ import java.util.concurrent.locks.ReentrantLock
 
 class TempHolder {
 
+    @JvmField
     @Volatile
     var path: String? = null
     
+    @JvmField
     var isTextFormat: Boolean = false
+    
+    @JvmField
     var isTextFormatButNotTxt: Boolean = false
 
+    @JvmField
     var login = ""
+    
+    @JvmField
     var password = ""
+    
+    @JvmField
     var linkPage = -1
+    
+    @JvmField
     var timerFinishTime = 0L
+    
+    @JvmField
     var pageDelta = 0
 
+    @JvmField
     @Volatile
     var loadingCancelled = false
+    
+    @JvmField
     var forceAppLang = false
 
+    @JvmField
     @Volatile
     var lastRecycledDocument = 0L
 
     fun init(pathI: String) {
         path = pathI
         isTextFormat = isTextFormatInner()
-        isTextFormatButNotTxt = isTextFormatButNotTxt()
+        isTextFormatButNotTxt = checkIsTextFormatButNotTxt()
     }
 
     fun clear() {
@@ -43,9 +60,9 @@ class TempHolder {
         }
     }
 
-    private fun isTextFormatButNotTxt(): Boolean {
+    private fun checkIsTextFormatButNotTxt(): Boolean {
         return try {
-            ExtUtils.isTextFomat(path) && !BookType.TXT.is(path)
+            ExtUtils.isTextFomat(path) && !BookType.TXT.`is`(path)
         } catch (e: Exception) {
             false
         }

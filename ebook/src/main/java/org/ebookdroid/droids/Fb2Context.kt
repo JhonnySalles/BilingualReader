@@ -2,9 +2,9 @@ package org.ebookdroid.droids
 
 import br.com.ebook.extractor.Fb2BookExtractor
 import br.com.ebook.foobnix.ext.CacheZipUtils
-import br.com.ebook.pdf.info.ExtUtils
-import br.com.ebook.pdf.info.JsonHelper
-import br.com.ebook.pdf.info.model.BookCSS
+import br.com.ebook.foobnix.pdf.info.ExtUtils
+import br.com.ebook.foobnix.pdf.info.JsonHelper
+import br.com.ebook.foobnix.pdf.info.model.BookCSS
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
