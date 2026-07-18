@@ -85,13 +85,13 @@ import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaLineCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.MangaSeparatorGridCardAdapter
-import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
-import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
+import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
@@ -245,6 +245,9 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                     val selection = cursor.getString(colum)
                     val query = searchView.query.toString().substringBeforeLast('@', "") + " " + selection
                     searchView.setQuery(query.trim(), false)
+                    if (selection.endsWith(":")) {
+                        searchSrcTextView.post { searchSrcTextView.showDropDown() }
+                    }
                 }
                 return true
             }
@@ -284,6 +287,9 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
                                             cursor.addRow(arrayOf(index, "@$substring:$suggestion "))
                                     }
                                 }
+                            }
+                            if (newText.endsWith(":")) {
+                                searchSrcTextView.post { searchSrcTextView.showDropDown() }
                             }
                             return false
                         }
@@ -1374,6 +1380,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
     }
 
     private fun showSkeleton(show: Boolean) {
+        if (view == null) return
         if (show) {
             mSkeletonLayout.alpha = 1f
             mSkeletonLayout.removeAllViews()
@@ -1447,7 +1454,7 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
         } else {
             mMenuPopupLibraryBackground.setBlurEnabled(isGlass)
             if (isGlass) {
-                mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
+                 mMenuPopupLibraryBackground.setBlurAutoUpdate(true)
                 mHandler.postDelayed({
                     mMenuPopupLibraryBackground.setBlurAutoUpdate(false)
                 }, 100)
@@ -1459,7 +1466,8 @@ class MangaLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.
 
     private fun setupPopupBackgrounds() {
         val activity = activity ?: return
-        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupLibrary, mMenuPopupLibraryBackground)
+        val contentContainer = view?.findViewById<ViewGroup>(R.id.manga_library_content)
+        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupLibrary, mMenuPopupLibraryBackground, contentContainer)
     }
 
     private fun animateReplaceSkeleton() {

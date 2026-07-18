@@ -66,9 +66,18 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
 
 
     fun changeFontSize(fontSize: Int, onEnding: (Boolean) -> (Unit)) = openBook(path, password, fontSize, onEnding)
+
+    // Cache da contagem de paginas por tamanho de fonte. Para uma mesma instancia do documento
+    // (largura/altura fixas), a contagem so varia com o fontSize, entao evitamos repaginar
+    // nativamente a cada ajuste do slider de fonte.
+    private val mPageCountCache = HashMap<Int, Int>()
     fun getPageCount(fontSize: Int): Int {
         this.fontSize = fontSize
-        return mCodecDocument?.getPageCount(mWidth, mHeight, fontSize) ?: 1
+        mPageCountCache[fontSize]?.let { return it }
+        val count = mCodecDocument?.getPageCount(mWidth, mHeight, fontSize) ?: 1
+        if (mCodecDocument != null)
+            mPageCountCache[fontSize] = count
+        return count
     }
 
     private var mMainHandler = Handler(Looper.getMainLooper())
@@ -105,6 +114,7 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
 
     fun clear() {
         isLoaded = false
+        mPageCountCache.clear()
         if (mCodecDocument != null) {
             try {
                 mCodecDocument!!.recycle()

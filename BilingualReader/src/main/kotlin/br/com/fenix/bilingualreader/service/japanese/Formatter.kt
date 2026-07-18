@@ -21,7 +21,6 @@ import br.com.fenix.bilingualreader.util.helpers.JapaneseCharacter
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.view.ui.popup.PopupKanji
 import br.com.fenix.bilingualreader.view.ui.popup.PopupVocabulary
-import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 
 
@@ -57,28 +56,43 @@ class Formatter {
         private var HTML_N4: String = "#668cff"
         private var HTML_N5: String = "#b366ff"
 
-        fun initializeAsync(context: Context) =
-            runBlocking {
+        @Volatile
+        private var mIsInitialized = false
+        @Volatile
+        private var mIsInitializing = false
+
+        fun isInitialized(): Boolean = mIsInitialized
+
+        fun initializeAsync(context: Context) {
+            // Nao bloqueia a main: a carga dos dicionarios/tokenizers roda em background.
+            // Enquanto nao estiver pronto, as funcoes de tokenizacao degradam graciosamente
+            // (texto sem furigana/cores) ate a inicializacao concluir.
+            if (mIsInitialized || mIsInitializing)
+                return
+
+            mIsInitializing = true
+            val appContext = context.applicationContext
+            Thread {
                 try {
-                    mKanjaxRepository = KanjaxRepository(context)
-                    mVocabularyRepository = VocabularyRepository(context)
+                    mKanjaxRepository = KanjaxRepository(appContext)
+                    mVocabularyRepository = VocabularyRepository(appContext)
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                         if (mSudachiTokenizer == null)
-                            mSudachiTokenizer = br.com.fenix.bilingualreader.service.tokenizers.SudachiTokenizer(context).tokenizer
+                            mSudachiTokenizer = br.com.fenix.bilingualreader.service.tokenizers.SudachiTokenizer(appContext).tokenizer
                     else if (mKuromojiTokenizer == null)
                         mKuromojiTokenizer = com.atilika.kuromoji.ipadic.Tokenizer()
 
-                    val repository = KanjiRepository(context)
+                    val repository = KanjiRepository(appContext)
                     JLPT = repository.getHashMap()
 
-                    COLOR_ANOTHER = context.getColor(R.color.JLPT0)
-                    COLOR_N1 = context.getColor(R.color.JLPT1)
-                    COLOR_N2 = context.getColor(R.color.JLPT2)
-                    COLOR_N3 = context.getColor(R.color.JLPT3)
-                    COLOR_N4 = context.getColor(R.color.JLPT4)
-                    COLOR_N5 = context.getColor(R.color.JLPT5)
-                    COLOR_VOCABULARY = context.getColor(R.color.VOCABULARY)
+                    COLOR_ANOTHER = appContext.getColor(R.color.JLPT0)
+                    COLOR_N1 = appContext.getColor(R.color.JLPT1)
+                    COLOR_N2 = appContext.getColor(R.color.JLPT2)
+                    COLOR_N3 = appContext.getColor(R.color.JLPT3)
+                    COLOR_N4 = appContext.getColor(R.color.JLPT4)
+                    COLOR_N5 = appContext.getColor(R.color.JLPT5)
+                    COLOR_VOCABULARY = appContext.getColor(R.color.VOCABULARY)
 
                     HTML_ANOTHER = "#b3b3b3"
                     HTML_N1 = "#ff4d4d"
@@ -86,11 +100,16 @@ class Formatter {
                     HTML_N3 = "#00e600"
                     HTML_N4 = "#668cff"
                     HTML_N5 = "#b366ff"
+
+                    mIsInitialized = true
                 } catch (e: Exception) {
                     mLOGGER.error("Error in open tokenizer file." + e.message, e)
                     Telemetry.recordException(e, "Error in open tokenizer file: " + e.message)
+                } finally {
+                    mIsInitializing = false
                 }
-            }
+            }.start()
+        }
 
         fun getVocabulary(id: Long) = mVocabularyRepository?.get(id)
         fun getKanjax(word: String) = mKanjaxRepository?.get(word)
@@ -213,7 +232,7 @@ class Formatter {
         }
 
         fun generateFurigana(text: String, furigana: (CharSequence) -> (Unit), vocabularyClick: (String) -> (Unit)) {
-            if (text.isEmpty()) {
+            if (text.isEmpty() || !mIsInitialized) {
                 furigana(text)
                 return
             }
@@ -414,7 +433,7 @@ class Formatter {
         }
 
         fun generateHtmlText(text: String, withFurigana: Boolean): String {
-            if (text.isEmpty() || !text.contains(mPatternJapanese))
+            if (text.isEmpty() || !mIsInitialized || !text.contains(mPatternJapanese))
                 return text
 
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
@@ -511,7 +530,7 @@ class Formatter {
         }
 
         fun generateTextView(context: Context, span: SpannableString, withFurigana: Boolean) {
-            if (span.isEmpty() || !span.contains(mPatternJapanese))
+            if (span.isEmpty() || !mIsInitialized || !span.contains(mPatternJapanese))
                 return
 
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)

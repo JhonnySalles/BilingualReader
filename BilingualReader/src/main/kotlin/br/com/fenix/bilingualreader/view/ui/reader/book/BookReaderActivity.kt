@@ -1,13 +1,12 @@
 package br.com.fenix.bilingualreader.view.ui.reader.book
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -17,6 +16,7 @@ import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -27,6 +27,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
@@ -62,12 +63,9 @@ import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.sidesheet.SideSheetBehavior
 import com.google.android.material.tabs.TabLayout
 import eightbitlab.com.blurview.BlurView
-import android.graphics.drawable.GradientDrawable
-import android.view.ViewGroup
-import androidx.core.content.ContextCompat
-import com.google.android.material.sidesheet.SideSheetBehavior
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
 import org.slf4j.LoggerFactory
@@ -109,7 +107,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
 
     private val mBottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
-            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            val isGlass = mIsGlassmorphism
             if (isGlass) {
                 mMenuPopupConfigurationBackground?.let { bg ->
                     if (newState == BottomSheetBehavior.STATE_DRAGGING || newState == BottomSheetBehavior.STATE_SETTLING) {
@@ -122,7 +120,7 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
         }
 
         override fun onSlide(bottomSheet: View, slideOffset: Float) {
-            val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
+            val isGlass = mIsGlassmorphism
             if (isGlass) {
                 mMenuPopupConfigurationBackground?.setBlurAutoUpdate(true)
             }
@@ -137,6 +135,9 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
     private val mDismissTouchView = Runnable { closeViewTouch() }
 
     private lateinit var mPreferences: SharedPreferences
+    // O tema glassmorphism so muda com recriacao da Activity, entao lemos a preferencia uma
+    // unica vez em vez de a cada onSlide/onStateChanged do BottomSheet.
+    private val mIsGlassmorphism: Boolean by lazy { mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false) }
     private lateinit var mStorage: Storage
     private lateinit var mRepository: BookRepository
     private lateinit var mLibrary: Library

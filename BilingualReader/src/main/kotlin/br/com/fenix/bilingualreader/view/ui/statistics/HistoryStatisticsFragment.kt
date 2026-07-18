@@ -25,6 +25,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.AbsListView
 import android.widget.AutoCompleteTextView
 import android.widget.CursorAdapter
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.SearchView
@@ -35,6 +36,8 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -42,27 +45,31 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.HistoryStatistics
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.enums.Type
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
 import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
+import br.com.fenix.bilingualreader.util.helpers.PopupUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.adapter.statistics.HistoryStatisticsAdapter
 import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
-import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
-import br.com.fenix.bilingualreader.view.ui.chapters.ChaptersFragment
 import br.com.fenix.bilingualreader.view.ui.menu.MenuActivity
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.tabs.TabLayout
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
@@ -72,14 +79,6 @@ import java.time.LocalDateTime
 import kotlin.math.ceil
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
-import android.widget.FrameLayout
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
-import androidx.viewpager.widget.ViewPager
-import br.com.fenix.bilingualreader.model.enums.Order
-import br.com.fenix.bilingualreader.util.helpers.PopupUtil
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.tabs.TabLayout
 
 class HistoryStatisticsFragment : Fragment() {
 
@@ -91,6 +90,7 @@ class HistoryStatisticsFragment : Fragment() {
     private lateinit var miFilterYear: MenuItem
     private lateinit var mBlurTop: BlurView
     private lateinit var mToolbar: Toolbar
+    private var mRoot: FrameLayout by autoCleared()
 
     private var mScrollUp: FloatingActionButton by autoCleared()
     private var mScrollDown: FloatingActionButton by autoCleared()
@@ -361,18 +361,17 @@ class HistoryStatisticsFragment : Fragment() {
         mViewModel.initData()
 
         updateTitleAndSubtitle()
-
         val root = inflater.inflate(R.layout.fragment_history_statistics, container, false)
+        mRoot = root as FrameLayout
 
         mBlurTop = root.findViewById(R.id.history_statistics_blur_top)
         mToolbar = root.findViewById(R.id.toolbar_history_statistics)
         mRecyclerView = root.findViewById(R.id.history_statistics_list)
 
         (requireActivity() as MenuActivity).setActionBar(mToolbar)
-        setupBlurViews()
+        setupBlurViews(root)
         setupWindowInsets(root)
         setupTitleBackgrounds()
-
         mScrollUp = root.findViewById(R.id.history_statistics_scroll_up)
         mScrollDown = root.findViewById(R.id.history_statistics_scroll_down)
 
@@ -442,9 +441,11 @@ class HistoryStatisticsFragment : Fragment() {
         }
     }
 
+
     private fun setupPopupBackgrounds() {
         val activity = activity ?: return
-        PopupUtil.setupPopupBackgrounds(activity, mMenuPopupHistoryStatistics, mMenuPopupHistoryStatisticsBackground)
+        val contentContainer = view?.findViewById<ViewGroup>(R.id.history_statistics_content) ?: mRoot
+        PopupUtil.setupPopupBackgrounds(activity, mMenuPopupHistoryStatistics, mMenuPopupHistoryStatisticsBackground, contentContainer)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -553,11 +554,16 @@ class HistoryStatisticsFragment : Fragment() {
                     setAnimationRecycler(true)
 
                 val isGlass = mPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                if (isGlass) {
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        mBlurTop.setBlurAutoUpdate(false)
-                    } else {
-                        mBlurTop.setBlurAutoUpdate(true)
+                val isPopupVisible = _mBottomSheet != null && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    mBlurTop.setBlurAutoUpdate(false)
+                    if (isGlass) {
+                        mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(false)
+                    }
+                } else {
+                    mBlurTop.setBlurAutoUpdate(true)
+                    if (isGlass && isPopupVisible) {
+                        mMenuPopupHistoryStatisticsBackground.setBlurAutoUpdate(true)
                     }
                 }
             }
@@ -928,6 +934,7 @@ class HistoryStatisticsFragment : Fragment() {
     }
 
     private fun showSkeleton(show: Boolean) {
+        if (view == null) return
         if (show) {
             mSkeletonLayout.alpha = 1f
             mSkeletonLayout.removeAllViews()
@@ -1045,7 +1052,7 @@ class HistoryStatisticsFragment : Fragment() {
         }
     }
 
-    private fun setupBlurViews() {
+    private fun setupBlurViews(fragmentRoot: View) {
         if (!::mBlurTop.isInitialized)
             return
 
@@ -1054,7 +1061,7 @@ class HistoryStatisticsFragment : Fragment() {
         val background = decorView.background ?: android.graphics.drawable.ColorDrawable(android.graphics.Color.BLACK)
         val blurAlgorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) RenderEffectBlur() else RenderScriptBlur(context)
 
-        val rootView = decorView.findViewById<ViewGroup>(android.R.id.content)
+        val rootView = fragmentRoot.findViewById<ViewGroup>(R.id.history_statistics_content) ?: decorView.findViewById<ViewGroup>(android.R.id.content)
         mBlurTop.setupWith(rootView, blurAlgorithm)
             .setFrameClearDrawable(background)
             .setBlurRadius(15f)

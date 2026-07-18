@@ -43,6 +43,7 @@ import java.io.File
 import java.time.LocalDateTime
 import java.util.Collections
 import java.util.Date
+import java.util.LinkedHashMap
 import java.util.Locale
 import java.util.Objects
 import java.util.regex.Pattern
@@ -56,7 +57,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
 
     var isLoading : Boolean = true
 
-    private var mStackLibrary = mutableMapOf<String, Triple<Int, Library, MutableList<Manga>>>()
+    private var mStackLibrary = mutableMapOf<String, Triple<Int, Library, LinkedHashMap<Long, Manga>>>()
     private var mLibrary: Library = Library(GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA)
     private val mMangaRepository: MangaRepository = MangaRepository(app.applicationContext)
     private val mPreferences = GeneralConsts.getSharedPreferences(app.applicationContext)
@@ -74,7 +75,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     private var mLibraryType = MutableLiveData(LibraryMangaType.GRID_BIG)
     val libraryType: LiveData<LibraryMangaType> = mLibraryType
 
-    private var mListMangasFull = MutableLiveData<MutableList<Manga>>(mutableListOf())
+    private val mFullMap = LinkedHashMap<Long, Manga>()
     private var mListMangas = MutableLiveData<MutableList<Manga>>(mutableListOf())
     val listMangas: LiveData<MutableList<Manga>> = mListMangas
 
@@ -85,6 +86,145 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
 
     private var mProcessShareMark = false
 
+    private data class IncrementalDiff(
+        val change: Boolean,
+        val indexes: MutableList<Pair<ListMode, Int>>,
+        val toAdd: List<Manga>,
+        val toRemoveVisibleIndices: List<Int>,
+        val existingUpdates: List<Pair<Long, Manga>>
+    )
+
+    private fun isFilterActive(): Boolean =
+        mWordFilter.isNotEmpty() || mTypeFilter.value != FilterType.None
+
+    private fun fullValues(): Collection<Manga> = mFullMap.values
+
+    private fun setFullFromList(list: List<Manga>) {
+        mFullMap.clear()
+        for (manga in list) {
+            manga.id?.let { mFullMap[it] = manga }
+        }
+    }
+
+    private fun rebuildFullMap(sorted: List<Manga>) {
+        mFullMap.clear()
+        for (manga in sorted) {
+            manga.id?.let { mFullMap[it] = manga }
+        }
+    }
+
+    private fun insertInFullMap(manga: Manga, position: Int) {
+        val id = manga.id ?: return
+        if (position > -1 && position < mFullMap.size) {
+            val newMap = LinkedHashMap<Long, Manga>()
+            var index = 0
+            for ((key, value) in mFullMap) {
+                if (index == position) newMap[id] = manga
+                newMap[key] = value
+                index++
+            }
+            mFullMap.clear()
+            mFullMap.putAll(newMap)
+        } else {
+            mFullMap[id] = manga
+        }
+    }
+
+    private fun removeFromFull(manga: Manga) {
+        manga.id?.let { mFullMap.remove(it) }
+    }
+
+    private fun containsInFull(manga: Manga): Boolean =
+        manga.id != null && mFullMap.containsKey(manga.id)
+
+    private fun setSuggestionsFromFull() = setSuggestions(mFullMap.values.toList())
+
+    private fun sortList(list: MutableList<Manga>, order: Order, isDesc: Boolean) {
+        if (isDesc) {
+            when (order) {
+                Order.Date -> list.sortByDescending { it.dateCreate }
+                Order.LastAccess -> list.sortWith(compareBy<Manga> { it.lastAccess }.thenByDescending { it.name })
+                Order.Favorite -> list.sortWith(compareBy<Manga> { it.favorite }.thenByDescending { it.name })
+                else -> list.sortByDescending { it.name }
+            }
+        } else {
+            when (order) {
+                Order.Date -> list.sortBy { it.dateCreate }
+                Order.LastAccess -> list.sortWith(compareByDescending<Manga> { it.lastAccess }.thenBy { it.name })
+                Order.Favorite -> list.sortWith(compareByDescending<Manga> { it.favorite }.thenBy { it.name })
+                else -> list.sortBy { it.name }
+            }
+        }
+    }
+
+    private fun computeIncrementalDiff(
+        recentChanges: List<Manga>?,
+        recentDeleted: List<Manga>?,
+        fullSnapshot: Map<Long, Manga>,
+        visibleSnapshot: List<Manga>
+    ): IncrementalDiff {
+        val visibleIndexById = HashMap<Long, Int>()
+        visibleSnapshot.forEachIndexed { index, manga ->
+            manga.id?.let { visibleIndexById[it] = index }
+        }
+
+        val indexes = mutableListOf<Pair<ListMode, Int>>()
+        var change = false
+        val toAdd = mutableListOf<Manga>()
+        val toRemoveVisibleIndices = mutableListOf<Int>()
+        val existingUpdates = mutableListOf<Pair<Long, Manga>>()
+
+        if (!recentChanges.isNullOrEmpty()) {
+            change = true
+            for (manga in recentChanges) {
+                val id = manga.id ?: continue
+                val existing = fullSnapshot[id]
+                if (existing != null) {
+                    if (existing.modify(manga)) {
+                        existingUpdates.add(id to manga)
+                        visibleIndexById[id]?.let { index ->
+                            indexes.add(Pair(ListMode.MOD, index))
+                        }
+                    }
+                } else {
+                    toAdd.add(manga)
+                }
+            }
+        }
+
+        if (!recentDeleted.isNullOrEmpty()) {
+            change = true
+            for (manga in recentDeleted) {
+                val id = manga.id ?: continue
+                if (fullSnapshot.containsKey(id)) {
+                    visibleIndexById[id]?.let { index ->
+                        toRemoveVisibleIndices.add(index)
+                        indexes.add(Pair(ListMode.REM, index))
+                    }
+                }
+            }
+        }
+
+        return IncrementalDiff(change, indexes, toAdd, toRemoveVisibleIndices, existingUpdates)
+    }
+
+    private fun applyIncrementalDiff(diff: IncrementalDiff) {
+        for ((id, manga) in diff.existingUpdates) {
+            mFullMap[id]?.update(manga, true)
+        }
+
+        for (manga in diff.toAdd) {
+            manga.id?.let { mFullMap[it] = manga }
+            mListMangas.value!!.add(manga)
+            diff.indexes.add(Pair(ListMode.ADD, mListMangas.value!!.size - 1))
+        }
+
+        for (index in diff.toRemoveVisibleIndices.sortedDescending()) {
+            val manga = mListMangas.value!!.removeAt(index)
+            removeFromFull(manga)
+        }
+    }
+
     fun setDefaultLibrary(library: Library) {
         if (mLibrary.id == library.id)
             mLibrary = library
@@ -92,9 +232,9 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
 
     fun setLibrary(library: Library) {
         if (mLibrary.id != library.id) {
-            mListMangasFull.value = mutableListOf()
+            mFullMap.clear()
             mListMangas.value = mutableListOf()
-            setSuggestions(mListMangasFull.value)
+            setSuggestionsFromFull()
         }
         mLibrary = library
     }
@@ -118,21 +258,23 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
         if (mStackLibrary.contains(id)) {
             val item = mStackLibrary.remove(id)!!
             mLibrary = item.second
-            mListMangasFull.value = item.third.toMutableList()
-            mListMangas.value = item.third.toMutableList()
-            setSuggestions(mListMangasFull.value)
+            mFullMap.clear()
+            mFullMap.putAll(item.third)
+            mListMangas.value = mFullMap.values.toMutableList()
+            setSuggestionsFromFull()
         }
     }
 
-    fun addStackLibrary(id: String, library: Library) = mStackLibrary.put(id, Triple(mStackLibrary.size + 1, library, mListMangasFull.value!!))
+    fun addStackLibrary(id: String, library: Library) =
+        mStackLibrary.put(id, Triple(mStackLibrary.size + 1, library, LinkedHashMap(mFullMap)))
 
     fun removeStackLibrary(id: String) = mStackLibrary.remove(id)
 
     fun emptyList(idLibrary: Long) {
         if (mLibrary.id == idLibrary) {
-            mListMangasFull.value = mutableListOf()
+            mFullMap.clear()
             mListMangas.value = mutableListOf()
-            setSuggestions(mListMangasFull.value)
+            setSuggestionsFromFull()
         } else {
             for (stack in mStackLibrary)
                 if (stack.value.second.id == idLibrary)
@@ -156,10 +298,10 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     fun add(manga: Manga, position: Int = -1) {
         if (position > -1) {
             mListMangas.value!!.add(position, manga)
-            mListMangasFull.value!!.add(position, manga)
+            insertInFullMap(manga, position)
         } else {
             mListMangas.value!!.add(manga)
-            mListMangasFull.value!!.add(manga)
+            insertInFullMap(manga, -1)
         }
     }
 
@@ -170,30 +312,26 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
 
     fun getAndRemove(position: Int): Manga? {
         val manga = if (mListMangas.value != null) mListMangas.value!!.removeAt(position) else null
-        if (manga != null) mListMangasFull.value!!.remove(manga)
+        if (manga != null) removeFromFull(manga)
         return manga
     }
 
     fun remove(manga: Manga) {
-        if (mListMangasFull.value != null) {
-            mListMangas.value!!.remove(manga)
-            mListMangasFull.value!!.remove(manga)
-        }
+        mListMangas.value!!.remove(manga)
+        removeFromFull(manga)
     }
 
     fun remove(position: Int) {
-        if (mListMangasFull.value != null) {
-            val manga = mListMangas.value!!.removeAt(position)
-            mListMangasFull.value!!.remove(manga)
-        }
+        val manga = mListMangas.value!!.removeAt(position)
+        removeFromFull(manga)
     }
 
     fun update(list: List<Manga>) {
         if (list.isNotEmpty()) {
             for (manga in list) {
-                if (!mListMangasFull.value!!.contains(manga)) {
+                if (!containsInFull(manga)) {
                     mListMangas.value!!.add(manga)
-                    mListMangasFull.value!!.add(manga)
+                    insertInFullMap(manga, -1)
                 }
             }
         }
@@ -201,15 +339,15 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
 
     fun setList(list: ArrayList<Manga>) {
         mListMangas.value = list
-        mListMangasFull.value = list.toMutableList()
+        setFullFromList(list)
     }
 
     fun addList(manga: Manga): Int {
         var index = -1
-        if (!mListMangasFull.value!!.contains(manga)) {
+        if (!containsInFull(manga)) {
             index = mListMangas.value!!.size
             mListMangas.value!!.add(manga)
-            mListMangasFull.value!!.add(manga)
+            insertInFullMap(manga, -1)
         }
 
         return index
@@ -218,10 +356,10 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     fun remList(manga: Manga): Int {
         var index = -1
 
-        if (mListMangasFull.value!!.contains(manga)) {
+        if (containsInFull(manga)) {
             index = mListMangas.value!!.indexOf(manga)
             mListMangas.value!!.remove(manga)
-            mListMangasFull.value!!.remove(manga)
+            removeFromFull(manga)
         }
 
         return index
@@ -243,59 +381,36 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
 
     fun updateList(refreshComplete: (Boolean, indexes: MutableList<Pair<ListMode, Int>>) -> (Unit)) {
         viewModelScope.launch {
-            val currentFullList = mListMangasFull.value ?: mutableListOf()
-            if (currentFullList.isNotEmpty()) {
+            if (mFullMap.isNotEmpty()) {
                 val list = withContext(Dispatchers.IO) { mMangaRepository.listRecentChange(mLibrary) }
                 val listDel = withContext(Dispatchers.IO) { mMangaRepository.listRecentDeleted(mLibrary) }
 
-                var change = false
-                val indexes = mutableListOf<Pair<ListMode, Int>>()
+                val fullSnapshot = LinkedHashMap(mFullMap)
+                val visibleSnapshot = mListMangas.value?.toList() ?: emptyList()
 
-                if (!list.isNullOrEmpty()) {
-                    change = true
-                    for (manga in list) {
-                        if (mListMangasFull.value!!.contains(manga)) {
-                            val existingManga = mListMangasFull.value!![mListMangasFull.value!!.indexOf(manga)]
-                            if (existingManga.modify(manga)) {
-                                existingManga.update(manga, true)
-                                val index = mListMangas.value!!.indexOf(manga)
-                                if (index > -1)
-                                    indexes.add(Pair(ListMode.MOD, index))
-                            }
-                        } else {
-                            mListMangas.value!!.add(manga)
-                            mListMangasFull.value!!.add(manga)
-                            indexes.add(Pair(ListMode.ADD, mListMangas.value!!.size - 1))
-                        }
-                    }
+                val diff = withContext(Dispatchers.Default) {
+                    computeIncrementalDiff(list, listDel, fullSnapshot, visibleSnapshot)
                 }
-                if (!listDel.isNullOrEmpty()) {
-                    change = true
-                    for (manga in listDel) {
-                        if (mListMangasFull.value!!.contains(manga)) {
-                            val index = mListMangas.value!!.indexOf(manga)
-                            mListMangas.value!!.remove(manga)
-                            mListMangasFull.value!!.remove(manga)
-                            indexes.add(Pair(ListMode.REM, index))
-                        }
-                    }
+
+                withContext(Dispatchers.Main) {
+                    applyIncrementalDiff(diff)
+                    setSuggestionsFromFull()
+                    refreshComplete(diff.change, diff.indexes)
                 }
-                setSuggestions(mListMangasFull.value)
-                refreshComplete(change, indexes)
             } else {
                 val list = withContext(Dispatchers.IO) { mMangaRepository.list(mLibrary) }
                 val indexes = mutableListOf<Pair<ListMode, Int>>()
                 if (list != null) {
                     indexes.add(Pair(ListMode.FULL, list.size))
                     mListMangas.value = list.toMutableList()
-                    mListMangasFull.value = list.toMutableList()
+                    setFullFromList(list)
                     sorted()
                 } else {
                     mListMangas.value = mutableListOf()
-                    mListMangasFull.value = mutableListOf()
+                    mFullMap.clear()
                     indexes.add(Pair(ListMode.FULL, 0))
                 }
-                setSuggestions(mListMangasFull.value)
+                setSuggestionsFromFull()
                 refreshComplete(false, indexes)
             }
         }
@@ -309,16 +424,16 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                 mLoading.value = false
 
                 if (list != null) {
-                    if (mListMangasFull.value == null || mListMangasFull.value!!.isEmpty()) {
+                    if (mFullMap.isEmpty()) {
                         mListMangas.value = list.toMutableList()
-                        mListMangasFull.value = list.toMutableList()
-                        setSuggestions(mListMangasFull.value)
+                        setFullFromList(list)
+                        setSuggestionsFromFull()
                     } else
                         update(list)
                 } else {
-                    mListMangasFull.value = mutableListOf()
+                    mFullMap.clear()
                     mListMangas.value = mutableListOf()
-                    setSuggestions(mListMangasFull.value)
+                    setSuggestionsFromFull()
                 }
 
                 refreshComplete(mListMangas.value!!.isNotEmpty())
@@ -351,44 +466,17 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
     fun sorted(order: Order, isDesc: Boolean = false) {
         mOrder.value = Pair(order, isDesc)
 
-        if (isDesc)
-            when (order) {
-                Order.Date -> {
-                    mListMangasFull.value!!.sortByDescending { it.dateCreate }
-                    mListMangas.value!!.sortByDescending { it.dateCreate }
-                }
-                Order.LastAccess -> {
-                    mListMangasFull.value!!.sortWith(compareBy<Manga> { it.lastAccess }.thenByDescending { it.name })
-                    mListMangas.value!!.sortWith(compareBy<Manga> { it.lastAccess }.thenByDescending { it.name })
-                }
-                Order.Favorite -> {
-                    mListMangasFull.value!!.sortWith(compareBy<Manga> { it.favorite }.thenByDescending { it.name })
-                    mListMangas.value!!.sortWith(compareBy<Manga> { it.favorite }.thenByDescending { it.name })
-                }
-                else -> {
-                    mListMangasFull.value!!.sortByDescending { it.name }
-                    mListMangas.value!!.sortByDescending { it.name }
-                }
-            }
-        else
-            when (order) {
-                Order.Date -> {
-                    mListMangasFull.value!!.sortBy { it.dateCreate }
-                    mListMangas.value!!.sortBy { it.dateCreate }
-                }
-                Order.LastAccess -> {
-                    mListMangasFull.value!!.sortWith(compareByDescending<Manga> { it.lastAccess }.thenBy { it.name })
-                    mListMangas.value!!.sortWith(compareByDescending<Manga> { it.lastAccess }.thenBy { it.name })
-                }
-                Order.Favorite -> {
-                    mListMangasFull.value!!.sortWith(compareByDescending<Manga> { it.favorite }.thenBy { it.name })
-                    mListMangas.value!!.sortWith(compareByDescending<Manga> { it.favorite }.thenBy { it.name })
-                }
-                else -> {
-                    mListMangasFull.value!!.sortBy { it.name }
-                    mListMangas.value!!.sortBy { it.name }
-                }
-            }
+        val sortedFull = mFullMap.values.toMutableList()
+        sortList(sortedFull, order, isDesc)
+        rebuildFullMap(sortedFull)
+
+        if (!isFilterActive()) {
+            mListMangas.value = sortedFull
+        } else {
+            val sortedVisible = mListMangas.value!!.toMutableList()
+            sortList(sortedVisible, order, isDesc)
+            mListMangas.value = sortedVisible
+        }
     }
 
     private fun setSuggestions(list : List<Manga>?) {
@@ -462,7 +550,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
         mTypeFilter.value = FilterType.None
         mWordFilter = ""
         val newList: MutableList<Manga> = mutableListOf()
-        newList.addAll(mListMangasFull.value!!.filter(Objects::nonNull))
+        newList.addAll(fullValues().filter(Objects::nonNull))
         mListMangas.value = newList
     }
 
@@ -519,19 +607,20 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
 
     private val mMangaFilter = object : Filter() {
         override fun performFiltering(constraint: CharSequence?): FilterResults {
-            mWordFilter = constraint.toString()
+            mWordFilter = constraint?.toString() ?: ""
             val filteredList: MutableList<Manga> = mutableListOf()
 
             if (constraint.isNullOrEmpty() && mTypeFilter.value == FilterType.None) {
-                filteredList.addAll(mListMangasFull.value!!.filter(Objects::nonNull))
+                filteredList.addAll(fullValues().filter(Objects::nonNull))
             } else {
-                var filterPattern = constraint.toString()
+                var filterPattern = constraint?.toString() ?: ""
                 val filterCondition = arrayListOf<Pair<FilterType, String>>()
-                constraint!!.contains('@').run {
-                    val m = Pattern.compile("(@\\S*:([^\"]\\S*|\".+?\"\\s*))").matcher(constraint)
+                if (constraint != null && constraint.contains('@')) {
+                    val m = Pattern.compile("(@\\S*:(\"[^\"]*\"|[^\\s]+))\\s*").matcher(constraint)
                     while (m.find()) {
+                        val fullMatch = m.group(0) ?: continue
                         val item = m.group(1)?.replace("\"", "") ?: continue
-                        filterPattern = filterPattern.replace(m.group(1)!!, "", true)
+                        filterPattern = filterPattern.replace(fullMatch, "", true)
                         val type = Util.stringToFilter(app.applicationContext, Type.MANGA, item.substringBefore(":").replace("@", ""))
                         if (type != FilterType.None) {
                             val condition = item.substringAfter(":")
@@ -542,7 +631,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
                 }
 
                 filterPattern = filterPattern.lowercase(Locale.getDefault()).trim()
-                filteredList.addAll(mListMangasFull.value!!.filter {
+                filteredList.addAll(fullValues().filter {
                     filtered(it, filterPattern, filterCondition)
                 })
             }
@@ -574,12 +663,14 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
             val process: (manga: Manga) -> (Unit) = { item ->
                 if (mLibrary.id == item.fkLibrary) {
                     notify = true
-                    mListMangasFull.value?.find { manga -> manga.id == item.id }?.let { manga ->
-                        manga.favorite = item.favorite
-                        manga.bookMark = item.bookMark
-                        manga.pages = item.pages
-                        manga.completed = item.completed
-                        manga.lastAccess = item.lastAccess
+                    item.id?.let { id ->
+                        mFullMap[id]?.let { manga ->
+                            manga.favorite = item.favorite
+                            manga.bookMark = item.bookMark
+                            manga.pages = item.pages
+                            manga.completed = item.completed
+                            manga.lastAccess = item.lastAccess
+                        }
                     }
                 }
             }
@@ -599,7 +690,7 @@ class MangaLibraryViewModel(var app: Application) : AndroidViewModel(app), Filte
         if (mImportingVocab)
             return
 
-        val list = mListMangasFull.value?.toList() ?: return
+        val list = mFullMap.values.toList()
         val cache = GeneralConsts.getCacheDir(app.applicationContext)
 
         if (list.isEmpty())

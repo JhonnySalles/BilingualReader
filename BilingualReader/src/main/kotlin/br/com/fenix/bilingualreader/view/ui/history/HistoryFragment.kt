@@ -16,11 +16,6 @@ import android.os.Looper
 import android.provider.BaseColumns
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
-import android.widget.FrameLayout
-import androidx.viewpager.widget.ViewPager
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.tabs.TabLayout
-import eightbitlab.com.blurview.BlurView
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -30,6 +25,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.AbsListView
 import android.widget.AutoCompleteTextView
 import android.widget.CursorAdapter
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.SearchView
@@ -47,6 +43,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -60,13 +57,16 @@ import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.adapter.history.HistoryCardAdapter
 import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
-import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.ui.reader.book.BookReaderActivity
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.tabs.TabLayout
+import eightbitlab.com.blurview.BlurView
 import io.supercharge.shimmerlayout.ShimmerLayout
 import java.time.LocalDateTime
 import kotlin.math.ceil
@@ -90,7 +90,7 @@ class HistoryFragment : Fragment() {
     private var mInflater: LayoutInflater by autoCleared()
 
     private var mFilterType: Type? = null
-
+    private var mRoot: FrameLayout by autoCleared()
     private var mMenuPopupHistory: FrameLayout by autoCleared()
     private var mMenuPopupHistoryBackground: BlurView by autoCleared()
     private var mPopupHistoryView: ViewPager by autoCleared()
@@ -345,10 +345,9 @@ class HistoryFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mViewModel = ViewModelProvider(this)[HistoryViewModel::class.java]
-
         val root = inflater.inflate(R.layout.fragment_history, container, false)
+        mRoot = root as FrameLayout
         mRecyclerView = root.findViewById(R.id.history_statistics_list)
-
         ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
             val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
             mRecyclerView.setPadding(mRecyclerView.paddingLeft, mRecyclerView.paddingTop, mRecyclerView.paddingRight, navBarHeight)
@@ -438,9 +437,11 @@ class HistoryFragment : Fragment() {
         }
     }
 
+
     private fun setupPopupBackgrounds() {
         val activity = activity ?: return
-        PopupUtil.setupPopupBackgrounds(activity, mMenuPopupHistory, mMenuPopupHistoryBackground)
+        val contentContainer = view?.findViewById<ViewGroup>(R.id.history_content) ?: mRoot
+        PopupUtil.setupPopupBackgrounds(activity, mMenuPopupHistory, mMenuPopupHistoryBackground, contentContainer)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -527,11 +528,16 @@ class HistoryFragment : Fragment() {
 
                 val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
                 val isGlass = sharedPreferences.getBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, false)
-                if (isGlass) {
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
-                    } else {
-                        (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
+                val isPopupVisible = _mBottomSheet != null && mBottomSheet.state != BottomSheetBehavior.STATE_HIDDEN
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(false)
+                    if (isGlass) {
+                        mMenuPopupHistoryBackground.setBlurAutoUpdate(false)
+                    }
+                } else {
+                    (activity as? br.com.fenix.bilingualreader.MainActivity)?.setBlurAutoUpdate(true)
+                    if (isGlass && isPopupVisible) {
+                        mMenuPopupHistoryBackground.setBlurAutoUpdate(true)
                     }
                 }
             }
@@ -952,6 +958,7 @@ class HistoryFragment : Fragment() {
     }
 
     private fun showSkeleton(show: Boolean) {
+        if (view == null) return
         if (show) {
             mSkeletonLayout.alpha = 1f
             mSkeletonLayout.removeAllViews()

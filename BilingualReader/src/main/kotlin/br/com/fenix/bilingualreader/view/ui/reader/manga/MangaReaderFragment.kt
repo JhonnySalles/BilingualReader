@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore.Images
+import android.util.LruCache
 import android.util.SparseArray
 import android.util.TypedValue
 import android.view.GestureDetector
@@ -116,6 +117,7 @@ import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Picasso.LoadedFrom
 import com.squareup.picasso.Target
+import com.squareup.picasso.Transformation
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
@@ -198,6 +200,17 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private lateinit var mComicHandler: MangaHandler
     var mTargets = SparseArray<Target>()
     private var mLastZoomScale = 0f
+
+    private val mPageCache: LruCache<String, Bitmap> = object : LruCache<String, Bitmap>(
+        maxOf(1, (Runtime.getRuntime().maxMemory() / 1024L / 8L).toInt())
+    ) {
+        override fun sizeOf(key: String, value: Bitmap): Int = value.byteCount / 1024
+    }
+
+    private fun filtersSignature(): String =
+        (mViewModel.filters.value ?: emptyList<Transformation>()).joinToString("|") { it.key() }
+
+    private fun pageCacheKey(page: Int): String = "$page@${filtersSignature()}"
 
     private var mIsSeekBarChange = false
     private var mPageStartReading = LocalDateTime.now()
@@ -337,6 +350,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     private fun onRefresh() {
         if (!::mViewPager.isInitialized)
             return
+
+        // Filtros mudaram: as chaves antigas (com outra assinatura) nao serao mais
+        // reutilizadas; limpar evita reter bitmaps obsoletos e dobrar o uso de memoria.
+        mPageCache.evictAll()
 
         if (mTargets.isNotEmpty()) {
             when (mScrollingMode) {
@@ -507,14 +524,15 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                     val parse = ParseFactory.create(file)
                     if (parse != null) {
                         if (parse is RarParse) {
-                            val child = mCacheFolder[mCacheFolderIndex]
-                            val cacheDir = File(GeneralConsts.getCacheDir(requireContext()), child)
-                            if (!cacheDir.exists()) {
-                                cacheDir.mkdir()
-                            } else {
-                                cacheDir.listFiles()?.forEach { it.delete() }
-                            }
-                            parse.setCacheDirectory(cacheDir)
+                            // Pasta de cache estavel por arquivo: reaproveita a extracao entre
+                            // sessoes (evita reextrair RAR solido) e invalida sozinha se o arquivo mudar.
+                            val baseDir = File(GeneralConsts.getCacheDir(requireContext()), GeneralConsts.CACHE_FOLDER.RAR)
+                            if (!baseDir.exists())
+                                baseDir.mkdirs()
+                            val folderName = RarParse.cacheFolderName(file)
+                            val cacheDir = File(baseDir, folderName)
+                            parse.setCacheDirectory(cacheDir, preserveExisting = true)
+                            RarParse.trimCache(baseDir, folderName)
                         }
 
                         withContext(Dispatchers.Main) {
@@ -877,10 +895,12 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mSubtitleController.clearControllers()
         if (mSubtitleController.mReaderFragment == this)
             mSubtitleController.mReaderFragment = null
-        Util.destroyParse(mParse)
+        // Preserva o cache de disco do RAR entre sessoes (o trimCache limita o total).
+        Util.destroyParse(mParse, isClearCache = false)
         if (::mPicasso.isInitialized)
             mPicasso.shutdown()
 
+        mPageCache.evictAll()
         mHandler.removeCallbacksAndMessages(null)
         super.onDestroy()
     }
@@ -1073,7 +1093,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             ScrollingType.Vertical,
             ScrollingType.Horizontal,
                 -> {
-                mViewPager.currentItem = page - 1
+                mViewPager.setCurrentItem(page - 1, animated)
             }
 
             ScrollingType.HorizontalRightToLeft -> {
@@ -1119,39 +1139,55 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         (requireActivity() as MangaReaderActivity).changePage(mManga?.title ?: "", getChapterSelected(mLocalCurrentPage), page)
     }
 
+    private var mComicInfoProcessed = false
+
     private fun getChapterSelected(page: Int): String {
         var chapter = ""
 
-        if (mManga != null && mManga!!.chaptersPages.isEmpty() && mParse != null) {
-            if (mParse!!.isComicInfo()) {
-                mParse!!.getComicInfo()?.let {
+        val manga = mManga
+        val parse = mParse
+        if (manga != null && manga.chaptersPages.isEmpty() && !mComicInfoProcessed && parse != null && parse.isComicInfo()) {
+            // Executa a leitura do ComicInfo apenas uma vez por abertura e fora da main thread,
+            // pois getComicInfo() pode reparsear o arquivo. Ao concluir, atualiza o titulo.
+            mComicInfoProcessed = true
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val info = parse.getComicInfo() ?: return@launch
                     val chapters = mutableMapOf<Int, String>()
-                    if (it.pages != null && it.pages!!.size > mLocalCurrentPage) {
-                        for ((index, comic) in it.pages!!.withIndex()) {
+                    info.pages?.let { pages ->
+                        for ((index, comic) in pages.withIndex()) {
                             if (comic.bookmark != null)
                                 chapters[index] = comic.bookmark!!
-
                         }
                     }
-                    mManga!!.chaptersPages = chapters
-                    mViewModel.save(mManga!!)
+                    if (chapters.isNotEmpty()) {
+                        manga.chaptersPages = chapters
+                        mViewModel.save(manga)
+                        withContext(Dispatchers.Main) {
+                            if (isAdded && !isRemoving && !isDetached)
+                                (requireActivity() as MangaReaderActivity)
+                                    .changePage(manga.title, getChapterSelected(mLocalCurrentPage), mLocalCurrentPage + 1)
+                        }
+                    }
+                } catch (e: Exception) {
+                    mLOGGER.error("Error to load comic info chapters: " + e.message, e)
                 }
             }
         }
 
-        if (mManga != null && mManga!!.chaptersPages.isNotEmpty()) {
-            var last = mManga!!.chaptersPages.keys.first()
-            for (chapter in mManga!!.chaptersPages.keys) {
-                if (chapter > page)
+        if (manga != null && manga.chaptersPages.isNotEmpty()) {
+            var last = manga.chaptersPages.keys.first()
+            for (chapterKey in manga.chaptersPages.keys) {
+                if (chapterKey > page)
                     break
-                last = chapter
+                last = chapterKey
             }
 
-            chapter = mManga!!.chaptersPages[last] ?: ""
+            chapter = manga.chaptersPages[last] ?: ""
         }
 
         if (chapter.isEmpty())
-            chapter = mParse?.getPagePath(page) ?: ""
+            chapter = parse?.getPagePath(page) ?: ""
 
         return chapter
     }
@@ -1210,12 +1246,11 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             mPicasso.cancelRequest(mTargets[position])
             mTargets.delete(position)
             container.removeView(layout)
+            // Nao reciclar o bitmap aqui: ele pode estar retido pelo mPageCache (LRU)
+            // para reutilizacao ao voltar a pagina. O LRU limita o uso de memoria e o
+            // GC libera os bitmaps evictados que nao estejam mais em uso.
             val iv = layout.findViewById<View>(R.id.page_image_view) as ImageView
-            val drawable = iv.drawable
-            if (drawable is BitmapDrawable) {
-                val bm = drawable.bitmap
-                bm?.recycle()
-            }
+            iv.setImageDrawable(null)
         }
     }
 
@@ -1348,6 +1383,15 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         else
             t.position
 
+        val key = pageCacheKey(pos)
+        t.cacheKey = key
+
+        val cached = mPageCache.get(key)
+        if (cached != null && !cached.isRecycled) {
+            t.onBitmapLoaded(cached, LoadedFrom.MEMORY)
+            return
+        }
+
         try {
             mPicasso.load(mComicHandler.getPageUri(pos))
                 .memoryPolicy(MemoryPolicy.NO_STORE)
@@ -1365,6 +1409,7 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
     inner class MyTarget(layout: View, val position: Int, val onLoaded: (View) -> (Unit)) : Target, View.OnClickListener {
         private val mLayout: WeakReference<View> = WeakReference(layout)
+        var cacheKey: String? = null
 
         private fun setVisibility(imageView: Int, progressBar: Int, reloadButton: Int) {
             val layout = mLayout.get() ?: return
@@ -1378,6 +1423,10 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             setVisibility(View.VISIBLE, View.GONE, View.GONE)
             val iv = layout.findViewById<View>(R.id.page_image_view) as ImageView
             iv.setImageBitmap(bitmap)
+
+            if (from != LoadedFrom.MEMORY && !bitmap.isRecycled)
+                cacheKey?.let { mPageCache.put(it, bitmap) }
+
             onLoaded(layout)
         }
 
@@ -1928,7 +1977,18 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
             it.setPageEnd(getCurrentPage())
             it.setEnd(LocalDateTime.now())
             it.averageTimeByPage = average
-            it.id = mViewModel.save(it)
+            saveHistoryAsync(it)
+        }
+    }
+
+    private val mHistorySaveLock = Any()
+    private fun saveHistoryAsync(history: History) {
+        CoroutineScope(Dispatchers.IO).launch {
+            // Serializa as gravacoes para garantir que o id seja definido antes da proxima,
+            // evitando insercao duplicada de historico entre viradas de pagina rapidas.
+            synchronized(mHistorySaveLock) {
+                history.id = mViewModel.save(history)
+            }
         }
     }
 

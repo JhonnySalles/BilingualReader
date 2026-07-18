@@ -1,6 +1,7 @@
 package br.com.fenix.bilingualreader.service.parses.manga
 
-import android.content.Context
+import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
 import coil.ImageLoader
 import coil.decode.DataSource
 import coil.decode.ImageSource
@@ -8,12 +9,9 @@ import coil.fetch.FetchResult
 import coil.fetch.Fetcher
 import coil.fetch.SourceResult
 import coil.request.Options
+import kotlinx.coroutines.withContext
 import okio.FileSystem
 import okio.Path.Companion.toOkioPath
-import br.com.fenix.bilingualreader.model.entity.Manga
-import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
-import kotlinx.coroutines.withContext
-import java.io.File
 
 class MangaCoverFetcher(
     private val manga: Manga,

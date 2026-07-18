@@ -49,9 +49,9 @@ import br.com.fenix.bilingualreader.util.constants.GeneralConsts
 import br.com.fenix.bilingualreader.util.helpers.AnimationUtil
 import br.com.fenix.bilingualreader.util.helpers.MenuUtil
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
-import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil.ThemeUtils.getColorFromAttr
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.adapter.annotation.AnnotationLineAdapter
 import br.com.fenix.bilingualreader.view.adapter.annotation.AnnotationRootViewHolder
 import br.com.fenix.bilingualreader.view.adapter.annotation.AnnotationTitleViewHolder
@@ -87,6 +87,7 @@ class AnnotationFragment : Fragment(), AnnotationListener {
     private lateinit var mPopupFilterColorFragment: AnnotationPopupFilterColor
     private lateinit var mPopupFilterChapterFragment: AnnotationPopupFilterChapter
     private lateinit var mBottomSheet: BottomSheetBehavior<FrameLayout>
+    private lateinit var mRoot: FrameLayout
 
     private val mBottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -205,6 +206,7 @@ class AnnotationFragment : Fragment(), AnnotationListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_annotation, container, false)
+        mRoot = root as FrameLayout
 
         ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
             val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
@@ -662,11 +664,13 @@ class AnnotationFragment : Fragment(), AnnotationListener {
         setupPopupBackgrounds()
     }
 
+
+
     private fun setupPopupBackgrounds() {
         val activity = activity ?: return
-        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilter, mMenuPopupLibraryBackground)
+        val contentContainer = view?.findViewById<ViewGroup>(R.id.annotation_content)
+        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilter, mMenuPopupLibraryBackground, contentContainer)
     }
-
 
     private var itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
         override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {

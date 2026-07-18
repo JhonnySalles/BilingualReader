@@ -1,16 +1,21 @@
 package br.com.fenix.bilingualreader
 
 import android.app.Application
-import com.google.firebase.FirebaseApp
+import br.com.fenix.bilingualreader.service.parses.book.BookCoverFetcher
+import br.com.fenix.bilingualreader.service.parses.manga.MangaCoverFetcher
 import coil.ImageLoader
 import coil.ImageLoaderFactory
-import br.com.fenix.bilingualreader.service.parses.manga.MangaCoverFetcher
-import br.com.fenix.bilingualreader.service.parses.book.BookCoverFetcher
+import com.google.firebase.FirebaseApp
 
 class BilingualReaderApplication : Application(), ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
         FirebaseApp.initializeApp(this)
+
+        io.sentry.android.core.SentryAndroid.init(this) { options ->
+            options.isDebug = BuildConfig.DEBUG
+            options.tracesSampleRate = 1.0
+        }
     }
 
     override fun newImageLoader(): ImageLoader {

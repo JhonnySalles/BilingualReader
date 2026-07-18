@@ -6,6 +6,7 @@ plugins {
     id 'com.google.gms.google-services'
     id 'com.google.firebase.appdistribution'
     id 'com.google.firebase.crashlytics'
+    id 'io.sentry.android.gradle'
 }
 
 def secrets = file("src/main/assets/secrets.properties")
@@ -23,9 +24,9 @@ android {
         applicationId 'br.com.fenix'
         minSdk 26
         targetSdk 34
-        versionCode 8
+        versionCode 9
         versionName '1.0.'
-        versionNameSuffix '8'
+        versionNameSuffix '9'
 
         testInstrumentationRunner "br.com.fenix.bilingualreader.CustomTestRunner"
         applicationIdSuffix 'bilingualreader'

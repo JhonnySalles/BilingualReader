@@ -12,6 +12,7 @@ import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.core.Persister
 import org.slf4j.LoggerFactory
 import java.io.BufferedReader
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -21,16 +22,46 @@ import java.io.InputStream
 
 class RarParse : Parse {
 
+    companion object {
+        // Numero maximo de arquivos RAR mantidos em cache de disco simultaneamente.
+        private const val MAX_CACHED_ARCHIVES = 6
+
+        // Nome estavel de pasta de cache por arquivo: inclui caminho, tamanho e data de
+        // modificacao, de modo que o cache seja reaproveitado entre sessoes e invalidado
+        // automaticamente caso o arquivo mude.
+        fun cacheFolderName(file: File): String =
+            Util.MD5(file.absolutePath + "_" + file.length() + "_" + file.lastModified())
+
+        // Mantem apenas as pastas de cache mais recentes, preservando sempre a atual.
+        fun trimCache(baseDir: File, keepFolder: String) {
+            try {
+                val folders = baseDir.listFiles()?.filter { it.isDirectory } ?: return
+                if (folders.size <= MAX_CACHED_ARCHIVES)
+                    return
+
+                folders.sortedByDescending { it.lastModified() }
+                    .drop(MAX_CACHED_ARCHIVES)
+                    .filter { it.name != keepFolder }
+                    .forEach { dir ->
+                        dir.listFiles()?.forEach { it.delete() }
+                        dir.delete()
+                    }
+            } catch (ignored: Exception) { }
+        }
+    }
+
     private val mLOGGER = LoggerFactory.getLogger(RarParse::class.java)
 
     private val mHeaders = ArrayList<FileHeader>()
     private var mArchive: Archive? = null
+    private var mFile: File? = null
     private var mCacheDir: File? = null
     private var mSolidFileExtracted = false
     private var mSubtitles = ArrayList<FileHeader>()
     private var mComicInfo: FileHeader? = null
 
     override fun parse(file: File?) {
+        mFile = file
         mArchive = Archive(file)
 
         var header = mArchive!!.nextFileHeader()
@@ -63,18 +94,20 @@ class RarParse : Parse {
 
     override fun getSubtitles(): List<String> {
         val subtitles = arrayListOf<String>()
-        mSubtitles.forEach {
-            val sub = mArchive!!.getInputStream(it)
-            val reader = BufferedReader(sub.reader())
-            val content = StringBuilder()
-            reader.use { rd ->
-                var line = rd.readLine()
-                while (line != null) {
-                    content.append(line)
-                    line = rd.readLine()
+        synchronized(this) {
+            mSubtitles.forEach {
+                val sub = mArchive!!.getInputStream(it)
+                val reader = BufferedReader(sub.reader())
+                val content = StringBuilder()
+                reader.use { rd ->
+                    var line = rd.readLine()
+                    while (line != null) {
+                        content.append(line)
+                        line = rd.readLine()
+                    }
                 }
+                subtitles.add(content.toString())
             }
-            subtitles.add(content.toString())
         }
         return subtitles
     }
@@ -124,7 +157,9 @@ class RarParse : Parse {
             val page = getPageStream(mComicInfo!!)
             val serializer: Serializer = Persister()
             try {
-                serializer.read(ComicInfo::class.java, page)
+                page.use {
+                    serializer.read(ComicInfo::class.java, it)
+                }
             } catch (e: Exception) {
                 mLOGGER.error("Error to get comic info: " + e.message, e)
                 Telemetry.recordException(e, "Error to get comic info: " + e.message)
@@ -135,35 +170,73 @@ class RarParse : Parse {
     }
 
     override fun getPage(num: Int): InputStream {
-        if (mArchive!!.mainHeader.isSolid) {
-            synchronized(this) {
-                if (!mSolidFileExtracted) {
-                    for (h in mArchive!!.fileHeaders) {
-                        if (!h.isDirectory && FileUtil.isImage(getName(h))) {
-                            getPageStream(h)
-                        }
+        var isSolid = false
+        synchronized(this) {
+            isSolid = mArchive?.mainHeader?.isSolid ?: false
+            if (isSolid && !mSolidFileExtracted) {
+                val files = mArchive?.fileHeaders ?: emptyList()
+                for (h in files) {
+                    if (!h.isDirectory && FileUtil.isImage(getName(h))) {
+                        getPageStream(h)
                     }
-                    mSolidFileExtracted = true
                 }
+                mSolidFileExtracted = true
             }
         }
         return getPageStream(mHeaders[num])
     }
 
+    private fun recreateArchive() {
+        try {
+            mArchive?.close()
+        } catch (ignored: Exception) {}
+        val archive = if (mFile != null) Archive(mFile) else null
+        mArchive = archive
+        if (archive != null) {
+            val newHeaders = archive.fileHeaders
+            for (i in mHeaders.indices) {
+                val oldHeader = mHeaders[i]
+                val newHeader = newHeaders.find { it.fileName == oldHeader.fileName }
+                if (newHeader != null) {
+                    mHeaders[i] = newHeader
+                }
+            }
+            for (i in mSubtitles.indices) {
+                val oldHeader = mSubtitles[i]
+                val newHeader = newHeaders.find { it.fileName == oldHeader.fileName }
+                if (newHeader != null) {
+                    mSubtitles[i] = newHeader
+                }
+            }
+            mComicInfo?.let { oldHeader ->
+                mComicInfo = newHeaders.find { it.fileName == oldHeader.fileName }
+            }
+        }
+    }
+
+    private fun getHeaderByName(name: String): FileHeader? {
+        return mArchive?.fileHeaders?.find { getName(it) == name }
+    }
+
     private fun getPageStream(header: FileHeader, isFirst : Boolean = true): InputStream {
+        val name = getName(header)
         return try {
             if (mCacheDir != null) {
-                val name = getName(header)
                 val cacheFile = File(mCacheDir, Util.MD5(name))
                 if (cacheFile.exists())
                     return FileInputStream(cacheFile)
 
+                val tempFile = File(mCacheDir, Util.MD5(name) + ".tmp")
                 synchronized(this) {
-                    val os = FileOutputStream(cacheFile)
+                    if (cacheFile.exists())
+                        return FileInputStream(cacheFile)
+
+                    val os = FileOutputStream(tempFile)
                     try {
-                        mArchive!!.extractFile(header, os)
+                        val targetHeader = if (isFirst) header else getHeaderByName(name) ?: header
+                        mArchive!!.extractFile(targetHeader, os)
                     } catch (e : CrcErrorException) {
-                        cacheFile.delete()
+                        tempFile.delete()
                         if (isFirst) {
                             Thread.sleep(200)
                             getPageStream(header, false)
@@ -172,16 +245,38 @@ class RarParse : Parse {
                             throw e
                         }
                     } catch (e: Exception) {
-                        cacheFile.delete()
-                        mLOGGER.error("Error to get page stream: " + e.message, e)
-                        throw e
+                        tempFile.delete()
+                        mLOGGER.error("Error to get page stream (recreating archive): " + e.message, e)
+                        if (isFirst) {
+                            recreateArchive()
+                            Thread.sleep(200)
+                            getPageStream(header, false)
+                        } else {
+                            throw e
+                        }
                     } finally {
                         os.close()
                     }
+                    tempFile.renameTo(cacheFile)
                 }
                 return FileInputStream(cacheFile)
             }
-            mArchive!!.getInputStream(header)
+            synchronized(this) {
+                val targetHeader = if (isFirst) header else getHeaderByName(name) ?: header
+                try {
+                    val stream = mArchive!!.getInputStream(targetHeader)
+                    ByteArrayInputStream(stream.readBytes())
+                } catch (e: Exception) {
+                    mLOGGER.error("Error to get page stream direct (recreating archive): " + e.message, e)
+                    if (isFirst) {
+                        recreateArchive()
+                        Thread.sleep(200)
+                        getPageStream(header, false)
+                    } else {
+                        throw e
+                    }
+                }
+            }
         } catch (e: RarException) {
             mLOGGER.error("Error to get page stream: " + e.message, e)
             throw IOException("Unable to parse rar: " + e.message, e)
@@ -201,15 +296,18 @@ class RarParse : Parse {
         mHeaders.clear()
         mArchive?.close()
         mArchive = null
+        mFile = null
     }
 
-    fun setCacheDirectory(cacheDirectory: File?) {
+    fun setCacheDirectory(cacheDirectory: File?, preserveExisting: Boolean = false) {
         mCacheDir = cacheDirectory
         mCacheDir?.let {
             if (!it.exists())
                 it.mkdirs()
 
-            if (it.listFiles() != null) {
+            // Quando preserveExisting=true (leitor de manga com pasta estavel por arquivo),
+            // o cache extraido e reaproveitado entre sessoes, evitando reextrair RAR solido.
+            if (!preserveExisting && it.listFiles() != null) {
                 for (f in it.listFiles()!!)
                     f.delete()
             }

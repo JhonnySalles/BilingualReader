@@ -100,8 +100,8 @@ class SubTitleController private constructor(private val context: Context) {
     private var mForceExpandFloatingPopup: MutableLiveData<Boolean> = MutableLiveData(true)
     var forceExpandFloatingPopup: LiveData<Boolean> = mForceExpandFloatingPopup
 
-    private var mSelectedSubTitle: MutableLiveData<SubTitle> = MutableLiveData()
-    var selectedSubtitle: LiveData<SubTitle> = mSelectedSubTitle
+    private var mSelectedSubTitle: MutableLiveData<SubTitle?> = MutableLiveData()
+    var selectedSubtitle: LiveData<SubTitle?> = mSelectedSubTitle
 
     private lateinit var mSubtitleLang: Languages
     private lateinit var mTranslateLang: Languages
@@ -631,42 +631,44 @@ class SubTitleController private constructor(private val context: Context) {
             }
         }
 
-    fun changeSubtitleInReader(manga: Manga, pageNumber: Int) =
-        runBlocking { // this: CoroutineScope
-            launch {
-                mManga = manga
-                if (mSelectedSubTitle.value == null || mSelectedSubTitle.value?.id == null) {
-                    mSelectedSubTitle.value = mSubtitleRepository.findByIdManga(manga.id!!)
+    fun changeSubtitleInReader(manga: Manga, pageNumber: Int) {
+        // Executa na main (LiveData.value exige main), mas sem bloquear: o IO pesado
+        // (consulta ao banco e leitura do arquivo) roda em Dispatchers.IO.
+        CoroutineScope(Dispatchers.Main).launch {
+            mManga = manga
+            if (mSelectedSubTitle.value == null || mSelectedSubTitle.value?.id == null) {
+                mSelectedSubTitle.value = withContext(Dispatchers.IO) { mSubtitleRepository.findByIdManga(manga.id!!) }
 
-                    if (mSelectedSubTitle.value == null)
-                        try {
-                            mSelectedSubTitle.value = findSubtitle(manga, pageNumber)
-                        } catch (e: java.lang.Exception) {
-                            mLOGGER.info("Subtitle not founded in file: " + e.message)
-                            return@launch
-                        }
-                }
-
-                if (mSelectedSubTitle.value?.pageCount != pageNumber) {
-                    var differ = pageNumber - mSelectedSubTitle.value?.pageCount!!
-                    if (differ == 0) differ = 1
-                    val run = if (mSelectedSubTitle.value?.pageCount!! < pageNumber)
-                        getNextSelectPage(differ)
-                    else
-                        getBeforeSelectPage(false, differ * -1)
-
-                    if (!run) {
-                        if (mSelectedSubTitle.value?.pageCount!! < pageNumber)
-                            getNextSelectSubtitle()
-                        else
-                            getBeforeSelectSubtitle()
+                if (mSelectedSubTitle.value == null)
+                    try {
+                        mSelectedSubTitle.value = withContext(Dispatchers.IO) { findSubtitle(manga, pageNumber) }
+                    } catch (e: java.lang.Exception) {
+                        mLOGGER.info("Subtitle not founded in file: " + e.message)
+                        return@launch
                     }
-                }
-
-                mSelectedSubTitle.value?.pageCount = pageNumber
-                updatePageSelect()
             }
+
+            val pageCount = mSelectedSubTitle.value?.pageCount ?: 0
+            if (pageCount != pageNumber) {
+                var differ = pageNumber - pageCount
+                if (differ == 0) differ = 1
+                val run = if (pageCount < pageNumber)
+                    getNextSelectPage(differ)
+                else
+                    getBeforeSelectPage(false, differ * -1)
+
+                if (!run) {
+                    if (pageCount < pageNumber)
+                        getNextSelectSubtitle()
+                    else
+                        getBeforeSelectSubtitle()
+                }
+            }
+
+            mSelectedSubTitle.value?.pageCount = pageNumber
+            updatePageSelect()
         }
+    }
 
     private fun updatePageSelect() {
         if (mSelectedSubTitle.value != null)
@@ -853,7 +855,8 @@ class SubTitleController private constructor(private val context: Context) {
     }
 
     private fun getNextSelectSubtitle(): Boolean {
-        val index: Int = if (mChaptersKeys.value!!.isNotEmpty()) mChaptersKeys.value!!.indexOf(mSelectedSubTitle.value?.chapterKey!!).plus(1) else 0
+        val chapterKey = mSelectedSubTitle.value?.chapterKey ?: return false
+        val index: Int = if (mChaptersKeys.value!!.isNotEmpty()) mChaptersKeys.value!!.indexOf(chapterKey).plus(1) else 0
 
         return if (getSubtitle().keys.size >= index && getSubtitle().containsKey(mChaptersKeys.value!![index])) {
             setChapter(getSubtitle()[mChaptersKeys.value!![index]])
@@ -863,7 +866,8 @@ class SubTitleController private constructor(private val context: Context) {
     }
 
     private fun getBeforeSelectSubtitle(): Boolean {
-        val index: Int = if (mChaptersKeys.value!!.isNotEmpty()) mChaptersKeys.value!!.indexOf(mSelectedSubTitle.value?.chapterKey!!).minus(1) else 0
+        val chapterKey = mSelectedSubTitle.value?.chapterKey ?: return false
+        val index: Int = if (mChaptersKeys.value!!.isNotEmpty()) mChaptersKeys.value!!.indexOf(chapterKey).minus(1) else 0
 
         return if (index >= 0 && getSubtitle().containsKey(mChaptersKeys.value!![index])) {
             setChapter(getSubtitle()[mChaptersKeys.value!![index]])
@@ -918,8 +922,9 @@ class SubTitleController private constructor(private val context: Context) {
         if (subTitleChapterSelected.value == null)
             return true
 
-        val index: Int = if (mSelectedSubTitle.value?.pageKey!!.isNotEmpty())
-            mPagesKeys.value!!.indexOf(mSelectedSubTitle.value?.pageKey!!).plus(differ)
+        val pageKey = mSelectedSubTitle.value?.pageKey ?: ""
+        val index: Int = if (pageKey.isNotEmpty())
+            mPagesKeys.value!!.indexOf(pageKey).plus(differ)
         else
             0
 
@@ -934,10 +939,11 @@ class SubTitleController private constructor(private val context: Context) {
         if (subTitleChapterSelected.value == null)
             return true
 
-        val index: Int =
-            if (mSelectedSubTitle.value?.pageKey!!.isNotEmpty()) mPagesKeys.value!!.indexOf(
-                mSelectedSubTitle.value?.pageKey!!
-            ).minus(differ) else 0
+        val pageKey = mSelectedSubTitle.value?.pageKey ?: ""
+        val index: Int = if (pageKey.isNotEmpty())
+            mPagesKeys.value!!.indexOf(pageKey).minus(differ)
+        else
+            0
 
         return if (index >= 0 && mListPages.containsKey(mPagesKeys.value!![index])) {
             setPage(lastText, mListPages[mPagesKeys.value!![index]])

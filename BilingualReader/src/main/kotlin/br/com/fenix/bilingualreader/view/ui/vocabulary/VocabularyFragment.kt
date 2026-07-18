@@ -580,10 +580,10 @@ class VocabularyFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.On
             }
         }
     }
-
     private fun setupPopupBackgrounds() {
         val activity = activity ?: return
-        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilterOrder, mMenuPopupLibraryBackground)
+        val contentContainer = view?.findViewById<ViewGroup>(R.id.vocabulary_refresh)
+        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupFilterOrder, mMenuPopupLibraryBackground, contentContainer)
     }
 
     inner class ViewPagerAdapter(fm: FragmentManager, behavior: Int) :

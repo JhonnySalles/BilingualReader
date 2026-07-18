@@ -38,25 +38,56 @@ class ParseFactory {
             if (parser == null)
                 return null
 
+            var parsed = tryParseInternal(parser, file)
+            if (parsed == null) {
+                // Try fallbacks for potential misnamed extensions (e.g. .zip renamed to .cbr)
+                if (parser !is ZipParse) {
+                    parsed = tryParseInternal(ZipParse(), file)
+                }
+                if (parsed == null && parser !is RarParse) {
+                    parsed = tryParseInternal(RarParse(), file)
+                }
+                if (parsed == null && parser !is SevenZipParse) {
+                    parsed = tryParseInternal(SevenZipParse(), file)
+                }
+                if (parsed == null && parser !is TarParse) {
+                    parsed = tryParseInternal(TarParse(), file)
+                }
+            }
+
+            return parsed
+        }
+
+        private fun tryParseInternal(parser: Parse, file: File): Parse? {
             try {
                 parser.parse(file)
+                return if (parser is DirectoryParse && parser.numPages() < 4) {
+                    parser.destroy(false)
+                    null
+                } else {
+                    parser
+                }
             } catch (e: UnsupportedRarV5Exception) {
                 mLOGGER.warn("UnsupportedRarV5Exception: Error when parse: " + e.message + " - File: " + file.name)
             } catch (e: RarException) {
-                mLOGGER.warn("Error when parse: " + e.message + " - File: " + file.name, e)
-                return null
+                if (e is com.github.junrar.exception.CorruptHeaderException) {
+                    // Log only as warn message without passing the exception 'e' to avoid sending to Sentry
+                    mLOGGER.warn("CorruptHeaderException (possibly renamed file): " + e.message + " - File: " + file.name)
+                } else {
+                    mLOGGER.warn("Error when parse: " + e.message + " - File: " + file.name, e)
+                }
             } catch (e: IllegalArgumentException) {
                 val cause = e.cause?.message ?: ""
                 mLOGGER.warn("java.lang.IllegalArgumentException:" + cause + " Error when parse: " + e.message + " - File: " + file.name)
-                return null
             } catch (e: IOException) {
                 mLOGGER.warn("Error when parse: " + e.message + " - File: " + file.name, e)
-                return null
             } catch (e: Exception) {
                 mLOGGER.warn("Error when parse: " + e.message + " - File: " + file.name, e)
-                return null
             }
-            return if (parser is DirectoryParse && parser.numPages() < 4) null else parser
+            try {
+                parser.destroy(false)
+            } catch (ignored: Exception) {}
+            return null
         }
     }
 }

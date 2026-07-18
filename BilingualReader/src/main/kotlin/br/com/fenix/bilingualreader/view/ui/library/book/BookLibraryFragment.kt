@@ -84,13 +84,13 @@ import br.com.fenix.bilingualreader.util.helpers.Notifications
 import br.com.fenix.bilingualreader.util.helpers.PopupUtil.PopupUtils
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
+import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
 import br.com.fenix.bilingualreader.view.adapter.library.BaseAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookGridCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookLineCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.library.BookSeparatorGridCardAdapter
-import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.components.BlurAwareItemAnimator
-import br.com.fenix.bilingualreader.util.helpers.blurOnceDeferred
+import br.com.fenix.bilingualreader.view.components.ComponentsUtil
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
 import br.com.fenix.bilingualreader.view.ui.popup.PopupTags
@@ -246,6 +246,9 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                     val selection = cursor.getString(colum)
                     val query = searchView.query.toString().substringBeforeLast('@', "") + " " + selection
                     searchView.setQuery(query.trim(), false)
+                    if (selection.endsWith(":")) {
+                        searchSrcTextView.post { searchSrcTextView.showDropDown() }
+                    }
                 }
                 return true
             }
@@ -290,6 +293,9 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
                                             cursor.addRow(arrayOf(index, "@$substring:$suggestion "))
                                     }
                                 }
+                            }
+                            if (newText.endsWith(":")) {
+                                searchSrcTextView.post { searchSrcTextView.showDropDown() }
                             }
                             return false
                         }
@@ -640,7 +646,6 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             popupLayout?.setPadding(popupLayout.paddingLeft, popupLayout.paddingTop, popupLayout.paddingRight, navBarHeight)
             insets
         }
-
         mRoot = root.findViewById(R.id.frame_book_library_root)
         _mRecyclerView = root.findViewById(R.id.book_library_recycler_view)
         mRefreshLayout = root.findViewById(R.id.book_library_refresh)
@@ -1359,6 +1364,7 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
     }
 
     private fun showSkeleton(show: Boolean) {
+        if (view == null) return
         if (show) {
             mSkeletonLayout.alpha = 1f
             mSkeletonLayout.removeAllViews()
@@ -1466,10 +1472,10 @@ class BookLibraryFragment : Fragment(), PopupOrderListener, SwipeRefreshLayout.O
             }
         }
     }
-
     private fun setupPopupBackgrounds() {
         val activity = activity ?: return
-        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupLibrary, mMenuPopupLibraryBackground)
+        val contentContainer = view?.findViewById<ViewGroup>(R.id.book_library_content)
+        PopupUtils.setupPopupBackgrounds(activity, mMenuPopupLibrary, mMenuPopupLibraryBackground, contentContainer)
     }
 
     private fun animateReplaceSkeleton() {
