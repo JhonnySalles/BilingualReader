@@ -60,7 +60,7 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
     CBR(TYPE_MANGA, arrayOf("cbr"), arrayOf("application/cbr", "application/x-cbr", "application/comicbook+rar"), "CBR"),
     CB7(TYPE_MANGA, arrayOf("cb7"), arrayOf("application/cb7", "application/x-cb7", "application/comicbook+7z"), "CB7"),
     CBT(TYPE_MANGA, arrayOf("cbt"), arrayOf("application/cbt", "application/x-cbt", "application/comicbook+tar"), "CBT"),
-    ZIP(TYPE_MANGA_AND_BOOK, arrayOf("zip"), arrayOf("application/zip", "application/x-compressed", "application/x-compressed-zip", "application/x-zip-compressed"), "ZIP"),
+    ZIP(TYPE_MANGA, arrayOf("zip"), arrayOf("application/zip", "application/x-compressed", "application/x-compressed-zip", "application/x-zip-compressed"), "ZIP"),
     RAR(TYPE_MANGA, arrayOf("rar"), arrayOf("application/rar", "application/x-rar", "application/comicbook+rar"), "RAR"),
     SEVENZ(TYPE_MANGA, arrayOf("7z"), arrayOf("application/7z", "application/x-7z", "application/comicbook+7z"), "7Z"),
     TAR(TYPE_MANGA, arrayOf("tar"), arrayOf("application/tar", "application/x-tar", "application/comicbook+tar"), "TAR("),
