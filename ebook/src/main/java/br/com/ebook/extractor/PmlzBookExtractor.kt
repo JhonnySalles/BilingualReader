@@ -45,6 +45,17 @@ object PmlzBookExtractor : BookExtractor {
                     zip.getInputStream(entry).use { input ->
                         coverBytes = input.readBytes()
                     }
+                } else {
+                    val entriesList = zip.entries().toList()
+                    val firstImage = entriesList.firstOrNull {
+                        val name = it.name.lowercase()
+                        !it.isDirectory && (name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png") || name.endsWith(".webp") || name.endsWith(".gif"))
+                    }
+                    if (firstImage != null) {
+                        zip.getInputStream(firstImage).use { input ->
+                            coverBytes = input.readBytes()
+                        }
+                    }
                 }
             }
         } catch (e: Exception) {

@@ -103,6 +103,9 @@ object MobiBookExtractor : BookExtractor {
         val destPath = File(outputDir, hashCode).path
         
         try {
+            if (path.endsWith(".pdb", ignoreCase = true)) {
+                throw IOException("PDB format is not supported by LibMobi EPUB conversion, using fallback")
+            }
             val success = LibMobi.convertToEpub(tempFile, destPath)
             if (success > 0) {
                 throw IOException("O formato PDB/MOBI não é suportado pelo LibMobi (código: $success)")
@@ -123,7 +126,7 @@ object MobiBookExtractor : BookExtractor {
             try {
                 val decompressedBytes = br.com.ebook.util.PalmDocDecompressor.decompress(File(path))
                 val textContent = decompressedBytes.toString(charset("cp1252"))
-                val outHtmlFile = File(outputDir, "pdb-converted-$hashCode.html")
+                val outHtmlFile = File(outputDir, "$hashCode$hashCode.html")
                 java.io.PrintWriter(java.io.BufferedWriter(java.io.FileWriter(outHtmlFile))).use { writer ->
                     writer.println("<!DOCTYPE html><html><head><meta charset=\"UTF-8\"/><style>p,p+p{margin:0;}</style></head><body>")
                     textContent.split('\n').forEach { line ->

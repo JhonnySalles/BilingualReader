@@ -39,7 +39,16 @@ class MobiContext : PdfContext() {
         }
         LOGGER.info("Context: MobiContext - {}", fileName)
 
-        val cache = cacheFile ?: getCacheFileName(fileName)
+        val epubCache = cacheFile ?: getCacheFileName(fileName)
+        val hashCodeStr = fileName.hashCode().toString()
+        val htmlCache = File(CacheZipUtils.CACHE_BOOK_DIR, "$hashCodeStr$hashCodeStr.html")
+
+        if (fileName.endsWith(".pdb", ignoreCase = true) && epubCache.isFile) {
+            LOGGER.info("Deleting old corrupted EPUB cache for PDB file: {}", epubCache)
+            epubCache.delete()
+        }
+
+        val cache = if (htmlCache.isFile) htmlCache else epubCache
 
         try {
             if (cache.isFile) {
@@ -59,6 +68,8 @@ class MobiContext : PdfContext() {
                             EpubBookExtractor.processHyphens(fileNameEpub!!, cache.path)
                             fileNameEpub = cache.path
                         }
+                    } else if (content is BookContent.HtmlFile) {
+                        fileNameEpub = content.path
                     } else {
                         throw IOException("Invalid content returned from MOBI extractor")
                     }
