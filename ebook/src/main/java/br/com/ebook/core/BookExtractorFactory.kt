@@ -27,6 +27,7 @@ object BookExtractorFactory {
             "rtf" -> RtfBookExtractor
             "pdf", "xps" -> PdfBookExtractor
             "cbz", "cbr" -> CbzCbrBookExtractor
+            "doc" -> DocBookExtractor
             "docx" -> DocxBookExtractor
             "odt" -> OdtBookExtractor
             "md", "markdown" -> MarkdownBookExtractor

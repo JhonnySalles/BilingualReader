@@ -27,6 +27,7 @@ enum class BookType(
     RTF(RtfContext::class.java, listOf("rtf"), listOf("application/rtf", "application/x-rtf", "text/rtf", "text/richtext")),
     DJVU(DjvuContext::class.java, listOf("djvu"), listOf("image/vnd.djvu", "image/djvu", "image/x-djvu")),
     ZIP(ZipContext::class.java, listOf("zip"), listOf("application/zip", "application/x-compressed", "application/x-compressed-zip", "application/x-zip-compressed")),
+    DOC(DocContext::class.java, listOf("doc"), listOf("application/msword")),
     DOCX(DocxContext::class.java, listOf("docx"), listOf("application/vnd.openxmlformats-officedocument.wordprocessingml.document")),
     ODT(OdtContext::class.java, listOf("odt"), listOf("application/vnd.oasis.opendocument.text")),
     MD(MarkdownContext::class.java, listOf("md", "markdown"), listOf("text/markdown", "text/x-markdown"));

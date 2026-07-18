@@ -58,7 +58,6 @@ object DocxBookExtractor : BookExtractor {
     }
 
     override suspend fun extractCover(path: String): Result<ByteArray?> = runCatching {
-        // DOCX files usually don't have standard cover images like EPUBs
         null
     }
 
@@ -72,14 +71,61 @@ object DocxBookExtractor : BookExtractor {
 
     override suspend fun extractContent(path: String, outputDir: String): Result<BookContent> = runCatching {
         val outHtmlFile = File(outputDir, "docx-converted.html")
+        val relations = mutableMapOf<String, String>()
+
         ZipFile(path).use { zip ->
+            // 1. Read relationships to map rId to image target paths
+            val relsEntry = zip.getEntry("word/_rels/document.xml.rels")
+            if (relsEntry != null) {
+                try {
+                    zip.getInputStream(relsEntry).use { stream ->
+                        val xpp = XmlParser.buildPullParser()
+                        xpp.setInput(stream, "UTF-8")
+                        var eventType = xpp.eventType
+                        while (eventType != XmlPullParser.END_DOCUMENT) {
+                            if (eventType == XmlPullParser.START_TAG && (xpp.name == "Relationship" || xpp.name.endsWith(":Relationship"))) {
+                                val id = xpp.getAttributeValue(null, "Id")
+                                val target = xpp.getAttributeValue(null, "Target")
+                                val type = xpp.getAttributeValue(null, "Type")
+                                if (id != null && target != null && type != null && type.contains("image")) {
+                                    relations[id] = target
+                                }
+                            }
+                            eventType = xpp.next()
+                        }
+                    }
+                } catch (e: Exception) {
+                    LOGGER.error("Error reading DOCX relationships: {}", e.message, e)
+                }
+            }
+
+            // 2. Extract referenced media files
+            relations.values.forEach { target ->
+                val zipPath = "word/$target"
+                val entry = zip.getEntry(zipPath)
+                if (entry != null) {
+                    val outFile = File(outputDir, target)
+                    outFile.parentFile?.mkdirs()
+                    try {
+                        zip.getInputStream(entry).use { input ->
+                            FileOutputStream(outFile).use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+                    } catch (e: Exception) {
+                        LOGGER.error("Error extracting media file $zipPath: {}", e.message, e)
+                    }
+                }
+            }
+
+            // 3. Extract XML content and render paragraphs/images
             val entry = zip.getEntry("word/document.xml") ?: throw IllegalArgumentException("word/document.xml missing in DOCX")
             zip.getInputStream(entry).use { stream ->
                 val xpp = XmlParser.buildPullParser()
                 xpp.setInput(stream, "UTF-8")
                 
                 val htmlBuilder = StringBuilder()
-                htmlBuilder.append("<html><head><meta charset=\"UTF-8\"/></head><body>")
+                htmlBuilder.append("<html><head><meta charset=\"UTF-8\"/><style>p { margin: 1em 0; line-height: 1.5; } img { max-width: 100%; height: auto; display: block; margin: 1em auto; }</style></head><body>")
 
                 var eventType = xpp.eventType
                 var inParagraph = false
@@ -89,14 +135,28 @@ object DocxBookExtractor : BookExtractor {
                 while (eventType != XmlPullParser.END_DOCUMENT) {
                     if (eventType == XmlPullParser.START_TAG) {
                         val name = xpp.name
-                        if (name == "p") {
+                        if (name == "p" || name == "w:p") {
                             inParagraph = true
                             isHeading = false
                             pTextBuilder.setLength(0)
-                        } else if (name == "pStyle") {
+                        } else if (name == "pStyle" || name == "w:pStyle") {
                             val styleVal = xpp.getAttributeValue(null, "val")
                             if (styleVal != null && styleVal.startsWith("Heading", ignoreCase = true)) {
                                 isHeading = true
+                            }
+                        } else if (name == "blip" || name == "a:blip") {
+                            var embedId: String? = null
+                            for (attrIdx in 0 until xpp.attributeCount) {
+                                if (xpp.getAttributeName(attrIdx).endsWith("embed")) {
+                                    embedId = xpp.getAttributeValue(attrIdx)
+                                    break
+                                }
+                            }
+                            if (embedId != null) {
+                                val target = relations[embedId]
+                                if (target != null) {
+                                    htmlBuilder.append("<img src=\"").append(target).append("\"/>")
+                                }
                             }
                         }
                     } else if (eventType == XmlPullParser.TEXT) {
@@ -105,7 +165,7 @@ object DocxBookExtractor : BookExtractor {
                         }
                     } else if (eventType == XmlPullParser.END_TAG) {
                         val name = xpp.name
-                        if (name == "p") {
+                        if (name == "p" || name == "w:p") {
                             inParagraph = false
                             val paragraphText = pTextBuilder.toString().trim()
                             if (paragraphText.isNotEmpty()) {
