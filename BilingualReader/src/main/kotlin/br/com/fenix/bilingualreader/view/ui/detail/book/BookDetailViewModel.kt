@@ -126,14 +126,13 @@ class BookDetailViewModel(var app: Application) : AndroidViewModel(app) {
                                     }
                                 }
                             }
+
+                            override fun onSearching(isSearching: Boolean) { }
+
+                            override fun onConverting(isConverting: Boolean) { }
+
                         }
-
-                        override fun onSearching(isSearching: Boolean) { }
-
-                        override fun onConverting(isConverting: Boolean) { }
-
-                    }
-                )
+                    )
 
                 var image: Bitmap? = null
                 val deferred = async {

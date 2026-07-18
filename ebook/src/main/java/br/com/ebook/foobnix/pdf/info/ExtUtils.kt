@@ -531,7 +531,7 @@ class ExtUtils {
 
         @JvmStatic
         fun showDocument(c: Context, file: File, page: Int): Boolean {
-            ImageLoader.getInstance().clearAllTasks()
+            ImageLoader.instance?.clearAllTasks()
             if (AppState.get().isRememberMode) {
                 showDocumentWithoutDialog(c, file, page)
                 return true
@@ -659,7 +659,7 @@ class ExtUtils {
                     mime = mimeType
                 } else {
                     val codecType = BookType.getByUri(name)
-                    mime = codecType.firstMimeType
+                    mime = codecType?.firstMimeType ?: ""
                 }
             } catch (e: Exception) {
                 mime = "application/" + getFileExtension(file)

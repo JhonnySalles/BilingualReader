@@ -44,8 +44,8 @@ android {
             manifestPlaceholders["sentryAutoInit"] = "true"
         }
         debug {
-            minifyEnabled true
-            testCoverageEnabled true
+            minifyEnabled false
+            testCoverageEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             manifestPlaceholders["crashlyticsEnabled"] = "true"
             manifestPlaceholders["sentryAutoInit"] = "true"

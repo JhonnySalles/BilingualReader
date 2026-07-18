@@ -54,9 +54,8 @@ enum class BookType(
         }
     }
 
-    fun getFirstMimeType(): String {
-        return mimeTypes[0]
-    }
+    val firstMimeType: String
+        get() = mimeTypes[0]
 
     companion object {
         private val LOGGER = LoggerFactory.getLogger(BookType::class.java)

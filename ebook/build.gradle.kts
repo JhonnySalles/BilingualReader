@@ -57,12 +57,12 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
     // Log
-    implementation("org.slf4j:slf4j-api:2.0.16")
+    implementation("org.slf4j:slf4j-api:1.7.36")
 
     // Test
     implementation("androidx.core:core-ktx:1.10.0")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.10.0")
     testImplementation("junit:junit:4.13.2")
-    testImplementation("org.slf4j:slf4j-nop:2.0.16")
+    testImplementation("org.slf4j:slf4j-nop:1.7.36")
 }

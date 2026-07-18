@@ -37,3 +37,12 @@
 -keepclassmembers class * {
     @org.simpleframework.xml.** *;
 }
+
+# Keep Application class and Android components to prevent R8 from stripping them
+-keep class br.com.fenix.bilingualreader.BilingualReaderApplication { *; }
+-keep class br.com.fenix.bilingualreader.service.parses.** { *; }
+-keep public class * extends android.app.Activity
+-keep public class * extends android.app.Application
+-keep public class * extends android.app.Service
+-keep public class * extends android.content.BroadcastReceiver
+-keep public class * extends android.content.ContentProvider

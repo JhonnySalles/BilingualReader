@@ -20,6 +20,7 @@ import java.io.Serializable
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Date
+import java.util.Locale
 import br.com.fenix.bilingualreader.model.interfaces.Entity as EntityBase
 
 
