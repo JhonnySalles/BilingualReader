@@ -947,6 +947,52 @@ class ImageUtil {
             return cover
         }
 
+        fun combineImagesHorizontally(bitmaps: List<Bitmap>): Bitmap? {
+            if (bitmaps.isEmpty()) return null
+            if (bitmaps.size == 1) return bitmaps[0]
+
+            var width = 0
+            var height = 0
+            for (bmp in bitmaps) {
+                width += bmp.width
+                if (bmp.height > height) {
+                    height = bmp.height
+                }
+            }
+
+            val result = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(result)
+            var currentX = 0f
+            for (bmp in bitmaps) {
+                canvas.drawBitmap(bmp, currentX, 0f, null)
+                currentX += bmp.width
+            }
+            return result
+        }
+
+        fun combineImagesVertically(bitmaps: List<Bitmap>): Bitmap? {
+            if (bitmaps.isEmpty()) return null
+            if (bitmaps.size == 1) return bitmaps[0]
+
+            var width = 0
+            var height = 0
+            for (bmp in bitmaps) {
+                height += bmp.height
+                if (bmp.width > width) {
+                    width = bmp.width
+                }
+            }
+
+            val result = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(result)
+            var currentY = 0f
+            for (bmp in bitmaps) {
+                canvas.drawBitmap(bmp, 0f, currentY, null)
+                currentY += bmp.height
+            }
+            return result
+        }
+
     }
 }
 
@@ -1303,6 +1349,33 @@ class TextUtil {
         fun clearHighlightWordInText(html: String): String = replaceHtmlTags(html)
 
         fun getImageFromTag(html: String) = html.substringAfter("<img src=\"").substringBefore("\" />")
+
+        fun getImagesFromTag(html: String): List<String> {
+            val list = mutableListOf<String>()
+            val regex = "<img src=\"([^\"]+)\"\\s*/?>".toRegex()
+            val matches = regex.findAll(html)
+            for (match in matches) {
+                list.add(match.groupValues[1])
+            }
+            return list
+        }
+
+        fun hasBrBetweenImages(html: String): Boolean {
+            val imgRegex = "<img[^>]*>".toRegex()
+            val brRegex = "<br\\s*/?>".toRegex()
+            val matches = imgRegex.findAll(html).toList()
+            if (matches.size < 2) return false
+            
+            for (i in 0 until matches.size - 1) {
+                val start = matches[i].range.last
+                val end = matches[i+1].range.first
+                val substring = html.substring(start, end)
+                if (brRegex.containsMatchIn(substring)) {
+                    return true
+                }
+            }
+            return false
+        }
 
         fun isOnlyImageOnHtml(html: String): Boolean = html.contains("< ?(img)[^>]*>".toRegex()) && replaceHtmlTags(html).trim().isEmpty()
     }

@@ -592,10 +592,25 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
 
         if (holder.isOnlyImage) {
             try {
-                val base64 = TextUtil.getImageFromTag(text)
-                val img = base64.substringAfter(",").trim()
-                val bmp = ImageUtil.decodeImageBase64(img)
-                holder.imageView.setImageBitmap(bmp)
+                val images = TextUtil.getImagesFromTag(text)
+                if (images.isNotEmpty()) {
+                    val bitmaps = images.mapNotNull {
+                        val img = it.substringAfter(",").trim()
+                        ImageUtil.decodeImageBase64(img)
+                    }
+                    if (bitmaps.isNotEmpty()) {
+                        val combined = if (TextUtil.hasBrBetweenImages(text)) {
+                            ImageUtil.combineImagesVertically(bitmaps)
+                        } else {
+                            ImageUtil.combineImagesHorizontally(bitmaps)
+                        }
+                        holder.imageView.setImageBitmap(combined)
+                    } else {
+                        holder.imageView.setImageBitmap(null)
+                    }
+                } else {
+                    holder.imageView.setImageBitmap(null)
+                }
             } catch (e: Exception) {
                 mLOGGER.error("Error to generate image: " + e.message, e)
                 holder.imageView.setImageBitmap(null)
