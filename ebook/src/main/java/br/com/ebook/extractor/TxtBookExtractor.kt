@@ -1,16 +1,21 @@
 package br.com.ebook.extractor
 
 import android.text.TextUtils
-import br.com.ebook.core.*
+import br.com.ebook.core.BookContent
+import br.com.ebook.core.BookExtractor
+import br.com.ebook.core.BookMetadata
 import br.com.ebook.core.EbookSettings
-import br.com.ebook.util.IOUtils
 import br.com.ebook.foobnix.android.utils.TxtUtils
 import br.com.ebook.foobnix.hypen.HypenUtils
 import br.com.ebook.foobnix.pdf.info.ExtUtils
-import br.com.ebook.foobnix.pdf.info.model.BookCSS
-import br.com.ebook.foobnix.pdf.info.wrapper.AppState
 import org.slf4j.LoggerFactory
-import java.io.*
+import java.io.BufferedReader
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileWriter
+import java.io.InputStreamReader
+import java.io.PrintWriter
 
 object TxtBookExtractor : BookExtractor {
     private val LOGGER = LoggerFactory.getLogger(TxtBookExtractor::class.java)

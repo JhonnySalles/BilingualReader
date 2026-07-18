@@ -1,19 +1,17 @@
 package br.com.ebook.extractor
 
-import br.com.ebook.core.*
+import br.com.ebook.core.BookContent
+import br.com.ebook.core.BookExtractor
+import br.com.ebook.core.BookMetadata
+import br.com.ebook.core.DateParseUtils
 import br.com.ebook.core.EbookSettings
-import br.com.ebook.util.IOUtils
 import br.com.ebook.foobnix.android.utils.TxtUtils
 import br.com.ebook.foobnix.mobi.parser.MobiParser
 import br.com.ebook.foobnix.pdf.info.ExtUtils
-import br.com.ebook.foobnix.pdf.info.wrapper.AppState
 import com.foobnix.libmobi.LibMobi
 import org.slf4j.LoggerFactory
 import java.io.File
-import java.io.FileInputStream
 import java.io.IOException
-import java.time.LocalDate
-import java.util.Locale
 
 object MobiBookExtractor : BookExtractor {
     private val LOGGER = LoggerFactory.getLogger(MobiBookExtractor::class.java)

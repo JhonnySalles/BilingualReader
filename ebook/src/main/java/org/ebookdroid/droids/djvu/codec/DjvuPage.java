@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import br.com.ebook.Config;
 import br.com.ebook.foobnix.pdf.info.model.AnnotationType;
 import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
 import br.com.ebook.foobnix.sys.TempHolder;

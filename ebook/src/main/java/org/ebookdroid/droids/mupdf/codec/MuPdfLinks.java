@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.ebook.Config;
-
 public class MuPdfLinks {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MuPdfLinks.class);

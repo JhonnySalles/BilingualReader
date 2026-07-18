@@ -1,15 +1,19 @@
 package br.com.ebook.extractor
 
-import br.com.ebook.core.*
+import br.com.ebook.core.BookContent
+import br.com.ebook.core.BookExtractor
+import br.com.ebook.core.BookMetadata
 import br.com.ebook.core.EbookSettings
-import br.com.ebook.util.IOUtils
 import br.com.ebook.foobnix.hypen.HypenUtils
 import br.com.ebook.foobnix.pdf.info.ExtUtils
-import br.com.ebook.foobnix.pdf.info.model.BookCSS
 import org.jsoup.Jsoup
 import org.jsoup.safety.Safelist
 import org.slf4j.LoggerFactory
-import java.io.*
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.InputStreamReader
 import java.util.Locale
 
 object HtmlBookExtractor : BookExtractor {

@@ -16,8 +16,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
-import br.com.ebook.Config;
-
 public class BitmapManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BitmapManager.class);

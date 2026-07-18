@@ -4,9 +4,9 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import androidx.viewpager.widget.ViewPager
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Scroller
+import androidx.viewpager.widget.ViewPager
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.enums.PaginationType
 import br.com.fenix.bilingualreader.model.enums.ScrollingType

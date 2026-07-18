@@ -1,11 +1,11 @@
 package br.com.ebook.extractor
 
-import br.com.ebook.core.*
+import br.com.ebook.core.BookMetadata
+import br.com.ebook.core.DateParseUtils
 import br.com.ebook.core.EbookSettings
-import br.com.ebook.util.IOUtils
 import br.com.ebook.foobnix.android.utils.TxtUtils
-import br.com.ebook.foobnix.pdf.info.wrapper.AppState
 import br.com.ebook.foobnix.ext.XmlParser
+import br.com.ebook.util.IOUtils
 import org.jsoup.Jsoup
 import org.jsoup.safety.Safelist
 import org.slf4j.LoggerFactory

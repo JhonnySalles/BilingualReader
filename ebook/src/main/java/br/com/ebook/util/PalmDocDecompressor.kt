@@ -2,8 +2,8 @@ package br.com.ebook.util
 
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.RandomAccessFile
 import java.io.IOException
+import java.io.RandomAccessFile
 
 object PalmDocDecompressor {
 

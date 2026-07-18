@@ -1,6 +1,8 @@
 package br.com.ebook.extractor
 
-import br.com.ebook.core.*
+import br.com.ebook.core.BookContent
+import br.com.ebook.core.BookExtractor
+import br.com.ebook.core.BookMetadata
 import org.slf4j.LoggerFactory
 import java.io.File
 

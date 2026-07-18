@@ -1,13 +1,13 @@
 package org.ebookdroid.droids
 
 import androidx.core.util.Pair
+import br.com.ebook.foobnix.ext.CacheZipUtils
+import br.com.ebook.foobnix.ext.CacheZipUtils.CacheDir
 import org.ebookdroid.BookType
 import org.ebookdroid.core.codec.CodecDocument
 import org.ebookdroid.droids.mupdf.codec.PdfContext
 import org.slf4j.LoggerFactory
 import java.io.File
-import br.com.ebook.foobnix.ext.CacheZipUtils
-import br.com.ebook.foobnix.ext.CacheZipUtils.CacheDir
 
 class ZipContext : PdfContext() {
     private val LOGGER = LoggerFactory.getLogger(ZipContext::class.java)

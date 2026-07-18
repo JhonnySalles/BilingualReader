@@ -10,11 +10,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicLong;
 
-import br.com.ebook.Config;
 import br.com.ebook.foobnix.ext.CacheZipUtils;
 import br.com.ebook.foobnix.ext.CacheZipUtils.CacheDir;
 import br.com.ebook.foobnix.pdf.info.ExtUtils;
-import br.com.ebook.foobnix.pdf.info.model.BookCSS;
 import br.com.ebook.foobnix.sys.TempHolder;
 
 public abstract class AbstractCodecContext implements CodecContext {

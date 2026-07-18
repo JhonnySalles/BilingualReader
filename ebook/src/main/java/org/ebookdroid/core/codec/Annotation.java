@@ -5,7 +5,6 @@ import android.graphics.RectF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import br.com.ebook.Config;
 import br.com.ebook.foobnix.pdf.info.model.AnnotationType;
 
 public class Annotation extends RectF {

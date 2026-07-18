@@ -1,13 +1,12 @@
 package org.ebookdroid.droids
 
+import br.com.ebook.core.BookContent
 import br.com.ebook.extractor.EpubBookExtractor
 import br.com.ebook.extractor.MobiBookExtractor
-import br.com.ebook.core.BookContent
 import br.com.ebook.foobnix.ext.CacheZipUtils
 import br.com.ebook.foobnix.pdf.info.ExtUtils
 import br.com.ebook.foobnix.pdf.info.JsonHelper
 import br.com.ebook.foobnix.pdf.info.model.BookCSS
-import br.com.ebook.foobnix.sys.TempHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

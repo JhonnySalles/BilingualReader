@@ -14,8 +14,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Locale;
 
-import br.com.ebook.Config;
-
 public class Urls {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Urls.class);

@@ -1,21 +1,24 @@
 package br.com.ebook.extractor
 
 import android.text.TextUtils
-import br.com.ebook.core.*
+import br.com.ebook.core.BookContent
+import br.com.ebook.core.BookExtractor
+import br.com.ebook.core.BookMetadata
 import br.com.ebook.core.EbookSettings
-import br.com.ebook.util.IOUtils
 import br.com.ebook.foobnix.hypen.HypenUtils
-import br.com.ebook.foobnix.pdf.info.model.BookCSS
 import com.rtfparserkit.converter.text.StringTextConverter
-import com.rtfparserkit.parser.IRtfParser
-import com.rtfparserkit.parser.IRtfSource
 import com.rtfparserkit.parser.RtfListenerAdaptor
 import com.rtfparserkit.parser.RtfStreamSource
 import com.rtfparserkit.parser.standard.StandardRtfParser
 import com.rtfparserkit.rtf.Command
 import com.rtfparserkit.utils.HexUtils
 import org.slf4j.LoggerFactory
-import java.io.*
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.FileWriter
+import java.io.PrintWriter
 
 object RtfBookExtractor : BookExtractor {
     private val LOGGER = LoggerFactory.getLogger(RtfBookExtractor::class.java)

@@ -9,7 +9,6 @@ import org.ebookdroid.BookType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import br.com.ebook.Config;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
 import br.com.ebook.foobnix.sys.TempHolder;

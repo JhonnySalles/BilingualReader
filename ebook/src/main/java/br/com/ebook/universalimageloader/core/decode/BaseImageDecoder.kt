@@ -19,7 +19,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.media.ExifInterface
-import br.com.ebook.Config
 import br.com.ebook.foobnix.sys.InputStreamBitmap
 import br.com.ebook.universalimageloader.core.assist.ImageScaleType
 import br.com.ebook.universalimageloader.core.assist.ImageSize

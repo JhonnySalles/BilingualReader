@@ -1,7 +1,7 @@
 package org.ebookdroid.droids
 
-import br.com.ebook.extractor.OdtBookExtractor
 import br.com.ebook.core.BookContent
+import br.com.ebook.extractor.OdtBookExtractor
 import br.com.ebook.foobnix.ext.CacheZipUtils
 import kotlinx.coroutines.runBlocking
 import org.ebookdroid.core.codec.CodecDocument

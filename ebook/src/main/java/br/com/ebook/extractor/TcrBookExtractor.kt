@@ -6,8 +6,8 @@ import br.com.ebook.core.BookMetadata
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
-import java.io.PrintWriter
 import java.io.IOException
+import java.io.PrintWriter
 
 object TcrBookExtractor : BookExtractor {
     override val supportedFormats: Set<String> = setOf("tcr")

@@ -2,12 +2,17 @@ package br.com.ebook.foobnix.ext
 
 import android.content.Context
 import androidx.core.util.Pair
-import br.com.ebook.Config
 import br.com.ebook.util.IOUtils
 import br.com.ebook.util.IOUtils.copyTo
 import org.ebookdroid.BookType
 import org.slf4j.LoggerFactory
-import java.io.*
+import java.io.BufferedOutputStream
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.locks.ReentrantLock
 import java.util.zip.ZipEntry

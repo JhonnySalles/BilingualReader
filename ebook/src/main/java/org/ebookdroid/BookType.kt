@@ -2,7 +2,17 @@ package org.ebookdroid
 
 import android.content.Intent
 import org.ebookdroid.core.codec.CodecContext
-import org.ebookdroid.droids.*
+import org.ebookdroid.droids.DocContext
+import org.ebookdroid.droids.DocxContext
+import org.ebookdroid.droids.EpubContext
+import org.ebookdroid.droids.Fb2Context
+import org.ebookdroid.droids.HtmlContext
+import org.ebookdroid.droids.MarkdownContext
+import org.ebookdroid.droids.MobiContext
+import org.ebookdroid.droids.OdtContext
+import org.ebookdroid.droids.RtfContext
+import org.ebookdroid.droids.TxtContext
+import org.ebookdroid.droids.ZipContext
 import org.ebookdroid.droids.djvu.codec.DjvuContext
 import org.ebookdroid.droids.mupdf.codec.PdfContext
 import org.slf4j.LoggerFactory

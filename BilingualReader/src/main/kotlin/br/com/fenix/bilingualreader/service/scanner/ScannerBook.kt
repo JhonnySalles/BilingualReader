@@ -8,7 +8,6 @@ import android.os.Message
 import android.os.Process
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
-import br.com.ebook.foobnix.ext.CacheZipUtils
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library

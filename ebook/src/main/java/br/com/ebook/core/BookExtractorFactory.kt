@@ -1,9 +1,24 @@
 package br.com.ebook.core
 
-import br.com.ebook.extractor.*
+import br.com.ebook.extractor.CalibreBookExtractor
+import br.com.ebook.extractor.CbzCbrBookExtractor
+import br.com.ebook.extractor.DjvuBookExtractor
+import br.com.ebook.extractor.DocBookExtractor
+import br.com.ebook.extractor.DocxBookExtractor
+import br.com.ebook.extractor.EpubBookExtractor
+import br.com.ebook.extractor.Fb2BookExtractor
+import br.com.ebook.extractor.HtmlBookExtractor
+import br.com.ebook.extractor.HtmlzBookExtractor
+import br.com.ebook.extractor.MarkdownBookExtractor
+import br.com.ebook.extractor.MobiBookExtractor
+import br.com.ebook.extractor.OdtBookExtractor
+import br.com.ebook.extractor.PdfBookExtractor
+import br.com.ebook.extractor.PmlzBookExtractor
+import br.com.ebook.extractor.RtfBookExtractor
+import br.com.ebook.extractor.TcrBookExtractor
+import br.com.ebook.extractor.TxtBookExtractor
 import br.com.ebook.foobnix.android.utils.TxtUtils
 import br.com.ebook.foobnix.ext.CacheZipUtils
-import br.com.ebook.foobnix.pdf.info.ExtUtils
 import org.jsoup.Jsoup
 import org.jsoup.safety.Safelist
 import org.slf4j.LoggerFactory

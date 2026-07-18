@@ -9,9 +9,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
-import br.com.ebook.Config;
-import br.com.ebook.util.IOUtils;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;
+import br.com.ebook.util.IOUtils;
 
 public class FontExtractor {
 

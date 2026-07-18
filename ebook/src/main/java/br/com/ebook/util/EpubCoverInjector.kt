@@ -1,12 +1,16 @@
 package br.com.ebook.util
 
+import br.com.ebook.util.IOUtils.copyTo
 import org.slf4j.LoggerFactory
-import java.io.*
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
-import br.com.ebook.util.IOUtils.copyTo
-import br.com.ebook.util.IOUtils.readAllBytes
 
 object EpubCoverInjector {
     private val LOGGER = LoggerFactory.getLogger(EpubCoverInjector::class.java)

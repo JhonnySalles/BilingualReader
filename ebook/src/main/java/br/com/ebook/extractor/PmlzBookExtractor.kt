@@ -3,14 +3,11 @@ package br.com.ebook.extractor
 import br.com.ebook.core.BookContent
 import br.com.ebook.core.BookExtractor
 import br.com.ebook.core.BookMetadata
-import br.com.ebook.foobnix.ext.XmlParser
 import br.com.ebook.util.IOUtils.copyTo
 import org.slf4j.LoggerFactory
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.nio.charset.Charset
-import java.util.regex.Pattern
 import java.util.zip.ZipFile
 
 object PmlzBookExtractor : BookExtractor {

@@ -1,9 +1,9 @@
 package br.com.ebook.core
 
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
-import org.slf4j.LoggerFactory
 
 object DateParseUtils {
     private val LOGGER = LoggerFactory.getLogger(DateParseUtils::class.java)

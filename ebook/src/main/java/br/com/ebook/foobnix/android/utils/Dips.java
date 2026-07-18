@@ -17,8 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
 
-import br.com.ebook.Config;
-
 public class Dips {
     private static final Logger LOGGER = LoggerFactory.getLogger(Dips.class);
 

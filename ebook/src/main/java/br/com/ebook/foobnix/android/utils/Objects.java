@@ -13,7 +13,6 @@ import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
-import br.com.ebook.Config;
 import br.com.ebook.foobnix.pdf.info.wrapper.AppState;
 
 public class Objects {

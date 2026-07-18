@@ -5,7 +5,6 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.os.Build
 import android.os.Parcelable
@@ -13,6 +12,13 @@ import android.text.format.DateFormat
 import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import br.com.ebook.foobnix.android.utils.Apps
+import br.com.ebook.foobnix.android.utils.Safe
+import br.com.ebook.foobnix.android.utils.TxtUtils
+import br.com.ebook.foobnix.ext.CacheZipUtils
+import br.com.ebook.foobnix.pdf.info.model.BookCSS
+import br.com.ebook.foobnix.pdf.info.wrapper.AppState
+import br.com.ebook.universalimageloader.core.ImageLoader
 import org.ebookdroid.BookType
 import org.ebookdroid.common.cache.CacheManager
 import org.mozilla.universalchardet.UniversalDetector
@@ -23,22 +29,12 @@ import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.text.DecimalFormat
-import java.util.ArrayList
 import java.util.Arrays
 import java.util.Collections
-import java.util.Comparator
-import java.util.HashMap
 import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.regex.Pattern
-import br.com.ebook.foobnix.android.utils.Apps
-import br.com.ebook.foobnix.android.utils.Safe
-import br.com.ebook.foobnix.android.utils.TxtUtils
-import br.com.ebook.foobnix.ext.CacheZipUtils
-import br.com.ebook.foobnix.pdf.info.model.BookCSS
-import br.com.ebook.foobnix.pdf.info.wrapper.AppState
-import br.com.ebook.universalimageloader.core.ImageLoader
 
 class ExtUtils {
     companion object {

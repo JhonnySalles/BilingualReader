@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.ResultResponse;
 import br.com.ebook.foobnix.entity.FileMeta;
 import br.com.ebook.foobnix.pdf.info.model.BookCSS;

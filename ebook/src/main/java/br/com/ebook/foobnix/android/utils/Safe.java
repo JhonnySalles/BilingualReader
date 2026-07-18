@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Random;
 
-import br.com.ebook.Config;
 import br.com.ebook.foobnix.pdf.info.IMG;
 import br.com.ebook.universalimageloader.core.ImageLoader;
 import br.com.ebook.universalimageloader.core.listener.SimpleImageLoadingListener;

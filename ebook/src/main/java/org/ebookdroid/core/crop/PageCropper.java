@@ -8,9 +8,7 @@ import android.graphics.RectF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import br.com.ebook.Config;
 import br.com.ebook.foobnix.android.utils.Dips;
-import br.com.ebook.foobnix.pdf.info.wrapper.MagicHelper;
 
 public class PageCropper {
     private static final Logger LOGGER = LoggerFactory.getLogger(PageCropper.class);

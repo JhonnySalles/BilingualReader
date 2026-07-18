@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import br.com.ebook.Config;
 import br.com.ebook.foobnix.sys.TempHolder;
 
 public class DjvuDocument extends AbstractCodecDocument {

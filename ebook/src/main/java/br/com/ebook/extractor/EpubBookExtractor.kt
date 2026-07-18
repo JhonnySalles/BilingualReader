@@ -1,31 +1,31 @@
 package br.com.ebook.extractor
 
-import br.com.ebook.core.*
+import br.com.ebook.core.BookContent
+import br.com.ebook.core.BookExtractor
+import br.com.ebook.core.BookMetadata
+import br.com.ebook.core.DateParseUtils
 import br.com.ebook.core.EbookSettings
-import br.com.ebook.util.IOUtils
-import br.com.ebook.util.IOUtils.copyTo
-import br.com.ebook.util.IOUtils.readAllBytes
-import br.com.ebook.util.IOUtils.getEntryBytes
 import br.com.ebook.foobnix.android.utils.TxtUtils
-import br.com.ebook.foobnix.pdf.info.ExtUtils
-import br.com.ebook.foobnix.pdf.info.wrapper.AppState
 import br.com.ebook.foobnix.ext.CacheZipUtils.ATTACHMENTS_CACHE_DIR
+import br.com.ebook.foobnix.pdf.info.ExtUtils
 import br.com.ebook.foobnix.sys.TempHolder
+import br.com.ebook.util.IOUtils.copyTo
+import br.com.ebook.util.IOUtils.getEntryBytes
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import org.jsoup.parser.Parser
-import org.jsoup.safety.Safelist
 import org.slf4j.LoggerFactory
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
-import java.io.*
+import java.io.BufferedOutputStream
+import java.io.ByteArrayInputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
-import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.util.*
+import java.util.Locale
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
-import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 object EpubBookExtractor : BookExtractor {

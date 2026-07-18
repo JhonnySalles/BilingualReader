@@ -6,7 +6,6 @@ import java.io.IOException
 import java.io.UnsupportedEncodingException
 import java.nio.ByteBuffer
 import java.util.Arrays
-import br.com.ebook.Config
 
 class MobiParser @Throws(IOException::class) constructor(private val raw: ByteBuffer) {
 

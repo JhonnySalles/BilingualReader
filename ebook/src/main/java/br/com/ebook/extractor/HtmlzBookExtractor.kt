@@ -3,15 +3,13 @@ package br.com.ebook.extractor
 import br.com.ebook.core.BookContent
 import br.com.ebook.core.BookExtractor
 import br.com.ebook.core.BookMetadata
-import br.com.ebook.foobnix.android.utils.TxtUtils
 import br.com.ebook.foobnix.ext.XmlParser
 import br.com.ebook.util.IOUtils.copyTo
-import org.xmlpull.v1.XmlPullParser
 import org.slf4j.LoggerFactory
+import org.xmlpull.v1.XmlPullParser
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.nio.charset.StandardCharsets
 import java.util.zip.ZipFile
 
 object HtmlzBookExtractor : BookExtractor {
