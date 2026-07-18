@@ -493,27 +493,41 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
         miScrollingMode = menu.findItem(R.id.menu_item_reader_book_scrolling_mode)
         miPaginationMode = menu.findItem(R.id.menu_item_reader_book_pagination_type)
 
-        when (mViewModel.scrollingMode.value) {
-            ScrollingType.Pagination -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
-            ScrollingType.PaginationRightToLeft -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination_right_to_left).isChecked = true
-            ScrollingType.PaginationVertical -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination_vertical).isChecked = true
-            ScrollingType.Scrolling -> menu.findItem(R.id.menu_item_reader_book_scrolling_infinity_scrolling).isChecked = true
-            else -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
-        }
+        val isLoaded = mParse != null
+        miChapter.isVisible = isLoaded
+        miAnnotation.isVisible = isLoaded
+        miFontStyle.isVisible = isLoaded
+        miMarkPage.isVisible = isLoaded
+        miSearch.isVisible = isLoaded
+        miReaderTTS.isVisible = isLoaded
+        miScrollingMode.isVisible = isLoaded
+        miPaginationMode.isVisible = isLoaded
+        menu.findItem(R.id.menu_item_reader_book_view_touch_screen)?.isVisible = isLoaded
+        menu.findItem(R.id.menu_item_reader_book_config_touch_screen)?.isVisible = isLoaded
 
-        when (mViewModel.paginationType.value) {
-            PaginationType.Default -> menu.findItem(R.id.menu_item_reader_book_pagination_default).isChecked = true
-            PaginationType.CurlPage -> menu.findItem(R.id.menu_item_reader_book_pagination_page_curl).isChecked = true
-            PaginationType.Curl3DPage -> menu.findItem(R.id.menu_item_reader_book_pagination_page_curl_3d).isChecked = true
-            PaginationType.Zooming -> menu.findItem(R.id.menu_item_reader_book_pagination_stack).isChecked = true
-            PaginationType.Stack -> menu.findItem(R.id.menu_item_reader_book_pagination_zoom).isChecked = true
-            PaginationType.Fade -> menu.findItem(R.id.menu_item_reader_book_pagination_fade).isChecked = true
-            PaginationType.Depth -> menu.findItem(R.id.menu_item_reader_book_pagination_depth).isChecked = true
-            else -> menu.findItem(R.id.menu_item_reader_book_pagination_default).isChecked = true
-        }
+        if (isLoaded) {
+            when (mViewModel.scrollingMode.value) {
+                ScrollingType.Pagination -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
+                ScrollingType.PaginationRightToLeft -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination_right_to_left).isChecked = true
+                ScrollingType.PaginationVertical -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination_vertical).isChecked = true
+                ScrollingType.Scrolling -> menu.findItem(R.id.menu_item_reader_book_scrolling_infinity_scrolling).isChecked = true
+                else -> menu.findItem(R.id.menu_item_reader_book_scrolling_pagination).isChecked = true
+            }
 
-        MenuUtil.longClick(requireActivity(), R.id.menu_item_reader_book_tts) {
-            openMenuTTS()
+            when (mViewModel.paginationType.value) {
+                PaginationType.Default -> menu.findItem(R.id.menu_item_reader_book_pagination_default).isChecked = true
+                PaginationType.CurlPage -> menu.findItem(R.id.menu_item_reader_book_pagination_page_curl).isChecked = true
+                PaginationType.Curl3DPage -> menu.findItem(R.id.menu_item_reader_book_pagination_page_curl_3d).isChecked = true
+                PaginationType.Zooming -> menu.findItem(R.id.menu_item_reader_book_pagination_stack).isChecked = true
+                PaginationType.Stack -> menu.findItem(R.id.menu_item_reader_book_pagination_zoom).isChecked = true
+                PaginationType.Fade -> menu.findItem(R.id.menu_item_reader_book_pagination_fade).isChecked = true
+                PaginationType.Depth -> menu.findItem(R.id.menu_item_reader_book_pagination_depth).isChecked = true
+                else -> menu.findItem(R.id.menu_item_reader_book_pagination_default).isChecked = true
+            }
+
+            MenuUtil.longClick(requireActivity(), R.id.menu_item_reader_book_tts) {
+                openMenuTTS()
+            }
         }
     }
 
@@ -609,6 +623,8 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
                 mCoverImage.setImageBitmap(ImageUtil.applyCoverEffect(requireContext(), cover, Type.BOOK))
                 mCoverMessage.text = getString(R.string.reading_book_open_exception)
+                setFullscreen(false)
+                requireActivity().invalidateOptionsMenu()
             }
         } else {
             if (::mCoverContent.isInitialized) {
@@ -1205,12 +1221,15 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
 
         setupTitleBackgrounds()
 
+        val isErrorState = mParse == null
+        val targetBottomVisibility = if (isFullScreen || isErrorState) View.GONE else View.VISIBLE
+
         if (!isFullScreen) {
             targetTop.visibility = View.VISIBLE
             targetTop.translationY = initialTranslation
             targetTop.alpha = initialAlpha
 
-            targetBottom.visibility = View.VISIBLE
+            targetBottom.visibility = if (isErrorState) View.GONE else View.VISIBLE
             targetBottom.translationY = initialTranslation * -1
             targetBottom.alpha = initialAlpha
         }
@@ -1226,14 +1245,18 @@ class BookReaderFragment : Fragment(), View.OnTouchListener, BookParseListener, 
                 }
             })
 
-        targetBottom.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
-            .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    super.onAnimationEnd(animation)
-                    targetBottom.visibility = visibility
-                }
-            })
+        if (isErrorState) {
+            targetBottom.visibility = View.GONE
+        } else {
+            targetBottom.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
+                .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        super.onAnimationEnd(animation)
+                        targetBottom.visibility = targetBottomVisibility
+                    }
+                })
+        }
     }
 
     fun setCurrentPage(page: Int, isChangePage: Boolean = true, isAnimated: Boolean = true) {

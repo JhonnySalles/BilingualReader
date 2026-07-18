@@ -603,6 +603,8 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
         mCoverImage.setImageBitmap(ImageUtil.applyCoverEffect(requireContext(), cover, Type.BOOK))
         mCoverMessage.text = getString(R.string.reading_manga_open_exception)
         mPageNavTextView.text = ""
+        setFullscreen(false)
+        requireActivity().invalidateOptionsMenu()
         activity?.supportStartPostponedEnterTransition()
     }
 
@@ -836,37 +838,45 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         menu.clear()
         inflater.inflate(R.menu.menu_reader_manga, menu)
-        when (mReaderMode) {
-            ReaderMode.ASPECT_FILL -> menu.findItem(R.id.manga_view_mode_aspect_fill).isChecked = true
-            ReaderMode.ASPECT_FIT -> menu.findItem(R.id.manga_view_mode_aspect_fit).isChecked = true
-            ReaderMode.FIT_WIDTH -> menu.findItem(R.id.manga_view_mode_fit_width).isChecked = true
+
+        val isLoaded = mParse != null
+        for (i in 0 until menu.size()) {
+            menu.getItem(i).isVisible = isLoaded
         }
 
-        when (mScrollingMode) {
-            ScrollingType.Horizontal -> menu.findItem(R.id.reading_manga_scrolling_horizontal).isChecked = true
-            ScrollingType.HorizontalRightToLeft -> menu.findItem(R.id.reading_manga_scrolling_horizontal_right_to_left).isChecked = true
-            ScrollingType.Vertical -> menu.findItem(R.id.reading_manga_scrolling_vertical).isChecked = true
-            ScrollingType.Scrolling -> menu.findItem(R.id.reading_manga_scrolling_scrolling).isChecked = true
-            ScrollingType.ScrollingDivider -> menu.findItem(R.id.reading_manga_scrolling_scrolling_divider).isChecked = true
-            else -> menu.findItem(R.id.reading_manga_scrolling_horizontal).isChecked = true
+        if (isLoaded) {
+            when (mReaderMode) {
+                ReaderMode.ASPECT_FILL -> menu.findItem(R.id.manga_view_mode_aspect_fill).isChecked = true
+                ReaderMode.ASPECT_FIT -> menu.findItem(R.id.manga_view_mode_aspect_fit).isChecked = true
+                ReaderMode.FIT_WIDTH -> menu.findItem(R.id.manga_view_mode_fit_width).isChecked = true
+            }
+
+            when (mScrollingMode) {
+                ScrollingType.Horizontal -> menu.findItem(R.id.reading_manga_scrolling_horizontal).isChecked = true
+                ScrollingType.HorizontalRightToLeft -> menu.findItem(R.id.reading_manga_scrolling_horizontal_right_to_left).isChecked = true
+                ScrollingType.Vertical -> menu.findItem(R.id.reading_manga_scrolling_vertical).isChecked = true
+                ScrollingType.Scrolling -> menu.findItem(R.id.reading_manga_scrolling_scrolling).isChecked = true
+                ScrollingType.ScrollingDivider -> menu.findItem(R.id.reading_manga_scrolling_scrolling_divider).isChecked = true
+                else -> menu.findItem(R.id.reading_manga_scrolling_horizontal).isChecked = true
+            }
+
+            when (mPaginationType) {
+                PaginationType.Default -> menu.findItem(R.id.reading_manga_pagination_default).isChecked = true
+                PaginationType.CurlPage -> menu.findItem(R.id.reading_manga_pagination_page_curl).isChecked = true
+                PaginationType.Curl3DPage -> menu.findItem(R.id.reading_manga_pagination_page_curl_3d).isChecked = true
+                PaginationType.Stack -> menu.findItem(R.id.reading_manga_pagination_stack).isChecked = true
+                PaginationType.Zooming -> menu.findItem(R.id.reading_manga_pagination_zoom).isChecked = true
+                PaginationType.Depth -> menu.findItem(R.id.reading_manga_pagination_depth).isChecked = true
+                PaginationType.Fade -> menu.findItem(R.id.reading_manga_pagination_fade).isChecked = true
+                else -> menu.findItem(R.id.reading_manga_pagination_default).isChecked = true
+            }
+
+            menu.findItem(R.id.menu_item_reader_manga_use_magnifier_type).isChecked = mUseMagnifierType
+            menu.findItem(R.id.menu_item_reader_manga_keep_zoom_between_pages).isChecked = mKeepZoomBetweenPage
+            menu.findItem(R.id.menu_item_reader_manga_show_clock_and_battery).isChecked = mPreferences.getBoolean(GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY, false)
+
+            miMarkPage = menu.findItem(R.id.menu_item_reader_manga_mark_page)
         }
-
-        when (mPaginationType) {
-            PaginationType.Default -> menu.findItem(R.id.reading_manga_pagination_default).isChecked = true
-            PaginationType.CurlPage -> menu.findItem(R.id.reading_manga_pagination_page_curl).isChecked = true
-            PaginationType.Curl3DPage -> menu.findItem(R.id.reading_manga_pagination_page_curl_3d).isChecked = true
-            PaginationType.Stack -> menu.findItem(R.id.reading_manga_pagination_stack).isChecked = true
-            PaginationType.Zooming -> menu.findItem(R.id.reading_manga_pagination_zoom).isChecked = true
-            PaginationType.Depth -> menu.findItem(R.id.reading_manga_pagination_depth).isChecked = true
-            PaginationType.Fade -> menu.findItem(R.id.reading_manga_pagination_fade).isChecked = true
-            else -> menu.findItem(R.id.reading_manga_pagination_default).isChecked = true
-        }
-
-        menu.findItem(R.id.menu_item_reader_manga_use_magnifier_type).isChecked = mUseMagnifierType
-        menu.findItem(R.id.menu_item_reader_manga_keep_zoom_between_pages).isChecked = mKeepZoomBetweenPage
-        menu.findItem(R.id.menu_item_reader_manga_show_clock_and_battery).isChecked = mPreferences.getBoolean(GeneralConsts.KEYS.READER.MANGA_SHOW_CLOCK_AND_BATTERY, false)
-
-        miMarkPage = menu.findItem(R.id.menu_item_reader_manga_mark_page)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -1700,24 +1710,28 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
 
         setupTitleBackgrounds()
 
+        val isErrorState = mParse == null
+        val targetBottomVisibility = if (isFullScreen || isErrorState) View.GONE else View.VISIBLE
+
         if (!isFullScreen) {
             targetTop.visibility = View.VISIBLE
             targetTop.translationY = initialTranslation
             targetTop.alpha = initialAlpha
 
-            targetBottom.visibility = View.VISIBLE
+            val bottomVis = if (isErrorState) View.GONE else View.VISIBLE
+            targetBottom.visibility = bottomVis
             targetBottom.translationY = (initialTranslation * -1)
             targetBottom.alpha = initialAlpha
 
-            targetProgress.visibility = View.VISIBLE
+            targetProgress.visibility = bottomVis
             targetProgress.translationY = (initialTranslation * -1)
             targetProgress.alpha = initialAlpha
 
-            nextTarget.visibility = View.VISIBLE
+            nextTarget.visibility = bottomVis
             nextTarget.translationY = (initialTranslation * -1)
             nextTarget.alpha = initialAlpha
 
-            prevTarget.visibility = View.VISIBLE
+            prevTarget.visibility = bottomVis
             prevTarget.translationY = (initialTranslation * -1)
             prevTarget.alpha = initialAlpha
         }
@@ -1733,41 +1747,48 @@ class MangaReaderFragment : Fragment(), View.OnTouchListener {
                 }
             })
 
-        targetBottom.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
-            .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    super.onAnimationEnd(animation)
-                    targetBottom.visibility = visibility
-                }
-            })
+        if (isErrorState) {
+            targetBottom.visibility = View.GONE
+            targetProgress.visibility = View.GONE
+            nextTarget.visibility = View.GONE
+            prevTarget.visibility = View.GONE
+        } else {
+            targetBottom.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
+                .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        super.onAnimationEnd(animation)
+                        targetBottom.visibility = targetBottomVisibility
+                    }
+                })
 
-        targetProgress.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
-            .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    super.onAnimationEnd(animation)
-                    targetProgress.visibility = visibility
-                }
-            })
+            targetProgress.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
+                .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        super.onAnimationEnd(animation)
+                        targetProgress.visibility = targetBottomVisibility
+                    }
+                })
 
-        nextTarget.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
-            .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    super.onAnimationEnd(animation)
-                    nextTarget.visibility = visibility
-                }
-            })
+            nextTarget.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
+                .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        super.onAnimationEnd(animation)
+                        nextTarget.visibility = targetBottomVisibility
+                    }
+                })
 
-        prevTarget.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
-            .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    super.onAnimationEnd(animation)
-                    prevTarget.visibility = visibility
-                }
-            })
+            prevTarget.animate().alpha(finalAlpha).translationY(finalTranslation * -1)
+                .setDuration(ANIMATION_DURATION).setInterpolator(interpolator)
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        super.onAnimationEnd(animation)
+                        prevTarget.visibility = targetBottomVisibility
+                    }
+                })
+        }
     }
 
     fun isFullscreen(): Boolean = mIsFullscreen
