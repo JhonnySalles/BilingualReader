@@ -293,13 +293,124 @@ object Fb2BookExtractor : BookExtractor {
 
     fun convert(inputFile: String, toName: String): Boolean {
         try {
+            val binaries = mutableMapOf<String, ByteArray>()
+            val contentTypes = mutableMapOf<String, String>()
+            var coverId: String? = null
+
+            val encoding = findHeaderEncoding(inputFile)
+
+            // Step 1: Scan FB2 for binary tags
+            try {
+                FileInputStream(inputFile).use { fis ->
+                    val xpp = XmlParser.buildPullParser()
+                    xpp.setInput(fis, encoding)
+                    var eventType = xpp.eventType
+                    var firstImageId: String? = null
+                    var coverImageId: String? = null
+
+                    while (eventType != XmlPullParser.END_DOCUMENT) {
+                        if (eventType == XmlPullParser.START_TAG) {
+                            if (xpp.name == "image") {
+                                val href = xpp.getAttributeValue(0)
+                                if (!href.isNullOrEmpty()) {
+                                    val cleanHref = href.replace("#", "")
+                                    if (firstImageId == null) firstImageId = cleanHref
+                                    if (cleanHref.lowercase(Locale.getDefault()).contains("cover")) {
+                                        coverImageId = cleanHref
+                                    }
+                                }
+                            } else if (xpp.name == "binary") {
+                                val id = xpp.getAttributeValue(null, "id")
+                                val contentType = xpp.getAttributeValue(null, "content-type") ?: "image/jpeg"
+                                val text = xpp.nextText()
+                                if (!id.isNullOrEmpty() && !text.isNullOrEmpty()) {
+                                    try {
+                                        val bytes = Base64.decode(text, Base64.DEFAULT)
+                                        binaries[id] = bytes
+                                        contentTypes[id] = contentType
+                                    } catch (e: Exception) {
+                                        LOGGER.error("Failed to decode binary base64: {}", id, e)
+                                    }
+                                }
+                            }
+                        }
+                        eventType = xpp.next()
+                    }
+                    coverId = coverImageId ?: firstImageId ?: binaries.keys.firstOrNull()
+                }
+            } catch (e: Exception) {
+                LOGGER.error("Error scanning binaries: {}", e.message, e)
+            }
+
             ZipOutputStream(BufferedOutputStream(FileOutputStream(File(toName)))).use { zos ->
                 zos.setLevel(0)
                 writeToZip(zos, "mimetype", "application/epub+zip")
                 writeToZip(zos, "META-INF/container.xml", Fb2Templates.container_xml)
-                writeToZip(zos, "OEBPS/content.opf", Fb2Templates.content_opf)
 
-                val encoding = findHeaderEncoding(inputFile)
+                // Step 2: Write binaries to ZIP and prepare manifest/spine
+                val manifestItems = StringBuilder()
+                val spineItems = StringBuilder()
+
+                // Cover image injection
+                val coverBytes = coverId?.let { binaries[it] }
+                if (coverBytes != null && coverBytes.isNotEmpty()) {
+                    val coverType = contentTypes[coverId] ?: "image/jpeg"
+                    writeToZip(zos, "OEBPS/bilingual-cover-image.jpg", ByteArrayInputStream(coverBytes))
+                    manifestItems.append("  <item id=\"bilingual-cover-image\" href=\"bilingual-cover-image.jpg\" media-type=\"$coverType\" />\n")
+                    
+                    val xhtml = """
+                        <?xml version="1.0" encoding="utf-8"?>
+                        <!DOCTYPE html>
+                        <html xmlns="http://www.w3.org/1999/xhtml">
+                        <head>
+                          <title>Cover</title>
+                          <style type="text/css">
+                            body { margin: 0; padding: 0; text-align: center; background-color: #ffffff; }
+                            img { max-width: 100%; max-height: 100%; height: auto; width: auto; margin: 0 auto; display: block; }
+                          </style>
+                        </head>
+                        <body>
+                          <div>
+                            <img src="bilingual-cover-image.jpg" alt="Cover" />
+                          </div>
+                        </body>
+                        </html>
+                    """.trimIndent()
+                    writeToZip(zos, "OEBPS/bilingual-cover-page.xhtml", xhtml)
+                    manifestItems.append("  <item id=\"bilingual-cover-page\" href=\"bilingual-cover-page.xhtml\" media-type=\"application/xhtml+xml\" />\n")
+                    spineItems.append("  <itemref idref=\"bilingual-cover-page\" />\n")
+                }
+
+                // Other images
+                for ((id, bytes) in binaries) {
+                    val type = contentTypes[id] ?: "image/jpeg"
+                    writeToZip(zos, "OEBPS/$id", ByteArrayInputStream(bytes))
+                    manifestItems.append("  <item id=\"$id\" href=\"$id\" media-type=\"$type\" />\n")
+                }
+
+                var title = "FB2 Book"
+                var author = "Unknown"
+                try {
+                    kotlinx.coroutines.runBlocking {
+                        val metaResult = extractMetadata(inputFile)
+                        val meta = metaResult.getOrNull()
+                        if (meta != null) {
+                            if (meta.title.isNotEmpty()) title = meta.title
+                            if (meta.author.isNotEmpty()) author = meta.author
+                        }
+                    }
+                } catch (e: Exception) {
+                    LOGGER.error("Error extracting metadata for OPF: {}", e.message, e)
+                }
+
+                val opf = Fb2Templates.content_opf
+                    .replace("%manifest%", manifestItems.toString())
+                    .replace("%spine%", spineItems.toString())
+                    .replace("%title%", title)
+                    .replace("%creator%", author)
+
+                writeToZip(zos, "OEBPS/content.opf", opf)
+
                 val titles = getFb2Titles(inputFile, encoding)
                 val ncx = generateNCX(titles)
                 writeToZip(zos, "OEBPS/fb2.ncx", ncx)
@@ -356,12 +467,23 @@ object Fb2BookExtractor : BookExtractor {
         var isEncoding = false
         var isFindBodyEnd = false
         var titleBegin = false
+        var insideBinary = false
 
         BufferedReader(InputStreamReader(FileInputStream(fb2), encoding)).use { input ->
             var line: String?
             while (input.readLine().also { line = it } != null) {
                 if (TempHolder.get().loadingCancelled) break
                 var curLine = line!!
+
+                if (curLine.contains("<binary", ignoreCase = true)) {
+                    insideBinary = true
+                }
+                if (insideBinary) {
+                    if (curLine.contains("</binary>", ignoreCase = true)) {
+                        insideBinary = false
+                    }
+                    continue
+                }
 
                 if (!isEncoding && curLine.contains("windows-1251", ignoreCase = true)) {
                     curLine = curLine.replace("windows-1251", "utf-8", ignoreCase = true)
@@ -396,6 +518,10 @@ object Fb2BookExtractor : BookExtractor {
                     if (!isFindBodyEnd && (EbookSettings.isDouble || !titleBegin) && EbookSettings.isAutoHypens) {
                         sub = HypenUtils.applyHypnesOld(sub)
                     }
+
+                    sub = sub.replace(Regex("<image\\s+[^>]*href=\"#([^\"]+)\"[^>]*>"), "<img src=\"$1\" style=\"max-width: 100%;\" />")
+                    sub = sub.replace(Regex("<image\\s+[^>]*href=\"#([^\"]+)\"\\s*/>"), "<img src=\"$1\" style=\"max-width: 100%;\" />")
+
                     writer.println(sub)
                 }
             }

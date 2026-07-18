@@ -13,13 +13,15 @@ object Fb2Templates {
             " <metadata xmlns:opf=\"http://www.idpf.org/2007/opf\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\">\n" +
             "  <dc:title>%title%</dc:title>\n" +
             "  <dc:creator>%creator%</dc:creator>\n" +
-            "<meta name=\"cover\" content=\"cover.jpg\" />\n" +
+            "  <meta name=\"cover\" content=\"bilingual-cover-image\" />\n" +
             " </metadata>\n" +
             "\n<manifest>\n" +
             "  <item id=\"idBookFb2\" href=\"fb2.fb2\" media-type=\"application/xhtml+xml\"/>\n" +
             "  <item id=\"idResourceFb2\" href=\"fb2.ncx\" media-type=\"application/x-dtbncx+xml\"/>\n" +
+            "  %manifest%\n" +
             " </manifest>\n" +
             " \n<spine toc=\"idResourceFb2\">\n" +
+            "  %spine%\n" +
             "  <itemref idref=\"idBookFb2\"/>\n" +
             "</spine>\n" +
             "</package>"

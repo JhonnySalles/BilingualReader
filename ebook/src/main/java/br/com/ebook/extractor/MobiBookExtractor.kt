@@ -109,6 +109,10 @@ object MobiBookExtractor : BookExtractor {
         
         val result = File(outputDir, "$hashCode$hashCode.epub")
         if (result.exists()) {
+            val coverBytes = extractCover(path).getOrNull()
+            if (coverBytes != null && coverBytes.isNotEmpty()) {
+                br.com.ebook.util.EpubCoverInjector.injectCover(result.path, coverBytes)
+            }
             BookContent.EpubFile(result.path)
         } else {
             throw IOException("Converted EPUB file not found")
