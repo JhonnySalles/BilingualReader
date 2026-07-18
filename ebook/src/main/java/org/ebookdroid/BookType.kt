@@ -22,8 +22,8 @@ enum class BookType(
         "application/x-fb2", "application/fb2+zip", "application/fb2.zip", "application/x-zip-compressed-fb2"
     )),
     MOBI(MobiContext::class.java, listOf("mobi", "azw", "azw3", "azw4", "pdb", "prc"), listOf("application/x-mobipocket-ebook", "application/x-palm-database")),
-    TXT(TxtContext::class.java, listOf("txt"), listOf("text/plain")),
-    HTML(HtmlContext::class.java, listOf("html", "htm", "xhtml", "xhtm", "mht", "mhtml", "htmlz"), listOf("text/html", "text/xml", "application/htmlz+zip")),
+    TXT(TxtContext::class.java, listOf("txt", "tcr"), listOf("text/plain")),
+    HTML(HtmlContext::class.java, listOf("html", "htm", "xhtml", "xhtm", "mht", "mhtml", "htmlz", "pmlz"), listOf("text/html", "text/xml", "application/htmlz+zip", "application/pmlz+zip")),
     RTF(RtfContext::class.java, listOf("rtf"), listOf("application/rtf", "application/x-rtf", "text/rtf", "text/richtext")),
     DJVU(DjvuContext::class.java, listOf("djvu"), listOf("image/vnd.djvu", "image/djvu", "image/x-djvu")),
     ZIP(ZipContext::class.java, listOf("zip"), listOf("application/zip", "application/x-compressed", "application/x-compressed-zip", "application/x-zip-compressed")),

@@ -21,8 +21,9 @@ class TxtContext : PdfContext() {
         var notes: Map<String, String>? = null
 
         try {
+            val extractor = br.com.ebook.core.BookExtractorFactory.getExtractor(fileName) ?: TxtBookExtractor
             val contentResult = runBlocking(br.com.ebook.core.EbookDispatcher.dispatcher) {
-                TxtBookExtractor.extractContent(fileName, CacheZipUtils.CACHE_BOOK_DIR?.path ?: "")
+                extractor.extractContent(fileName, CacheZipUtils.CACHE_BOOK_DIR?.path ?: "")
             }
             val content = contentResult.getOrThrow()
             if (content is BookContent.HtmlFile) {

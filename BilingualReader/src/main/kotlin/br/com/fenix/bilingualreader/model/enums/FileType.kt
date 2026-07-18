@@ -42,11 +42,11 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
             "application/x-zip-compressed-fb2"
         ), "FB2"
     ),
-    TXT(TYPE_BOOK, arrayOf("txt", "playlist", "log"), arrayOf("text/plain", "text/x-log"), "TXT"),
+    TXT(TYPE_BOOK, arrayOf("txt", "playlist", "log", "tcr"), arrayOf("text/plain", "text/x-log"), "TXT"),
     RTF(TYPE_BOOK, arrayOf("rtf"), arrayOf("application/rtf", "application/x-rtf", "text/rtf", "text/richtext"), "RTF"),
     AZW(TYPE_BOOK, arrayOf("azw"), arrayOf("application/azw", "application/x-azw"), "AZW"),
     AZW3(TYPE_BOOK, arrayOf("azw3"), arrayOf("application/azw3", "application/x-azw3"), "AZW3"),
-    HTML(TYPE_BOOK, arrayOf("html", "htm", "xhtml", "xhtm", "xml", "htmlz"), arrayOf("text/html", "text/xml", "application/htmlz+zip"), "HTML"),
+    HTML(TYPE_BOOK, arrayOf("html", "htm", "xhtml", "xhtm", "xml", "htmlz", "pmlz"), arrayOf("text/html", "text/xml", "application/htmlz+zip", "application/pmlz+zip"), "HTML"),
     //DOC(1, arrayOf("doc"), arrayOf("application/msword")),
     //DOCX(1, arrayOf("docx"), arrayOf("application/vnd.openxmlformats-officedocument.wordprocessingml.document")),
     OPDS(TYPE_BOOK, arrayOf("opds"), arrayOf("application/opds", "application/x-opds"), "OPDS"),

@@ -102,20 +102,45 @@ object MobiBookExtractor : BookExtractor {
         val tempFile = ExtUtils.validNameFileCharacter(path, outputDir, "mobi_temp_$hashCode")
         val destPath = File(outputDir, hashCode).path
         
-        val success = LibMobi.convertToEpub(tempFile, destPath)
-        if (success > 0) {
-            throw IOException("O formato PDB/MOBI não é suportado pelo LibMobi (código: $success)")
-        }
-        
-        val result = File(outputDir, "$hashCode$hashCode.epub")
-        if (result.exists()) {
-            val coverBytes = extractCover(path).getOrNull()
-            if (coverBytes != null && coverBytes.isNotEmpty()) {
-                br.com.ebook.util.EpubCoverInjector.injectCover(result.path, coverBytes)
+        try {
+            val success = LibMobi.convertToEpub(tempFile, destPath)
+            if (success > 0) {
+                throw IOException("O formato PDB/MOBI não é suportado pelo LibMobi (código: $success)")
             }
-            BookContent.EpubFile(result.path)
-        } else {
-            throw IOException("Converted EPUB file not found")
+            
+            val result = File(outputDir, "$hashCode$hashCode.epub")
+            if (result.exists()) {
+                val coverBytes = extractCover(path).getOrNull()
+                if (coverBytes != null && coverBytes.isNotEmpty()) {
+                    br.com.ebook.util.EpubCoverInjector.injectCover(result.path, coverBytes)
+                }
+                BookContent.EpubFile(result.path)
+            } else {
+                throw IOException("Converted EPUB file not found")
+            }
+        } catch (e: Exception) {
+            LOGGER.warn("LibMobi failed, trying PalmDOC fallback decompressor for: {}", path, e)
+            try {
+                val decompressedBytes = br.com.ebook.util.PalmDocDecompressor.decompress(File(path))
+                val textContent = decompressedBytes.toString(charset("cp1252"))
+                val outHtmlFile = File(outputDir, "pdb-converted-$hashCode.html")
+                java.io.PrintWriter(java.io.BufferedWriter(java.io.FileWriter(outHtmlFile))).use { writer ->
+                    writer.println("<!DOCTYPE html><html><head><meta charset=\"UTF-8\"/><style>p,p+p{margin:0;}</style></head><body>")
+                    textContent.split('\n').forEach { line ->
+                        val trimmed = line.trim()
+                        if (trimmed.isEmpty()) {
+                            writer.println("<br/>")
+                        } else {
+                            writer.println("<p>${android.text.TextUtils.htmlEncode(trimmed)}</p>")
+                        }
+                    }
+                    writer.println("</body></html>")
+                }
+                BookContent.HtmlFile(outHtmlFile.path)
+            } catch (fallbackEx: Exception) {
+                LOGGER.error("PalmDOC fallback decompressor also failed for: {}", path, fallbackEx)
+                throw e
+            }
         }
     }
 }

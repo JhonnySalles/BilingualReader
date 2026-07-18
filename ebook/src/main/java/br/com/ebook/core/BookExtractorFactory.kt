@@ -20,8 +20,10 @@ object BookExtractorFactory {
             "fb2" -> Fb2BookExtractor
             "mobi", "azw", "azw3", "azw4", "pdb", "prc" -> MobiBookExtractor
             "txt" -> TxtBookExtractor
+            "tcr" -> TcrBookExtractor
             "html", "htm", "xhtml", "xhtm", "mht", "mhtml" -> HtmlBookExtractor
             "htmlz" -> HtmlzBookExtractor
+            "pmlz" -> PmlzBookExtractor
             "rtf" -> RtfBookExtractor
             "pdf", "xps" -> PdfBookExtractor
             "cbz", "cbr" -> CbzCbrBookExtractor
