@@ -12,7 +12,7 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
     UNKNOWN(TYPE_UNKNOWN, arrayOf(), arrayOf(), ""),
 
     // Manga and Book file
-    EPUB(TYPE_MANGA_AND_BOOK, arrayOf("epub"), arrayOf("application/epub+zip"), "EPUB"),
+    EPUB(TYPE_MANGA_AND_BOOK, arrayOf("epub", "kepub"), arrayOf("application/epub+zip", "application/kepub+zip"), "EPUB"),
     EPUB3(TYPE_MANGA_AND_BOOK, arrayOf("epub3"), arrayOf("application/epub3+zip"), "EPUB3"),
 
     // Book file
@@ -46,7 +46,7 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
     RTF(TYPE_BOOK, arrayOf("rtf"), arrayOf("application/rtf", "application/x-rtf", "text/rtf", "text/richtext"), "RTF"),
     AZW(TYPE_BOOK, arrayOf("azw"), arrayOf("application/azw", "application/x-azw"), "AZW"),
     AZW3(TYPE_BOOK, arrayOf("azw3"), arrayOf("application/azw3", "application/x-azw3"), "AZW3"),
-    HTML(TYPE_BOOK, arrayOf("html", "htm", "xhtml", "xhtm", "xml"), arrayOf("text/html", "text/xml"), "HTML"),
+    HTML(TYPE_BOOK, arrayOf("html", "htm", "xhtml", "xhtm", "xml", "htmlz"), arrayOf("text/html", "text/xml", "application/htmlz+zip"), "HTML"),
     //DOC(1, arrayOf("doc"), arrayOf("application/msword")),
     //DOCX(1, arrayOf("docx"), arrayOf("application/vnd.openxmlformats-officedocument.wordprocessingml.document")),
     OPDS(TYPE_BOOK, arrayOf("opds"), arrayOf("application/opds", "application/x-opds"), "OPDS"),
@@ -54,7 +54,7 @@ enum class FileType(var type: Int, var extension: Array<String>, var mimeType: A
     //ODT(1, arrayOf("odt"), arrayOf("application/vnd.oasis.opendocument.text")),
     MD(TYPE_BOOK, arrayOf("md"), arrayOf("text/markdown", "text/x-markdown"), "MD"),
     MHT(TYPE_BOOK, arrayOf("mht", "mhtml", "shtml"), arrayOf("message/rfc822"), "MHT"),
-
+ 
     // Comic file
     CBZ(TYPE_MANGA, arrayOf("cbz"), arrayOf("application/cbz", "application/x-cbz", "application/comicbook+zip"), "CBZ"),
     CBR(TYPE_MANGA, arrayOf("cbr"), arrayOf("application/cbr", "application/x-cbr", "application/comicbook+rar"), "CBR"),

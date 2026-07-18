@@ -31,7 +31,7 @@ import java.util.zip.ZipOutputStream
 object EpubBookExtractor : BookExtractor {
     private val LOGGER = LoggerFactory.getLogger(EpubBookExtractor::class.java)
 
-    override val supportedFormats: Set<String> = setOf("epub")
+    override val supportedFormats: Set<String> = setOf("epub", "kepub")
 
     private fun buildPullParser(): XmlPullParser {
         val factory = XmlPullParserFactory.newInstance()

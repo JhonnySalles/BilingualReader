@@ -16,11 +16,12 @@ object BookExtractorFactory {
     fun getExtractor(path: String): BookExtractor? {
         val ext = getFileExtension(path)
         return when (ext) {
-            "epub" -> EpubBookExtractor
+            "epub", "kepub" -> EpubBookExtractor
             "fb2" -> Fb2BookExtractor
             "mobi", "azw", "azw3", "azw4", "pdb", "prc" -> MobiBookExtractor
             "txt" -> TxtBookExtractor
             "html", "htm", "xhtml", "xhtm", "mht", "mhtml" -> HtmlBookExtractor
+            "htmlz" -> HtmlzBookExtractor
             "rtf" -> RtfBookExtractor
             "pdf", "xps" -> PdfBookExtractor
             "cbz", "cbr" -> CbzCbrBookExtractor

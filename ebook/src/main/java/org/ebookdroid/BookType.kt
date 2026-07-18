@@ -16,14 +16,14 @@ enum class BookType(
     PDF(PdfContext::class.java, listOf("pdf", "xps"), listOf("application/pdf")),
     TIFF(PdfContext::class.java, listOf("tiff", "tif"), listOf("image/tiff")),
     CBZ(PdfContext::class.java, listOf("cbz"), listOf("application/x-cbz")),
-    EPUB(EpubContext::class.java, listOf("epub"), listOf("application/epub+zip")),
+    EPUB(EpubContext::class.java, listOf("epub", "kepub"), listOf("application/epub+zip", "application/kepub+zip")),
     FB2(Fb2Context::class.java, listOf("fb2"), listOf(
         "application/fb2", "application/x-fictionbook", "application/x-fictionbook+xml", 
         "application/x-fb2", "application/fb2+zip", "application/fb2.zip", "application/x-zip-compressed-fb2"
     )),
     MOBI(MobiContext::class.java, listOf("mobi", "azw", "azw3", "azw4", "pdb", "prc"), listOf("application/x-mobipocket-ebook", "application/x-palm-database")),
     TXT(TxtContext::class.java, listOf("txt"), listOf("text/plain")),
-    HTML(HtmlContext::class.java, listOf("html", "htm", "xhtml", "xhtm", "mht", "mhtml"), listOf("text/html", "text/xml")),
+    HTML(HtmlContext::class.java, listOf("html", "htm", "xhtml", "xhtm", "mht", "mhtml", "htmlz"), listOf("text/html", "text/xml", "application/htmlz+zip")),
     RTF(RtfContext::class.java, listOf("rtf"), listOf("application/rtf", "application/x-rtf", "text/rtf", "text/richtext")),
     DJVU(DjvuContext::class.java, listOf("djvu"), listOf("image/vnd.djvu", "image/djvu", "image/x-djvu")),
     ZIP(ZipContext::class.java, listOf("zip"), listOf("application/zip", "application/x-compressed", "application/x-compressed-zip", "application/x-zip-compressed")),

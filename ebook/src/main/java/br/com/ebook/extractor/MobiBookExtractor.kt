@@ -104,7 +104,7 @@ object MobiBookExtractor : BookExtractor {
         
         val success = LibMobi.convertToEpub(tempFile, destPath)
         if (success > 0) {
-            throw RuntimeException("Error to convert mobi to epub")
+            throw IOException("O formato PDB/MOBI não é suportado pelo LibMobi (código: $success)")
         }
         
         val result = File(outputDir, "$hashCode$hashCode.epub")
