@@ -184,6 +184,7 @@
     <string name="config_update_app_error_update">Error updating application, need to manually run the apk in the download folder.</string>
 
     <string name="config_theme_glassmorphism">Use translucent blur?</string>
+    <string name="config_system_use_3d_cover">Use 3D cover in details?</string>
     <string name="config_theme_mode">Theme mode</string>
     <string-array name="theme_mode">
         <item>System</item>

@@ -21,6 +21,7 @@ class SevenZipParse : Parse {
     private var mEntries = ArrayList<SevenZEntry>()
     private var mSubtitles = ArrayList<SevenZEntry>()
     private var mComicInfo: SevenZEntry? = null
+    private var mFullCover: SevenZEntry? = null
 
     private class SevenZEntry(val entry: SevenZArchiveEntry, val bytes: ByteArray)
 
@@ -37,7 +38,10 @@ class SevenZipParse : Parse {
                 if (FileUtil.isImage(entry.name)) {
                     val content = ByteArray(entry.size.toInt())
                     sevenZFile.read(content)
-                    mEntries.add(SevenZEntry(entry, content))
+                    val sevenZEntry = SevenZEntry(entry, content)
+                    mEntries.add(sevenZEntry)
+                    if (entry.name.contains("volume", true) && entry.name.contains("tudo", true))
+                        mFullCover = sevenZEntry
                 } else if (FileUtil.isJson(entry.name)) {
                     val content = ByteArray(entry.size.toInt())
                     sevenZFile.read(content)
@@ -142,6 +146,14 @@ class SevenZipParse : Parse {
 
     override fun getPage(num: Int): InputStream {
         return ByteArrayInputStream(mEntries[num].bytes)
+    }
+
+    override fun hasFullCover(): Boolean {
+        return mFullCover != null
+    }
+
+    override fun getFullCover(): InputStream? {
+        return if (hasFullCover()) ByteArrayInputStream(mFullCover!!.bytes) else null
     }
 
     override fun destroy(isClearCache: Boolean) {

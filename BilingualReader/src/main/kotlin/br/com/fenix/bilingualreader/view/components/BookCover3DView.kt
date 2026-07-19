@@ -1,0 +1,520 @@
+package br.com.fenix.bilingualreader.view.components
+
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.PixelFormat
+import android.view.Choreographer
+import android.view.MotionEvent
+import android.view.SurfaceHolder
+import android.view.SurfaceView
+import com.google.android.filament.*
+import com.google.android.filament.gltfio.*
+import com.google.android.filament.utils.*
+import com.google.android.filament.android.UiHelper
+import java.io.InputStream
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+
+/**
+ * Visualizador 3D de Livro/Mangá usando Filament.
+ * Renderiza um modelo 3D GLB e aplica a imagem de capa completa como textura.
+ * Possui suporte a rotação por toque na tela (swipe) e fundo transparente.
+ */
+class BookCover3DView(
+    private val context: Context,
+    private val surfaceView: SurfaceView
+) : SurfaceHolder.Callback {
+
+    companion object {
+        init {
+            // Inicializa a biblioteca nativa do Filament
+            com.google.android.filament.utils.Utils.init()
+        }
+
+        // =========================================================================
+        // CONSTANTES PARA AJUSTE MANUAL DAS TEXTURAS E UVs
+        // Modifique estes coeficientes de acordo com a imagem real "Volume 00 Tudo"
+        // =========================================================================
+
+        // Proporção de largura da capa da frente (lado esquerdo na textura)
+        const val FRONT_COVER_WIDTH_RATIO = 0.475f
+
+        // Proporção de largura da lombada (região central na textura)
+        const val SPINE_WIDTH_RATIO = 0.05f
+
+        // Proporção de largura da capa de trás (lado direito na textura)
+        const val BACK_COVER_WIDTH_RATIO = 0.475f
+    }
+
+    private var modelViewer: ModelViewer? = null
+    private val choreographer = Choreographer.getInstance()
+    private val frameScheduler = FrameCallback()
+    private var isSurfaceAvailable = false
+    private var pendingBitmap: Bitmap? = null
+    private var pendingOnReady: (() -> Unit)? = null
+    private var isDestroyed = false
+    
+    private var backLightEntity: Int = 0
+    private val forwardVector = FloatArray(3)
+    private val upVector = FloatArray(3)
+
+    init {
+        // Configura a SurfaceView para suportar fundo transparente
+        surfaceView.holder.addCallback(this)
+        surfaceView.setZOrderOnTop(true)
+        surfaceView.holder.setFormat(PixelFormat.TRANSLUCENT)
+        
+        // Configura o interceptor de toques na SurfaceView para bloquear a rolagem do scroll pai
+        surfaceView.setOnTouchListener { _, event ->
+            onTouchEvent(event)
+        }
+    }
+
+    override fun surfaceCreated(holder: SurfaceHolder) {
+        // O ModelViewer do Filament cria e gerencia internamente View, Scene, Camera, Renderer e SwapChain
+        // Usamos UiHelper configurado para transparente (isOpaque = false)
+        val uiHelper = UiHelper(UiHelper.ContextErrorPolicy.DONT_CHECK).apply {
+            isOpaque = false
+        }
+        val viewer = ModelViewer(surfaceView, uiHelper = uiHelper).also { this.modelViewer = it }
+
+        // Configuração do Renderer para garantir a transparência
+        val clearOptions = viewer.renderer.clearOptions
+        clearOptions.clear = true
+        viewer.renderer.clearOptions = clearOptions
+
+        // Configuração da View para blend transparente
+        viewer.view.apply {
+            blendMode = View.BlendMode.TRANSLUCENT
+            // Desativa a iluminação padrão do céu que obstrui o fundo transparente
+            ambientOcclusionOptions = ambientOcclusionOptions.apply {
+                enabled = false
+            }
+        }
+
+        // Limpa o Skybox para não cobrir o fundo
+        viewer.scene.skybox = null
+
+        val lm = viewer.engine.lightManager
+        
+        // Ajusta a luz solar padrão para iluminar a Frente. A direção exata será recalculada a cada frame acompanhando a câmera.
+        val lightInstance = lm.getInstance(viewer.light)
+        if (lightInstance != 0) {
+            lm.setIntensity(lightInstance, 120000.0f)
+        }
+
+        // Cria uma segunda luz direcional focada na parte de Trás do livro, que também acompanhará a câmera dinamicamente.
+        backLightEntity = EntityManager.get().create()
+        LightManager.Builder(LightManager.Type.DIRECTIONAL)
+            .color(1.0f, 1.0f, 1.0f)
+            .intensity(100000.0f)
+            .build(viewer.engine, backLightEntity)
+        viewer.scene.addEntity(backLightEntity)
+
+        isSurfaceAvailable = true
+        loadModel()
+        setupCamera()
+        choreographer.postFrameCallback(frameScheduler)
+
+        // Se havia uma textura pendente aguardando a criação do surface, aplica agora
+        pendingBitmap?.let {
+            setBookTexture(it, pendingOnReady)
+            pendingBitmap = null
+            pendingOnReady = null
+        }
+    }
+
+    override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+        // O ModelViewer do Filament se encarrega do redimensionamento do Viewport
+    }
+
+    override fun surfaceDestroyed(holder: SurfaceHolder) {
+        isSurfaceAvailable = false
+        choreographer.removeFrameCallback(frameScheduler)
+        cleanup()
+    }
+
+    private fun loadModel() {
+        val assetManager = context.assets
+        try {
+            val inputStream = assetManager.open("models/3d_book_cover.glb")
+            val bytes = inputStream.readBytes()
+            val byteBuffer = ByteBuffer.allocateDirect(bytes.size).apply {
+                order(ByteOrder.nativeOrder())
+                put(bytes)
+                flip()
+            }
+            val viewer = modelViewer ?: return
+            viewer.loadModelGlb(byteBuffer)
+            viewer.transformToUnitCube()
+            
+            // Em vez de sobrescrever com uma matriz de escala pura que reseta a translação calculada pelo transformToUnitCube,
+            // nós lemos a matriz atual, multiplicamos seus fatores de escala e definimos novamente.
+            val tm = viewer.engine.transformManager
+            val rootEntity = viewer.asset?.root ?: 0
+            if (rootEntity != 0) {
+                val instance = tm.getInstance(rootEntity)
+                if (instance != 0) {
+                    val currentTransform = FloatArray(16)
+                    tm.getTransform(instance, currentTransform)
+                    
+                    // Rotaciona o livro em 180 graus (Math.PI radianos) no eixo Y para mostrar a frente da capa para a câmera
+                    val cos180 = -1.0f
+                    val sin180 = 0.0f
+                    
+                    // Multiplica a matriz de transformToUnitCube por uma matriz de rotação em Y de 180 graus e escala de 1.4f
+                    // Matriz de rotação Y combinada com escala:
+                    // [  cos(180)*S,   0,   sin(180)*S,   0 ]
+                    // [           0,   S,            0,   0 ]
+                    // [ -sin(180)*S,   0,   cos(180)*S,   0 ]
+                    // [           0,   0,            0,   1 ]
+                    val s = 1.9f
+                    
+                    val r00 = cos180 * s
+                    val r02 = sin180 * s
+                    val r11 = s
+                    val r20 = -sin180 * s
+                    val r22 = cos180 * s
+                    
+                    // Multiplicação de matrizes para preservar a translação (posição centralizada)
+                    val m00 = currentTransform[0] * r00 + currentTransform[8] * r20
+                    val m01 = currentTransform[1] * r00 + currentTransform[9] * r20
+                    val m02 = currentTransform[2] * r00 + currentTransform[10] * r20
+                    val m03 = currentTransform[3] * r00 + currentTransform[11] * r20
+                    
+                    val m10 = currentTransform[4] * r11
+                    val m11 = currentTransform[5] * r11
+                    val m12 = currentTransform[6] * r11
+                    val m13 = currentTransform[7] * r11
+                    
+                    val m20 = currentTransform[0] * r02 + currentTransform[8] * r22
+                    val m21 = currentTransform[1] * r02 + currentTransform[9] * r22
+                    val m22 = currentTransform[2] * r02 + currentTransform[10] * r22
+                    val m23 = currentTransform[3] * r02 + currentTransform[11] * r22
+                    
+                    currentTransform[0] = m00
+                    currentTransform[1] = m01
+                    currentTransform[2] = m02
+                    currentTransform[3] = m03
+                    
+                    currentTransform[4] = m10
+                    currentTransform[5] = m11
+                    currentTransform[6] = m12
+                    currentTransform[7] = m13
+                    
+                    currentTransform[8] = m20
+                    currentTransform[9] = m21
+                    currentTransform[10] = m22
+                    currentTransform[11] = m23
+                    
+                    // Desloca o livro para baixo no viewport (Y negativo na matriz column-major, índice 13)
+                    currentTransform[13] = currentTransform[13] - 0.9f
+                    
+                    tm.setTransform(instance, currentTransform)
+                }
+            }
+            
+            inputStream.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    /**
+     * Extrai de forma rápida e eficiente a cor predominante (média) do Bitmap.
+     */
+    private fun getPredominantColor(bitmap: Bitmap): Int {
+        var redSum = 0L
+        var greenSum = 0L
+        var blueSum = 0L
+        val width = bitmap.width
+        val height = bitmap.height
+        val stepX = (width / 20).coerceAtLeast(1)
+        val stepY = (height / 20).coerceAtLeast(1)
+        var count = 0
+        for (y in 0 until height step stepY) {
+            for (x in 0 until width step stepX) {
+                val color = bitmap.getPixel(x, y)
+                redSum += (color shr 16) and 0xFF
+                greenSum += (color shr 8) and 0xFF
+                blueSum += color and 0xFF
+                count++
+            }
+        }
+        val r = (redSum / count).toInt()
+        val g = (greenSum / count).toInt()
+        val b = (blueSum / count).toInt()
+        return 0xFF000000.toInt() or (r shl 16) or (g shl 8) or b
+    }
+
+    fun setBookTexture(bitmap: Bitmap, onReady: (() -> Unit)? = null) {
+        if (isDestroyed) return
+        if (!isSurfaceAvailable) {
+            pendingBitmap = bitmap
+            pendingOnReady = onReady
+            return
+        }
+
+        val viewer = modelViewer ?: return
+        val engine = viewer.engine
+
+        var finalBitmap = bitmap
+        val assetManager = context.assets
+
+        try {
+            // 1. Carrega a malha base do asset
+            val meshInputStream = assetManager.open("models/malha_book_cover.png")
+            val rawMeshBitmap = android.graphics.BitmapFactory.decodeStream(meshInputStream)
+            meshInputStream.close()
+
+            if (rawMeshBitmap != null) {
+                val meshWidth = rawMeshBitmap.width
+                val meshHeight = rawMeshBitmap.height
+
+                // Cria o bitmap mutável em que vamos pintar
+                val combinedBitmap = Bitmap.createBitmap(meshWidth, meshHeight, Bitmap.Config.ARGB_8888)
+                val canvas = android.graphics.Canvas(combinedBitmap)
+
+                // 2. Determina a cor padrão para preencher a malha
+                val baseColor = getPredominantColor(bitmap)
+
+                // 3. Processa a malha base em lote para trocar o verde limão (0xFF3CFF00 ou similar) pela cor predominante
+                val pixels = IntArray(meshWidth * meshHeight)
+                rawMeshBitmap.getPixels(pixels, 0, meshWidth, 0, 0, meshWidth, meshHeight)
+                rawMeshBitmap.recycle()
+
+                // Substitui a cor verde limão (valores próximos a #3CFF00) pela cor predominante da capa
+                // Tolerância leve para transições de verde limão na borda da malha
+                for (i in pixels.indices) {
+                    val pixel = pixels[i]
+                    val r = (pixel shr 16) and 0xFF
+                    val g = (pixel shr 8) and 0xFF
+                    val b = pixel and 0xFF
+                    
+                    // Condição rápida para detectar o verde limão #3CFF00
+                    if (g > 200 && r < 100 && b < 50) {
+                        pixels[i] = baseColor
+                    }
+                }
+                combinedBitmap.setPixels(pixels, 0, meshWidth, 0, 0, meshWidth, meshHeight)
+
+                // 4. Recorta e pinta cada parte da capa original nas posições especificadas na malha
+                // Larguras e alturas para corte a partir do bitmap original
+                val originalWidth = bitmap.width
+                val originalHeight = bitmap.height
+
+                // Frações da capa
+                val frontWidth = (originalWidth * FRONT_COVER_WIDTH_RATIO).toInt()
+                val spineWidth = (originalWidth * SPINE_WIDTH_RATIO).toInt()
+                val backWidth = (originalWidth * BACK_COVER_WIDTH_RATIO).toInt()
+
+                // Recortes na capa original (esquerda = Frente, centro = Lombada, direita = Trás)
+                val frontSrc = android.graphics.Rect(0, 0, frontWidth, originalHeight)
+                val spineSrc = android.graphics.Rect(frontWidth, 0, frontWidth + spineWidth, originalHeight)
+                val backSrc = android.graphics.Rect(frontWidth + spineWidth, 0, originalWidth, originalHeight)
+
+                // Tras: Left=0, Top=1250, Right=1738, Bottom=4096. Rotacionado 180°
+                val backDst = android.graphics.RectF(0f, 1250f, 1738f, 4096f)
+                canvas.save()
+                canvas.rotate(180f, backDst.centerX(), backDst.centerY())
+                canvas.drawBitmap(bitmap, backSrc, backDst, null)
+                canvas.restore()
+
+                // - Frente: Destino 1758x1250 --- 3616x4096 (ou seja, esquerda=1758, topo=1250, direita=3616, base=4096)
+                // Frente: Left=1758, Top=1250, Right=3616, Bottom=4096. Rotacionado 180°
+                val frontDst = android.graphics.RectF(1758f, 1250f, 3616f, 4096f)
+                canvas.save()
+                canvas.rotate(180f, frontDst.centerX(), frontDst.centerY())
+                canvas.drawBitmap(bitmap, frontSrc, frontDst, null)
+                canvas.restore()
+
+                // - Lombada: Destino 0x275 --- 2880x775 (ou seja, esquerda=0, topo=275, direita=2880, base=775)
+                // Lombada: Left=0, Top=275, Right=2880, Bottom=775.
+                // Rotacionamos a lombada -90 graus (sentido anti-horário)
+                val spineDst = android.graphics.RectF(0f, 275f, 2880f, 775f)
+                canvas.save()
+                canvas.rotate(-90f, spineDst.centerX(), spineDst.centerY())
+                // Ajusta proporção no desenho rotacionado
+                val spineRotatedDst = android.graphics.RectF(
+                    spineDst.centerX() - (spineDst.height() / 2f),
+                    spineDst.centerY() - (spineDst.width() / 2f),
+                    spineDst.centerX() + (spineDst.height() / 2f),
+                    spineDst.centerY() + (spineDst.width() / 2f)
+                )
+                canvas.drawBitmap(bitmap, spineSrc, spineRotatedDst, null)
+                canvas.restore()
+
+                finalBitmap = combinedBitmap
+
+                // Salva o bitmap gerado no cache do aplicativo para visualização/depuração
+                /*try {
+                    val cacheFile = java.io.File(context.cacheDir, "debug_3d_book_cover.png")
+                    java.io.FileOutputStream(cacheFile).use { out ->
+                        combinedBitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                        out.flush()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }*/
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        // Cria a textura no Filament
+        val texture = Texture.Builder()
+            .width(finalBitmap.width)
+            .height(finalBitmap.height)
+            .sampler(Texture.Sampler.SAMPLER_2D)
+            .format(Texture.InternalFormat.SRGB8_A8)
+            .build(engine)
+
+        // Carrega o bitmap na textura
+        val buffer = ByteBuffer.allocateDirect(finalBitmap.byteCount).apply {
+            order(ByteOrder.nativeOrder())
+        }
+        finalBitmap.copyPixelsToBuffer(buffer)
+        buffer.flip()
+
+        texture.setImage(
+            engine,
+            0,
+            Texture.PixelBufferDescriptor(
+                buffer,
+                Texture.Format.RGBA,
+                Texture.Type.UBYTE
+            )
+        )
+
+        // Limpa o bitmap temporário criado se não for o bitmap original
+        if (finalBitmap != bitmap) {
+            finalBitmap.recycle()
+        }
+
+        // Localiza e atribui a textura no material do modelo GLB
+        val asset = viewer.asset ?: return
+
+        // Configura o Sampler de Textura
+        val textureSampler = TextureSampler().apply {
+            minFilter = TextureSampler.MinFilter.LINEAR_MIPMAP_LINEAR
+            magFilter = TextureSampler.MagFilter.LINEAR
+        }
+
+        // Aplica a textura aos materiais correspondentes do livro
+        for (entity in asset.entities) {
+            val renderableManager = engine.renderableManager
+            val instance = renderableManager.getInstance(entity)
+            if (instance != 0) {
+                val materialInstance = renderableManager.getMaterialInstanceAt(instance, 0)
+                // Substitui o mapa albedo/baseColor do livro pela nossa textura
+                materialInstance.setParameter("baseColorMap", texture, textureSampler)
+            }
+        }
+
+        // Aguarda 2 frames para garantir que o Filament renderizou a nova textura no SurfaceView antes de notificar
+        choreographer.postFrameCallback {
+            if (!isDestroyed) {
+                choreographer.postFrameCallback {
+                    if (!isDestroyed) {
+                        onReady?.invoke()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setupCamera() {
+        val viewer = modelViewer ?: return
+        // Posiciona a câmera do Filament levemente angulada
+        val eyeX = 0.0
+        val eyeY = 0.0
+        val eyeZ = 3.5 // Retorna a câmera para uma distância segura para evitar cortes do clipping plane com o livro rotacionado
+        val targetX = 0.0
+        val targetY = 0.0
+        val targetZ = 0.0
+        val upX = 0.0
+        val upY = 1.0
+        val upZ = 0.0
+        viewer.camera.lookAt(
+            eyeX, eyeY, eyeZ,
+            targetX, targetY, targetZ,
+            upX, upY, upZ
+        )
+    }
+
+    /**
+     * Trata os gestos de drag do touch no fragment para rotacionar o livro no espaço 3D.
+     * Consome o evento e solicita ao pai (NestedScrollView) para desabilitar a interceptação de scroll.
+     */
+    fun onTouchEvent(event: MotionEvent): Boolean {
+        val viewer = modelViewer ?: return false
+        
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                surfaceView.parent?.requestDisallowInterceptTouchEvent(true)
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                surfaceView.parent?.requestDisallowInterceptTouchEvent(false)
+            }
+        }
+        
+        viewer.onTouchEvent(event)
+        return true
+    }
+
+    private fun cleanup() {
+        isDestroyed = true
+        try {
+            // Destrói o ModelViewer de forma segura, capturando qualquer exceção no descarregamento assíncrono nativo
+            modelViewer?.destroy()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            modelViewer = null
+        }
+    }
+
+    private inner class FrameCallback : Choreographer.FrameCallback {
+        override fun doFrame(frameTimeNanos: Long) {
+            choreographer.postFrameCallback(this)
+            
+            val viewer = modelViewer
+            if (viewer != null) {
+                val camera = viewer.camera
+                val lm = viewer.engine.lightManager
+                
+                // Obtém a direção para onde a câmera está olhando (vetor forward)
+                camera.getForwardVector(forwardVector)
+                camera.getUpVector(upVector)
+                
+                // Calcula uma direção ligeiramente deslocada para baixo e direita da câmera para evitar luz muito reta
+                // right = cross(forward, up)
+                val rightX = forwardVector[1] * upVector[2] - forwardVector[2] * upVector[1]
+                val rightY = forwardVector[2] * upVector[0] - forwardVector[0] * upVector[2]
+                val rightZ = forwardVector[0] * upVector[1] - forwardVector[1] * upVector[0]
+                
+                // Luz frontal: olhando junto com a câmera, ligeiramente da direita e cima
+                val fX = forwardVector[0] + 0.3f * rightX - 0.3f * upVector[0]
+                val fY = forwardVector[1] + 0.3f * rightY - 0.3f * upVector[1]
+                val fZ = forwardVector[2] + 0.3f * rightZ - 0.3f * upVector[2]
+                
+                val instFront = lm.getInstance(viewer.light)
+                if (instFront != 0) {
+                    lm.setDirection(instFront, fX, fY, fZ)
+                }
+                
+                // Luz traseira: vindo da direção oposta à câmera (iluminando as costas)
+                val bX = -forwardVector[0] - 0.3f * rightX + 0.3f * upVector[0]
+                val bY = -forwardVector[1] - 0.3f * rightY + 0.3f * upVector[1]
+                val bZ = -forwardVector[2] - 0.3f * rightZ + 0.3f * upVector[2]
+                
+                val instBack = lm.getInstance(backLightEntity)
+                if (instBack != 0) {
+                    lm.setDirection(instBack, bX, bY, bZ)
+                }
+                
+                viewer.render(frameTimeNanos)
+            }
+        }
+    }
+}

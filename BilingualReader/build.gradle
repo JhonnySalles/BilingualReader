@@ -233,6 +233,11 @@ dependencies {
     // SENTRY
     implementation 'io.sentry:sentry-android:7.14.0'
 
+    // ** Filament 3D **
+    implementation 'com.google.android.filament:filament-android:1.72.0'
+    implementation 'com.google.android.filament:gltfio-android:1.72.0'
+    implementation 'com.google.android.filament:filament-utils-android:1.72.0'
+
     // ** BOOK **
     implementation project(':ebook')
 

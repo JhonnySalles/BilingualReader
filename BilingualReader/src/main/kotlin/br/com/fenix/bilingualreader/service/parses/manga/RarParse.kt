@@ -59,6 +59,7 @@ class RarParse : Parse {
     private var mSolidFileExtracted = false
     private var mSubtitles = ArrayList<FileHeader>()
     private var mComicInfo: FileHeader? = null
+    private var mFullCover: FileHeader? = null
 
     override fun parse(file: File?) {
         mFile = file
@@ -68,9 +69,11 @@ class RarParse : Parse {
         while (header != null) {
             if (!header.isDirectory) {
                 val name = getName(header)
-                if (FileUtil.isImage(name))
+                if (FileUtil.isImage(name)) {
                     mHeaders.add(header)
-                else if (FileUtil.isJson(name))
+                    if (name.contains("volume", true) && name.contains("tudo", true))
+                        mFullCover = header
+                } else if (FileUtil.isJson(name))
                     mSubtitles.add(header)
                 else if (FileUtil.isXml(name) && name.contains("comicinfo", true))
                     mComicInfo = header
@@ -184,6 +187,14 @@ class RarParse : Parse {
             }
         }
         return getPageStream(mHeaders[num])
+    }
+
+    override fun hasFullCover(): Boolean {
+        return mFullCover != null
+    }
+
+    override fun getFullCover(): InputStream? {
+        return if (hasFullCover()) getPageStream(mFullCover!!) else null
     }
 
     private fun recreateArchive() {

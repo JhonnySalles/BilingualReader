@@ -477,6 +477,14 @@ class EpubParse : Parse {
         return mZipFile!!.getInputStream(mPages[num])
     }
 
+    override fun hasFullCover(): Boolean {
+        return false
+    }
+
+    override fun getFullCover(): InputStream? {
+        return null
+    }
+
     override fun destroy(isClearCache: Boolean) {
         mZipFile?.close()
     }

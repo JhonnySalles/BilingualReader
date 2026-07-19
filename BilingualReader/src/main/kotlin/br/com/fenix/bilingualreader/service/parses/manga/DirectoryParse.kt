@@ -20,6 +20,7 @@ class DirectoryParse : Parse {
     private val mFiles = ArrayList<File>()
     private val mSubtitles = ArrayList<File>()
     private var mComicInfo: File? = null
+    private var mFullCover: File? = null
 
     override fun parse(file: File?) {
         if (file == null)
@@ -33,9 +34,11 @@ class DirectoryParse : Parse {
                 if (f.isDirectory)
                     throw IOException("Probably not a comic directory")
 
-                if (FileUtil.isImage(f.absolutePath))
+                if (FileUtil.isImage(f.absolutePath)) {
                     mFiles.add(f)
-                else if (FileUtil.isJson(f.absolutePath))
+                    if (f.name.contains("volume", true) && f.name.contains("tudo", true))
+                        mFullCover = f
+                } else if (FileUtil.isJson(f.absolutePath))
                     mSubtitles.add(f)
                 else if (FileUtil.isXml(f.absolutePath) && f.name.contains("comicinfo", true))
                     mComicInfo = f
@@ -129,6 +132,14 @@ class DirectoryParse : Parse {
 
     override fun getPage(num: Int): InputStream {
         return FileInputStream(mFiles[num])
+    }
+
+    override fun hasFullCover(): Boolean {
+        return mFullCover != null
+    }
+
+    override fun getFullCover(): InputStream? {
+        return if (hasFullCover()) FileInputStream(mFullCover!!) else null
     }
 
     override fun destroy(isClearCache: Boolean) {

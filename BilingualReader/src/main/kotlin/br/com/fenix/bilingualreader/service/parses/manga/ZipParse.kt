@@ -22,6 +22,7 @@ class ZipParse : Parse {
     private var mEntries = ArrayList<ZipEntry>()
     private var mSubtitles = ArrayList<ZipEntry>()
     private var mComicInfo: ZipEntry? = null
+    private var mFullCover: ZipEntry? = null
 
     override fun parse(file: File?) {
         mZipFile = ZipFile(file?.absolutePath, StandardCharsets.UTF_8)
@@ -34,9 +35,11 @@ class ZipParse : Parse {
             if (ze.isDirectory)
                 continue
 
-            if (FileUtil.isImage(ze.name))
+            if (FileUtil.isImage(ze.name)) {
                 mEntries.add(ze)
-            else if (FileUtil.isJson(ze.name))
+                if (ze.name.contains("volume", true) && ze.name.contains("tudo", true))
+                    mFullCover = ze
+            } else if (FileUtil.isJson(ze.name))
                 mSubtitles.add(ze)
             else if (FileUtil.isXml(ze.name) && ze.name.contains("comicinfo", true))
                 mComicInfo = ze
@@ -131,6 +134,14 @@ class ZipParse : Parse {
 
     override fun getPage(num: Int): InputStream {
         return mZipFile!!.getInputStream(mEntries[num])
+    }
+
+    override fun hasFullCover(): Boolean {
+        return mFullCover != null
+    }
+
+    override fun getFullCover(): InputStream? {
+        return if (hasFullCover()) mZipFile!!.getInputStream(mFullCover!!) else null
     }
 
     override fun destroy(isClearCache: Boolean) {

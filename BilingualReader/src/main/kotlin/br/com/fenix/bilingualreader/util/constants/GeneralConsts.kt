@@ -328,14 +328,13 @@ class GeneralConsts private constructor() {
         object FRAGMENT {
             const val ID = "FRAGMENT_ID"
         }
-
         object THEME {
             const val THEME_USED = "THEME_USED"
             const val THEME_MODE = "THEME_MODE"
             const val THEME_CHANGE = "THEME_CHANGE"
             const val THEME_GLASSMORPHISM = "THEME_GLASSMORPHISM"
+            const val THEME_3D_COVER_IN_DETAIL = "THEME_3D_COVER_IN_DETAIL"
         }
-
         object SHARE_MARKS {
             const val LAST_SYNC_MANGA = "SHARE_MARKS_LAST_SYNC_MANGA"
             const val LAST_SYNC_BOOK = "SHARE_MARKS_LAST_SYNC_BOOK"

@@ -184,6 +184,7 @@
     <string name="config_update_app_error_update">Erro na atualização do aplicativo, necessário executar manualmente o apk na pasta de download.</string>
 
     <string name="config_theme_glassmorphism">Usar desfoque translúcido?</string>
+    <string name="config_system_use_3d_cover">Utilizar capa 3D no detalhe?</string>
     <string name="config_theme_mode">Modo tema</string>
     <string-array name="theme_mode">
         <item>Sistema</item>

@@ -98,6 +98,7 @@ class ConfigFragment : Fragment() {
     private lateinit var mConfigSystemThemeModeAutoComplete: MaterialAutoCompleteTextView
     private lateinit var mConfigSystemThemes: TwoWayView
     private lateinit var mConfigSystemThemeGlassmorphism: SwitchMaterial
+    private lateinit var mConfigSystemUse3dCover: SwitchMaterial
 
     private lateinit var mConfigSystemFormatDate: TextInputLayout
     private lateinit var mConfigSystemFormatDateAutoComplete: MaterialAutoCompleteTextView
@@ -294,6 +295,14 @@ class ConfigFragment : Fragment() {
                 putBoolean(GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM, isChecked)
             }
             (requireActivity() as? MainActivity)?.setupTitleBackgrounds()
+        }
+
+        mConfigSystemUse3dCover = view.findViewById(R.id.config_system_use_3d_cover)
+        mConfigSystemUse3dCover.setOnCheckedChangeListener { _, isChecked ->
+            val sharedPreferences = GeneralConsts.getSharedPreferences(requireContext())
+            sharedPreferences.edit(commit = true) {
+                putBoolean(GeneralConsts.KEYS.THEME.THEME_3D_COVER_IN_DETAIL, isChecked)
+            }
         }
 
         mMangaLibraryPathAutoComplete.setOnClickListener {
@@ -969,6 +978,11 @@ class ConfigFragment : Fragment() {
                 mConfigSystemThemeGlassmorphism.isChecked
             )
 
+            this.putBoolean(
+                GeneralConsts.KEYS.THEME.THEME_3D_COVER_IN_DETAIL,
+                mConfigSystemUse3dCover.isChecked
+            )
+
             this.putString(
                 GeneralConsts.KEYS.SUBTITLE.LANGUAGE,
                 mMangaDefaultSubtitleLanguageSelect.toString()
@@ -1132,6 +1146,11 @@ class ConfigFragment : Fragment() {
 
         mConfigSystemThemeGlassmorphism.isChecked = sharedPreferences.getBoolean(
             GeneralConsts.KEYS.THEME.THEME_GLASSMORPHISM,
+            false
+        )
+
+        mConfigSystemUse3dCover.isChecked = sharedPreferences.getBoolean(
+            GeneralConsts.KEYS.THEME.THEME_3D_COVER_IN_DETAIL,
             false
         )
 

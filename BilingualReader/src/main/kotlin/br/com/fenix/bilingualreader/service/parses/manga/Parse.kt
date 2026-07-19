@@ -17,4 +17,6 @@ interface Parse {
     fun getChapters(): IntArray
     fun isComicInfo(): Boolean
     fun getComicInfo() : ComicInfo?
+    fun hasFullCover(): Boolean
+    fun getFullCover(): InputStream?
 }

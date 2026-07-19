@@ -39,11 +39,13 @@ import br.com.fenix.bilingualreader.util.helpers.ListUtil
 import br.com.fenix.bilingualreader.util.helpers.ThemeUtil
 import br.com.fenix.bilingualreader.view.adapter.detail.TagsCardAdapter
 import br.com.fenix.bilingualreader.view.adapter.detail.manga.InformationRelatedCardAdapter
+import br.com.fenix.bilingualreader.view.components.BookCover3DView
 import br.com.fenix.bilingualreader.view.ui.detail.DetailActivity
 import br.com.fenix.bilingualreader.view.ui.popup.PopupBookMark
 import br.com.fenix.bilingualreader.view.ui.reader.manga.MangaReaderActivity
 import br.com.fenix.bilingualreader.view.ui.vocabulary.VocabularyActivity
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.lucasr.twowayview.TwoWayView
 import org.slf4j.LoggerFactory
@@ -57,6 +59,7 @@ class MangaDetailFragment : Fragment() {
 
     private lateinit var mRootScroll: NestedScrollView
     private lateinit var mBackgroundImage: ImageView
+    private lateinit var mCoverView: MaterialCardView
     private lateinit var mImage: ImageView
     private lateinit var mTitle: TextView
     private lateinit var mFolder: TextView
@@ -77,6 +80,8 @@ class MangaDetailFragment : Fragment() {
     private lateinit var mSubtitlesContent: LinearLayout
     private lateinit var mImportVocabulary: MaterialButton
     private lateinit var mSubtitlesList: ListView
+    private lateinit var m3DCoverSurface: android.view.SurfaceView
+    private var mBookCover3DView: BookCover3DView? = null
 
     private lateinit var mWebInformationContent: LinearLayout
     private lateinit var mWebInformationImage: ImageView
@@ -126,6 +131,7 @@ class MangaDetailFragment : Fragment() {
 
         mRootScroll = root.findViewById(R.id.manga_detail_scroll)
         mBackgroundImage = root.findViewById(R.id.manga_detail_background_image)
+        mCoverView = root.findViewById(R.id.manga_detail_card)
         mImage = root.findViewById(R.id.manga_detail_manga_image)
         mTitle = root.findViewById(R.id.manga_detail_title)
         mFolder = root.findViewById(R.id.manga_detail_folder)
@@ -146,7 +152,8 @@ class MangaDetailFragment : Fragment() {
         mSubtitlesContent = root.findViewById(R.id.manga_detail_subtitle_content)
         mImportVocabulary = root.findViewById(R.id.manga_detail_subtitles_import_vocabulary)
         mSubtitlesList = root.findViewById(R.id.manga_detail_subtitles_list)
-
+        m3DCoverSurface = root.findViewById(R.id.manga_detail_3d_cover)
+ 
         mLocalInformationContent = root.findViewById(R.id.manga_detail_local_information)
         mLocalInformationSeries = root.findViewById(R.id.manga_detail_local_information_series)
         mLocalInformationAuthors = root.findViewById(R.id.manga_detail_local_information_authors)
@@ -225,6 +232,19 @@ class MangaDetailFragment : Fragment() {
             }
         }
 
+        m3DCoverSurface.setOnTouchListener { _, event ->
+            mBookCover3DView?.onTouchEvent(event) ?: false
+        }
+
+        m3DCoverSurface.setOnLongClickListener {
+            val reload = openImage(mViewModel.cover.value)
+            MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mViewModel.manga.value!!, false) {
+                if (it != null)
+                    reload(it)
+            }
+            true
+        }
+
         mTitle.setOnLongClickListener {
             mViewModel.manga.value?.let { mg -> FileUtil(requireContext()).copyName(mg) }
             true
@@ -301,6 +321,42 @@ class MangaDetailFragment : Fragment() {
                 mImage.setImageBitmap(it)
                 ColorUtil.isDarkColor(it) { l ->
                     ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, l, isDark)
+                }
+            }
+        }
+
+        mViewModel.hasFullCover.observe(viewLifecycleOwner) { hasFull ->
+            val use3d = GeneralConsts.getSharedPreferences(requireContext()).getBoolean(GeneralConsts.KEYS.THEME.THEME_3D_COVER_IN_DETAIL, false)
+            if (hasFull && use3d) {
+                mCoverView.animate().cancel()
+                mCoverView.alpha = 1f
+                mCoverView.visibility = View.VISIBLE
+                m3DCoverSurface.visibility = View.VISIBLE
+                if (mBookCover3DView == null) {
+                    mBookCover3DView = BookCover3DView(requireContext(), m3DCoverSurface)
+                }
+            } else {
+                mCoverView.animate().cancel()
+                m3DCoverSurface.visibility = View.GONE
+                mCoverView.visibility = View.VISIBLE
+                mCoverView.alpha = 1f
+                mBookCover3DView = null
+            }
+        }
+
+        mViewModel.fullCoverBitmap.observe(viewLifecycleOwner) { bitmap ->
+            val use3d = GeneralConsts.getSharedPreferences(requireContext()).getBoolean(GeneralConsts.KEYS.THEME.THEME_3D_COVER_IN_DETAIL, false)
+            if (bitmap != null && use3d) {
+                mBookCover3DView?.setBookTexture(bitmap) {
+                    if (isAdded && view != null) {
+                        mCoverView.animate()
+                            .alpha(0f)
+                            .setDuration(300)
+                            .withEndAction {
+                                mCoverView.visibility = View.GONE
+                            }
+                            .start()
+                    }
                 }
             }
         }
@@ -660,5 +716,13 @@ class MangaDetailFragment : Fragment() {
 
             }
         }
+    }
+
+    override fun onDestroyView() {
+        try {
+            mCoverView.animate().cancel()
+        } catch (_: Exception) {}
+        super.onDestroyView()
+        mBookCover3DView = null
     }
 }

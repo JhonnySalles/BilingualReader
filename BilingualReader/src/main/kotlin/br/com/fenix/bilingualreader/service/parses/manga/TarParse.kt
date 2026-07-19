@@ -23,6 +23,7 @@ class TarParse : Parse {
     private var mEntries = ArrayList<TarEntry>()
     private var mSubtitles = ArrayList<TarEntry>()
     private var mComicInfo: TarEntry? = null
+    private var mFullCover: TarEntry? = null
 
     private class TarEntry(val entry: TarArchiveEntry, val bytes: ByteArray)
 
@@ -37,9 +38,12 @@ class TarParse : Parse {
                         continue
                     }
 
-                    if (FileUtil.isImage(entry.name))
-                        mEntries.add(TarEntry(entry, Util.toByteArray(tar)!!))
-                    else if (FileUtil.isJson(entry.name))
+                    if (FileUtil.isImage(entry.name)) {
+                        val tarEntry = TarEntry(entry, Util.toByteArray(tar)!!)
+                        mEntries.add(tarEntry)
+                        if (entry.name.contains("volume", true) && entry.name.contains("tudo", true))
+                            mFullCover = tarEntry
+                    } else if (FileUtil.isJson(entry.name))
                         mSubtitles.add(TarEntry(entry, Util.toByteArray(tar)!!))
                     else if (FileUtil.isXml(entry.name) && entry.name.contains("comicinfo", true))
                         mComicInfo = TarEntry(entry, Util.toByteArray(tar)!!)
@@ -139,6 +143,14 @@ class TarParse : Parse {
 
     override fun getPage(num: Int): InputStream {
         return ByteArrayInputStream(mEntries[num].bytes)
+    }
+
+    override fun hasFullCover(): Boolean {
+        return mFullCover != null
+    }
+
+    override fun getFullCover(): InputStream? {
+        return if (hasFullCover()) ByteArrayInputStream(mFullCover!!.bytes) else null
     }
 
     override fun destroy(isClearCache: Boolean) {

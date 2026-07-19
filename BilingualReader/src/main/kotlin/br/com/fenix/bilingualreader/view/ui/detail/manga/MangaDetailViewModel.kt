@@ -69,6 +69,12 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
     private var mWebInformationRelations = MutableLiveData<MutableList<Information>>(mutableListOf())
     val webInformationRelations: LiveData<MutableList<Information>> = mWebInformationRelations
 
+    private var mHasFullCover = MutableLiveData<Boolean>(false)
+    val hasFullCover: LiveData<Boolean> = mHasFullCover
+
+    private var mFullCoverBitmap = MutableLiveData<Bitmap?>(null)
+    val fullCoverBitmap: LiveData<Bitmap?> = mFullCoverBitmap
+
     private val mTracker = MyAnimeListTracker(app.applicationContext)
 
     fun setManga(manga: Manga) {
@@ -78,6 +84,8 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
         mWebInformation.value = null
         mLocalInformation.value = null
         mWebInformationRelations.value = mutableListOf()
+        mHasFullCover.value = false
+        mFullCoverBitmap.value = null
 
         MangaImageCoverController.instance.setImageCoverAsync(app.applicationContext, manga, true) { mCover.value = it }
 
@@ -116,11 +124,20 @@ class MangaDetailViewModel(var app: Application) : AndroidViewModel(app) {
                 val paths = parse.getPagePaths()
                 val listChapters = paths.keys.toMutableList()
                 val listSubtitles = parse.getSubtitlesNames().keys.toMutableList()
+                val hasFull = parse.hasFullCover()
+                var fullCoverBmp: Bitmap? = null
+                if (hasFull) {
+                    parse.getFullCover()?.use { stream ->
+                        fullCoverBmp = android.graphics.BitmapFactory.decodeStream(stream)
+                    }
+                }
 
                 withContext(Dispatchers.Main) {
                     mPaths = paths
                     mListChapters.value = listChapters
                     mListSubtitles.value = listSubtitles
+                    mHasFullCover.value = hasFull
+                    mFullCoverBitmap.value = fullCoverBmp
                 }
 
                 var image: Bitmap? = null
