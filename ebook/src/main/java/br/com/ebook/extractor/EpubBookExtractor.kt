@@ -7,7 +7,7 @@ import br.com.ebook.core.DateParseUtils
 import br.com.ebook.core.EbookSettings
 import br.com.ebook.foobnix.android.utils.TxtUtils
 import br.com.ebook.foobnix.ext.CacheZipUtils.ATTACHMENTS_CACHE_DIR
-import br.com.ebook.foobnix.pdf.info.ExtUtils
+import br.com.ebook.foobnix.ext.XmlParser
 import br.com.ebook.foobnix.sys.TempHolder
 import br.com.ebook.util.IOUtils.copyTo
 import br.com.ebook.util.IOUtils.getEntryBytes
@@ -15,7 +15,6 @@ import org.jsoup.Jsoup
 import org.jsoup.parser.Parser
 import org.slf4j.LoggerFactory
 import org.xmlpull.v1.XmlPullParser
-import org.xmlpull.v1.XmlPullParserFactory
 import java.io.BufferedOutputStream
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -32,12 +31,6 @@ object EpubBookExtractor : BookExtractor {
     private val LOGGER = LoggerFactory.getLogger(EpubBookExtractor::class.java)
 
     override val supportedFormats: Set<String> = setOf("epub", "kepub")
-
-    private fun buildPullParser(): XmlPullParser {
-        val factory = XmlPullParserFactory.newInstance()
-        factory.isNamespaceAware = true
-        return factory.newPullParser()
-    }
 
     fun processHyphens(inputPath: String, outputPath: String) {
         try {
@@ -81,18 +74,19 @@ object EpubBookExtractor : BookExtractor {
                 val entry = entries.nextElement()
                 if (entry.name.lowercase(Locale.getDefault()).endsWith(".opf")) {
                     zipFile.getInputStream(entry).use { inputStream ->
-                        val xpp = buildPullParser()
+                        val xpp = XmlParser.buildPullParser()
                         xpp.setInput(inputStream, "utf-8")
                         var eventType = xpp.eventType
                         while (eventType != XmlPullParser.END_DOCUMENT) {
                             if (eventType == XmlPullParser.START_TAG) {
                                 val tagName = xpp.name
-                                if (tagName == "dc:description" || tagName == "dcns:description" || tagName == "description") {
+                                val cleanTagName = if (tagName.contains(":")) tagName.substring(tagName.indexOf(":") + 1) else tagName
+                                if (cleanTagName == "description") {
                                     info = xpp.nextText()
                                     break
                                 }
                             }
-                            if (eventType == XmlPullParser.END_TAG && xpp.name == "metadata") {
+                            if (eventType == XmlPullParser.END_TAG && xpp.name.endsWith("metadata")) {
                                 break
                             }
                             eventType = xpp.next()
@@ -122,33 +116,34 @@ object EpubBookExtractor : BookExtractor {
                 val entry = entries.nextElement()
                 if (entry.name.lowercase(Locale.getDefault()).endsWith(".opf")) {
                     zipFile.getInputStream(entry).use { inputStream ->
-                        val xpp = buildPullParser()
+                        val xpp = XmlParser.buildPullParser()
                         xpp.setInput(inputStream, "utf-8")
                         var eventType = xpp.eventType
                         while (eventType != XmlPullParser.END_DOCUMENT) {
                             if (eventType == XmlPullParser.START_TAG) {
                                 val tagName = xpp.name
-                                when (tagName) {
-                                    "dc:title", "dcns:title", "title" -> title = xpp.nextText() ?: ""
-                                    "dc:creator", "dcns:creator", "creator" -> {
+                                val cleanTagName = if (tagName.contains(":")) tagName.substring(tagName.indexOf(":") + 1) else tagName
+                                when (cleanTagName) {
+                                    "title" -> title = xpp.nextText() ?: ""
+                                    "creator" -> {
                                         val creatorVal = xpp.nextText() ?: ""
                                         author = if (author.isEmpty()) creatorVal else "$author, $creatorVal"
                                     }
-                                    "dc:subject", "dcns:subject", "subject" -> {
+                                    "subject" -> {
                                         val subVal = xpp.nextText() ?: ""
                                         subject = if (subject.isEmpty()) subVal else "$subject, $subVal"
                                     }
-                                    "dc:language", "dcns:language", "language" -> {
+                                    "language" -> {
                                         if (lang.isEmpty()) lang = xpp.nextText() ?: ""
                                     }
-                                    "dc:identifier", "dcns:identifier", "identifier" -> {
+                                    "identifier" -> {
                                         val content = xpp.nextText() ?: ""
                                         if (content.lowercase(Locale.getDefault()).contains("isbn")) {
                                             isbn = content.replace(Regex("\\D"), "")
                                         }
                                     }
-                                    "dc:publisher", "dcns:publisher", "publisher" -> publisher = xpp.nextText() ?: ""
-                                    "dc:date", "dcns:date", "date" -> {
+                                    "publisher" -> publisher = xpp.nextText() ?: ""
+                                    "date" -> {
                                         val dateStr = xpp.nextText()
                                         releaseDate = DateParseUtils.parseFlexibleDate(dateStr)
                                     }
@@ -168,7 +163,7 @@ object EpubBookExtractor : BookExtractor {
                                     }
                                 }
                             }
-                            if (eventType == XmlPullParser.END_TAG && xpp.name == "metadata") {
+                            if (eventType == XmlPullParser.END_TAG && xpp.name.endsWith("metadata")) {
                                 break
                             }
                             eventType = xpp.next()
@@ -214,17 +209,18 @@ object EpubBookExtractor : BookExtractor {
                 val entry = entries.nextElement()
                 if (entry.name.lowercase(Locale.getDefault()).endsWith(".opf")) {
                     zipFile.getInputStream(entry).use { inputStream ->
-                        val xpp = buildPullParser()
+                        val xpp = XmlParser.buildPullParser()
                         xpp.setInput(inputStream, "utf-8")
                         var eventType = xpp.eventType
                         while (eventType != XmlPullParser.END_DOCUMENT) {
                             if (eventType == XmlPullParser.START_TAG) {
                                 val tagName = xpp.name
-                                if ((tagName == "meta" || tagName.endsWith(":meta")) && xpp.getAttributeValue(null, "name") == "cover") {
+                                val cleanTagName = if (tagName.contains(":")) tagName.substring(tagName.indexOf(":") + 1) else tagName
+                                if (cleanTagName == "meta" && xpp.getAttributeValue(null, "name") == "cover") {
                                     coverResource = xpp.getAttributeValue(null, "content")
                                 }
 
-                                if (coverResource != null && (tagName == "item" || tagName.endsWith(":item")) &&
+                                if (coverResource != null && cleanTagName == "item" &&
                                     (coverResource == xpp.getAttributeValue(null, "id") || coverResource == xpp.getAttributeValue(null, "properties"))) {
                                     coverName = xpp.getAttributeValue(null, "href")
                                     if (coverName?.endsWith(".svg") == true) {
@@ -233,7 +229,7 @@ object EpubBookExtractor : BookExtractor {
                                     break
                                 }
 
-                                if (coverResource == null && tagName == "item" && xpp.getAttributeValue(null, "properties") != null &&
+                                if (coverResource == null && cleanTagName == "item" && xpp.getAttributeValue(null, "properties") != null &&
                                     xpp.getAttributeValue(null, "properties").lowercase(Locale.getDefault()).contains("cover")) {
                                     coverName = xpp.getAttributeValue(null, "href")
                                     if (coverName?.endsWith(".svg") == true) {
@@ -256,9 +252,20 @@ object EpubBookExtractor : BookExtractor {
                 val innerEntries = zipFile.entries()
                 while (innerEntries.hasMoreElements()) {
                     val entry = innerEntries.nextElement()
-                    if (entry.name.contains(cleanSearchName)) {
+                    if (entry.name.contains(searchName)) {
                         coverBytes = zipFile.getEntryBytes(entry)
                         break
+                    }
+                }
+
+                if (coverBytes == null) {
+                    val innerEntries2 = zipFile.entries()
+                    while (innerEntries2.hasMoreElements()) {
+                        val entry = innerEntries2.nextElement()
+                        if (entry.name.contains(cleanSearchName)) {
+                            coverBytes = zipFile.getEntryBytes(entry)
+                            break
+                        }
                     }
                 }
             }
