@@ -22,7 +22,8 @@ import java.nio.ByteOrder
  */
 class BookCover3DView(
     private val context: Context,
-    private val surfaceView: SurfaceView
+    private val surfaceView: SurfaceView,
+    private val isPopup: Boolean = false
 ) : SurfaceHolder.Callback {
 
     companion object {
@@ -51,6 +52,7 @@ class BookCover3DView(
     private val frameScheduler = FrameCallback()
     private var isSurfaceAvailable = false
     private var pendingBitmap: Bitmap? = null
+    private var pendingIsFullCover = false
     private var pendingOnReady: (() -> Unit)? = null
     private var isDestroyed = false
     
@@ -118,7 +120,7 @@ class BookCover3DView(
 
         // Se havia uma textura pendente aguardando a criação do surface, aplica agora
         pendingBitmap?.let {
-            setBookTexture(it, pendingOnReady)
+            setBookTexture(it, pendingIsFullCover, pendingOnReady)
             pendingBitmap = null
             pendingOnReady = null
         }
@@ -162,13 +164,13 @@ class BookCover3DView(
                     val cos180 = -1.0f
                     val sin180 = 0.0f
                     
-                    // Multiplica a matriz de transformToUnitCube por uma matriz de rotação em Y de 180 graus e escala de 1.4f
+                    // Multiplica a matriz de transformToUnitCube por uma matriz de rotação em Y de 180 graus e escala
                     // Matriz de rotação Y combinada com escala:
                     // [  cos(180)*S,   0,   sin(180)*S,   0 ]
                     // [           0,   S,            0,   0 ]
                     // [ -sin(180)*S,   0,   cos(180)*S,   0 ]
                     // [           0,   0,            0,   1 ]
-                    val s = 1.9f
+                    val s = if (isPopup) 3.5f else 1.9f
                     
                     val r00 = cos180 * s
                     val r02 = sin180 * s
@@ -208,7 +210,9 @@ class BookCover3DView(
                     currentTransform[11] = m23
                     
                     // Desloca o livro para baixo no viewport (Y negativo na matriz column-major, índice 13)
-                    currentTransform[13] = currentTransform[13] - 0.9f
+                    if (!isPopup) {
+                        currentTransform[13] = currentTransform[13] - 0.9f
+                    }
                     
                     tm.setTransform(instance, currentTransform)
                 }
@@ -247,10 +251,11 @@ class BookCover3DView(
         return 0xFF000000.toInt() or (r shl 16) or (g shl 8) or b
     }
 
-    fun setBookTexture(bitmap: Bitmap, onReady: (() -> Unit)? = null) {
+    fun setBookTexture(bitmap: Bitmap, isFullCover: Boolean = false, onReady: (() -> Unit)? = null) {
         if (isDestroyed) return
         if (!isSurfaceAvailable) {
             pendingBitmap = bitmap
+            pendingIsFullCover = isFullCover
             pendingOnReady = onReady
             return
         }
@@ -303,46 +308,55 @@ class BookCover3DView(
                 val originalWidth = bitmap.width
                 val originalHeight = bitmap.height
 
-                // Frações da capa
-                val frontWidth = (originalWidth * FRONT_COVER_WIDTH_RATIO).toInt()
-                val spineWidth = (originalWidth * SPINE_WIDTH_RATIO).toInt()
-                val backWidth = (originalWidth * BACK_COVER_WIDTH_RATIO).toInt()
+                if (isFullCover) {
+                    // Frações da capa
+                    val frontWidth = (originalWidth * FRONT_COVER_WIDTH_RATIO).toInt()
+                    val spineWidth = (originalWidth * SPINE_WIDTH_RATIO).toInt()
+                    val backWidth = (originalWidth * BACK_COVER_WIDTH_RATIO).toInt()
 
-                // Recortes na capa original (esquerda = Frente, centro = Lombada, direita = Trás)
-                val frontSrc = android.graphics.Rect(0, 0, frontWidth, originalHeight)
-                val spineSrc = android.graphics.Rect(frontWidth, 0, frontWidth + spineWidth, originalHeight)
-                val backSrc = android.graphics.Rect(frontWidth + spineWidth, 0, originalWidth, originalHeight)
+                    // Recortes na capa original (esquerda = Frente, centro = Lombada, direita = Trás)
+                    val frontSrc = android.graphics.Rect(0, 0, frontWidth, originalHeight)
+                    val spineSrc = android.graphics.Rect(frontWidth, 0, frontWidth + spineWidth, originalHeight)
+                    val backSrc = android.graphics.Rect(frontWidth + spineWidth, 0, originalWidth, originalHeight)
 
-                // Tras: Left=0, Top=1250, Right=1738, Bottom=4096. Rotacionado 180°
-                val backDst = android.graphics.RectF(0f, 1250f, 1738f, 4096f)
-                canvas.save()
-                canvas.rotate(180f, backDst.centerX(), backDst.centerY())
-                canvas.drawBitmap(bitmap, backSrc, backDst, null)
-                canvas.restore()
+                    // Tras: Left=0, Top=1250, Right=1738, Bottom=4096. Rotacionado 180°
+                    val backDst = android.graphics.RectF(0f, 1250f, 1738f, 4096f)
+                    canvas.save()
+                    canvas.rotate(180f, backDst.centerX(), backDst.centerY())
+                    canvas.drawBitmap(bitmap, backSrc, backDst, null)
+                    canvas.restore()
 
-                // - Frente: Destino 1758x1250 --- 3616x4096 (ou seja, esquerda=1758, topo=1250, direita=3616, base=4096)
-                // Frente: Left=1758, Top=1250, Right=3616, Bottom=4096. Rotacionado 180°
-                val frontDst = android.graphics.RectF(1758f, 1250f, 3616f, 4096f)
-                canvas.save()
-                canvas.rotate(180f, frontDst.centerX(), frontDst.centerY())
-                canvas.drawBitmap(bitmap, frontSrc, frontDst, null)
-                canvas.restore()
+                    // - Frente: Destino 1758x1250 --- 3616x4096 (ou seja, esquerda=1758, topo=1250, direita=3616, base=4096)
+                    // Frente: Left=1758, Top=1250, Right=3616, Bottom=4096. Rotacionado 180°
+                    val frontDst = android.graphics.RectF(1758f, 1250f, 3616f, 4096f)
+                    canvas.save()
+                    canvas.rotate(180f, frontDst.centerX(), frontDst.centerY())
+                    canvas.drawBitmap(bitmap, frontSrc, frontDst, null)
+                    canvas.restore()
 
-                // - Lombada: Destino 0x275 --- 2880x775 (ou seja, esquerda=0, topo=275, direita=2880, base=775)
-                // Lombada: Left=0, Top=275, Right=2880, Bottom=775.
-                // Rotacionamos a lombada -90 graus (sentido anti-horário)
-                val spineDst = android.graphics.RectF(0f, 275f, 2880f, 775f)
-                canvas.save()
-                canvas.rotate(-90f, spineDst.centerX(), spineDst.centerY())
-                // Ajusta proporção no desenho rotacionado
-                val spineRotatedDst = android.graphics.RectF(
-                    spineDst.centerX() - (spineDst.height() / 2f),
-                    spineDst.centerY() - (spineDst.width() / 2f),
-                    spineDst.centerX() + (spineDst.height() / 2f),
-                    spineDst.centerY() + (spineDst.width() / 2f)
-                )
-                canvas.drawBitmap(bitmap, spineSrc, spineRotatedDst, null)
-                canvas.restore()
+                    // - Lombada: Destino 0x275 --- 2880x775 (ou seja, esquerda=0, topo=275, direita=2880, base=775)
+                    // Lombada: Left=0, Top=275, Right=2880, Bottom=775.
+                    // Rotacionamos a lombada -90 graus (sentido anti-horário)
+                    val spineDst = android.graphics.RectF(0f, 275f, 2880f, 775f)
+                    canvas.save()
+                    canvas.rotate(-90f, spineDst.centerX(), spineDst.centerY())
+                    // Ajusta proporção no desenho rotacionado
+                    val spineRotatedDst = android.graphics.RectF(
+                        spineDst.centerX() - (spineDst.height() / 2f),
+                        spineDst.centerY() - (spineDst.width() / 2f),
+                        spineDst.centerX() + (spineDst.height() / 2f),
+                        spineDst.centerY() + (spineDst.width() / 2f)
+                    )
+                    canvas.drawBitmap(bitmap, spineSrc, spineRotatedDst, null)
+                    canvas.restore()
+                } else {
+                    val frontSrc = android.graphics.Rect(0, 0, originalWidth, originalHeight)
+                    val frontDst = android.graphics.RectF(1758f, 1250f, 3616f, 4096f)
+                    canvas.save()
+                    canvas.rotate(180f, frontDst.centerX(), frontDst.centerY())
+                    canvas.drawBitmap(bitmap, frontSrc, frontDst, null)
+                    canvas.restore()
+                }
 
                 finalBitmap = combinedBitmap
 

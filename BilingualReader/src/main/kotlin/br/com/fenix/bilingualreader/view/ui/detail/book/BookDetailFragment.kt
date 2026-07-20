@@ -6,6 +6,8 @@ import android.graphics.Rect
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,6 +25,8 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
+import br.com.fenix.bilingualreader.view.components.BookCover3DView
+import com.google.android.material.card.MaterialCardView
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Information
 import br.com.fenix.bilingualreader.model.entity.Library
@@ -63,7 +67,10 @@ class BookDetailFragment : Fragment() {
 
     private lateinit var mRootScroll: NestedScrollView
     private lateinit var mBackgroundImage: ImageView
+    private lateinit var mCoverView: MaterialCardView
     private lateinit var mImage: ImageView
+    private lateinit var m3DCoverSurface: android.view.SurfaceView
+    private var mBookCover3DView: BookCover3DView? = null
     private lateinit var mTitle: TextView
     private lateinit var mAuthor: TextView
     private lateinit var mChapter: TextView
@@ -133,7 +140,9 @@ class BookDetailFragment : Fragment() {
 
         mRootScroll = root.findViewById(R.id.book_detail_scroll)
         mBackgroundImage = root.findViewById(R.id.book_detail_background_image)
+        mCoverView = root.findViewById(R.id.book_detail_card)
         mImage = root.findViewById(R.id.book_detail_book_image)
+        m3DCoverSurface = root.findViewById(R.id.book_detail_3d_cover)
 
         mBookLanguage = root.findViewById(R.id.book_detail_information_book_language)
         mBookLanguageAutoComplete = root.findViewById(R.id.book_detail_information_menu_autocomplete_language)
@@ -255,6 +264,21 @@ class BookDetailFragment : Fragment() {
                     reload(it)
             }
         }
+
+        val gestureDetector = GestureDetector(requireContext(), object : GestureDetector.SimpleOnGestureListener() {
+            override fun onLongPress(e: MotionEvent) {
+                val reload = openImage(mViewModel.cover.value)
+                BookImageCoverController.instance.setImageCoverAsync(requireContext(), mViewModel.book.value!!, false) {
+                    if (it != null)
+                        reload(it)
+                }
+            }
+        })
+
+        m3DCoverSurface.setOnTouchListener { _, event ->
+            gestureDetector.onTouchEvent(event)
+            mBookCover3DView?.onTouchEvent(event) ?: false
+        }
         mTitle.setOnLongClickListener {
             mViewModel.book.value?.let { bk -> FileUtil(requireContext()).copyName(bk) }
             true
@@ -331,6 +355,34 @@ class BookDetailFragment : Fragment() {
                 mImage.setImageBitmap(it)
                 ColorUtil.isDarkColor(it) { l ->
                     ThemeUtil.changeStatusColorFromListener(requireActivity().window, mRootScroll, l, isDark)
+                }
+
+                val use3d = GeneralConsts.getSharedPreferences(requireContext()).getBoolean(GeneralConsts.KEYS.THEME.THEME_3D_COVER_IN_DETAIL, false)
+                if (use3d) {
+                    mCoverView.animate().cancel()
+                    mCoverView.alpha = 1f
+                    mCoverView.visibility = View.VISIBLE
+                    m3DCoverSurface.visibility = View.VISIBLE
+                    if (mBookCover3DView == null) {
+                        mBookCover3DView = BookCover3DView(requireContext(), m3DCoverSurface)
+                    }
+                    mBookCover3DView?.setBookTexture(it, false) {
+                        if (isAdded && view != null) {
+                            mCoverView.animate()
+                                .alpha(0f)
+                                .setDuration(300)
+                                .withEndAction {
+                                    mCoverView.visibility = View.GONE
+                                }
+                                .start()
+                        }
+                    }
+                } else {
+                    mCoverView.animate().cancel()
+                    m3DCoverSurface.visibility = View.GONE
+                    mCoverView.visibility = View.VISIBLE
+                    mCoverView.alpha = 1f
+                    mBookCover3DView = null
                 }
             }
         }
@@ -587,6 +639,44 @@ class BookDetailFragment : Fragment() {
         ImageUtil.setZoomPinch(requireContext(), imageView) { popup.dismiss() }
         layout.findViewById<LinearLayout>(R.id.popup_detail_image_background).setOnClickListener { popup.dismiss() }
 
+        val use3d = GeneralConsts.getSharedPreferences(requireContext()).getBoolean(GeneralConsts.KEYS.THEME.THEME_3D_COVER_IN_DETAIL, false)
+        val buttonContainer = layout.findViewById<LinearLayout>(R.id.popup_detail_button_container)
+        val btnImage = layout.findViewById<com.google.android.material.button.MaterialButton>(R.id.popup_detail_btn_image)
+        val btn3D = layout.findViewById<com.google.android.material.button.MaterialButton>(R.id.popup_detail_btn_3d)
+        val surface3D = layout.findViewById<android.view.SurfaceView>(R.id.popup_detail_3d_cover)
+
+        var popup3DView: BookCover3DView? = null
+
+        if (use3d) {
+            buttonContainer.visibility = View.VISIBLE
+            
+            val gestureDetector = GestureDetector(requireContext(), object : GestureDetector.SimpleOnGestureListener() {
+                override fun onLongPress(e: MotionEvent) {
+                    popup.dismiss()
+                }
+            })
+            surface3D.setOnTouchListener { _, event ->
+                gestureDetector.onTouchEvent(event)
+                popup3DView?.onTouchEvent(event) ?: false
+            }
+
+            btnImage.setOnClickListener {
+                surface3D.visibility = View.GONE
+                imageView.visibility = View.VISIBLE
+            }
+
+            btn3D.setOnClickListener {
+                imageView.visibility = View.GONE
+                surface3D.visibility = View.VISIBLE
+                if (popup3DView == null) {
+                    popup3DView = BookCover3DView(requireContext(), surface3D, true)
+                    mViewModel.cover.value?.let { bmp ->
+                        popup3DView?.setBookTexture(bmp, false)
+                    }
+                }
+            }
+        }
+
         popup.window?.run {
             val display = Rect()
             requireActivity().window.decorView.getWindowVisibleDisplayFrame(display)
@@ -596,11 +686,23 @@ class BookDetailFragment : Fragment() {
         popup.show()
         return {
             try {
-                if (popup.isShowing)
+                if (popup.isShowing) {
                     imageView.setImageBitmap(it)
+                    if (popup3DView != null) {
+                        popup3DView?.setBookTexture(it, false)
+                    }
+                }
             } catch (e : Exception) {
 
             }
         }
+    }
+
+    override fun onDestroyView() {
+        try {
+            mCoverView.animate().cancel()
+        } catch (_: Exception) {}
+        super.onDestroyView()
+        mBookCover3DView = null
     }
 }
