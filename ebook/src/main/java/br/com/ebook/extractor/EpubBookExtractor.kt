@@ -8,6 +8,7 @@ import br.com.ebook.core.EbookSettings
 import br.com.ebook.foobnix.android.utils.TxtUtils
 import br.com.ebook.foobnix.ext.CacheZipUtils.ATTACHMENTS_CACHE_DIR
 import br.com.ebook.foobnix.ext.XmlParser
+import br.com.ebook.foobnix.pdf.info.ExtUtils
 import br.com.ebook.foobnix.sys.TempHolder
 import br.com.ebook.util.IOUtils.copyTo
 import br.com.ebook.util.IOUtils.getEntryBytes
