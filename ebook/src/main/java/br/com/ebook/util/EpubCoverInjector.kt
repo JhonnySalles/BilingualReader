@@ -44,7 +44,7 @@ object EpubCoverInjector {
                         val name = entry!!.name
                         if (name.endsWith(".opf", ignoreCase = true)) {
                             opfPath = name
-                            opfContent = String(zis.readAllBytes(), Charsets.UTF_8)
+                            opfContent = String(zis.readBytes(), Charsets.UTF_8)
                         } else {
                             zos.putNextEntry(ZipEntry(name))
                             zis.copyTo(zos)
@@ -133,6 +133,7 @@ object EpubCoverInjector {
             }
         } catch (e: Exception) {
             LOGGER.error("Error while injecting cover: {}", e.message, e)
+            IOUtils.reportException(e, "Error while injecting cover: $epubPath")
             if (tempFile.exists()) tempFile.delete()
         }
     }

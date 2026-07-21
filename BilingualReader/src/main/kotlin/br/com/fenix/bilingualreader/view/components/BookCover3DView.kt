@@ -4,13 +4,16 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
 import android.view.Choreographer
+import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import br.com.fenix.bilingualreader.view.ui.detail.manga.MangaDetailFragment
 import com.google.android.filament.*
 import com.google.android.filament.gltfio.*
 import com.google.android.filament.utils.*
 import com.google.android.filament.android.UiHelper
+import org.slf4j.LoggerFactory
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -25,6 +28,8 @@ class BookCover3DView(
     private val surfaceView: SurfaceView,
     private val isPopup: Boolean = false
 ) : SurfaceHolder.Callback {
+
+    private val mLOGGER = LoggerFactory.getLogger(BookCover3DView::class.java)
 
     companion object {
         init {
@@ -59,6 +64,14 @@ class BookCover3DView(
     private var backLightEntity: Int = 0
     private val forwardVector = FloatArray(3)
     private val upVector = FloatArray(3)
+
+    var onLongClickListener: (() -> Unit)? = null
+
+    private val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+        override fun onLongPress(e: MotionEvent) {
+            onLongClickListener?.invoke() ?: surfaceView.performLongClick()
+        }
+    })
 
     init {
         // Configura a SurfaceView para suportar fundo transparente
@@ -170,7 +183,7 @@ class BookCover3DView(
                     // [           0,   S,            0,   0 ]
                     // [ -sin(180)*S,   0,   cos(180)*S,   0 ]
                     // [           0,   0,            0,   1 ]
-                    val s = if (isPopup) 3.5f else 1.9f
+                    val s = if (isPopup) 1.5f else 1.9f
                     
                     val r00 = cos180 * s
                     val r02 = sin180 * s
@@ -210,10 +223,8 @@ class BookCover3DView(
                     currentTransform[11] = m23
                     
                     // Desloca o livro para baixo no viewport (Y negativo na matriz column-major, índice 13)
-                    if (!isPopup) {
-                        currentTransform[13] = currentTransform[13] - 0.9f
-                    }
-                    
+                    currentTransform[13] = currentTransform[13] - (if (isPopup) 0.5f else 0.9f)
+
                     tm.setTransform(instance, currentTransform)
                 }
             }
@@ -222,6 +233,69 @@ class BookCover3DView(
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    private fun isColorSimilar(color1: Int, color2: Int): Boolean {
+        val r1 = (color1 shr 16) and 0xFF
+        val g1 = (color1 shr 8) and 0xFF
+        val b1 = color1 and 0xFF
+        val r2 = (color2 shr 16) and 0xFF
+        val g2 = (color2 shr 8) and 0xFF
+        val b2 = color2 and 0xFF
+        
+        val dr = r1 - r2
+        val dg = g1 - g2
+        val db = b1 - b2
+        val distanceSquared = dr * dr + dg * dg + db * db
+        return distanceSquared <= 1500
+    }
+
+    private fun calculateFlaps(bitmap: Bitmap): Pair<Int, Int> {
+        val width = bitmap.width
+        val height = bitmap.height
+        val centerY = height / 2
+
+        var leftCrop = 0
+        val leftColor = bitmap.getPixel(0, centerY)
+        for (x in 0 until width / 3) {
+            val color = bitmap.getPixel(x, centerY)
+            if (!isColorSimilar(leftColor, color)) {
+                leftCrop = x
+                break
+            }
+        }
+
+        var rightCrop = 0
+        val rightColor = bitmap.getPixel(width - 1, centerY)
+        for (x in width - 1 downTo width * 2 / 3) {
+            val color = bitmap.getPixel(x, centerY)
+            if (!isColorSimilar(rightColor, color)) {
+                rightCrop = (width - 1) - x
+                break
+            }
+        }
+
+        val effectiveWidth = width - leftCrop - rightCrop
+        val ratio = effectiveWidth.toFloat() / height.toFloat()
+        
+        // Verifica se a detecção por cor trouxe um corte com proporção plausível (~1.35 a 1.65)
+        if (leftCrop > 0 || rightCrop > 0) {
+            if (ratio in 1.35f..1.65f) {
+                return Pair(leftCrop, rightCrop)
+            }
+        }
+
+        // Fallback: Se a imagem é excessivamente larga (ex: > 1.7), força a proporção 3:2 (1.5)
+        val originalRatio = width.toFloat() / height.toFloat()
+        if (originalRatio > 1.7f) {
+            val expectedWidth = (height * 1.5f).toInt()
+            val excess = width - expectedWidth
+            if (excess > 0) {
+                return Pair(excess / 2, excess - (excess / 2))
+            }
+        }
+
+        return Pair(0, 0)
     }
 
     /**
@@ -305,19 +379,21 @@ class BookCover3DView(
 
                 // 4. Recorta e pinta cada parte da capa original nas posições especificadas na malha
                 // Larguras e alturas para corte a partir do bitmap original
-                val originalWidth = bitmap.width
                 val originalHeight = bitmap.height
 
                 if (isFullCover) {
+                    // Calcula o tamanho das abas (marcadores) caso a imagem seja mais larga que o padrão
+                    val (cropLeft, cropRight) = calculateFlaps(bitmap)
+                    val effectiveWidth = bitmap.width - cropLeft - cropRight
+
                     // Frações da capa
-                    val frontWidth = (originalWidth * FRONT_COVER_WIDTH_RATIO).toInt()
-                    val spineWidth = (originalWidth * SPINE_WIDTH_RATIO).toInt()
-                    val backWidth = (originalWidth * BACK_COVER_WIDTH_RATIO).toInt()
+                    val frontWidth = (effectiveWidth * FRONT_COVER_WIDTH_RATIO).toInt()
+                    val spineWidth = (effectiveWidth * SPINE_WIDTH_RATIO).toInt()
 
                     // Recortes na capa original (esquerda = Frente, centro = Lombada, direita = Trás)
-                    val frontSrc = android.graphics.Rect(0, 0, frontWidth, originalHeight)
-                    val spineSrc = android.graphics.Rect(frontWidth, 0, frontWidth + spineWidth, originalHeight)
-                    val backSrc = android.graphics.Rect(frontWidth + spineWidth, 0, originalWidth, originalHeight)
+                    val frontSrc = android.graphics.Rect(cropLeft, 0, cropLeft + frontWidth, originalHeight)
+                    val spineSrc = android.graphics.Rect(cropLeft + frontWidth, 0, cropLeft + frontWidth + spineWidth, originalHeight)
+                    val backSrc = android.graphics.Rect(cropLeft + frontWidth + spineWidth, 0, bitmap.width - cropRight, originalHeight)
 
                     // Tras: Left=0, Top=1250, Right=1738, Bottom=4096. Rotacionado 180°
                     val backDst = android.graphics.RectF(0f, 1250f, 1738f, 4096f)
@@ -350,6 +426,7 @@ class BookCover3DView(
                     canvas.drawBitmap(bitmap, spineSrc, spineRotatedDst, null)
                     canvas.restore()
                 } else {
+                    val originalWidth = bitmap.width
                     val frontSrc = android.graphics.Rect(0, 0, originalWidth, originalHeight)
                     val frontDst = android.graphics.RectF(1758f, 1250f, 3616f, 4096f)
                     canvas.save()
@@ -359,17 +436,6 @@ class BookCover3DView(
                 }
 
                 finalBitmap = combinedBitmap
-
-                // Salva o bitmap gerado no cache do aplicativo para visualização/depuração
-                /*try {
-                    val cacheFile = java.io.File(context.cacheDir, "debug_3d_book_cover.png")
-                    java.io.FileOutputStream(cacheFile).use { out ->
-                        combinedBitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-                        out.flush()
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }*/
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -461,6 +527,8 @@ class BookCover3DView(
      * Consome o evento e solicita ao pai (NestedScrollView) para desabilitar a interceptação de scroll.
      */
     fun onTouchEvent(event: MotionEvent): Boolean {
+        gestureDetector.onTouchEvent(event)
+        
         val viewer = modelViewer ?: return false
         
         when (event.action) {
@@ -479,8 +547,22 @@ class BookCover3DView(
     private fun cleanup() {
         isDestroyed = true
         try {
-            // Destrói o ModelViewer de forma segura, capturando qualquer exceção no descarregamento assíncrono nativo
-            modelViewer?.destroy()
+            val viewer = modelViewer
+            if (viewer != null) {
+                // Cancela carregamentos assíncronos pendentes via reflexão para evitar crash no evictResourceData
+                // já que 'resourceLoader' é privado na classe ModelViewer.
+                try {
+                    val field = viewer.javaClass.getDeclaredField("resourceLoader")
+                    field.isAccessible = true
+                    val loader = field.get(viewer) as? com.google.android.filament.gltfio.ResourceLoader
+                    if (loader != null && loader.asyncGetLoadProgress() < 1.0f) {
+                        loader.asyncCancelLoad()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+                viewer.destroy()
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {

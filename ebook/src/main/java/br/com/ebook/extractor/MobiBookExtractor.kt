@@ -64,6 +64,8 @@ object MobiBookExtractor : BookExtractor {
             releaseDate = releaseDate,
             unzipPath = path
         )
+    }.onFailure { e ->
+        br.com.ebook.util.IOUtils.reportException(e, "Error extracting metadata from mobi: $path")
     }
 
     override suspend fun extractCover(path: String): Result<ByteArray?> = runCatching {
@@ -143,5 +145,7 @@ object MobiBookExtractor : BookExtractor {
                 throw e
             }
         }
+    }.onFailure { e ->
+        br.com.ebook.util.IOUtils.reportException(e, "Error extracting content from mobi: $path")
     }
 }

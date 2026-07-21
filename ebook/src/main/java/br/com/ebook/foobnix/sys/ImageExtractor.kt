@@ -181,9 +181,19 @@ class ImageExtractor private constructor(private val context: Context) : ImageDo
             cover = BitmapUtils.arrayToBitmap(ebookMeta.coverImage, pageUrl.width)
         } else {
             // Usamos a nova BookExtractorFactory em Kotlin
-            val coverBytes = runBlocking(br.com.ebook.core.EbookDispatcher.dispatcher) {
-                BookExtractorFactory.getExtractor(unZipPath)?.extractCover(unZipPath)?.getOrNull()
+            val coverResult = runBlocking(br.com.ebook.core.EbookDispatcher.dispatcher) {
+                BookExtractorFactory.getExtractor(unZipPath)?.extractCover(unZipPath)
             }
+
+            val coverBytes = coverResult?.getOrNull()
+            if (coverResult != null && coverResult.isFailure) {
+                val exception = coverResult.exceptionOrNull()
+                if (exception != null) {
+                    LOGGER.error("Error extracting book cover: ${exception.message}", exception)
+                    br.com.ebook.util.IOUtils.reportException(exception, "Error extracting book cover: ${exception.message}")
+                }
+            }
+
             if (coverBytes != null) {
                 cover = BitmapUtils.arrayToBitmap(coverBytes, pageUrl.width)
             } else if (BookType.PDF.`is`(unZipPath) || BookType.DJVU.`is`(unZipPath) || BookType.TIFF.`is`(unZipPath)) {

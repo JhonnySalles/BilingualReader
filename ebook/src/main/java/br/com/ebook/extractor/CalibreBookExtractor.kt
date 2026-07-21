@@ -44,6 +44,7 @@ object CalibreBookExtractor {
             }
         } catch (e: Exception) {
             LOGGER.error("Error get Calibre book overview: {}", e.message, e)
+            IOUtils.reportException(e, "Error get Calibre book overview: $path")
         }
         return ""
     }
@@ -114,10 +115,11 @@ object CalibreBookExtractor {
                                         if (imgFile.isFile) {
                                             try {
                                                 FileInputStream(imgFile).use { imgFis ->
-                                                    coverImage = IOUtils.run { imgFis.readAllBytes() }
+                                                    coverImage = imgFis.readBytes()
                                                 }
                                             } catch (e: Exception) {
                                                 LOGGER.error("Error reading Calibre cover image: {}", e.message)
+                                                IOUtils.reportException(e, "Error reading Calibre cover image: ${imgFile.path}")
                                             }
                                         }
                                     }
@@ -130,6 +132,7 @@ object CalibreBookExtractor {
             }
         } catch (e: Exception) {
             LOGGER.error("Error get Calibre book meta information: {}", e.message, e)
+            IOUtils.reportException(e, "Error get Calibre book meta information: $path")
         }
 
         return BookMetadata(

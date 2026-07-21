@@ -10,6 +10,7 @@ import br.com.ebook.foobnix.ext.CacheZipUtils.ATTACHMENTS_CACHE_DIR
 import br.com.ebook.foobnix.ext.XmlParser
 import br.com.ebook.foobnix.pdf.info.ExtUtils
 import br.com.ebook.foobnix.sys.TempHolder
+import br.com.ebook.util.IOUtils
 import br.com.ebook.util.IOUtils.copyTo
 import br.com.ebook.util.IOUtils.getEntryBytes
 import org.jsoup.Jsoup
@@ -98,6 +99,8 @@ object EpubBookExtractor : BookExtractor {
             }
         }
         info
+    }.onFailure { e ->
+        IOUtils.reportException(e, "Error extracting overview from epub: $path")
     }
 
     override suspend fun extractMetadata(path: String): Result<BookMetadata> = runCatching {
@@ -196,6 +199,8 @@ object EpubBookExtractor : BookExtractor {
             language = lang,
             unzipPath = path
         )
+    }.onFailure { e ->
+        IOUtils.reportException(e, "Error extracting metadata from epub: $path")
     }
 
     override suspend fun extractCover(path: String): Result<ByteArray?> = runCatching {
@@ -254,7 +259,11 @@ object EpubBookExtractor : BookExtractor {
                 while (innerEntries.hasMoreElements()) {
                     val entry = innerEntries.nextElement()
                     if (entry.name.contains(searchName)) {
-                        coverBytes = zipFile.getEntryBytes(entry)
+                        try {
+                            coverBytes = zipFile.getEntryBytes(entry)
+                        } catch (e: Exception) {
+                            LOGGER.error("Error extract attachment: {}", e.message, e)
+                        }
                         break
                     }
                 }
@@ -313,6 +322,8 @@ object EpubBookExtractor : BookExtractor {
             }
         }
         coverBytes
+    }.onFailure { e ->
+        IOUtils.reportException(e, "Error extracting cover from epub: $path")
     }
 
     fun extractAttachment(bookPath: File, attachmentName: String): File? {
@@ -449,11 +460,15 @@ object EpubBookExtractor : BookExtractor {
             }
         }
         notes
+    }.onFailure { e ->
+        IOUtils.reportException(e, "Error extracting footer notes from epub: $path")
     }
 
     override suspend fun extractContent(path: String, outputDir: String): Result<BookContent> = runCatching {
         // Para EPUB, a extração de conteúdo consiste apenas em retornar o próprio arquivo
         // ou descompactar se necessário. No fluxo legado, ele apenas verifica/retorna o caminho.
         BookContent.EpubFile(path)
+    }.onFailure { e ->
+        IOUtils.reportException(e, "Error extracting content from epub: $path")
     }
 }

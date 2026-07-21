@@ -234,20 +234,7 @@ class MangaDetailFragment : Fragment() {
             }
         }
 
-        val gestureDetector = GestureDetector(requireContext(), object : GestureDetector.SimpleOnGestureListener() {
-            override fun onLongPress(e: MotionEvent) {
-                val reload = openImage(mViewModel.cover.value)
-                MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mViewModel.manga.value!!, false) {
-                    if (it != null)
-                        reload(it)
-                }
-            }
-        })
 
-        m3DCoverSurface.setOnTouchListener { _, event ->
-            gestureDetector.onTouchEvent(event)
-            mBookCover3DView?.onTouchEvent(event) ?: false
-        }
 
         mTitle.setOnLongClickListener {
             mViewModel.manga.value?.let { mg -> FileUtil(requireContext()).copyName(mg) }
@@ -351,7 +338,15 @@ class MangaDetailFragment : Fragment() {
                 mCoverView.visibility = View.VISIBLE
                 m3DCoverSurface.visibility = View.VISIBLE
                 if (mBookCover3DView == null) {
-                    mBookCover3DView = BookCover3DView(requireContext(), m3DCoverSurface)
+                    mBookCover3DView = BookCover3DView(requireContext(), m3DCoverSurface).apply {
+                        onLongClickListener = {
+                            val reload = openImage(mViewModel.cover.value)
+                            MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mViewModel.manga.value!!, false) {
+                                if (it != null)
+                                    reload(it)
+                            }
+                        }
+                    }
                 }
                 if (hasFull) {
                     mViewModel.fullCoverBitmap.value?.let { bitmap ->
