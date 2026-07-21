@@ -767,9 +767,9 @@ class MangaDetailFragment : Fragment() {
                 if (popup3DView == null)
                     popup3DView = BookCover3DView(requireContext(), surface3D, true)
 
-                val hasFull = mViewModel.hasFullCover.value ?: false
-                val bmp = if (hasFull && mViewModel.fullCoverBitmap.value != null) mViewModel.fullCoverBitmap.value else mViewModel.cover.value
-                popup3DView?.setBookTexture(bmp!!, false)
+                val hasFull = (mViewModel.hasFullCover.value ?: false) && (mViewModel.fullCoverBitmap.value != null)
+                val bmp = if (hasFull) mViewModel.fullCoverBitmap.value else mViewModel.cover.value
+                popup3DView?.setBookTexture(bmp!!, hasFull)
             }
         }
 

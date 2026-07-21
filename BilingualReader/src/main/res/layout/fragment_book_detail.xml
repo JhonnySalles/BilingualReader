@@ -93,7 +93,7 @@
 
                         </com.google.android.material.card.MaterialCardView>
 
-                        <SurfaceView
+                        <br.com.fenix.bilingualreader.view.components.SafeSurfaceView
                             android:id="@+id/book_detail_3d_cover"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"

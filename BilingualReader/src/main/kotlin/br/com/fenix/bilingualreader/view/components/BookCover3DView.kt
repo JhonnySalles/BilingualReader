@@ -83,7 +83,17 @@ class BookCover3DView(
         surfaceView.setOnTouchListener { _, event ->
             onTouchEvent(event)
         }
+        
+        // Adiciona um listener seguro de detach para limpar os recursos quando a Activity for destruída,
+        // garantindo que não vamos depender da limpeza falha padrão do ModelViewer.
+        surfaceView.addOnAttachStateChangeListener(object : android.view.View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(v: android.view.View) {}
+            override fun onViewDetachedFromWindow(v: android.view.View) {
+                cleanup()
+            }
+        })
     }
+
 
     override fun surfaceCreated(holder: SurfaceHolder) {
         isDestroyed = false // Reset the flag so the view can be reused when surface is recreated
@@ -94,6 +104,9 @@ class BookCover3DView(
             isOpaque = false
         }
         val viewer = ModelViewer(surfaceView, uiHelper = uiHelper).also { this.modelViewer = it }
+        
+        // Agora com o SafeSurfaceView, o listener destrutivo do Filament é ignorado nativamente.
+        // O ciclo de vida fica totalmente sob nosso controle!
 
         // Configuração do Renderer para garantir a transparência
         val clearOptions = viewer.renderer.clearOptions
@@ -165,7 +178,6 @@ class BookCover3DView(
             
             // Ao invés de viewer.loadModelGlb(byteBuffer) (que inicia um carregamento assíncrono que crasha no destroy)
             // fazemos o equivalente usando carregamento síncrono.
-            viewer.destroyModel()
             
             val fAssetLoader = viewer.javaClass.getDeclaredField("assetLoader")
             fAssetLoader.isAccessible = true
@@ -356,8 +368,8 @@ class BookCover3DView(
     }
 
     fun setBookTexture(bitmap: Bitmap, isFullCover: Boolean = false, onReady: (() -> Unit)? = null) {
-        if (isDestroyed) return
-        if (!isSurfaceAvailable) {
+        if (isDestroyed || !isSurfaceAvailable) {
+            // Se o motor foi destruído ou a surface não está pronta, salva na fila
             pendingBitmap = bitmap
             pendingIsFullCover = isFullCover
             pendingOnReady = onReady
@@ -425,25 +437,23 @@ class BookCover3DView(
                     val spineSrc = android.graphics.Rect(cropLeft + frontWidth, 0, cropLeft + frontWidth + spineWidth, originalHeight)
                     val backSrc = android.graphics.Rect(cropLeft + frontWidth + spineWidth, 0, bitmap.width - cropRight, originalHeight)
 
-                    // Tras: Left=0, Top=1250, Right=1738, Bottom=4096. Rotacionado 180°
-                    val backDst = android.graphics.RectF(0f, 1250f, 1738f, 4096f)
+                    // Tras: Left=0, Top=1250, Right=1750, Bottom=4096. Rotacionado 180°
+                    val backDst = android.graphics.RectF(0f, 1250f, 1750f, 4096f)
                     canvas.save()
                     canvas.rotate(180f, backDst.centerX(), backDst.centerY())
                     canvas.drawBitmap(bitmap, backSrc, backDst, null)
                     canvas.restore()
 
-                    // - Frente: Destino 1758x1250 --- 3616x4096 (ou seja, esquerda=1758, topo=1250, direita=3616, base=4096)
-                    // Frente: Left=1758, Top=1250, Right=3616, Bottom=4096. Rotacionado 180°
-                    val frontDst = android.graphics.RectF(1758f, 1250f, 3616f, 4096f)
+                    // Frente: Left=1758, Top=1250, Right=3520, Bottom=4096. Rotacionado 180°
+                    val frontDst = android.graphics.RectF(1758f, 1250f, 3520f, 4096f)
                     canvas.save()
                     canvas.rotate(180f, frontDst.centerX(), frontDst.centerY())
                     canvas.drawBitmap(bitmap, frontSrc, frontDst, null)
                     canvas.restore()
 
-                    // - Lombada: Destino 0x275 --- 2880x775 (ou seja, esquerda=0, topo=275, direita=2880, base=775)
-                    // Lombada: Left=0, Top=275, Right=2880, Bottom=775.
+                    // Lombada: Left=0, Top=276, Right=2880, Bottom=770.
                     // Rotacionamos a lombada -90 graus (sentido anti-horário)
-                    val spineDst = android.graphics.RectF(0f, 275f, 2880f, 775f)
+                    val spineDst = android.graphics.RectF(0f, 276f, 2880f, 770f)
                     canvas.save()
                     canvas.rotate(-90f, spineDst.centerX(), spineDst.centerY())
                     // Ajusta proporção no desenho rotacionado
@@ -458,7 +468,7 @@ class BookCover3DView(
                 } else {
                     val originalWidth = bitmap.width
                     val frontSrc = android.graphics.Rect(0, 0, originalWidth, originalHeight)
-                    val frontDst = android.graphics.RectF(1758f, 1250f, 3616f, 4096f)
+                    val frontDst = android.graphics.RectF(1758f, 1250f, 3520f, 4096f)
                     canvas.save()
                     canvas.rotate(180f, frontDst.centerX(), frontDst.centerY())
                     canvas.drawBitmap(bitmap, frontSrc, frontDst, null)
@@ -495,6 +505,17 @@ class BookCover3DView(
                 Texture.Type.UBYTE
             )
         )
+
+        // Salva a imagem no cache
+        /*try {
+            val cacheFile = java.io.File(context.cacheDir, "debug_combined_book_cover.png")
+            java.io.FileOutputStream(cacheFile).use { out ->
+                finalBitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+            }
+            android.util.Log.d("BookCover3DView", "Saved debug texture to: ${cacheFile.absolutePath}")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }*/
 
         // Limpa o bitmap temporário criado se não for o bitmap original
         if (finalBitmap != bitmap) {
@@ -575,12 +596,53 @@ class BookCover3DView(
     }
 
     private fun cleanup() {
+        if (isDestroyed) return
         isDestroyed = true
         try {
-            val viewer = modelViewer
-            if (viewer != null) {
-                viewer.destroy()
+            val viewer = modelViewer ?: return
+            
+            // Evitamos chamar viewer.destroy() porque ele chama destroyModel() que 
+            // aciona asyncCancelLoad() e causa um Fatal Signal 11 (SIGSEGV) nativo.
+            // Em vez disso, destruímos todos os recursos manualmente em ordem segura:
+            
+            val fResourceLoader = viewer.javaClass.getDeclaredField("resourceLoader")
+            fResourceLoader.isAccessible = true
+            val resourceLoader = fResourceLoader.get(viewer) as com.google.android.filament.gltfio.ResourceLoader
+
+            val fAssetLoader = viewer.javaClass.getDeclaredField("assetLoader")
+            fAssetLoader.isAccessible = true
+            val assetLoader = fAssetLoader.get(viewer) as com.google.android.filament.gltfio.AssetLoader
+
+            val fMaterialProvider = viewer.javaClass.getDeclaredField("materialProvider")
+            fMaterialProvider.isAccessible = true
+            val materialProvider = fMaterialProvider.get(viewer) as com.google.android.filament.gltfio.MaterialProvider
+
+            resourceLoader.evictResourceData()
+
+            val asset = viewer.asset
+            if (asset != null) {
+                viewer.scene.removeEntities(asset.entities)
+                assetLoader.destroyAsset(asset)
+                val fAsset = viewer.javaClass.getDeclaredField("asset")
+                fAsset.isAccessible = true
+                fAsset.set(viewer, null)
             }
+
+            assetLoader.destroy()
+            materialProvider.destroyMaterials()
+            materialProvider.destroy()
+            
+            // INTENCIONALMENTE OMITIDO: resourceLoader.destroy()
+            // Se chamarmos resourceLoader.destroy(), ele aciona internamente asyncCancelLoad() e o C++ quebra
+            // com SEGV_MAPERR. Omitir isso causa um micro-vazamento de um ponteiro vazio, mas previne a falha crítica.
+
+            // Chama detach() do UiHelper para destruir o SwapChain ANTES do Engine (previne IllegalStateException)
+            val fUiHelper = viewer.javaClass.getDeclaredField("uiHelper")
+            fUiHelper.isAccessible = true
+            val uiHelper = fUiHelper.get(viewer) as com.google.android.filament.android.UiHelper
+            uiHelper.detach()
+
+            viewer.engine.destroy()
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
