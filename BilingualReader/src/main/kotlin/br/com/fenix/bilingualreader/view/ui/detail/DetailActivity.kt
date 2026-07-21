@@ -58,9 +58,19 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
+    private fun revertFragmentTransition() {
+        val fragment = supportFragmentManager.findFragmentById(R.id.root_frame_detail)
+        if (fragment is MangaDetailFragment) {
+            fragment.revertCoverTransition()
+        } else if (fragment is BookDetailFragment) {
+            fragment.revertCoverTransition()
+        }
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
+                revertFragmentTransition()
                 supportFinishAfterTransition()
                 return true
             }
@@ -71,6 +81,7 @@ class DetailActivity : AppCompatActivity() {
     override fun onBackPressed() {
         val intent = Intent()
         setResult(RESULT_OK, intent)
+        revertFragmentTransition()
         super.onBackPressed()
         supportFinishAfterTransition()
     }

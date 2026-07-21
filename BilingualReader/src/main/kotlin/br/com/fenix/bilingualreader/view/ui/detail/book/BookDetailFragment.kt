@@ -123,11 +123,19 @@ class BookDetailFragment : Fragment() {
     private lateinit var mWebInfoRelatedOrigin: TextView
     private lateinit var mWebInfoListener: InformationCardListener
 
-    private var mDetailOpenTime: Long = 0
+    private var mIsEnterTransitionEnded = false
+    private var mIsTextureLoaded = false
     private var mTransitionRunnable: Runnable? = null
     private val mHandler = android.os.Handler(android.os.Looper.getMainLooper())
 
     private fun animateCoverTransition() {
+        mIsTextureLoaded = true
+        if (mIsEnterTransitionEnded) {
+            startCoverAnimation()
+        }
+    }
+
+    private fun startCoverAnimation() {
         mTransitionRunnable?.let { mHandler.removeCallbacks(it) }
         val runnable = Runnable {
             if (isAdded && view != null) {
@@ -141,9 +149,15 @@ class BookDetailFragment : Fragment() {
             }
         }
         mTransitionRunnable = runnable
-        val timePassed = System.currentTimeMillis() - mDetailOpenTime
-        val delay = if (timePassed < 2000L) 2000L - timePassed else 0L
-        mHandler.postDelayed(runnable, delay)
+        mHandler.post(runnable)
+    }
+
+    fun revertCoverTransition() {
+        mTransitionRunnable?.let { mHandler.removeCallbacks(it) }
+        mCoverView.animate().cancel()
+        m3DCoverSurface.visibility = View.GONE
+        mCoverView.visibility = View.VISIBLE
+        mCoverView.alpha = 1f
     }
 
     private lateinit var mBookLanguage: TextInputLayout
@@ -159,7 +173,31 @@ class BookDetailFragment : Fragment() {
     private var mMapLanguage: HashMap<String, Languages> = hashMapOf()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mDetailOpenTime = System.currentTimeMillis()
+        val transition = activity?.window?.sharedElementEnterTransition
+        if (transition != null) {
+            transition.addListener(object : android.transition.Transition.TransitionListener {
+                override fun onTransitionStart(transition: android.transition.Transition) {}
+                override fun onTransitionEnd(transition: android.transition.Transition) {
+                    transition.removeListener(this)
+                    mIsEnterTransitionEnded = true
+                    if (mIsTextureLoaded) {
+                        startCoverAnimation()
+                    }
+                }
+                override fun onTransitionCancel(transition: android.transition.Transition) {
+                    transition.removeListener(this)
+                    mIsEnterTransitionEnded = true
+                    if (mIsTextureLoaded) {
+                        startCoverAnimation()
+                    }
+                }
+                override fun onTransitionPause(transition: android.transition.Transition) {}
+                override fun onTransitionResume(transition: android.transition.Transition) {}
+            })
+        } else {
+            mIsEnterTransitionEnded = true
+        }
+
         val root = inflater.inflate(R.layout.fragment_book_detail, container, false)
  
         mRootScroll = root.findViewById(R.id.book_detail_scroll)
