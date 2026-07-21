@@ -63,14 +63,25 @@ public class MuPdfDocument extends AbstractCodecDocument {
 
     @Override
     public CodecPage getPageInner(final int pageNumber) {
-        MuPdfPage createPage = MuPdfPage.createPage(documentHandle, pageNumber + 1);
-        return createPage;
+        try {
+            TempHolder.lock.lock();
+            if (isRecycled()) return null;
+            MuPdfPage createPage = MuPdfPage.createPage(documentHandle, pageNumber + 1);
+            return createPage;
+        } finally {
+            TempHolder.lock.unlock();
+        }
     }
 
     @Override
     public int getPageCount() {
-        
-        return getPageCountWithException(documentHandle, getW(), getH(), AppState.get().fontSizeSp);
+        try {
+            TempHolder.lock.lock();
+            if (isRecycled()) return 0;
+            return getPageCountWithException(documentHandle, getW(), getH(), AppState.get().fontSizeSp);
+        } finally {
+            TempHolder.lock.unlock();
+        }
     }
 
     @Override
@@ -87,9 +98,14 @@ public class MuPdfDocument extends AbstractCodecDocument {
     public int getPageCount(int w, int h, int size) {
         this.w = w;
         this.h = h;
-        int pageCountWithException = getPageCountWithException(documentHandle, w, h, size);
-        
-        return pageCountWithException;
+        try {
+            TempHolder.lock.lock();
+            if (isRecycled()) return 0;
+            int pageCountWithException = getPageCountWithException(documentHandle, w, h, size);
+            return pageCountWithException;
+        } finally {
+            TempHolder.lock.unlock();
+        }
     }
 
     public int getW() {
@@ -106,6 +122,7 @@ public class MuPdfDocument extends AbstractCodecDocument {
 
         try {
             TempHolder.lock.lock();
+            if (isRecycled()) return null;
             final int res = getPageInfo(documentHandle, pageNumber + 1, info);
             if (res == -1) {
                 return null;
@@ -170,6 +187,7 @@ public class MuPdfDocument extends AbstractCodecDocument {
     public String getMeta(String option) {
         try {
             TempHolder.lock.lock();
+            if (isRecycled()) return null;
             return getMeta(documentHandle, option);
         } finally {
             TempHolder.lock.unlock();
@@ -212,7 +230,8 @@ public class MuPdfDocument extends AbstractCodecDocument {
 
     private static native void free(long handle);
 
-    private static synchronized int getPageCountWithException(final long handle) {
+    private synchronized int getPageCountWithException(final long handle) {
+        if (isRecycled()) return 0;
         final int count = getPageCountSafe(handle, Dips.screenWidth(), Dips.screenHeight(), Dips.spToPx(AppState.get().fontSizeSp));
         if (count == 0)
             throw new RuntimeException("Document is corrupted");
@@ -220,7 +239,8 @@ public class MuPdfDocument extends AbstractCodecDocument {
         return count;
     }
 
-    private static synchronized int getPageCountWithException(final long handle, int w, int h, int size) {
+    private synchronized int getPageCountWithException(final long handle, int w, int h, int size) {
+        if (isRecycled()) return 0;
         final int count = getPageCountSafe(handle, w, h, Dips.spToPx(size));
         if (count == 0)
             throw new RuntimeException("Document is corrupted");
@@ -233,8 +253,8 @@ public class MuPdfDocument extends AbstractCodecDocument {
     private static long cacheSize;
     private static int cacheCount;
 
-    private static int getPageCountSafe(long handle, int w, int h, int size) {
-        
+    private int getPageCountSafe(long handle, int w, int h, int size) {
+        if (isRecycled()) return 0;
 
         if (handle == cacheHandle && size == cacheSize && w + h == cacheWH) {
             
@@ -243,6 +263,7 @@ public class MuPdfDocument extends AbstractCodecDocument {
 
         try {
             TempHolder.lock.lock();
+            if (isRecycled()) return 0;
             cacheHandle = handle;
             cacheSize = size;
             cacheWH = w + h;

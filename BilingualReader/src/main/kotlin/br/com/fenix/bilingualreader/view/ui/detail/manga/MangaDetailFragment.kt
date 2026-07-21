@@ -83,7 +83,7 @@ class MangaDetailFragment : Fragment() {
     private lateinit var mImportVocabulary: MaterialButton
     private lateinit var mSubtitlesList: ListView
     private lateinit var m3DCoverSurface: android.view.SurfaceView
-    private var mBookCover3DView: BookCover3DView? = null
+    private var m3DCover3DView: BookCover3DView? = null
 
     private lateinit var mWebInformationContent: LinearLayout
     private lateinit var mWebInformationImage: ImageView
@@ -103,6 +103,29 @@ class MangaDetailFragment : Fragment() {
     private lateinit var mLocalInformationContent: LinearLayout
     private lateinit var mLocalInformationSeries: TextView
     private lateinit var mLocalInformationAuthors: TextView
+
+    private var mDetailOpenTime: Long = 0
+    private var mTransitionRunnable: Runnable? = null
+    private val mHandler = android.os.Handler(android.os.Looper.getMainLooper())
+
+    private fun animateCoverTransition() {
+        mTransitionRunnable?.let { mHandler.removeCallbacks(it) }
+        val runnable = Runnable {
+            if (isAdded && view != null) {
+                mCoverView.animate()
+                    .alpha(0f)
+                    .setDuration(300)
+                    .withEndAction {
+                        mCoverView.visibility = View.GONE
+                    }
+                    .start()
+            }
+        }
+        mTransitionRunnable = runnable
+        val timePassed = System.currentTimeMillis() - mDetailOpenTime
+        val delay = if (timePassed < 2000L) 2000L - timePassed else 0L
+        mHandler.postDelayed(runnable, delay)
+    }
 
     private lateinit var mLocalInformationVolumeReleasePublisherContent: LinearLayout
     private lateinit var mLocalInformationVolume: TextView
@@ -129,8 +152,9 @@ class MangaDetailFragment : Fragment() {
     private var mBookMarks: MutableList<String> = mutableListOf()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        mDetailOpenTime = System.currentTimeMillis()
         val root = inflater.inflate(R.layout.fragment_manga_detail, container, false)
-
+ 
         mRootScroll = root.findViewById(R.id.manga_detail_scroll)
         mBackgroundImage = root.findViewById(R.id.manga_detail_background_image)
         mCoverView = root.findViewById(R.id.manga_detail_card)
@@ -234,8 +258,6 @@ class MangaDetailFragment : Fragment() {
             }
         }
 
-
-
         mTitle.setOnLongClickListener {
             mViewModel.manga.value?.let { mg -> FileUtil(requireContext()).copyName(mg) }
             true
@@ -315,16 +337,8 @@ class MangaDetailFragment : Fragment() {
                 }
                 val use3d = GeneralConsts.getSharedPreferences(requireContext()).getBoolean(GeneralConsts.KEYS.THEME.THEME_3D_COVER_IN_DETAIL, false)
                 if (use3d && (mViewModel.hasFullCover.value == false)) {
-                    mBookCover3DView?.setBookTexture(it, false) {
-                        if (isAdded && view != null) {
-                            mCoverView.animate()
-                                .alpha(0f)
-                                .setDuration(300)
-                                .withEndAction {
-                                    mCoverView.visibility = View.GONE
-                                }
-                                .start()
-                        }
+                    m3DCover3DView?.setBookTexture(it, false) {
+                        animateCoverTransition()
                     }
                 }
             }
@@ -333,12 +347,13 @@ class MangaDetailFragment : Fragment() {
         mViewModel.hasFullCover.observe(viewLifecycleOwner) { hasFull ->
             val use3d = GeneralConsts.getSharedPreferences(requireContext()).getBoolean(GeneralConsts.KEYS.THEME.THEME_3D_COVER_IN_DETAIL, false)
             if (use3d) {
+                mTransitionRunnable?.let { mHandler.removeCallbacks(it) }
                 mCoverView.animate().cancel()
                 mCoverView.alpha = 1f
                 mCoverView.visibility = View.VISIBLE
                 m3DCoverSurface.visibility = View.VISIBLE
-                if (mBookCover3DView == null) {
-                    mBookCover3DView = BookCover3DView(requireContext(), m3DCoverSurface).apply {
+                if (m3DCover3DView == null) {
+                    m3DCover3DView = BookCover3DView(requireContext(), m3DCoverSurface).apply {
                         onLongClickListener = {
                             val reload = openImage(mViewModel.cover.value)
                             MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mViewModel.manga.value!!, false) {
@@ -350,55 +365,32 @@ class MangaDetailFragment : Fragment() {
                 }
                 if (hasFull) {
                     mViewModel.fullCoverBitmap.value?.let { bitmap ->
-                        mBookCover3DView?.setBookTexture(bitmap, true) {
-                            if (isAdded && view != null) {
-                                mCoverView.animate()
-                                    .alpha(0f)
-                                    .setDuration(300)
-                                    .withEndAction {
-                                        mCoverView.visibility = View.GONE
-                                    }
-                                    .start()
-                            }
+                        m3DCover3DView?.setBookTexture(bitmap, true) {
+                            animateCoverTransition()
                         }
                     }
                 } else {
                     mViewModel.cover.value?.let { bitmap ->
-                        mBookCover3DView?.setBookTexture(bitmap, false) {
-                            if (isAdded && view != null) {
-                                mCoverView.animate()
-                                    .alpha(0f)
-                                    .setDuration(300)
-                                    .withEndAction {
-                                        mCoverView.visibility = View.GONE
-                                    }
-                                    .start()
-                            }
+                        m3DCover3DView?.setBookTexture(bitmap, false) {
+                            animateCoverTransition()
                         }
                     }
                 }
             } else {
+                mTransitionRunnable?.let { mHandler.removeCallbacks(it) }
                 mCoverView.animate().cancel()
                 m3DCoverSurface.visibility = View.GONE
                 mCoverView.visibility = View.VISIBLE
                 mCoverView.alpha = 1f
-                mBookCover3DView = null
+                m3DCover3DView = null
             }
         }
 
         mViewModel.fullCoverBitmap.observe(viewLifecycleOwner) { bitmap ->
             val use3d = GeneralConsts.getSharedPreferences(requireContext()).getBoolean(GeneralConsts.KEYS.THEME.THEME_3D_COVER_IN_DETAIL, false)
             if (bitmap != null && use3d && (mViewModel.hasFullCover.value == true)) {
-                mBookCover3DView?.setBookTexture(bitmap, true) {
-                    if (isAdded && view != null) {
-                        mCoverView.animate()
-                            .alpha(0f)
-                            .setDuration(300)
-                            .withEndAction {
-                                mCoverView.visibility = View.GONE
-                            }
-                            .start()
-                    }
+                m3DCover3DView?.setBookTexture(bitmap, true) {
+                    animateCoverTransition()
                 }
             }
         }
@@ -772,21 +764,12 @@ class MangaDetailFragment : Fragment() {
             btn3D.setOnClickListener {
                 imageView.visibility = View.GONE
                 surface3D.visibility = View.VISIBLE
-                if (popup3DView == null) {
+                if (popup3DView == null)
                     popup3DView = BookCover3DView(requireContext(), surface3D, true)
-                    val hasFull = mViewModel.hasFullCover.value ?: false
-                    if (hasFull) {
-                        mViewModel.fullCoverBitmap.value?.let { bmp ->
-                            popup3DView?.setBookTexture(bmp, true)
-                        } ?: mViewModel.cover.value?.let { bmp ->
-                            popup3DView?.setBookTexture(bmp, false)
-                        }
-                    } else {
-                        mViewModel.cover.value?.let { bmp ->
-                            popup3DView?.setBookTexture(bmp, false)
-                        }
-                    }
-                }
+
+                val hasFull = mViewModel.hasFullCover.value ?: false
+                val bmp = if (hasFull && mViewModel.fullCoverBitmap.value != null) mViewModel.fullCoverBitmap.value else mViewModel.cover.value
+                popup3DView?.setBookTexture(bmp!!, false)
             }
         }
 
@@ -802,10 +785,8 @@ class MangaDetailFragment : Fragment() {
                 if (popup.isShowing) {
                     imageView.setImageBitmap(it)
                     if (popup3DView != null) {
-                        val hasFull = mViewModel.hasFullCover.value ?: false
-                        if (!hasFull) {
-                            popup3DView?.setBookTexture(it, false)
-                        }
+                        val bmp = if (mViewModel.hasFullCover.value ?: false && mViewModel.fullCoverBitmap.value != null) mViewModel.fullCoverBitmap.value else mViewModel.cover.value
+                        popup3DView?.setBookTexture(bmp!!, false)
                     }
                 }
             } catch (_ : Exception) {
@@ -819,6 +800,6 @@ class MangaDetailFragment : Fragment() {
             mCoverView.animate().cancel()
         } catch (_: Exception) {}
         super.onDestroyView()
-        mBookCover3DView = null
+        m3DCover3DView = null
     }
 }

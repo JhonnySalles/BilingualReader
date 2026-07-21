@@ -86,6 +86,8 @@ class BookCover3DView(
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
+        isDestroyed = false // Reset the flag so the view can be reused when surface is recreated
+
         // O ModelViewer do Filament cria e gerencia internamente View, Scene, Camera, Renderer e SwapChain
         // Usamos UiHelper configurado para transparente (isOpaque = false)
         val uiHelper = UiHelper(UiHelper.ContextErrorPolicy.DONT_CHECK).apply {
@@ -160,7 +162,35 @@ class BookCover3DView(
                 flip()
             }
             val viewer = modelViewer ?: return
-            viewer.loadModelGlb(byteBuffer)
+            
+            // Ao invés de viewer.loadModelGlb(byteBuffer) (que inicia um carregamento assíncrono que crasha no destroy)
+            // fazemos o equivalente usando carregamento síncrono.
+            viewer.destroyModel()
+            
+            val fAssetLoader = viewer.javaClass.getDeclaredField("assetLoader")
+            fAssetLoader.isAccessible = true
+            val assetLoader = fAssetLoader.get(viewer) as AssetLoader
+            
+            val asset = assetLoader.createAsset(byteBuffer)
+            
+            val fAsset = viewer.javaClass.getDeclaredField("asset")
+            fAsset.isAccessible = true
+            fAsset.set(viewer, asset)
+            
+            if (asset != null) {
+                val fResourceLoader = viewer.javaClass.getDeclaredField("resourceLoader")
+                fResourceLoader.isAccessible = true
+                val resourceLoader = fResourceLoader.get(viewer) as ResourceLoader
+                
+                resourceLoader.loadResources(asset) // Carregamento Síncrono!
+                
+                val fAnimator = viewer.javaClass.getDeclaredField("animator")
+                fAnimator.isAccessible = true
+                fAnimator.set(viewer, asset.instance.animator)
+                
+                asset.releaseSourceData()
+            }
+            
             viewer.transformToUnitCube()
             
             // Em vez de sobrescrever com uma matriz de escala pura que reseta a translação calculada pelo transformToUnitCube,
@@ -549,18 +579,6 @@ class BookCover3DView(
         try {
             val viewer = modelViewer
             if (viewer != null) {
-                // Cancela carregamentos assíncronos pendentes via reflexão para evitar crash no evictResourceData
-                // já que 'resourceLoader' é privado na classe ModelViewer.
-                try {
-                    val field = viewer.javaClass.getDeclaredField("resourceLoader")
-                    field.isAccessible = true
-                    val loader = field.get(viewer) as? com.google.android.filament.gltfio.ResourceLoader
-                    if (loader != null && loader.asyncGetLoadProgress() < 1.0f) {
-                        loader.asyncCancelLoad()
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
                 viewer.destroy()
             }
         } catch (e: Exception) {
