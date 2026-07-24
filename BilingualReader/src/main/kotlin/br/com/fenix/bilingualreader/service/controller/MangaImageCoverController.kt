@@ -82,14 +82,7 @@ class MangaImageCoverController private constructor() {
     private fun generateHash(file: File): String = Util.MD5(file.path + file.name)
 
     private fun getCoverFromFile(context: Context, hash: String, parse: Parse, isCoverSize: Boolean = true): Bitmap? {
-        var index = 0
-        for (i in 0 until parse.numPages()) {
-            if (FileUtil.isImage(parse.getPagePath(i)!!)) {
-                index = i
-                break
-            }
-        }
-        var stream: InputStream? = parse.getPage(index)
+        var stream: InputStream? = parse.getCover().first
 
         val cover: Bitmap?
 
@@ -105,14 +98,14 @@ class MangaImageCoverController private constructor() {
             option.inJustDecodeBounds = false
 
             Util.closeInputStream(stream)
-            stream = parse.getPage(index)
+            stream = parse.getCover().first
             cover = BitmapFactory.decodeStream(stream, null, option)
             if (cover != null)
                 saveBitmapToCache(context, hash, cover)
 
             Util.closeInputStream(stream)
         } else {
-            stream = parse.getPage(index)
+            stream = parse.getCover().first
             cover = BitmapFactory.decodeStream(stream)
             Util.closeInputStream(stream)
         }

@@ -4,6 +4,7 @@ import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
+import com.github.junrar.rarfile.FileHeader
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
 import org.simpleframework.xml.Serializer
@@ -21,8 +22,7 @@ class SevenZipParse : Parse {
     private var mEntries = ArrayList<SevenZEntry>()
     private var mSubtitles = ArrayList<SevenZEntry>()
     private var mComicInfo: SevenZEntry? = null
-    private var mFullCover: SevenZEntry? = null
-
+    private var mCover: Array<SevenZEntry?> = arrayOfNulls<SevenZEntry?>(3)
     private class SevenZEntry(val entry: SevenZArchiveEntry, val bytes: ByteArray)
 
     override fun parse(file: File?) {
@@ -40,8 +40,16 @@ class SevenZipParse : Parse {
                     sevenZFile.read(content)
                     val sevenZEntry = SevenZEntry(entry, content)
                     mEntries.add(sevenZEntry)
-                    if (entry.name.contains("volume", true) && entry.name.contains("tudo", true))
-                        mFullCover = sevenZEntry
+                    if (mCover[0] == null)
+                        mCover[0] = sevenZEntry
+                    if (entry.name.contains("volume", true)) {
+                        if (entry.name.contains("frente", ignoreCase = false) || entry.name.contains("cover", ignoreCase = false) || entry.name.contains("front", ignoreCase = false))
+                            mCover[0] = sevenZEntry
+                        else if (entry.name.contains("tras", ignoreCase = false) || entry.name.contains("back", ignoreCase = false))
+                            mCover[1] = sevenZEntry
+                        else if (entry.name.contains("tudo", true) || entry.name.contains("all", ignoreCase = false) || entry.name.contains("everything", ignoreCase = false))
+                            mCover[2] = sevenZEntry
+                    }
                 } else if (FileUtil.isJson(entry.name)) {
                     val content = ByteArray(entry.size.toInt())
                     sevenZFile.read(content)
@@ -148,13 +156,11 @@ class SevenZipParse : Parse {
         return ByteArrayInputStream(mEntries[num].bytes)
     }
 
-    override fun hasFullCover(): Boolean {
-        return mFullCover != null
-    }
+    override fun hasFullCover(): Boolean = mCover[2] != null
 
-    override fun getFullCover(): InputStream? {
-        return if (hasFullCover()) ByteArrayInputStream(mFullCover!!.bytes) else null
-    }
+    override fun getFullCover(): InputStream? = if (hasFullCover()) ByteArrayInputStream(mCover[2]!!.bytes) else null
+
+    override fun getCover(): Pair<InputStream?, InputStream?> = Pair(if (mCover[0] != null) ByteArrayInputStream(mCover[0]!!.bytes) else getPage(0), if (mCover[1] != null) ByteArrayInputStream(mCover[1]!!.bytes) else null)
 
     override fun destroy(isClearCache: Boolean) {
     }

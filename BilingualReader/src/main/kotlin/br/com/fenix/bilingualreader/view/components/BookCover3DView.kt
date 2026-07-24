@@ -8,13 +8,11 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import br.com.fenix.bilingualreader.view.ui.detail.manga.MangaDetailFragment
 import com.google.android.filament.*
 import com.google.android.filament.gltfio.*
 import com.google.android.filament.utils.*
 import com.google.android.filament.android.UiHelper
 import org.slf4j.LoggerFactory
-import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -56,7 +54,8 @@ class BookCover3DView(
     private val choreographer = Choreographer.getInstance()
     private val frameScheduler = FrameCallback()
     private var isSurfaceAvailable = false
-    private var pendingBitmap: Bitmap? = null
+    private var pendingCover: Bitmap? = null
+    private var pendingBack: Bitmap? = null
     private var pendingIsFullCover = false
     private var pendingOnReady: (() -> Unit)? = null
     private var isDestroyed = false
@@ -147,9 +146,10 @@ class BookCover3DView(
         choreographer.postFrameCallback(frameScheduler)
 
         // Se havia uma textura pendente aguardando a criação do surface, aplica agora
-        pendingBitmap?.let {
-            setBookTexture(it, pendingIsFullCover, pendingOnReady)
-            pendingBitmap = null
+        pendingCover?.let {
+            setBookTexture(it, pendingBack, pendingIsFullCover, pendingOnReady)
+            pendingCover = null
+            pendingBack = null
             pendingOnReady = null
         }
     }
@@ -367,10 +367,11 @@ class BookCover3DView(
         return 0xFF000000.toInt() or (r shl 16) or (g shl 8) or b
     }
 
-    fun setBookTexture(bitmap: Bitmap, isFullCover: Boolean = false, onReady: (() -> Unit)? = null) {
+    fun setBookTexture(cover: Bitmap, back: Bitmap?, isFullCover: Boolean = false, onReady: (() -> Unit)? = null) {
         if (isDestroyed || !isSurfaceAvailable) {
             // Se o motor foi destruído ou a surface não está pronta, salva na fila
-            pendingBitmap = bitmap
+            pendingCover = cover
+            pendingBack = back
             pendingIsFullCover = isFullCover
             pendingOnReady = onReady
             return
@@ -379,7 +380,7 @@ class BookCover3DView(
         val viewer = modelViewer ?: return
         val engine = viewer.engine
 
-        var finalBitmap = bitmap
+        var finalBitmap = cover
         val assetManager = context.assets
 
         try {
@@ -397,7 +398,7 @@ class BookCover3DView(
                 val canvas = android.graphics.Canvas(combinedBitmap)
 
                 // 2. Determina a cor padrão para preencher a malha
-                val baseColor = getPredominantColor(bitmap)
+                val baseColor = getPredominantColor(cover)
 
                 // 3. Processa a malha base em lote para trocar o verde limão (0xFF3CFF00 ou similar) pela cor predominante
                 val pixels = IntArray(meshWidth * meshHeight)
@@ -421,12 +422,11 @@ class BookCover3DView(
 
                 // 4. Recorta e pinta cada parte da capa original nas posições especificadas na malha
                 // Larguras e alturas para corte a partir do bitmap original
-                val originalHeight = bitmap.height
-
                 if (isFullCover) {
+                    val originalHeight = cover.height
                     // Calcula o tamanho das abas (marcadores) caso a imagem seja mais larga que o padrão
-                    val (cropLeft, cropRight) = calculateFlaps(bitmap)
-                    val effectiveWidth = bitmap.width - cropLeft - cropRight
+                    val (cropLeft, cropRight) = calculateFlaps(cover)
+                    val effectiveWidth = cover.width - cropLeft - cropRight
 
                     // Frações da capa
                     val frontWidth = (effectiveWidth * FRONT_COVER_WIDTH_RATIO).toInt()
@@ -435,20 +435,20 @@ class BookCover3DView(
                     // Recortes na capa original (esquerda = Frente, centro = Lombada, direita = Trás)
                     val frontSrc = android.graphics.Rect(cropLeft, 0, cropLeft + frontWidth, originalHeight)
                     val spineSrc = android.graphics.Rect(cropLeft + frontWidth, 0, cropLeft + frontWidth + spineWidth, originalHeight)
-                    val backSrc = android.graphics.Rect(cropLeft + frontWidth + spineWidth, 0, bitmap.width - cropRight, originalHeight)
+                    val backSrc = android.graphics.Rect(cropLeft + frontWidth + spineWidth, 0, cover.width - cropRight, originalHeight)
 
                     // Tras: Left=0, Top=1250, Right=1750, Bottom=4096. Rotacionado 180°
                     val backDst = android.graphics.RectF(0f, 1250f, 1750f, 4096f)
                     canvas.save()
                     canvas.rotate(180f, backDst.centerX(), backDst.centerY())
-                    canvas.drawBitmap(bitmap, backSrc, backDst, null)
+                    canvas.drawBitmap(cover, backSrc, backDst, null)
                     canvas.restore()
 
                     // Frente: Left=1758, Top=1250, Right=3520, Bottom=4096. Rotacionado 180°
                     val frontDst = android.graphics.RectF(1758f, 1250f, 3520f, 4096f)
                     canvas.save()
                     canvas.rotate(180f, frontDst.centerX(), frontDst.centerY())
-                    canvas.drawBitmap(bitmap, frontSrc, frontDst, null)
+                    canvas.drawBitmap(cover, frontSrc, frontDst, null)
                     canvas.restore()
 
                     // Lombada: Left=0, Top=276, Right=2880, Bottom=770.
@@ -463,15 +463,23 @@ class BookCover3DView(
                         spineDst.centerX() + (spineDst.height() / 2f),
                         spineDst.centerY() + (spineDst.width() / 2f)
                     )
-                    canvas.drawBitmap(bitmap, spineSrc, spineRotatedDst, null)
+                    canvas.drawBitmap(cover, spineSrc, spineRotatedDst, null)
                     canvas.restore()
                 } else {
-                    val originalWidth = bitmap.width
-                    val frontSrc = android.graphics.Rect(0, 0, originalWidth, originalHeight)
+                    if (back != null) {
+                        val backSrc = android.graphics.Rect(0, 0, back.width, back.height)
+                        val backDst = android.graphics.RectF(0f, 1250f, 1750f, 4096f)
+                        canvas.save()
+                        canvas.rotate(180f, backDst.centerX(), backDst.centerY())
+                        canvas.drawBitmap(back, backSrc, backDst, null)
+                        canvas.restore()
+                    }
+
+                    val frontSrc = android.graphics.Rect(0, 0, cover.width, cover.height)
                     val frontDst = android.graphics.RectF(1758f, 1250f, 3520f, 4096f)
                     canvas.save()
                     canvas.rotate(180f, frontDst.centerX(), frontDst.centerY())
-                    canvas.drawBitmap(bitmap, frontSrc, frontDst, null)
+                    canvas.drawBitmap(cover, frontSrc, frontDst, null)
                     canvas.restore()
                 }
 
@@ -518,7 +526,7 @@ class BookCover3DView(
         }*/
 
         // Limpa o bitmap temporário criado se não for o bitmap original
-        if (finalBitmap != bitmap) {
+        if (finalBitmap != cover) {
             finalBitmap.recycle()
         }
 

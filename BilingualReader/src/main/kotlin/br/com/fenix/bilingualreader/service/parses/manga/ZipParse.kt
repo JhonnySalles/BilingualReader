@@ -4,6 +4,7 @@ import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
+import com.github.junrar.rarfile.FileHeader
 import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.core.Persister
 import org.slf4j.LoggerFactory
@@ -22,7 +23,7 @@ class ZipParse : Parse {
     private var mEntries = ArrayList<ZipEntry>()
     private var mSubtitles = ArrayList<ZipEntry>()
     private var mComicInfo: ZipEntry? = null
-    private var mFullCover: ZipEntry? = null
+    private var mCover: Array<ZipEntry?> = arrayOfNulls<ZipEntry?>(3)
 
     override fun parse(file: File?) {
         mZipFile = ZipFile(file?.absolutePath, StandardCharsets.UTF_8)
@@ -37,8 +38,16 @@ class ZipParse : Parse {
 
             if (FileUtil.isImage(ze.name)) {
                 mEntries.add(ze)
-                if (ze.name.contains("volume", true) && ze.name.contains("tudo", true))
-                    mFullCover = ze
+                if (mCover[0] == null)
+                    mCover[0] = ze
+                if (ze.name.contains("volume", true)) {
+                    if (ze.name.contains("frente", ignoreCase = false) || ze.name.contains("cover", ignoreCase = false) || ze.name.contains("front", ignoreCase = false))
+                        mCover[0] = ze
+                    else if (ze.name.contains("tras", ignoreCase = false) || ze.name.contains("back", ignoreCase = false))
+                        mCover[1] = ze
+                    else if (ze.name.contains("tudo", true) || ze.name.contains("all", ignoreCase = false) || ze.name.contains("everything", ignoreCase = false))
+                        mCover[2] = ze
+                }
             } else if (FileUtil.isJson(ze.name))
                 mSubtitles.add(ze)
             else if (FileUtil.isXml(ze.name) && ze.name.contains("comicinfo", true))
@@ -136,13 +145,11 @@ class ZipParse : Parse {
         return mZipFile!!.getInputStream(mEntries[num])
     }
 
-    override fun hasFullCover(): Boolean {
-        return mFullCover != null
-    }
+    override fun hasFullCover(): Boolean = mCover[2] != null
 
-    override fun getFullCover(): InputStream? {
-        return if (hasFullCover()) mZipFile!!.getInputStream(mFullCover!!) else null
-    }
+    override fun getFullCover(): InputStream? = if (hasFullCover()) mZipFile!!.getInputStream(mCover[2]!!) else null
+
+    override fun getCover(): Pair<InputStream?, InputStream?> = Pair(if (mCover[0] != null) mZipFile!!.getInputStream(mCover[0]!!) else getPage(0), if (mCover[1] != null) mZipFile!!.getInputStream(mCover[1]!!) else null)
 
     override fun destroy(isClearCache: Boolean) {
         mZipFile?.close()

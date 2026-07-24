@@ -59,7 +59,7 @@ class RarParse : Parse {
     private var mSolidFileExtracted = false
     private var mSubtitles = ArrayList<FileHeader>()
     private var mComicInfo: FileHeader? = null
-    private var mFullCover: FileHeader? = null
+    private var mCover: Array<FileHeader?> = arrayOfNulls<FileHeader?>(3)
 
     override fun parse(file: File?) {
         mFile = file
@@ -71,8 +71,16 @@ class RarParse : Parse {
                 val name = getName(header)
                 if (FileUtil.isImage(name)) {
                     mHeaders.add(header)
-                    if (name.contains("volume", true) && name.contains("tudo", true))
-                        mFullCover = header
+                    if (mCover[0] == null)
+                        mCover[0] = header
+                    if (name.contains("volume", true)) {
+                        if (name.contains("frente", ignoreCase = false) || name.contains("cover", ignoreCase = false) || name.contains("front", ignoreCase = false))
+                            mCover[0] = header
+                        else if (name.contains("tras", ignoreCase = false) || name.contains("back", ignoreCase = false))
+                            mCover[1] = header
+                        else if (name.contains("tudo", true) || name.contains("all", ignoreCase = false) || name.contains("everything", ignoreCase = false))
+                            mCover[2] = header
+                    }
                 } else if (FileUtil.isJson(name))
                     mSubtitles.add(header)
                 else if (FileUtil.isXml(name) && name.contains("comicinfo", true))
@@ -189,13 +197,11 @@ class RarParse : Parse {
         return getPageStream(mHeaders[num])
     }
 
-    override fun hasFullCover(): Boolean {
-        return mFullCover != null
-    }
+    override fun hasFullCover(): Boolean = mCover[2] != null
 
-    override fun getFullCover(): InputStream? {
-        return if (hasFullCover()) getPageStream(mFullCover!!) else null
-    }
+    override fun getFullCover(): InputStream? = if (hasFullCover()) getPageStream(mCover[2]!!) else null
+
+    override fun getCover(): Pair<InputStream?, InputStream?> = Pair(if (mCover[0] != null) getPageStream(mCover[0]!!) else getPage(0), if (mCover[1] != null) getPageStream(mCover[1]!!) else null)
 
     private fun recreateArchive() {
         try {

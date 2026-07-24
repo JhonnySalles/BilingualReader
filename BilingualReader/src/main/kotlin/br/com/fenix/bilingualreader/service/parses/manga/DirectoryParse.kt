@@ -4,6 +4,7 @@ import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
 import br.com.fenix.bilingualreader.util.helpers.Telemetry
 import br.com.fenix.bilingualreader.util.helpers.Util
+import com.github.junrar.rarfile.FileHeader
 import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.core.Persister
 import org.slf4j.LoggerFactory
@@ -20,7 +21,7 @@ class DirectoryParse : Parse {
     private val mFiles = ArrayList<File>()
     private val mSubtitles = ArrayList<File>()
     private var mComicInfo: File? = null
-    private var mFullCover: File? = null
+    private var mCover: Array<File?> = arrayOfNulls<File?>(3)
 
     override fun parse(file: File?) {
         if (file == null)
@@ -36,8 +37,16 @@ class DirectoryParse : Parse {
 
                 if (FileUtil.isImage(f.absolutePath)) {
                     mFiles.add(f)
-                    if (f.name.contains("volume", true) && f.name.contains("tudo", true))
-                        mFullCover = f
+                    if (mCover[0] == null)
+                        mCover[0] = f
+                    if (f.name.contains("volume", true)) {
+                        if (f.name.contains("frente", ignoreCase = false) || f.name.contains("cover", ignoreCase = false) || f.name.contains("front", ignoreCase = false))
+                            mCover[0] = f
+                        else if (f.name.contains("tras", ignoreCase = false) || f.name.contains("back", ignoreCase = false))
+                            mCover[1] = f
+                        else if (f.name.contains("tudo", true) || f.name.contains("all", ignoreCase = false) || f.name.contains("everything", ignoreCase = false))
+                            mCover[2] = f
+                    }
                 } else if (FileUtil.isJson(f.absolutePath))
                     mSubtitles.add(f)
                 else if (FileUtil.isXml(f.absolutePath) && f.name.contains("comicinfo", true))
@@ -134,13 +143,11 @@ class DirectoryParse : Parse {
         return FileInputStream(mFiles[num])
     }
 
-    override fun hasFullCover(): Boolean {
-        return mFullCover != null
-    }
+    override fun hasFullCover(): Boolean = mCover[2] != null
 
-    override fun getFullCover(): InputStream? {
-        return if (hasFullCover()) FileInputStream(mFullCover!!) else null
-    }
+    override fun getFullCover(): InputStream? = if (hasFullCover()) FileInputStream(mCover[2]!!) else null
+
+    override fun getCover(): Pair<InputStream?, InputStream?> = Pair(if (mCover[0] != null) FileInputStream(mCover[0]!!) else getPage(0), if (mCover[1] != null) FileInputStream(mCover[1]!!) else null)
 
     override fun destroy(isClearCache: Boolean) {
     }

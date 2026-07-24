@@ -2,6 +2,7 @@ package br.com.fenix.bilingualreader.service.parses.manga
 
 import br.com.fenix.bilingualreader.model.entity.ComicInfo
 import br.com.fenix.bilingualreader.util.helpers.FileUtil
+import com.github.junrar.rarfile.FileHeader
 import org.jsoup.Jsoup
 import org.kxml2.io.KXmlParser
 import org.kxml2.kdom.Document
@@ -28,6 +29,7 @@ class EpubParse : Parse {
     private var mPages =  ArrayList<ZipEntry>()
     private var mOpf: ZipEntry? = null
     private val mChapters = mutableMapOf<String, Int>()
+    private var mCover: ZipEntry? = null
 
     override fun parse(file: File?) {
         try {
@@ -132,12 +134,16 @@ class EpubParse : Parse {
                                     val name = getImageRef(images[0])
                                     if (name.isNotEmpty()) {
                                         val page = mEntries.find { it.name.endsWith(name, ignoreCase = true) }
-                                        if (page != null)
+                                        if (page != null) {
                                             mPages.add(page)
+                                            mCover = page
+                                        }
                                     }
                                 }
-                            } else if (FileUtil.isImage(page.name))
+                            } else if (FileUtil.isImage(page.name)){
                                 mPages.add(page)
+                                mCover = page
+                            }
                         }
                     } catch (e: Exception) {
                         cover = null
@@ -197,6 +203,9 @@ class EpubParse : Parse {
                             }
                         }
                     }
+
+                    if (mCover == null)
+                        mCover = mPages[0]
 
                     if (mPages.isEmpty())
                         throw Exception("No pages found in opf")
@@ -283,7 +292,7 @@ class EpubParse : Parse {
     }
 
     override fun getSubtitles(): List<String> {
-        return arrayListOf<String>()
+        return arrayListOf()
     }
 
     override fun hasSubtitles(): Boolean {
@@ -291,7 +300,7 @@ class EpubParse : Parse {
     }
 
     override fun getSubtitlesNames(): Map<String, Int> {
-        return mutableMapOf<String, Int>()
+        return mutableMapOf()
     }
 
     private fun getName(entry: ZipEntry): String {
@@ -477,13 +486,11 @@ class EpubParse : Parse {
         return mZipFile!!.getInputStream(mPages[num])
     }
 
-    override fun hasFullCover(): Boolean {
-        return false
-    }
+    override fun hasFullCover(): Boolean = false
 
-    override fun getFullCover(): InputStream? {
-        return null
-    }
+    override fun getFullCover(): InputStream? = null
+
+    override fun getCover(): Pair<InputStream?, InputStream?> = Pair(if (mCover != null) mZipFile!!.getInputStream(mCover!!) else getPage(0), null)
 
     override fun destroy(isClearCache: Boolean) {
         mZipFile?.close()
