@@ -39,8 +39,8 @@ class EpubContext : PdfContext() {
 
         val cache = cacheFile ?: getCacheFileName(fileName)
 
-        if (BookCSS.get().isAutoHypens && !cache.isFile) {
-            EpubBookExtractor.processHyphens(fileName, cache.path)
+        if (!cache.isFile) {
+            EpubBookExtractor.preprocessEpub(fileName, cache.path)
         }
 
         if (TempHolder.get().loadingCancelled) {
@@ -48,7 +48,7 @@ class EpubContext : PdfContext() {
             return null
         }
 
-        val bookPath = if (BookCSS.get().isAutoHypens) cache.path else fileName
+        val bookPath = cache.path
         val muPdfDocument = MuPdfDocument(this, MuPdfDocument.FORMAT_PDF, bookPath, password)
 
         val jsonFile = File(cache.parentFile, ExtUtils.getFileNameWithoutExt(cache.name) + ".json")

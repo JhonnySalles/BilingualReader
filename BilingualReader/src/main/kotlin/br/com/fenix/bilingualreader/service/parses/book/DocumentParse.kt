@@ -148,11 +148,21 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
         var chapter: Pair<Int, String>? = null
         val outlineList = mCodecDocument?.outline
         if (!outlineList.isNullOrEmpty()) {
+            val oneBasedPage = page + 1
             for (link in outlineList) {
                 val pageNum = OutlineLinkWrapper.getPageNumber(link.link)
-                if (pageNum > 0 && page <= pageNum) {
-                    chapter = Pair(pageNum, link.title)
-                    break
+                if (pageNum > 0) {
+                    if (pageNum <= oneBasedPage) {
+                        chapter = Pair(pageNum, link.title)
+                    } else {
+                        break
+                    }
+                }
+            }
+            if (chapter == null) {
+                val firstLink = outlineList.firstOrNull { OutlineLinkWrapper.getPageNumber(it.link) > 0 }
+                if (firstLink != null) {
+                    chapter = Pair(OutlineLinkWrapper.getPageNumber(firstLink.link), firstLink.title)
                 }
             }
         }

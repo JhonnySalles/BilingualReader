@@ -9,6 +9,7 @@ import br.com.ebook.foobnix.android.utils.TxtUtils
 import br.com.ebook.foobnix.ext.CacheZipUtils.ATTACHMENTS_CACHE_DIR
 import br.com.ebook.foobnix.ext.XmlParser
 import br.com.ebook.foobnix.pdf.info.ExtUtils
+import br.com.ebook.foobnix.pdf.info.model.BookCSS
 import br.com.ebook.foobnix.sys.TempHolder
 import br.com.ebook.util.IOUtils
 import br.com.ebook.util.IOUtils.copyTo
@@ -33,6 +34,207 @@ object EpubBookExtractor : BookExtractor {
     private val LOGGER = LoggerFactory.getLogger(EpubBookExtractor::class.java)
 
     override val supportedFormats: Set<String> = setOf("epub", "kepub")
+
+    private fun resolvePath(basePath: String, relativePath: String): String {
+        val cleanBase = if (basePath.contains("/")) basePath.substring(0, basePath.lastIndexOf("/") + 1) else ""
+        val combined = cleanBase + relativePath
+        val parts = combined.split("/")
+        val resolvedParts = mutableListOf<String>()
+        for (part in parts) {
+            if (part == "..") {
+                if (resolvedParts.isNotEmpty()) resolvedParts.removeAt(resolvedParts.size - 1)
+            } else if (part != "." && part.isNotEmpty()) {
+                resolvedParts.add(part)
+            }
+        }
+        return resolvedParts.joinToString("/")
+    }
+
+    fun preprocessEpub(inputPath: String, outputPath: String) {
+        try {
+            LOGGER.info("preprocessEpub: {} || {}", inputPath, outputPath)
+            val file = File(inputPath)
+            
+            var opfPath = ""
+            var opfContentModified = ""
+            var coverPageEntryName = ""
+            var injectCoverPageEntryName = ""
+            var injectCoverPageContent = ""
+            
+            ZipFile(file, StandardCharsets.UTF_8).use { zipFile ->
+                val containerEntry = zipFile.getEntry("META-INF/container.xml")
+                if (containerEntry != null) {
+                    zipFile.getInputStream(containerEntry).use { inputStream ->
+                        val containerDoc = Jsoup.parse(inputStream, "UTF-8", "", Parser.xmlParser())
+                        val rootfile = containerDoc.select("rootfile[full-path]").firstOrNull()
+                        if (rootfile != null) {
+                            opfPath = rootfile.attr("full-path")
+                        }
+                    }
+                }
+                
+                if (opfPath.isNotEmpty()) {
+                    val opfEntry = zipFile.getEntry(opfPath)
+                    if (opfEntry != null) {
+                        zipFile.getInputStream(opfEntry).use { inputStream ->
+                            val opfDoc = Jsoup.parse(inputStream, "UTF-8", "", Parser.xmlParser())
+                            
+                            val ncxItem = opfDoc.select("item[media-type=application/x-dtbncx+xml]").firstOrNull()
+                            if (ncxItem != null) {
+                                val ncxId = ncxItem.attr("id")
+                                val spine = opfDoc.select("spine").firstOrNull()
+                                if (spine != null && (!spine.hasAttr("toc") || spine.attr("toc").isEmpty())) {
+                                    spine.attr("toc", ncxId)
+                                }
+                            }
+                            
+                            val spineItems = opfDoc.select("spine > itemref")
+                            var hasCoverPage = false
+                            if (spineItems.isNotEmpty()) {
+                                val firstIdref = spineItems.first().attr("idref")
+                                val firstItem = opfDoc.select("item[id=$firstIdref]").firstOrNull()
+                                if (firstItem != null) {
+                                    val href = firstItem.attr("href")
+                                    val id = firstItem.attr("id")
+                                    val hrefLow = href.lowercase(Locale.getDefault())
+                                    val idLow = id.lowercase(Locale.getDefault())
+                                    if (hrefLow.contains("cover") || hrefLow.contains("titlepage") || hrefLow.contains("title_page") ||
+                                        idLow.contains("cover") || idLow.contains("titlepage") || idLow.contains("title_page")) {
+                                        hasCoverPage = true
+                                        coverPageEntryName = resolvePath(opfPath, href)
+                                    }
+                                }
+                            }
+                            
+                            if (!hasCoverPage) {
+                                val coverImgItem = opfDoc.select("item[properties*=cover-image], item[id=cover], item[id=cover-image]").firstOrNull()
+                                if (coverImgItem != null) {
+                                    val coverImgHref = coverImgItem.attr("href")
+                                    
+                                    val manifest = opfDoc.select("manifest").firstOrNull()
+                                    if (manifest != null) {
+                                        manifest.appendElement("item")
+                                            .attr("id", "bilingual-cover-page")
+                                            .attr("href", "bilingual-cover-page.xhtml")
+                                            .attr("media-type", "application/xhtml+xml")
+                                            
+                                        val spine = opfDoc.select("spine").firstOrNull()
+                                        val firstItemRef = spine?.select("itemref")?.firstOrNull()
+                                        if (firstItemRef != null) {
+                                            firstItemRef.before("<itemref idref=\"bilingual-cover-page\" />")
+                                        } else {
+                                            spine?.appendElement("itemref")?.attr("idref", "bilingual-cover-page")
+                                        }
+                                        
+                                        injectCoverPageEntryName = resolvePath(opfPath, "bilingual-cover-page.xhtml")
+                                        injectCoverPageContent = """
+                                            <?xml version="1.0" encoding="utf-8"?>
+                                            <!DOCTYPE html>
+                                            <html xmlns="http://www.w3.org/1999/xhtml">
+                                            <head>
+                                              <title>Cover</title>
+                                              <style type="text/css">
+                                                body { margin: 0; padding: 0; text-align: center; background-color: #ffffff; }
+                                                img { max-width: 100%; max-height: 100%; height: auto; width: auto; margin: 0 auto; display: block; }
+                                              </style>
+                                            </head>
+                                            <body>
+                                              <div>
+                                                <img src="$coverImgHref" alt="Cover" />
+                                              </div>
+                                            </body>
+                                            </html>
+                                        """.trimIndent()
+                                    }
+                                }
+                            }
+                            
+                            opfContentModified = opfDoc.toString()
+                        }
+                    }
+                }
+            }
+            
+            ZipFile(file, StandardCharsets.UTF_8).use { zipFile ->
+                ZipOutputStream(BufferedOutputStream(FileOutputStream(outputPath))).use { zos ->
+                    zos.setLevel(0)
+                    
+                    if (injectCoverPageEntryName.isNotEmpty() && injectCoverPageContent.isNotEmpty()) {
+                        Fb2BookExtractor.writeToZipNoClose(zos, injectCoverPageEntryName, ByteArrayInputStream(injectCoverPageContent.toByteArray(StandardCharsets.UTF_8)))
+                    }
+                    
+                    val entries = zipFile.entries()
+                    while (entries.hasMoreElements()) {
+                        if (TempHolder.get().loadingCancelled) break
+                        val entry = entries.nextElement()
+                        val name = entry.name
+                        val nameLow = name.lowercase(Locale.getDefault())
+                        
+                        if (name == opfPath && opfContentModified.isNotEmpty()) {
+                            val opfBytes = opfContentModified.toByteArray(StandardCharsets.UTF_8)
+                            Fb2BookExtractor.writeToZipNoClose(zos, name, ByteArrayInputStream(opfBytes))
+                        } else if (name == coverPageEntryName) {
+                            var coverHtml = ""
+                            zipFile.getInputStream(entry).use { inputStream ->
+                                val coverDoc = Jsoup.parse(inputStream, "UTF-8", "", Parser.xmlParser())
+                                val svg = coverDoc.select("svg").firstOrNull()
+                                if (svg != null) {
+                                    val image = svg.select("image").firstOrNull()
+                                    if (image != null) {
+                                        val imgHref = if (image.hasAttr("xlink:href")) image.attr("xlink:href") else image.attr("href")
+                                        if (imgHref.isNotEmpty()) {
+                                            val newBody = """
+                                                <div>
+                                                  <img src="$imgHref" alt="Cover" />
+                                                </div>
+                                            """.trimIndent()
+                                            coverDoc.body()?.html(newBody)
+                                            val head = coverDoc.head()
+                                            head?.select("style")?.remove()
+                                            head?.append("""
+                                                <style type="text/css">
+                                                  body { margin: 0; padding: 0; text-align: center; background-color: #ffffff; }
+                                                  img { max-width: 100%; max-height: 100%; height: auto; width: auto; margin: 0 auto; display: block; }
+                                                </style>
+                                            """.trimIndent())
+                                        }
+                                    }
+                                }
+                                coverHtml = coverDoc.toString()
+                            }
+                            
+                            if (BookCSS.get().isAutoHypens) {
+                                val reader = InputStreamReader(ByteArrayInputStream(coverHtml.toByteArray(StandardCharsets.UTF_8)), StandardCharsets.UTF_8)
+                                val hStream = Fb2BookExtractor.generateHyphenFile(reader)
+                                Fb2BookExtractor.writeToZipNoClose(zos, name, ByteArrayInputStream(hStream.toByteArray()))
+                            } else {
+                                Fb2BookExtractor.writeToZipNoClose(zos, name, ByteArrayInputStream(coverHtml.toByteArray(StandardCharsets.UTF_8)))
+                            }
+                        } else if (!name.endsWith("container.xml") && (nameLow.endsWith("html") || nameLow.endsWith("htm") || nameLow.endsWith("xml"))) {
+                            if (BookCSS.get().isAutoHypens) {
+                                zipFile.getInputStream(entry).use { inputStream ->
+                                    InputStreamReader(inputStream, StandardCharsets.UTF_8).use { reader ->
+                                        val hStream = Fb2BookExtractor.generateHyphenFile(reader)
+                                        Fb2BookExtractor.writeToZipNoClose(zos, name, ByteArrayInputStream(hStream.toByteArray()))
+                                    }
+                                }
+                            } else {
+                                zipFile.getInputStream(entry).use { inputStream ->
+                                    Fb2BookExtractor.writeToZipNoClose(zos, name, inputStream)
+                                }
+                            }
+                        } else {
+                            zipFile.getInputStream(entry).use { inputStream ->
+                                Fb2BookExtractor.writeToZipNoClose(zos, name, inputStream)
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            LOGGER.error("Error preprocessing EPUB: {}", e.message, e)
+        }
+    }
 
     fun processHyphens(inputPath: String, outputPath: String) {
         try {

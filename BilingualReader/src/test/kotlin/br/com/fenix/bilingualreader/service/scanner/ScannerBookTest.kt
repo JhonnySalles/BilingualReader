@@ -1,8 +1,6 @@
 package br.com.fenix.bilingualreader.service.scanner
 
 import android.content.Context
-import br.com.ebook.foobnix.entity.FileMetaCore
-import br.com.ebook.foobnix.ext.EbookMeta
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.service.repository.Storage
@@ -48,12 +46,7 @@ class ScannerBookTest {
         mockkObject(Notifications.NotificationUtils)
         every { Notifications.getNotification(any(), any(), any()) } returns mockk(relaxed = true)
         every { Notifications.getID() } returns 1
-        
-        // Mock FileMetaCore (Singleton in Java)
-        mockkStatic(FileMetaCore::class)
-        val fileMetaCore = mockk<FileMetaCore>(relaxed = true)
-        every { FileMetaCore.get() } returns fileMetaCore
-        every { fileMetaCore.getEbookMeta(any(), any(), any()) } returns EbookMeta.Empty()
+
         
         // Mock Firebase
         mockkStatic(FirebaseApp::class)
