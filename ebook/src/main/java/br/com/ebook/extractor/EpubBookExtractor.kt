@@ -471,4 +471,55 @@ object EpubBookExtractor : BookExtractor {
     }.onFailure { e ->
         IOUtils.reportException(e, "Error extracting content from epub: $path")
     }
+
+    fun extractTocOutline(path: String): List<org.ebookdroid.core.codec.OutlineLink> {
+        val list = mutableListOf<org.ebookdroid.core.codec.OutlineLink>()
+        try {
+            ZipFile(File(path), StandardCharsets.UTF_8).use { zipFile ->
+                var ncxEntry: ZipEntry? = null
+                var navEntry: ZipEntry? = null
+                val entries = zipFile.entries()
+                while (entries.hasMoreElements()) {
+                    val entry = entries.nextElement()
+                    val nameLow = entry.name.lowercase(Locale.getDefault())
+                    if (nameLow.endsWith(".ncx") && ncxEntry == null) {
+                        ncxEntry = entry
+                    } else if ((nameLow.contains("nav") || nameLow.contains("toc")) && (nameLow.endsWith(".xhtml") || nameLow.endsWith(".html")) && navEntry == null) {
+                        navEntry = entry
+                    }
+                }
+
+                if (ncxEntry != null) {
+                    zipFile.getInputStream(ncxEntry).use { inputStream ->
+                        val doc = Jsoup.parse(inputStream, "UTF-8", "", Parser.xmlParser())
+                        val navPoints = doc.select("navPoint")
+                        for (np in navPoints) {
+                            val text = np.select("navLabel > text").text()
+                            val src = np.select("content").attr("src")
+                            if (text.isNotEmpty() && src.isNotEmpty()) {
+                                list.add(org.ebookdroid.core.codec.OutlineLink(text, src, 0))
+                            }
+                        }
+                    }
+                }
+
+                if (list.isEmpty() && navEntry != null) {
+                    zipFile.getInputStream(navEntry).use { inputStream ->
+                        val doc = Jsoup.parse(inputStream, "UTF-8", "", Parser.htmlParser())
+                        val links = doc.select("nav[epub|type=toc] a[href], nav#toc a[href], body a[href]")
+                        for (a in links) {
+                            val text = a.text()
+                            val href = a.attr("href")
+                            if (text.isNotEmpty() && href.isNotEmpty()) {
+                                list.add(org.ebookdroid.core.codec.OutlineLink(text, href, 0))
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            LOGGER.error("Error extracting TOC outline from {}: {}", path, e.message, e)
+        }
+        return list
+    }
 }
