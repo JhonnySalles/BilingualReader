@@ -91,7 +91,7 @@
             android:layoutAnimation="@anim/layout_animation_library_line"
             android:paddingBottom="@dimen/book_search_list_padding"
             android:scrollbars="vertical"
-            android:background="?attr/colorSurfaceBright"
+            android:background="@drawable/app_background"
             android:visibility="gone"
             app:layout_constrainedHeight="true"
             app:layout_constraintBottom_toBottomOf="parent"

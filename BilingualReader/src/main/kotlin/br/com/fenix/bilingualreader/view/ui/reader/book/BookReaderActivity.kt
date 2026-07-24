@@ -332,7 +332,28 @@ class BookReaderActivity : AppCompatActivity(), PopupLayoutListener {
 
     fun changePageDescription(chapter: Int, description: String, page: Int, pages: Int) {
         mToolBarBottomProgressTitle.text = if (page > 0) getString(R.string.reading_book_title_position, page, pages, Util.formatDecimal(page.toFloat() / pages * 100)) else ""
-        val title = if (chapter > 0) getString(R.string.reading_book_title_chapter, chapter, description) else description
+        val title = if (chapter > 0) {
+            val hasChapter = description.contains("chapter", ignoreCase = true) ||
+                             description.contains("capítulo", ignoreCase = true) ||
+                             description.contains("capitulo", ignoreCase = true)
+            val isPortuguese = mBook?.language == br.com.fenix.bilingualreader.model.enums.Languages.PORTUGUESE || 
+                               mBook?.language == br.com.fenix.bilingualreader.model.enums.Languages.PORTUGUESE_GOOGLE
+            val isEnglish = mBook?.language == br.com.fenix.bilingualreader.model.enums.Languages.ENGLISH
+
+            if ((isPortuguese || isEnglish) && hasChapter) {
+                "$description • Página $chapter"
+            } else {
+                val chapterIndex = mFragment?.mParse?.getChapterIndex(page - 1) ?: 0
+                val prefix = if (isPortuguese) "Capítulo" else "Chapter"
+                if (chapterIndex > 0) {
+                    "$prefix $chapterIndex: $description"
+                } else {
+                    description
+                }
+            }
+        } else {
+            description
+        }
 
         if (mToolBarChapter != null) {
             mToolBarChapter!!.text = title

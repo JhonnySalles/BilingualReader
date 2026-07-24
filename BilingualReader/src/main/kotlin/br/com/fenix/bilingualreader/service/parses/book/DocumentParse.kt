@@ -169,6 +169,25 @@ class DocumentParse(var path: String, var password: String = "", var fontSize: I
         return chapter
     }
 
+    fun getChapterIndex(page: Int): Int {
+        val outlineList = mCodecDocument?.outline ?: return 0
+        val oneBasedPage = page + 1
+        var matchedIndex = 0
+        var currentIndex = 0
+        for (link in outlineList) {
+            val pageNum = OutlineLinkWrapper.getPageNumber(link.link)
+            if (pageNum > 0) {
+                currentIndex++
+                if (pageNum <= oneBasedPage) {
+                    matchedIndex = currentIndex
+                } else {
+                    break
+                }
+            }
+        }
+        return matchedIndex
+    }
+
     fun getChapters(): Map<String, Int> {
         val chapter: MutableMap<String, Int> = mutableMapOf()
         val outlineList = mCodecDocument?.outline
