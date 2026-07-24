@@ -800,24 +800,18 @@ class BookReaderViewModel(var app: Application) : AndroidViewModel(app) {
             val list = arrayListOf<Chapters>()
             val chapters = parse.getChapters().map { Pair(it.value, it.key) }.sortedBy { it.first }
             val pages = parse.pageCount
-            var c = 0
-            var p = parse.pageCount
-            var title: Chapters = if (chapters.isNotEmpty()) {
-                p = chapters[c].first
-                Chapters(chapters[c].second, 0, chapters[c].first, c.toFloat(), true)
-            } else
-                Chapters(parse.bookTitle, 0, 0, 0f, true)
-
-            list.add(title)
+            var title = Chapters("", 0, 0, 0f, true)
 
             for (i in 0 until pages) {
                 if (stopLoadChapters)
                     break
 
-                if (i >= p && c < chapters.size - 1) {
-                    c++
-                    p = chapters[c].first
-                    title = Chapters(chapters[c].second, 0, chapters[c].first, c.toFloat(), true)
+                val activeChapter = chapters.filter { it.first <= i + 1 }.maxByOrNull { it.first }
+                val activeTitle = activeChapter?.second ?: parse.bookTitle
+                val activeChapterPage = activeChapter?.first ?: 0
+
+                if (title.title != activeTitle) {
+                    title = Chapters(activeTitle, i, activeChapterPage, list.size.toFloat(), true)
                     list.add(title)
                 }
 

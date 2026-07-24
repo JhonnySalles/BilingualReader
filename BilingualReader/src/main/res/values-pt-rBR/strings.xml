@@ -304,7 +304,7 @@
     <string name="menu_book_reading_config_touch">Configura funções touch</string>
 
     <string name="reading_book_title_position">Posição %1$d de %2$d • %3$s%%</string>
-    <string name="reading_book_title_chapter">Capítulo %1$d: %2$s</string>
+    <string name="reading_book_title_chapter">%2$s • Página %1$d</string>
 
     <string name="reading_book_page_mark">Marcador de página</string>
     <string name="reading_book_page_index">Índice</string>
