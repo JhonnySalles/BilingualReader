@@ -41,12 +41,14 @@ class TarParse : Parse {
                     if (FileUtil.isImage(entry.name)) {
                         val tarEntry = TarEntry(entry, Util.toByteArray(tar)!!)
                         mEntries.add(tarEntry)
-                        if (entry.name.contains("volume", true)) {
-                            if (entry.name.contains("frente", ignoreCase = false) || entry.name.contains("cover", ignoreCase = false) || entry.name.contains("front", ignoreCase = false))
+                        val fileName = Util.getNameFromPath(entry.name)
+                        if (fileName.contains("volume", true)) {
+                            val cover = fileName.lowercase().substringAfterLast("volume")
+                            if (cover.contains("frente", ignoreCase = true) || cover.contains("cover", ignoreCase = true) || cover.contains("front", ignoreCase = true))
                                 mCover[0] = tarEntry
-                            else if (entry.name.contains("tras", ignoreCase = false) || entry.name.contains("back", ignoreCase = false))
+                            else if (cover.contains("tras", ignoreCase = true) || cover.contains("back", ignoreCase = true))
                                 mCover[1] = tarEntry
-                            else if (entry.name.contains("tudo", true) || entry.name.contains("all", ignoreCase = false) || entry.name.contains("everything", ignoreCase = false))
+                            else if (cover.contains("tudo", ignoreCase = true) || cover.contains("all", ignoreCase = true) || cover.contains("everything", ignoreCase = true))
                                 mCover[2] = tarEntry
                         }
                     } else if (FileUtil.isJson(entry.name))

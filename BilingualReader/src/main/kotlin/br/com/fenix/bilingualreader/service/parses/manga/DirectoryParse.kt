@@ -37,12 +37,14 @@ class DirectoryParse : Parse {
 
                 if (FileUtil.isImage(f.absolutePath)) {
                     mFiles.add(f)
-                    if (f.name.contains("volume", true)) {
-                        if (f.name.contains("frente", ignoreCase = false) || f.name.contains("cover", ignoreCase = false) || f.name.contains("front", ignoreCase = false))
+                    val fileName = Util.getNameFromPath(f.name)
+                    if (fileName.contains("volume", true)) {
+                        val cover = fileName.lowercase().substringAfterLast("volume")
+                        if (cover.contains("frente", ignoreCase = true) || cover.contains("cover", ignoreCase = true) || cover.contains("front", ignoreCase = true))
                             mCover[0] = f
-                        else if (f.name.contains("tras", ignoreCase = false) || f.name.contains("back", ignoreCase = false))
+                        else if (cover.contains("tras", ignoreCase = true) || cover.contains("back", ignoreCase = true))
                             mCover[1] = f
-                        else if (f.name.contains("tudo", true) || f.name.contains("all", ignoreCase = false) || f.name.contains("everything", ignoreCase = false))
+                        else if (cover.contains("tudo", ignoreCase = true) || cover.contains("all", ignoreCase = true) || cover.contains("everything", ignoreCase = true))
                             mCover[2] = f
                     }
                 } else if (FileUtil.isJson(f.absolutePath))

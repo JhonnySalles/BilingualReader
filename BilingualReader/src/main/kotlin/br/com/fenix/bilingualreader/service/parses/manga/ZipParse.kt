@@ -38,12 +38,14 @@ class ZipParse : Parse {
 
             if (FileUtil.isImage(ze.name)) {
                 mEntries.add(ze)
-                if (ze.name.contains("volume", true)) {
-                    if (ze.name.contains("frente", ignoreCase = false) || ze.name.contains("cover", ignoreCase = false) || ze.name.contains("front", ignoreCase = false))
+                val fileName = Util.getNameFromPath(ze.name)
+                if (fileName.contains("volume", true)) {
+                    val cover = fileName.lowercase().substringAfterLast("volume")
+                    if (cover.contains("frente", ignoreCase = true) || cover.contains("cover", ignoreCase = true) || cover.contains("front", ignoreCase = true))
                         mCover[0] = ze
-                    else if (ze.name.contains("tras", ignoreCase = false) || ze.name.contains("back", ignoreCase = false))
+                    else if (cover.contains("tras", ignoreCase = true) || cover.contains("back", ignoreCase = true))
                         mCover[1] = ze
-                    else if (ze.name.contains("tudo", true) || ze.name.contains("all", ignoreCase = false) || ze.name.contains("everything", ignoreCase = false))
+                    else if (cover.contains("tudo", ignoreCase = true) || cover.contains("all", ignoreCase = true) || cover.contains("everything", ignoreCase = true))
                         mCover[2] = ze
                 }
             } else if (FileUtil.isJson(ze.name))

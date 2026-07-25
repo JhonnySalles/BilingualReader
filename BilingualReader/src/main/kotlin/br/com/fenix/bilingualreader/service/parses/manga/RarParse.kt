@@ -71,12 +71,14 @@ class RarParse : Parse {
                 val name = getName(header)
                 if (FileUtil.isImage(name)) {
                     mHeaders.add(header)
-                    if (name.contains("volume", true)) {
-                        if (name.contains("frente", ignoreCase = false) || name.contains("cover", ignoreCase = false) || name.contains("front", ignoreCase = false))
+                    val fileName = Util.getNameFromPath(name)
+                    if (fileName.contains("volume", true)) {
+                        val cover = fileName.lowercase().substringAfterLast("volume")
+                        if (cover.contains("frente", ignoreCase = true) || cover.contains("cover", ignoreCase = true) || cover.contains("front", ignoreCase = true))
                             mCover[0] = header
-                        else if (name.contains("tras", ignoreCase = false) || name.contains("back", ignoreCase = false))
+                        else if (cover.contains("tras", ignoreCase = true) || cover.contains("back", ignoreCase = true))
                             mCover[1] = header
-                        else if (name.contains("tudo", true) || name.contains("all", ignoreCase = false) || name.contains("everything", ignoreCase = false))
+                        else if (cover.contains("tudo", ignoreCase = true) || cover.contains("all", ignoreCase = true) || cover.contains("everything", ignoreCase = true))
                             mCover[2] = header
                     }
                 } else if (FileUtil.isJson(name))
