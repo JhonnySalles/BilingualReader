@@ -71,8 +71,6 @@ class RarParse : Parse {
                 val name = getName(header)
                 if (FileUtil.isImage(name)) {
                     mHeaders.add(header)
-                    if (mCover[0] == null)
-                        mCover[0] = header
                     if (name.contains("volume", true)) {
                         if (name.contains("frente", ignoreCase = false) || name.contains("cover", ignoreCase = false) || name.contains("front", ignoreCase = false))
                             mCover[0] = header
@@ -93,6 +91,9 @@ class RarParse : Parse {
             Util.getNormalizedNameOrdering(a.fileName)
                 .compareTo(Util.getNormalizedNameOrdering(b.fileName))
         })
+
+        if (mCover[0] == null)
+            mCover[0] = mHeaders[0]
     }
 
     private fun getName(header: FileHeader): String {

@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.service.parses.book
+package br.com.fenix.bilingualreader.service.services
 
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
@@ -20,14 +20,14 @@ class BookCoverFetcher(
 
     override suspend fun fetch(): FetchResult? {
         val context = options.context
-        val controller = BookImageCoverController.instance
+        val controller = BookImageCoverController.Companion.instance
 
-        val file = withContext(BookImageCoverController.thread) {
+        val file = withContext(BookImageCoverController.Companion.thread) {
             controller.getBookCoverFile(context, book, true)
         } ?: return null
 
         return SourceResult(
-            source = ImageSource(file = file.toOkioPath(), fileSystem = FileSystem.SYSTEM),
+            source = ImageSource(file = file.toOkioPath(), fileSystem = FileSystem.Companion.SYSTEM),
             mimeType = null,
             dataSource = DataSource.DISK
         )

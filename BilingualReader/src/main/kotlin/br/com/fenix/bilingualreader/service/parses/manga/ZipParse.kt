@@ -38,8 +38,6 @@ class ZipParse : Parse {
 
             if (FileUtil.isImage(ze.name)) {
                 mEntries.add(ze)
-                if (mCover[0] == null)
-                    mCover[0] = ze
                 if (ze.name.contains("volume", true)) {
                     if (ze.name.contains("frente", ignoreCase = false) || ze.name.contains("cover", ignoreCase = false) || ze.name.contains("front", ignoreCase = false))
                         mCover[0] = ze
@@ -57,6 +55,9 @@ class ZipParse : Parse {
         mEntries.sortWith(compareBy<ZipEntry> { Util.getFolderFromPath(it.name) }.thenComparing { a, b ->
             Util.getNormalizedNameOrdering(a.name).compareTo(Util.getNormalizedNameOrdering(b.name))
         })
+
+        if (mCover[0] == null)
+            mCover[0] = mEntries[0]
     }
 
     override fun numPages(): Int {

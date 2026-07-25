@@ -1,4 +1,4 @@
-package br.com.fenix.bilingualreader.service.parses.manga
+package br.com.fenix.bilingualreader.service.services
 
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
@@ -20,14 +20,14 @@ class MangaCoverFetcher(
 
     override suspend fun fetch(): FetchResult? {
         val context = options.context
-        val controller = MangaImageCoverController.instance
+        val controller = MangaImageCoverController.Companion.instance
 
-        val file = withContext(MangaImageCoverController.thread) {
+        val file = withContext(MangaImageCoverController.Companion.thread) {
             controller.getMangaCoverFile(context, manga, true)
         } ?: return null
 
         return SourceResult(
-            source = ImageSource(file = file.toOkioPath(), fileSystem = FileSystem.SYSTEM),
+            source = ImageSource(file = file.toOkioPath(), fileSystem = FileSystem.Companion.SYSTEM),
             mimeType = null,
             dataSource = DataSource.DISK
         )

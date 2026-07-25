@@ -41,8 +41,6 @@ class TarParse : Parse {
                     if (FileUtil.isImage(entry.name)) {
                         val tarEntry = TarEntry(entry, Util.toByteArray(tar)!!)
                         mEntries.add(tarEntry)
-                        if (mCover[0] == null)
-                            mCover[0] = tarEntry
                         if (entry.name.contains("volume", true)) {
                             if (entry.name.contains("frente", ignoreCase = false) || entry.name.contains("cover", ignoreCase = false) || entry.name.contains("front", ignoreCase = false))
                                 mCover[0] = tarEntry
@@ -65,6 +63,9 @@ class TarParse : Parse {
             Util.getNormalizedNameOrdering(a.entry.name)
                 .compareTo(Util.getNormalizedNameOrdering(b.entry.name))
         })
+
+        if (mCover[0] == null)
+            mCover[0] = mEntries[0]
     }
 
     override fun numPages(): Int {

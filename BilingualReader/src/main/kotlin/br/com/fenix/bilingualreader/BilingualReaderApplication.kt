@@ -1,8 +1,8 @@
 package br.com.fenix.bilingualreader
 
 import android.app.Application
-import br.com.fenix.bilingualreader.service.parses.book.BookCoverFetcher
-import br.com.fenix.bilingualreader.service.parses.manga.MangaCoverFetcher
+import br.com.fenix.bilingualreader.service.services.BookCoverFetcher
+import br.com.fenix.bilingualreader.service.services.MangaCoverFetcher
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import com.google.firebase.FirebaseApp

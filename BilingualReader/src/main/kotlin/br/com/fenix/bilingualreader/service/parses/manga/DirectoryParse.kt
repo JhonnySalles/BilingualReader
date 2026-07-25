@@ -37,8 +37,6 @@ class DirectoryParse : Parse {
 
                 if (FileUtil.isImage(f.absolutePath)) {
                     mFiles.add(f)
-                    if (mCover[0] == null)
-                        mCover[0] = f
                     if (f.name.contains("volume", true)) {
                         if (f.name.contains("frente", ignoreCase = false) || f.name.contains("cover", ignoreCase = false) || f.name.contains("front", ignoreCase = false))
                             mCover[0] = f
@@ -54,6 +52,9 @@ class DirectoryParse : Parse {
             }
         }
         mFiles.sortBy { it.name }
+
+        if (mCover[0] == null)
+            mCover[0] = mFiles[0]
     }
 
     override fun numPages(): Int {
