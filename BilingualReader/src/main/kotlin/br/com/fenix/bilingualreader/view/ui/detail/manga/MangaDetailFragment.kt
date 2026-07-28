@@ -293,12 +293,14 @@ class MangaDetailFragment : Fragment() {
         mWebInfoRelatedRelatedList.adapter = InformationRelatedCardAdapter()
         mWebInfoRelatedRelatedList.layoutManager = LinearLayoutManager(requireContext())
 
-        mImage.setOnClickListener {
+        mImage.setOnLongClickListener {
+            it.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
             val reload = openImage(mViewModel.cover.value)
             MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mViewModel.manga.value!!, false) {
                 if (it != null)
                     reload(it)
             }
+            true
         }
 
         mTitle.setOnLongClickListener {
@@ -395,6 +397,7 @@ class MangaDetailFragment : Fragment() {
         if (m3DCover3DView == null) {
             m3DCover3DView = BookCover3DView(requireContext(), m3DCoverSurface).apply {
                 onLongClickListener = {
+                    m3DCoverSurface.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
                     val reload = openImage(mViewModel.cover.value)
                     MangaImageCoverController.instance.setImageCoverAsync(requireContext(), mViewModel.manga.value!!, false) {
                         if (it != null)
@@ -813,33 +816,77 @@ class MangaDetailFragment : Fragment() {
 
         var popup3DView: BookCover3DView? = null
 
-        if (use3d) {
-            buttonContainer.visibility = View.VISIBLE
-            
-            val gestureDetector = GestureDetector(requireContext(), object : GestureDetector.SimpleOnGestureListener() {
-                override fun onLongPress(e: MotionEvent) {
-                    popup.dismiss()
-                }
-            })
-            surface3D.setOnTouchListener { _, event ->
-                gestureDetector.onTouchEvent(event)
-                popup3DView?.onTouchEvent(event) ?: false
+        buttonContainer.visibility = View.VISIBLE
+        
+        val gestureDetector = GestureDetector(requireContext(), object : GestureDetector.SimpleOnGestureListener() {
+            override fun onLongPress(e: MotionEvent) {
+                popup.dismiss()
+            }
+        })
+        surface3D.setOnTouchListener { _, event ->
+            gestureDetector.onTouchEvent(event)
+            popup3DView?.onTouchEvent(event) ?: false
+        }
+
+        btnImage.setOnClickListener {
+            surface3D.visibility = View.GONE
+            imageView.visibility = View.VISIBLE
+        }
+
+        btn3D.setOnClickListener {
+            imageView.visibility = View.GONE
+            surface3D.visibility = View.VISIBLE
+            if (popup3DView == null)
+                popup3DView = BookCover3DView(requireContext(), surface3D, true)
+
+            val coverBmp = m3DCoverFront ?: mViewModel.cover.value
+            coverBmp?.let { bmp ->
+                popup3DView?.setBookTexture(bmp, m3DCoverBack, m3DIsFullCover)
             }
 
-            btnImage.setOnClickListener {
-                surface3D.visibility = View.GONE
-                imageView.visibility = View.VISIBLE
-            }
+            if (m3DCoverFront == null) {
+                mViewModel.manga.value?.let { manga ->
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val parse = br.com.fenix.bilingualreader.service.parses.manga.ParseFactory.create(manga.file)
+                        if (parse != null) {
+                            try {
+                                if (parse is br.com.fenix.bilingualreader.service.parses.manga.RarParse) {
+                                    val cache = GeneralConsts.getCacheDir(requireContext().applicationContext)
+                                    val folder = GeneralConsts.CACHE_FOLDER.RAR + '/' + Util.normalizeNameCache(manga.file.nameWithoutExtension)
+                                    parse.setCacheDirectory(java.io.File(cache, folder))
+                                }
 
-            btn3D.setOnClickListener {
-                imageView.visibility = View.GONE
-                surface3D.visibility = View.VISIBLE
-                if (popup3DView == null)
-                    popup3DView = BookCover3DView(requireContext(), surface3D, true)
-
-                val coverBmp = m3DCoverFront ?: mViewModel.cover.value
-                coverBmp?.let { bmp ->
-                    popup3DView?.setBookTexture(bmp, m3DCoverBack, m3DIsFullCover)
+                                if (parse.hasFullCover()) {
+                                    val fullStream = parse.getFullCover()
+                                    val fullBmp = fullStream?.use { android.graphics.BitmapFactory.decodeStream(it) }
+                                    if (fullBmp != null) {
+                                        m3DCoverFront = fullBmp
+                                        m3DCoverBack = null
+                                        m3DIsFullCover = true
+                                        withContext(Dispatchers.Main) {
+                                            popup3DView?.setBookTexture(fullBmp, null, isFullCover = true)
+                                        }
+                                    }
+                                } else {
+                                    val (frontStream, backStream) = parse.getCover()
+                                    val frontBmp = frontStream?.use { android.graphics.BitmapFactory.decodeStream(it) }
+                                    val backBmp = backStream?.use { android.graphics.BitmapFactory.decodeStream(it) }
+                                    if (frontBmp != null) {
+                                        m3DCoverFront = frontBmp
+                                        m3DCoverBack = backBmp
+                                        m3DIsFullCover = false
+                                        withContext(Dispatchers.Main) {
+                                            popup3DView?.setBookTexture(frontBmp, backBmp, isFullCover = false)
+                                        }
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                mLOGGER.error("Error loading 3D cover async: {}", e.message, e)
+                            } finally {
+                                Util.destroyParse(parse)
+                            }
+                        }
+                    }
                 }
             }
         }

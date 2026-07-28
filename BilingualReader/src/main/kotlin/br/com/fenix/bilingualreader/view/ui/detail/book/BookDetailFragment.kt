@@ -323,16 +323,19 @@ class BookDetailFragment : Fragment() {
 
         mPopupTag = PopupTags(requireContext())
 
-        mImage.setOnClickListener {
+        mImage.setOnLongClickListener {
+            it.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
             val reload = openImage(mViewModel.cover.value)
             BookImageCoverController.instance.setImageCoverAsync(requireContext(), mViewModel.book.value!!, false) {
                 if (it != null)
                     reload(it)
             }
+            true
         }
 
         val gestureDetector = GestureDetector(requireContext(), object : GestureDetector.SimpleOnGestureListener() {
             override fun onLongPress(e: MotionEvent) {
+                m3DCoverSurface.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
                 val reload = openImage(mViewModel.cover.value)
                 BookImageCoverController.instance.setImageCoverAsync(requireContext(), mViewModel.book.value!!, false) {
                     if (it != null)
@@ -730,32 +733,48 @@ class BookDetailFragment : Fragment() {
 
         var popup3DView: BookCover3DView? = null
 
-        if (use3d) {
-            buttonContainer.visibility = View.VISIBLE
-            
-            val gestureDetector = GestureDetector(requireContext(), object : GestureDetector.SimpleOnGestureListener() {
-                override fun onLongPress(e: MotionEvent) {
-                    popup.dismiss()
-                }
-            })
-            surface3D.setOnTouchListener { _, event ->
-                gestureDetector.onTouchEvent(event)
-                popup3DView?.onTouchEvent(event) ?: false
+        buttonContainer.visibility = View.VISIBLE
+        
+        val gestureDetector = GestureDetector(requireContext(), object : GestureDetector.SimpleOnGestureListener() {
+            override fun onLongPress(e: MotionEvent) {
+                popup.dismiss()
+            }
+        })
+        surface3D.setOnTouchListener { _, event ->
+            gestureDetector.onTouchEvent(event)
+            popup3DView?.onTouchEvent(event) ?: false
+        }
+
+        btnImage.setOnClickListener {
+            surface3D.visibility = View.GONE
+            imageView.visibility = View.VISIBLE
+        }
+
+        btn3D.setOnClickListener {
+            imageView.visibility = View.GONE
+            surface3D.visibility = View.VISIBLE
+            if (popup3DView == null)
+                popup3DView = BookCover3DView(requireContext(), surface3D, true)
+            val coverBmp = m3DCoverFront ?: mViewModel.cover.value
+            coverBmp?.let { bmp ->
+                popup3DView?.setBookTexture(bmp, null, false)
             }
 
-            btnImage.setOnClickListener {
-                surface3D.visibility = View.GONE
-                imageView.visibility = View.VISIBLE
-            }
-
-            btn3D.setOnClickListener {
-                imageView.visibility = View.GONE
-                surface3D.visibility = View.VISIBLE
-                if (popup3DView == null)
-                    popup3DView = BookCover3DView(requireContext(), surface3D, true)
-                val coverBmp = m3DCoverFront ?: mViewModel.cover.value
-                coverBmp?.let { bmp ->
-                    popup3DView?.setBookTexture(bmp, null, false)
+            if (m3DCoverFront == null) {
+                mViewModel.book.value?.let { book ->
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        try {
+                            val loadedBmp = BookImageCoverController.instance.getCoverFromFile(requireContext(), book.file) ?: mViewModel.cover.value
+                            if (loadedBmp != null) {
+                                m3DCoverFront = loadedBmp
+                                withContext(Dispatchers.Main) {
+                                    popup3DView?.setBookTexture(loadedBmp, null, false)
+                                }
+                            }
+                        } catch (e: Exception) {
+                            mLOGGER.error("Error loading book 3D cover async: {}", e.message, e)
+                        }
+                    }
                 }
             }
         }
