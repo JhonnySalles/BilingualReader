@@ -10,8 +10,8 @@ interface TesseractApi {
     fun recycle()
 }
 
-class TesseractApiImpl : TesseractApi {
-    private val api = TessBaseAPI()
+class TesseractApiImpl(private val apiProvider: () -> TessBaseAPI = { TessBaseAPI() }) : TesseractApi {
+    private val api by lazy { apiProvider() }
     override fun init(datapath: String, language: String): Boolean = api.init(datapath, language)
     override fun setImage(bitmap: Bitmap) = api.setImage(bitmap)
     override val utF8Text: String get() = api.utF8Text

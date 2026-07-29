@@ -9,7 +9,6 @@ import java.io.IOException
 import java.io.InputStream
 import java.util.Properties
 
-
 class Secrets {
 
     private val mLOGGER = LoggerFactory.getLogger(MangaDetailFragment::class.java)
@@ -37,8 +36,8 @@ class Secrets {
             val inputStream: InputStream = assetManager.open("secrets.properties")
             properties.load(inputStream)
 
-            MY_ANIME_LIST_CLIENT_ID = properties.getProperty("ANIME_LIST_CLIENT_ID")
-            GOOGLE_ID_TOKEN = properties.getProperty("GOOGLE_ID_TOKEN")
+            MY_ANIME_LIST_CLIENT_ID = properties.getProperty("ANIME_LIST_CLIENT_ID") ?: ""
+            GOOGLE_ID_TOKEN = properties.getProperty("GOOGLE_ID_TOKEN") ?: ""
         } catch (e: IOException) {
             mLOGGER.error("Error to read secrets: " + e.message, e)
             Telemetry.recordException(e, "Error to read secrets: " + e.message)
