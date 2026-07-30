@@ -106,7 +106,7 @@ class Book(
     override var title: String = title
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.AUTHOR)
-    var author: String = author
+    override var author: String = author
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.PASSWORD)
     var password: String = password
@@ -118,7 +118,7 @@ class Book(
     var release: LocalDate? = release
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.GENRE)
-    var genre: String = genre
+    override var genre: String = genre
 
     @ColumnInfo(name = DataBaseConsts.BOOK.COLUMNS.PUBLISHER)
     var publisher: String = publisher

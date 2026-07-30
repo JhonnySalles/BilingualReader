@@ -422,6 +422,16 @@
     <dimen name="history_cover_height">150dp</dimen>
     <dimen name="history_cover_progress_height">4dp</dimen>
     <dimen name="history_cover_title_size">10sp</dimen>
+    <dimen name="history_separator_grid_card_layout_width_big">160dp</dimen>
+    <dimen name="history_separator_grid_card_layout_height_big">210dp</dimen>
+    <dimen name="history_separator_grid_card_layout_width_medium">130dp</dimen>
+    <dimen name="history_separator_grid_card_layout_height_medium">210dp</dimen>
+    <dimen name="history_separator_grid_card_layout_width_landscape_medium">140dp</dimen>
+    <dimen name="history_separator_grid_card_layout_height_landscape_medium">210dp</dimen>
+    <dimen name="history_grid_title_size">12sp</dimen>
+    <dimen name="history_grid_sub_title">10sp</dimen>
+    <dimen name="history_grid_favorite_big">25dp</dimen>
+    <dimen name="history_grid_favorite_content_big">35dp</dimen>
 
     <dimen name="book_padding_divider_title">20sp</dimen>
     <dimen name="book_padding_divider_sub_title">14sp</dimen>

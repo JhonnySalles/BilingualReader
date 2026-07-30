@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
 import br.com.fenix.bilingualreader.model.entity.Manga
+import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.controller.BookImageCoverController
 import br.com.fenix.bilingualreader.service.controller.MangaImageCoverController
@@ -43,9 +44,17 @@ class HistoryCoverCardAdapter(private val listener: HistoryCardListener) :
             mDefaultImageCover5 = BitmapFactory.decodeResource(itemView.resources, R.mipmap.book_cover_5)
             mDefaultsLoaded = true
         }
+
+        fun formatVolume(volume: String): String {
+            val digits = volume.filter { it.isDigit() }
+            if (digits.isEmpty())
+                return "00"
+            return digits.toIntOrNull()?.toString()?.padStart(2, '0') ?: "00"
+        }
     }
 
     private var mList: List<History> = listOf()
+    private var mOrder: Order = Order.Series
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryCoverViewHolder {
         val item = LayoutInflater.from(parent.context).inflate(R.layout.line_card_history_cover, parent, false)
@@ -53,19 +62,20 @@ class HistoryCoverCardAdapter(private val listener: HistoryCardListener) :
     }
 
     override fun onBindViewHolder(holder: HistoryCoverViewHolder, position: Int) {
-        holder.bind(mList[position])
+        holder.bind(mList[position], mOrder)
     }
 
     override fun getItemCount(): Int = mList.size
 
-    fun updateList(list: List<History>) {
+    fun updateList(list: List<History>, order: Order = Order.Series) {
         mList = list
+        mOrder = order
         notifyDataSetChanged()
     }
 
     inner class HistoryCoverViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        fun bind(history: History) {
+        fun bind(history: History, order: Order) {
             ensureDefaults(itemView)
 
             val card = itemView.findViewById<MaterialCardView>(R.id.history_cover_image_card)
@@ -78,7 +88,16 @@ class HistoryCoverCardAdapter(private val listener: HistoryCardListener) :
             else
                 card.tooltipText = history.title
 
-            title.text = history.volume.ifEmpty { history.title }
+            if (order == Order.Series) {
+                title.maxLines = 1
+                title.isSingleLine = true
+                title.text = formatVolume(history.volume)
+            } else {
+                title.maxLines = 4
+                title.isSingleLine = false
+                title.text = history.name
+            }
+
             progress.max = history.pages.coerceAtLeast(1)
             progress.progress = history.bookMark
 

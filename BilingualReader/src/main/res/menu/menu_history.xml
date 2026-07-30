@@ -3,14 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menu_history_type_layout"
-        android:icon="@drawable/ico_animated_type_grid_list_exit"
-        android:orderInCategory="99"
-        android:title="@string/menu_history_type_layout"
-        android:visible="true"
-        app:showAsAction="always" />
-
-    <item
         android:id="@+id/menu_history_search"
         android:icon="@drawable/ico_search"
         android:orderInCategory="100"
@@ -26,19 +18,26 @@
         app:showAsAction="always">
     </item>
 
+    <item
+        android:id="@+id/menu_history_type_layout"
+        android:icon="@drawable/ico_animated_type_grid_list_exit"
+        android:orderInCategory="102"
+        android:title="@string/menu_history_type_layout"
+        android:visible="true"
+        app:showAsAction="always" />
+
     <item android:id="@+id/menu_history_library"
         android:title="@string/menu_history_library"
         android:icon="@drawable/ico_animated_menu_type_library"
-        android:orderInCategory="102"
+        android:orderInCategory="103"
         app:showAsAction="always">
         <menu/>
     </item>
 
-
     <item android:id="@+id/menu_history_type"
         android:title="@string/menu_history_type"
         android:icon="@drawable/ico_menu_type_all"
-        android:orderInCategory="103"
+        android:orderInCategory="104"
         app:showAsAction="always">
         <menu/>
     </item>

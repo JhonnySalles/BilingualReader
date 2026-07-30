@@ -8,8 +8,9 @@ import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import br.com.fenix.bilingualreader.R
-import br.com.fenix.bilingualreader.model.entity.HistorySeriesGroup
+import br.com.fenix.bilingualreader.model.entity.HistoryGroup
 import br.com.fenix.bilingualreader.model.entity.Separator
+import br.com.fenix.bilingualreader.model.enums.Order
 import br.com.fenix.bilingualreader.model.interfaces.History
 import br.com.fenix.bilingualreader.service.listener.HistoryCardListener
 
@@ -17,6 +18,7 @@ class HistorySeriesCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
 
     private lateinit var mListener: HistoryCardListener
     private var mHistoryList: ArrayList<Any> = arrayListOf()
+    private var mOrder: Order = Order.LastAccess
     override var isAnimation: Boolean = true
 
     companion object {
@@ -49,7 +51,7 @@ class HistorySeriesCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
                         AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_history_holder)
             }
             else -> {
-                (holder as HistorySeriesViewHolder).bind(mHistoryList[position] as HistorySeriesGroup)
+                (holder as HistorySeriesViewHolder).bind(mHistoryList[position] as HistoryGroup, mOrder)
                 if (isAnimation)
                     holder.itemView.animation =
                         AnimationUtils.loadAnimation(holder.itemView.context, R.anim.animation_history)
@@ -64,6 +66,10 @@ class HistorySeriesCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         notifyDataSetChanged()
     }
 
+    fun setOrder(order: Order) {
+        mOrder = order
+    }
+
     override fun attachListener(listener: HistoryCardListener) {
         mListener = listener
     }
@@ -74,7 +80,7 @@ class HistorySeriesCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         var changed = false
         for (i in mHistoryList.indices.reversed()) {
             val item = mHistoryList[i]
-            if (item is HistorySeriesGroup) {
+            if (item is HistoryGroup) {
                 val index = item.items.indexOf(history)
                 if (index != -1) {
                     item.items.removeAt(index)
@@ -95,7 +101,7 @@ class HistorySeriesCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     override fun notifyItemChanged(history: History) {
         for (i in mHistoryList.indices) {
             val item = mHistoryList[i]
-            if (item is HistorySeriesGroup && item.items.contains(history)) {
+            if (item is HistoryGroup && item.items.contains(history)) {
                 notifyItemChanged(i)
                 return
             }
@@ -117,10 +123,10 @@ class HistorySeriesViewHolder(itemView: View, private val listener: HistoryCardL
     private val layout: GridLayoutManager = createLayout(itemView.context)
     private val adapter: HistoryCoverCardAdapter = HistoryCoverCardAdapter(listener)
 
-    fun bind(group: HistorySeriesGroup) {
+    fun bind(group: HistoryGroup, order: Order) {
         val list = itemView.findViewById<RecyclerView>(R.id.history_series_list)
         list.adapter = adapter
         list.layoutManager = layout
-        adapter.updateList(group.items)
+        adapter.updateList(group.items, order)
     }
 }

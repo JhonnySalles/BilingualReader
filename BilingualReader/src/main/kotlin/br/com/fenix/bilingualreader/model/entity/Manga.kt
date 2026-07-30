@@ -144,13 +144,13 @@ class Manga(
     var hasSubtitle: Boolean = hasSubtitle
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.AUTHOR)
-    var author: String = author
+    override var author: String = author
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.SERIES)
     override var series: String = series
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.GENRE)
-    var genre: String = genre
+    override var genre: String = genre
 
     @ColumnInfo(name = DataBaseConsts.MANGA.COLUMNS.PUBLISHER)
     var publisher: String = publisher

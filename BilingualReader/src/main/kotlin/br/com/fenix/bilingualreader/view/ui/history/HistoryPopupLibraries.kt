@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import br.com.fenix.bilingualreader.R
@@ -16,7 +16,7 @@ class HistoryPopupLibraries : Fragment() {
 
     private lateinit var mViewModel: HistoryViewModel
     private lateinit var mContainer: LinearLayout
-    private val mItems = mutableListOf<Pair<Library?, TextView>>()
+    private val mItems = mutableListOf<Pair<Library?, CheckBox>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,12 +31,15 @@ class HistoryPopupLibraries : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mViewModel.libraries.observe(viewLifecycleOwner) {
-            buildList()
-        }
-        mViewModel.selectedLibrary.observe(viewLifecycleOwner) { selected ->
-            updateSelection(selected)
-        }
+        mViewModel.libraries.observe(viewLifecycleOwner) { buildList() }
+        mViewModel.selectedLibraries.observe(viewLifecycleOwner) { updateSelection(it) }
+    }
+
+    private fun createCheckBox(text: String): CheckBox {
+        val check = LayoutInflater.from(requireContext())
+            .inflate(R.layout.popup_checkbox_item, mContainer, false) as CheckBox
+        check.text = text
+        return check
     }
 
     private fun buildList() {
@@ -44,17 +47,16 @@ class HistoryPopupLibraries : Fragment() {
         mItems.clear()
 
         val inflater = LayoutInflater.from(context)
+        val selected = mViewModel.selectedLibraries.value.orEmpty()
 
-        // 1. "Todos"
-        val viewAll = inflater.inflate(R.layout.popup_list_item, mContainer, false) as TextView
-        viewAll.text = getString(R.string.history_menu_choice_all)
+        val viewAll = createCheckBox(getString(R.string.history_menu_choice_all))
+        viewAll.isChecked = selected.isEmpty()
         mItems.add(Pair(null, viewAll))
         mContainer.addView(viewAll)
 
-        // 2. Geral (Default Library)
         val defaultLib = mViewModel.mDefaultLibrary
-        val viewDefault = inflater.inflate(R.layout.popup_list_item, mContainer, false) as TextView
-        viewDefault.text = defaultLib.title
+        val viewDefault = createCheckBox(defaultLib.title)
+        viewDefault.isChecked = selected.any { it.id == defaultLib.id }
         mItems.add(Pair(defaultLib, viewDefault))
         mContainer.addView(viewDefault)
 
@@ -62,53 +64,56 @@ class HistoryPopupLibraries : Fragment() {
         val bookLibs = libs.filter { it.type == Type.BOOK }
         val mangaLibs = libs.filter { it.type == Type.MANGA }
 
-        // 3. Books Section
         if (bookLibs.isNotEmpty()) {
-            val divider = inflater.inflate(R.layout.popup_divider, mContainer, false)
-            mContainer.addView(divider)
+            mContainer.addView(inflater.inflate(R.layout.popup_divider, mContainer, false))
             for (lib in bookLibs) {
-                val tv = inflater.inflate(R.layout.popup_list_item, mContainer, false) as TextView
-                tv.text = lib.title
-                mItems.add(Pair(lib, tv))
-                mContainer.addView(tv)
+                val check = createCheckBox(lib.title)
+                check.isChecked = selected.any { it.id == lib.id }
+                mItems.add(Pair(lib, check))
+                mContainer.addView(check)
             }
         }
 
-        // 4. Mangas Section
         if (mangaLibs.isNotEmpty()) {
-            val divider = inflater.inflate(R.layout.popup_divider, mContainer, false)
-            mContainer.addView(divider)
+            mContainer.addView(inflater.inflate(R.layout.popup_divider, mContainer, false))
             for (lib in mangaLibs) {
-                val tv = inflater.inflate(R.layout.popup_list_item, mContainer, false) as TextView
-                tv.text = lib.title
-                mItems.add(Pair(lib, tv))
-                mContainer.addView(tv)
+                val check = createCheckBox(lib.title)
+                check.isChecked = selected.any { it.id == lib.id }
+                mItems.add(Pair(lib, check))
+                mContainer.addView(check)
             }
         }
 
         setupListeners()
-        updateSelection(mViewModel.selectedLibrary.value)
     }
 
     private fun setupListeners() {
-        for (item in mItems) {
-            val lib = item.first
-            val tv = item.second
-            tv.setOnClickListener {
-                mViewModel.filterLibrary(lib)
+        for ((lib, check) in mItems) {
+            check.setOnCheckedChangeListener { _, isChecked ->
+                if (lib == null) {
+                    if (isChecked)
+                        mViewModel.filterLibraries(emptySet())
+                    else if (mViewModel.selectedLibraries.value.isNullOrEmpty())
+                        check.isChecked = true
+                } else {
+                    val current = mViewModel.selectedLibraries.value.orEmpty().toMutableSet()
+                    if (isChecked) {
+                        current.removeAll { it.id == lib.id }
+                        current.add(lib)
+                    } else {
+                        current.removeAll { it.id == lib.id }
+                    }
+                    mViewModel.filterLibraries(current)
+                }
             }
         }
     }
 
-    private fun updateSelection(selected: Library?) {
-        for (item in mItems) {
-            val lib = item.first
-            val tv = item.second
-            if (lib == selected) {
-                tv.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ico_check_mark, 0)
-            } else {
-                tv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
-            }
+    private fun updateSelection(selected: Set<Library>) {
+        for ((lib, check) in mItems) {
+            check.setOnCheckedChangeListener(null)
+            check.isChecked = if (lib == null) selected.isEmpty() else selected.any { it.id == lib.id }
         }
+        setupListeners()
     }
 }

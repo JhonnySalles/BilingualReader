@@ -847,6 +847,12 @@
     <string name="history_manga">Manga / Comic</string>
     <string name="history_book">Book</string>
     <string name="history_series_empty">Without series</string>
+    <string name="popup_history_tab_type">Grid</string>
+    <string name="popup_history_tab_content">Type</string>
+    <string name="popup_history_tab_year">Year</string>
+    <string name="popup_history_type_line">Line</string>
+    <string name="popup_history_type_separator_line">Line with separator</string>
+    <string name="popup_history_type_separator_carousel">Carousel with separator</string>
 
     <!-- PAGE LINK -->
     <string name="page_link_manga_empty">Manga not found</string>

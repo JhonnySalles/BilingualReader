@@ -72,6 +72,7 @@ import br.com.fenix.bilingualreader.model.enums.Color
 import br.com.fenix.bilingualreader.model.enums.FileType
 import br.com.fenix.bilingualreader.model.enums.Filter
 import br.com.fenix.bilingualreader.model.enums.Languages
+import br.com.fenix.bilingualreader.model.enums.HistoryType
 import br.com.fenix.bilingualreader.model.enums.LibraryBookType
 import br.com.fenix.bilingualreader.model.enums.LibraryMangaType
 import br.com.fenix.bilingualreader.model.enums.Position
@@ -1757,12 +1758,14 @@ class AdapterUtil {
         private var mIsLandscape: Boolean = false
         private val mMangaCardSize = mutableMapOf<LibraryMangaType, Pair<Int, Int>>()
         private val mBookCardSize = mutableMapOf<LibraryBookType, Pair<Int, Int>>()
+        private val mHistoryCardSize = mutableMapOf<HistoryType, Pair<Int, Int>>()
 
         private fun validLandscape(isLandscape: Boolean) {
             if (mIsLandscape != isLandscape) {
                 mIsLandscape = isLandscape
                 mMangaCardSize.clear()
                 mBookCardSize.clear()
+                mHistoryCardSize.clear()
             }
         }
 
@@ -1819,6 +1822,33 @@ class AdapterUtil {
         fun getBookCardSize(context: Context, type: LibraryBookType, isLandscape: Boolean) : Pair<Int, Int> {
             validLandscape(isLandscape)
             return if (mBookCardSize.contains(type)) mBookCardSize[type]!! else setBookCardSize(context, type)
+        }
+
+        private fun setHistoryCardSize(context: Context, type: HistoryType): Pair<Int, Int> {
+            val width = when (type) {
+                HistoryType.SEPARATOR_BIG -> context.resources.getDimension(R.dimen.history_separator_grid_card_layout_width_big).toInt()
+                HistoryType.SEPARATOR_MEDIUM -> context.resources.getDimension(
+                    if (mIsLandscape) R.dimen.history_separator_grid_card_layout_width_landscape_medium
+                    else R.dimen.history_separator_grid_card_layout_width_medium
+                ).toInt()
+                else -> -1
+            }
+            val height = when (type) {
+                HistoryType.SEPARATOR_BIG -> context.resources.getDimension(R.dimen.history_separator_grid_card_layout_height_big).toInt()
+                HistoryType.SEPARATOR_MEDIUM -> context.resources.getDimension(
+                    if (mIsLandscape) R.dimen.history_separator_grid_card_layout_height_landscape_medium
+                    else R.dimen.history_separator_grid_card_layout_height_medium
+                ).toInt()
+                else -> -1
+            }
+            val size = Pair(width, height)
+            mHistoryCardSize[type] = size
+            return size
+        }
+
+        fun getHistoryCardSize(context: Context, type: HistoryType, isLandscape: Boolean): Pair<Int, Int> {
+            validLandscape(isLandscape)
+            return if (mHistoryCardSize.contains(type)) mHistoryCardSize[type]!! else setHistoryCardSize(context, type)
         }
 
     }

@@ -49,8 +49,8 @@
         android:layout_width="@dimen/history_cover_width"
         android:layout_height="wrap_content"
         android:ellipsize="end"
-        android:gravity="center"
-        android:maxLines="2"
+        android:gravity="center_horizontal"
+        android:maxLines="4"
         android:textSize="@dimen/history_cover_title_size" />
 
 </LinearLayout>

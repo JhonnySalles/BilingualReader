@@ -9,7 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import br.com.fenix.bilingualreader.R
 import br.com.fenix.bilingualreader.model.entity.Book
-import br.com.fenix.bilingualreader.model.entity.HistorySeriesGroup
+import br.com.fenix.bilingualreader.model.entity.HistoryGroup
 import br.com.fenix.bilingualreader.model.entity.Library
 import br.com.fenix.bilingualreader.model.entity.Manga
 import br.com.fenix.bilingualreader.model.entity.Separator
@@ -47,15 +47,24 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
     private val mDefaultKey = -3L
     val mDefaultLibrary = Library(mDefaultKey, app.applicationContext.getString(R.string.history_library_default), "", excluded = true)
 
-    private val mLibrary = MutableLiveData<Library?>(null)
-    val selectedLibrary: LiveData<Library?> = mLibrary
+    private val mSelectedLibraries = MutableLiveData<Set<Library>>(emptySet())
+    val selectedLibraries: LiveData<Set<Library>> = mSelectedLibraries
     private var mWordFilter: String = ""
 
     private var mLoading = MutableLiveData(false)
     val loading: LiveData<Boolean> = mLoading
 
+    private val mContentTypes = MutableLiveData<Set<Type>>(emptySet())
+    val contentTypes: LiveData<Set<Type>> = mContentTypes
+
     private var mType = MutableLiveData<Type?>(null)
     val type: LiveData<Type?> = mType
+
+    private val mYears = MutableLiveData<Set<Int>>(emptySet())
+    val selectedYears: LiveData<Set<Int>> = mYears
+
+    private val mAvailableYears = MutableLiveData<List<Int>>(emptyList())
+    val availableYears: LiveData<List<Int>> = mAvailableYears
 
     private var mListFull = MutableLiveData<ArrayList<History>>(arrayListOf())
     private var mList = MutableLiveData<ArrayList<Any>>(arrayListOf())
@@ -68,6 +77,8 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
     val historyType: LiveData<HistoryType> = mHistoryType
 
     private val mSeriesEmptyLabel: String = app.applicationContext.getString(R.string.history_series_empty)
+    private val mFavoriteLabel: String = app.applicationContext.getString(R.string.manga_library_separator_favorite)
+    private val mNotFavoriteLabel: String = app.applicationContext.getString(R.string.manga_library_separator_non_favorite)
 
     fun sorted(order: Order, isDesc: Boolean = false) {
         mOrder.value = Pair(order, isDesc)
@@ -76,10 +87,12 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
 
     fun changeHistoryType() {
         val next = when (mHistoryType.value) {
-            HistoryType.LINE_DATE -> HistoryType.SERIES_LINE
-            HistoryType.SERIES_LINE -> HistoryType.SERIES_CAROUSEL
-            HistoryType.SERIES_CAROUSEL -> HistoryType.LINE_DATE
-            else -> HistoryType.LINE_DATE
+            HistoryType.LINE -> HistoryType.SEPARATOR_LINE
+            HistoryType.SEPARATOR_LINE -> HistoryType.SEPARATOR_CAROUSEL
+            HistoryType.SEPARATOR_CAROUSEL -> HistoryType.SEPARATOR_BIG
+            HistoryType.SEPARATOR_BIG -> HistoryType.SEPARATOR_MEDIUM
+            HistoryType.SEPARATOR_MEDIUM -> HistoryType.LINE
+            else -> HistoryType.SEPARATOR_LINE
         }
         setHistoryType(next)
     }
@@ -96,15 +109,18 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
     }
 
     private fun loadHistoryType(): HistoryType {
-        return try {
-            HistoryType.valueOf(
-                GeneralConsts.getSharedPreferences(app.applicationContext).getString(
-                    GeneralConsts.KEYS.LIBRARY.HISTORY_TYPE,
-                    HistoryType.LINE_DATE.toString()
-                ).toString()
-            )
-        } catch (_: Exception) {
-            HistoryType.LINE_DATE
+        val raw = GeneralConsts.getSharedPreferences(app.applicationContext).getString(
+            GeneralConsts.KEYS.LIBRARY.HISTORY_TYPE,
+            HistoryType.SEPARATOR_LINE.toString()
+        ).toString()
+        return when (raw) {
+            "LINE_DATE", "SERIES_LINE" -> HistoryType.SEPARATOR_LINE
+            "SERIES_CAROUSEL" -> HistoryType.SEPARATOR_CAROUSEL
+            else -> try {
+                HistoryType.valueOf(raw)
+            } catch (_: Exception) {
+                HistoryType.SEPARATOR_LINE
+            }
         }
     }
 
@@ -151,6 +167,7 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
                 mLoading.value = false
 
                 mListFull.value = ArrayList(list)
+                refreshAvailableYears(list)
                 mList.value = filterList()
                 setSuggestions(mListFull.value)
             }
@@ -182,6 +199,7 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
                 } else
                     update(list)
 
+                refreshAvailableYears(mListFull.value)
                 mList.value = filterList()
                 setSuggestions(mListFull.value)
 
@@ -190,12 +208,20 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
         }
     }
 
+    private fun refreshAvailableYears(list: List<History>?) {
+        mAvailableYears.value = list.orEmpty()
+            .mapNotNull { it.lastAccess?.year }
+            .distinct()
+            .sortedDescending()
+    }
+
     fun update(list: List<History>) {
         if (list.isNotEmpty()) {
             for (history in list) {
                 if (!mListFull.value!!.contains(history))
                     mListFull.value!!.add(history)
             }
+            refreshAvailableYears(mListFull.value)
             mList.value = filterList()
         }
     }
@@ -277,9 +303,16 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
         return item
     }
 
-    private fun getSeriesKey(history: History): String {
-        val series = history.series.trim()
-        return series.ifEmpty { mSeriesEmptyLabel }
+    private fun getSeparatorTitle(order: Order, history: History): String {
+        return when (order) {
+            Order.Name -> history.title.take(1).uppercase(Locale.getDefault()).ifEmpty { "#" }
+            Order.LastAccess -> GeneralConsts.formatCountDays(app.applicationContext, history.lastAccess)
+            Order.Favorite -> if (history.favorite) mFavoriteLabel else mNotFavoriteLabel
+            Order.Author -> history.author.trim().lowercase(Locale.getDefault())
+            Order.Genre -> history.genre.trim().lowercase(Locale.getDefault())
+            Order.Series -> history.series.trim().ifEmpty { mSeriesEmptyLabel }
+            else -> GeneralConsts.formatCountDays(app.applicationContext, history.lastAccess)
+        }
     }
 
     private fun filterList(): ArrayList<Any> {
@@ -305,25 +338,23 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
                 searchText = searchText.trim()
             }
 
+            val contentFilter = mContentTypes.value.orEmpty()
+            val libraryFilter = mSelectedLibraries.value.orEmpty()
+            val yearFilter = mYears.value.orEmpty()
+
             for (history in mListFull.value!!) {
                 if (history == null || history.id == null)
                     continue
 
-                if (mType.value != null && history.type != mType.value)
+                if (contentFilter.isNotEmpty() && history.type !in contentFilter)
                     continue
 
-                val currentLib = mLibrary.value
-                if (currentLib != null) {
-                    val key = if (currentLib.id == mDefaultKey) {
-                        when (history) {
-                            is Manga -> GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
-                            is Book -> GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK
-                            else -> currentLib.id
-                        }
-                    } else
-                        currentLib.id
+                if (libraryFilter.isNotEmpty() && !matchesLibrary(history, libraryFilter))
+                    continue
 
-                    if (history.fkLibrary != key)
+                if (yearFilter.isNotEmpty()) {
+                    val year = history.lastAccess?.year ?: continue
+                    if (year !in yearFilter)
                         continue
                 }
 
@@ -336,7 +367,7 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
                 if (matches && tags.isNotEmpty()) {
                     for ((key, value) in tags) {
                         val historyValue = when (key) {
-                            FilterType.Author -> if (history is Manga) history.author else if (history is Book) history.author else ""
+                            FilterType.Author -> history.author
                             FilterType.Publisher -> if (history is Manga) history.publisher else if (history is Book) history.publisher else ""
                             FilterType.Series -> history.series
                             FilterType.Volume -> history.volume
@@ -356,7 +387,7 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
             }
         }
 
-        val currentOrder = mOrder.value ?: Pair(Order.LastAccess, true)
+        val currentOrder = mOrder.value ?: Pair(Order.LastAccess, false)
         val isDesc = currentOrder.second
         val order = currentOrder.first
 
@@ -365,6 +396,9 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
                 Order.Name -> contentItems.sortByDescending { it.name }
                 Order.Favorite -> contentItems.sortWith(compareBy<History> { it.favorite }.thenByDescending { it.name })
                 Order.LastAccess -> contentItems.sortWith(compareBy<History> { it.lastAccess }.thenByDescending { it.name })
+                Order.Series -> contentItems.sortWith(compareByDescending<History> { it.series }.thenByDescending { it.name })
+                Order.Author -> contentItems.sortWith(compareByDescending<History> { it.author }.thenByDescending { it.name })
+                Order.Genre -> contentItems.sortWith(compareByDescending<History> { it.genre }.thenByDescending { it.name })
                 else -> contentItems.sortByDescending { it.lastAccess }
             }
         } else {
@@ -372,79 +406,97 @@ class HistoryViewModel(var app: Application) : AndroidViewModel(app), Filterable
                 Order.Name -> contentItems.sortBy { it.name }
                 Order.Favorite -> contentItems.sortWith(compareByDescending<History> { it.favorite }.thenBy { it.name })
                 Order.LastAccess -> contentItems.sortWith(compareByDescending<History> { it.lastAccess }.thenBy { it.name })
-                else -> contentItems.sortBy { it.lastAccess }
+                Order.Series -> contentItems.sortWith(compareBy<History> { it.series }.thenBy { it.name })
+                Order.Author -> contentItems.sortWith(compareBy<History> { it.author }.thenBy { it.name })
+                Order.Genre -> contentItems.sortWith(compareBy<History> { it.genre }.thenBy { it.name })
+                else -> contentItems.sortByDescending { it.lastAccess }
             }
         }
 
-        when (mHistoryType.value ?: HistoryType.LINE_DATE) {
-            HistoryType.LINE_DATE -> buildDateList(sortedList, contentItems)
-            HistoryType.SERIES_LINE -> buildSeriesLineList(sortedList, contentItems)
-            HistoryType.SERIES_CAROUSEL -> buildSeriesCarouselList(sortedList, contentItems)
+        when (mHistoryType.value ?: HistoryType.SEPARATOR_LINE) {
+            HistoryType.LINE -> sortedList.addAll(contentItems)
+            HistoryType.SEPARATOR_LINE,
+            HistoryType.SEPARATOR_BIG,
+            HistoryType.SEPARATOR_MEDIUM -> buildGroupedList(sortedList, contentItems, order, carousel = false)
+            HistoryType.SEPARATOR_CAROUSEL -> buildGroupedList(sortedList, contentItems, order, carousel = true)
         }
 
         return sortedList
     }
 
-    private fun buildDateList(sortedList: ArrayList<Any>, contentItems: List<History>) {
-        val headerDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        var lastDateStr = ""
-        var lastSeparator: Separator? = null
-        var count = 0
-
-        for (item in contentItems) {
-            val dateStr = item.lastAccess?.format(headerDateFormatter) ?: ""
-            if (dateStr != lastDateStr) {
-                lastSeparator?.items = count
-                lastDateStr = dateStr
-                count = 0
-                lastSeparator = Separator(GeneralConsts.formatCountDays(app.applicationContext, item.lastAccess))
-                sortedList.add(lastSeparator)
-            }
-            count++
-            sortedList.add(item)
-        }
-        lastSeparator?.items = count
-    }
-
-    private fun buildSeriesLineList(sortedList: ArrayList<Any>, contentItems: List<History>) {
-        val grouped = linkedMapOf<String, MutableList<History>>()
-        for (item in contentItems) {
-            val key = getSeriesKey(item)
-            grouped.getOrPut(key) { mutableListOf() }.add(item)
-        }
-
-        for ((series, items) in grouped) {
-            sortedList.add(Separator(series, items.size))
-            sortedList.addAll(items)
+    private fun matchesLibrary(history: History, libraries: Set<Library>): Boolean {
+        return libraries.any { lib ->
+            val key = if (lib.id == mDefaultKey) {
+                when (history) {
+                    is Manga -> GeneralConsts.KEYS.LIBRARY.DEFAULT_MANGA
+                    is Book -> GeneralConsts.KEYS.LIBRARY.DEFAULT_BOOK
+                    else -> lib.id
+                }
+            } else
+                lib.id
+            history.fkLibrary == key
         }
     }
 
-    private fun buildSeriesCarouselList(sortedList: ArrayList<Any>, contentItems: List<History>) {
+    private fun buildGroupedList(
+        sortedList: ArrayList<Any>,
+        contentItems: List<History>,
+        order: Order,
+        carousel: Boolean
+    ) {
+        if (contentItems.isEmpty())
+            return
+
         val grouped = linkedMapOf<String, MutableList<History>>()
         for (item in contentItems) {
-            val key = getSeriesKey(item)
+            val key = getSeparatorTitle(order, item)
             grouped.getOrPut(key) { mutableListOf() }.add(item)
         }
 
-        for ((series, items) in grouped) {
-            sortedList.add(Separator(series, items.size))
-            sortedList.add(HistorySeriesGroup(series, items))
+        for ((title, items) in grouped) {
+            sortedList.add(Separator(title, items.size))
+            if (carousel)
+                sortedList.add(HistoryGroup(title, items))
+            else
+                sortedList.addAll(items)
         }
+    }
+
+    fun filterLibraries(libraries: Set<Library>) {
+        if (libraries == mSelectedLibraries.value)
+            return
+
+        mSelectedLibraries.value = libraries
+        mList.value = filterList()
     }
 
     fun filterLibrary(library: Library?) {
-        if (library == mLibrary.value)
+        filterLibraries(if (library == null) emptySet() else setOf(library))
+    }
+
+    fun filterContentTypes(types: Set<Type>) {
+        val normalized = if (types.size >= Type.values().size) emptySet() else types
+        if (normalized == mContentTypes.value)
             return
 
-        mLibrary.value = library
+        mContentTypes.value = normalized
+        mType.value = when {
+            normalized.isEmpty() -> null
+            normalized.size == 1 -> normalized.first()
+            else -> null
+        }
         mList.value = filterList()
     }
 
     fun filterType(type: Type?) {
-        if (type == mType.value)
+        filterContentTypes(if (type == null) emptySet() else setOf(type))
+    }
+
+    fun filterYears(years: Set<Int>) {
+        if (years == mYears.value)
             return
 
-        mType.value = type
+        mYears.value = years
         mList.value = filterList()
     }
 
